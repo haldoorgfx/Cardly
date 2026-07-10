@@ -24,8 +24,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     }
   }
 
-  const body = await req.json() as { name: string; email: string; phone?: string; ticketId?: string; paymentMethod?: string };
-  const { name, email, phone, ticketId, paymentMethod } = body;
+  const body = await req.json() as { name: string; email: string; phone?: string; ticketId?: string; paymentMethod?: string; clientUuid?: string };
+  const { name, email, phone, ticketId, paymentMethod, clientUuid } = body;
   if (!name || !email) return NextResponse.json({ error: 'Please enter a name and email.' }, { status: 400 });
 
   const emailLc = email.toLowerCase().trim();
@@ -48,24 +48,6 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   const method = ticketPrice > 0 && paymentMethod && allowedMethods.includes(paymentMethod)
     ? paymentMethod
     : null;
-
-  // For cash sales, get/create this staff member's OPEN shift so the takings roll
-  // up per-staff in reconciliation. open_cash_shift authorises on auth.uid() → it
-  // MUST run on the session client, not the admin client (which has no auth.uid()).
-  let cashShiftId: string | null = null;
-  if (method === 'cash') {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const sessionDb = supabase as any;
-    const { data: shift, error: shiftErr } = await sessionDb.rpc('open_cash_shift', { p_event_id: id });
-    if (shiftErr) {
-      if (shiftErr.code === 'P0001' && /NOT_AUTHORISED/.test(shiftErr.message ?? '')) {
-        return NextResponse.json({ error: 'You can no longer manage this event.' }, { status: 403 });
-      }
-      return NextResponse.json({ error: 'Couldn’t open a cash shift. Try again.' }, { status: 500 });
-    }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    cashShiftId = (shift as any)?.id ?? null;
-  }
 
   // If this email is already registered for the event, check that person in
   // instead of failing on the unique constraint.
@@ -103,7 +85,46 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     });
   }
 
-  // Generate QR token
+  // ── PAID door sale ──────────────────────────────────────────────────────────
+  // Route paid sales through the server-authoritative RPC (075). It sets
+  // payment_status='paid', reads the price from ticket_types itself, opens/reuses
+  // the cash shift, and is idempotent on client_uuid. NEVER write amount_paid /
+  // payment_status / cash_shift_id from here — that was a trust hole.
+  if (method) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sessionDb = supabase as any;
+    const { data: rpcRes, error: rpcErr } = await sessionDb.rpc('create_walkin_registration', {
+      p_event_id: id,
+      p_ticket_type_id: ticketId ?? null,
+      p_name: name,
+      p_email: emailLc,
+      p_phone: phone ?? null,
+      p_payment_method: method,
+      p_client_uuid: clientUuid ?? null,
+    });
+    if (rpcErr) {
+      if (rpcErr.code === 'P0001' && /NOT_AUTHORISED/.test(rpcErr.message ?? '')) {
+        return NextResponse.json({ error: 'You can no longer manage this event.' }, { status: 403 });
+      }
+      return NextResponse.json({ error: humanizeError(rpcErr) }, { status: 500 });
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const r = rpcRes as any;
+    if (!r || r.status === 'error') {
+      return NextResponse.json({ error: r?.message ?? 'Could not complete the sale.' }, { status: 422 });
+    }
+    const attendeeAccountId = await resolveAccountIdByEmail(emailLc);
+    if (attendeeAccountId) await upsertEventRole({ userId: attendeeAccountId, eventId: id, role: 'attendee' });
+    return NextResponse.json({
+      id: r.registration_id,
+      ticket_number: r.qr_code_token,
+      amount_paid: r.amount_paid,
+      already_registered: r.status === 'already',
+    });
+  }
+
+  // ── FREE walk-in ────────────────────────────────────────────────────────────
+  // No money involved → payment_status keeps its 'free' default. No RPC needed.
   const qr = Math.random().toString(36).slice(2, 10).toUpperCase();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -115,9 +136,6 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     ticket_type_id: ticketId ?? null,
     status: 'checked_in',
     qr_code_token: qr,
-    amount_paid: ticketPrice,
-    payment_method: method,
-    cash_shift_id: cashShiftId,
     source: 'walk_in',
     checked_in_at: new Date().toISOString(),
   }).select('id').single();

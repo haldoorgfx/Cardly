@@ -98,18 +98,17 @@ class _CashShiftScreenState extends State<CashShiftScreen> {
         return;
       }
       final shiftId = asString(shifts.first['id']);
-      final txnRows = await supa
-          .from('registrations')
-          .select(
-              'attendee_name, amount_paid, currency, created_at, ticket_types(name)')
-          .eq('cash_shift_id', shiftId)
-          .order('created_at', ascending: false);
+      // Read the shift's transactions via the SECURITY DEFINER RPC (077).
+      // A direct `registrations` read would return zero rows for a non-owner
+      // staff member — there is no staff SELECT policy on registrations.
+      final txnRows = await supa.rpc(
+        'cash_shift_transactions',
+        params: {'p_shift_id': shiftId},
+      );
       final txns = asMapList(txnRows).map((m) {
-        final tt = m['ticket_types'];
-        final ticket = (tt is Map) ? asString(tt['name'], 'Ticket') : 'Ticket';
         return _Txn(
           asString(m['attendee_name'], 'Guest'),
-          ticket,
+          asString(m['ticket_name'], 'Ticket'),
           asDouble(m['amount_paid']),
           asString(m['currency'], 'USD'),
           asDate(m['created_at']),

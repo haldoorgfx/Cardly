@@ -83,7 +83,9 @@ export default async function EntitlementsPage({ params }: { params: Promise<{ i
     db.from('events').select('id, name, slug').eq('id', id).eq('user_id', user.id).single(),
     db.from('entitlements').select('*').eq('event_id', id).order('created_at', { ascending: true }),
     db.from('ticket_types').select('id, name').eq('event_id', id).order('position'),
-    db.from('entitlement_redemptions').select('entitlement_id').eq('event_id', id).eq('action', 'redeemed').eq('status', 'redeemed'),
+    // Fetch redeem + un-redeem ledger rows so the badge shows NET redemptions
+    // (a scan corrected by staff shouldn't keep inflating the count).
+    db.from('entitlement_redemptions').select('entitlement_id, action, status, superseded_by').eq('event_id', id).in('action', ['redeemed', 'un_redeemed']),
   ]);
 
   if (!event) redirect('/dashboard');
@@ -106,9 +108,15 @@ export default async function EntitlementsPage({ params }: { params: Promise<{ i
     arr.push(row.ticket_type_id);
     ticketsByEnt.set(row.entitlement_id, arr);
   }
+  // Net redemptions per entitlement: live redeems minus un-redeems, ignoring
+  // rows that lost an offline conflict (superseded_by set).
   const countByEnt = new Map<string, number>();
   for (const r of (redemptions ?? [])) {
-    countByEnt.set(r.entitlement_id, (countByEnt.get(r.entitlement_id) ?? 0) + 1);
+    if (r.action === 'redeemed' && r.status === 'redeemed' && !r.superseded_by) {
+      countByEnt.set(r.entitlement_id, (countByEnt.get(r.entitlement_id) ?? 0) + 1);
+    } else if (r.action === 'un_redeemed') {
+      countByEnt.set(r.entitlement_id, (countByEnt.get(r.entitlement_id) ?? 0) - 1);
+    }
   }
 
   const entitlements: Entitlement[] = entRows.map((e) => ({

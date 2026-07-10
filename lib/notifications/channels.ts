@@ -29,9 +29,20 @@ export function emailProviderConfigured(): boolean {
   return !!process.env.RESEND_API_KEY;
 }
 
-/** True only when a real WhatsApp Business provider binding exists on the server. */
+// Flip to true ONLY when a real WhatsApp send is implemented in
+// lib/notifications/broadcast.ts. Until then WhatsApp must never be advertised
+// as an available channel — env vars alone don't send a message, and the
+// dispatcher currently records every WhatsApp recipient as 'skipped'. Claiming
+// availability here while the dispatcher skips would report broadcasts as sent
+// when nothing went out.
+const WHATSAPP_DISPATCH_IMPLEMENTED = false;
+
+/** True only when a real WhatsApp Business provider binding AND a working sender exist. */
 export function whatsappProviderConfigured(): boolean {
-  return !!(process.env.WHATSAPP_ACCESS_TOKEN && process.env.WHATSAPP_PHONE_NUMBER_ID);
+  return (
+    WHATSAPP_DISPATCH_IMPLEMENTED &&
+    !!(process.env.WHATSAPP_ACCESS_TOKEN && process.env.WHATSAPP_PHONE_NUMBER_ID)
+  );
 }
 
 /** True only when a real SMS provider (e.g. Twilio) binding exists on the server. */
