@@ -73,5 +73,12 @@
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
         </intent>
+        <!-- add_2_calendar: make the device's calendar app visible so the native
+             "add event" intent resolves directly (no browser, no chooser) on
+             Android 11+ package visibility. -->
+        <intent>
+            <action android:name="android.intent.action.INSERT"/>
+            <data android:mimeType="vnd.android.cursor.dir/event"/>
+        </intent>
     </queries>
 </manifest>

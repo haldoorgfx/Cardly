@@ -1,13 +1,14 @@
 import 'dart:io';
 
+import 'package:add_2_calendar/add_2_calendar.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
 
-/// Adds an event to the user's calendar automatically, per platform — no chooser
-/// dialog. Android opens Google Calendar pre-filled; iOS (and anything else)
-/// hands off the .ics, which Apple Calendar turns into an "Add to Calendar"
-/// prompt. Falls back to the .ics if the direct open isn't available.
+/// Adds an event to the device's calendar directly — no chooser, no browser, no
+/// .ics prompt. Uses the native "add event" intent (Android CalendarContract /
+/// iOS EventKit), which opens whatever calendar app the device uses (Samsung
+/// Calendar, Google Calendar, Apple Calendar…) pre-filled. Only if that isn't
+/// available do we fall back to handing off the .ics via the share sheet.
 ///
 /// Callers should wrap this in try/catch and surface a toast on failure.
 Future<void> addEventToCalendar({
@@ -18,17 +19,25 @@ Future<void> addEventToCalendar({
   String? description,
   String? url,
 }) async {
-  if (Platform.isAndroid) {
-    try {
-      final ok = await launchUrl(
-        _googleCalendarUri(
-            title: title, start: start, end: end, location: location, url: url),
-        mode: LaunchMode.externalApplication,
-      );
-      if (ok) return;
-    } catch (_) {
-      // Fall through to the .ics hand-off below.
-    }
+  final startDate = start ?? DateTime.now();
+  final endDate = end ?? startDate.add(const Duration(hours: 2));
+  final desc = <String>[
+    if (description != null && description.trim().isNotEmpty) description.trim(),
+    if (url != null && url.trim().isNotEmpty) url.trim(),
+  ].join('\n\n');
+
+  try {
+    final ok = await Add2Calendar.addEvent2Cal(Event(
+      title: title,
+      description: desc,
+      location:
+          (location != null && location.trim().isNotEmpty) ? location.trim() : '',
+      startDate: startDate,
+      endDate: endDate,
+    ));
+    if (ok) return;
+  } catch (_) {
+    // Fall through to the .ics hand-off below.
   }
   await exportEventToCalendar(
     title: title,
@@ -38,27 +47,6 @@ Future<void> addEventToCalendar({
     description: description,
     url: url,
   );
-}
-
-/// Google Calendar "render" URL that pre-fills a new event.
-Uri _googleCalendarUri({
-  required String title,
-  DateTime? start,
-  DateTime? end,
-  String? location,
-  String? url,
-}) {
-  final params = <String, String>{
-    'action': 'TEMPLATE',
-    'text': title,
-    if (start != null)
-      'dates':
-          '${_formatUtc(start)}/${_formatUtc(end ?? start.add(const Duration(hours: 2)))}',
-    if (location != null && location.trim().isNotEmpty)
-      'location': location.trim(),
-    if (url != null && url.trim().isNotEmpty) 'details': url.trim(),
-  };
-  return Uri.https('calendar.google.com', '/calendar/render', params);
 }
 
 /// Builds a VCALENDAR/VEVENT .ics string and opens the OS share sheet so the
