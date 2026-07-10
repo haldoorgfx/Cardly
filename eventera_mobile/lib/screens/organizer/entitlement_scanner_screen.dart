@@ -23,6 +23,7 @@ import '../../ui/components.dart';
 import '../../ui/tokens.dart';
 import 'checkin_scanner_screen.dart' show extractCheckinToken;
 import 'entitlement_scan_result.dart';
+import 'scanner_day_selector.dart';
 
 class EntitlementScannerScreen extends StatefulWidget {
   final String eventId;
@@ -55,6 +56,13 @@ class _EntitlementScannerScreenState extends State<EntitlementScannerScreen> {
   List<EntitlementDef> _entitlements = const [];
   final Map<String, int> _counts = {}; // entitlement_id -> net active redemptions
   EntitlementDef? _selected;
+
+  // Multi-day (G5 · M02). Empty for single-day events — the selector then
+  // renders nothing and `p_day_index` stays null.
+  List<EventDay> _days = const [];
+  Map<String, Set<String>> _dayLinks = const {}; // day.id -> linked entitlement ids
+  final Map<int, int> _dayCounts = {}; // day_index -> net redemptions for _selected
+  int? _selectedDayIndex;
 
   // Stable-per-install device id (persisted in the OS keychain).
   String? _deviceId;
@@ -135,13 +143,19 @@ class _EntitlementScannerScreenState extends State<EntitlementScannerScreen> {
         selected = list.firstWhere((e) => e.id == storedId, orElse: () => list.first);
       }
 
+      // Per-day structure (best-effort — a failure falls back to single-day).
+      await _loadDays();
+
       if (!mounted) return;
       setState(() {
         _entitlements = list;
         _selected = selected;
         _loading = false;
       });
-      if (list.isNotEmpty) _loadCounts();
+      if (list.isNotEmpty) {
+        _loadCounts();
+        _loadDayCounts();
+      }
     } catch (_) {
       if (!mounted) return;
       setState(() {
@@ -188,10 +202,168 @@ class _EntitlementScannerScreenState extends State<EntitlementScannerScreen> {
     return (redeemed.count) - (undone.count);
   }
 
+  // ── Multi-day (G5 · M02) ────────────────────────────────────────────────────
+
+  /// Load `event_days` + their `event_day_entitlements` links, then resolve the
+  /// default selected day. Any failure leaves single-day behaviour intact.
+  Future<void> _loadDays() async {
+    try {
+      final dayRows = await supa
+          .from('event_days')
+          .select('id, day_index, date, checkin_enabled, capacity')
+          .eq('event_id', widget.eventId)
+          .order('day_index');
+      final days = asMapList(dayRows).map(EventDay.fromMap).toList();
+
+      final links = <String, Set<String>>{};
+      if (days.isNotEmpty) {
+        final dayIds = days.map((d) => d.id).toList();
+        final linkRows = await supa
+            .from('event_day_entitlements')
+            .select('event_day_id, entitlement_id')
+            .inFilter('event_day_id', dayIds);
+        for (final r in asMapList(linkRows)) {
+          final dId = (r['event_day_id'] ?? '').toString();
+          final eId = (r['entitlement_id'] ?? '').toString();
+          if (dId.isEmpty || eId.isEmpty) continue;
+          (links[dId] ??= <String>{}).add(eId);
+        }
+      }
+
+      final stored = await _secure.read(key: 'entitlement_day_${widget.eventId}');
+      _days = days;
+      _dayLinks = links;
+      _selectedDayIndex = _computeDefaultDay(days, stored);
+    } catch (_) {
+      _days = const [];
+      _dayLinks = const {};
+      _selectedDayIndex = null;
+    }
+  }
+
+  /// Prefer a persisted (and still-enabled) day, else today's day, else the
+  /// first day open for check-in. Null when no day is open.
+  int? _computeDefaultDay(List<EventDay> days, String? stored) {
+    final storedIdx = int.tryParse(stored ?? '');
+    if (storedIdx != null &&
+        days.any((d) => d.dayIndex == storedIdx && d.checkinEnabled)) {
+      return storedIdx;
+    }
+    final now = DateTime.now();
+    for (final d in days) {
+      if (d.checkinEnabled && d.date != null && _sameDate(d.date!, now)) {
+        return d.dayIndex;
+      }
+    }
+    for (final d in days) {
+      if (d.checkinEnabled) return d.dayIndex;
+    }
+    return null;
+  }
+
+  bool _sameDate(DateTime a, DateTime b) =>
+      a.year == b.year && a.month == b.month && a.day == b.day;
+
+  /// The day whose `date` is today (emphasised in the selector), if any.
+  int? get _todayDayIndex {
+    final now = DateTime.now();
+    for (final d in _days) {
+      if (d.date != null && _sameDate(d.date!, now)) return d.dayIndex;
+    }
+    return null;
+  }
+
+  EventDay? get _selectedDay {
+    final idx = _selectedDayIndex;
+    if (idx == null) return null;
+    for (final d in _days) {
+      if (d.dayIndex == idx) return d;
+    }
+    return null;
+  }
+
+  /// UI affordance only — the RPC stays the source of truth. Blocks scanning
+  /// when no day is open, the selected day is disabled, or the selected mode is
+  /// not linked to the selected day (only when that day has any links).
+  bool get _dayScanBlocked {
+    if (_days.isEmpty) return false;
+    final day = _selectedDay;
+    if (day == null || !day.checkinEnabled) return true;
+    final links = _dayLinks[day.id];
+    if (links == null || links.isEmpty) return false; // no restriction configured
+    final ent = _selected;
+    if (ent == null) return true;
+    return !links.contains(ent.id);
+  }
+
+  /// One terse line explaining why scanning is blocked, or null when it isn't.
+  String? get _dayGateMessage {
+    if (_days.isEmpty) return null;
+    final day = _selectedDay;
+    if (day == null) return 'No day open for check-in';
+    final links = _dayLinks[day.id];
+    final ent = _selected;
+    if (links != null && links.isNotEmpty && ent != null && !links.contains(ent.id)) {
+      return '${ent.name} not valid on Day ${day.dayIndex}';
+    }
+    return null;
+  }
+
+  Future<void> _selectDay(int dayIndex) async {
+    if (dayIndex == _selectedDayIndex) return;
+    setState(() => _selectedDayIndex = dayIndex);
+    await _secure.write(
+        key: 'entitlement_day_${widget.eventId}', value: '$dayIndex');
+  }
+
+  /// Per-day net redemptions for the currently selected mode.
+  Future<void> _loadDayCounts() async {
+    final ent = _selected;
+    if (ent == null || _days.isEmpty) return;
+    try {
+      final entries = await Future.wait(
+        _days.map((d) async =>
+            MapEntry(d.dayIndex, await _dayNetRedemptions(ent.id, d.dayIndex))),
+      );
+      if (!mounted) return;
+      setState(() {
+        _dayCounts.clear();
+        for (final e in entries) {
+          _dayCounts[e.key] = e.value;
+        }
+      });
+    } catch (_) {
+      // Counters are best-effort; a failed refresh keeps the last known values.
+    }
+  }
+
+  /// Net active redemptions for one entitlement on one day_index:
+  /// (action='redeemed' AND status='redeemed') minus (action='un_redeemed').
+  Future<int> _dayNetRedemptions(String entitlementId, int dayIndex) async {
+    final redeemed = await supa
+        .from('entitlement_redemptions')
+        .select('id')
+        .eq('event_id', widget.eventId)
+        .eq('entitlement_id', entitlementId)
+        .eq('day_index', dayIndex)
+        .eq('action', 'redeemed')
+        .eq('status', 'redeemed')
+        .count(CountOption.exact);
+    final undone = await supa
+        .from('entitlement_redemptions')
+        .select('id')
+        .eq('event_id', widget.eventId)
+        .eq('entitlement_id', entitlementId)
+        .eq('day_index', dayIndex)
+        .eq('action', 'un_redeemed')
+        .count(CountOption.exact);
+    return (redeemed.count) - (undone.count);
+  }
+
   // ── Scanning ────────────────────────────────────────────────────────────────
 
   Future<void> _onDetect(BarcodeCapture capture) async {
-    if (_busy || _result != null || _selected == null) return;
+    if (_busy || _result != null || _selected == null || _dayScanBlocked) return;
     final raw = capture.barcodes.isNotEmpty ? capture.barcodes.first.rawValue : null;
     final token = extractCheckinToken(raw);
     if (token == null) return;
@@ -221,12 +393,14 @@ class _EntitlementScannerScreenState extends State<EntitlementScannerScreen> {
       final res = await supa.rpc('redeem_entitlement', params: {
         'p_entitlement_id': entitlement.id,
         'p_registration_id': registrationId,
+        'p_day_index': _selectedDayIndex,
         'p_client_uuid': _clientUuid(),
         'p_device_id': _deviceId,
         'p_source': 'online',
       });
       _show(EntitlementScanResult.fromRpc(res));
       _loadCounts();
+      _loadDayCounts();
     } catch (_) {
       _show(EntitlementScanResult.error('Could not reach the server. Try again.'));
     }
@@ -285,6 +459,7 @@ class _EntitlementScannerScreenState extends State<EntitlementScannerScreen> {
       setState(() => _selected = picked);
       await _secure.write(
           key: 'entitlement_mode_${widget.eventId}', value: picked.id);
+      _loadDayCounts(); // per-day counts + the day gate track the selected mode
     }
   }
 
@@ -342,6 +517,22 @@ class _EntitlementScannerScreenState extends State<EntitlementScannerScreen> {
             right: 0,
             child: Center(child: _OnlinePill()),
           ),
+
+          // Day selector (G5 · M02) — renders nothing for single-day events.
+          if (_days.isNotEmpty)
+            Positioned(
+              top: 52,
+              left: 0,
+              right: 0,
+              child: ScannerDaySelector(
+                days: _days,
+                selectedDayIndex: _selectedDayIndex,
+                todayDayIndex: _todayDayIndex,
+                counts: _dayCounts,
+                gateMessage: _dayGateMessage,
+                onSelect: _selectDay,
+              ),
+            ),
 
           // Mode bar (E04): what every scan redeems + its live counter.
           Positioned(

@@ -53,13 +53,24 @@ export interface RedemptionStatRow {
   last: { name: string; at: string } | null;
 }
 
-export function computeRedemptionStats(
-  entitlements: EntitlementDef[],
+/**
+ * The `_entitlement_held` math (065_entitlements.sql) as a reusable helper:
+ * returns, for each requested entitlement id, the SET of registration ids that
+ * currently HOLD it. A registration holds an entitlement when:
+ *   base (ticket_type inclusion → 1) + grants − revokes − transfers-away > 0.
+ *
+ * Shared by computeRedemptionStats (E09) and the multi-day attendance grid (M03)
+ * so the "who holds what" rule never drifts between them.
+ *
+ * NOTE: never iterate a Set/Map with `for…of` / spread / `new Set(set)` here —
+ * this repo's tsconfig has no downlevelIteration. Use `.forEach` / `Array.from`.
+ */
+export function computeHolders(
+  entitlementIds: string[],
   tte: TteRow[],
   regs: RegRow[],
   holdLedger: HoldLedgerRow[],
-  redemptionLedger: RedemptionLedgerRow[],
-): RedemptionStatRow[] {
+): Map<string, Set<string>> {
   // entitlement_id -> ticket_type_ids that include it
   const includedByEnt = new Map<string, Set<string>>();
   for (const t of tte) {
@@ -91,6 +102,40 @@ export function computeRedemptionStats(
     s.add(l.registration_id);
   }
 
+  const result = new Map<string, Set<string>>();
+  for (const entId of entitlementIds) {
+    const included = includedByEnt.get(entId) ?? new Set<string>();
+    const baseHolders = new Set<string>();
+    included.forEach((tt) => {
+      for (const rid of regsByTicket.get(tt) ?? []) baseHolders.add(rid);
+    });
+
+    // union of base holders + any registration touched by the hold ledger
+    const candidates = new Set<string>();
+    baseHolders.forEach((rid) => candidates.add(rid));
+    (ledgerRegsByEnt.get(entId) ?? new Set<string>()).forEach((rid) => candidates.add(rid));
+
+    const holders = new Set<string>();
+    candidates.forEach((rid) => {
+      const base = baseHolders.has(rid) ? 1 : 0;
+      const net = holdNet.get(`${entId}::${rid}`) ?? 0;
+      if (base + net > 0) holders.add(rid);
+    });
+    result.set(entId, holders);
+  }
+  return result;
+}
+
+export function computeRedemptionStats(
+  entitlements: EntitlementDef[],
+  tte: TteRow[],
+  regs: RegRow[],
+  holdLedger: HoldLedgerRow[],
+  redemptionLedger: RedemptionLedgerRow[],
+): RedemptionStatRow[] {
+  // Holders per entitlement — reuse the shared `_entitlement_held` math.
+  const holderMap = computeHolders(entitlements.map((e) => e.id), tte, regs, holdLedger);
+
   // net redemptions + last successful redemption per entitlement.
   // redemptionLedger MUST be sorted redeemed_at DESC so the first 'redeemed' seen
   // per entitlement is the most recent.
@@ -107,36 +152,14 @@ export function computeRedemptionStats(
     }
   }
 
-  return entitlements.map((e) => {
-    // NOTE: `for…of` over a Set/Map needs `--downlevelIteration` under this
-    // repo's tsconfig target. `.forEach` is equivalent and compiles cleanly.
-    const included = includedByEnt.get(e.id) ?? new Set<string>();
-    const baseHolders = new Set<string>();
-    included.forEach((tt) => {
-      for (const rid of regsByTicket.get(tt) ?? []) baseHolders.add(rid);
-    });
-
-    // union of base holders + any registration touched by the hold ledger
-    const candidates = new Set<string>();
-    baseHolders.forEach((rid) => candidates.add(rid));
-    (ledgerRegsByEnt.get(e.id) ?? new Set<string>()).forEach((rid) => candidates.add(rid));
-
-    let holders = 0;
-    candidates.forEach((rid) => {
-      const base = baseHolders.has(rid) ? 1 : 0;
-      const net = holdNet.get(`${e.id}::${rid}`) ?? 0;
-      if (base + net > 0) holders++;
-    });
-
-    return {
-      id: e.id,
-      name: e.name,
-      type: e.type,
-      quantity: e.quantity,
-      redemptionLimit: e.redemption_limit,
-      holders,
-      redeemed: Math.max(0, netRedeemed.get(e.id) ?? 0),
-      last: lastByEnt.get(e.id) ?? null,
-    };
-  });
+  return entitlements.map((e) => ({
+    id: e.id,
+    name: e.name,
+    type: e.type,
+    quantity: e.quantity,
+    redemptionLimit: e.redemption_limit,
+    holders: holderMap.get(e.id)?.size ?? 0,
+    redeemed: Math.max(0, netRedeemed.get(e.id) ?? 0),
+    last: lastByEnt.get(e.id) ?? null,
+  }));
 }
