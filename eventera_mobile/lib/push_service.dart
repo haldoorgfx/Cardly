@@ -1,9 +1,13 @@
 import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
+import 'attendee/app_shell.dart';
+import 'main.dart';
 import 'net.dart';
+import 'screens/open_event_screen.dart';
 
 /// Registers this device's FCM token in Supabase `user_devices` so the server
 /// can deliver OS-level push. Own-row RLS means the signed-in user writes its
@@ -23,6 +27,14 @@ class PushService {
       final messaging = FirebaseMessaging.instance;
       // Prompt on iOS / Android 13+; a no-op on older Android.
       await messaging.requestPermission();
+
+      // Tapping a push should open the relevant screen — handle both a cold
+      // start (app launched by the tap) and a background tap.
+      final opened = await messaging.getInitialMessage();
+      if (opened != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) => _handleTap(opened));
+      }
+      FirebaseMessaging.onMessageOpenedApp.listen(_handleTap);
 
       // Save the current token (if signed in) and whenever it rotates.
       messaging.onTokenRefresh.listen(_save);
@@ -60,5 +72,39 @@ class PushService {
       // Best-effort — a failed upsert just means we retry next launch/refresh.
       if (kDebugMode) debugPrint('Push: token save failed: $e');
     }
+  }
+
+  /// Routes a tapped push to the screen its `data.url` points at (the same
+  /// action_url the in-app notification carries). Events open their page;
+  /// anything else lands on the Tickets tab.
+  void _handleTap(RemoteMessage message) {
+    final url = message.data['url'];
+    if (url is! String || url.isEmpty) return;
+    final nav = appNavigatorKey.currentState;
+    if (nav == null) return;
+
+    for (final marker in const ['/e/', '/c/']) {
+      if (url.contains(marker)) {
+        final slug = _slugAfter(url, marker);
+        if (slug.isNotEmpty) {
+          nav.push(
+              MaterialPageRoute(builder: (_) => OpenEventScreen(slug: slug)));
+          return;
+        }
+      }
+    }
+    // Tickets / reminders / anything else → the Tickets tab.
+    mainTab.value = 1;
+  }
+
+  String _slugAfter(String url, String marker) {
+    final i = url.indexOf(marker);
+    if (i < 0) return '';
+    var rest = url.substring(i + marker.length);
+    for (final sep in const ['/', '?', '#']) {
+      final s = rest.indexOf(sep);
+      if (s >= 0) rest = rest.substring(0, s);
+    }
+    return rest.trim();
   }
 }
