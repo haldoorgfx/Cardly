@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWeb, kDebugMode, debugPrint;
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
@@ -55,9 +55,16 @@ class _AttendeeAuthScreenState extends State<AttendeeAuthScreen> {
   Timer? _resendTimer;
   StreamSubscription<AuthState>? _authSub;
 
+  // Biometric "sign in with fingerprint/face" — shown on the welcome step when
+  // the user previously enabled it and we have a refresh token stashed behind
+  // the biometric. This is the alternative-to-password path.
+  bool _bioLoginAvailable = false;
+  bool _bioAutoTried = false;
+
   @override
   void initState() {
     super.initState();
+    _checkBiometricLogin();
     // A session can appear from either the email OTP verify OR the Google OAuth
     // deep-link returning. When Google (or a restored session) lands we finish
     // straight away; the email flow routes through profile completion first, so
@@ -132,6 +139,65 @@ class _AttendeeAuthScreenState extends State<AttendeeAuthScreen> {
       }
     } catch (_) {
       // Never block sign-in on the biometric offer.
+    }
+  }
+
+  /// On the login screen: if the user set up biometric unlock and we have a
+  /// stashed refresh token, surface the "Sign in with fingerprint/face" button
+  /// and auto-offer the scan once (wallet-app behaviour).
+  Future<void> _checkBiometricLogin() async {
+    try {
+      final enabled = await BiometricService.instance.isEnabled();
+      final token =
+          enabled ? await BiometricService.instance.readToken() : null;
+      final available = enabled && token != null && token.isNotEmpty;
+      if (kDebugMode) {
+        debugPrint('Biometric login screen: enabled=$enabled '
+            'hasToken=${token != null && token.isNotEmpty}');
+      }
+      if (!mounted) return;
+      setState(() => _bioLoginAvailable = available);
+      if (available && !_bioAutoTried) {
+        _bioAutoTried = true;
+        _biometricSignIn();
+      }
+    } catch (_) {}
+  }
+
+  /// Scan → restore the Supabase session from the stashed refresh token. On
+  /// success the auth listener fires signedIn and _finish() takes over.
+  Future<void> _biometricSignIn() async {
+    if (_busy) return;
+    final token = await BiometricService.instance.readToken();
+    if (token == null || token.isEmpty) return;
+    final ok = await BiometricService.instance
+        .authenticate(reason: 'Sign in to Eventera');
+    if (!ok || !mounted) return;
+    setState(() {
+      _busy = true;
+      _loadingAction = 'biometric';
+      _error = null;
+    });
+    try {
+      await supa.auth.setSession(token);
+      if (kDebugMode) debugPrint('Biometric login: setSession OK');
+      // onAuthStateChange(signedIn) → _finish() navigates + refreshes the token.
+    } catch (e) {
+      if (kDebugMode) debugPrint('Biometric login: setSession FAILED — $e');
+      // Stashed token is dead — drop it so we don't loop, fall back to password.
+      await BiometricService.instance.clearToken();
+      if (!mounted) return;
+      setState(() {
+        _bioLoginAvailable = false;
+        _error = 'Your saved sign-in expired — please sign in once more.';
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _busy = false;
+          _loadingAction = null;
+        });
+      }
     }
   }
 
@@ -544,6 +610,16 @@ class _AttendeeAuthScreenState extends State<AttendeeAuthScreen> {
             Text('Welcome to Eventera',
                 style: AppText.h2, textAlign: TextAlign.center),
             const SizedBox(height: 28),
+            // Fast path for returning users who set up biometric unlock.
+            if (_bioLoginAvailable) ...[
+              _BiometricSignInButton(
+                loading: _loadingAction == 'biometric',
+                onTap: _busy ? null : _biometricSignIn,
+              ),
+              const SizedBox(height: 22),
+              const _LabeledDivider('or use your email'),
+              const SizedBox(height: 22),
+            ],
             MInput(
               label: 'Email address',
               hint: 'you@example.com',
@@ -936,6 +1012,46 @@ class _GoogleButton extends StatelessWidget {
                   Text('Continue with Google',
                       style: AppText.btn.copyWith(
                           color: AppColors.ink, fontSize: 15.5)),
+                ],
+              ),
+      ),
+    );
+  }
+}
+
+// ───────────────────────────────── Biometric sign-in (forest, primary path)
+
+class _BiometricSignInButton extends StatelessWidget {
+  final VoidCallback? onTap;
+  final bool loading;
+  const _BiometricSignInButton({this.onTap, this.loading = false});
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 54,
+        decoration: BoxDecoration(
+          color: AppColors.forest,
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: AppShadow.soft,
+        ),
+        alignment: Alignment.center,
+        child: loading
+            ? const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                    strokeWidth: 2.4, color: Colors.white),
+              )
+            : Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.fingerprint, color: Colors.white, size: 22),
+                  const SizedBox(width: 10),
+                  Text('Sign in with biometrics',
+                      style: AppText.btn
+                          .copyWith(color: Colors.white, fontSize: 15.5)),
                 ],
               ),
       ),

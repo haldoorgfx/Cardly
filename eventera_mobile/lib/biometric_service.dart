@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:local_auth/local_auth.dart';
@@ -83,13 +84,23 @@ class BiometricService {
   /// the user enables unlock and whenever the token rotates, so biometric login
   /// keeps working across restarts. No-op for a null/empty token.
   Future<void> saveToken(String? refreshToken) async {
-    if (refreshToken == null || refreshToken.isEmpty) return;
+    if (refreshToken == null || refreshToken.isEmpty) {
+      if (kDebugMode) debugPrint('Biometric: saveToken skipped (no token)');
+      return;
+    }
     await _storage.write(key: _tokenKey, value: refreshToken);
+    if (kDebugMode) {
+      debugPrint('Biometric: stashed refresh token (${refreshToken.length} chars)');
+    }
   }
 
   /// The stashed refresh token, if any — used to restore the session after a
   /// successful scan on the login screen.
   Future<String?> readToken() => _storage.read(key: _tokenKey);
+
+  /// Drop just the stashed token (e.g. it expired) while leaving biometric
+  /// enabled, so the next successful sign-in re-stashes a fresh one.
+  Future<void> clearToken() => _storage.delete(key: _tokenKey);
 
   /// Prompt the OS biometric sheet. Returns true only if the device owner
   /// authenticated. Any error (no hardware, cancelled, lockout) returns false

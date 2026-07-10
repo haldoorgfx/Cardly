@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -84,6 +85,10 @@ class _RootGateState extends State<RootGate> {
       // restore after the scan — the latter is the "I'm back on the login page
       // but I set up biometrics" case the user hit.
       final hasToken = (await BiometricService.instance.readToken()) != null;
+      if (kDebugMode) {
+        debugPrint('Biometric gate: enabled=$enabled '
+            'session=${session != null} token=$hasToken');
+      }
       if (session != null || hasToken) {
         if (mounted) setState(() => _locked = true);
         await _promptUnlock();
@@ -97,6 +102,7 @@ class _RootGateState extends State<RootGate> {
   Future<void> _promptUnlock() async {
     final ok = await BiometricService.instance
         .authenticate(reason: 'Unlock Eventera to view your tickets');
+    if (kDebugMode) debugPrint('Biometric unlock: authenticated=$ok');
     if (!mounted) return;
     if (ok) {
       // If Supabase has no live session (expired/cleared), restore it from the
