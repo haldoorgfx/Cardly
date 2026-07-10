@@ -527,6 +527,7 @@ class _AttendeeProfileScreenState extends State<AttendeeProfileScreen> {
       } catch (_) {
         await supa.from('profiles').delete().eq('id', currentUserId as Object);
       }
+      await BiometricService.instance.clear();
       await supa.auth.signOut();
       if (!mounted) return;
       Navigator.of(context).popUntil((r) => r.isFirst);

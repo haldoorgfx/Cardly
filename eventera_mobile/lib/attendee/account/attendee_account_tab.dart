@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../biometric_service.dart';
+
 import '../../net.dart';
 import '../../rbac/admin_screen.dart';
 import '../../rbac/role_service.dart';
@@ -122,6 +124,9 @@ class _AttendeeAccountTabState extends State<AttendeeAccountTab> {
       .then((_) => _refresh());
 
   Future<void> _signOut() async {
+    // Clear biometric unlock too — otherwise the stashed token would let the
+    // next launch fingerprint straight back into the account we just left.
+    await BiometricService.instance.clear();
     await supa.auth.signOut();
     if (mounted) {
       setState(() {});

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../biometric_service.dart';
 import '../net.dart';
 import '../screens/my_cards_screen.dart';
 import '../theme.dart';
@@ -70,6 +71,7 @@ class _AttendeeAccountScreenState extends State<AttendeeAccountScreen> {
                   if (signedIn)
                     TextButton(
                       onPressed: () async {
+                        await BiometricService.instance.clear();
                         await supa.auth.signOut();
                         if (mounted) setState(() {});
                       },
