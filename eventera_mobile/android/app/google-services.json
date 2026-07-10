@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "135856716156",
+    "project_id": "eventera-c1267",
+    "storage_bucket": "eventera-c1267.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:135856716156:android:0d5057e44f9519e31d8cf9",
+        "android_client_info": {
+          "package_name": "com.example.eventera_mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDY9ikefjHsJ-5tp8zZrAzuEYlWIWRlpdk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
