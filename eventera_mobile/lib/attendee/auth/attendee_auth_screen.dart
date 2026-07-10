@@ -517,12 +517,6 @@ class _AttendeeAuthScreenState extends State<AttendeeAuthScreen> {
             ),
             const SizedBox(height: 30),
             Text('Welcome to Eventera', style: AppText.h1),
-            const SizedBox(height: 8),
-            Text(
-              'Hold tickets, make your attending card, and connect with people '
-              'at the event.',
-              style: AppText.body.copyWith(color: AppColors.inkMuted),
-            ),
             const SizedBox(height: 28),
             MInput(
               label: 'Email address',
@@ -562,16 +556,7 @@ class _AttendeeAuthScreenState extends State<AttendeeAuthScreen> {
               kind: MBtnKind.sec,
               onTap: (_busy || !emailValid) ? null : _sendCode,
             ),
-            const SizedBox(height: 14),
-            Center(
-              child: Text(
-                'New here or forgot your password? Get a code — you can set a '
-                'password after.',
-                textAlign: TextAlign.center,
-                style: AppText.bodySm.copyWith(color: AppColors.inkMuted),
-              ),
-            ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 26),
             const _LabeledDivider('or'),
             const SizedBox(height: 18),
             _GoogleButton(
