@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
+import '../attendee/app_shell.dart' show mainTab;
 import '../card_store.dart';
 import '../share_card.dart';
 import '../theme.dart';
@@ -96,8 +97,12 @@ class _MyCardsScreenState extends State<MyCardsScreen> {
             ),
             const SizedBox(height: 20),
             FilledButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Make a card'),
+              // This screen is a tab in the shell's IndexedStack, not a pushed
+              // route — Navigator.pop() here popped the whole app off the root
+              // navigator (black screen, no back). Switch to Discover instead,
+              // where you open an event to make its card.
+              onPressed: () => mainTab.value = 0,
+              child: const Text('Browse events'),
             ),
           ],
         ),
