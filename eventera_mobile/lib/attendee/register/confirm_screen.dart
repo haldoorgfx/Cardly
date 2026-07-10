@@ -59,7 +59,7 @@ class ConfirmScreen extends StatelessWidget {
 
   Future<void> _addToCalendar(BuildContext context) async {
     try {
-      await exportEventToCalendar(
+      await addEventToCalendar(
         title: eventName,
         start: eventStart,
         end: eventEnd,

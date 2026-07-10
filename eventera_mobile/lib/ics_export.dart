@@ -2,6 +2,64 @@ import 'dart:io';
 
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+/// Adds an event to the user's calendar automatically, per platform — no chooser
+/// dialog. Android opens Google Calendar pre-filled; iOS (and anything else)
+/// hands off the .ics, which Apple Calendar turns into an "Add to Calendar"
+/// prompt. Falls back to the .ics if the direct open isn't available.
+///
+/// Callers should wrap this in try/catch and surface a toast on failure.
+Future<void> addEventToCalendar({
+  required String title,
+  DateTime? start,
+  DateTime? end,
+  String? location,
+  String? description,
+  String? url,
+}) async {
+  if (Platform.isAndroid) {
+    try {
+      final ok = await launchUrl(
+        _googleCalendarUri(
+            title: title, start: start, end: end, location: location, url: url),
+        mode: LaunchMode.externalApplication,
+      );
+      if (ok) return;
+    } catch (_) {
+      // Fall through to the .ics hand-off below.
+    }
+  }
+  await exportEventToCalendar(
+    title: title,
+    start: start,
+    end: end,
+    location: location,
+    description: description,
+    url: url,
+  );
+}
+
+/// Google Calendar "render" URL that pre-fills a new event.
+Uri _googleCalendarUri({
+  required String title,
+  DateTime? start,
+  DateTime? end,
+  String? location,
+  String? url,
+}) {
+  final params = <String, String>{
+    'action': 'TEMPLATE',
+    'text': title,
+    if (start != null)
+      'dates':
+          '${_formatUtc(start)}/${_formatUtc(end ?? start.add(const Duration(hours: 2)))}',
+    if (location != null && location.trim().isNotEmpty)
+      'location': location.trim(),
+    if (url != null && url.trim().isNotEmpty) 'details': url.trim(),
+  };
+  return Uri.https('calendar.google.com', '/calendar/render', params);
+}
 
 /// Builds a VCALENDAR/VEVENT .ics string and opens the OS share sheet so the
 /// user can add the event to their calendar app ("Add to Calendar" appears in

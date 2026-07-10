@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../app_config.dart';
 import '../../ics_export.dart';
@@ -82,9 +81,11 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
     return '${AppConfig.renderBaseUrl}/e/$slug';
   }
 
-  Future<void> _exportIcs() async {
+  /// Adds the event to the user's calendar automatically, per platform (no
+  /// chooser) — Android opens Google Calendar, iOS hands off to Apple Calendar.
+  Future<void> _addToCalendar() async {
     try {
-      await exportEventToCalendar(
+      await addEventToCalendar(
         title: widget.eventName,
         start: widget.startsAt,
         location: widget.venue,
@@ -93,57 +94,8 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
         url: _eventUrl,
       );
     } catch (_) {
-      if (mounted) showToast(context, 'Could not export to calendar.');
+      if (mounted) showToast(context, 'Could not add to calendar.');
     }
-  }
-
-  /// Builds a Google Calendar "render" URL that pre-fills a new event.
-  Uri _googleCalUri() {
-    String fmt(DateTime d) {
-      final u = d.toUtc();
-      String two(int n) => n.toString().padLeft(2, '0');
-      return '${u.year.toString().padLeft(4, '0')}${two(u.month)}${two(u.day)}'
-          'T${two(u.hour)}${two(u.minute)}${two(u.second)}Z';
-    }
-
-    final start = widget.startsAt;
-    final params = <String, String>{
-      'action': 'TEMPLATE',
-      'text': widget.eventName,
-      if (start != null)
-        'dates': '${fmt(start)}/${fmt(start.add(const Duration(hours: 2)))}',
-      if ((widget.venue ?? '').isNotEmpty) 'location': widget.venue!,
-      if (_eventUrl != null) 'details': _eventUrl!,
-    };
-    return Uri.https('calendar.google.com', '/calendar/render', params);
-  }
-
-  Future<void> _openCalendarPicker() async {
-    showMSheet(
-      context,
-      Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text('Add to calendar', style: AppText.h3),
-          const SizedBox(height: 8),
-          _action(Icons.event_available_outlined, 'Google Calendar', () async {
-            Navigator.pop(context);
-            final uri = _googleCalUri();
-            final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
-            if (!ok && mounted) showToast(context, 'Could not open Google Calendar.');
-          }),
-          _action(Icons.apple, 'Apple Calendar', () {
-            Navigator.pop(context);
-            _exportIcs();
-          }),
-          _action(Icons.download_outlined, 'Download .ics file', () {
-            Navigator.pop(context);
-            _exportIcs();
-          }),
-        ],
-      ),
-    );
   }
 
   Future<void> _shareTicket() async {
@@ -227,7 +179,7 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
           const SizedBox(height: 8),
           _action(Icons.calendar_today_outlined, 'Add to calendar', () {
             Navigator.pop(context);
-            _openCalendarPicker();
+            _addToCalendar();
           }),
           _action(Icons.ios_share, 'Share ticket', () {
             Navigator.pop(context);
@@ -341,7 +293,7 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
                   child: MButton('Add to calendar',
                       kind: MBtnKind.sec,
                       icon: Icons.calendar_today_outlined,
-                      onTap: _openCalendarPicker),
+                      onTap: _addToCalendar),
                 ),
                 if ((_status == 'confirmed') && !_transferred) ...[
                   const SizedBox(width: 10),
