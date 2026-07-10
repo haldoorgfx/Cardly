@@ -326,7 +326,6 @@ class MChip extends StatelessWidget {
           borderRadius: BorderRadius.circular(999),
           border: bc != null ? Border.all(color: bc) : null,
         ),
-        alignment: Alignment.center,
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
