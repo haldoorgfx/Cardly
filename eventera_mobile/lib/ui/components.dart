@@ -1044,17 +1044,20 @@ class _ToastHostState extends State<_ToastHost>
 
   @override
   Widget build(BuildContext context) {
-    final topInset = MediaQuery.of(context).padding.top;
+    final bottomInset = MediaQuery.of(context).padding.bottom;
     final (IconData icon, Color accent) = switch (widget.type) {
       ToastType.success => (Icons.check_circle, AppColors.gold),
       ToastType.error => (Icons.error_outline, const Color(0xFFF3A3A0)),
       ToastType.info => (Icons.info_outline, Colors.white),
     };
+    // Slide UP from just below its resting spot near the bottom of the screen.
     final slide =
-        Tween<Offset>(begin: const Offset(0, -0.5), end: Offset.zero)
+        Tween<Offset>(begin: const Offset(0, 0.5), end: Offset.zero)
             .animate(CurvedAnimation(parent: _c, curve: Curves.easeOutCubic));
     return Positioned(
-      top: topInset + 8,
+      // Sit low but with enough clearance to ride above a sticky bottom CTA
+      // (e.g. "Get ticket") instead of overlapping it.
+      bottom: bottomInset + 88,
       left: 14,
       right: 14,
       child: Material(
