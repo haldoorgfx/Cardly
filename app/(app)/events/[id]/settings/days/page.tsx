@@ -174,6 +174,13 @@ export default async function EventDaysPage({ params }: Props) {
           <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>
             Turn {event.name} into a multi-day event. Give each day its own date, check-in toggle and capacity, and choose which entitlements are valid that day. Leave it empty for a single-day event.
           </p>
+          {initialDays.length > 0 && (
+            <a href={`/events/${id}/registrations/attendance`}
+              className="inline-flex items-center gap-1.5 text-[13px] font-medium mt-3"
+              style={{ color: '#1F4D3A' }}>
+              View attendance by day →
+            </a>
+          )}
         </div>
         <EventDaysClient
           initialDays={initialDays}
