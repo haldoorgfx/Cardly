@@ -64,7 +64,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
     cream:       '#FAF6EE',
   },
   fonts: {
-    display: 'DM Sans',
+    display: 'Plus Jakarta Sans',
     body:    'Inter',
     mono:    'Inter',
   },
@@ -129,7 +129,6 @@ export function buildThemeCssVars(settings: SiteSettings): Record<string, string
   vars['--theme-cream']        = c.cream;
   vars['--theme-font-display'] = f.display;
   vars['--theme-font-body']    = f.body;
-  vars['--theme-font-mono']    = f.mono;
   vars['--theme-grad-hero']    = g.hero;
 
   return vars;

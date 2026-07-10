@@ -376,7 +376,7 @@ export default function PublishClient({
           display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap',
         }}>
           <div>
-            <div style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 15, color: PT.ink }}>
+            <div style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, fontSize: 15, color: PT.ink }}>
               This event is not yet published.
             </div>
             <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: PT.muted, marginTop: 2 }}>
@@ -438,7 +438,7 @@ export default function PublishClient({
               color: PT.muted, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 8,
             }}>Your event is live</div>
             <h1 style={{
-              fontFamily: 'DM Sans, sans-serif', fontWeight: 700,
+              fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 700,
               fontSize: 32, lineHeight: 1.1, letterSpacing: '-0.025em',
               margin: 0, color: PT.ink, maxWidth: 720,
             }}>{eventName} is live.</h1>
@@ -660,7 +660,7 @@ export default function PublishClient({
                     width: 34, height: 34,
                     background: PT.primary, borderRadius: 8,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontFamily: 'DM Sans, sans-serif', fontWeight: 700, fontSize: 16,
+                    fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 700, fontSize: 16,
                     color: PT.accent, letterSpacing: '-0.02em',
                     boxShadow: '0 2px 8px rgba(31,77,58,0.35)',
                   }}>E</div>
@@ -734,7 +734,7 @@ export default function PublishClient({
             </div>
             <pre style={{
               margin: 0, padding: '14px 16px',
-              fontFamily: 'JetBrains Mono, Menlo, monospace', fontSize: 12, lineHeight: 1.65,
+              fontFamily: 'Inter, sans-serif', fontSize: 12, lineHeight: 1.65,
               color: PT.cream, whiteSpace: 'pre-wrap', wordBreak: 'break-all',
             }}>
               <span style={{ color: '#9EC6B2' }}>{'<iframe'}</span>{' '}
@@ -860,11 +860,11 @@ export default function PublishClient({
                   <div style={{
                     width: 28, height: 28, borderRadius: '50%',
                     background: PT.primary, color: PT.cream,
-                    fontFamily: 'DM Sans, sans-serif', fontWeight: 700, fontSize: 13,
+                    fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 700, fontSize: 13,
                     display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
                   }}>{s.n}</div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 14, color: PT.ink, lineHeight: 1.3 }}>{s.t}</div>
+                    <div style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, fontSize: 14, color: PT.ink, lineHeight: 1.3 }}>{s.t}</div>
                     <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, lineHeight: 1.5, color: PT.inkSoft, marginTop: 2 }}>{s.d}</div>
                   </div>
                 </div>
@@ -929,7 +929,7 @@ function StatItem({ label, value, sub }: { label: string; value: string; sub: st
         letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 4,
       }}>{label}</div>
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
-        <span style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 700, fontSize: 22, color: PT.ink, letterSpacing: '-0.02em' }}>{value}</span>
+        <span style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 700, fontSize: 22, color: PT.ink, letterSpacing: '-0.02em' }}>{value}</span>
         <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10, color: PT.muted, letterSpacing: '0.04em' }}>{sub}</span>
       </div>
     </div>

@@ -54,7 +54,7 @@ export default async function RosterPrintPage({ params }: Props) {
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: `
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Inter', sans-serif; background: white; color: #0F1F18; font-size: 13px; line-height: 1.5; }
         @media print {
@@ -69,7 +69,7 @@ export default async function RosterPrintPage({ params }: Props) {
 
         {/* Header */}
         <div style={{ marginBottom: 28, borderBottom: '3px solid #0F1F18', paddingBottom: 16 }}>
-          <h1 style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 30, fontWeight: 700, letterSpacing: '-0.02em', color: '#0F1F18' }}>
+          <h1 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 30, fontWeight: 700, letterSpacing: '-0.02em', color: '#0F1F18' }}>
             {event.name}
           </h1>
           <p style={{ marginTop: 4, color: '#6B7A72', fontSize: 13 }}>Attendee Roster</p>
@@ -83,7 +83,7 @@ export default async function RosterPrintPage({ params }: Props) {
             { label: 'Checked In',          value: checkedIn },
           ].map(s => (
             <div key={s.label} style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', borderRadius: 10, padding: '12px 20px', minWidth: 130 }}>
-              <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 26, fontWeight: 700, color: '#0F1F18', lineHeight: 1 }}>{s.value}</div>
+              <div style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 26, fontWeight: 700, color: '#0F1F18', lineHeight: 1 }}>{s.value}</div>
               <div style={{ fontSize: 11, color: '#6B7A72', marginTop: 4 }}>{s.label}</div>
             </div>
           ))}

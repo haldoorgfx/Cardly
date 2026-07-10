@@ -34,7 +34,7 @@ export default function EventBrandStrip({ eventName, compact = false }: Props) {
         background: '#1F4D3A',
         color: '#E8C57E',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        fontFamily: 'DM Sans, sans-serif',
+        fontFamily: 'Plus Jakarta Sans, sans-serif',
         fontWeight: 700,
         fontSize: compact ? 11 : 13,
         letterSpacing: '-0.01em',
@@ -46,7 +46,7 @@ export default function EventBrandStrip({ eventName, compact = false }: Props) {
       {/* Event name */}
       <div style={{ minWidth: 0, flex: 1 }}>
         <div style={{
-          fontFamily: 'DM Sans, sans-serif',
+          fontFamily: 'Plus Jakarta Sans, sans-serif',
           fontWeight: 700,
           fontSize: compact ? 13 : 15,
           lineHeight: 1.2,

@@ -173,7 +173,7 @@ export function CardZoneFill({
                       fontWeight,
                       color: text ? textColor : 'rgba(255,255,255,0.3)',
                       textAlign,
-                      fontFamily: zone.font === 'Inter' ? 'Inter, system-ui, sans-serif' : zone.font === 'DM Sans' ? 'DM Sans, sans-serif' : 'Inter, sans-serif',
+                      fontFamily: zone.font === 'Inter' ? 'Inter, system-ui, sans-serif' : zone.font === 'Plus Jakarta Sans' ? 'Plus Jakarta Sans, sans-serif' : 'Inter, sans-serif',
                       lineHeight: zone.lineHeight ?? 1.3,
                       letterSpacing: zone.letterSpacing ? `${zone.letterSpacing * scale}px` : undefined,
                       textTransform: zone.textTransform as React.CSSProperties['textTransform'] ?? undefined,

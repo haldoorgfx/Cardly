@@ -92,13 +92,13 @@ function buildBroadcastHtml({
 <body style="margin:0;padding:0;font-family:Inter,system-ui,sans-serif;background:#FAF6EE;color:#0F1F18;">
   <div style="max-width:560px;margin:0 auto;padding:32px 20px;">
     <div style="background:#1F4D3A;border-radius:12px;padding:24px 28px;margin-bottom:24px;">
-      <div style="font-family:'DM Sans',system-ui,sans-serif;font-size:18px;font-weight:600;color:white;">
+      <div style="font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-size:18px;font-weight:600;color:white;">
         Eventer<span style="color:#E8C57E;">a</span>
       </div>
       <p style="color:rgba(255,255,255,0.75);font-size:13px;margin:6px 0 0;">Message from ${eventName}</p>
     </div>
 
-    <h1 style="font-family:'DM Sans',system-ui,sans-serif;font-size:22px;font-weight:600;letter-spacing:-0.02em;margin:0 0 16px;">${subject}</h1>
+    <h1 style="font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-size:22px;font-weight:600;letter-spacing:-0.02em;margin:0 0 16px;">${subject}</h1>
     <p style="font-size:14px;color:#6B7A72;margin:0 0 16px;">Hi ${attendeeName},</p>
     <div style="font-size:15px;color:#3A4A42;line-height:1.6;margin-bottom:28px;">${messageHtml}</div>
 

@@ -187,14 +187,14 @@ const BRAND_COLORS = [
 ];
 
 const FONTS = [
-  'DM Sans','Inter','Inter','Space Grotesk','Playfair Display',
+  'Plus Jakarta Sans','Inter','Inter','Space Grotesk','Playfair Display',
   'Poppins','Montserrat','Raleway','Nunito','Lato',
   'Oswald','Roboto','Work Sans','Merriweather','Lora',
   'Cormorant Garamond','Bebas Neue','Anton','Georgia','Times New Roman',
 ];
 
 const GOOGLE_FONTS_URL =
-  'https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=&family=Space+Grotesk:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700&family=Lato:wght@300;400;700&family=Oswald:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&family=Work+Sans:wght@300;400;500;600;700&family=Merriweather:wght@300;400;700&family=Lora:wght@400;500;600;700&family=Cormorant+Garamond:wght@300;400;500;600;700&family=Bebas+Neue&family=Anton&display=swap';
+  'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=&family=Space+Grotesk:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700&family=Lato:wght@300;400;700&family=Oswald:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&family=Work+Sans:wght@300;400;500;600;700&family=Merriweather:wght@300;400;700&family=Lora:wght@400;500;600;700&family=Cormorant+Garamond:wght@300;400;500;600;700&family=Bebas+Neue&family=Anton&display=swap';
 
 /* -- types ------------------------------------------------- */
 interface CanvasEditorProps {
@@ -538,14 +538,14 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
     const base   = { id: 'z' + Math.random().toString(36).slice(2, 7), x: Math.round(bgW / 2 - zoneW / 2), y: Math.round(bgH / 2 - zoneH / 2), required: false };
     let z: Zone;
     if (type === 'text') {
-      z = { ...base, type, label: 'Text field', w: zoneW, h: zoneH, font: 'DM Sans', weight: 700, size: textSz, color: '#FFFFFF', align: 'center', verticalAlign: 'top' as const, placeholder: 'Enter text', sample: 'Sample text', lineHeight: 1.2, letterSpacing: 0, opacity: 100, rotation: 0 };
+      z = { ...base, type, label: 'Text field', w: zoneW, h: zoneH, font: 'Plus Jakarta Sans', weight: 700, size: textSz, color: '#FFFFFF', align: 'center', verticalAlign: 'top' as const, placeholder: 'Enter text', sample: 'Sample text', lineHeight: 1.2, letterSpacing: 0, opacity: 100, rotation: 0 };
     } else if (type === 'photo') {
       z = { ...base, type, label: 'Photo', w: photoS, h: photoS, shape: 'circle', placeholder: 'Tap to add a photo', sample: '·', opacity: 100, rotation: 0 };
     } else if (type === 'custom') {
       z = { ...base, type, label: 'Custom field', w: zoneW, h: custH, font: 'Inter', weight: 500, size: custSz, color: '#FFFFFF', align: 'center', placeholder: 'Select option', sample: 'Speaker', options: ['Speaker', 'Sponsor', 'Delegate'], opacity: 100, rotation: 0 };
     } else {
       // label
-      z = { ...base, type: 'label', label: 'Static text', w: zoneW, h: zoneH, font: 'DM Sans', weight: 700, size: textSz, color: '#FFFFFF', align: 'center', verticalAlign: 'top' as const, placeholder: '', sample: 'I\'m Attending', lineHeight: 1.2, letterSpacing: 0, opacity: 100, rotation: 0 };
+      z = { ...base, type: 'label', label: 'Static text', w: zoneW, h: zoneH, font: 'Plus Jakarta Sans', weight: 700, size: textSz, color: '#FFFFFF', align: 'center', verticalAlign: 'top' as const, placeholder: '', sample: 'I\'m Attending', lineHeight: 1.2, letterSpacing: 0, opacity: 100, rotation: 0 };
     }
     pushHistory([...zonesRef.current, z]);
     setSelectedIds([z.id]);
@@ -1426,7 +1426,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
                       {/* Font family */}
                       <select
                         aria-label="Font family"
-                        value={selected.font ?? 'DM Sans'}
+                        value={selected.font ?? 'Plus Jakarta Sans'}
                         onChange={e => updateZone(selected.id, { font: e.target.value })}
                         title="Font family"
                         className="h-7 pl-2 pr-0.5 rounded-lg text-[11.5px] font-medium outline-none hover:bg-[#FAF6EE] focus:bg-[#FAF6EE] cursor-pointer transition"
@@ -1791,7 +1791,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
 /* ----------------------------------------------------------
    RIGHT RAIL COMPONENT
 ---------------------------------------------------------- */
-const EDITOR_FONTS = ['DM Sans', 'Inter', 'Inter'];
+const EDITOR_FONTS = ['Plus Jakarta Sans', 'Inter', 'Inter'];
 
 function RightRail({
   selected, bgW, bgH,
@@ -1877,7 +1877,7 @@ function RightRail({
               {typeLabel}
             </div>
             <div style={{
-              fontFamily: 'DM Sans, sans-serif', fontWeight: 700, fontSize: 15,
+              fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 700, fontSize: 15,
               color: '#0F1F18', letterSpacing: '-0.01em',
               whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
             }}>
@@ -2062,7 +2062,7 @@ function RightRail({
                   <button
                     key={f}
                     onClick={() => upd({ font: f })}
-                    className={`h-8 rounded-lg border text-[11px] transition truncate px-1 ${(selected.font ?? 'DM Sans') === f ? 'bg-primary/10 text-primary border-primary/30 font-semibold' : 'border-border hover:bg-cream text-[#0F1F18]/65'}`}
+                    className={`h-8 rounded-lg border text-[11px] transition truncate px-1 ${(selected.font ?? 'Plus Jakarta Sans') === f ? 'bg-primary/10 text-primary border-primary/30 font-semibold' : 'border-border hover:bg-cream text-[#0F1F18]/65'}`}
                     style={{ fontFamily: f }}
                     title={f}
                   >

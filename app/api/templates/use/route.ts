@@ -38,7 +38,7 @@ function getZones(accent: string, light: boolean): Zone[] {
       y: ZONE_NAME.y,
       w: ZONE_NAME.w,
       h: ZONE_NAME.h,
-      font: 'DM Sans',
+      font: 'Plus Jakarta Sans',
       size: 56,
       weight: 700,
       color: nameColor,

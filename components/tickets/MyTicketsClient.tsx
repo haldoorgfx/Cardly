@@ -92,7 +92,7 @@ function QROverlay({ token, name, label, onClose }: QROverlayProps) {
       </div>
 
       <div className="mt-8 font-medium text-[22px] text-white text-center px-6"
-        style={{ fontFamily: '"DM Sans", sans-serif' }}>
+        style={{ fontFamily: '"Plus Jakarta Sans", sans-serif' }}>
         {name}
       </div>
       <div className="mt-1.5 text-center px-6"
@@ -172,7 +172,7 @@ function TicketStub({ reg, isPast, onShowQR }: { reg: Registration; isPast: bool
           </div>
 
           <div className="flex-1 min-w-0">
-            <div className="font-display font-medium text-[16px] leading-snug truncate" style={{ fontFamily: '"DM Sans", sans-serif', color: INK, letterSpacing: '-0.01em' }}>
+            <div className="font-display font-medium text-[16px] leading-snug truncate" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: INK, letterSpacing: '-0.01em' }}>
               {reg.events?.name ?? ep?.title}
             </div>
             {whenStr && (

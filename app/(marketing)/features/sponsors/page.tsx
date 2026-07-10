@@ -35,7 +35,7 @@ function SponsorsMockup() {
             <div style={{ display: 'inline-block', background: 'rgba(232,197,126,0.12)', border: '1px solid rgba(232,197,126,0.25)', color: '#E8C57E', fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase' as const, borderRadius: 999, padding: '5px 14px', fontFamily: 'Inter,sans-serif', marginBottom: 20 }}>
               Sponsor Dashboard
             </div>
-            <h2 style={{ fontFamily: 'DM Sans,sans-serif', fontSize: 'clamp(1.7rem,3vw,2.4rem)', fontWeight: 700, color: '#FAF6EE', letterSpacing: '-0.02em', lineHeight: 1.15, marginBottom: 14 }}>
+            <h2 style={{ fontFamily: 'Plus Jakarta Sans,sans-serif', fontSize: 'clamp(1.7rem,3vw,2.4rem)', fontWeight: 700, color: '#FAF6EE', letterSpacing: '-0.02em', lineHeight: 1.15, marginBottom: 14 }}>
               Sponsors with ROI they can measure — and prove.
             </h2>
             <p style={{ fontFamily: 'Inter,sans-serif', fontSize: 16, color: 'rgba(250,246,238,0.60)', lineHeight: 1.65, maxWidth: 400 }}>
@@ -49,7 +49,7 @@ function SponsorsMockup() {
               { n: '78%', label: 'sponsor renewal' },
             ].map((s) => (
               <div key={s.label} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '14px 18px', flex: '1 1 120px' }}>
-                <div style={{ fontFamily: 'DM Sans,sans-serif', fontSize: 22, fontWeight: 700, color: '#FAF6EE', letterSpacing: '-0.03em', lineHeight: 1 }}>{s.n}</div>
+                <div style={{ fontFamily: 'Plus Jakarta Sans,sans-serif', fontSize: 22, fontWeight: 700, color: '#FAF6EE', letterSpacing: '-0.03em', lineHeight: 1 }}>{s.n}</div>
                 <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 12, color: 'rgba(250,246,238,0.45)', marginTop: 4 }}>{s.label}</div>
               </div>
             ))}
@@ -108,7 +108,7 @@ function SponsorsMockup() {
                   { initials: 'TN', name: 'Tinashe Nyathi · Founder', time: '8m ago' },
                 ].map((l) => (
                   <div key={l.initials} style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 8, padding: 10, display: 'flex', flexDirection: 'row' as const, alignItems: 'center', gap: 10, marginBottom: 6 }}>
-                    <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#E8EFEB', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'DM Sans,sans-serif', fontSize: 11, fontWeight: 700, color: '#1F4D3A', flexShrink: 0 }}>{l.initials}</div>
+                    <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#E8EFEB', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Plus Jakarta Sans,sans-serif', fontSize: 11, fontWeight: 700, color: '#1F4D3A', flexShrink: 0 }}>{l.initials}</div>
                     <div style={{ flex: 1, fontFamily: 'Inter,sans-serif', fontSize: 12, color: '#0F1F18' }}>{l.name}</div>
                     <span style={{ fontFamily: 'Inter,sans-serif', fontSize: 10, color: '#6B7A72' }}>{l.time}</span>
                     <span style={{ fontFamily: 'Inter,sans-serif', fontSize: 11, color: '#1F4D3A' }}>View →</span>
@@ -129,7 +129,7 @@ function SponsorsMockup() {
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 8 }}>
                   {[{ n: '47', l: 'Leads' }, { n: '284', l: 'Booth visits' }].map((s) => (
                     <div key={s.l} style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', borderRadius: 8, padding: 10, textAlign: 'center' as const }}>
-                      <div style={{ fontFamily: 'DM Sans,sans-serif', fontSize: 20, fontWeight: 700, color: '#1F4D3A' }}>{s.n}</div>
+                      <div style={{ fontFamily: 'Plus Jakarta Sans,sans-serif', fontSize: 20, fontWeight: 700, color: '#1F4D3A' }}>{s.n}</div>
                       <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 11, color: '#6B7A72', marginTop: 2 }}>{s.l}</div>
                     </div>
                   ))}
@@ -155,7 +155,7 @@ export default function SponsorsPage() {
           <span style={{ width: 7, height: 7, borderRadius: '50%', background: C.primary, display: 'inline-block' }} />
           <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 500, color: C.primary, letterSpacing: '0.02em' }}>Sponsor Tools</span>
         </div>
-        <h1 style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 'clamp(36px, 6vw, 72px)', fontWeight: 700, color: C.ink, letterSpacing: '-0.02em', lineHeight: 1.1, maxWidth: 780, margin: '0 auto 24px' }}>Sponsors that show up&#8202;—&#8202;not just logos on a banner.</h1>
+        <h1 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 'clamp(36px, 6vw, 72px)', fontWeight: 700, color: C.ink, letterSpacing: '-0.02em', lineHeight: 1.1, maxWidth: 780, margin: '0 auto 24px' }}>Sponsors that show up&#8202;—&#8202;not just logos on a banner.</h1>
         <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 'clamp(16px, 2vw, 20px)', color: C.inkSoft, maxWidth: 600, margin: '0 auto 40px', lineHeight: 1.65 }}>Give every sponsor a booth, a lead pipeline, and a post-event report. They come back because the ROI is real.</p>
         <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
           <Link href="/signup" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 15, background: C.primary, color: C.surface, padding: '14px 28px', borderRadius: 10, textDecoration: 'none', display: 'inline-block' }}>Get started free</Link>
@@ -167,7 +167,7 @@ export default function SponsorsPage() {
       {/* Features */}
       <section style={{ background: C.surface, padding: 'clamp(60px, 8vw, 100px) clamp(20px, 5vw, 80px)' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-          <h2 style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 700, color: C.ink, letterSpacing: '-0.02em', textAlign: 'center', marginBottom: 12 }}>Four tools that make sponsors want to come back</h2>
+          <h2 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 700, color: C.ink, letterSpacing: '-0.02em', textAlign: 'center', marginBottom: 12 }}>Four tools that make sponsors want to come back</h2>
           <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 16, color: C.muted, textAlign: 'center', maxWidth: 520, margin: '0 auto 56px' }}>Built for organizers who want sponsors that renew — not sponsors that ghost you after the invoice.</p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24 }}>
 
@@ -179,7 +179,7 @@ export default function SponsorsPage() {
                   <path d="M6 22c0-4 3.6-7 8-7s8 3 8 7" stroke="#1F4D3A" strokeWidth="1.5" strokeLinecap="round"/>
                 </svg>
               </div>
-              <h3 style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 20, fontWeight: 700, color: C.ink, marginBottom: 10 }}>Sponsor Profiles &amp; Booths</h3>
+              <h3 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 20, fontWeight: 700, color: C.ink, marginBottom: 10 }}>Sponsor Profiles &amp; Booths</h3>
               <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: C.inkSoft, lineHeight: 1.65 }}>Each sponsor gets a profile page inside the event app — logo, bio, tier badge, and a contact link. Attendees browse before they approach. First impressions happen before the booth conversation.</p>
             </div>
 
@@ -193,7 +193,7 @@ export default function SponsorsPage() {
                   <path d="M15 19h2M19 15v2" stroke="#1F4D3A" strokeWidth="1.5" strokeLinecap="round"/>
                 </svg>
               </div>
-              <h3 style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 20, fontWeight: 700, color: C.ink, marginBottom: 10 }}>QR Lead Retrieval</h3>
+              <h3 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 20, fontWeight: 700, color: C.ink, marginBottom: 10 }}>QR Lead Retrieval</h3>
               <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: C.inkSoft, lineHeight: 1.65 }}>Sponsors get a unique booth QR. Attendees scan once — name, title, and contact are captured automatically from their registration. Sponsors export a clean CSV after the event in under 6 minutes.</p>
             </div>
 
@@ -205,7 +205,7 @@ export default function SponsorsPage() {
                   <circle cx="20" cy="14" r="3" fill="#E8C57E" stroke="#C9A45E" strokeWidth="1"/>
                 </svg>
               </div>
-              <h3 style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 20, fontWeight: 700, color: C.ink, marginBottom: 10 }}>Sponsored Sessions</h3>
+              <h3 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 20, fontWeight: 700, color: C.ink, marginBottom: 10 }}>Sponsored Sessions</h3>
               <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: C.inkSoft, lineHeight: 1.65 }}>Mark any session as sponsored and display the sponsor logo alongside it in the programme. Session Q&amp;A and attendance data feed directly into the sponsor analytics report.</p>
             </div>
 
@@ -218,7 +218,7 @@ export default function SponsorsPage() {
                   <circle cx="16" cy="12" r="2" fill="#E8C57E"/>
                 </svg>
               </div>
-              <h3 style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 20, fontWeight: 700, color: C.ink, marginBottom: 10 }}>Sponsor Analytics</h3>
+              <h3 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 20, fontWeight: 700, color: C.ink, marginBottom: 10 }}>Sponsor Analytics</h3>
               <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: C.inkSoft, lineHeight: 1.65 }}>Every sponsor gets a post-event PDF report: total leads, booth scans, session views, and engagement percentile vs. other sponsors. The data that makes renewals easy to justify.</p>
             </div>
 
@@ -229,12 +229,12 @@ export default function SponsorsPage() {
       {/* How it works */}
       <section style={{ background: C.cream, padding: 'clamp(60px, 8vw, 100px) clamp(20px, 5vw, 80px)' }}>
         <div style={{ maxWidth: 860, margin: '0 auto' }}>
-          <h2 style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 700, color: C.ink, letterSpacing: '-0.02em', textAlign: 'center', marginBottom: 56 }}>How it works</h2>
+          <h2 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 700, color: C.ink, letterSpacing: '-0.02em', textAlign: 'center', marginBottom: 56 }}>How it works</h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 40 }}>
             {spSteps.map((s) => (
               <div key={s.n} style={{ display: 'flex', gap: 24, alignItems: 'flex-start' }}>
-                <div style={{ flexShrink: 0, width: 48, height: 48, borderRadius: '50%', background: C.primary, color: C.surface, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'DM Sans, sans-serif', fontWeight: 700, fontSize: 18 }}>{s.n}</div>
-                <div><h3 style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 18, fontWeight: 700, color: C.ink, marginBottom: 8, marginTop: 10 }}>{s.title}</h3><p style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: C.inkSoft, lineHeight: 1.65 }}>{s.desc}</p></div>
+                <div style={{ flexShrink: 0, width: 48, height: 48, borderRadius: '50%', background: C.primary, color: C.surface, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 700, fontSize: 18 }}>{s.n}</div>
+                <div><h3 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 18, fontWeight: 700, color: C.ink, marginBottom: 8, marginTop: 10 }}>{s.title}</h3><p style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: C.inkSoft, lineHeight: 1.65 }}>{s.desc}</p></div>
               </div>
             ))}
           </div>
@@ -246,7 +246,7 @@ export default function SponsorsPage() {
         <div style={{ maxWidth: 860, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 40, textAlign: 'center' }}>
           {spStats.map((s) => (
             <div key={s.value}>
-              <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 'clamp(40px, 6vw, 56px)', fontWeight: 700, color: C.primary, letterSpacing: '-0.02em', lineHeight: 1 }}>{s.value}</div>
+              <div style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 'clamp(40px, 6vw, 56px)', fontWeight: 700, color: C.primary, letterSpacing: '-0.02em', lineHeight: 1 }}>{s.value}</div>
               <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: C.muted, marginTop: 8 }}>{s.label}</div>
             </div>
           ))}
@@ -255,7 +255,7 @@ export default function SponsorsPage() {
 
       {/* CTA */}
       <section style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 100%)', padding: 'clamp(72px, 10vw, 120px) clamp(20px, 5vw, 80px)', textAlign: 'center' }}>
-        <h2 style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 'clamp(28px, 5vw, 52px)', fontWeight: 700, color: '#FFFFFF', letterSpacing: '-0.02em', maxWidth: 600, margin: '0 auto 20px', lineHeight: 1.15 }}>Sponsors that see the ROI come back. Every time.</h2>
+        <h2 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 'clamp(28px, 5vw, 52px)', fontWeight: 700, color: '#FFFFFF', letterSpacing: '-0.02em', maxWidth: 600, margin: '0 auto 20px', lineHeight: 1.15 }}>Sponsors that see the ROI come back. Every time.</h2>
         <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 17, color: 'rgba(255,255,255,0.8)', maxWidth: 480, margin: '0 auto 40px', lineHeight: 1.65 }}>Set up your sponsor suite before the event. Your sponsors will thank you with renewals.</p>
         <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
           <Link href="/signup" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 15, background: '#FFFFFF', color: C.primary, padding: '14px 28px', borderRadius: 10, textDecoration: 'none', display: 'inline-block' }}>Start for free</Link>

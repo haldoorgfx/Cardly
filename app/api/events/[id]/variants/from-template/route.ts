@@ -30,7 +30,7 @@ function getZones(accent: string, light: boolean): Zone[] {
       type: 'text',
       label: 'Full Name',
       x: ZONE_NAME.x, y: ZONE_NAME.y, w: ZONE_NAME.w, h: ZONE_NAME.h,
-      font: 'DM Sans', size: 56, weight: 700,
+      font: 'Plus Jakarta Sans', size: 56, weight: 700,
       color: nameColor, align: 'center',
       required: true, placeholder: 'Your name',
       lineHeight: 1.1, letterSpacing: -1,

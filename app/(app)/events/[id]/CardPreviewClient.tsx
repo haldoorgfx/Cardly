@@ -108,7 +108,7 @@ export default function CardPreviewClient({ backgroundUrl, bgW, bgH, zones, even
             >
               <span style={{
                 display: 'block',
-                fontFamily: z.font ?? 'DM Sans, sans-serif',
+                fontFamily: z.font ?? 'Plus Jakarta Sans, sans-serif',
                 fontWeight: z.weight ?? 700,
                 fontSize: `${(z.size ?? 32) * (scale ?? 1)}px`,
                 color: z.color ?? '#FFFFFF',

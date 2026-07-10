@@ -114,7 +114,7 @@ function AgendaMockup() {
             <div style={{ display: 'inline-block', background: 'rgba(232,197,126,0.12)', border: '1px solid rgba(232,197,126,0.25)', color: '#E8C57E', fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase' as const, borderRadius: 999, padding: '5px 14px', fontFamily: 'Inter,sans-serif', marginBottom: 20 }}>
               Organiser View
             </div>
-            <h2 style={{ fontFamily: 'DM Sans,sans-serif', fontSize: 'clamp(1.7rem,3vw,2.4rem)', fontWeight: 700, color: '#FAF6EE', letterSpacing: '-0.02em', lineHeight: 1.15, marginBottom: 14 }}>
+            <h2 style={{ fontFamily: 'Plus Jakarta Sans,sans-serif', fontSize: 'clamp(1.7rem,3vw,2.4rem)', fontWeight: 700, color: '#FAF6EE', letterSpacing: '-0.02em', lineHeight: 1.15, marginBottom: 14 }}>
               A schedule worth sharing<br/>before the event starts.
             </h2>
             <p style={{ fontFamily: 'Inter,sans-serif', fontSize: 16, color: 'rgba(250,246,238,0.60)', lineHeight: 1.65, maxWidth: 400 }}>
@@ -129,7 +129,7 @@ function AgendaMockup() {
               { n: '0', label: 'app downloads required' },
             ].map((s) => (
               <div key={s.label} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '14px 18px', flex: '1 1 120px' }}>
-                <div style={{ fontFamily: 'DM Sans,sans-serif', fontSize: 28, fontWeight: 700, color: '#FAF6EE', letterSpacing: '-0.03em', lineHeight: 1 }}>{s.n}</div>
+                <div style={{ fontFamily: 'Plus Jakarta Sans,sans-serif', fontSize: 28, fontWeight: 700, color: '#FAF6EE', letterSpacing: '-0.03em', lineHeight: 1 }}>{s.n}</div>
                 <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 12, color: 'rgba(250,246,238,0.45)', marginTop: 4 }}>{s.label}</div>
               </div>
             ))}
@@ -244,7 +244,7 @@ export default function AgendaFeaturePage() {
 
           <h1
             style={{
-              fontFamily: 'DM Sans, sans-serif',
+              fontFamily: 'Plus Jakarta Sans, sans-serif',
               fontSize: 'clamp(2rem, 5vw, 3.5rem)',
               fontWeight: 700,
               letterSpacing: '-0.02em',
@@ -321,7 +321,7 @@ export default function AgendaFeaturePage() {
           <div style={{ textAlign: 'center', marginBottom: 56 }}>
             <h2
               style={{
-                fontFamily: 'DM Sans, sans-serif',
+                fontFamily: 'Plus Jakarta Sans, sans-serif',
                 fontSize: 'clamp(1.5rem, 3vw, 2.25rem)',
                 fontWeight: 700,
                 letterSpacing: '-0.02em',
@@ -373,7 +373,7 @@ export default function AgendaFeaturePage() {
                 </div>
                 <h3
                   style={{
-                    fontFamily: 'DM Sans, sans-serif',
+                    fontFamily: 'Plus Jakarta Sans, sans-serif',
                     fontSize: 18,
                     fontWeight: 700,
                     color: C.ink,
@@ -397,7 +397,7 @@ export default function AgendaFeaturePage() {
           <div style={{ textAlign: 'center', marginBottom: 56 }}>
             <h2
               style={{
-                fontFamily: 'DM Sans, sans-serif',
+                fontFamily: 'Plus Jakarta Sans, sans-serif',
                 fontSize: 'clamp(1.5rem, 3vw, 2.25rem)',
                 fontWeight: 700,
                 letterSpacing: '-0.02em',
@@ -423,7 +423,7 @@ export default function AgendaFeaturePage() {
               <div key={step.number} style={{ display: 'flex', flexDirection: 'column' as const, gap: 16 }}>
                 <div
                   style={{
-                    fontFamily: 'DM Sans, sans-serif',
+                    fontFamily: 'Plus Jakarta Sans, sans-serif',
                     fontSize: 48,
                     fontWeight: 800,
                     color: C.primarySoft,
@@ -435,7 +435,7 @@ export default function AgendaFeaturePage() {
                 </div>
                 <h3
                   style={{
-                    fontFamily: 'DM Sans, sans-serif',
+                    fontFamily: 'Plus Jakarta Sans, sans-serif',
                     fontSize: 18,
                     fontWeight: 700,
                     color: C.ink,
@@ -476,7 +476,7 @@ export default function AgendaFeaturePage() {
             <div key={s.label} style={{ display: 'flex', flexDirection: 'column' as const, gap: 8 }}>
               <span
                 style={{
-                  fontFamily: 'DM Sans, sans-serif',
+                  fontFamily: 'Plus Jakarta Sans, sans-serif',
                   fontSize: 'clamp(2rem, 4vw, 2.75rem)',
                   fontWeight: 800,
                   color: C.primary,
@@ -516,7 +516,7 @@ export default function AgendaFeaturePage() {
         <div style={{ position: 'relative', maxWidth: 640, margin: '0 auto' }}>
           <h2
             style={{
-              fontFamily: 'DM Sans, sans-serif',
+              fontFamily: 'Plus Jakarta Sans, sans-serif',
               fontSize: 'clamp(1.75rem, 4vw, 3rem)',
               fontWeight: 700,
               letterSpacing: '-0.02em',

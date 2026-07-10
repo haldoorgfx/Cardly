@@ -222,7 +222,7 @@ export default function RevealScreen({
         {/* Mono "YOUR CARD · READY" status label */}
         <div style={{
           display: 'flex', alignItems: 'center', gap: 9,
-          fontFamily: 'JetBrains Mono, ui-monospace, monospace',
+          fontFamily: 'Inter, sans-serif',
           fontWeight: 500, fontSize: 10, letterSpacing: '0.16em', textTransform: 'uppercase',
           color: '#C9A45E', marginBottom: 26,
         }}>

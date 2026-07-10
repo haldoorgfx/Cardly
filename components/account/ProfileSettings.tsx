@@ -259,7 +259,7 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
       {/* Header — suppressed when embedded (organizer Settings supplies its own) */}
       {!embedded && (
         <div>
-          <h1 className="font-normal text-[32px]" style={{ fontFamily: '"DM Sans", sans-serif', letterSpacing: '-0.025em', color: '#1F4D3A' }}>
+          <h1 className="font-normal text-[32px]" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', letterSpacing: '-0.025em', color: '#1F4D3A' }}>
             Profile &amp; preferences
           </h1>
           <p className="mt-2 text-[14px]" style={{ color: '#6B7A72' }}>
@@ -298,7 +298,7 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
             onClick={() => fileInputRef.current?.click()}
             disabled={photoUploading}
             className="shrink-0 h-10 px-3.5 rounded-lg font-medium text-[13px] transition hover:bg-[#E8EFEB] disabled:opacity-50"
-            style={{ border: '1px solid #1F4D3A', color: '#1F4D3A', fontFamily: '"DM Sans", sans-serif' }}
+            style={{ border: '1px solid #1F4D3A', color: '#1F4D3A', fontFamily: '"Plus Jakarta Sans", sans-serif' }}
           >
             {photoUploading ? 'Uploading…' : 'Edit photo'}
           </button>
@@ -350,7 +350,7 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
 
       {/* Work */}
       <div className="mt-10">
-        <h2 className="font-medium text-[17px]" style={{ fontFamily: '"DM Sans", sans-serif', color: '#0F1F18' }}>
+        <h2 className="font-medium text-[17px]" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: '#0F1F18' }}>
           Work
         </h2>
         <p className="mt-1 text-[13px]" style={{ color: '#6B7A72' }}>
@@ -403,7 +403,7 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
             </svg>
           </div>
         </div>
-        <p className="mt-4 text-[13px] font-medium" style={{ color: '#0F1F18', fontFamily: '"DM Sans", sans-serif' }}>I&rsquo;m here as a…</p>
+        <p className="mt-4 text-[13px] font-medium" style={{ color: '#0F1F18', fontFamily: '"Plus Jakarta Sans", sans-serif' }}>I&rsquo;m here as a…</p>
         <div className="flex flex-wrap gap-2 mt-3">
           {ROLE_OPTIONS.map(r => (
             <button
@@ -414,7 +414,7 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
                 border: `1px solid ${roleTypes.includes(r) ? '#1F4D3A' : '#E5E0D4'}`,
                 background: roleTypes.includes(r) ? '#1F4D3A' : '#FFFFFF',
                 color: roleTypes.includes(r) ? '#FFFFFF' : '#3A4A42',
-                fontFamily: '"DM Sans", sans-serif',
+                fontFamily: '"Plus Jakarta Sans", sans-serif',
               }}
             >
               {roleTypes.includes(r) && <span style={{ fontSize: 11, color: '#E8C57E' }}>✓</span>}
@@ -426,7 +426,7 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
 
       {/* Interests */}
       <div className="mt-10">
-        <h2 className="font-medium text-[17px]" style={{ fontFamily: '"DM Sans", sans-serif', color: '#0F1F18' }}>
+        <h2 className="font-medium text-[17px]" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: '#0F1F18' }}>
           Your interests
         </h2>
         <p className="mt-1 text-[13px]" style={{ color: '#6B7A72' }}>
@@ -442,7 +442,7 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
                 border: `1px solid ${interests.includes(i) ? '#1F4D3A' : '#E5E0D4'}`,
                 background: interests.includes(i) ? '#1F4D3A' : '#FFFFFF',
                 color: interests.includes(i) ? '#FFFFFF' : '#3A4A42',
-                fontFamily: '"DM Sans", sans-serif',
+                fontFamily: '"Plus Jakarta Sans", sans-serif',
               }}
             >
               {interests.includes(i) && <span style={{ fontSize: 11, color: '#E8C57E' }}>✓</span>}
@@ -454,7 +454,7 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
 
       {/* Home city */}
       <div className="mt-10">
-        <h2 className="font-medium text-[17px]" style={{ fontFamily: '"DM Sans", sans-serif', color: '#0F1F18' }}>
+        <h2 className="font-medium text-[17px]" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: '#0F1F18' }}>
           Home city
         </h2>
         <p className="mt-1 text-[13px]" style={{ color: '#6B7A72' }}>Events near here come first.</p>
@@ -490,7 +490,7 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
                   border: `1px solid ${city === c ? '#1F4D3A' : '#E5E0D4'}`,
                   background: city === c ? '#E8EFEB' : '#FFFFFF',
                   color: '#0F1F18',
-                  fontFamily: '"DM Sans", sans-serif',
+                  fontFamily: '"Plus Jakarta Sans", sans-serif',
                 }}
               >
                 {c}
@@ -505,7 +505,7 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
 
       {/* Goals */}
       <div className="mt-10">
-        <h2 className="font-medium text-[17px]" style={{ fontFamily: '"DM Sans", sans-serif', color: '#0F1F18' }}>
+        <h2 className="font-medium text-[17px]" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: '#0F1F18' }}>
           What you want out of events
         </h2>
         <p className="mt-1 text-[13px]" style={{ color: '#6B7A72' }}>
@@ -521,7 +521,7 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
                 border: `1px solid ${goals.includes(g) ? '#1F4D3A' : '#E5E0D4'}`,
                 background: goals.includes(g) ? '#1F4D3A' : '#FFFFFF',
                 color: goals.includes(g) ? '#FFFFFF' : '#3A4A42',
-                fontFamily: '"DM Sans", sans-serif',
+                fontFamily: '"Plus Jakarta Sans", sans-serif',
               }}
             >
               {goals.includes(g) && <span style={{ fontSize: 11, color: '#E8C57E' }}>✓</span>}
@@ -533,7 +533,7 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
 
       {/* Networking */}
       <div className="mt-10">
-        <h2 className="font-medium text-[17px]" style={{ fontFamily: '"DM Sans", sans-serif', color: '#0F1F18' }}>
+        <h2 className="font-medium text-[17px]" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: '#0F1F18' }}>
           How you&rsquo;ll connect
         </h2>
         <p className="mt-1 text-[13px]" style={{ color: '#6B7A72' }}>
@@ -584,7 +584,7 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
 
       {/* Notifications — managed in the unified notifications center */}
       <div className="mt-10">
-        <h2 className="font-medium text-[17px]" style={{ fontFamily: '"DM Sans", sans-serif', color: '#0F1F18' }}>
+        <h2 className="font-medium text-[17px]" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: '#0F1F18' }}>
           Notifications
         </h2>
         <p className="mt-1 text-[13px]" style={{ color: '#6B7A72' }}>
@@ -605,7 +605,7 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
 
       {/* Language & region */}
       <div className="mt-10">
-        <h2 className="font-medium text-[17px]" style={{ fontFamily: '"DM Sans", sans-serif', color: '#0F1F18' }}>
+        <h2 className="font-medium text-[17px]" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: '#0F1F18' }}>
           Language &amp; region
         </h2>
         <p className="mt-1 text-[13px]" style={{ color: '#6B7A72' }}>
@@ -622,7 +622,7 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
                 border: `1px solid ${language === l ? '#1F4D3A' : '#E5E0D4'}`,
                 background: language === l ? '#E8EFEB' : '#FFFFFF',
                 color: '#0F1F18',
-                fontFamily: '"DM Sans", sans-serif',
+                fontFamily: '"Plus Jakarta Sans", sans-serif',
               }}
             >
               <span
@@ -648,13 +648,13 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
           onClick={save}
           disabled={saving}
           className="h-10 px-5 rounded-lg font-medium text-[14px] text-white transition hover:opacity-90 disabled:opacity-50"
-          style={{ background: '#1F4D3A', fontFamily: '"DM Sans", sans-serif' }}
+          style={{ background: '#1F4D3A', fontFamily: '"Plus Jakarta Sans", sans-serif' }}
         >
           {saving ? 'Saving…' : saved ? '✓ Saved' : 'Save preferences'}
         </button>
         <button
           className="h-10 px-5 rounded-lg font-medium text-[14px] transition hover:bg-[#E8EFEB]"
-          style={{ border: '1px solid #1F4D3A', color: '#1F4D3A', fontFamily: '"DM Sans", sans-serif' }}
+          style={{ border: '1px solid #1F4D3A', color: '#1F4D3A', fontFamily: '"Plus Jakarta Sans", sans-serif' }}
           onClick={() => {
             setFullName(profile.full_name ?? '');
             setPhone(profile.phone ?? '');
@@ -681,7 +681,7 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
 
       {/* Account */}
       <div className="mt-12">
-        <h2 className="font-medium text-[17px]" style={{ fontFamily: '"DM Sans", sans-serif', color: '#0F1F18' }}>
+        <h2 className="font-medium text-[17px]" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: '#0F1F18' }}>
           Account
         </h2>
 
@@ -690,7 +690,7 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
           className="mt-4 p-5 rounded-xl"
           style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}
         >
-          <div className="text-[14px] font-medium" style={{ color: '#0F1F18', fontFamily: '"DM Sans", sans-serif' }}>
+          <div className="text-[14px] font-medium" style={{ color: '#0F1F18', fontFamily: '"Plus Jakarta Sans", sans-serif' }}>
             Change email
           </div>
           <p className="mt-1 text-[13px]" style={{ color: '#6B7A72' }}>
@@ -716,7 +716,7 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
               onClick={handleChangeEmail}
               disabled={emailBusy || !newEmail.trim()}
               className="h-10 px-4 rounded-lg font-medium text-[14px] text-white transition hover:opacity-90 disabled:opacity-50"
-              style={{ background: '#1F4D3A', fontFamily: '"DM Sans", sans-serif' }}
+              style={{ background: '#1F4D3A', fontFamily: '"Plus Jakarta Sans", sans-serif' }}
             >
               {emailBusy ? 'Sending…' : 'Send confirmation'}
             </button>
@@ -744,7 +744,7 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
           className="mt-4 p-5 rounded-xl"
           style={{ background: '#FFFFFF', border: '1px solid rgba(184,66,60,0.35)' }}
         >
-          <div className="text-[14px] font-medium" style={{ color: '#B8423C', fontFamily: '"DM Sans", sans-serif' }}>
+          <div className="text-[14px] font-medium" style={{ color: '#B8423C', fontFamily: '"Plus Jakarta Sans", sans-serif' }}>
             Delete account
           </div>
           <p className="mt-1 text-[13px]" style={{ color: '#6B7A72' }}>
@@ -753,7 +753,7 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
           <button
             onClick={() => { setShowDeleteDialog(true); setDeleteConfirm(''); setDeleteError(null); }}
             className="mt-4 h-10 px-4 rounded-lg font-medium text-[14px] transition hover:bg-[#FBEDEC]"
-            style={{ border: '1px solid #B8423C', color: '#B8423C', fontFamily: '"DM Sans", sans-serif' }}
+            style={{ border: '1px solid #B8423C', color: '#B8423C', fontFamily: '"Plus Jakarta Sans", sans-serif' }}
           >
             Delete my account
           </button>
@@ -773,12 +773,12 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
             style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', boxShadow: '0 20px 48px rgba(15,31,24,0.24)' }}
             onClick={e => e.stopPropagation()}
           >
-            <h3 className="text-[19px] font-medium" style={{ fontFamily: '"DM Sans", sans-serif', color: '#0F1F18' }}>
+            <h3 className="text-[19px] font-medium" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: '#0F1F18' }}>
               Delete account?
             </h3>
             <p className="mt-2 text-[13px]" style={{ color: '#6B7A72' }}>
               This permanently removes your profile and all your data. This can&rsquo;t be undone.
-              Type <span style={{ fontFamily: '"JetBrains Mono", monospace', color: '#B8423C' }}>DELETE</span> to confirm.
+              Type <span style={{ fontFamily: 'Inter, sans-serif', color: '#B8423C' }}>DELETE</span> to confirm.
             </p>
             <input
               type="text"
@@ -799,7 +799,7 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
                 onClick={handleDeleteAccount}
                 disabled={deleting || deleteConfirm.trim() !== 'DELETE'}
                 className="h-10 px-5 rounded-lg font-medium text-[14px] text-white transition hover:opacity-90 disabled:opacity-50"
-                style={{ background: '#B8423C', fontFamily: '"DM Sans", sans-serif' }}
+                style={{ background: '#B8423C', fontFamily: '"Plus Jakarta Sans", sans-serif' }}
               >
                 {deleting ? 'Deleting…' : 'Delete permanently'}
               </button>
@@ -807,7 +807,7 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
                 onClick={() => setShowDeleteDialog(false)}
                 disabled={deleting}
                 className="h-10 px-5 rounded-lg font-medium text-[14px] transition hover:bg-[#E8EFEB] disabled:opacity-50"
-                style={{ border: '1px solid #1F4D3A', color: '#1F4D3A', fontFamily: '"DM Sans", sans-serif' }}
+                style={{ border: '1px solid #1F4D3A', color: '#1F4D3A', fontFamily: '"Plus Jakarta Sans", sans-serif' }}
               >
                 Cancel
               </button>

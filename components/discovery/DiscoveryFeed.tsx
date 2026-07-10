@@ -380,7 +380,7 @@ export function DiscoveryFeed({ events }: DiscoveryFeedProps) {
                     placeholder="e.g. lagos-tech-2024"
                     aria-label="Event code"
                     className="flex-1 min-w-0 h-11 px-3.5 rounded-xl text-[14px] outline-none"
-                    style={{ background: '#FAF6EE', border: `1px solid ${codeError ? '#B8423C' : '#E5E0D4'}`, color: '#0F1F18', fontFamily: '"JetBrains Mono", monospace', letterSpacing: '0.02em' }}
+                    style={{ background: '#FAF6EE', border: `1px solid ${codeError ? '#B8423C' : '#E5E0D4'}`, color: '#0F1F18', fontFamily: 'Inter, sans-serif', letterSpacing: '0.02em' }}
                   />
                   <button type="submit" aria-label="Go to event"
                     className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 transition hover:opacity-90"

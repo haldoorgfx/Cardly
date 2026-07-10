@@ -70,7 +70,7 @@ export default async function AgendaPrintPage({ params }: Props) {
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: `
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Inter:wght@400;500&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Inter', sans-serif; background: white; color: #0F1F18; font-size: 13px; line-height: 1.5; }
         @media print {
@@ -84,7 +84,7 @@ export default async function AgendaPrintPage({ params }: Props) {
 
         {/* Event name */}
         <div style={{ marginBottom: 32, borderBottom: '2px solid #0F1F18', paddingBottom: 16 }}>
-          <h1 style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 32, fontWeight: 700, letterSpacing: '-0.02em', color: '#0F1F18' }}>
+          <h1 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 32, fontWeight: 700, letterSpacing: '-0.02em', color: '#0F1F18' }}>
             {event.name}
           </h1>
           <p style={{ marginTop: 4, color: '#6B7A72', fontSize: 12 }}>Agenda</p>
@@ -93,7 +93,7 @@ export default async function AgendaPrintPage({ params }: Props) {
         {/* Days */}
         {grouped.map(([dateStr, daySessions]) => (
           <div key={dateStr} style={{ marginBottom: 40 }}>
-            <h2 style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 600, color: '#1F4D3A', marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.06em', fontSize: 11 }}>
+            <h2 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, color: '#1F4D3A', marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.06em', fontSize: 11 }}>
               {fmtDay(daySessions[0].starts_at)}
             </h2>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>

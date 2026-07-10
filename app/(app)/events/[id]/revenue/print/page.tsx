@@ -53,7 +53,7 @@ export default async function RevenuePrintPage({ params }: Props) {
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: `
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Inter', sans-serif; background: white; color: #0F1F18; font-size: 13px; line-height: 1.5; }
         @media print {
@@ -67,7 +67,7 @@ export default async function RevenuePrintPage({ params }: Props) {
 
         {/* Header */}
         <div style={{ marginBottom: 28, borderBottom: '3px solid #0F1F18', paddingBottom: 16 }}>
-          <h1 style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 30, fontWeight: 700, letterSpacing: '-0.02em', color: '#0F1F18' }}>
+          <h1 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 30, fontWeight: 700, letterSpacing: '-0.02em', color: '#0F1F18' }}>
             {event.name}
           </h1>
           <p style={{ marginTop: 4, color: '#6B7A72', fontSize: 13 }}>Revenue Report</p>
@@ -79,18 +79,18 @@ export default async function RevenuePrintPage({ params }: Props) {
             <div style={{ color: 'rgba(250,246,238,0.65)', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 600, marginBottom: 6 }}>
               Total Revenue
             </div>
-            <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 42, fontWeight: 700, color: '#FAF6EE', letterSpacing: '-0.02em', lineHeight: 1 }}>
+            <div style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 42, fontWeight: 700, color: '#FAF6EE', letterSpacing: '-0.02em', lineHeight: 1 }}>
               {fmtCurrency(totalRev, currency)}
             </div>
           </div>
           <div style={{ textAlign: 'right' }}>
             <div style={{ color: 'rgba(250,246,238,0.65)', fontSize: 11, marginBottom: 4 }}>Confirmed Registrations</div>
-            <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 28, fontWeight: 700, color: '#E8C57E' }}>{confirmed.length}</div>
+            <div style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 28, fontWeight: 700, color: '#E8C57E' }}>{confirmed.length}</div>
           </div>
         </div>
 
         {/* Ticket type breakdown */}
-        <h2 style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 700, color: '#0F1F18', fontSize: 15, marginBottom: 12, letterSpacing: '-0.01em' }}>
+        <h2 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 700, color: '#0F1F18', fontSize: 15, marginBottom: 12, letterSpacing: '-0.01em' }}>
           Breakdown by Ticket Type
         </h2>
         <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 32 }}>
@@ -118,9 +118,9 @@ export default async function RevenuePrintPage({ params }: Props) {
             ))}
             {/* Total row */}
             <tr style={{ borderTop: '2px solid #0F1F18', background: 'rgba(31,77,58,0.04)' }}>
-              <td colSpan={2} style={{ padding: '10px 10px', fontWeight: 700, color: '#0F1F18', fontFamily: 'DM Sans, sans-serif' }}>TOTAL</td>
+              <td colSpan={2} style={{ padding: '10px 10px', fontWeight: 700, color: '#0F1F18', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>TOTAL</td>
               <td style={{ padding: '10px 10px', fontWeight: 700, color: '#0F1F18' }}>{confirmed.length}</td>
-              <td style={{ padding: '10px 10px', fontWeight: 700, color: '#1F4D3A', fontFamily: 'DM Sans, sans-serif', fontSize: 15 }}>
+              <td style={{ padding: '10px 10px', fontWeight: 700, color: '#1F4D3A', fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 15 }}>
                 {fmtCurrency(totalRev, currency)}
               </td>
             </tr>
@@ -128,7 +128,7 @@ export default async function RevenuePrintPage({ params }: Props) {
         </table>
 
         {/* Registration status summary */}
-        <h2 style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 700, color: '#0F1F18', fontSize: 15, marginBottom: 12, letterSpacing: '-0.01em' }}>
+        <h2 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 700, color: '#0F1F18', fontSize: 15, marginBottom: 12, letterSpacing: '-0.01em' }}>
           Registration Summary
         </h2>
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
@@ -140,7 +140,7 @@ export default async function RevenuePrintPage({ params }: Props) {
             { label: 'Cancelled',   value: allRegs.filter(r => r.status === 'cancelled').length,               color: '#B8423C' },
           ].filter(s => s.value > 0).map(s => (
             <div key={s.label} style={{ border: '1px solid #E5E0D4', borderRadius: 10, padding: '10px 16px', minWidth: 100 }}>
-              <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 24, fontWeight: 700, color: s.color, lineHeight: 1 }}>{s.value}</div>
+              <div style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 24, fontWeight: 700, color: s.color, lineHeight: 1 }}>{s.value}</div>
               <div style={{ fontSize: 11, color: '#6B7A72', marginTop: 3 }}>{s.label}</div>
             </div>
           ))}

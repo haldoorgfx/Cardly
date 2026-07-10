@@ -137,7 +137,7 @@ export async function maybeSendDownloadMilestone(opts: {
       <table cellpadding="0" cellspacing="0" style="width:100%;border-radius:12px;overflow:hidden;border:1px solid #E5E0D4">
         <tr>
           <td style="padding:16px 20px;background:#FAF6EE">
-            <span style="font-family:monospace;font-size:11px;color:#6B7A72;text-transform:uppercase;letter-spacing:0.1em">Downloads</span>
+            <span style="font-family:Inter,system-ui,sans-serif;font-size:11px;color:#6B7A72;text-transform:uppercase;letter-spacing:0.1em">Downloads</span>
             <div style="font-size:36px;font-weight:700;color:#1F4D3A;margin-top:4px">${count}</div>
           </td>
         </tr>
@@ -192,7 +192,7 @@ export async function sendEventPublishedEmail(opts: {
         <strong style="color:#0F1F18">${opts.eventName}</strong> is now published and accepting
         attendee registrations. Share the link below to start collecting cards.
       </p>
-      <div style="background:#FAF6EE;border:1px solid #E5E0D4;border-radius:10px;padding:14px 16px;font-family:monospace;font-size:13px;color:#1F4D3A;word-break:break-all">
+      <div style="background:#FAF6EE;border:1px solid #E5E0D4;border-radius:10px;padding:14px 16px;font-family:Inter,system-ui,sans-serif;font-size:13px;color:#1F4D3A;word-break:break-all">
         ${opts.publicUrl}
       </div>
       ${btn(opts.publicUrl, 'Preview attendee page →')}

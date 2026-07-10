@@ -13,7 +13,7 @@ type RailTool = 'elements' | 'templates' | 'brand' | 'background';
 type LayerId = string | null;
 
 interface TextStyle {
-  font: 'DM' | 'Inter' | 'JetBrains';
+  font: 'Jakarta' | 'Inter';
   weight: 300 | 400 | 600 | 700;
   size: number;
   align: 'left' | 'center' | 'right' | 'justify';
@@ -24,9 +24,8 @@ interface TextStyle {
 }
 
 const FONTS: Record<string, string> = {
-  DM: '"DM Sans", sans-serif',
+  Jakarta: '"Plus Jakarta Sans", sans-serif',
   Inter: 'Inter, sans-serif',
-  JetBrains: 'Inter, system-ui, sans-serif',
 };
 const CANVAS_W = 4500;
 const CANVAS_H = 5625;
@@ -392,10 +391,10 @@ function BrandPanel() {
       <div>
         <PLabel>Fonts</PLabel>
         <div style={{ display: 'grid', gap: 8 }}>
-          {[{ name: 'DM Sans', role: 'Display', family: '"DM Sans"' }, { name: 'Inter', role: 'Body', family: 'Inter' }].map(f => (
+          {[{ name: 'Plus Jakarta Sans', role: 'Display', family: '"Plus Jakarta Sans"' }, { name: 'Inter', role: 'Body', family: 'Inter' }].map(f => (
             <div key={f.name} style={{ padding: '8px 12px', borderRadius: 8, border: '1px solid #E5E0D4', background: 'rgba(250,246,238,0.4)' }}>
               <div style={{ fontFamily: f.family, fontSize: 14, fontWeight: 600, color: '#0F1F18' }}>{f.name}</div>
-              <div style={{ fontFamily: 'monospace', fontSize: 10, color: '#6B7A72' }}>{f.role}</div>
+              <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 10, color: '#6B7A72' }}>{f.role}</div>
             </div>
           ))}
         </div>
@@ -506,12 +505,12 @@ function RightPanel({ sel, ns, setNs }: { sel: LayerId; ns: TextStyle; setNs: (s
               <div style={{ fontFamily: 'monospace', fontSize: 8.5, letterSpacing: '0.16em', textTransform: 'uppercase', color: '#6B7A72' }}>
                 {isText ? 'Text zone' : 'Image zone'}
               </div>
-              <div style={{ fontFamily: '"DM Sans", sans-serif', fontSize: 14, fontWeight: 600, color: '#0F1F18', lineHeight: 1, marginTop: 2 }}>{label}</div>
+              <div style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', fontSize: 14, fontWeight: 600, color: '#0F1F18', lineHeight: 1, marginTop: 2 }}>{label}</div>
             </div>
             <span style={{ marginLeft: 'auto', fontFamily: 'monospace', fontSize: 10, color: '#6B7A72' }}>#avnt</span>
           </div>
         ) : (
-          <div style={{ marginTop: 12, fontFamily: '"DM Sans", sans-serif', fontSize: 14, fontWeight: 600, color: '#0F1F18' }}>Card settings</div>
+          <div style={{ marginTop: 12, fontFamily: '"Plus Jakarta Sans", sans-serif', fontSize: 14, fontWeight: 600, color: '#0F1F18' }}>Card settings</div>
         )}
       </div>
 
@@ -583,7 +582,7 @@ function RightPanel({ sel, ns, setNs }: { sel: LayerId; ns: TextStyle; setNs: (s
             <div>
               <div style={{ fontSize: 11.5, color: '#6B7A72', marginBottom: 6 }}>Font</div>
               <Seg
-                options={[{ id: 'DM', label: 'DM' }, { id: 'Inter', label: 'Inter' }, { id: 'JetBrains', label: 'JB' }]}
+                options={[{ id: 'Jakarta', label: 'Jakarta' }, { id: 'Inter', label: 'Inter' }]}
                 value={ns.font}
                 onChange={v => setNs({ ...ns, font: v as TextStyle['font'] })}
                 full
@@ -677,7 +676,7 @@ export function StudioClient() {
   const [sel, setSel] = useState<LayerId>(null);
   const [bg, setBg] = useState(GRADIENTS[0]);
   const [ns, setNs] = useState<TextStyle>({
-    font: 'DM', weight: 700, size: 200, align: 'center',
+    font: 'Jakarta', weight: 700, size: 200, align: 'center',
     transform: 'none', color: '#FAF6EE', required: false, maxChars: 110,
   });
 
@@ -689,7 +688,7 @@ export function StudioClient() {
           <button className="w-8 h-8 grid place-items-center rounded-lg hover:bg-white/10">
             <ChevronLeft size={18} />
           </button>
-          <div style={{ width: 28, height: 28, borderRadius: 6, background: 'linear-gradient(135deg,#FAF6EE,#E8C57E)', display: 'grid', placeItems: 'center', fontFamily: '"DM Sans",sans-serif', fontWeight: 700, fontSize: 13, color: '#163828' }}>
+          <div style={{ width: 28, height: 28, borderRadius: 6, background: 'linear-gradient(135deg,#FAF6EE,#E8C57E)', display: 'grid', placeItems: 'center', fontFamily: '"Plus Jakarta Sans",sans-serif', fontWeight: 700, fontSize: 13, color: '#163828' }}>
             K
           </div>
           <div className="flex items-center gap-2 text-[13px] min-w-0">

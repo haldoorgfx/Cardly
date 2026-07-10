@@ -233,7 +233,7 @@ export default function AttendeeAuth() {
   if (state === 'otp') {
     return (
       <form onSubmit={handleVerify}>
-        <h1 style={{ fontFamily: 'var(--font-display, "DM Sans", sans-serif)', fontWeight: 400, fontSize: 28, letterSpacing: '-0.02em', color: '#1F4D3A' }}>
+        <h1 style={{ fontFamily: 'var(--font-display, "Plus Jakarta Sans", sans-serif)', fontWeight: 400, fontSize: 28, letterSpacing: '-0.02em', color: '#1F4D3A' }}>
           Check your email
         </h1>
         <p className="text-[14px] mt-2 leading-relaxed" style={{ color: '#6B7A72' }}>
@@ -282,7 +282,7 @@ export default function AttendeeAuth() {
           type="submit"
           disabled={!otpFilled || loading}
           className="w-full h-12 mt-6 rounded-lg font-medium text-[15px] transition disabled:opacity-50"
-          style={{ background: '#E8C57E', color: '#0F1F18', fontFamily: '"DM Sans", sans-serif' }}
+          style={{ background: '#E8C57E', color: '#0F1F18', fontFamily: '"Plus Jakarta Sans", sans-serif' }}
         >
           {loading ? 'Verifying…' : 'Verify & continue'}
         </button>
@@ -313,7 +313,7 @@ export default function AttendeeAuth() {
   if (state === 'setPassword') {
     return (
       <form onSubmit={handleSetPassword}>
-        <h1 style={{ fontFamily: 'var(--font-display, "DM Sans", sans-serif)', fontWeight: 400, fontSize: 28, letterSpacing: '-0.02em', color: '#1F4D3A' }}>
+        <h1 style={{ fontFamily: 'var(--font-display, "Plus Jakarta Sans", sans-serif)', fontWeight: 400, fontSize: 28, letterSpacing: '-0.02em', color: '#1F4D3A' }}>
           Set a password
         </h1>
         <p className="text-[14px] mt-2 leading-relaxed" style={{ color: '#6B7A72' }}>
@@ -350,7 +350,7 @@ export default function AttendeeAuth() {
           type="submit"
           disabled={loading || newPassword.length < 8}
           className="w-full h-12 mt-5 rounded-lg font-medium text-[15px] text-white transition hover:opacity-90 disabled:opacity-50"
-          style={{ background: '#1F4D3A', fontFamily: '"DM Sans", sans-serif' }}
+          style={{ background: '#1F4D3A', fontFamily: '"Plus Jakarta Sans", sans-serif' }}
         >
           {loading ? 'Saving…' : 'Save password & continue'}
         </button>
@@ -359,7 +359,7 @@ export default function AttendeeAuth() {
           type="button"
           onClick={handleSkipPassword}
           className="w-full h-11 mt-2 rounded-lg font-medium text-[14px] transition"
-          style={{ color: '#6B7A72', fontFamily: '"DM Sans", sans-serif' }}
+          style={{ color: '#6B7A72', fontFamily: '"Plus Jakarta Sans", sans-serif' }}
         >
           Skip for now (I&apos;ll use a code each time)
         </button>
@@ -370,7 +370,7 @@ export default function AttendeeAuth() {
   // ── Email + password screen (default) ────────────────────────────────────
   return (
     <form onSubmit={handlePasswordSignIn}>
-      <h1 style={{ fontFamily: 'var(--font-display, "DM Sans", sans-serif)', fontWeight: 400, fontSize: 28, letterSpacing: '-0.02em', color: '#1F4D3A' }}>
+      <h1 style={{ fontFamily: 'var(--font-display, "Plus Jakarta Sans", sans-serif)', fontWeight: 400, fontSize: 28, letterSpacing: '-0.02em', color: '#1F4D3A' }}>
         Welcome back
       </h1>
       <p className="text-[14px] mt-2 leading-relaxed" style={{ color: '#6B7A72' }}>
@@ -383,7 +383,7 @@ export default function AttendeeAuth() {
         type="button"
         onClick={handleGoogleSignIn}
         className="w-full h-12 mt-7 flex items-center justify-center gap-2.5 rounded-lg font-medium text-[14px] transition hover:bg-[#F5F3EE]"
-        style={{ border: '1px solid #E5E0D4', background: '#FFFFFF', color: '#0F1F18', fontFamily: '"DM Sans", sans-serif' }}
+        style={{ border: '1px solid #E5E0D4', background: '#FFFFFF', color: '#0F1F18', fontFamily: '"Plus Jakarta Sans", sans-serif' }}
       >
         <GoogleG />
         Continue with Google
@@ -439,7 +439,7 @@ export default function AttendeeAuth() {
         type="submit"
         disabled={loading || !email || !password}
         className="w-full h-12 mt-4 rounded-lg font-medium text-[15px] text-white transition hover:opacity-90 disabled:opacity-50"
-        style={{ background: '#1F4D3A', fontFamily: '"DM Sans", sans-serif' }}
+        style={{ background: '#1F4D3A', fontFamily: '"Plus Jakarta Sans", sans-serif' }}
       >
         {loading ? 'Signing in…' : 'Sign in'}
       </button>
@@ -450,7 +450,7 @@ export default function AttendeeAuth() {
         onClick={handleSendOtp}
         disabled={loading}
         className="w-full h-11 mt-2 rounded-lg font-medium text-[14px] transition hover:bg-[#F5F3EE] disabled:opacity-50"
-        style={{ border: '1px solid #E5E0D4', background: '#FFFFFF', color: '#1F4D3A', fontFamily: '"DM Sans", sans-serif' }}
+        style={{ border: '1px solid #E5E0D4', background: '#FFFFFF', color: '#1F4D3A', fontFamily: '"Plus Jakarta Sans", sans-serif' }}
       >
         Email me a code instead
       </button>

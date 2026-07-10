@@ -65,7 +65,7 @@ export default function MobileFallback({ eventId, eventName, variantSlug }: Mobi
           <div style={{
             width: 24, height: 24, borderRadius: 6,
             background: '#1F4D3A', color: '#E8C57E',
-            fontFamily: 'DM Sans, sans-serif', fontWeight: 700, fontSize: 11,
+            fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 700, fontSize: 11,
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
           }}>cl</div>
           <span style={{
@@ -132,7 +132,7 @@ export default function MobileFallback({ eventId, eventName, variantSlug }: Mobi
           {/* Headline */}
           <div style={{ textAlign: 'center' }}>
             <h1 style={{
-              fontFamily: 'DM Sans, sans-serif', fontWeight: 700,
+              fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 700,
               fontSize: 26, lineHeight: 1.15, letterSpacing: '-0.025em',
               margin: 0, color: '#0F1F18',
             }}>The editor works best on a laptop</h1>
@@ -154,7 +154,7 @@ export default function MobileFallback({ eventId, eventName, variantSlug }: Mobi
             <div style={{
               width: 28, height: 28, borderRadius: '50%',
               background: '#1F4D3A', color: '#E8C57E',
-              fontFamily: 'DM Sans, sans-serif', fontWeight: 700, fontSize: 11,
+              fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 700, fontSize: 11,
               display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
               flexShrink: 0,
             }}>
@@ -162,7 +162,7 @@ export default function MobileFallback({ eventId, eventName, variantSlug }: Mobi
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{
-                fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 13,
+                fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, fontSize: 13,
                 color: '#0F1F18', lineHeight: 1.2,
                 whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
               }}>{eventName}</div>

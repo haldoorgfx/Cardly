@@ -80,7 +80,7 @@ class AppSpace {
   static const xxxl = 32.0;
 }
 
-/// Type scale. DM Sans (display), Inter (body), JetBrains Mono (numbers).
+/// Type scale. Plus Jakarta Sans (display), Inter (body + numbers). No monospace.
 class AppText {
   // Headings — Plus Jakarta Sans (modern geometric sans).
   static TextStyle _dm(double size, FontWeight w,
@@ -108,7 +108,7 @@ class AppText {
           letterSpacing: 0,
           color: c ?? AppColors.ink);
 
-  // Display / headings (DM Sans) — mobile-first: larger + bolder hierarchy.
+  // Display / headings (Plus Jakarta Sans) — mobile-first: larger + bolder hierarchy.
   static TextStyle get h1 => _dm(30, FontWeight.w800, h: 1.05);
   static TextStyle get h2 => _dm(23, FontWeight.w700);
   static TextStyle get h3 => _dm(18, FontWeight.w700, ls: -0.01);
@@ -134,6 +134,15 @@ class AppText {
   static TextStyle get numMd => _num(16, FontWeight.w600);
   static TextStyle get numSm => _num(13.5, FontWeight.w500);
   static TextStyle get btn => _dm(16.5, FontWeight.w700, ls: -0.01);
+
+  // Kept for API compatibility (was the old mono style) — now renders Inter.
+  // Callers keep their uppercase/letter-spacing; only the font changed.
+  static TextStyle mono(double size, FontWeight w, {double ls = 0, Color? c}) =>
+      GoogleFonts.inter(
+          fontSize: size,
+          fontWeight: w,
+          letterSpacing: ls,
+          color: c ?? AppColors.ink);
 }
 
 /// App-wide ThemeData wired to the tokens.

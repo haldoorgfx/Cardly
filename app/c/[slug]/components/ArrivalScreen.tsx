@@ -117,7 +117,7 @@ export default function ArrivalScreen({
         {/* Copy */}
         <div className="mt-6 px-5">
           <h1 style={{
-            fontFamily: 'DM Sans, sans-serif',
+            fontFamily: 'Plus Jakarta Sans, sans-serif',
             fontWeight: 700, fontSize: 28, lineHeight: 1.15,
             letterSpacing: '-0.02em', margin: 0, color: '#0F1F18',
           }}>
@@ -239,7 +239,7 @@ export default function ArrivalScreen({
             </div>
 
             <h1 style={{
-              fontFamily: 'DM Sans, sans-serif',
+              fontFamily: 'Plus Jakarta Sans, sans-serif',
               fontWeight: 700, fontSize: 52, lineHeight: 1.05,
               letterSpacing: '-0.03em', margin: 0, color: '#0F1F18',
             }}>
@@ -292,7 +292,7 @@ export default function ArrivalScreen({
                 }}>
                   <div style={{ color: '#1F4D3A', marginBottom: 6 }}>{card.icon}</div>
                   <div style={{
-                    fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 13,
+                    fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, fontSize: 13,
                     color: '#0F1F18', marginBottom: 2,
                   }}>{card.title}</div>
                   <div style={{

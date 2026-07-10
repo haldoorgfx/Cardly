@@ -98,7 +98,7 @@ function EventPanel({
               height: 32, padding: '0 10px',
               background: T.surface, border: `1px solid ${T.primary}`,
               borderRadius: 6, color: T.ink,
-              fontFamily: 'DM Sans, sans-serif',
+              fontFamily: 'Plus Jakarta Sans, sans-serif',
             }}
           />
         ) : (
@@ -111,7 +111,7 @@ function EventPanel({
               borderRadius: 6, cursor: 'text',
             }}
           >
-            <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600, color: T.ink }} className="truncate">
+            <span style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 13, fontWeight: 600, color: T.ink }} className="truncate">
               {nameVal}
             </span>
             <Pencil size={11} strokeWidth={1.8} style={{ color: T.muted, flexShrink: 0, marginLeft: 4, opacity: 0 }} className="group-hover:opacity-100 transition" />
@@ -201,7 +201,7 @@ function PreviewPanel() {
       }}>
         <Eye size={18} strokeWidth={1.8} />
       </div>
-      <div style={{ marginTop: 12, fontFamily: 'DM Sans, sans-serif', fontWeight: 700, fontSize: 14, color: T.ink }}>
+      <div style={{ marginTop: 12, fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 700, fontSize: 14, color: T.ink }}>
         Preview mode
       </div>
       <p style={{ fontSize: 12, color: T.muted, marginTop: 4, lineHeight: 1.5 }}>
@@ -240,7 +240,7 @@ function MultiSelectPanel({ selectedIds, alignSelected, distributeSelected, remo
       }}>
         <MousePointer2 size={18} strokeWidth={1.8} />
       </div>
-      <div style={{ marginTop: 12, fontFamily: 'DM Sans, sans-serif', fontWeight: 700, fontSize: 14, color: T.ink }}>
+      <div style={{ marginTop: 12, fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 700, fontSize: 14, color: T.ink }}>
         {selectedIds.length} selected
       </div>
       <p style={{ fontSize: 12, color: T.muted, marginTop: 4 }}>

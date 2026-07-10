@@ -219,7 +219,7 @@ function CellValue({ value, isProCol }: { value: Cell; isProCol?: boolean }) {
     return <span style={{ color: 'rgba(107,122,114,0.45)' }}>—</span>;
   }
   return (
-    <span style={{ fontFamily: 'var(--font-dm-sans, DM Sans, sans-serif)', fontWeight: 500, fontSize: 14, color: C.ink }}>
+    <span style={{ fontFamily: 'var(--font-dm-sans, Plus Jakarta Sans, sans-serif)', fontWeight: 500, fontSize: 14, color: C.ink }}>
       {value}
     </span>
   );
@@ -273,7 +273,7 @@ function PlanCard({ plan, billing }: { plan: Plan; billing: 'monthly' | 'yearly'
             right: 28,
             background: C.accent,
             color: C.primaryDark,
-            fontFamily: 'var(--font-jetbrains-mono, monospace)',
+            fontFamily: 'Inter, sans-serif',
             fontSize: 10,
             letterSpacing: '0.16em',
             textTransform: 'uppercase',
@@ -292,7 +292,7 @@ function PlanCard({ plan, billing }: { plan: Plan; billing: 'monthly' | 'yearly'
 
       {/* Plan name */}
       <div style={{
-        fontFamily: 'var(--font-dm-sans, DM Sans, sans-serif)',
+        fontFamily: 'var(--font-dm-sans, Plus Jakarta Sans, sans-serif)',
         fontSize: 14,
         fontWeight: 500,
         letterSpacing: '-0.01em',
@@ -305,7 +305,7 @@ function PlanCard({ plan, billing }: { plan: Plan; billing: 'monthly' | 'yearly'
       {plan.headline && (
         <div style={{
           marginTop: 4,
-          fontFamily: 'var(--font-dm-sans, DM Sans, sans-serif)',
+          fontFamily: 'var(--font-dm-sans, Plus Jakarta Sans, sans-serif)',
           fontSize: 16,
           letterSpacing: '-0.015em',
           color: isPrimary ? 'rgba(250,246,238,0.82)' : C.ink,
@@ -317,7 +317,7 @@ function PlanCard({ plan, billing }: { plan: Plan; billing: 'monthly' | 'yearly'
       {/* Price */}
       <div style={{ marginTop: plan.headline ? 20 : 8, display: 'flex', alignItems: 'baseline', gap: 6 }}>
         <span style={{
-          fontFamily: 'var(--font-dm-sans, DM Sans, sans-serif)',
+          fontFamily: 'var(--font-dm-sans, Plus Jakarta Sans, sans-serif)',
           fontWeight: 700,
           fontSize: 48,
           lineHeight: 1,
@@ -334,7 +334,7 @@ function PlanCard({ plan, billing }: { plan: Plan; billing: 'monthly' | 'yearly'
       {/* Billing note */}
       <div style={{
         marginTop: 6,
-        fontFamily: 'var(--font-jetbrains-mono, monospace)',
+        fontFamily: 'Inter, sans-serif',
         fontSize: 10,
         letterSpacing: '0.16em',
         textTransform: 'uppercase',
@@ -367,7 +367,7 @@ function PlanCard({ plan, billing }: { plan: Plan; billing: 'monthly' | 'yearly'
           if (typeof f === 'object' && 'section' in f) {
             return (
               <li key={i} style={{
-                fontFamily: 'var(--font-jetbrains-mono, monospace)',
+                fontFamily: 'Inter, sans-serif',
                 fontSize: 10,
                 letterSpacing: '0.16em',
                 textTransform: 'uppercase',
@@ -449,7 +449,7 @@ function TrustStrip() {
           {TRUST_TILES.map(([title, body]) => (
             <div key={title} style={{ background: C.cream, padding: '20px 24px' }}>
               <div style={{
-                fontFamily: 'var(--font-dm-sans, DM Sans, sans-serif)',
+                fontFamily: 'var(--font-dm-sans, Plus Jakarta Sans, sans-serif)',
                 fontWeight: 600,
                 fontSize: 18,
                 letterSpacing: '-0.015em',
@@ -480,7 +480,7 @@ function ComparisonTable() {
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: 48 }}>
           <div style={{
-            fontFamily: 'var(--font-jetbrains-mono, monospace)',
+            fontFamily: 'Inter, sans-serif',
             fontSize: 11,
             letterSpacing: '0.22em',
             textTransform: 'uppercase',
@@ -490,7 +490,7 @@ function ComparisonTable() {
             Full comparison
           </div>
           <h2 style={{
-            fontFamily: 'var(--font-dm-sans, DM Sans, sans-serif)',
+            fontFamily: 'var(--font-dm-sans, Plus Jakarta Sans, sans-serif)',
             fontWeight: 700,
             fontSize: 'clamp(28px, 4vw, 44px)',
             lineHeight: 1.04,
@@ -522,16 +522,16 @@ function ComparisonTable() {
               borderBottom: `1px solid ${C.border}`,
             }}>
               <tr>
-                <th style={{ padding: '16px 28px', fontFamily: 'var(--font-jetbrains-mono, monospace)', fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: C.muted, width: '40%' }}>
+                <th style={{ padding: '16px 28px', fontFamily: 'Inter, sans-serif', fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: C.muted, width: '40%' }}>
                   Feature
                 </th>
-                <th style={{ padding: '16px 12px', textAlign: 'center', fontFamily: 'var(--font-dm-sans, DM Sans, sans-serif)', fontSize: 14, fontWeight: 600, color: C.ink }}>
+                <th style={{ padding: '16px 12px', textAlign: 'center', fontFamily: 'var(--font-dm-sans, Plus Jakarta Sans, sans-serif)', fontSize: 14, fontWeight: 600, color: C.ink }}>
                   Free
                 </th>
-                <th style={{ padding: '16px 12px', textAlign: 'center', fontFamily: 'var(--font-dm-sans, DM Sans, sans-serif)', fontSize: 14, fontWeight: 600, color: C.primary, background: 'rgba(232,239,235,0.35)' }}>
+                <th style={{ padding: '16px 12px', textAlign: 'center', fontFamily: 'var(--font-dm-sans, Plus Jakarta Sans, sans-serif)', fontSize: 14, fontWeight: 600, color: C.primary, background: 'rgba(232,239,235,0.35)' }}>
                   Pro
                 </th>
-                <th style={{ padding: '16px 12px', textAlign: 'center', fontFamily: 'var(--font-dm-sans, DM Sans, sans-serif)', fontSize: 14, fontWeight: 600, color: C.ink }}>
+                <th style={{ padding: '16px 12px', textAlign: 'center', fontFamily: 'var(--font-dm-sans, Plus Jakarta Sans, sans-serif)', fontSize: 14, fontWeight: 600, color: C.ink }}>
                   Studio
                 </th>
               </tr>
@@ -544,7 +544,7 @@ function ComparisonTable() {
                       colSpan={4}
                       style={{
                         padding: '12px 28px',
-                        fontFamily: 'var(--font-jetbrains-mono, monospace)',
+                        fontFamily: 'Inter, sans-serif',
                         fontSize: 10,
                         letterSpacing: '0.22em',
                         textTransform: 'uppercase',
@@ -635,7 +635,7 @@ function PricingFAQ() {
       <div style={{ maxWidth: 920, margin: '0 auto', padding: '80px 20px' }}>
         <div style={{ marginBottom: 48 }}>
           <div style={{
-            fontFamily: 'var(--font-jetbrains-mono, monospace)',
+            fontFamily: 'Inter, sans-serif',
             fontSize: 11,
             letterSpacing: '0.22em',
             textTransform: 'uppercase',
@@ -645,7 +645,7 @@ function PricingFAQ() {
             Pricing FAQ
           </div>
           <h2 style={{
-            fontFamily: 'var(--font-dm-sans, DM Sans, sans-serif)',
+            fontFamily: 'var(--font-dm-sans, Plus Jakarta Sans, sans-serif)',
             fontWeight: 700,
             fontSize: 'clamp(26px, 3.5vw, 38px)',
             lineHeight: 1.06,
@@ -681,7 +681,7 @@ function PricingFAQ() {
                   }}
                 >
                   <span style={{
-                    fontFamily: 'var(--font-dm-sans, DM Sans, sans-serif)',
+                    fontFamily: 'var(--font-dm-sans, Plus Jakarta Sans, sans-serif)',
                     fontWeight: 500,
                     fontSize: 16,
                     color: C.ink,
@@ -752,7 +752,7 @@ export default function PricingContent() {
         <div style={{ position: 'relative', maxWidth: 1100, margin: '0 auto', padding: 'clamp(64px, 8vw, 96px) 20px 48px', textAlign: 'center' }}>
           {/* Overline */}
           <div style={{
-            fontFamily: 'var(--font-jetbrains-mono, monospace)',
+            fontFamily: 'Inter, sans-serif',
             fontSize: 11,
             letterSpacing: '0.22em',
             textTransform: 'uppercase',
@@ -764,7 +764,7 @@ export default function PricingContent() {
 
           {/* H1 */}
           <h1 style={{
-            fontFamily: 'var(--font-dm-sans, DM Sans, sans-serif)',
+            fontFamily: 'var(--font-dm-sans, Plus Jakarta Sans, sans-serif)',
             fontWeight: 700,
             fontSize: 'clamp(40px, 6.5vw, 72px)',
             lineHeight: 0.97,
@@ -817,7 +817,7 @@ export default function PricingContent() {
                   {id === 'monthly' ? 'Monthly' : 'Yearly'}
                   {id === 'yearly' && (
                     <span style={{
-                      fontFamily: 'var(--font-jetbrains-mono, monospace)',
+                      fontFamily: 'Inter, sans-serif',
                       fontSize: 10,
                       letterSpacing: '0.12em',
                       textTransform: 'uppercase',
@@ -887,7 +887,7 @@ export default function PricingContent() {
         />
         <div style={{ position: 'relative', maxWidth: 900, margin: '0 auto', padding: '80px 20px', textAlign: 'center' }}>
           <h2 style={{
-            fontFamily: 'var(--font-dm-sans, DM Sans, sans-serif)',
+            fontFamily: 'var(--font-dm-sans, Plus Jakarta Sans, sans-serif)',
             fontWeight: 700,
             fontSize: 'clamp(36px, 5vw, 62px)',
             lineHeight: 1.0,

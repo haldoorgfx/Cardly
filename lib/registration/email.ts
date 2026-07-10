@@ -58,7 +58,7 @@ async function resolveBrand(eventId?: string): Promise<EmailBrand> {
 
 function emailHeader(brand: EmailBrand, subtitle?: string): string {
   return `<div style="background:${brand.primary};border-radius:12px;padding:28px 28px 20px;text-align:center;margin-bottom:24px;">
-      <div style="font-family:'DM Sans',system-ui,sans-serif;font-size:22px;font-weight:600;color:white;letter-spacing:-0.01em;">
+      <div style="font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-size:22px;font-weight:600;color:white;letter-spacing:-0.01em;">
         ${brand.wordmarkHtml}
       </div>
       ${subtitle ? `<p style="color:rgba(255,255,255,0.75);font-size:14px;margin:8px 0 0;">${subtitle}</p>` : ''}
@@ -128,7 +128,7 @@ function buildConfirmationHtml(p: RegistrationConfirmEmailParams, appUrl: string
   <div style="max-width:560px;margin:0 auto;padding:32px 20px;">
     ${emailHeader(brand, "You're registered!")}
 
-    <h1 style="font-family:'DM Sans',system-ui,sans-serif;font-size:26px;font-weight:600;letter-spacing:-0.02em;margin:0 0 8px;">
+    <h1 style="font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-size:26px;font-weight:600;letter-spacing:-0.02em;margin:0 0 8px;">
       See you at ${p.eventTitle}
     </h1>
     <p style="font-size:15px;color:#3A4A42;margin:0 0 24px;">Hi ${p.attendeeName}, your spot is confirmed.</p>
@@ -220,7 +220,7 @@ function buildWaitlistConfirmHtml(p: WaitlistConfirmEmailParams, appUrl: string,
   <div style="max-width:560px;margin:0 auto;padding:32px 20px;">
     ${emailHeader(brand, "You're on the waitlist")}
 
-    <h1 style="font-family:'DM Sans',system-ui,sans-serif;font-size:26px;font-weight:600;letter-spacing:-0.02em;margin:0 0 8px;">
+    <h1 style="font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-size:26px;font-weight:600;letter-spacing:-0.02em;margin:0 0 8px;">
       You&apos;re #<span style="color:#E8C57E;font-family:Inter,sans-serif;">${p.position}</span> in line
     </h1>
     <p style="font-size:15px;color:#3A4A42;margin:0 0 24px;">Hi ${p.name}, we&apos;ve added you to the waitlist for ${p.eventTitle}.</p>
@@ -252,7 +252,7 @@ function buildWaitlistInviteHtml(p: WaitlistInviteEmailParams, appUrl: string, b
   <div style="max-width:560px;margin:0 auto;padding:32px 20px;">
     ${emailHeader(brand, 'A spot opened up!')}
 
-    <h1 style="font-family:'DM Sans',system-ui,sans-serif;font-size:26px;font-weight:600;letter-spacing:-0.02em;margin:0 0 8px;">
+    <h1 style="font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-size:26px;font-weight:600;letter-spacing:-0.02em;margin:0 0 8px;">
       Good news, ${p.name}
     </h1>
     <p style="font-size:15px;color:#3A4A42;margin:0 0 24px;">A spot just opened for <strong>${p.eventTitle}</strong>. You&apos;re invited to register — act fast, this may not last long.</p>
@@ -297,7 +297,7 @@ export async function sendPendingApprovalEmail(params: ApprovalEmailParams) {
     html: `<!DOCTYPE html><html><body style="margin:0;padding:0;font-family:Inter,system-ui,sans-serif;background:#FAF6EE;color:#0F1F18;">
   <div style="max-width:560px;margin:0 auto;padding:32px 20px;">
     ${emailHeader(brand, 'Registration received')}
-    <h1 style="font-family:'DM Sans',system-ui,sans-serif;font-size:24px;font-weight:600;letter-spacing:-0.02em;margin:0 0 8px;">Hi ${params.name},</h1>
+    <h1 style="font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-size:24px;font-weight:600;letter-spacing:-0.02em;margin:0 0 8px;">Hi ${params.name},</h1>
     <p style="font-size:15px;color:#3A4A42;margin:0 0 16px;">We received your registration for <strong>${params.eventTitle}</strong>. The organiser reviews applications manually — you&apos;ll hear back by email once a decision is made.</p>
     <div style="background:white;border:1px solid #E5E0D4;border-radius:12px;padding:16px 20px;margin-bottom:20px;">
       <div style="font-size:12px;font-family:Inter,sans-serif;color:#6B7A72;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;">Event</div>
@@ -321,7 +321,7 @@ export async function sendApprovedEmail(params: ApprovalEmailParams & { qrCodeUr
     html: `<!DOCTYPE html><html><body style="margin:0;padding:0;font-family:Inter,system-ui,sans-serif;background:#FAF6EE;color:#0F1F18;">
   <div style="max-width:560px;margin:0 auto;padding:32px 20px;">
     ${emailHeader(brand, "You're approved!")}
-    <h1 style="font-family:'DM Sans',system-ui,sans-serif;font-size:24px;font-weight:600;letter-spacing:-0.02em;margin:0 0 8px;">Great news, ${params.name}!</h1>
+    <h1 style="font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-size:24px;font-weight:600;letter-spacing:-0.02em;margin:0 0 8px;">Great news, ${params.name}!</h1>
     <p style="font-size:15px;color:#3A4A42;margin:0 0 16px;">Your registration for <strong>${params.eventTitle}</strong> has been approved. Your spot is confirmed.</p>
     <div style="text-align:center;background:white;border:1px solid #E5E0D4;border-radius:12px;padding:20px;margin-bottom:20px;">
       <div style="font-size:12px;font-family:Inter,sans-serif;color:#6B7A72;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:12px;">Your check-in QR code</div>
@@ -345,7 +345,7 @@ export async function sendDeniedEmail(params: ApprovalEmailParams) {
     html: `<!DOCTYPE html><html><body style="margin:0;padding:0;font-family:Inter,system-ui,sans-serif;background:#FAF6EE;color:#0F1F18;">
   <div style="max-width:560px;margin:0 auto;padding:32px 20px;">
     ${emailHeader(brand)}
-    <h1 style="font-family:'DM Sans',system-ui,sans-serif;font-size:24px;font-weight:600;letter-spacing:-0.02em;margin:0 0 8px;">Hi ${params.name},</h1>
+    <h1 style="font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-size:24px;font-weight:600;letter-spacing:-0.02em;margin:0 0 8px;">Hi ${params.name},</h1>
     <p style="font-size:15px;color:#3A4A42;margin:0 0 16px;">Thank you for applying to <strong>${params.eventTitle}</strong>. Unfortunately, the organiser wasn&apos;t able to offer you a spot this time.</p>
     <div style="text-align:center;padding:20px 0;border-top:1px solid #E5E0D4;">
       <a href="${appUrl}/e/${params.eventSlug}" style="font-size:13px;color:${brand.primary};text-decoration:none;">View event page →</a>
@@ -366,7 +366,7 @@ export async function sendTransferEmail(params: { to: string; name: string; even
     html: `<!DOCTYPE html><html><body style="margin:0;padding:0;font-family:Inter,system-ui,sans-serif;background:#FAF6EE;color:#0F1F18;">
   <div style="max-width:560px;margin:0 auto;padding:32px 20px;">
     ${emailHeader(brand, 'Ticket transferred to you')}
-    <h1 style="font-family:'DM Sans',system-ui,sans-serif;font-size:24px;font-weight:600;letter-spacing:-0.02em;margin:0 0 8px;">Hi ${params.name},</h1>
+    <h1 style="font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-size:24px;font-weight:600;letter-spacing:-0.02em;margin:0 0 8px;">Hi ${params.name},</h1>
     <p style="font-size:15px;color:#3A4A42;margin:0 0 16px;">Someone transferred their ticket for <strong>${params.eventTitle}</strong> to you. Your spot is confirmed.</p>
     <div style="text-align:center;background:white;border:1px solid #E5E0D4;border-radius:12px;padding:20px;margin-bottom:20px;">
       <div style="font-size:12px;font-family:Inter,sans-serif;color:#6B7A72;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:12px;">Your check-in QR code</div>
@@ -385,7 +385,7 @@ function buildReminderHtml(p: RegistrationReminderEmailParams) {
 <html>
 <body style="margin:0;padding:0;font-family:Inter,system-ui,sans-serif;background:#FAF6EE;color:#0F1F18;">
   <div style="max-width:560px;margin:0 auto;padding:32px 20px;">
-    <h1 style="font-family:'DM Sans',system-ui,sans-serif;font-size:24px;font-weight:600;letter-spacing:-0.02em;">
+    <h1 style="font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-size:24px;font-weight:600;letter-spacing:-0.02em;">
       ${p.eventTitle} is tomorrow
     </h1>
     <p style="font-size:15px;color:#3A4A42;">Hi ${p.attendeeName}, just a quick reminder!</p>

@@ -9,7 +9,7 @@ interface Props {
 }
 
 const SYSTEM_FONTS = [
-  'DM Sans', 'Inter', 'Inter', 'Georgia', 'Times New Roman',
+  'Plus Jakarta Sans', 'Inter', 'Inter', 'Georgia', 'Times New Roman',
   'Arial', 'Helvetica', 'Verdana', 'Courier New', 'Trebuchet MS',
 ];
 

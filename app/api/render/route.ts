@@ -53,9 +53,8 @@ function ensureFonts(): void {
 }
 
 const FAMILY_MAP: Record<string, string> = {
-  'DM Sans':        'dmsans',
+  'Plus Jakarta Sans':        'dmsans',
   'Inter':          'inter',
-  'JetBrains Mono': 'jetbrainsmono',
 };
 
 function resolveFontFile(family: string, weight: number, arabic: boolean): string {

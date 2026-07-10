@@ -28,5 +28,42 @@ export default async function NewsfeedPage({ params }: { params: Promise<{ id: s
 
   if (!event) redirect('/dashboard');
 
-  return <NewsfeedClient eventId={id} eventName={event.name} initialPosts={posts ?? []} />;
+  // Server action: delete a scheduled post. Re-derives the caller and verifies
+  // they own the post's event before deleting — never trusts the client.
+  async function deletePost(postId: string): Promise<{ ok?: boolean; error?: string }> {
+    'use server';
+    const supa = createClient();
+    const { data: { user: caller } } = await supa.auth.getUser();
+    if (!caller) return { error: 'Not authorized' };
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const admin = createAdminClient() as any;
+    const { data: post } = await admin
+      .from('event_posts')
+      .select('id, event_id')
+      .eq('id', postId)
+      .maybeSingle();
+    if (!post) return { error: 'Post not found' };
+
+    const { data: owned } = await admin
+      .from('events')
+      .select('id')
+      .eq('id', post.event_id)
+      .eq('user_id', caller.id)
+      .maybeSingle();
+    if (!owned) return { error: 'Not authorized' };
+
+    const { error } = await admin.from('event_posts').delete().eq('id', postId);
+    if (error) return { error: error.message };
+    return { ok: true };
+  }
+
+  return (
+    <NewsfeedClient
+      eventId={id}
+      eventName={event.name}
+      initialPosts={posts ?? []}
+      deletePost={deletePost}
+    />
+  );
 }

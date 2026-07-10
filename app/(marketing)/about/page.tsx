@@ -100,7 +100,7 @@ export default function AboutPage() {
           {/* H1 */}
           <h1
             style={{
-              fontFamily: '"DM Sans", sans-serif',
+              fontFamily: '"Plus Jakarta Sans", sans-serif',
               fontWeight: 700,
               fontSize: 'clamp(40px, 6vw, 64px)',
               lineHeight: 1.0,
@@ -149,7 +149,7 @@ export default function AboutPage() {
           <div style={{ maxWidth: 520 }}>
             <h2
               style={{
-                fontFamily: '"DM Sans", sans-serif',
+                fontFamily: '"Plus Jakarta Sans", sans-serif',
                 fontWeight: 700,
                 fontSize: 'clamp(30px, 4vw, 38px)',
                 letterSpacing: '-0.02em',
@@ -265,7 +265,7 @@ export default function AboutPage() {
               <div>
                 <span
                   style={{
-                    fontFamily: '"DM Sans", sans-serif',
+                    fontFamily: '"Plus Jakarta Sans", sans-serif',
                     fontWeight: 600,
                     fontSize: 14,
                     color: C.accent,
@@ -423,7 +423,7 @@ export default function AboutPage() {
 
             <h2
               style={{
-                fontFamily: '"DM Sans", sans-serif',
+                fontFamily: '"Plus Jakarta Sans", sans-serif',
                 fontWeight: 700,
                 fontSize: 'clamp(26px, 3.5vw, 34px)',
                 letterSpacing: '-0.02em',
@@ -480,7 +480,7 @@ export default function AboutPage() {
           </p>
           <h2
             style={{
-              fontFamily: '"DM Sans", sans-serif',
+              fontFamily: '"Plus Jakarta Sans", sans-serif',
               fontWeight: 700,
               fontSize: 'clamp(28px, 4vw, 40px)',
               letterSpacing: '-0.02em',
@@ -527,7 +527,7 @@ export default function AboutPage() {
             >
               <h3
                 style={{
-                  fontFamily: '"DM Sans", sans-serif',
+                  fontFamily: '"Plus Jakarta Sans", sans-serif',
                   fontWeight: 600,
                   fontSize: 18,
                   color: C.ink,
@@ -548,7 +548,7 @@ export default function AboutPage() {
         <div style={{ maxWidth: 1060, margin: '0 auto' }}>
           <h2
             style={{
-              fontFamily: '"DM Sans", sans-serif',
+              fontFamily: '"Plus Jakarta Sans", sans-serif',
               fontWeight: 700,
               fontSize: 32,
               letterSpacing: '-0.02em',
@@ -586,7 +586,7 @@ export default function AboutPage() {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontFamily: '"DM Sans", sans-serif',
+                  fontFamily: '"Plus Jakarta Sans", sans-serif',
                   fontWeight: 600,
                   fontSize: 20,
                   color: C.cream,
@@ -597,7 +597,7 @@ export default function AboutPage() {
               </div>
               <p
                 style={{
-                  fontFamily: '"DM Sans", sans-serif',
+                  fontFamily: '"Plus Jakarta Sans", sans-serif',
                   fontWeight: 600,
                   fontSize: 15,
                   color: C.ink,
@@ -650,7 +650,7 @@ export default function AboutPage() {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      fontFamily: '"DM Sans", sans-serif',
+                      fontFamily: '"Plus Jakarta Sans", sans-serif',
                       fontWeight: 600,
                       fontSize: 20,
                       color: C.muted,
@@ -661,7 +661,7 @@ export default function AboutPage() {
                   </div>
                   <p
                     style={{
-                      fontFamily: '"DM Sans", sans-serif',
+                      fontFamily: '"Plus Jakarta Sans", sans-serif',
                       fontWeight: 600,
                       fontSize: 15,
                       color: C.muted,
@@ -722,7 +722,7 @@ export default function AboutPage() {
               <span
                 key={name}
                 style={{
-                  fontFamily: '"DM Sans", sans-serif',
+                  fontFamily: '"Plus Jakarta Sans", sans-serif',
                   fontWeight: 600,
                   fontSize: 18,
                   color: `rgba(15,31,24,0.40)`,
@@ -768,7 +768,7 @@ export default function AboutPage() {
         >
           <h2
             style={{
-              fontFamily: '"DM Sans", sans-serif',
+              fontFamily: '"Plus Jakarta Sans", sans-serif',
               fontWeight: 700,
               fontSize: 'clamp(30px, 5vw, 48px)',
               letterSpacing: '-0.02em',

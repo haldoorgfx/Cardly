@@ -287,12 +287,12 @@ function GroupHeader({ index, title, subtitle }: { index: number; title: string;
         <div style={{
           width: 22, height: 22, borderRadius: '50%',
           background: '#1F4D3A', color: '#FAF6EE',
-          fontFamily: 'DM Sans, sans-serif', fontWeight: 700, fontSize: 12,
+          fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 700, fontSize: 12,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           flexShrink: 0,
         }}>{index}</div>
         <div style={{
-          fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 16,
+          fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, fontSize: 16,
           color: '#0F1F18', letterSpacing: '-0.01em',
         }}>{title}</div>
       </div>
@@ -592,7 +592,7 @@ export default function DetailsFormScreen({
               <ArrowLeft size={14} strokeWidth={2}/> Back
             </button>
             <h1 style={{
-              fontFamily: 'DM Sans, sans-serif', fontWeight: 700, fontSize: 28,
+              fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 700, fontSize: 28,
               letterSpacing: '-0.025em', lineHeight: 1.15, margin: 0, color: '#0F1F18',
             }}>Tell us about you</h1>
             <p style={{
