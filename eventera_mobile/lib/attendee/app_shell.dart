@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../net.dart';
 import '../screens/my_cards_screen.dart';
 import '../ui/tokens.dart';
 import 'account/attendee_account_tab.dart';
@@ -23,19 +27,30 @@ class MainShell extends StatefulWidget {
 class _MainShellState extends State<MainShell> {
   int _index = 0;
 
-  final _pages = const [
-    DiscoverScreen(),
-    MyTicketsScreen(),
-    MyCardsScreen(),
-    AttendeeAccountTab(),
-  ];
+  // Bumped whenever the signed-in user changes (sign-in / sign-out). The
+  // auth-gated tabs are keyed on this so they rebuild immediately instead of
+  // staying stuck on a stale "you're not signed in" state until a manual
+  // refresh. Discover (tab 0) works signed-out, so it keeps its state.
+  int _authVersion = 0;
+  String? _uid;
+  StreamSubscription<AuthState>? _authSub;
 
   @override
   void initState() {
     super.initState();
     _index = widget.initialIndex;
+    _uid = currentUserId;
     mainTab.value = _index;
     mainTab.addListener(_onTabRequested);
+    _authSub = supa.auth.onAuthStateChange.listen((data) {
+      final newUid = data.session?.user.id;
+      if (newUid != _uid && mounted) {
+        setState(() {
+          _uid = newUid;
+          _authVersion++;
+        });
+      }
+    });
   }
 
   void _onTabRequested() {
@@ -46,6 +61,7 @@ class _MainShellState extends State<MainShell> {
 
   @override
   void dispose() {
+    _authSub?.cancel();
     mainTab.removeListener(_onTabRequested);
     super.dispose();
   }
@@ -58,9 +74,17 @@ class _MainShellState extends State<MainShell> {
 
   @override
   Widget build(BuildContext context) {
+    // The three auth-gated tabs re-key on auth changes so they refresh the
+    // moment the user signs in or out — no manual pull-to-refresh needed.
+    final pages = [
+      const DiscoverScreen(),
+      MyTicketsScreen(key: ValueKey('tickets-$_authVersion')),
+      MyCardsScreen(key: ValueKey('cards-$_authVersion')),
+      AttendeeAccountTab(key: ValueKey('account-$_authVersion')),
+    ];
     return Scaffold(
       backgroundColor: AppColors.canvas,
-      body: IndexedStack(index: _index, children: _pages),
+      body: IndexedStack(index: _index, children: pages),
       bottomNavigationBar: _TabBar(index: _index, onTap: _select),
     );
   }

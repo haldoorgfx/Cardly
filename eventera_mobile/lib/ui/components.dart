@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -943,24 +945,167 @@ class QrBlock extends StatelessWidget {
   }
 }
 
+enum ToastType { success, error, info }
+
+OverlayEntry? _activeToast;
+
+/// Lightweight, top-anchored toast. Slides in, auto-dismisses fast (~1.7s),
+/// and never stacks (a new toast replaces the current one). Tap to dismiss
+/// early. Replaces the old bottom SnackBar that lingered ~4s over the nav bar.
+/// Obvious failure messages auto-style as errors when [type] isn't given.
 void showToast(BuildContext context, String message,
-    {String? actionLabel, VoidCallback? onAction}) {
-  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-    backgroundColor: AppColors.forestDark,
-    behavior: SnackBarBehavior.floating,
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-    content: Row(children: [
-      const Icon(Icons.check_circle_outline, color: AppColors.gold, size: 18),
-      const SizedBox(width: 10),
-      Expanded(
-          child: Text(message,
-              style: AppText.bodySm.copyWith(color: Colors.white))),
-    ]),
-    action: actionLabel != null
-        ? SnackBarAction(
-            label: actionLabel, textColor: AppColors.gold, onPressed: onAction ?? () {})
-        : null,
-  ));
+    {String? actionLabel, VoidCallback? onAction, ToastType? type}) {
+  final overlay = Overlay.maybeOf(context, rootOverlay: true);
+  if (overlay == null) return;
+  final resolved =
+      type ?? (_looksLikeError(message) ? ToastType.error : ToastType.success);
+
+  _activeToast?.remove();
+  _activeToast = null;
+
+  late final OverlayEntry entry;
+  entry = OverlayEntry(
+    builder: (_) => _ToastHost(
+      message: message,
+      type: resolved,
+      actionLabel: actionLabel,
+      onAction: onAction,
+      onGone: () {
+        if (_activeToast == entry) _activeToast = null;
+        entry.remove();
+      },
+    ),
+  );
+  _activeToast = entry;
+  overlay.insert(entry);
+}
+
+bool _looksLikeError(String m) {
+  final s = m.toLowerCase();
+  return s.contains('could not') ||
+      s.contains("couldn't") ||
+      s.contains('failed') ||
+      s.contains('try again') ||
+      s.contains('required') ||
+      s.contains("isn't") ||
+      s.contains('wrong') ||
+      s.contains('invalid');
+}
+
+class _ToastHost extends StatefulWidget {
+  final String message;
+  final ToastType type;
+  final String? actionLabel;
+  final VoidCallback? onAction;
+  final VoidCallback onGone;
+  const _ToastHost({
+    required this.message,
+    required this.type,
+    required this.onGone,
+    this.actionLabel,
+    this.onAction,
+  });
+  @override
+  State<_ToastHost> createState() => _ToastHostState();
+}
+
+class _ToastHostState extends State<_ToastHost>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(
+      vsync: this, duration: const Duration(milliseconds: 240))
+    ..forward();
+  Timer? _timer;
+  bool _leaving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer(const Duration(milliseconds: 1700), _dismiss);
+  }
+
+  Future<void> _dismiss() async {
+    if (_leaving) return;
+    _leaving = true;
+    _timer?.cancel();
+    if (mounted) {
+      try {
+        await _c.reverse();
+      } catch (_) {}
+    }
+    widget.onGone();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final topInset = MediaQuery.of(context).padding.top;
+    final (IconData icon, Color accent) = switch (widget.type) {
+      ToastType.success => (Icons.check_circle, AppColors.gold),
+      ToastType.error => (Icons.error_outline, const Color(0xFFF3A3A0)),
+      ToastType.info => (Icons.info_outline, Colors.white),
+    };
+    final slide =
+        Tween<Offset>(begin: const Offset(0, -0.5), end: Offset.zero)
+            .animate(CurvedAnimation(parent: _c, curve: Curves.easeOutCubic));
+    return Positioned(
+      top: topInset + 8,
+      left: 14,
+      right: 14,
+      child: Material(
+        color: Colors.transparent,
+        child: FadeTransition(
+          opacity: _c,
+          child: SlideTransition(
+            position: slide,
+            child: GestureDetector(
+              onTap: _dismiss,
+              behavior: HitTestBehavior.opaque,
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                decoration: BoxDecoration(
+                  color: AppColors.forestDark,
+                  borderRadius: BorderRadius.circular(14),
+                  boxShadow: AppShadow.lift,
+                ),
+                child: Row(
+                  children: [
+                    Icon(icon, color: accent, size: 19),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(widget.message,
+                          style: AppText.bodySm.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w500)),
+                    ),
+                    if (widget.actionLabel != null) ...[
+                      const SizedBox(width: 10),
+                      GestureDetector(
+                        onTap: () {
+                          widget.onAction?.call();
+                          _dismiss();
+                        },
+                        child: Text(widget.actionLabel!,
+                            style: AppText.label.copyWith(
+                                color: AppColors.gold,
+                                fontWeight: FontWeight.w700)),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 Future<T?> showMSheet<T>(BuildContext context, Widget child) {

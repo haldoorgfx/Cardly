@@ -79,6 +79,7 @@ dependencies:
   # Secure, OS-keychain-backed storage for the "remember this device" flag and
   # the biometric-gated session marker. NEVER store tokens in SharedPreferences.
   flutter_secure_storage: ^9.2.2
+  flutter_svg: ^2.3.0
 
 dev_dependencies:
   flutter_test:

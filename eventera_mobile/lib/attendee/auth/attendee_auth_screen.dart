@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -494,92 +495,94 @@ class _AttendeeAuthScreenState extends State<AttendeeAuthScreen> {
     );
   }
 
-  // ── Step 1 · Welcome — forest hero + Google + email ────────────────
+  // ── Step 1 · Welcome — email/password first, Google second ─────────
   Widget _welcomeStep() {
     final emailValid = _validEmail(_emailCtrl.text);
-    return Column(
-      children: [
-        const _AuthHero(),
-        Expanded(
-          child: SafeArea(
-            top: false,
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(
-                  AppSpace.lg, AppSpace.xl, AppSpace.lg, AppSpace.lg),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text('Welcome to Eventera', style: AppText.h1),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Hold tickets, make your attending card, and connect with '
-                    'people at the event.',
-                    style: AppText.body,
-                  ),
-                  const SizedBox(height: 22),
-                  _GoogleButton(
-                    onTap: _busy ? null : _google,
-                    loading: _busy,
-                  ),
-                  const SizedBox(height: 20),
-                  const _LabeledDivider('or with email'),
-                  const SizedBox(height: 20),
-                  MInput(
-                    label: 'Email address',
-                    hint: 'you@example.com',
-                    controller: _emailCtrl,
-                    icon: Icons.mail_outline,
-                    keyboardType: TextInputType.emailAddress,
-                    action: TextInputAction.next,
-                    onChanged: (_) => setState(() {
-                      if (_error != null) _error = null;
-                    }),
-                  ),
-                  const SizedBox(height: 14),
-                  MInput(
-                    label: 'Password',
-                    hint: 'Your password',
-                    controller: _passwordCtrl,
-                    icon: Icons.lock_outline,
-                    obscure: _obscurePassword,
-                    action: TextInputAction.done,
-                    errorText: _error,
-                    onChanged: (_) => setState(() {
-                      if (_error != null) _error = null;
-                    }),
-                    onSubmitted: (_) => _busy ? null : _passwordSignIn(),
-                  ),
-                  const SizedBox(height: 16),
-                  MButton(
-                    'Sign in',
-                    kind: MBtnKind.forest,
-                    loading: _busy && _step == _Step.welcome,
-                    onTap: (_busy || !emailValid) ? null : _passwordSignIn,
-                  ),
-                  const SizedBox(height: 10),
-                  MButton(
-                    'Email me a code instead',
-                    kind: MBtnKind.sec,
-                    onTap: (_busy || !emailValid) ? null : _sendCode,
-                  ),
-                  const SizedBox(height: 12),
-                  Center(
-                    child: Text(
-                      'New here or forgot your password? Get a code — you can set '
-                      'a password after.',
-                      textAlign: TextAlign.center,
-                      style:
-                          AppText.bodySm.copyWith(color: AppColors.inkMuted),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  _terms(),
-                ],
+    return SafeArea(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(
+            AppSpace.lg, AppSpace.lg, AppSpace.lg, AppSpace.xxl),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const SizedBox(height: 6),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Image.asset(
+                'assets/brand/logo.png',
+                height: 30,
+                errorBuilder: (_, __, ___) =>
+                    Text('Eventera', style: AppText.h2),
               ),
             ),
-          ),
+            const SizedBox(height: 30),
+            Text('Welcome to Eventera', style: AppText.h1),
+            const SizedBox(height: 8),
+            Text(
+              'Hold tickets, make your attending card, and connect with people '
+              'at the event.',
+              style: AppText.body.copyWith(color: AppColors.inkMuted),
+            ),
+            const SizedBox(height: 28),
+            MInput(
+              label: 'Email address',
+              hint: 'you@example.com',
+              controller: _emailCtrl,
+              icon: Icons.mail_outline,
+              keyboardType: TextInputType.emailAddress,
+              action: TextInputAction.next,
+              onChanged: (_) => setState(() {
+                if (_error != null) _error = null;
+              }),
+            ),
+            const SizedBox(height: 14),
+            MInput(
+              label: 'Password',
+              hint: 'Your password',
+              controller: _passwordCtrl,
+              icon: Icons.lock_outline,
+              obscure: _obscurePassword,
+              action: TextInputAction.done,
+              errorText: _error,
+              onChanged: (_) => setState(() {
+                if (_error != null) _error = null;
+              }),
+              onSubmitted: (_) => _busy ? null : _passwordSignIn(),
+            ),
+            const SizedBox(height: 18),
+            MButton(
+              'Sign in',
+              kind: MBtnKind.forest,
+              loading: _busy && _step == _Step.welcome,
+              onTap: (_busy || !emailValid) ? null : _passwordSignIn,
+            ),
+            const SizedBox(height: 10),
+            MButton(
+              'Email me a code instead',
+              kind: MBtnKind.sec,
+              onTap: (_busy || !emailValid) ? null : _sendCode,
+            ),
+            const SizedBox(height: 14),
+            Center(
+              child: Text(
+                'New here or forgot your password? Get a code — you can set a '
+                'password after.',
+                textAlign: TextAlign.center,
+                style: AppText.bodySm.copyWith(color: AppColors.inkMuted),
+              ),
+            ),
+            const SizedBox(height: 24),
+            const _LabeledDivider('or'),
+            const SizedBox(height: 18),
+            _GoogleButton(
+              onTap: _busy ? null : _google,
+              loading: _busy,
+            ),
+            const SizedBox(height: 24),
+            _terms(),
+          ],
         ),
-      ],
+      ),
     );
   }
 
@@ -887,222 +890,6 @@ class _AttendeeAuthScreenState extends State<AttendeeAuthScreen> {
   }
 }
 
-// ─────────────────────────────────────────── Welcome hero panel
-
-/// Forest gradient hero with the white Eventera lockup, a stacked
-/// attending-card motif, and a light social-proof line. Rounded bottom (~30).
-class _AuthHero extends StatelessWidget {
-  const _AuthHero();
-
-  @override
-  Widget build(BuildContext context) {
-    final topInset = MediaQuery.of(context).padding.top;
-    return Container(
-      padding: EdgeInsets.fromLTRB(24, topInset + 24, 24, 30),
-      decoration: const BoxDecoration(
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(30)),
-        gradient: LinearGradient(
-          begin: Alignment(-0.6, -1),
-          end: Alignment(0.4, 1),
-          colors: [Color(0xFF163828), Color(0xFF1F4D3A), Color(0xFF0D1F17)],
-          stops: [0.0, 0.55, 1.0],
-        ),
-        boxShadow: AppShadow.lift,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Brand lockup: mark + wordmark. Uses the white logo asset.
-          Row(
-            children: [
-              Image.asset('assets/brand/logo_white.png', height: 30,
-                  errorBuilder: (_, __, ___) => Row(
-                        children: [
-                          Container(
-                            width: 44,
-                            height: 44,
-                            decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: [Color(0xFF2A6A50), Color(0xFF163828)],
-                              ),
-                              borderRadius: BorderRadius.circular(13),
-                            ),
-                            alignment: Alignment.center,
-                            child: const Icon(Icons.event_available_outlined,
-                                color: AppColors.gold, size: 23),
-                          ),
-                          const SizedBox(width: 11),
-                          Text('Eventera',
-                              style: AppText.h2.copyWith(color: Colors.white)),
-                        ],
-                      )),
-            ],
-          ),
-          const SizedBox(height: 24),
-          const _CardMotif(),
-          const SizedBox(height: 18),
-          // Social proof line.
-          Row(
-            children: [
-              _ProofDot('AO', 30),
-              Transform.translate(
-                  offset: const Offset(-8, 0), child: _ProofDot('FK', 200)),
-              Transform.translate(
-                  offset: const Offset(-16, 0), child: _ProofDot('LH', 265)),
-              const SizedBox(width: 2),
-              Expanded(
-                child: Text.rich(
-                  TextSpan(
-                    style: AppText.bodySm
-                        .copyWith(color: Colors.white.withValues(alpha: 0.82)),
-                    children: [
-                      TextSpan(
-                          text: '12,000+ ',
-                          style: AppText.bodyStrong
-                              .copyWith(color: Colors.white)),
-                      const TextSpan(text: 'people already in the room'),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// A single small avatar bubble in the social-proof cluster.
-class _ProofDot extends StatelessWidget {
-  final String initials;
-  final int hue;
-  const _ProofDot(this.initials, this.hue);
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 32,
-      height: 32,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: HSLColor.fromAHSL(1, hue.toDouble(), 0.35, 0.4).toColor(),
-        border: Border.all(color: const Color(0xFF163828), width: 2),
-      ),
-      alignment: Alignment.center,
-      child: Text(initials,
-          style: AppText.caption
-              .copyWith(color: Colors.white, fontWeight: FontWeight.w700)),
-    );
-  }
-}
-
-/// Stacked "attending-card" motif — three rotated cards, front one labelled.
-class _CardMotif extends StatelessWidget {
-  const _CardMotif();
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 150,
-      child: Stack(
-        children: [
-          // back
-          Positioned(
-            left: 40,
-            right: 40,
-            top: 8,
-            child: Transform.rotate(
-              angle: -0.105,
-              child: Container(
-                height: 120,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(16),
-                  border:
-                      Border.all(color: Colors.white.withValues(alpha: 0.12)),
-                ),
-              ),
-            ),
-          ),
-          // mid
-          Positioned(
-            left: 24,
-            right: 24,
-            top: 4,
-            child: Transform.rotate(
-              angle: 0.07,
-              child: Container(
-                height: 128,
-                decoration: BoxDecoration(
-                  color: AppColors.gold.withValues(alpha: 0.16),
-                  borderRadius: BorderRadius.circular(16),
-                  border:
-                      Border.all(color: AppColors.gold.withValues(alpha: 0.25)),
-                ),
-              ),
-            ),
-          ),
-          // front
-          Positioned(
-            left: 30,
-            right: 30,
-            top: 0,
-            child: Transform.rotate(
-              angle: -0.026,
-              child: Container(
-                height: 136,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [Color(0xFF1F4D3A), Color(0xFF2A6A50)],
-                  ),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.white.withValues(alpha: 0.14)),
-                  boxShadow: const [
-                    BoxShadow(
-                        color: Color(0x8C000000),
-                        blurRadius: 40,
-                        offset: Offset(0, 20))
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('I\'M ATTENDING',
-                        style: AppText.caption.copyWith(
-                            color: AppColors.gold,
-                            fontSize: 9,
-                            letterSpacing: 1.6,
-                            fontWeight: FontWeight.w700)),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Amina Osman',
-                            style: AppText.h3.copyWith(
-                                color: Colors.white, fontSize: 17)),
-                        const SizedBox(height: 1),
-                        Text('Founder · Sahel Pay',
-                            style: AppText.caption.copyWith(
-                                color: Colors.white.withValues(alpha: 0.75),
-                                letterSpacing: 0,
-                                fontWeight: FontWeight.w400)),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 // ─────────────────────────────────────────── Google button (white surface)
 
 class _GoogleButton extends StatelessWidget {
@@ -1144,68 +931,24 @@ class _GoogleButton extends StatelessWidget {
   }
 }
 
-/// The official 4-colour Google "G" mark, drawn with a CustomPainter (no SVG
-/// dependency). Follows Google's brand palette: blue #4285F4, green #34A853,
-/// yellow #FBBC05, red #EA4335 on a transparent background.
+/// The official 4-colour Google "G" mark, rendered from Google's own SVG so it
+/// is always crisp and correct at any size.
 class _GoogleGLogo extends StatelessWidget {
   final double size;
   const _GoogleGLogo({this.size = 20});
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: size,
-      height: size,
-      child: CustomPaint(painter: _GoogleGPainter()),
-    );
+    return SvgPicture.string(_kGoogleGSvg, width: size, height: size);
   }
 }
 
-class _GoogleGPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final w = size.width;
-    final h = size.height;
-    final center = Offset(w / 2, h / 2);
-    final radius = w / 2;
-    final stroke = w * 0.22;
-    final inner = radius - stroke / 2;
-    final rect = Rect.fromCircle(center: center, radius: inner);
-
-    final paint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = stroke
-      ..strokeCap = StrokeCap.butt;
-
-    // Four coloured arcs forming the ring of the "G".
-    // Red (top-left), Yellow (bottom-left), Green (bottom-right),
-    // Blue (right / into the crossbar).
-    paint.color = const Color(0xFFEA4335);
-    canvas.drawArc(rect, _deg(-135), _deg(-70), false, paint); // top-left
-    paint.color = const Color(0xFFFBBC05);
-    canvas.drawArc(rect, _deg(135), _deg(70), false, paint); // bottom-left
-    paint.color = const Color(0xFF34A853);
-    canvas.drawArc(rect, _deg(90), _deg(45), false, paint); // bottom-right
-    paint.color = const Color(0xFF4285F4);
-    canvas.drawArc(rect, _deg(-20), _deg(70), false, paint); // right
-
-    // The blue crossbar of the G.
-    final barPaint = Paint()
-      ..color = const Color(0xFF4285F4)
-      ..style = PaintingStyle.fill;
-    final barRect = Rect.fromLTWH(
-      center.dx,
-      center.dy - stroke / 2,
-      radius,
-      stroke,
-    );
-    canvas.drawRect(barRect, barPaint);
-  }
-
-  double _deg(double d) => d * 3.1415926535 / 180;
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
+const String _kGoogleGSvg =
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">'
+    '<path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>'
+    '<path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>'
+    '<path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>'
+    '<path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>'
+    '</svg>';
 
 // ─────────────────────────────────────────── Labeled divider ("or …")
 
