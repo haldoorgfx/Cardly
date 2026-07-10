@@ -188,3 +188,45 @@ EntComputed computeState(
 
   return EntComputed(e, status, isRedeemed ? lastRedeemedAt : null);
 }
+
+/// From the raw rows an attendee is allowed to read (RLS: entitlement
+/// definitions + ticket-type inclusions for events they attend, plus their OWN
+/// redemption ledger), compute the entitlements they currently HOLD, each with
+/// its attendee-facing state. Pure — no I/O, unit-testable.
+///
+/// [includedEntitlementIds] are the ids linked to the registration's
+/// ticket_type via `ticket_type_entitlements` (base inclusion). [ledger] is the
+/// registration's full `entitlement_redemptions` history across all
+/// entitlements. Result is sorted by type then name (mirrors `order by e.type`).
+List<EntComputed> computeHeldEntitlements({
+  required Iterable<Entitlement> all,
+  required Set<String> includedEntitlementIds,
+  required Iterable<LedgerRow> ledger,
+  required DateTime now,
+}) {
+  final byEnt = <String, List<LedgerRow>>{};
+  for (final r in ledger) {
+    (byEnt[r.entitlementId] ??= <LedgerRow>[]).add(r);
+  }
+
+  final out = <EntComputed>[];
+  for (final e in all) {
+    final pair = byEnt[e.id] ?? const <LedgerRow>[];
+    final held = entitlementHeld(
+      includedByTicket: includedEntitlementIds.contains(e.id),
+      pairLedger: pair,
+    );
+    if (!held) continue;
+    out.add(computeState(e, pair, now));
+  }
+
+  out.sort((a, b) {
+    final t = a.entitlement.type.compareTo(b.entitlement.type);
+    return t != 0
+        ? t
+        : a.entitlement.name
+            .toLowerCase()
+            .compareTo(b.entitlement.name.toLowerCase());
+  });
+  return out;
+}

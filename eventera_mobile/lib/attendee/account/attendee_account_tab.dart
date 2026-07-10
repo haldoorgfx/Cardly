@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 
+import '../../app_mode.dart';
 import '../../net.dart';
 import '../../rbac/admin_screen.dart';
 import '../../rbac/role_service.dart';
 import '../../rbac/speaking_screen.dart';
 import '../../rbac/sponsoring_screen.dart';
 import '../../screens/my_cards_screen.dart';
-import '../../screens/organizer/dashboard_screen.dart';
 import '../../ui/components.dart';
 import '../../ui/menu.dart';
+import '../../ui/mode_switcher.dart';
 import '../../ui/tokens.dart';
 import '../auth/attendee_auth_screen.dart';
 import '../tickets/my_tickets_screen.dart';
@@ -163,6 +164,14 @@ class _AttendeeAccountTabState extends State<AttendeeAccountTab> {
       ),
       const SizedBox(height: 24),
 
+      // Airbnb-model mode switch: organizers can jump to the organizer shell.
+      // Flipping AppMode re-roots the app (see root_gate.dart).
+      if (_roles?.hasOrganizing == true) ...[
+        ModeSwitcher(
+            inOrganizerMode: false, onSwitch: () => AppMode.setOrganizer()),
+        const SizedBox(height: 24),
+      ],
+
       const GroupLabel('My stuff'),
       MenuGroup(children: [
         MenuRow(
@@ -243,15 +252,6 @@ class _AttendeeAccountTabState extends State<AttendeeAccountTab> {
     if (roles == null) return const [];
 
     final rows = <Widget>[];
-    if (roles.hasOrganizing) {
-      rows.add(MenuRow(
-        icon: Icons.dashboard_customize_outlined,
-        tone: ITone.forest,
-        title: 'Organizing',
-        subtitle: 'Manage your events',
-        onTap: () => _push(const DashboardScreen()),
-      ));
-    }
     if (roles.hasSpeaking) {
       rows.add(MenuRow(
         icon: Icons.mic_none_outlined,

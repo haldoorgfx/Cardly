@@ -1,12 +1,20 @@
 ﻿'use client';
 
 import { useState, useCallback } from 'react';
-import { Plus, Pencil, Trash2, Eye, EyeOff, ChevronUp, ChevronDown, Tag, Users, CalendarDays, AlertCircle, Upload, X } from 'lucide-react';
+import Link from 'next/link';
+import { Plus, Pencil, Trash2, Eye, EyeOff, ChevronUp, ChevronDown, Tag, Users, CalendarDays, AlertCircle, Upload, X, ArrowRight } from 'lucide-react';
 import type { Database } from '@/types/database';
 import { ImportWizard } from '@/components/shared/ImportWizard';
 import { IMPORT_ENTITIES } from '@/lib/import/entities';
+import { EntitlementIcon, type EntitlementType } from '@/components/tickets/EntitlementIcon';
 
 type TicketRow = Database['public']['Tables']['ticket_types']['Row'];
+
+export interface EntitlementLite {
+  id: string;
+  name: string;
+  type: EntitlementType;
+}
 
 const CURRENCIES = ['USD', 'EUR', 'GBP', 'NGN', 'KES', 'GHS', 'ZAR', 'UGX', 'TZS'];
 
@@ -30,6 +38,7 @@ interface FormState {
   min_per_order: string;
   max_per_order: string;
   is_visible: boolean;
+  entitlementIds: string[];
 }
 
 function fmtDate(iso: string) {
@@ -54,10 +63,11 @@ function blankForm(eventDates?: EventDates): FormState {
     sales_start: '',
     sales_end: eventDates?.ends_at ? toLocalInput(eventDates.ends_at) : '',
     min_per_order: '1', max_per_order: '10', is_visible: true,
+    entitlementIds: [],
   };
 }
 
-function rowToForm(t: TicketRow): FormState {
+function rowToForm(t: TicketRow, entitlementIds: string[]): FormState {
   return {
     name: t.name,
     description: t.description ?? '',
@@ -72,6 +82,7 @@ function rowToForm(t: TicketRow): FormState {
     min_per_order: String(t.min_per_order),
     max_per_order: String(t.max_per_order),
     is_visible: t.is_visible,
+    entitlementIds,
   };
 }
 
@@ -87,23 +98,32 @@ function formToBody(f: FormState) {
     min_per_order: parseInt(f.min_per_order) || 1,
     max_per_order: parseInt(f.max_per_order) || 10,
     is_visible: f.is_visible,
+    entitlementIds: f.entitlementIds,
   };
 }
 
 interface Props {
   eventId: string;
+  eventSlug?: string;
   initialTickets: TicketRow[];
   eventDates?: EventDates;
+  entitlements?: EntitlementLite[];
+  initialTicketEntitlements?: Record<string, string[]>;
 }
 
 type PanelState = 'closed' | 'new' | { editing: string };
 
-export function TicketTypesManager({ eventId, initialTickets, eventDates }: Props) {
+export function TicketTypesManager({
+  eventId, eventSlug, initialTickets, eventDates,
+  entitlements = [], initialTicketEntitlements = {},
+}: Props) {
   const ev = eventDates ?? { starts_at: null, ends_at: null, max_capacity: null };
 
   const [tickets, setTickets] = useState<TicketRow[]>(initialTickets);
+  const [ticketEnt, setTicketEnt] = useState<Record<string, string[]>>(initialTicketEntitlements);
   const [panel, setPanel] = useState<PanelState>('closed');
   const [form, setForm] = useState<FormState>(blankForm(ev));
+  const entById = new Map<string, EntitlementLite>(entitlements.map((e) => [e.id, e] as const));
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
@@ -119,8 +139,17 @@ export function TicketTypesManager({ eventId, initialTickets, eventDates }: Prop
   }
 
   const openNew = () => { setForm(blankForm(ev)); setError(''); setPanel('new'); };
-  const openEdit = (t: TicketRow) => { setForm(rowToForm(t)); setError(''); setPanel({ editing: t.id }); };
+  const openEdit = (t: TicketRow) => { setForm(rowToForm(t, ticketEnt[t.id] ?? [])); setError(''); setPanel({ editing: t.id }); };
   const closePanel = () => { setPanel('closed'); setError(''); };
+
+  const toggleEntitlement = (id: string) => {
+    setForm(prev => ({
+      ...prev,
+      entitlementIds: prev.entitlementIds.includes(id)
+        ? prev.entitlementIds.filter(x => x !== id)
+        : [...prev.entitlementIds, id],
+    }));
+  };
 
   const isEditing = typeof panel === 'object' && 'editing' in panel;
   const editingId = isEditing ? (panel as { editing: string }).editing : null;
@@ -195,6 +224,7 @@ export function TicketTypesManager({ eventId, initialTickets, eventDates }: Prop
         const data = await res.json();
         if (!res.ok) throw new Error(data.error ?? 'Save failed');
         setTickets(prev => prev.map(t => t.id === editingId ? data.ticket : t));
+        setTicketEnt(prev => ({ ...prev, [editingId]: form.entitlementIds }));
       } else {
         const res = await fetch(`/api/events/${eventId}/tickets`, {
           method: 'POST',
@@ -204,6 +234,7 @@ export function TicketTypesManager({ eventId, initialTickets, eventDates }: Prop
         const data = await res.json();
         if (!res.ok) throw new Error(data.error ?? 'Save failed');
         setTickets(prev => [...prev, data.ticket]);
+        setTicketEnt(prev => ({ ...prev, [data.ticket.id]: form.entitlementIds }));
       }
       closePanel();
     } catch (err) {
@@ -296,6 +327,15 @@ export function TicketTypesManager({ eventId, initialTickets, eventDates }: Prop
 
       {tickets.length > 0 && (
         <div className="flex justify-end items-center gap-2 mb-3">
+          {eventSlug && (
+            <Link
+              href={`/events/${eventSlug}/entitlements`}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-[13px] font-medium border transition hover:bg-[#F5F3EE] mr-auto"
+              style={{ borderColor: '#E5E0D4', color: '#1F4D3A' }}
+            >
+              Manage entitlements <ArrowRight size={13} strokeWidth={2} />
+            </Link>
+          )}
           <button
             onClick={() => setShowImport(true)}
             className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-[13px] font-medium border transition hover:bg-[#F5F3EE]"
@@ -397,6 +437,9 @@ export function TicketTypesManager({ eventId, initialTickets, eventDates }: Prop
               onDelete={() => setConfirmDelete(t.id)}
               onToggleVisibility={() => handleToggleVisibility(t)}
               onMove={dir => handleMove(idx, dir)}
+              includedEntitlements={(ticketEnt[t.id] ?? [])
+                .map(eid => entById.get(eid))
+                .filter((e): e is EntitlementLite => !!e)}
             />
           ))}
         </div>
@@ -670,6 +713,43 @@ export function TicketTypesManager({ eventId, initialTickets, eventDates }: Prop
               </button>
             </div>
 
+            {/* Included entitlements */}
+            <FField label="Included entitlements">
+              {entitlements.length === 0 ? (
+                <div className="rounded-lg px-3 py-3 text-[12.5px]" style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#6B7A72' }}>
+                  No entitlements defined yet.{' '}
+                  {eventSlug && (
+                    <Link href={`/events/${eventSlug}/entitlements`} className="font-medium" style={{ color: '#1F4D3A' }}>
+                      Create entitlements
+                    </Link>
+                  )}{' '}
+                  to attach entry, meals and more to this ticket.
+                </div>
+              ) : (
+                <div className="rounded-lg border divide-y" style={{ borderColor: '#E5E0D4' }}>
+                  {entitlements.map(en => {
+                    const on = form.entitlementIds.includes(en.id);
+                    return (
+                      <button
+                        key={en.id} type="button" onClick={() => toggleEntitlement(en.id)}
+                        className="w-full flex items-center gap-3 px-3 py-2.5 text-left transition hover:bg-[#FAF6EE]"
+                        style={{ borderColor: '#F0EDE6' }}
+                      >
+                        <span className="w-4 h-4 rounded flex items-center justify-center shrink-0"
+                          style={{ background: on ? '#1F4D3A' : 'white', border: `1px solid ${on ? '#1F4D3A' : '#C7CFC9'}` }}>
+                          {on && <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5.2 4 7.5 8.5 2.5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>}
+                        </span>
+                        <span className="w-6 h-6 rounded-md grid place-items-center shrink-0" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
+                          <EntitlementIcon type={en.type} size={13} strokeWidth={1.9} />
+                        </span>
+                        <span className="text-[13.5px]" style={{ color: '#0F1F18' }}>{en.name}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </FField>
+
             {/* Error */}
             {error && (
               <div
@@ -755,7 +835,7 @@ export function TicketTypesManager({ eventId, initialTickets, eventDates }: Prop
 /* ── Ticket card ── */
 function TicketCard({
   ticket, idx, total, isEditing, soldOut, remaining,
-  onEdit, onDelete, onToggleVisibility, onMove,
+  onEdit, onDelete, onToggleVisibility, onMove, includedEntitlements,
 }: {
   ticket: TicketRow;
   idx: number;
@@ -767,6 +847,7 @@ function TicketCard({
   onDelete: () => void;
   onToggleVisibility: () => void;
   onMove: (dir: -1 | 1) => void;
+  includedEntitlements: EntitlementLite[];
 }) {
   const isFree = ticket.price === 0;
   const isExpired = !soldOut && !!ticket.sales_end && new Date(ticket.sales_end) < new Date();
@@ -843,6 +924,18 @@ function TicketCard({
           </button>
         </div>
       </div>
+
+      {/* Included entitlements pills */}
+      {includedEntitlements.length > 0 && (
+        <div className="flex items-center gap-1.5 flex-wrap px-4 pb-3 -mt-1">
+          {includedEntitlements.map(en => (
+            <span key={en.id} className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full"
+              style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
+              <EntitlementIcon type={en.type} size={11} strokeWidth={2} /> {en.name}
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

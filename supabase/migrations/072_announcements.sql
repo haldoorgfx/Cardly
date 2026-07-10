@@ -30,6 +30,27 @@ create table if not exists public.announcements (
 
 create index if not exists announcements_event_idx on public.announcements(event_id, created_at desc);
 
+-- 1b. Compatibility with any earlier `announcements` table shape.
+--     An older revision of this feature used `subject` instead of `title`. If that
+--     column is present, relax it and backfill so the RPC below can insert cleanly.
+alter table public.announcements add column if not exists title      text;
+alter table public.announcements add column if not exists body       text;
+alter table public.announcements add column if not exists audience   text default 'everyone';
+alter table public.announcements add column if not exists sent_count int  default 0;
+alter table public.announcements add column if not exists created_by uuid;
+alter table public.announcements add column if not exists created_at timestamptz default now();
+
+do $$
+begin
+  if exists (
+    select 1 from information_schema.columns
+    where table_schema = 'public' and table_name = 'announcements' and column_name = 'subject'
+  ) then
+    execute 'alter table public.announcements alter column subject drop not null';
+    execute 'update public.announcements set title = subject where title is null';
+  end if;
+end $$;
+
 
 -- 2. RLS: owner OR active staff may READ; owner may WRITE.
 alter table public.announcements enable row level security;
@@ -65,6 +86,24 @@ create policy "announcements: owner delete" on public.announcements
   for delete using (
     exists (select 1 from public.events e where e.id = event_id and e.user_id = auth.uid())
   );
+
+
+-- 2b. Drop ANY pre-existing version of these functions, whatever the signature.
+--     `create or replace` cannot rename an input parameter (42P13) or change a
+--     return type (42P16), so an older revision must be removed outright.
+do $$
+declare r record;
+begin
+  for r in
+    select p.oid::regprocedure as sig
+    from pg_proc p
+    join pg_namespace n on n.oid = p.pronamespace
+    where n.nspname = 'public'
+      and p.proname in ('record_announcement', 'list_event_announcements')
+  loop
+    execute format('drop function if exists %s cascade', r.sig);
+  end loop;
+end $$;
 
 
 -- 3. record_announcement — OWNER ONLY. Inserts and returns the row as jsonb.

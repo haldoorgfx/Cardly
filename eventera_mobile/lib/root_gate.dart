@@ -3,10 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'app_mode.dart';
 import 'attendee/app_shell.dart';
 import 'attendee/onboarding/onboarding_screen.dart';
 import 'biometric_service.dart';
 import 'net.dart';
+import 'organizer/organizer_shell.dart';
 import 'ui/components.dart';
 import 'ui/tokens.dart';
 
@@ -39,6 +41,9 @@ class _RootGateState extends State<RootGate> {
     Future.delayed(const Duration(milliseconds: 1100), () {
       if (mounted) setState(() => _ready = true);
     });
+    // Sync the persisted mode into AppMode.notifier so the shell below re-roots
+    // to the right experience on launch (attendee vs organizer).
+    AppMode.current();
     _evaluateBiometricGate();
     // After any sign-in (email or Google), run the onboarding wizard once if
     // the user hasn't finished it. Skipping/finishing sets onboarding_completed,
@@ -136,7 +141,15 @@ class _RootGateState extends State<RootGate> {
         onUsePassword: _usePasswordInstead,
       );
     } else {
-      child = const MainShell(key: ValueKey('shell'));
+      // One account, two experiences. The saved mode picks the shell, and a
+      // mode flip (from either profile) re-roots the app instantly.
+      child = ValueListenableBuilder<String>(
+        key: const ValueKey('shell'),
+        valueListenable: AppMode.notifier,
+        builder: (_, mode, __) => mode == AppMode.organizer
+            ? const OrganizerShell()
+            : const MainShell(),
+      );
     }
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 500),

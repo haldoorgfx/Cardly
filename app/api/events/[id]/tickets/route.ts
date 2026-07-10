@@ -124,7 +124,26 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     .select()
     .single();
   if (dbError) return NextResponse.json({ error: dbError.message }, { status: 500 });
+
+  if (Array.isArray(body.entitlementIds)) {
+    await syncTicketEntitlements(admin, params.id, data.id, body.entitlementIds as unknown[]);
+  }
   return NextResponse.json({ ticket: data }, { status: 201 });
+}
+
+// Sync which entitlements a ticket type includes. Only entitlement ids that
+// belong to this event are linked — server-authoritative, never trusts input.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function syncTicketEntitlements(admin: any, eventId: string, ticketId: string, rawIds: unknown[]) {
+  const ids = rawIds.filter((x): x is string => typeof x === 'string');
+  await admin.from('ticket_type_entitlements').delete().eq('ticket_type_id', ticketId);
+  if (ids.length === 0) return;
+  const { data: valid } = await admin.from('entitlements').select('id').eq('event_id', eventId).in('id', ids);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const validIds = ((valid ?? []) as any[]).map((r) => r.id as string);
+  if (validIds.length === 0) return;
+  await admin.from('ticket_type_entitlements')
+    .insert(validIds.map((entitlement_id) => ({ ticket_type_id: ticketId, entitlement_id })));
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
@@ -132,7 +151,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const { ticketId, ...updates } = await req.json();
+  const { ticketId, entitlementIds, ...updates } = await req.json();
   if (!ticketId) return NextResponse.json({ error: 'ticketId required' }, { status: 400 });
 
   const admin = createAdminClient();
@@ -158,6 +177,10 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     .select()
     .single();
   if (dbError) return NextResponse.json({ error: dbError.message }, { status: 500 });
+
+  if (Array.isArray(entitlementIds)) {
+    await syncTicketEntitlements(admin, params.id, ticketId, entitlementIds as unknown[]);
+  }
   return NextResponse.json({ ticket: data });
 }
 

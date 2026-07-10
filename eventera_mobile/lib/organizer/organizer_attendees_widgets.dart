@@ -146,4 +146,13 @@ class AttendeesSkeleton extends StatelessWidget {
           border: Border.all(color: AppColors.border),
         ),
         child: Row(
-          children: con
+          children: const [
+            Skeleton(width: 40, height: 40, radius: 999),
+            SizedBox(width: 12),
+            Expanded(child: Skeleton(width: 120, height: 14)),
+          ],
+        ),
+      ),
+    );
+  }
+}

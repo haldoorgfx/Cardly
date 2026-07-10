@@ -8,6 +8,7 @@ import '../../net.dart';
 import '../../ui/components.dart';
 import '../../ui/tokens.dart';
 import '../register/waafipay_payment_screen.dart';
+import 'entitlements_screen.dart';
 import 'fullscreen_qr_screen.dart';
 import 'ticket_stub.dart';
 
@@ -199,6 +200,18 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
     }
   }
 
+  void _openEntitlements() {
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => EntitlementsScreen(
+        registrationId: widget.registrationId,
+        qrData: _qrData,
+        ticketCode: _ticketCode,
+        attendeeName: widget.attendeeName ?? '',
+        ticketTypeLabel: widget.ticketType ?? '',
+      ),
+    ));
+  }
+
   void _openReceipt() {
     Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => _ReceiptScreen(
@@ -353,6 +366,31 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
                   ),
                 ],
               ],
+            ),
+          ],
+
+          if (_ts == TicketStatus.confirmed ||
+              _ts == TicketStatus.checkedIn) ...[
+            const SizedBox(height: 14),
+            MCard(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              onTap: _openEntitlements,
+              child: ListRow(
+                leading: Container(
+                  width: 40,
+                  height: 40,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: AppColors.forestSoft,
+                    borderRadius: BorderRadius.circular(11),
+                  ),
+                  child: const Icon(Icons.confirmation_number_outlined,
+                      size: 20, color: AppColors.forest),
+                ),
+                title: const Text('Passes & access'),
+                subtitle: const Text('What this ticket includes'),
+                chevron: true,
+              ),
             ),
           ],
 

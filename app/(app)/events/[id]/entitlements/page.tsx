@@ -219,4 +219,3 @@ export default async function EntitlementsPage({ params }: { params: Promise<{ i
     </div>
   );
 }
-                          

@@ -62,6 +62,24 @@ create policy "session_checkins: owner or staff write" on public.session_checkin
   );
 
 
+-- 2b. Drop ANY pre-existing version of these functions, whatever the signature.
+--     `create or replace` cannot rename an input parameter (42P13) or change a
+--     return type (42P16), so an older revision must be removed outright.
+do $$
+declare r record;
+begin
+  for r in
+    select p.oid::regprocedure as sig
+    from pg_proc p
+    join pg_namespace n on n.oid = p.pronamespace
+    where n.nspname = 'public'
+      and p.proname in ('checkin_session_by_token', 'session_checkin_count')
+  loop
+    execute format('drop function if exists %s cascade', r.sig);
+  end loop;
+end $$;
+
+
 -- 3. checkin_session_by_token — resolve by QR token, record session check-in,
 --    and roll up into the normal event check-in. Mirrors 058_checkin_rpc.sql.
 create or replace function public.checkin_session_by_token(

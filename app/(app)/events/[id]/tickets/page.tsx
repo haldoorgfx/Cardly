@@ -16,14 +16,31 @@ export default async function TicketsPage({ params }: Props) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  const admin = createAdminClient();
-  const [{ data: event }, { data: eventPage }, { data: tickets }] = await Promise.all([
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const admin = createAdminClient() as any;
+  const [{ data: event }, { data: eventPage }, { data: tickets }, { data: entRows }] = await Promise.all([
     admin.from('events').select('id, name, slug').eq('id', id).eq('user_id', user.id).single(),
     admin.from('event_pages').select('starts_at, ends_at, max_capacity').eq('event_id', id).maybeSingle(),
     admin.from('ticket_types').select('*').eq('event_id', id).order('position'),
+    admin.from('entitlements').select('id, name, type').eq('event_id', id).order('created_at', { ascending: true }),
   ]);
 
   if (!event) redirect('/dashboard');
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const entitlements = ((entRows ?? []) as any[]).map((e) => ({ id: e.id, name: e.name, type: e.type }));
+  const entIds = entitlements.map((e) => e.id);
+
+  // ticketId → entitlementIds map (only this event's entitlements).
+  const ticketEntitlements: Record<string, string[]> = {};
+  if (entIds.length > 0) {
+    const { data: tte } = await admin
+      .from('ticket_type_entitlements').select('ticket_type_id, entitlement_id').in('entitlement_id', entIds);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    for (const row of ((tte ?? []) as any[])) {
+      (ticketEntitlements[row.ticket_type_id] ??= []).push(row.entitlement_id);
+    }
+  }
 
   return (
     <div className="min-h-full" style={{ background: '#FAF6EE' }}>
@@ -41,7 +58,10 @@ export default async function TicketsPage({ params }: Props) {
         </div>
         <TicketTypesManager
           eventId={id}
+          eventSlug={event.slug}
           initialTickets={tickets ?? []}
+          entitlements={entitlements}
+          initialTicketEntitlements={ticketEntitlements}
           eventDates={{
             starts_at: eventPage?.starts_at ?? null,
             ends_at: eventPage?.ends_at ?? null,
