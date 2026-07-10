@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../net.dart';
 import '../../ui/components.dart';
 import '../../ui/tokens.dart';
+import '../app_shell.dart';
 import '../auth/attendee_auth_screen.dart';
 import 'ticket_detail_screen.dart';
 import 'ticket_stub.dart';
@@ -251,10 +252,9 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
       title: 'No tickets yet',
       message: 'Register for an event and your ticket will appear here.',
       ctaLabel: 'Discover events',
-      onCta: () {
-        // Handled by the bottom tab; nudge the user.
-        showToast(context, 'Head to the Discover tab to find events.');
-      },
+      // Take the user straight to the Discover tab instead of just telling
+      // them where to go.
+      onCta: () => mainTab.value = 0,
     );
   }
 
