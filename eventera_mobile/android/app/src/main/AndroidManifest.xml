@@ -4,6 +4,8 @@
     <!-- "Events near me" on the map. -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <!-- Biometric unlock (local_auth) — fingerprint / face sign-in. -->
+    <uses-permission android:name="android.permission.USE_BIOMETRIC"/>
     <application
         android:label="Eventera"
         android:name="${applicationName}"
