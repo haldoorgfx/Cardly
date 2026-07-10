@@ -111,6 +111,9 @@ class _AttendeeProfileScreenState extends State<AttendeeProfileScreen> {
         return;
       }
       await BiometricService.instance.setEnabled(true);
+      // Stash the refresh token so biometric can log them back in later.
+      await BiometricService.instance
+          .saveToken(supa.auth.currentSession?.refreshToken);
     } else {
       await BiometricService.instance.setEnabled(false);
     }

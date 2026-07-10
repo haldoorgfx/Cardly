@@ -123,7 +123,12 @@ class _AttendeeAuthScreenState extends State<AttendeeAuthScreen> {
         // Confirm with a live biometric check before turning it on.
         final ok = await BiometricService.instance
             .authenticate(reason: 'Confirm to enable biometric unlock');
-        if (ok) await BiometricService.instance.setEnabled(true);
+        if (ok) {
+          await BiometricService.instance.setEnabled(true);
+          // Stash the refresh token so biometric can log them back in later.
+          await BiometricService.instance
+              .saveToken(supa.auth.currentSession?.refreshToken);
+        }
       }
     } catch (_) {
       // Never block sign-in on the biometric offer.

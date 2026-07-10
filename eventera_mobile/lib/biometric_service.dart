@@ -26,6 +26,10 @@ class BiometricService {
     iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
   );
   static const _enabledKey = 'biometric_enabled';
+  // The Supabase refresh token, stashed behind the biometric so we can restore
+  // the session (supa.auth.setSession) after a fingerprint/face scan even when
+  // Supabase's own session has expired/cleared and the login page would show.
+  static const _tokenKey = 'biometric_refresh_token';
 
   /// Whether this device can do biometric / device-credential unlock at all —
   /// used to show the setup toggle and the post-login offer.
@@ -71,8 +75,21 @@ class BiometricService {
       await _storage.write(key: _enabledKey, value: 'true');
     } else {
       await _storage.delete(key: _enabledKey);
+      await _storage.delete(key: _tokenKey);
     }
   }
+
+  /// Stash the current Supabase refresh token behind the biometric. Called when
+  /// the user enables unlock and whenever the token rotates, so biometric login
+  /// keeps working across restarts. No-op for a null/empty token.
+  Future<void> saveToken(String? refreshToken) async {
+    if (refreshToken == null || refreshToken.isEmpty) return;
+    await _storage.write(key: _tokenKey, value: refreshToken);
+  }
+
+  /// The stashed refresh token, if any — used to restore the session after a
+  /// successful scan on the login screen.
+  Future<String?> readToken() => _storage.read(key: _tokenKey);
 
   /// Prompt the OS biometric sheet. Returns true only if the device owner
   /// authenticated. Any error (no hardware, cancelled, lockout) returns false
@@ -96,6 +113,9 @@ class BiometricService {
     }
   }
 
-  /// Clear the opt-in flag (called on sign-out).
-  Future<void> clear() => _storage.delete(key: _enabledKey);
+  /// Clear the opt-in flag AND the stashed token (called on sign-out).
+  Future<void> clear() async {
+    await _storage.delete(key: _enabledKey);
+    await _storage.delete(key: _tokenKey);
+  }
 }

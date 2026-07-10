@@ -43,11 +43,22 @@ class _RootGateState extends State<RootGate> {
     // After any sign-in (email or Google), run the onboarding wizard once if
     // the user hasn't finished it. Skipping/finishing sets onboarding_completed,
     // so it never nags again.
-    _authSub = supa.auth.onAuthStateChange.listen((data) {
-      if (data.session != null &&
+    _authSub = supa.auth.onAuthStateChange.listen((data) async {
+      final session = data.session;
+      if (session != null &&
           (data.event == AuthChangeEvent.signedIn ||
               data.event == AuthChangeEvent.initialSession)) {
         _maybeShowOnboarding();
+      }
+      // Keep the biometric-stashed refresh token current as it rotates, so
+      // biometric login keeps working across restarts.
+      if (session != null &&
+          (data.event == AuthChangeEvent.signedIn ||
+              data.event == AuthChangeEvent.tokenRefreshed ||
+              data.event == AuthChangeEvent.initialSession)) {
+        if (await BiometricService.instance.isEnabled()) {
+          await BiometricService.instance.saveToken(session.refreshToken);
+        }
       }
     });
   }
@@ -69,7 +80,11 @@ class _RootGateState extends State<RootGate> {
         await Future.delayed(const Duration(milliseconds: 100));
         session = supa.auth.currentSession;
       }
-      if (session != null) {
+      // Lock if we have a live session to gate OR a stashed refresh token we can
+      // restore after the scan — the latter is the "I'm back on the login page
+      // but I set up biometrics" case the user hit.
+      final hasToken = (await BiometricService.instance.readToken()) != null;
+      if (session != null || hasToken) {
         if (mounted) setState(() => _locked = true);
         await _promptUnlock();
       }
@@ -84,6 +99,22 @@ class _RootGateState extends State<RootGate> {
         .authenticate(reason: 'Unlock Eventera to view your tickets');
     if (!mounted) return;
     if (ok) {
+      // If Supabase has no live session (expired/cleared), restore it from the
+      // token we stashed behind the biometric — this is what turns the scan into
+      // an actual login rather than just revealing an already-open session.
+      if (supa.auth.currentSession == null) {
+        final token = await BiometricService.instance.readToken();
+        if (token != null && token.isNotEmpty) {
+          try {
+            await supa.auth.setSession(token);
+          } catch (_) {
+            // Token expired/invalid — fall back to password sign-in.
+            await _usePasswordInstead();
+            return;
+          }
+        }
+      }
+      if (!mounted) return;
       setState(() => _locked = false);
     }
     // If not ok, we stay on the lock screen; the user can retry or switch to
