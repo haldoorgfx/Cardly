@@ -40,6 +40,9 @@ class _AttendeeAuthScreenState extends State<AttendeeAuthScreen> {
 
   _Step _step = _Step.welcome;
   bool _busy = false;
+  // Which welcome-step action is in flight ('password' | 'code' | 'google'),
+  // so only that button shows a spinner (not all of them via the shared _busy).
+  String? _loadingAction;
   String? _error;
   String _sentTo = '';
   bool _done = false;
@@ -176,6 +179,7 @@ class _AttendeeAuthScreenState extends State<AttendeeAuthScreen> {
     }
     setState(() {
       _busy = true;
+      _loadingAction = 'password';
       _error = null;
     });
     try {
@@ -191,7 +195,12 @@ class _AttendeeAuthScreenState extends State<AttendeeAuthScreen> {
         setState(() => _error = 'Could not sign in. Please try again.');
       }
     } finally {
-      if (mounted) setState(() => _busy = false);
+      if (mounted) {
+        setState(() {
+          _busy = false;
+          _loadingAction = null;
+        });
+      }
     }
   }
 
@@ -203,6 +212,7 @@ class _AttendeeAuthScreenState extends State<AttendeeAuthScreen> {
     }
     setState(() {
       _busy = true;
+      _loadingAction = 'code';
       _error = null;
     });
     try {
@@ -221,7 +231,12 @@ class _AttendeeAuthScreenState extends State<AttendeeAuthScreen> {
         setState(() => _error = 'Could not send the code. Please try again.');
       }
     } finally {
-      if (mounted) setState(() => _busy = false);
+      if (mounted) {
+        setState(() {
+          _busy = false;
+          _loadingAction = null;
+        });
+      }
     }
   }
 
@@ -427,6 +442,7 @@ class _AttendeeAuthScreenState extends State<AttendeeAuthScreen> {
   Future<void> _google() async {
     setState(() {
       _busy = true;
+      _loadingAction = 'google';
       _error = null;
     });
     try {
@@ -441,7 +457,12 @@ class _AttendeeAuthScreenState extends State<AttendeeAuthScreen> {
         setState(() => _error = 'Could not start Google sign-in.');
       }
     } finally {
-      if (mounted) setState(() => _busy = false);
+      if (mounted) {
+        setState(() {
+          _busy = false;
+          _loadingAction = null;
+        });
+      }
     }
   }
 
@@ -547,13 +568,14 @@ class _AttendeeAuthScreenState extends State<AttendeeAuthScreen> {
             MButton(
               'Sign in',
               kind: MBtnKind.forest,
-              loading: _busy && _step == _Step.welcome,
+              loading: _loadingAction == 'password',
               onTap: (_busy || !emailValid) ? null : _passwordSignIn,
             ),
             const SizedBox(height: 10),
             MButton(
               'Email me a code instead',
               kind: MBtnKind.sec,
+              loading: _loadingAction == 'code',
               onTap: (_busy || !emailValid) ? null : _sendCode,
             ),
             const SizedBox(height: 26),
@@ -561,7 +583,7 @@ class _AttendeeAuthScreenState extends State<AttendeeAuthScreen> {
             const SizedBox(height: 18),
             _GoogleButton(
               onTap: _busy ? null : _google,
-              loading: _busy,
+              loading: _loadingAction == 'google',
             ),
             const SizedBox(height: 24),
             _terms(),
