@@ -77,8 +77,14 @@ class EntitlementDef {
 }
 
 /// Parsed shape of the `redeem_entitlement` RPC response.
+///
+/// When [offline] is true the result is PROVISIONAL — it was resolved against
+/// the local cache and queued, not confirmed by the server. The UI labels these
+/// (OFFLINE pill + "will sync when online") and never claims a verified status.
 class EntitlementScanResult {
-  final String status; // redeemed|already|not_entitled|outside_window|error
+  // Online statuses: redeemed|already|not_entitled|outside_window|error
+  // Offline statuses add: offline_unverified|not_in_cache
+  final String status;
   final String? name;
   final String? ticket;
   final List<Map<String, dynamic>> history;
@@ -86,6 +92,7 @@ class EntitlementScanResult {
   final List<String> dietary;
   final String? dietaryNote;
   final String? message;
+  final bool offline; // provisional, cache-resolved + queued (never server-confirmed)
 
   const EntitlementScanResult({
     required this.status,
@@ -96,10 +103,30 @@ class EntitlementScanResult {
     this.dietary = const [],
     this.dietaryNote,
     this.message,
+    this.offline = false,
   });
 
   factory EntitlementScanResult.error(String message) =>
       EntitlementScanResult(status: 'error', message: message);
+
+  /// Offline: token resolved + ticket covers the entitlement → provisional
+  /// check-in, queued for sync.
+  factory EntitlementScanResult.offlineCheckedIn({String? name, String? ticket}) =>
+      EntitlementScanResult(status: 'redeemed', name: name, ticket: ticket, offline: true);
+
+  /// Offline: token resolved but the ticket does not obviously cover it (a grant
+  /// may exist). Queued so the server decides — we do NOT deny it here.
+  factory EntitlementScanResult.offlineUnverified({String? name, String? ticket}) =>
+      EntitlementScanResult(
+          status: 'offline_unverified', name: name, ticket: ticket, offline: true);
+
+  /// Offline: already scanned on THIS device (local duplicate guard).
+  factory EntitlementScanResult.offlineAlready({String? name, String? ticket}) =>
+      EntitlementScanResult(status: 'already', name: name, ticket: ticket, offline: true);
+
+  /// Offline: the token is not in the downloaded cache — cannot verify at all.
+  factory EntitlementScanResult.notInCache() =>
+      const EntitlementScanResult(status: 'not_in_cache', offline: true);
 
   factory EntitlementScanResult.fromRpc(dynamic raw) {
     final m = (raw is Map) ? Map<String, dynamic>.from(raw) : <String, dynamic>{};
@@ -167,7 +194,9 @@ class EntitlementScanResultView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (color, icon, word) = _statusVisual(result.status);
+    var (color, icon, word) = _statusVisual(result.status);
+    // Offline check-in must not claim a server-verified "Redeemed".
+    if (result.offline && result.status == 'redeemed') word = 'Checked in';
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: onDismiss,
@@ -180,6 +209,10 @@ class EntitlementScanResultView extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                if (result.offline) ...[
+                  const _OfflineBadge(),
+                  const SizedBox(height: 18),
+                ],
                 Container(
                   width: 92,
                   height: 92,
@@ -221,6 +254,20 @@ class EntitlementScanResultView extends StatelessWidget {
 
   /// At most two supporting facts, per §8.
   List<Widget> _supporting() {
+    // Offline results are provisional — say so plainly, never claim verification.
+    if (result.offline) {
+      switch (result.status) {
+        case 'redeemed':
+          return [_fact('Status', 'Checked in — will sync when online')];
+        case 'offline_unverified':
+          return [_fact('Status', 'Queued — server will verify when online')];
+        case 'already':
+          return [_fact('Status', 'Already scanned on this device')];
+        case 'not_in_cache':
+        default:
+          return [_fact('Status', 'Not in cache — reconnect to verify')];
+      }
+    }
     switch (result.status) {
       case 'redeemed':
         // Dietary renders on MEAL scans only — this is the privacy guard.
@@ -297,10 +344,41 @@ class EntitlementScanResultView extends StatelessWidget {
         return (AppColors.danger, Icons.block_rounded, 'Not entitled');
       case 'outside_window':
         return (AppColors.danger, Icons.schedule_rounded, 'Outside window');
+      case 'offline_unverified':
+        return (AppColors.warning, Icons.cloud_queue_rounded, 'Queued');
+      case 'not_in_cache':
+        return (AppColors.danger, Icons.cloud_off_rounded, 'Not in cache');
       case 'error':
       default:
         return (AppColors.danger, Icons.error_outline_rounded, 'Error');
     }
+  }
+}
+
+/// Small "OFFLINE" badge shown above a provisional result. Scanner dark surface,
+/// so the Colors.white* precedent applies.
+class _OfflineBadge extends StatelessWidget {
+  const _OfflineBadge();
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: AppColors.forestCard,
+        borderRadius: BorderRadius.circular(AppRadius.pill),
+        border: Border.all(color: AppColors.gold),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.cloud_off_rounded, size: 14, color: AppColors.gold),
+          const SizedBox(width: 7),
+          Text('OFFLINE',
+              style: AppText.caption
+                  .copyWith(color: AppColors.gold, letterSpacing: 1.0)),
+        ],
+      ),
+    );
   }
 }
 

@@ -6,6 +6,7 @@ import '../rbac/speaking_screen.dart';
 import '../rbac/sponsoring_screen.dart';
 import '../roles/role_widgets.dart';
 import '../roles/staff/event_control_screen.dart';
+import '../screens/organizer/offline_prepare_screen.dart';
 import '../ui/components.dart';
 import '../ui/tokens.dart';
 import 'organizer_shell.dart';
@@ -47,6 +48,17 @@ class _OrganizerToolsTabState extends State<OrganizerToolsTab> {
 
   /// Staff has no rbac wrapper: resolve the event names, then open on-site
   /// control directly (one event) or after a small picker (several).
+  /// Offline check-in prep (O02) — pick an event, then download its data.
+  Future<void> _openOfflinePrepare() async {
+    final event =
+        await showOrganizerEventPicker(context, title: 'Prepare offline for');
+    if (event == null || !mounted) return;
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) =>
+          OfflinePrepareScreen(eventId: event.id, eventName: event.name),
+    ));
+  }
+
   Future<void> _openStaff(UserRoles r) async {
     final ids = r.eventsWithRole('staff').where((e) => e.isNotEmpty).toList();
     if (ids.isEmpty) return;
@@ -117,14 +129,9 @@ class _OrganizerToolsTabState extends State<OrganizerToolsTab> {
               }
               final roles = snap.data ?? const UserRoles.empty();
               final entries = _entries(roles);
-              if (entries.isEmpty) {
-                return const EmptyState(
-                  icon: Icons.handyman_outlined,
-                  title: 'No role tools',
-                  message:
-                      'Tools appear here when an organizer adds you as a speaker, sponsor, or staff.',
-                );
-              }
+              // Offline check-in is always available (no role required). When
+              // there are role tools, the first is the one forest card (§1.3)
+              // and offline is a white row; otherwise everything is a white row.
               return RefreshIndicator(
                 color: AppColors.forest,
                 onRefresh: _refresh,
@@ -132,22 +139,31 @@ class _OrganizerToolsTabState extends State<OrganizerToolsTab> {
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.fromLTRB(20, 18, 20, 100),
                   children: [
-                    // The one forest tools entry card (§1.3).
-                    ToolCard(
-                      icon: entries.first.icon,
-                      title: entries.first.title,
-                      summary: entries.first.summary,
-                      onTap: entries.first.onTap,
-                    ),
-                    for (final e in entries.skip(1)) ...[
-                      const SizedBox(height: 10),
-                      ToolRow(
-                        icon: e.icon,
-                        title: e.title,
-                        summary: e.summary,
-                        onTap: e.onTap,
+                    if (entries.isNotEmpty) ...[
+                      // The one forest tools entry card (§1.3).
+                      ToolCard(
+                        icon: entries.first.icon,
+                        title: entries.first.title,
+                        summary: entries.first.summary,
+                        onTap: entries.first.onTap,
                       ),
+                      for (final e in entries.skip(1)) ...[
+                        const SizedBox(height: 10),
+                        ToolRow(
+                          icon: e.icon,
+                          title: e.title,
+                          summary: e.summary,
+                          onTap: e.onTap,
+                        ),
+                      ],
+                      const SizedBox(height: 10),
                     ],
+                    ToolRow(
+                      icon: Icons.cloud_download_outlined,
+                      title: 'Offline check-in',
+                      summary: 'Download event data for no-signal scanning',
+                      onTap: _openOfflinePrepare,
+                    ),
                   ],
                 ),
               );

@@ -19,10 +19,16 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../net.dart';
+import '../../offline/event_cache.dart';
+import '../../offline/scan_queue.dart';
+import '../../offline/sync_controller.dart';
 import '../../ui/components.dart';
+import '../../ui/connection_indicator.dart';
 import '../../ui/tokens.dart';
 import 'checkin_scanner_screen.dart' show extractCheckinToken;
 import 'entitlement_scan_result.dart';
+import 'offline_attention_sheet.dart';
+import 'offline_prepare_screen.dart';
 import 'scanner_day_selector.dart';
 
 class EntitlementScannerScreen extends StatefulWidget {
@@ -67,6 +73,11 @@ class _EntitlementScannerScreenState extends State<EntitlementScannerScreen> {
   // Stable-per-install device id (persisted in the OS keychain).
   String? _deviceId;
 
+  // Offline (G2 · O01–O03). The cache is loaded once; the sync controller owns
+  // connectivity + the durable replay queue and is shared across the app.
+  CachedEvent? _cache;
+  SyncController get _sync => SyncController.instance;
+
   // Scan state.
   bool _busy = false;
   String? _lastToken;
@@ -77,6 +88,7 @@ class _EntitlementScannerScreenState extends State<EntitlementScannerScreen> {
   @override
   void initState() {
     super.initState();
+    _sync.ensureStarted(); // load queue, probe connectivity, drain on reconnect
     _bootstrap();
   }
 
@@ -127,8 +139,10 @@ class _EntitlementScannerScreenState extends State<EntitlementScannerScreen> {
       _loading = true;
       _loadError = null;
     });
+    // Device id + the offline cache are local (no network) — always available.
+    _deviceId = await _ensureDeviceId();
+    _cache = await EventCache.load(widget.eventId);
     try {
-      _deviceId = await _ensureDeviceId();
       final rows = await supa
           .from('entitlements')
           .select('id, name, type, redemption_limit, valid_from, valid_until')
@@ -156,13 +170,44 @@ class _EntitlementScannerScreenState extends State<EntitlementScannerScreen> {
         _loadCounts();
         _loadDayCounts();
       }
-    } catch (_) {
+    } catch (e) {
+      // Offline (or the load failed): keep scanning from the downloaded cache if
+      // one exists, otherwise show a load error that points at O02.
       if (!mounted) return;
-      setState(() {
-        _loading = false;
-        _loadError = 'Could not load entitlements for this event.';
-      });
+      if (isNetworkError(e)) _sync.markOffline();
+      final cache = _cache;
+      if (cache != null && cache.entitlementMaps.isNotEmpty) {
+        await _buildFromCache(cache);
+      } else {
+        setState(() {
+          _loading = false;
+          _loadError =
+              'Could not load entitlements. Download offline data while you have signal.';
+        });
+      }
     }
+  }
+
+  /// Rebuild the scanner's mode list + day structure from the offline cache so
+  /// the field app keeps working with no signal.
+  Future<void> _buildFromCache(CachedEvent cache) async {
+    final list = cache.entitlementMaps.map(EntitlementDef.fromMap).toList();
+    final storedId = await _secure.read(key: 'entitlement_mode_${widget.eventId}');
+    EntitlementDef? selected;
+    if (list.isNotEmpty) {
+      selected = list.firstWhere((e) => e.id == storedId, orElse: () => list.first);
+    }
+    final days = cache.dayMaps.map(EventDay.fromMap).toList();
+    final storedDay = await _secure.read(key: 'entitlement_day_${widget.eventId}');
+    _days = days;
+    _dayLinks = cache.dayLinks;
+    _selectedDayIndex = _computeDefaultDay(days, storedDay);
+    if (!mounted) return;
+    setState(() {
+      _entitlements = list;
+      _selected = selected;
+      _loading = false;
+    });
   }
 
   Future<void> _loadCounts() async {
@@ -304,7 +349,8 @@ class _EntitlementScannerScreenState extends State<EntitlementScannerScreen> {
     final links = _dayLinks[day.id];
     final ent = _selected;
     if (links != null && links.isNotEmpty && ent != null && !links.contains(ent.id)) {
-      return '${ent.name} not valid on Day ${day.dayIndex}';
+      // day_index is stored 0-based; always displayed 1-based (matches web).
+      return '${ent.name} not valid on Day ${day.dayIndex + 1}';
     }
     return null;
   }
@@ -375,6 +421,14 @@ class _EntitlementScannerScreenState extends State<EntitlementScannerScreen> {
 
     setState(() => _busy = true);
     final entitlement = _selected!;
+
+    // ONE client_uuid per scan, generated here and reused on every replay. If
+    // the online RPC below reaches the server but the response is lost to a
+    // dropped connection, the same client_uuid on the offline replay makes the
+    // server return the prior result instead of double-inserting (065's unique
+    // index + idempotency branch). Never regenerate it on retry.
+    final clientUuid = _clientUuid();
+    final scannedAt = DateTime.now().toUtc().toIso8601String();
     try {
       // Resolve QR -> registration for this event (same path as check-in).
       final regRows = await supa
@@ -394,16 +448,102 @@ class _EntitlementScannerScreenState extends State<EntitlementScannerScreen> {
         'p_entitlement_id': entitlement.id,
         'p_registration_id': registrationId,
         'p_day_index': _selectedDayIndex,
-        'p_client_uuid': _clientUuid(),
+        'p_client_uuid': clientUuid,
         'p_device_id': _deviceId,
         'p_source': 'online',
+        'p_scanned_at': scannedAt,
       });
+      _sync.markOnline();
       _show(EntitlementScanResult.fromRpc(res));
       _loadCounts();
       _loadDayCounts();
-    } catch (_) {
-      _show(EntitlementScanResult.error('Could not reach the server. Try again.'));
+    } catch (e) {
+      if (isNetworkError(e)) {
+        // No signal: resolve from cache + queue with the SAME client_uuid.
+        _sync.markOffline();
+        await _handleOffline(token, entitlement, clientUuid, scannedAt);
+      } else {
+        _show(EntitlementScanResult.error('Could not reach the server. Try again.'));
+      }
     }
+  }
+
+  /// Offline scan path (O03). Resolves the QR against the local cache and writes
+  /// a durable queue entry. Results are PROVISIONAL — never server-confirmed.
+  Future<void> _handleOffline(
+    String token,
+    EntitlementDef entitlement,
+    String clientUuid,
+    String scannedAt,
+  ) async {
+    final cache = _cache;
+    // No cache, or token not in it: we cannot verify anything — say so, do NOT
+    // queue (we have no registration id to redeem against).
+    if (cache == null) {
+      _show(EntitlementScanResult.notInCache());
+      return;
+    }
+    final reg = cache.registrationByToken(token);
+    if (reg == null) {
+      _show(EntitlementScanResult.notInCache());
+      return;
+    }
+
+    // Local duplicate guard: for once / once_per_day, block a second offline
+    // scan of the same slot on THIS device before any sync.
+    final limited = entitlement.redemptionLimit != 'unlimited';
+    if (limited &&
+        ScanQueue.instance
+            .hasPendingFor(reg.id, entitlement.id, _selectedDayIndex)) {
+      _show(EntitlementScanResult.offlineAlready(
+          name: reg.name, ticket: reg.ticketName));
+      return;
+    }
+
+    final covered = cache.ticketIncludes(reg, entitlement.id);
+    // Queue regardless of coverage — the server is the source of truth and will
+    // decide on replay. We only differ in how honestly we label the result.
+    await ScanQueue.instance.enqueue(QueuedScan(
+      clientUuid: clientUuid,
+      entitlementId: entitlement.id,
+      registrationId: reg.id,
+      dayIndex: _selectedDayIndex,
+      deviceId: _deviceId ?? 'unknown',
+      scannedAt: scannedAt,
+      attendeeName: reg.name,
+      entitlementName: entitlement.name,
+      ticketName: reg.ticketName,
+    ));
+
+    if (covered) {
+      _show(EntitlementScanResult.offlineCheckedIn(
+          name: reg.name, ticket: reg.ticketName));
+    } else {
+      _show(EntitlementScanResult.offlineUnverified(
+          name: reg.name, ticket: reg.ticketName));
+    }
+  }
+
+  Future<void> _openPrepare() async {
+    await Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => OfflinePrepareScreen(
+          eventId: widget.eventId, eventName: widget.eventName),
+    ));
+    final c = await EventCache.load(widget.eventId);
+    if (mounted) setState(() => _cache = c);
+  }
+
+  Future<void> _showAttention() async {
+    await showMSheet(
+      context,
+      OfflineAttentionSheet(
+        items: ScanQueue.instance.attention,
+        onClear: () async {
+          await ScanQueue.instance.clearAttention();
+          if (mounted) Navigator.of(context).pop();
+        },
+      ),
+    );
   }
 
   void _show(EntitlementScanResult result) {
@@ -510,12 +650,18 @@ class _EntitlementScannerScreenState extends State<EntitlementScannerScreen> {
             ),
           ),
 
-          // Persistent connection indicator (online — every scan hits the server).
-          const Positioned(
+          // Persistent connection indicator (O01): online / offline+queued /
+          // syncing, plus a tap-through to any scans that need attention.
+          Positioned(
             top: 12,
             left: 0,
             right: 0,
-            child: Center(child: _OnlinePill()),
+            child: Center(
+              child: ConnectionIndicator(
+                controller: _sync,
+                onTapAttention: _showAttention,
+              ),
+            ),
           ),
 
           // Day selector (G5 · M02) — renders nothing for single-day events.
@@ -558,6 +704,10 @@ class _EntitlementScannerScreenState extends State<EntitlementScannerScreen> {
         ],
       ),
       actions: [
+        IconButton(
+          icon: const Icon(Icons.cloud_download_outlined, color: Colors.white),
+          onPressed: _openPrepare,
+        ),
         IconButton(
           icon: const Icon(Icons.flash_on, color: Colors.white),
           onPressed: () => _controller.toggleTorch(),
@@ -754,34 +904,6 @@ class _ModeSheet extends StatelessWidget {
 }
 
 // ── Dark states ──────────────────────────────────────────────────────────────
-
-class _OnlinePill extends StatelessWidget {
-  const _OnlinePill();
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: AppColors.forestCard,
-        borderRadius: BorderRadius.circular(AppRadius.pill),
-        border: Border.all(color: AppColors.forestSurface),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 7,
-            height: 7,
-            decoration: const BoxDecoration(
-                color: AppColors.success, shape: BoxShape.circle),
-          ),
-          const SizedBox(width: 7),
-          Text('Online', style: AppText.caption.copyWith(color: Colors.white)),
-        ],
-      ),
-    );
-  }
-}
 
 class _InitFrame extends StatelessWidget {
   final String label;

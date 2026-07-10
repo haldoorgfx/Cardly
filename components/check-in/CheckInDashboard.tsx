@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { ScanLine, Check, Users, Clock, Search, X, CheckCircle2, Smartphone, QrCode, DoorOpen, Monitor } from 'lucide-react';
+import { ScanLine, Check, Users, Clock, Search, X, CheckCircle2, Smartphone, QrCode, DoorOpen, Monitor, AlertTriangle } from 'lucide-react';
 import Link from 'next/link';
 import { QRScanner } from './QRScanner';
 import type { RecentCheckin } from '@/app/(app)/events/[id]/check-in/page';
@@ -34,6 +34,7 @@ interface Props {
   totalRegistrations: number;
   initialCheckedIn:   number;
   recentCheckins:     RecentCheckin[];
+  conflictCount?:     number;
 }
 
 const AVATAR_GRADS = [
@@ -297,7 +298,7 @@ function Row({ label, value, mono, muted }: { label: string; value: string; mono
 
 /* ── Main dashboard ─────────────────────────────────────────────────────────── */
 export default function CheckInDashboard({
-  eventId, eventSlug, eventName, eventStatus, totalRegistrations, initialCheckedIn, recentCheckins,
+  eventId, eventSlug, eventName, eventStatus, totalRegistrations, initialCheckedIn, recentCheckins, conflictCount = 0,
 }: Props) {
   const [scannerOpen, setScannerOpen]         = useState(false);
   const [phoneModalOpen, setPhoneModalOpen]   = useState(false);
@@ -408,6 +409,16 @@ export default function CheckInDashboard({
             </p>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
+            {/* Sync conflicts — only shown when two devices scanned the same slot offline. */}
+            {conflictCount > 0 && (
+              <Link
+                href={`/events/${eventSlug}/check-in/conflicts`}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-[13.5px] font-medium border transition hover:opacity-90"
+                style={{ borderColor: 'rgba(201,122,45,0.30)', color: '#C97A2D', background: 'rgba(201,122,45,0.10)' }}>
+                <AlertTriangle size={14} strokeWidth={1.9} />
+                {conflictCount} sync {conflictCount === 1 ? 'conflict' : 'conflicts'}
+              </Link>
+            )}
             {/* Scan with phone — only useful on desktop (hands a QR to open the scanner on a phone).
                 On a phone the organizer just taps "Open scanner" directly, so hide it on mobile. */}
             <button

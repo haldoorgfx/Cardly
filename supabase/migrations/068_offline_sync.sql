@@ -122,7 +122,8 @@ begin
                             'device_id',     er.device_id,
                             'scanned_at',    er.scanned_at,
                             'synced_at',     er.synced_at,
-                            'redeemed_by',   er.redeemed_by
+                            -- 065 names this column `performed_by` (not redeemed_by).
+                            'redeemed_by',   er.performed_by
                           ) order by er.scanned_at)
     ) as c
     from public.entitlement_redemptions er

@@ -57,6 +57,17 @@ export default async function CheckInPage({ params }: Props) {
     checked_in_at: r.checked_in_at ?? null,
   }));
 
+  // Offline-sync conflict count for the indicator badge. Runs via the session
+  // client (list_sync_conflicts authorises on auth.uid()); never fails the page.
+  let conflictCount = 0;
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: conf } = await (supabase as any).rpc('list_sync_conflicts', { p_event_id: id });
+    conflictCount = Array.isArray(conf) ? conf.length : 0;
+  } catch {
+    conflictCount = 0;
+  }
+
   return (
     <CheckInDashboard
       eventId={event.id}
@@ -66,6 +77,7 @@ export default async function CheckInPage({ params }: Props) {
       totalRegistrations={totalCount ?? 0}
       initialCheckedIn={checkedInCount ?? 0}
       recentCheckins={recentCheckins}
+      conflictCount={conflictCount}
     />
   );
 }

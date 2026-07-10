@@ -164,7 +164,9 @@ class _DayPill extends StatelessWidget {
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text('Day ${day.dayIndex}',
+                // day_index is stored 0-based (web writes 0,1,2…) but is always
+                // shown 1-based, matching the web day setup + attendance grid.
+                Text('Day ${day.dayIndex + 1}',
                     style: AppText.bodyStrong.copyWith(color: titleColor, fontSize: 14)),
                 if (isToday) ...[
                   const SizedBox(width: 6),
