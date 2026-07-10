@@ -240,7 +240,9 @@ begin
 
   -- Aggregate at the shift level first (per-shift registration totals via a
   -- lateral), then roll up per staff so counted_total is counted once per shift.
-  select coalesce(jsonb_agg(row order by row->>'staff_name'), '[]'::jsonb)
+  -- NOTE: `row` and `rows` are reserved words in Postgres — aliasing with them
+  -- makes this parse as a ROW constructor / FETCH clause. Use plain names.
+  select coalesce(jsonb_agg(sr.staff_row order by sr.staff_row->>'staff_name'), '[]'::jsonb)
   into v_staff
   from (
     select jsonb_build_object(
@@ -251,7 +253,7 @@ begin
       'open_shifts',        count(*) filter (where s.status = 'open'),
       'reconciled_shifts',  count(*) filter (where s.status = 'reconciled'),
       'counted_total',      coalesce(sum(s.counted_total) filter (where s.status = 'reconciled'), 0)
-    ) as row
+    ) as staff_row
     from public.cash_shifts s
     left join lateral (
       select count(*) as txn, coalesce(sum(r.amount_paid), 0) as collected
@@ -261,7 +263,7 @@ begin
     left join public.profiles p on p.id = s.staff_user_id
     where s.event_id = p_event_id
     group by s.staff_user_id, p.full_name
-  ) rows;
+  ) sr;
 
   return jsonb_build_object(
     'grand_total', coalesce(v_grand, 0),

@@ -1,8 +1,10 @@
 ﻿'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { ArrowLeft, Check, Users, DoorOpen } from 'lucide-react';
 import Link from 'next/link';
+import { WalkInPaymentStep, type PaymentMethod } from './WalkInPaymentStep';
+import { WalkInTicketStep } from './WalkInTicketStep';
 
 interface Ticket { id: string; name: string; price: number; currency: string; quantity: number | null; }
 
@@ -24,18 +26,14 @@ interface WalkInForm {
   email: string;
   phone: string;
   ticketId: string;
-  payment: 'card' | 'cash';
-}
-
-function fmtPrice(price: number, currency: string) {
-  if (price === 0) return 'Free';
-  try { return new Intl.NumberFormat(undefined, { style: 'currency', currency, minimumFractionDigits: 0 }).format(price); }
-  catch { return `${currency} ${price}`; }
+  payment: PaymentMethod;
+  amountReceived: string;
 }
 
 export function WalkInClient({ eventId, eventSlug, eventName, tickets, checkedIn, walkInsToday, maxCapacity, confirmedCount = 0 }: Props) {
   const [step, setStep] = useState<Step>('info');
-  const [form, setForm] = useState<WalkInForm>({ name: '', email: '', phone: '', ticketId: tickets[0]?.id ?? '', payment: 'card' });
+  const [form, setForm] = useState<WalkInForm>({ name: '', email: '', phone: '', ticketId: tickets[0]?.id ?? '', payment: 'cash', amountReceived: '' });
+  const submitLock = useRef(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [result, setResult] = useState<{ name: string; ticketName: string; ticketNumber: string } | null>(null);
@@ -53,32 +51,51 @@ export function WalkInClient({ eventId, eventSlug, eventName, tickets, checkedIn
 
   async function submit() {
     if (!form.name.trim() || !form.email.trim()) return;
+    // Double-submit guard: a double-clicked Confirm must never create two paid
+    // registrations. The ref blocks the second call inside the same tick, before
+    // the disabled state has re-rendered.
+    if (submitLock.current) return;
+    submitLock.current = true;
     setSubmitting(true);
     setSubmitError(null);
-    const res = await fetch(`/api/events/${eventId}/walk-in`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
-    });
-    if (res.ok) {
-      const data = await res.json();
-      setResult({
-        name: form.name,
-        ticketName: selectedTicket?.name ?? 'General',
-        ticketNumber: data.ticket_number ?? data.id?.slice(-6).toUpperCase() ?? 'WALKIN',
+    try {
+      const res = await fetch(`/api/events/${eventId}/walk-in`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        // amountReceived is intentionally NOT sent — it is UI-only (change due).
+        // The server records amount_paid from the ticket price, never the client.
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          phone: form.phone,
+          ticketId: form.ticketId,
+          paymentMethod: form.payment,
+        }),
       });
-      setLocalWalkIns(w => w + 1);
-      setLocalConfirmed(c => c + 1);
-      setStep('success');
-    } else {
-      const data = await res.json() as { error?: string };
-      setSubmitError(data.error ?? 'Registration failed');
+      if (res.ok) {
+        const data = await res.json();
+        setResult({
+          name: form.name,
+          ticketName: selectedTicket?.name ?? 'General',
+          ticketNumber: data.ticket_number ?? data.id?.slice(-6).toUpperCase() ?? 'WALKIN',
+        });
+        setLocalWalkIns(w => w + 1);
+        setLocalConfirmed(c => c + 1);
+        setStep('success');
+      } else {
+        const data = await res.json() as { error?: string };
+        setSubmitError(data.error ?? 'Registration failed');
+      }
+    } catch {
+      setSubmitError('Registration failed. Check your connection and try again.');
+    } finally {
+      setSubmitting(false);
+      submitLock.current = false;
     }
-    setSubmitting(false);
   }
 
   function reset() {
-    setForm({ name: '', email: '', phone: '', ticketId: tickets[0]?.id ?? '', payment: 'card' });
+    setForm({ name: '', email: '', phone: '', ticketId: tickets[0]?.id ?? '', payment: 'cash', amountReceived: '' });
     setStep('info');
     setResult(null);
   }
@@ -197,93 +214,31 @@ export function WalkInClient({ eventId, eventSlug, eventName, tickets, checkedIn
 
           {/* Step 2: Ticket */}
           {step === 'ticket' && (
-            <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
-              <h2 className="font-display font-semibold text-[20px] mb-6" style={{ color: '#FAF6EE' }}>Select ticket</h2>
-              {tickets.length === 0 ? (
-                <p className="text-[14px]" style={{ color: 'rgba(255,255,255,0.5)' }}>No tickets available</p>
-              ) : (
-                <div className="space-y-3">
-                  {tickets.map(t => (
-                    <button
-                      key={t.id}
-                      onClick={() => setField('ticketId', t.id)}
-                      className="w-full text-left px-4 py-4 rounded-xl transition"
-                      style={{
-                        background: form.ticketId === t.id ? 'rgba(232,197,126,0.12)' : 'rgba(255,255,255,0.04)',
-                        border: form.ticketId === t.id ? '1px solid rgba(232,197,126,0.4)' : '1px solid rgba(255,255,255,0.08)',
-                      }}>
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <div className="text-[15px] font-semibold" style={{ color: '#FAF6EE' }}>{t.name}</div>
-                          {t.quantity != null && t.quantity > 0 && <div className="text-[12px] mt-0.5" style={{ color: 'rgba(255,255,255,0.4)' }}>{t.quantity} available</div>}
-                        </div>
-                        <div className="text-[18px] font-bold" style={{ color: form.ticketId === t.id ? '#E8C57E' : 'rgba(255,255,255,0.7)' }}>
-                          {fmtPrice(t.price, t.currency || 'USD')}
-                        </div>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              )}
-              <div className="flex gap-3 mt-6">
-                <button onClick={() => setStep('info')} className="flex-1 py-3 rounded-2xl text-[14px] font-semibold border transition hover:opacity-70" style={{ borderColor: 'rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.6)' }}>
-                  Back
-                </button>
-                <button onClick={() => setStep('payment')} disabled={!form.ticketId} className="flex-1 py-3 rounded-2xl text-[15px] font-semibold transition hover:opacity-90 disabled:opacity-40" style={{ background: '#E8C57E', color: '#0F1F18' }}>
-                  Continue
-                </button>
-              </div>
-            </div>
+            <WalkInTicketStep
+              tickets={tickets}
+              ticketId={form.ticketId}
+              onSelect={(tid) => setField('ticketId', tid)}
+              onBack={() => setStep('info')}
+              onContinue={() => setStep('payment')}
+            />
           )}
 
           {/* Step 3: Payment */}
           {step === 'payment' && (
-            <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
-              <h2 className="font-display font-semibold text-[20px] mb-6" style={{ color: '#FAF6EE' }}>Payment</h2>
-
-              {/* Summary */}
-              <div className="rounded-xl p-4 mb-6" style={{ background: 'rgba(255,255,255,0.04)' }}>
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-[14px]" style={{ color: 'rgba(255,255,255,0.6)' }}>{selectedTicket?.name}</span>
-                  <span className="text-[16px] font-semibold" style={{ color: '#FAF6EE' }}>{fmtPrice(selectedTicket?.price ?? 0, selectedTicket?.currency || 'USD')}</span>
-                </div>
-                <div className="text-[12px]" style={{ color: 'rgba(255,255,255,0.4)' }}>{form.name} · {form.email}</div>
-              </div>
-
-              {/* Payment method */}
-              {selectedTicket && selectedTicket.price > 0 && (
-                <div className="grid grid-cols-2 gap-3 mb-6">
-                  {[
-                    { id: 'card', label: 'Tap to pay', sub: 'Card or phone' },
-                    { id: 'cash', label: 'Cash', sub: 'Mark as paid' },
-                  ].map(opt => (
-                    <button key={opt.id} onClick={() => setField('payment', opt.id)}
-                      className="py-4 rounded-xl transition"
-                      style={{
-                        background: form.payment === opt.id ? 'rgba(232,197,126,0.12)' : 'rgba(255,255,255,0.04)',
-                        border: form.payment === opt.id ? '1px solid rgba(232,197,126,0.4)' : '1px solid rgba(255,255,255,0.08)',
-                      }}>
-                      <div className="text-[15px] font-semibold" style={{ color: '#FAF6EE' }}>{opt.label}</div>
-                      <div className="text-[11px]" style={{ color: 'rgba(255,255,255,0.4)' }}>{opt.sub}</div>
-                    </button>
-                  ))}
-                </div>
-              )}
-
-              {submitError && (
-                <div className="mb-4 px-3 py-2.5 rounded-xl text-[13px]" style={{ background: 'rgba(184,66,60,0.15)', border: '1px solid rgba(184,66,60,0.3)', color: '#ff8080' }}>
-                  {submitError}
-                </div>
-              )}
-              <div className="flex gap-3">
-                <button onClick={() => setStep('ticket')} className="flex-1 py-3 rounded-2xl text-[14px] font-semibold border transition hover:opacity-70" style={{ borderColor: 'rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.6)' }}>
-                  Back
-                </button>
-                <button onClick={submit} disabled={submitting || isFull} className="flex-1 py-3 rounded-2xl text-[15px] font-semibold transition hover:opacity-90 disabled:opacity-50" style={{ background: '#E8C57E', color: '#0F1F18' }}>
-                  {submitting ? 'Registering…' : 'Register & check in'}
-                </button>
-              </div>
-            </div>
+            <WalkInPaymentStep
+              selectedTicket={selectedTicket}
+              attendeeName={form.name}
+              attendeeEmail={form.email}
+              payment={form.payment}
+              amountReceived={form.amountReceived}
+              onSelectMethod={(m) => setField('payment', m)}
+              onAmountReceivedChange={(v) => setField('amountReceived', v)}
+              submitError={submitError}
+              submitting={submitting}
+              isFull={isFull}
+              onBack={() => setStep('ticket')}
+              onSubmit={submit}
+            />
           )}
         </div>
       )}

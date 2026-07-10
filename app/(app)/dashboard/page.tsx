@@ -11,6 +11,8 @@ import React from 'react';
 import { CalendarDays, Ticket, Users, ScanLine, Plus, IdCard } from 'lucide-react';
 import { PLANS, type Plan } from '@/lib/billing/plans';
 import { formatRevenue } from '@/lib/events/format';
+import { MigrationNotice } from '@/components/entitlements/MigrationNotice';
+import { dismissEntitlementsMigration } from './migration-actions';
 
 export default async function DashboardPage() {
   const supabase = createClient();
@@ -24,7 +26,7 @@ export default async function DashboardPage() {
       .eq('user_id', user.id)
       .order('updated_at', { ascending: false }),
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (admin as any).from('profiles').select('plan, full_name, onboarding_completed').eq('id', user.id).single(),
+    (admin as any).from('profiles').select('plan, full_name, onboarding_completed, seen_entitlements_migration').eq('id', user.id).single(),
   ]);
 
   const allEvents = events ?? [];
@@ -86,8 +88,27 @@ export default async function DashboardPage() {
     );
   }
 
+  // ─── G01 migration notice (once per organizer) ──────────────────────────────
+  // Shown to existing organizers exactly once. Numbers are computed from live
+  // data below — never hardcoded — and dismissal persists on the profiles flag.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const seenMigration = (profile as any)?.seen_entitlements_migration === true;
+
   // ─── Registrations + revenue ───────────────────────────────────────────────
   const eventIds = allEvents.map(e => e.id);
+
+  // Real ticket-type footprint for the migration notice (only queried when shown).
+  let showMigrationNotice = false;
+  let ticketTypesCount = 0;
+  const migrationEventsCount = allEvents.filter(e => e.status !== 'archived').length;
+  if (!seenMigration && eventIds.length > 0) {
+    const { count } = await admin
+      .from('ticket_types')
+      .select('id', { count: 'exact', head: true })
+      .in('event_id', eventIds);
+    ticketTypesCount = count ?? 0;
+    showMigrationNotice = true;
+  }
   const regsByEvent: Record<string, { count: number; revenue: number; checkedIn: number; currencies: Set<string> }> = {};
   let totalRegistrations = 0;
   let totalRevenue = 0;
@@ -147,6 +168,15 @@ export default async function DashboardPage() {
             </Link>
           )}
         </div>
+
+        {/* ── G01 migration notice ── */}
+        {showMigrationNotice && (
+          <MigrationNotice
+            eventsCount={migrationEventsCount}
+            ticketTypesCount={ticketTypesCount}
+            onDismiss={dismissEntitlementsMigration}
+          />
+        )}
 
         {/* ── Stats strip ── */}
         <div className="bg-white border rounded-2xl px-4 sm:px-6 py-4 mb-5 flex flex-wrap items-center gap-x-5 gap-y-2"

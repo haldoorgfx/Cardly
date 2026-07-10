@@ -4,6 +4,8 @@
 
 import { Resend } from 'resend';
 import { getWhiteLabelByEvent } from '@/lib/white-label/server';
+import { createAdminClient } from '@/lib/supabase/server';
+import { googleCalendarUrl, outlookUrl, type CalendarEvent } from '@/lib/calendar/ics';
 
 function getResend() {
   const key = process.env.RESEND_API_KEY;
@@ -56,6 +58,65 @@ async function resolveBrand(eventId?: string): Promise<EmailBrand> {
   return { wordmarkHtml, primary, from: `${fromName} <${FROM_EMAIL}>`, replyTo };
 }
 
+// ── Add to calendar (G7 / K01) ─────────────────────────────────────────────────
+// Emails can't run JS, so we link out: Google + Outlook compose flows, and the
+// public .ics route (which serves Apple Calendar and any ICS client).
+
+interface CalendarLinks {
+  google: string;
+  outlook: string;
+  ics: string;
+}
+
+/** Resolve calendar links for an event, or null when timing is missing. */
+async function buildCalendarLinks(eventId: string): Promise<CalendarLinks | null> {
+  try {
+    const admin = createAdminClient();
+    const { data: page } = await admin
+      .from('event_pages')
+      .select('id, title, description, starts_at, ends_at, timezone, venue_name, venue_address, city, country, is_online, online_url, events!inner(slug)')
+      .eq('event_id', eventId)
+      .maybeSingle();
+
+    if (!page || !page.starts_at) return null;
+
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://karta.cre8so.com';
+    const slug = (page as { events?: { slug: string } | null }).events?.slug ?? page.id;
+    const location = page.is_online
+      ? (page.online_url ?? 'Online event')
+      : [page.venue_name, page.venue_address, page.city, page.country].filter(Boolean).join(', ');
+
+    const event: CalendarEvent = {
+      title: page.title,
+      description: page.description ? page.description.slice(0, 800) : null,
+      location,
+      start: page.starts_at,
+      end: page.ends_at ?? null,
+      url: `${appUrl}/e/${slug}`,
+      uid: `eventera-${slug}@eventera`,
+      timezone: page.timezone ?? null,
+    };
+
+    return {
+      google: googleCalendarUrl(event),
+      outlook: outlookUrl(event),
+      ics: `${appUrl}/api/calendar/${page.id}`,
+    };
+  } catch {
+    return null;
+  }
+}
+
+/** Render the four calendar pills as email-safe anchor tags (no brand colors). */
+function calendarSectionHtml(links: CalendarLinks): string {
+  const pill = (href: string, label: string) =>
+    `<a href="${href}" style="display:inline-block;margin:3px;padding:8px 14px;border:1px solid #E5E0D4;border-radius:999px;background:#FFFFFF;color:#0F1F18;font-size:13px;font-weight:500;text-decoration:none;">${label}</a>`;
+  return `<div style="text-align:center;background:white;border:1px solid #E5E0D4;border-radius:12px;padding:16px 20px;margin-bottom:20px;">
+      <div style="font-size:12px;font-family:Inter,sans-serif;color:#6B7A72;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px;">Add to calendar</div>
+      ${pill(links.google, 'Google')}${pill(links.ics, 'Apple')}${pill(links.outlook, 'Outlook')}${pill(links.ics, '.ics')}
+    </div>`;
+}
+
 function emailHeader(brand: EmailBrand, subtitle?: string): string {
   return `<div style="background:${brand.primary};border-radius:12px;padding:28px 28px 20px;text-align:center;margin-bottom:24px;">
       <div style="font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-size:22px;font-weight:600;color:white;letter-spacing:-0.01em;">
@@ -94,10 +155,11 @@ export interface RegistrationConfirmEmailParams {
 export async function sendRegistrationConfirmEmail(params: RegistrationConfirmEmailParams) {
   const brand = await resolveBrand(params.eventId);
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://karta.cre8so.com';
+  const cal = params.eventId ? await buildCalendarLinks(params.eventId) : null;
   await send(brand, {
     to: params.to,
     subject: `You're registered for ${params.eventTitle}`,
-    html: buildConfirmationHtml(params, appUrl, brand),
+    html: buildConfirmationHtml(params, appUrl, brand, cal),
   });
 }
 
@@ -113,14 +175,15 @@ export interface RegistrationReminderEmailParams {
 
 export async function sendRegistrationReminderEmail(params: RegistrationReminderEmailParams) {
   const brand = await resolveBrand(params.eventId);
+  const cal = params.eventId ? await buildCalendarLinks(params.eventId) : null;
   await send(brand, {
     to: params.to,
     subject: `Reminder: ${params.eventTitle} is tomorrow`,
-    html: buildReminderHtml(params),
+    html: buildReminderHtml(params, cal),
   });
 }
 
-function buildConfirmationHtml(p: RegistrationConfirmEmailParams, appUrl: string, brand: EmailBrand) {
+function buildConfirmationHtml(p: RegistrationConfirmEmailParams, appUrl: string, brand: EmailBrand, cal: CalendarLinks | null) {
   return `<!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
@@ -142,6 +205,8 @@ function buildConfirmationHtml(p: RegistrationConfirmEmailParams, appUrl: string
         ${p.ticketType}
       </div>
     </div>
+
+    ${cal ? calendarSectionHtml(cal) : ''}
 
     ${p.qrCodeUrl ? `
     <div style="text-align:center;background:white;border:1px solid #E5E0D4;border-radius:12px;padding:20px;margin-bottom:20px;">
@@ -380,7 +445,7 @@ export async function sendTransferEmail(params: { to: string; name: string; even
   });
 }
 
-function buildReminderHtml(p: RegistrationReminderEmailParams) {
+function buildReminderHtml(p: RegistrationReminderEmailParams, cal: CalendarLinks | null) {
   return `<!DOCTYPE html>
 <html>
 <body style="margin:0;padding:0;font-family:Inter,system-ui,sans-serif;background:#FAF6EE;color:#0F1F18;">
@@ -389,7 +454,8 @@ function buildReminderHtml(p: RegistrationReminderEmailParams) {
       ${p.eventTitle} is tomorrow
     </h1>
     <p style="font-size:15px;color:#3A4A42;">Hi ${p.attendeeName}, just a quick reminder!</p>
-    <p style="font-size:14px;color:#3A4A42;">${p.eventDate} · ${p.eventVenue}</p>
+    <p style="font-size:14px;color:#3A4A42;margin-bottom:20px;">${p.eventDate} · ${p.eventVenue}</p>
+    ${cal ? calendarSectionHtml(cal) : ''}
   </div>
 </body>
 </html>`;

@@ -36,7 +36,7 @@ export default async function RegisterConfirmPage({ params, searchParams }: Prop
   if (!registration) notFound();
 
   const [{ data: eventPage }, { data: ticket }] = await Promise.all([
-    admin.from('event_pages').select('title, event_id, variant_id, events!inner(slug)').eq('event_id', registration.event_id).single(),
+    admin.from('event_pages').select('id, title, event_id, variant_id, starts_at, ends_at, timezone, venue_name, venue_address, city, country, is_online, online_url, events!inner(slug)').eq('event_id', registration.event_id).single(),
     registration.ticket_type_id
       ? admin.from('ticket_types').select('name, price, currency').eq('id', registration.ticket_type_id).single()
       : Promise.resolve({ data: null }),
@@ -44,6 +44,12 @@ export default async function RegisterConfirmPage({ params, searchParams }: Prop
 
   const eventTitle = eventPage?.title ?? 'Event';
   const eventSlug = (eventPage?.events as { slug: string } | null)?.slug ?? params.slug;
+
+  // Event timing + location for the "Add to calendar" pills (K01).
+  const eventLocation = eventPage?.is_online
+    ? (eventPage?.online_url ?? 'Online event')
+    : [eventPage?.venue_name, eventPage?.venue_address, eventPage?.city, eventPage?.country].filter(Boolean).join(', ') || null;
+  const eventUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? ''}/e/${eventSlug}`;
 
   // Load variant for post-payment card personalisation (only needed when no card generated yet)
   let variant: { id: string; zones: Zone[]; background_url: string | null; background_width: number | null; background_height: number | null } | null = null;
@@ -103,6 +109,12 @@ export default async function RegisterConfirmPage({ params, searchParams }: Prop
       redirectStatus={searchParams.redirect_status ?? null}
       txRef={searchParams.reg ?? null}
       isFlutterwaveReturn={isFlutterwaveReturn}
+      eventPageId={eventPage?.id ?? null}
+      eventStartsAt={eventPage?.starts_at ?? null}
+      eventEndsAt={eventPage?.ends_at ?? null}
+      eventTimezone={eventPage?.timezone ?? null}
+      eventLocation={eventLocation}
+      eventUrl={eventUrl}
     />
   );
 }

@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Bell, BarChart2, ExternalLink, Clock, Plus, CheckCircle2, Send, Copy, Check, X, Sparkles } from 'lucide-react';
+import Link from 'next/link';
+import { Bell, BarChart2, ExternalLink, Clock, Plus, CheckCircle2, Send, Copy, Check, X, Sparkles, MessageCircle, GitBranch, Eye, Megaphone, ChevronRight } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { ERAButton } from '@/components/ai/ERAButton';
 
@@ -323,6 +324,31 @@ export function CommunicationsView({ eventId, eventName, registrantCount, plan =
             </p>
           </div>
         )}
+      </div>
+
+      {/* WhatsApp & journeys */}
+      <div className="rounded-2xl mb-4" style={{ border: '1px solid #E5E0D4', background: 'white' }}>
+        <div className="flex items-center gap-2 px-4 sm:px-5 py-4" style={{ borderBottom: '1px solid #E5E0D4' }}>
+          <MessageCircle size={15} strokeWidth={2} style={{ color: '#1F4D3A' }} />
+          <h2 className="text-[13px] font-semibold" style={{ color: '#0F1F18' }}>WhatsApp &amp; automated journeys</h2>
+        </div>
+        <div className="grid sm:grid-cols-2 gap-px" style={{ background: '#F5F0E8' }}>
+          {[
+            { href: `/events/${eventId}/communications/whatsapp`, icon: <MessageCircle size={15} strokeWidth={2} />, label: 'Connect WhatsApp', desc: 'Add a business number & templates' },
+            { href: `/events/${eventId}/communications/automations`, icon: <GitBranch size={15} strokeWidth={2} />, label: 'Journey builder', desc: 'Per-step channel automations' },
+            { href: `/events/${eventId}/communications/preview`, icon: <Eye size={15} strokeWidth={2} />, label: 'Template preview', desc: 'See a template with sample data' },
+            { href: `/events/${eventId}/communications/broadcast`, icon: <Megaphone size={15} strokeWidth={2} />, label: 'New broadcast', desc: 'Send an announcement now' },
+          ].map((l) => (
+            <Link key={l.href} href={l.href} className="flex items-center gap-3 px-4 sm:px-5 py-3.5 transition hover:bg-[#FAFAF8]" style={{ background: 'white' }}>
+              <div className="h-8 w-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: 'rgba(31,77,58,0.08)', color: '#1F4D3A' }}>{l.icon}</div>
+              <div className="min-w-0 flex-1">
+                <div className="text-[13px] font-medium" style={{ color: '#0F1F18' }}>{l.label}</div>
+                <div className="text-[11.5px]" style={{ color: '#6B7A72' }}>{l.desc}</div>
+              </div>
+              <ChevronRight size={15} strokeWidth={2} style={{ color: '#9BA8A1' }} />
+            </Link>
+          ))}
+        </div>
       </div>
 
       {/* ERA Campaign Draft */}

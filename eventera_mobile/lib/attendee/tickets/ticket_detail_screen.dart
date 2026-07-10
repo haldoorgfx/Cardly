@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../app_config.dart';
-import '../../ics_export.dart';
 import '../../net.dart';
 import '../../ui/components.dart';
 import '../../ui/tokens.dart';
+import '../calendar_sheet.dart';
 import '../register/waafipay_payment_screen.dart';
+import 'entitlement_transfer_sheet.dart';
 import 'entitlements_screen.dart';
 import 'fullscreen_qr_screen.dart';
 import 'ticket_stub.dart';
@@ -52,8 +52,35 @@ class TicketDetailScreen extends StatefulWidget {
 class _TicketDetailScreenState extends State<TicketDetailScreen> {
   late String _status = widget.status ?? 'confirmed';
   bool _transferred = false;
+  bool _canManage = false;
 
   TicketStatus get _ts => ticketStatusFrom(_status);
+
+  @override
+  void initState() {
+    super.initState();
+    _checkCanManage();
+  }
+
+  /// Only owners / active staff may run per-entitlement transfers (the
+  /// transfer_entitlement RPC enforces this too). We resolve it up front so the
+  /// manager-only "Transfer a pass" action never appears for a plain attendee —
+  /// Design Law §10: no organizer tooling on attendee surfaces.
+  Future<void> _checkCanManage() async {
+    try {
+      final reg = await supa
+          .from('registrations')
+          .select('event_id')
+          .eq('id', widget.registrationId)
+          .maybeSingle();
+      if (reg == null) return;
+      final can = await supa.rpc('can_manage_event',
+          params: {'p_event_id': asString(reg['event_id'])});
+      if (mounted && can == true) setState(() => _canManage = true);
+    } catch (_) {
+      // Silent — default stays false, so no manager action is shown.
+    }
+  }
 
   String get _qrData {
     final slug = widget.eventSlug;
@@ -83,67 +110,18 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
     return '${AppConfig.renderBaseUrl}/e/$slug';
   }
 
-  Future<void> _exportIcs() async {
-    try {
-      await exportEventToCalendar(
-        title: widget.eventName,
-        start: widget.startsAt,
-        location: widget.venue,
-        description:
-            widget.ticketType == null ? null : 'Ticket: ${widget.ticketType}',
-        url: _eventUrl,
-      );
-    } catch (_) {
-      if (mounted) showToast(context, 'Could not export to calendar.');
-    }
-  }
-
-  /// Builds a Google Calendar "render" URL that pre-fills a new event.
-  Uri _googleCalUri() {
-    String fmt(DateTime d) {
-      final u = d.toUtc();
-      String two(int n) => n.toString().padLeft(2, '0');
-      return '${u.year.toString().padLeft(4, '0')}${two(u.month)}${two(u.day)}'
-          'T${two(u.hour)}${two(u.minute)}${two(u.second)}Z';
-    }
-
-    final start = widget.startsAt;
-    final params = <String, String>{
-      'action': 'TEMPLATE',
-      'text': widget.eventName,
-      if (start != null)
-        'dates': '${fmt(start)}/${fmt(start.add(const Duration(hours: 2)))}',
-      if ((widget.venue ?? '').isNotEmpty) 'location': widget.venue!,
-      if (_eventUrl != null) 'details': _eventUrl!,
-    };
-    return Uri.https('calendar.google.com', '/calendar/render', params);
-  }
-
-  Future<void> _openCalendarPicker() async {
-    showMSheet(
+  /// Opens the shared Google / Outlook / Apple / .ics sheet.
+  void _openCalendarPicker() {
+    final slug = widget.eventSlug;
+    showAddToCalendarSheet(
       context,
-      Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text('Add to calendar', style: AppText.h3),
-          const SizedBox(height: 8),
-          _action(Icons.event_available_outlined, 'Google Calendar', () async {
-            Navigator.pop(context);
-            final uri = _googleCalUri();
-            final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
-            if (!ok && mounted) showToast(context, 'Could not open Google Calendar.');
-          }),
-          _action(Icons.apple, 'Apple Calendar', () {
-            Navigator.pop(context);
-            _exportIcs();
-          }),
-          _action(Icons.download_outlined, 'Download .ics file', () {
-            Navigator.pop(context);
-            _exportIcs();
-          }),
-        ],
-      ),
+      title: widget.eventName,
+      start: widget.startsAt,
+      location: widget.venue,
+      description:
+          widget.ticketType == null ? null : 'Ticket: ${widget.ticketType}',
+      url: _eventUrl,
+      uid: (slug != null && slug.isNotEmpty) ? 'eventera-$slug@eventera' : null,
     );
   }
 
@@ -200,6 +178,21 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
     }
   }
 
+  /// Manager-only: transfer a single entitlement (pass) held by this
+  /// registration to another attendee. Gated by [_canManage].
+  Future<void> _openEntitlementTransfer() async {
+    final ok = await showMSheet<bool>(
+      context,
+      EntitlementTransferSheet(
+        registrationId: widget.registrationId,
+        fromName: widget.attendeeName ?? 'this attendee',
+      ),
+    );
+    if (ok == true && mounted) {
+      showToast(context, 'Pass transferred to its new holder.');
+    }
+  }
+
   void _openEntitlements() {
     Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => EntitlementsScreen(
@@ -250,6 +243,11 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
             _action(Icons.send_outlined, 'Transfer ticket', () {
               Navigator.pop(context);
               _openTransfer();
+            }),
+          if (_canManage)
+            _action(Icons.swap_horiz, 'Transfer a pass', () {
+              Navigator.pop(context);
+              _openEntitlementTransfer();
             }),
           _action(Icons.receipt_long_outlined, 'View receipt', () {
             Navigator.pop(context);
@@ -575,56 +573,4 @@ class _TransferSheetState extends State<_TransferSheet> {
       setState(() => _error = 'Enter the recipient’s name and a valid email.');
       return;
     }
-    setState(() {
-      _busy = true;
-      _error = null;
-    });
-    try {
-      await apiPost('/api/tickets/${widget.registrationId}/transfer', {
-        'recipientEmail': email,
-        'recipientName': name,
-      });
-      if (!mounted) return;
-      Navigator.of(context).pop(true);
-    } on ApiException catch (e) {
-      if (!mounted) return;
-      setState(() => _error = e.message);
-    } catch (_) {
-      if (!mounted) return;
-      setState(() => _error = 'Could not send the transfer. Please try again.');
-    } finally {
-      if (mounted) setState(() => _busy = false);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text('Transfer this ticket', style: AppText.h3),
-        const SizedBox(height: 6),
-        Text(
-          'We\'ll email the recipient their QR. This is irreversible — the ticket leaves your account right away.',
-          style: AppText.bodySm,
-        ),
-        const SizedBox(height: 16),
-        MInput(label: 'Recipient name', controller: _nameCtrl),
-        const SizedBox(height: 12),
-        MInput(
-          label: 'Recipient email',
-          controller: _emailCtrl,
-          keyboardType: TextInputType.emailAddress,
-        ),
-        if (_error != null) ...[
-          const SizedBox(height: 12),
-          Text(_error!, style: AppText.bodySm.copyWith(color: AppColors.danger)),
-        ],
-        const SizedBox(height: 16),
-        MButton('Send transfer',
-            kind: MBtnKind.forest, loading: _busy, onTap: _busy ? null : _submit),
-      ],
-    );
-  }
-}
+   

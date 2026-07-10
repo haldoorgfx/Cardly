@@ -24,11 +24,48 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     }
   }
 
-  const body = await req.json() as { name: string; email: string; phone?: string; ticketId?: string };
-  const { name, email, phone, ticketId } = body;
+  const body = await req.json() as { name: string; email: string; phone?: string; ticketId?: string; paymentMethod?: string };
+  const { name, email, phone, ticketId, paymentMethod } = body;
   if (!name || !email) return NextResponse.json({ error: 'Please enter a name and email.' }, { status: 400 });
 
   const emailLc = email.toLowerCase().trim();
+
+  // Server-authoritative ticket price. The client's typed "amount received" is
+  // never trusted — amount_paid is always the real ticket price from the DB.
+  let ticketPrice = 0;
+  if (ticketId) {
+    const { data: tt } = await admin
+      .from('ticket_types')
+      .select('price')
+      .eq('id', ticketId)
+      .eq('event_id', id)
+      .maybeSingle();
+    ticketPrice = Number(tt?.price ?? 0);
+  }
+
+  // Normalise the door-sale method. Only paid tickets carry a payment_method.
+  const allowedMethods = ['cash', 'mobile_money', 'card'];
+  const method = ticketPrice > 0 && paymentMethod && allowedMethods.includes(paymentMethod)
+    ? paymentMethod
+    : null;
+
+  // For cash sales, get/create this staff member's OPEN shift so the takings roll
+  // up per-staff in reconciliation. open_cash_shift authorises on auth.uid() → it
+  // MUST run on the session client, not the admin client (which has no auth.uid()).
+  let cashShiftId: string | null = null;
+  if (method === 'cash') {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sessionDb = supabase as any;
+    const { data: shift, error: shiftErr } = await sessionDb.rpc('open_cash_shift', { p_event_id: id });
+    if (shiftErr) {
+      if (shiftErr.code === 'P0001' && /NOT_AUTHORISED/.test(shiftErr.message ?? '')) {
+        return NextResponse.json({ error: 'You can no longer manage this event.' }, { status: 403 });
+      }
+      return NextResponse.json({ error: 'Couldn’t open a cash shift. Try again.' }, { status: 500 });
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    cashShiftId = (shift as any)?.id ?? null;
+  }
 
   // If this email is already registered for the event, check that person in
   // instead of failing on the unique constraint.
@@ -78,7 +115,9 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     ticket_type_id: ticketId ?? null,
     status: 'checked_in',
     qr_code_token: qr,
-    amount_paid: 0,
+    amount_paid: ticketPrice,
+    payment_method: method,
+    cash_shift_id: cashShiftId,
     source: 'walk_in',
     checked_in_at: new Date().toISOString(),
   }).select('id').single();

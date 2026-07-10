@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../../app_config.dart';
-import '../../ics_export.dart';
 import '../../screens/open_event_screen.dart';
 import '../../ui/components.dart';
 import '../../ui/tokens.dart';
+import '../calendar_sheet.dart';
 
 /// Success screen shown after a registration completes (screen 11 — DARK).
 /// Renders the ticket QR (the check-in URL, matching what /api/qr/[token]
@@ -57,20 +57,18 @@ class ConfirmScreen extends StatelessWidget {
     return b.isEmpty ? 'TKT-$a' : 'TKT-$a-$b';
   }
 
-  Future<void> _addToCalendar(BuildContext context) async {
-    try {
-      await exportEventToCalendar(
-        title: eventName,
-        start: eventStart,
-        end: eventEnd,
-        location: (venue != null && venue!.trim().isNotEmpty) ? venue : null,
-        description: 'Your ticket for $eventName. — Eventera',
-      );
-    } catch (_) {
-      if (context.mounted) {
-        showToast(context, "Couldn't open calendar export. Please try again.");
-      }
-    }
+  Future<void> _addToCalendar(BuildContext context) {
+    final url = slug.isNotEmpty ? '${AppConfig.renderBaseUrl}/e/$slug' : null;
+    return showAddToCalendarSheet(
+      context,
+      title: eventName,
+      start: eventStart,
+      end: eventEnd,
+      location: (venue != null && venue!.trim().isNotEmpty) ? venue : null,
+      description: 'Your ticket for $eventName. — Eventera',
+      url: url,
+      uid: slug.isNotEmpty ? 'eventera-$slug@eventera' : null,
+    );
   }
 
   @override

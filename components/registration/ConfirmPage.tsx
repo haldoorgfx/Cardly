@@ -4,6 +4,8 @@ import { useEffect, useLayoutEffect, useState, useCallback } from 'react';
 import { Share2, Check, ChevronRight, Download } from 'lucide-react';
 import { CardZoneFill } from './CardZoneFill';
 import { PhotoCropModal } from './PhotoCropModal';
+import { CalendarPills } from './CalendarPills';
+import { uidForSlug } from '@/lib/calendar/ics';
 
 import type { Database, Zone } from '@/types/database';
 
@@ -29,6 +31,14 @@ interface Props {
   redirectStatus: string | null;
   txRef: string | null;
   isFlutterwaveReturn: boolean;
+  // Event timing + location for "Add to calendar" (K01). All optional — the
+  // pills hide themselves when there's no start date.
+  eventPageId: string | null;
+  eventStartsAt: string | null;
+  eventEndsAt: string | null;
+  eventTimezone: string | null;
+  eventLocation: string | null;
+  eventUrl: string;
 }
 
 // Eventera card confetti — only fires when enabled (i.e., phase === 'done')
@@ -71,7 +81,7 @@ function useConfetti(enabled: boolean) {
 
 type Phase = 'verifying' | 'card' | 'done';
 
-export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, variant, existingCardImageUrl, isPaidReturn, paymentIntentId, txRef, isFlutterwaveReturn }: Props) {
+export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, variant, existingCardImageUrl, isPaidReturn, paymentIntentId, txRef, isFlutterwaveReturn, eventPageId, eventStartsAt, eventEndsAt, eventTimezone, eventLocation, eventUrl }: Props) {
   // Determine initial phase:
   // - Paid return: start at 'verifying' (check PI status) → 'card' → 'done'
   // - Free (card already generated or in sessionStorage): 'done'
@@ -431,6 +441,23 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
           <Download size={13} strokeWidth={2.2} />
           Save ticket
         </a>
+
+        {/* Add to calendar — Google / Apple / Outlook / .ics */}
+        {eventStartsAt && (
+          <div className="mb-4">
+            <CalendarPills
+              title={eventTitle}
+              description={ticketName ? `Ticket: ${ticketName}` : null}
+              location={eventLocation}
+              startsAt={eventStartsAt}
+              endsAt={eventEndsAt}
+              timezone={eventTimezone}
+              eventUrl={eventUrl}
+              uid={uidForSlug(eventSlug)}
+              icsHref={`/api/calendar/${eventPageId ?? registration.event_id}`}
+            />
+          </div>
+        )}
 
         {/* Share row */}
         <p className="text-[11px] font-medium text-center mb-2.5" style={{ color: '#6B7A72' }}>Share</p>

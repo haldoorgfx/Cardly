@@ -5,7 +5,9 @@ import '../rbac/role_service.dart';
 import '../rbac/speaking_screen.dart';
 import '../rbac/sponsoring_screen.dart';
 import '../roles/role_widgets.dart';
+import '../roles/staff/cash_shift_screen.dart';
 import '../roles/staff/event_control_screen.dart';
+import '../roles/staff/walk_in_screen.dart';
 import '../screens/organizer/offline_prepare_screen.dart';
 import '../ui/components.dart';
 import '../ui/tokens.dart';
@@ -56,6 +58,27 @@ class _OrganizerToolsTabState extends State<OrganizerToolsTab> {
     Navigator.of(context).push(MaterialPageRoute(
       builder: (_) =>
           OfflinePrepareScreen(eventId: event.id, eventName: event.name),
+    ));
+  }
+
+  /// C01 — cash walk-in registration. Pick an event (owner-or-staff enforced
+  /// server-side on the shift + check-in RPCs), then take money at the door.
+  Future<void> _openWalkIn() async {
+    final event =
+        await showOrganizerEventPicker(context, title: 'Cash walk-in for');
+    if (event == null || !mounted) return;
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => WalkInScreen(eventId: event.id, eventName: event.name),
+    ));
+  }
+
+  /// C02 — end-of-shift reconciliation for the caller's own cash drawer.
+  Future<void> _openCashShift() async {
+    final event =
+        await showOrganizerEventPicker(context, title: 'Cash drawer for');
+    if (event == null || !mounted) return;
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => CashShiftScreen(eventId: event.id, eventName: event.name),
     ));
   }
 
@@ -158,6 +181,20 @@ class _OrganizerToolsTabState extends State<OrganizerToolsTab> {
                       ],
                       const SizedBox(height: 10),
                     ],
+                    ToolRow(
+                      icon: Icons.point_of_sale_outlined,
+                      title: 'Cash walk-in',
+                      summary: 'Register and take payment at the door',
+                      onTap: _openWalkIn,
+                    ),
+                    const SizedBox(height: 10),
+                    ToolRow(
+                      icon: Icons.account_balance_wallet_outlined,
+                      title: 'Cash drawer',
+                      summary: 'Count and hand over your shift',
+                      onTap: _openCashShift,
+                    ),
+                    const SizedBox(height: 10),
                     ToolRow(
                       icon: Icons.cloud_download_outlined,
                       title: 'Offline check-in',

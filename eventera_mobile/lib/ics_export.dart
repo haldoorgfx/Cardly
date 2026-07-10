@@ -10,6 +10,10 @@ import 'package:share_plus/share_plus.dart';
 /// If [start] is null, DTSTART defaults to now and DTEND is omitted.
 /// If [end] is null (but [start] is set), DTEND defaults to start + 2 hours.
 ///
+/// [uid] is a stable, cross-platform identifier — pass `eventera-<slug>@eventera`
+/// so the SAME event produces the SAME UID here and on the web. When omitted we
+/// fall back to a timestamp-based id (fine for one-off exports).
+///
 /// Callers should wrap this in try/catch and surface a toast on failure.
 Future<void> exportEventToCalendar({
   required String title,
@@ -18,6 +22,7 @@ Future<void> exportEventToCalendar({
   String? location,
   String? description,
   String? url,
+  String? uid,
 }) async {
   final now = DateTime.now().toUtc();
   final dtStamp = _formatUtc(now);
@@ -31,7 +36,8 @@ Future<void> exportEventToCalendar({
     endUtc = end.toUtc();
   }
 
-  final uid = 'eventera-${now.millisecondsSinceEpoch}@eventera.app';
+  final resolvedUid =
+      (uid != null && uid.trim().isNotEmpty) ? uid.trim() : 'eventera-${now.millisecondsSinceEpoch}@eventera.app';
 
   // Fold the event URL into the description so calendar apps that ignore the
   // URL property still surface the link.
@@ -48,7 +54,7 @@ Future<void> exportEventToCalendar({
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
     'BEGIN:VEVENT',
-    'UID:$uid',
+    'UID:$resolvedUid',
     'DTSTAMP:$dtStamp',
     'DTSTART:${_formatUtc(startUtc)}',
     if (endUtc != null) 'DTEND:${_formatUtc(endUtc)}',
