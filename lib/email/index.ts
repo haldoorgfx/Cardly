@@ -55,6 +55,40 @@ function btn(href: string, text: string): string {
   return `<a href="${href}" style="display:inline-block;margin-top:20px;padding:12px 24px;background:#1F4D3A;color:#FFFFFF;text-decoration:none;border-radius:10px;font-size:14px;font-weight:600">${text}</a>`;
 }
 
+function esc(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+// ─── Generic notification email ───────────────────────────────────────────────
+
+/** Mirrors any in-app notification into the user's inbox, so important updates
+ *  reach them even when the app is closed. Channel/pref gating is the caller's
+ *  job (see lib/notifications.ts `notify`). No-ops without RESEND_API_KEY. */
+export async function sendNotificationEmail(opts: {
+  to: string;
+  title: string;
+  body?: string;
+  actionUrl?: string;
+  actionLabel?: string;
+}): Promise<void> {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? '';
+  const href = opts.actionUrl
+    ? opts.actionUrl.startsWith('http')
+      ? opts.actionUrl
+      : `${appUrl}${opts.actionUrl}`
+    : appUrl;
+  const html = wrap(`
+    <h1 style="margin:0 0 12px;font-size:20px;font-weight:700;color:#0F1F18">${esc(opts.title)}</h1>
+    ${opts.body ? `<p style="margin:0;font-size:14px;line-height:1.6;color:#3A4A42">${esc(opts.body)}</p>` : ''}
+    ${btn(href, opts.actionLabel ?? 'Open Eventera')}
+  `);
+  await sendEmail(opts.to, opts.title, html);
+}
+
 // ─── Welcome email ───────────────────────────────────────────────────────────
 
 /** Sent once immediately after a new user creates their account. */
