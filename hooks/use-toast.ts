@@ -9,7 +9,10 @@ import type {
 } from "@/components/ui/toast"
 
 const TOAST_LIMIT = 1
-const TOAST_REMOVE_DELAY = 1000000
+// Time a toast lingers in state AFTER it closes, before removal. Just long
+// enough for the exit animation — not the infamous 1000000ms shadcn default
+// that left dismissed toasts hanging around.
+const TOAST_REMOVE_DELAY = 1000
 
 type ToasterToast = ToastProps & {
   id: string

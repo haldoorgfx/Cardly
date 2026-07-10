@@ -14,7 +14,9 @@ export function Toaster() {
   const { toasts } = useToast()
 
   return (
-    <ToastProvider>
+    // 2.5s auto-dismiss — quick and unobtrusive, like the mobile toast, instead
+    // of Radix's 5s default that felt like it lingered.
+    <ToastProvider duration={2500}>
       {toasts.map(function ({ id, title, description, action, ...props }) {
         return (
           <Toast key={id} {...props}>
