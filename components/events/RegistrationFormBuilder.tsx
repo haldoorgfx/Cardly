@@ -4,13 +4,13 @@ import { useState, useCallback } from 'react';
 import {
   Plus, Pencil, Trash2, ChevronUp, ChevronDown,
   AlignLeft, AlignJustify, List, CheckSquare, CircleDot, Phone, Link as LinkIcon,
-  GripVertical, Calendar, Hash, Heading,
+  GripVertical, Calendar, Hash, Heading, Salad, Accessibility,
 } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import type { Database } from '@/types/database';
 
 type FieldRow = Database['public']['Tables']['registration_form_fields']['Row'];
-type FieldType = 'text' | 'textarea' | 'select' | 'checkbox' | 'radio' | 'phone' | 'url' | 'date' | 'number' | 'section';
+type FieldType = 'text' | 'textarea' | 'select' | 'checkbox' | 'radio' | 'phone' | 'url' | 'date' | 'number' | 'section' | 'dietary' | 'accessibility';
 
 const FIELD_TYPES: { value: FieldType; label: string; icon: React.ReactNode; hint: string }[] = [
   { value: 'text',     label: 'Short text',  icon: <AlignLeft size={15} strokeWidth={1.8} />,     hint: 'Single-line answer' },
@@ -18,6 +18,8 @@ const FIELD_TYPES: { value: FieldType; label: string; icon: React.ReactNode; hin
   { value: 'select',   label: 'Dropdown',    icon: <List size={15} strokeWidth={1.8} />,           hint: 'Single choice from a list' },
   { value: 'radio',    label: 'Radio',       icon: <CircleDot size={15} strokeWidth={1.8} />,      hint: 'Single choice, always visible' },
   { value: 'checkbox', label: 'Checkbox',    icon: <CheckSquare size={15} strokeWidth={1.8} />,    hint: 'One or more choices' },
+  { value: 'dietary',  label: 'Dietary',     icon: <Salad size={15} strokeWidth={1.8} />,          hint: 'Meal needs — shared with catering' },
+  { value: 'accessibility', label: 'Accessibility', icon: <Accessibility size={15} strokeWidth={1.8} />, hint: 'Needs to prepare for — private' },
   { value: 'phone',    label: 'Phone',       icon: <Phone size={15} strokeWidth={1.8} />,          hint: 'Phone number with validation' },
   { value: 'url',      label: 'URL',         icon: <LinkIcon size={15} strokeWidth={1.8} />,       hint: 'Website or social link' },
   { value: 'date',     label: 'Date',        icon: <Calendar size={15} strokeWidth={1.8} />,       hint: 'Date picker' },
@@ -25,7 +27,13 @@ const FIELD_TYPES: { value: FieldType; label: string; icon: React.ReactNode; hin
   { value: 'section',   label: 'Section',     icon: <Heading size={15} strokeWidth={1.8} />,        hint: 'Heading / divider (no input)' },
 ];
 
-const HAS_OPTIONS: FieldType[] = ['select', 'radio', 'checkbox'];
+// select / radio / checkbox carry a free-form option list; dietary + accessibility
+// carry an editable tag list (stored the same way, in `options`).
+const HAS_OPTIONS: FieldType[] = ['select', 'radio', 'checkbox', 'dietary', 'accessibility'];
+
+// Sensible starting tags for the two care fields — the organizer can edit the list.
+const DIETARY_TAGS = ['Halal', 'Vegetarian', 'Vegan', 'Gluten-free', 'Nut allergy', 'Dairy-free', 'Kosher', 'No restrictions'];
+const ACCESSIBILITY_TAGS = ['Wheelchair access', 'Step-free route', 'Sign language', 'Hearing loop', 'Large print', 'Quiet space', 'Assistance animal', 'Other'];
 
 interface FormState {
   label: string;
@@ -83,6 +91,20 @@ export function RegistrationFormBuilder({ eventId, initialFields }: Props) {
 
   const setF = useCallback(<K extends keyof FormState>(key: K, val: FormState[K]) => {
     setForm(prev => ({ ...prev, [key]: val }));
+  }, []);
+
+  // Pick a field type. Switching to dietary/accessibility with an untouched option
+  // list seeds the suggested tags so the organizer starts from a full set.
+  const selectType = useCallback((t: FieldType) => {
+    setForm(prev => {
+      const isTagType = t === 'dietary' || t === 'accessibility';
+      const optsUntouched = prev.options.every(o => !o.trim());
+      let options = prev.options;
+      if (isTagType && optsUntouched) {
+        options = t === 'dietary' ? [...DIETARY_TAGS] : [...ACCESSIBILITY_TAGS];
+      }
+      return { ...prev, field_type: t, options };
+    });
   }, []);
 
   async function handleSave() {
@@ -295,7 +317,7 @@ export function RegistrationFormBuilder({ eventId, initialFields }: Props) {
                 {FIELD_TYPES.map(ft => (
                   <button
                     key={ft.value}
-                    onClick={() => setF('field_type', ft.value)}
+                    onClick={() => selectType(ft.value)}
                     className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left transition"
                     style={{
                       border: `1px solid ${form.field_type === ft.value ? '#1F4D3A' : '#E5E0D4'}`,
@@ -324,7 +346,9 @@ export function RegistrationFormBuilder({ eventId, initialFields }: Props) {
                   form.field_type === 'phone' ? 'Phone number' :
                   form.field_type === 'url' ? 'LinkedIn profile URL' :
                   form.field_type === 'select' ? 'Job title' :
-                  form.field_type === 'checkbox' ? 'Dietary requirements' :
+                  form.field_type === 'dietary' ? 'Dietary requirements' :
+                  form.field_type === 'accessibility' ? 'Accessibility needs' :
+                  form.field_type === 'checkbox' ? 'Interests' :
                   'Company / organisation'
                 }
                 autoFocus

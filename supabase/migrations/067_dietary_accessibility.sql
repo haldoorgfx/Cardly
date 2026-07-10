@@ -98,23 +98,35 @@ begin
     raise exception 'NOT_AUTHORISED' using errcode = 'P0001';
   end if;
 
+  -- A meal counts ONCE, and only if it still stands. A redemption row is LIVE when
+  -- it is an actual redeem, was not later un-redeemed (065 writes an 'un_redeemed'
+  -- row whose reverses_id points back at it), and did not lose an offline conflict
+  -- (068 sets superseded_by on the losing row). Anything else would inflate the
+  -- caterer's numbers.
   select jsonb_build_object('meals', coalesce(jsonb_agg(m order by m->>'entitlement_name'), '[]'::jsonb))
   into v_result
   from (
     select jsonb_build_object(
       'entitlement_id',   e.id,
       'entitlement_name', e.name,
+      -- Servings, not people: a once_per_day meal over 3 days is 3 servings.
       'total_redeemed',   count(er.id),
       'dietary',          coalesce(
         (
           select jsonb_agg(jsonb_build_object('tag', d.tag, 'count', d.cnt) order by d.cnt desc)
           from (
-            select tag, count(*) as cnt
+            select tag, count(*) as cnt   -- servings carrying this tag
             from public.entitlement_redemptions er2
             join public.registrations r2 on r2.id = er2.registration_id
             cross join lateral unnest(coalesce(r2.dietary, array[]::text[])) as tag
             where er2.entitlement_id = e.id
+              and er2.action = 'redeemed'
               and er2.status = 'redeemed'
+              and er2.superseded_by is null
+              and not exists (
+                select 1 from public.entitlement_redemptions rev
+                where rev.reverses_id = er2.id and rev.action = 'un_redeemed'
+              )
             group by tag
           ) d
         ),
@@ -123,7 +135,14 @@ begin
     ) as m
     from public.entitlements e
     left join public.entitlement_redemptions er
-      on er.entitlement_id = e.id and er.status = 'redeemed'
+      on er.entitlement_id = e.id
+     and er.action = 'redeemed'
+     and er.status = 'redeemed'
+     and er.superseded_by is null
+     and not exists (
+       select 1 from public.entitlement_redemptions rev
+       where rev.reverses_id = er.id and rev.action = 'un_redeemed'
+     )
     where e.event_id = p_event_id
       and e.type = 'meal'
     group by e.id, e.name

@@ -21,12 +21,19 @@ import 'package:path_provider/path_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// One cached attendee row (a slice of `public.registrations`).
+///
+/// PRIVACY: this caches ONLY dietary + dietaryNote — the minimum a caterer needs
+/// to serve food at a MEAL scan while offline (D04). Accessibility answers are
+/// deliberately NEVER cached to the device; they stay server-side and are read
+/// only by the owner/staff accessibility summary online.
 class CachedRegistration {
   final String id;
   final String qrToken;
   final String name;
   final String ticketName;
   final String ticketTypeId;
+  final List<String> dietary; // meal-scan only; see _handleOffline's meal branch
+  final String? dietaryNote;
 
   const CachedRegistration({
     required this.id,
@@ -34,6 +41,8 @@ class CachedRegistration {
     required this.name,
     required this.ticketName,
     required this.ticketTypeId,
+    this.dietary = const [],
+    this.dietaryNote,
   });
 
   Map<String, dynamic> toJson() => {
@@ -42,6 +51,8 @@ class CachedRegistration {
         'name': name,
         'ticket': ticketName,
         'ticket_type_id': ticketTypeId,
+        'dietary': dietary,
+        if (dietaryNote != null) 'dietary_note': dietaryNote,
       };
 
   factory CachedRegistration.fromJson(Map<String, dynamic> m) =>
@@ -51,7 +62,13 @@ class CachedRegistration {
         name: (m['name'] ?? '').toString(),
         ticketName: (m['ticket'] ?? '').toString(),
         ticketTypeId: (m['ticket_type_id'] ?? '').toString(),
+        dietary: _asStringList(m['dietary']),
+        dietaryNote: m['dietary_note']?.toString(),
       );
+
+  static List<String> _asStringList(dynamic v) => (v is List)
+      ? v.map((e) => e.toString().trim()).where((s) => s.isNotEmpty).toList()
+      : const <String>[];
 }
 
 /// The full cached bundle for one event. `entitlementMaps` and `dayMaps` are
@@ -226,22 +243,33 @@ class EventCache {
     }
     report(0.55, 'Coverage');
 
-    // 4. The attendee list.
+    // 4. The attendee list. We cache dietary + dietary_note ONLY — the caterer
+    //    needs them to serve food at an offline MEAL scan (D04). Accessibility
+    //    answers are intentionally NOT selected here: that personal data never
+    //    lands on the device.
     final regRows = await supa
         .from('registrations')
-        .select('id, qr_code_token, attendee_name, ticket_type_id')
+        .select('id, qr_code_token, attendee_name, ticket_type_id, dietary, dietary_note')
         .eq('event_id', eventId);
     final byToken = <String, CachedRegistration>{};
     for (final r in _asMapList(regRows)) {
       final token = (r['qr_code_token'] ?? '').toString();
       if (token.isEmpty) continue;
       final ttId = (r['ticket_type_id'] ?? '').toString();
+      final diet = (r['dietary'] is List)
+          ? (r['dietary'] as List)
+              .map((e) => e.toString().trim())
+              .where((s) => s.isNotEmpty)
+              .toList()
+          : const <String>[];
       byToken[token] = CachedRegistration(
         id: (r['id'] ?? '').toString(),
         qrToken: token,
         name: (r['attendee_name'] ?? '').toString(),
         ticketName: ticketNames[ttId] ?? '',
         ticketTypeId: ttId,
+        dietary: diet,
+        dietaryNote: r['dietary_note']?.toString(),
       );
     }
     report(0.8, 'Attendees');

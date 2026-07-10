@@ -207,6 +207,13 @@ export default async function EntitlementsPage({ params }: { params: Promise<{ i
           <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>
             Define what attendees can redeem — entry, meals, sessions, merch, transport and more. Each entitlement scans on its own, with its own validity window and redemption limit. Attach them to ticket types so the right people hold the right things.
           </p>
+          <a
+            href={`/events/${event.slug}/catering`}
+            className="inline-flex items-center gap-1.5 text-[13px] font-medium mt-3 transition hover:text-[#163828]"
+            style={{ color: '#1F4D3A' }}
+          >
+            View catering counts →
+          </a>
         </div>
         <EntitlementsClient
           initialEntitlements={entitlements}

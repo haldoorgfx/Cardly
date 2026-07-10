@@ -110,15 +110,40 @@ class EntitlementScanResult {
       EntitlementScanResult(status: 'error', message: message);
 
   /// Offline: token resolved + ticket covers the entitlement → provisional
-  /// check-in, queued for sync.
-  factory EntitlementScanResult.offlineCheckedIn({String? name, String? ticket}) =>
-      EntitlementScanResult(status: 'redeemed', name: name, ticket: ticket, offline: true);
+  /// check-in, queued for sync. [dietary]/[dietaryNote] are supplied by the
+  /// scanner ONLY for meal entitlements (D04) so the caterer's pill renders
+  /// offline exactly as it does online; the view still gates on entitlement.isMeal.
+  factory EntitlementScanResult.offlineCheckedIn({
+    String? name,
+    String? ticket,
+    List<String> dietary = const [],
+    String? dietaryNote,
+  }) =>
+      EntitlementScanResult(
+        status: 'redeemed',
+        name: name,
+        ticket: ticket,
+        dietary: dietary,
+        dietaryNote: dietaryNote,
+        offline: true,
+      );
 
   /// Offline: token resolved but the ticket does not obviously cover it (a grant
   /// may exist). Queued so the server decides — we do NOT deny it here.
-  factory EntitlementScanResult.offlineUnverified({String? name, String? ticket}) =>
+  factory EntitlementScanResult.offlineUnverified({
+    String? name,
+    String? ticket,
+    List<String> dietary = const [],
+    String? dietaryNote,
+  }) =>
       EntitlementScanResult(
-          status: 'offline_unverified', name: name, ticket: ticket, offline: true);
+        status: 'offline_unverified',
+        name: name,
+        ticket: ticket,
+        dietary: dietary,
+        dietaryNote: dietaryNote,
+        offline: true,
+      );
 
   /// Offline: already scanned on THIS device (local duplicate guard).
   factory EntitlementScanResult.offlineAlready({String? name, String? ticket}) =>
@@ -255,12 +280,20 @@ class EntitlementScanResultView extends StatelessWidget {
   /// At most two supporting facts, per §8.
   List<Widget> _supporting() {
     // Offline results are provisional — say so plainly, never claim verification.
+    // A meal scan (guarded by entitlement.isMeal) still shows the caterer's
+    // dietary pill from the offline cache, exactly as an online meal scan does.
     if (result.offline) {
+      final showDietary = entitlement.isMeal && result.dietary.isNotEmpty;
+      List<Widget> withDietary(List<Widget> facts) => showDietary
+          ? [..._dietaryBlock(), const SizedBox(height: 18), ...facts]
+          : facts;
       switch (result.status) {
         case 'redeemed':
-          return [_fact('Status', 'Checked in — will sync when online')];
+          return withDietary(
+              [_fact('Status', 'Checked in — will sync when online')]);
         case 'offline_unverified':
-          return [_fact('Status', 'Queued — server will verify when online')];
+          return withDietary(
+              [_fact('Status', 'Queued — server will verify when online')]);
         case 'already':
           return [_fact('Status', 'Already scanned on this device')];
         case 'not_in_cache':
@@ -272,34 +305,7 @@ class EntitlementScanResultView extends StatelessWidget {
       case 'redeemed':
         // Dietary renders on MEAL scans only — this is the privacy guard.
         if (entitlement.isMeal && result.dietary.isNotEmpty) {
-          return [
-            Wrap(
-              alignment: WrapAlignment.center,
-              spacing: 10,
-              runSpacing: 10,
-              children: [
-                for (final d in result.dietary)
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 11),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(AppRadius.pill),
-                    ),
-                    child: Text(
-                      d.toUpperCase(),
-                      style: AppText.bodyStrong.copyWith(
-                          color: AppColors.forestDark, fontSize: 22, letterSpacing: 0.5),
-                    ),
-                  ),
-              ],
-            ),
-            if ((result.dietaryNote ?? '').trim().isNotEmpty) ...[
-              const SizedBox(height: 12),
-              Text(result.dietaryNote!.trim(),
-                  textAlign: TextAlign.center,
-                  style: AppText.body.copyWith(color: Colors.white70)),
-            ],
-          ];
+          return _dietaryBlock();
         }
         return const [];
       case 'already':
@@ -322,6 +328,40 @@ class EntitlementScanResultView extends StatelessWidget {
         ];
     }
   }
+
+  /// The caterer's dietary pills + optional note. Rendered identically for an
+  /// online meal scan and an offline (cache-resolved) meal scan. Callers gate on
+  /// entitlement.isMeal before invoking this — the privacy guard is never here.
+  List<Widget> _dietaryBlock() => [
+        Wrap(
+          alignment: WrapAlignment.center,
+          spacing: 10,
+          runSpacing: 10,
+          children: [
+            for (final d in result.dietary)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 11),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(AppRadius.pill),
+                ),
+                child: Text(
+                  d.toUpperCase(),
+                  style: AppText.bodyStrong.copyWith(
+                      color: AppColors.forestDark,
+                      fontSize: 22,
+                      letterSpacing: 0.5),
+                ),
+              ),
+          ],
+        ),
+        if ((result.dietaryNote ?? '').trim().isNotEmpty) ...[
+          const SizedBox(height: 12),
+          Text(result.dietaryNote!.trim(),
+              textAlign: TextAlign.center,
+              style: AppText.body.copyWith(color: Colors.white70)),
+        ],
+      ];
 
   Widget _fact(String label, String value) => Column(
         children: [

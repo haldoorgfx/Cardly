@@ -501,6 +501,18 @@ class _EntitlementScannerScreenState extends State<EntitlementScannerScreen> {
     }
 
     final covered = cache.ticketIncludes(reg, entitlement.id);
+
+    // D04 — dietary rides along on MEAL scans ONLY. `entitlement.type == 'meal'`
+    // is the SAME privacy guard the result view enforces via entitlement.isMeal:
+    // the caterer needs this, nobody else. Entry / transport / merch / session /
+    // parking / certificate offline scans carry no dietary at all.
+    var offlineDietary = const <String>[];
+    String? offlineDietaryNote;
+    if (entitlement.type == 'meal') {
+      offlineDietary = reg.dietary;
+      offlineDietaryNote = reg.dietaryNote;
+    }
+
     // Queue regardless of coverage — the server is the source of truth and will
     // decide on replay. We only differ in how honestly we label the result.
     await ScanQueue.instance.enqueue(QueuedScan(
@@ -517,10 +529,16 @@ class _EntitlementScannerScreenState extends State<EntitlementScannerScreen> {
 
     if (covered) {
       _show(EntitlementScanResult.offlineCheckedIn(
-          name: reg.name, ticket: reg.ticketName));
+          name: reg.name,
+          ticket: reg.ticketName,
+          dietary: offlineDietary,
+          dietaryNote: offlineDietaryNote));
     } else {
       _show(EntitlementScanResult.offlineUnverified(
-          name: reg.name, ticket: reg.ticketName));
+          name: reg.name,
+          ticket: reg.ticketName,
+          dietary: offlineDietary,
+          dietaryNote: offlineDietaryNote));
     }
   }
 
