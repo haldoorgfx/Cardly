@@ -3,8 +3,10 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../attendee/engage/_shared.dart' show effectiveRegId;
 import '../eventera_api.dart';
 import '../models.dart';
+import '../net.dart' show supa, currentUserId;
 import '../ui/components.dart';
 import '../ui/tokens.dart';
 import '../widgets/card_preview.dart';
@@ -148,6 +150,30 @@ class _PersonalizeScreenState extends State<PersonalizeScreen> {
     return errs.isEmpty;
   }
 
+  /// The registration this attendee holds for the event, if any. Checks the
+  /// in-memory / on-device store first (covers guests who registered on this
+  /// device), then the DB for a signed-in user who may have registered
+  /// elsewhere. Cards are for registered attendees only.
+  Future<String?> _resolveRegistrationId() async {
+    final local = await effectiveRegId(null, widget.event.id);
+    if (local != null && local.isNotEmpty) return local;
+    final uid = currentUserId;
+    if (uid != null) {
+      try {
+        final row = await supa
+            .from('registrations')
+            .select('id')
+            .eq('event_id', widget.event.id)
+            .eq('user_id', uid)
+            .limit(1)
+            .maybeSingle();
+        final id = row?['id'] as String?;
+        if (id != null && id.isNotEmpty) return id;
+      } catch (_) {}
+    }
+    return null;
+  }
+
   Future<void> _generate() async {
     FocusScope.of(context).unfocus();
     if (!_validate()) return;
@@ -156,6 +182,15 @@ class _PersonalizeScreenState extends State<PersonalizeScreen> {
       _generateError = null;
     });
     try {
+      // Gate: only registered attendees can create the card.
+      final registrationId = await _resolveRegistrationId();
+      if (registrationId == null) {
+        if (!mounted) return;
+        setState(() => _generateError =
+            'Register for this event first to create your card.');
+        return;
+      }
+
       final fields = <String, String>{};
       _textControllers.forEach((id, c) => fields[id] = c.text.trim());
 
@@ -163,6 +198,7 @@ class _PersonalizeScreenState extends State<PersonalizeScreen> {
         variantId: _variant.id,
         fields: fields,
         photos: _photos,
+        registrationId: registrationId,
       );
       if (!mounted) return;
       // personalize → render → REVEAL → (existing preview + share/download).

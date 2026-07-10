@@ -174,6 +174,7 @@ export default function AttendeeFlow({
           CARD_LIMIT_REACHED:   "This event has reached its card limit for the month. Please contact the organiser.",
           PLAN_LIMIT:           "This event has reached its limit. Please contact the organiser.",
           DUPLICATE_SUBMISSION: "Your card is already being generated. Please wait a moment.",
+          REGISTRATION_REQUIRED: "You need to register for this event first — then you can create your card.",
         };
         // For RENDER_FAILED, prefer the detail message (has the real cause) over a generic one
         if (d.error === 'RENDER_FAILED') {

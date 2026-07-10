@@ -371,6 +371,24 @@ export async function POST(req: NextRequest) {
 
   if (!event) return NextResponse.json({ error: 'Event not found or not published' }, { status: 404 });
 
+  // Cards are for REGISTERED attendees only — no anonymous generation. Require a
+  // registrationId that belongs to this event. The id is a server-minted random
+  // UUID handed to the client by the registration flow, so holding a valid one
+  // for this event proves the caller registered. (The Studio developer API lives
+  // in /api/v1/render and is gated by its own API key — this rule is for the
+  // public attendee endpoint only.)
+  if (!registrationId) {
+    return NextResponse.json({ error: 'REGISTRATION_REQUIRED' }, { status: 403 });
+  }
+  const { data: registration } = await supabase
+    .from('registrations')
+    .select('id, event_id')
+    .eq('id', registrationId)
+    .maybeSingle();
+  if (!registration || registration.event_id !== event.id) {
+    return NextResponse.json({ error: 'REGISTRATION_REQUIRED' }, { status: 403 });
+  }
+
   // Check card generation limit for the event owner
   const { allowed, plan } = await canGenerateCard(event.user_id);
   if (!allowed) {

@@ -270,6 +270,7 @@ class EventeraApi {
     required String variantId,
     required Map<String, String> fields,
     required Map<String, PhotoUpload> photos,
+    required String registrationId,
   }) async {
     final idempotencyKey = 'mob-${DateTime.now().microsecondsSinceEpoch}';
     Object? lastError;
@@ -278,7 +279,7 @@ class EventeraApi {
     for (var attempt = 0; attempt < 3; attempt++) {
       try {
         return await _sendCardMultipart(
-            variantId, fields, photos, idempotencyKey);
+            variantId, fields, photos, idempotencyKey, registrationId);
       } on EventeraException {
         rethrow; // real backend rejection (4xx) — retrying won't help
       } catch (e) {
@@ -294,7 +295,8 @@ class EventeraApi {
     //    maps one photo to the first photo zone, so only use it with ≤1 photo.
     if (photos.length <= 1) {
       try {
-        return await _sendCardJson(variantId, fields, photos, idempotencyKey);
+        return await _sendCardJson(
+            variantId, fields, photos, idempotencyKey, registrationId);
       } on EventeraException {
         rethrow;
       } catch (e) {
@@ -313,11 +315,13 @@ class EventeraApi {
     Map<String, String> fields,
     Map<String, PhotoUpload> photos,
     String idempotencyKey,
+    String registrationId,
   ) async {
     final req = http.MultipartRequest('POST', AppConfig.renderEndpoint);
     req.fields['variantId'] = variantId;
     req.fields['fields'] = jsonEncode(fields);
     req.fields['idempotencyKey'] = idempotencyKey;
+    req.fields['registrationId'] = registrationId;
 
     photos.forEach((zoneId, photo) {
       req.files.add(http.MultipartFile.fromBytes(
@@ -338,11 +342,13 @@ class EventeraApi {
     Map<String, String> fields,
     Map<String, PhotoUpload> photos,
     String idempotencyKey,
+    String registrationId,
   ) async {
     final body = <String, dynamic>{
       'variantId': variantId,
       'fields': fields,
       'idempotencyKey': idempotencyKey,
+      'registrationId': registrationId,
     };
     if (photos.isNotEmpty) {
       final photo = photos.values.first;
@@ -378,6 +384,8 @@ class EventeraApi {
       'PLAN_LIMIT': 'This event has reached its limit. Contact the organiser.',
       'DUPLICATE_SUBMISSION':
           'Your card is already being generated — give it a moment.',
+      'REGISTRATION_REQUIRED':
+          'Register for this event first to create your card.',
       'Event not found or not published':
           'This event is not published yet.',
     };
