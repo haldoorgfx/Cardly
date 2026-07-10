@@ -573,4 +573,56 @@ class _TransferSheetState extends State<_TransferSheet> {
       setState(() => _error = 'Enter the recipient’s name and a valid email.');
       return;
     }
-   
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    try {
+      await apiPost('/api/tickets/${widget.registrationId}/transfer', {
+        'recipientEmail': email,
+        'recipientName': name,
+      });
+      if (!mounted) return;
+      Navigator.of(context).pop(true);
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      setState(() => _error = e.message);
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _error = 'Could not send the transfer. Please try again.');
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text('Transfer this ticket', style: AppText.h3),
+        const SizedBox(height: 6),
+        Text(
+          'We\'ll email the recipient their QR. This is irreversible — the ticket leaves your account right away.',
+          style: AppText.bodySm,
+        ),
+        const SizedBox(height: 16),
+        MInput(label: 'Recipient name', controller: _nameCtrl),
+        const SizedBox(height: 12),
+        MInput(
+          label: 'Recipient email',
+          controller: _emailCtrl,
+          keyboardType: TextInputType.emailAddress,
+        ),
+        if (_error != null) ...[
+          const SizedBox(height: 12),
+          Text(_error!, style: AppText.bodySm.copyWith(color: AppColors.danger)),
+        ],
+        const SizedBox(height: 16),
+        MButton('Send transfer',
+            kind: MBtnKind.forest, loading: _busy, onTap: _busy ? null : _submit),
+      ],
+    );
+  }
+}
