@@ -1,65 +1,146 @@
+import crypto from 'crypto';
 import { createAdminClient } from '@/lib/supabase/server';
 
 /**
- * OS-level push (phone / browser banners).
+ * OS-level push (phone banners) via Firebase Cloud Messaging.
  *
- * Firebase Cloud Messaging is the *transport only* — device tokens live in the
- * shared Supabase `devices` table, and this runs server-side alongside every
- * notification (see lib/notifications.ts `notify`). Supabase stays the single
- * source of truth; FCM just carries the banner to the device OS.
+ * FCM is the transport ONLY — device tokens live in the shared Supabase
+ * `user_devices` table (the mobile app upserts its token there on sign-in), and
+ * this runs server-side alongside every notification (see lib/notifications.ts
+ * `notify`). Supabase stays the single source of truth.
  *
- * STATUS: safe no-op until Firebase is provisioned. Two blockers only the
- * project owner can clear:
- *   1. A Firebase project + `FCM_SERVICE_ACCOUNT` (service-account JSON) and
- *      `FCM_PROJECT_ID` in the server env.
- *   2. The mobile client registering its FCM token into `devices` (needs
- *      google-services.json / an APNs key added to the Flutter app).
- *
- * This function already fans out to every one of the user's devices and is
- * wired into `notify()`, so once `deliverToToken` is implemented push lights up
- * with no changes to any caller.
+ * No-ops safely until `FCM_SERVICE_ACCOUNT` (service-account JSON) is set in the
+ * server env. `FCM_PROJECT_ID` is optional (falls back to the SA's project_id).
  */
-export async function sendPushToUser(opts: {
+
+interface ServiceAccount {
+  client_email: string;
+  private_key: string;
+  project_id?: string;
+  token_uri?: string;
+}
+
+interface PushOpts {
   userId: string;
   title: string;
   body?: string;
   url?: string;
-}): Promise<void> {
+}
+
+function loadServiceAccount(): ServiceAccount | null {
+  const raw = process.env.FCM_SERVICE_ACCOUNT;
+  if (!raw) return null;
   try {
-    // Not configured yet → no-op. (No Firebase project / no tokens exist.)
-    if (!process.env.FCM_SERVICE_ACCOUNT) return;
+    const sa = JSON.parse(raw) as ServiceAccount;
+    if (!sa.client_email || !sa.private_key) return null;
+    return sa;
+  } catch {
+    return null;
+  }
+}
+
+// Google OAuth token, cached until shortly before it expires.
+let cachedToken: { token: string; exp: number } | null = null;
+
+async function getAccessToken(sa: ServiceAccount): Promise<string | null> {
+  const now = Math.floor(Date.now() / 1000);
+  if (cachedToken && cachedToken.exp > now + 60) return cachedToken.token;
+
+  const tokenUri = sa.token_uri ?? 'https://oauth2.googleapis.com/token';
+  const b64 = (o: object) => Buffer.from(JSON.stringify(o)).toString('base64url');
+  const header = b64({ alg: 'RS256', typ: 'JWT' });
+  const claim = b64({
+    iss: sa.client_email,
+    scope: 'https://www.googleapis.com/auth/firebase.messaging',
+    aud: tokenUri,
+    iat: now,
+    exp: now + 3600,
+  });
+  const unsigned = `${header}.${claim}`;
+  const signature = crypto
+    .createSign('RSA-SHA256')
+    .update(unsigned)
+    .sign(sa.private_key, 'base64url');
+  const jwt = `${unsigned}.${signature}`;
+
+  const res = await fetch(tokenUri, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+      assertion: jwt,
+    }),
+  });
+  if (!res.ok) return null;
+  const json = (await res.json()) as { access_token?: string; expires_in?: number };
+  if (!json.access_token) return null;
+  cachedToken = { token: json.access_token, exp: now + (json.expires_in ?? 3600) };
+  return cachedToken.token;
+}
+
+export async function sendPushToUser(opts: PushOpts): Promise<void> {
+  try {
+    const sa = loadServiceAccount();
+    if (!sa) return; // not configured yet — no-op
+
+    const projectId = process.env.FCM_PROJECT_ID ?? sa.project_id;
+    if (!projectId) return;
 
     const admin = createAdminClient();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: devices } = await (admin as any)
-      .from('devices')
-      .select('token, platform')
+      .from('user_devices')
+      .select('fcm_token')
       .eq('user_id', opts.userId);
-
     if (!devices || devices.length === 0) return;
+
+    const accessToken = await getAccessToken(sa);
+    if (!accessToken) return;
 
     await Promise.all(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (devices as any[]).map((d) => deliverToToken(d.token as string, opts)),
+      (devices as any[]).map((d) =>
+        deliverToToken(d.fcm_token as string, opts, accessToken, projectId, admin),
+      ),
     );
   } catch {
-    // Best-effort — push must never throw into the notification pipeline.
+    // Push is best-effort — never throw into the notification pipeline.
   }
 }
 
-/**
- * TODO(push): implement the FCM HTTP v1 send once Firebase is provisioned.
- * Mint an OAuth access token from FCM_SERVICE_ACCOUNT (JWT signed with the
- * service-account key via node:crypto), then POST to
- * `https://fcm.googleapis.com/v1/projects/${FCM_PROJECT_ID}/messages:send`
- * with `{ message: { token, notification: { title, body }, data: { url } } }`.
- * Prune tokens that come back UNREGISTERED. Left unimplemented deliberately so
- * it's built and tested together with the mobile client (whole loop at once).
- */
 async function deliverToToken(
   token: string,
-  opts: { title: string; body?: string; url?: string },
+  opts: PushOpts,
+  accessToken: string,
+  projectId: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  admin: any,
 ): Promise<void> {
-  void token;
-  void opts;
+  try {
+    const res = await fetch(
+      `https://fcm.googleapis.com/v1/projects/${projectId}/messages:send`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: {
+            token,
+            notification: { title: opts.title, body: opts.body ?? '' },
+            data: opts.url ? { url: opts.url } : {},
+            android: { priority: 'HIGH' },
+            apns: { headers: { 'apns-priority': '10' } },
+          },
+        }),
+      },
+    );
+    // Stale/invalid tokens → prune so we don't keep hammering them.
+    if (res.status === 404 || res.status === 400) {
+      await admin.from('user_devices').delete().eq('fcm_token', token);
+    }
+  } catch {
+    // ignore a single failed device
+  }
 }
