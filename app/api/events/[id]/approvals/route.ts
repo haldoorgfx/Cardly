@@ -57,14 +57,23 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
   const newStatus = action === 'approve' ? 'confirmed' : 'rejected';
 
+  // Only act on a registration that is genuinely awaiting approval. Without this
+  // guard the bulk PATCH could resurrect a cancelled/refunded row to 'confirmed'
+  // or flip a payment-in-progress row — the single-approve route already guards
+  // this way and this brings the bulk path in line.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data, error } = await (admin as any)
     .from('registrations')
     .update({ status: newStatus })
     .eq('id', registrationId)
     .eq('event_id', id)
+    .eq('status', 'pending_approval')
     .select('id, status, user_id, attendee_email')
-    .single();
+    .maybeSingle();
+
+  if (!error && !data) {
+    return NextResponse.json({ error: 'This registration is not awaiting approval.' }, { status: 409 });
+  }
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 

@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { Check, Lock, Unlock, ChevronDown, CreditCard, Smartphone, Layers } from 'lucide-react';
+import { Check, Lock, Unlock, ChevronDown, CreditCard, Smartphone, Layers, Clock } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Zone } from '@/types/database';
@@ -235,6 +235,10 @@ export default function RegistrationClient({
   const [paymentCurrency, setPaymentCurrency] = useState('USD');
   const [paymentTicketName, setPaymentTicketName] = useState('');
 
+  // Approval-required events: registration is created as pending_approval (not confirmed).
+  const [awaitingApproval, setAwaitingApproval] = useState(false);
+  const [awaitingApprovalPaid, setAwaitingApprovalPaid] = useState(false);
+
   // Form state
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
@@ -431,6 +435,8 @@ export default function RegistrationClient({
         amount?: number;
         currency?: string;
         ticket_name?: string;
+        awaiting_approval?: boolean;
+        payment_status?: string;
       };
 
       if (!res.ok) {
@@ -442,6 +448,16 @@ export default function RegistrationClient({
           DUPLICATE_REGISTRATION: 'You are already registered for this event.',
         };
         setSubmitError(errorMessages[rawError] ?? rawError);
+        return;
+      }
+
+      // Approval-required events: the registration is created as pending_approval and is
+      // NOT confirmed. There is no valid QR/card yet, so show an honest "awaiting approval"
+      // state instead of the confirmation flow. Paid approval events skip payment until the
+      // organizer approves (payment_status === 'pending_approval').
+      if (data.awaiting_approval) {
+        setAwaitingApprovalPaid(data.payment_status === 'pending_approval');
+        setAwaitingApproval(true);
         return;
       }
 
@@ -529,6 +545,35 @@ export default function RegistrationClient({
     }
     router.push(`/e/${eventSlug}/register/confirm?reg=${confirmedToken}`);
   };
+
+  // Approval-required events: registration received, awaiting the organizer's approval.
+  // Deliberately shows NO QR code and NO "show this at the door" — the ticket is not
+  // valid for entry until an organizer approves it.
+  if (awaitingApproval) {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-5 py-12" style={{ background: '#FAF6EE' }}>
+        <div className="w-full max-w-[420px] bg-white rounded-2xl border p-8 text-center" style={{ borderColor: '#E5E0D4' }}>
+          <div className="mx-auto mb-4 flex items-center justify-center rounded-full" style={{ width: 44, height: 44, background: '#FEF3C7', color: '#C97A2D' }}>
+            <Clock size={22} strokeWidth={2.2} />
+          </div>
+          <h1 className="font-display font-semibold text-[22px] mb-1.5" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
+            Registration received
+          </h1>
+          <p className="text-[14px] mb-3" style={{ color: '#3A4A42' }}>
+            Your registration for {eventName} is awaiting the organizer&apos;s approval.
+          </p>
+          <p className="text-[14px] mb-6" style={{ color: '#6B7A72' }}>
+            {awaitingApprovalPaid
+              ? "We'll email you once you're approved, and you'll be asked to complete payment then. No ticket or QR code is issued until approval."
+              : "We'll email you as soon as you're approved. Your ticket and QR code will be ready then."}
+          </p>
+          <Link href={`/e/${eventSlug}`} className="inline-flex items-center justify-center h-11 rounded-xl text-[14px] font-medium border transition hover:border-[#1F4D3A]/40" style={{ borderColor: '#E5E0D4', color: '#3A4A42' }}>
+            Back to event
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   // Payment screens (after registration created for paid tickets)
   if (paymentStep && pendingRegToken) {

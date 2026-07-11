@@ -14,7 +14,17 @@ export async function POST(req: NextRequest) {
 
   try {
     const verification = await verifyFlutterwaveTransaction(transaction_id ?? tx_ref);
-    const { status, amount, currency } = verification.data ?? {};
+    const { status, amount, currency, tx_ref: verifiedTxRef } = verification.data ?? {};
+
+    // SECURITY: bind the verified transaction to THIS registration. Without this,
+    // a single real payment (one transaction_id) could be replayed against every
+    // registration by posting {transaction_id: <one paid tx>, tx_ref: <any token>}
+    // — pay once, confirm unlimited tickets. Flutterwave stamps the payment with
+    // the tx_ref it was created for; it must equal the registration we're confirming.
+    if (transaction_id && verifiedTxRef && verifiedTxRef !== tx_ref) {
+      console.error(`[FW confirm] tx_ref mismatch: transaction paid for ${verifiedTxRef}, not ${tx_ref}`);
+      return NextResponse.json({ error: 'This payment does not match this registration' }, { status: 422 });
+    }
 
     const admin = createAdminClient();
 

@@ -292,7 +292,6 @@ function ApiKeysSection({ plan }: { plan: string }) {
 const ALL_EVENTS = [
   { value: 'card.generated', label: 'Card generated', desc: 'Fires when an attendee generates a card' },
   { value: 'event.published', label: 'Event published', desc: 'Fires when you publish an event' },
-  { value: 'event.viewed', label: 'Event viewed', desc: 'Fires on each attendee page visit' },
 ];
 
 function WebhooksSection() {

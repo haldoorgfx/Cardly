@@ -133,6 +133,17 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     });
   }
 
+  // Block admission for registrations still awaiting organizer approval. On a
+  // FREE approval-required event these carry payment_status='free'/amount_paid=0,
+  // so the payment guard below would let them through — this closes that hole.
+  if (reg.status === 'pending_approval') {
+    return NextResponse.json({
+      result: 'invalid',
+      code: 'not_approved',
+      message: 'Registration is awaiting organizer approval',
+    });
+  }
+
   // Block check-in for paid tickets that haven't been paid. A ticket is "paid"
   // when amount_paid > 0; free tickets (amount_paid = 0 / payment_status 'free')
   // and successfully paid tickets ('paid') are unaffected.

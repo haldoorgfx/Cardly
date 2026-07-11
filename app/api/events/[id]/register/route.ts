@@ -563,12 +563,16 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     }
   }
 
+  // A free event that requires approval created the row as pending_approval — tell
+  // the client so it shows the honest "awaiting approval" screen (no QR/card),
+  // matching the paid-approval path, instead of a false "confirmed" state.
   return NextResponse.json({
     registration_id: registration.id,
     qr_code_token: registration.qr_code_token,
     variant_id: variantId,
     event_id: params.id,
-    payment_status: 'free',
+    payment_status: requiresApproval ? 'pending_approval' : 'free',
     payment_required: false,
+    awaiting_approval: requiresApproval,
   }, { status: 201 });
 }

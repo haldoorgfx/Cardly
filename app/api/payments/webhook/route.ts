@@ -117,15 +117,25 @@ export async function POST(req: NextRequest) {
     }
 
     case 'charge.refunded': {
-      // Mark registration as refunded when Stripe processes a refund
+      // Mark registration as refunded when Stripe processes a refund, and return
+      // its ticket to inventory. Only decrement for a row we actually flip (the
+      // `.in(status)` + returned rows make this idempotent — a replayed refund
+      // event finds nothing to update and decrements nothing).
       const charge = event.data.object as { payment_intent?: string | null };
       if (charge.payment_intent) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await (admin as any)
+        const { data: refunded } = await (admin as any)
           .from('registrations')
           .update({ status: 'refunded', payment_status: 'refunded', updated_at: new Date().toISOString() })
           .eq('stripe_payment_intent_id', charge.payment_intent)
-          .in('status', ['confirmed', 'checked_in', 'pending']);
+          .in('status', ['confirmed', 'checked_in', 'pending'])
+          .select('id, ticket_type_id');
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        for (const row of ((refunded ?? []) as any[])) {
+          if (row.ticket_type_id) {
+            await admin.rpc('increment_ticket_quantity_sold', { ticket_id: row.ticket_type_id, qty: -1 });
+          }
+        }
       }
       break;
     }

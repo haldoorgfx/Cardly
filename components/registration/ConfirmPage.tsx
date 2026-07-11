@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useLayoutEffect, useState, useCallback } from 'react';
-import { Share2, Check, ChevronRight, Download } from 'lucide-react';
+import { Share2, Check, ChevronRight, Download, Clock } from 'lucide-react';
 import { CardZoneFill } from './CardZoneFill';
 import { PhotoCropModal } from './PhotoCropModal';
 import { CalendarPills } from './CalendarPills';
@@ -287,6 +287,36 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
       ),
     },
   ];
+
+  // ── Guard: approval-required registrations are NOT confirmed ──
+  // This page can be reached directly by qr_code_token (e.g. an emailed link),
+  // so a pending_approval registration must never see the confirmed badge, the
+  // live QR, or "show this at the door". Show an honest awaiting-approval state.
+  if (registration.status === 'pending_approval') {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-5 py-12" style={{ background: '#FAF6EE' }}>
+        <div className="w-full max-w-[420px] rounded-2xl p-8 text-center" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
+          <div className="mx-auto mb-4 flex items-center justify-center rounded-full" style={{ width: 44, height: 44, background: '#FEF3C7', color: '#C97A2D' }}>
+            <Clock size={22} strokeWidth={2.2} />
+          </div>
+          <h1 className="font-display font-semibold text-[22px] mb-1.5" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
+            Awaiting approval
+          </h1>
+          <p className="text-[14px] mb-6" style={{ color: '#3A4A42' }}>
+            Your registration for {eventTitle} is pending the organizer&apos;s approval. We&apos;ll
+            email you as soon as you&apos;re approved — your ticket and QR code will be ready then.
+          </p>
+          <a
+            href={`/e/${eventSlug}`}
+            className="inline-flex items-center justify-center h-11 px-5 rounded-xl text-[14px] font-medium transition"
+            style={{ border: '1px solid #E5E0D4', color: '#3A4A42' }}
+          >
+            Back to event
+          </a>
+        </div>
+      </div>
+    );
+  }
 
   // ── Phase: verifying payment ──────────────────────────────────
   if (phase === 'verifying') {

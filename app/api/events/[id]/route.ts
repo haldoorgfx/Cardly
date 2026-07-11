@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { createNotification } from '@/lib/notifications';
 import { isNotifAllowed } from '@/lib/notifications/prefs';
+import { fireWebhooks } from '@/lib/webhooks';
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -123,7 +124,17 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
           actionUrl: `/e/${slug}`,
         });
       }
-    } catch { /* notifications are non-critical */ }
+
+      // Deliver the `event.published` outbound webhook (was declared + offered in
+      // the developer settings but never actually fired). Best-effort.
+      const slug2 = (ep as { custom_slug?: string | null } | null)?.custom_slug ?? data.slug ?? id;
+      void fireWebhooks(user.id, 'event.published', {
+        event_id: id,
+        name: (ep as { title?: string | null } | null)?.title ?? data.name ?? null,
+        slug: slug2,
+        published_at: new Date().toISOString(),
+      });
+    } catch { /* notifications + webhooks are non-critical */ }
   }
 
   return NextResponse.json(data);

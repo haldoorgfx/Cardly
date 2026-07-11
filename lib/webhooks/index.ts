@@ -3,10 +3,13 @@ import crypto from 'crypto';
 import { createAdminClient } from '@/lib/supabase/server';
 import { validateWebhookUrl } from '@/lib/webhooks/ssrf';
 
+// Only events that actually fire are offered. `card.generated` fires from the
+// render route; `event.published` fires from the event PATCH publish transition.
+// (`event.viewed` was removed — it never dispatched and per-visit tracking has no
+// safe, low-volume dispatch point.)
 export type WebhookEvent =
   | 'card.generated'
-  | 'event.published'
-  | 'event.viewed';
+  | 'event.published';
 
 export interface Webhook {
   id: string;
