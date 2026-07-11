@@ -4,6 +4,16 @@
 <dict>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Eventera uses the camera to scan attendee QR codes for check-in and to take a photo for your Eventera Card.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Eventera needs access to your photos so you can choose a picture for your profile and your Eventera Card.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Eventera saves your generated Eventera Card and tickets to your photo library.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Eventera uses your location to show events happening near you on the map.</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Eventera uses Face ID to quickly and securely unlock your account on this device.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>

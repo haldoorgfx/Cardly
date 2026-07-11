@@ -7,7 +7,9 @@ import { PostHogProvider } from "@/components/shared/PostHogProvider";
 import { CrispChat } from "@/components/shared/CrispChat";
 import { Suspense } from "react";
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://eventera.app";
+// metadataBase / canonical / OG base. Driven by env; the fallback is the real
+// launch domain so a missing env var never emits a domain we don't own.
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://eventera.so";
 
 export const metadata: Metadata = {
   metadataBase: new URL(APP_URL),

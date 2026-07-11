@@ -43,8 +43,8 @@ export default function DmcaPage() {
           </ol>
           <p className="mt-4">
             Send your notice to:{' '}
-            <a href="mailto:dmca@karta.cre8so.com" className="text-[#1F4D3A] underline">
-              dmca@karta.cre8so.com
+            <a href="mailto:dmca@eventera.so" className="text-[#1F4D3A] underline">
+              dmca@eventera.so
             </a>
           </p>
           <p className="mt-2 text-[#6B7A72] text-[13px]">
@@ -57,8 +57,8 @@ export default function DmcaPage() {
           <p>
             If you believe your content was removed in error, you may submit a counter-notice
             to{' '}
-            <a href="mailto:dmca@karta.cre8so.com" className="text-[#1F4D3A] underline">
-              dmca@karta.cre8so.com
+            <a href="mailto:dmca@eventera.so" className="text-[#1F4D3A] underline">
+              dmca@eventera.so
             </a>{' '}
             including:
           </p>

@@ -5,7 +5,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 export const runtime = 'nodejs';
 
 // Attendee custom domains must CNAME to the platform host.
-const TARGET_HOST = 'karta.cre8so.com';
+const TARGET_HOST = process.env.NEXT_PUBLIC_WHITELABEL_TARGET ?? 'eventera.so';
 
 export async function POST() {
   const supabase = createClient();

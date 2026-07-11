@@ -43,7 +43,7 @@ export interface DispatchResult {
   sms: ChannelResult;
 }
 
-const FROM = process.env.RESEND_FROM_EMAIL ?? 'Eventera <noreply@karta.cre8so.com>';
+const FROM = process.env.RESEND_FROM_EMAIL ?? 'Eventera <noreply@eventera.so>';
 
 function zero(): ChannelResult {
   return { sent: 0, skipped: 0, failed: 0 };

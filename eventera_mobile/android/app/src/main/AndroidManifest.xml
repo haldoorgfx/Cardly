@@ -30,7 +30,7 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
 
-            <!-- App Link: https://eventera.app/c/<slug> opens the app.
+            <!-- App Link: https://eventera.so/c/<slug> opens the app.
                  autoVerify requires /.well-known/assetlinks.json on the domain;
                  until that's hosted, Android shows an app chooser instead. -->
             <intent-filter android:autoVerify="true">
@@ -38,7 +38,7 @@
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
                 <data android:scheme="https"
-                      android:host="eventera.app"
+                      android:host="eventera.so"
                       android:pathPrefix="/c/"/>
             </intent-filter>
 

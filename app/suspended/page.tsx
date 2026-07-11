@@ -50,7 +50,7 @@ export default async function SuspendedPage() {
 
         <div className="flex flex-col gap-3">
           <a
-            href="mailto:support@karta.cre8so.com"
+            href="mailto:support@eventera.so"
             className="block w-full bg-[#1F4D3A] text-white py-2.5 rounded-lg text-sm font-medium hover:bg-[#163828] transition-colors"
           >
             Contact Support

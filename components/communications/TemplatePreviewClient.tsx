@@ -26,7 +26,7 @@ function render(body: string, values: Record<string, string>): string {
   });
 }
 
-const SAMPLES = ['Amina', 'Djibouti Tech Summit', 'Fri 18 Jul, 9:00', 'Kempinski Hotel', 'karta.cre8so.com/e/dts'];
+const SAMPLES = ['Amina', 'Djibouti Tech Summit', 'Fri 18 Jul, 9:00', 'Kempinski Hotel', 'eventera.so/e/dts'];
 
 interface Props {
   eventSlug: string;

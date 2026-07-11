@@ -15,7 +15,7 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
           className="inline-grid h-16 w-16 rounded-2xl place-items-center text-white text-[28px] font-display font-bold mb-6"
           style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 100%)' }}
         >
-          K
+          E
         </div>
         <div className="text-[11px] tracking-widest mb-4" style={{ color: 'rgba(15,31,24,0.4)' }}>500</div>
         <h1 className="font-display font-bold text-[34px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.025em' }}>

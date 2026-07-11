@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 };
 
 export default function DevelopersPage() {
-  const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? 'https://karta.cre8so.com').replace(/\/$/, '');
+  const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? 'https://eventera.so').replace(/\/$/, '');
   const baseUrl = `${appUrl}/api/v1`;
   return <ApiDocs baseUrl={baseUrl} appUrl={appUrl} />;
 }
