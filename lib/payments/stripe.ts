@@ -11,8 +11,27 @@ export function getTicketStripe(): Stripe {
   return _stripe;
 }
 
+// Currencies Stripe treats as zero-decimal (no minor unit). Amounts for these
+// must be passed as the integer major-unit value, NOT multiplied by 100.
+// https://docs.stripe.com/currencies#zero-decimal
+const ZERO_DECIMAL_CURRENCIES = new Set([
+  'BIF', 'CLP', 'DJF', 'GNF', 'JPY', 'KMF', 'KRW', 'MGA', 'PYG',
+  'RWF', 'UGX', 'VND', 'VUV', 'XAF', 'XOF', 'XPF',
+]);
+
+/**
+ * Convert a human-facing amount (e.g. 25.00) to the integer Stripe expects for
+ * the given currency. 2-decimal currencies are ×100 (cents); zero-decimal
+ * currencies (DJF, JPY, XOF, …) are passed as-is. Prevents a 100× overcharge.
+ */
+export function toStripeMinorUnit(amount: number, currency: string): number {
+  return ZERO_DECIMAL_CURRENCIES.has(currency.toUpperCase())
+    ? Math.round(amount)
+    : Math.round(amount * 100);
+}
+
 export interface CreatePaymentIntentParams {
-  amount: number;        // in smallest currency unit (cents)
+  amount: number;        // in smallest currency unit (already converted)
   currency: string;
   registrationId: string;
   eventId: string;

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { sendRegistrationConfirmEmail, sendPendingApprovalEmail } from '@/lib/registration/email';
-import { createTicketPaymentIntent } from '@/lib/payments/stripe';
+import { createTicketPaymentIntent, toStripeMinorUnit } from '@/lib/payments/stripe';
 import { initFlutterwavePayment, isFlutterwaveCurrency, type FlutterwaveCurrency } from '@/lib/payments/flutterwave';
 import { isWaafiPayCurrency } from '@/lib/payments/waafipay';
 import { splitTicketAmount, type FeeBearer } from '@/lib/billing/fees';
@@ -168,15 +168,22 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   }
   const chargedPrice = Math.max(0, Math.round((effectivePrice - promoDiscount) * 100) / 100);
 
-  // 4. Check overall event capacity
+  // 4. Check overall event capacity.
+  //    Count confirmed/checked-in seats PLUS seats currently being paid for
+  //    (pending rows created in the last 15 min). This "soft-reserves" a seat
+  //    during the payment window so a burst of paid checkouts can't oversell a
+  //    capacity-limited event; abandoned pendings drop out of the count after
+  //    15 min. Free events have no pending rows, so they're unaffected.
   if (eventPage.max_capacity) {
-    const { count } = await admin
-      .from('registrations')
-      .select('id', { count: 'exact', head: true })
-      .eq('event_id', params.id)
-      .in('status', ['confirmed', 'checked_in']);
+    const reserveCutoff = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+    const [{ count: seated }, { count: reserving }] = await Promise.all([
+      admin.from('registrations').select('id', { count: 'exact', head: true })
+        .eq('event_id', params.id).in('status', ['confirmed', 'checked_in']),
+      admin.from('registrations').select('id', { count: 'exact', head: true })
+        .eq('event_id', params.id).eq('status', 'pending').gte('created_at', reserveCutoff),
+    ]);
 
-    if ((count ?? 0) >= eventPage.max_capacity) {
+    if (((seated ?? 0) + (reserving ?? 0)) >= eventPage.max_capacity) {
       return NextResponse.json({ error: 'EVENT_FULL', detail: 'This event is at capacity' }, { status: 409 });
     }
   }
@@ -463,7 +470,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   if (!isFree) {
     let clientSecret: string | null = null;
     try {
-      const amountInCents = Math.round(split.charged * 100);
+      const amountInCents = toStripeMinorUnit(split.charged, ticket.currency);
       const pi = await createTicketPaymentIntent({
         amount: amountInCents,
         currency: ticket.currency,
