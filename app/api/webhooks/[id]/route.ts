@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { updateWebhook, deleteWebhook } from '@/lib/webhooks';
 import type { WebhookEvent } from '@/lib/webhooks';
 
-const VALID_EVENTS: WebhookEvent[] = ['card.generated', 'event.published', 'event.viewed'];
+const VALID_EVENTS: WebhookEvent[] = ['card.generated', 'event.published'];
 
 // PATCH /api/webhooks/[id] — update url / events / enabled
 export async function PATCH(

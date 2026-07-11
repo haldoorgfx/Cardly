@@ -300,7 +300,6 @@ export function ApiDocs({ baseUrl, appUrl }: { baseUrl: string; appUrl: string }
                 {[
                   ['card.generated', 'An attendee generated an Eventera Card'],
                   ['event.published', 'You published an event'],
-                  ['event.viewed', 'An attendee opened a public event page'],
                 ].map(([e, d], i) => (
                   <tr key={e} style={{ borderTop: i ? `1px solid ${C.border}` : 'none', background: 'white' }}>
                     <td className="px-4 py-2.5 align-top w-[42%]"><code style={{ fontFamily: MONO, color: C.primary }}>{e}</code></td>

@@ -4,7 +4,7 @@ import { listWebhooks, createWebhook } from '@/lib/webhooks';
 import type { WebhookEvent } from '@/lib/webhooks';
 import { validateWebhookUrl } from '@/lib/webhooks/ssrf';
 
-const VALID_EVENTS: WebhookEvent[] = ['card.generated', 'event.published', 'event.viewed'];
+const VALID_EVENTS: WebhookEvent[] = ['card.generated', 'event.published'];
 
 // GET /api/webhooks — list user's webhooks
 export async function GET() {
