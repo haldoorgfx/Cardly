@@ -25,6 +25,10 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     return NextResponse.json({ error: 'registration_id required' }, { status: 400 });
   }
 
+  // Identity: the caller must own the registration whose messages they're reading.
+  const identity = await assertOwnsRegistration(params.id, registrationId);
+  if (!identity.ok) return NextResponse.json({ error: identity.error }, { status: identity.status });
+
   const admin = createAdminClient();
 
   if (threadId) {
@@ -215,12 +219,17 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 }
 
 // PATCH — mark all messages in a thread as read
-export async function PATCH(req: NextRequest) {
+export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   const body = await req.json().catch(() => null);
   const parsed = ReadSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
 
   const { thread_id, registration_id } = parsed.data;
+
+  // Identity: the caller must own the registration they're marking read.
+  const identity = await assertOwnsRegistration(params.id, registration_id);
+  if (!identity.ok) return NextResponse.json({ error: identity.error }, { status: identity.status });
+
   const admin = createAdminClient();
 
   await admin
