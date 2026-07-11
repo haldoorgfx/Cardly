@@ -17,7 +17,8 @@ export async function GET() {
     .select('id, name, category, thumbnail_url, min_plan, featured')
     .eq('published', true)
     .order('featured', { ascending: false })
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .limit(200); // perf cap — platform template catalogue
 
   // Degrade gracefully — a transient schema-cache miss or empty table should
   // never break the user-facing templates grid (it has its own built-in set).

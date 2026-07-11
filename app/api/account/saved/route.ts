@@ -13,7 +13,8 @@ export async function GET() {
       event_pages(id, title, cover_image_url, starts_at, ends_at, venue_name, city, is_online,
         events!inner(id, name, slug, user_id))`)
     .eq('user_id', user.id)
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .limit(500); // perf cap — a user's saved list stays well under this
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ saves: data });

@@ -25,7 +25,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     .select('id, requester_id, recipient_id, status, created_at')
     .eq('event_id', params.id)
     .eq('status', 'pending')
-    .or(`requester_id.eq.${regId},recipient_id.eq.${regId}`);
+    .or(`requester_id.eq.${regId},recipient_id.eq.${regId}`)
+    .limit(500); // perf cap — pending requests for one attendee stay small
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
