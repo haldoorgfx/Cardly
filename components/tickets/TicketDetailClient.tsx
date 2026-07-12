@@ -185,7 +185,7 @@ function ActionRow({ icon, label, danger, href, onClick }: {
   icon: React.ReactNode; label: string; danger?: boolean; href?: string; onClick?: () => void;
 }) {
   const inner = (
-    <div className="flex items-center gap-3.5 py-3.5">
+    <div className="flex items-center gap-3.5 py-3.5 px-2 -mx-2 rounded-xl transition-colors hover:bg-[#FAF6EE]">
       <span style={{ color: danger ? DANGER : FOREST }}>{icon}</span>
       <span className="flex-1 font-display font-medium text-[15px]" style={{ fontFamily: '"DM Sans", sans-serif', color: danger ? DANGER : INK }}>{label}</span>
       {!danger && <ChevronRight size={18} style={{ color: MUTED }} />}
@@ -630,18 +630,21 @@ export default function TicketDetailClient({ reg, scannedByName, variant }: Prop
         </div>
       )}
 
-      {/* ── Actions sheet ── */}
+      {/* ── Actions menu — bottom sheet on mobile, dropdown anchored to the ⋯ button on desktop ── */}
       {showActions && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center" style={{ background: 'rgba(15,31,24,0.4)' }} onClick={() => setShowActions(false)}>
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-[rgba(15,31,24,0.4)] sm:items-start sm:justify-end sm:bg-transparent"
+          onClick={() => setShowActions(false)}
+        >
           <div
-            className="w-full max-w-md rounded-t-[22px] px-5 pt-3 pb-8"
-            style={{ background: '#fff' }}
+            className="w-full max-w-md rounded-t-[22px] px-5 pt-3 pb-8 sm:w-64 sm:max-w-none sm:rounded-2xl sm:mt-14 sm:mr-3 sm:px-2 sm:py-2 sm:border sm:shadow-[0_16px_48px_rgba(15,31,24,0.18)]"
+            style={{ background: '#fff', borderColor: BORDER }}
             onClick={e => e.stopPropagation()}
           >
-            <div className="w-9 h-1 rounded-full mx-auto mb-4" style={{ background: BORDER }} />
-            <div className="font-display font-semibold text-[16px] mb-1" style={{ fontFamily: '"DM Sans", sans-serif', color: INK }}>Ticket options</div>
+            <div className="w-9 h-1 rounded-full mx-auto mb-4 sm:hidden" style={{ background: BORDER }} />
+            <div className="font-display font-semibold text-[16px] mb-1 sm:hidden" style={{ fontFamily: '"DM Sans", sans-serif', color: INK }}>Ticket options</div>
 
-            <div className="divide-y" style={{ borderColor: BORDER }}>
+            <div className="divide-y sm:divide-y-0" style={{ borderColor: BORDER }}>
               {isLive && (
                 <ActionRow
                   icon={<ArrowLeftRight size={20} />}
