@@ -2,9 +2,10 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Palette, BookOpen, ScrollText, Users, LayoutGrid, Layers } from 'lucide-react';
+import { Palette, BookOpen, ScrollText, Users, LayoutGrid, Layers, Activity } from 'lucide-react';
 
 const NAV = [
+  { href: '/admin/health',      label: 'System Health', icon: Activity   },
   { href: '/admin/collections', label: 'Collections',   icon: Layers     },
   { href: '/admin/theme',       label: 'Theme & Brand', icon: Palette    },
   { href: '/admin/changelog',   label: 'Changelog',     icon: BookOpen   },
