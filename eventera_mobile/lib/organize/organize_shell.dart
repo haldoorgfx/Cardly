@@ -5,6 +5,7 @@ import '../eventera_api.dart';
 import '../models.dart';
 import '../screens/organizer/checkin_scanner_screen.dart';
 import '../screens/organizer/create_event_screen.dart';
+import '../screens/organizer/entitlement_scanner_screen.dart';
 import '../ui/components.dart';
 import '../ui/tokens.dart';
 import 'attendees_tab.dart';
@@ -92,10 +93,19 @@ class _OrganizeShellState extends State<OrganizeShell> {
     }
   }
 
-  void _pushScanner(OrganizerEvent e) {
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => CheckinScannerScreen(eventId: e.id, eventName: e.name),
-    ));
+  // After an event is chosen, ask what to scan: check people in at the door,
+  // or redeem passes & access (meals, sessions, merch). Check-in is the first,
+  // default option so the tested door-scan flow stays one quick tap away.
+  Future<void> _pushScanner(OrganizerEvent e) async {
+    final mode = await showMSheet<String>(
+      context,
+      _ScanModePicker(eventName: e.name),
+    );
+    if (mode == null || !mounted) return;
+    final Widget screen = mode == 'passes'
+        ? EntitlementScannerScreen(eventId: e.id, eventName: e.name)
+        : CheckinScannerScreen(eventId: e.id, eventName: e.name);
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => screen));
   }
 
   @override
@@ -339,6 +349,81 @@ class _ScanEventPicker extends StatelessWidget {
               ),
             ),
           ),
+      ],
+    );
+  }
+}
+
+class _ScanModePicker extends StatelessWidget {
+  final String eventName;
+  const _ScanModePicker({required this.eventName});
+
+  @override
+  Widget build(BuildContext context) {
+    Widget option({
+      required IconData icon,
+      required String title,
+      required String subtitle,
+      required String value,
+    }) =>
+        Padding(
+          padding: const EdgeInsets.only(bottom: 10),
+          child: MCard(
+            onTap: () => Navigator.of(context).pop(value),
+            padding: const EdgeInsets.all(14),
+            child: Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: AppColors.forestSoft,
+                    borderRadius: BorderRadius.circular(11),
+                  ),
+                  child: Icon(icon, size: 20, color: AppColors.forest),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(title, style: AppText.h3.copyWith(fontSize: 15)),
+                      const SizedBox(height: 2),
+                      Text(subtitle, style: AppText.bodySm),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.chevron_right,
+                    size: 18, color: AppColors.inkMuted),
+              ],
+            ),
+          ),
+        );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text('What are you scanning?', style: AppText.h3),
+        const SizedBox(height: 4),
+        Text(eventName,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppText.bodySm),
+        const SizedBox(height: 14),
+        option(
+          icon: Icons.qr_code_scanner,
+          title: 'Check people in',
+          subtitle: 'Scan tickets at the door',
+          value: 'checkin',
+        ),
+        option(
+          icon: Icons.confirmation_number_outlined,
+          title: 'Passes & access',
+          subtitle: 'Redeem meals, sessions, merch',
+          value: 'passes',
+        ),
       ],
     );
   }
