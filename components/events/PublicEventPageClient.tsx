@@ -54,6 +54,7 @@ interface Attendee {
 interface Props {
   page: EventPageRow;
   tickets: TicketTypeRow[];
+  hasAnyTickets?: boolean;
   dateStr: string;
   timeStr: string;
   endTimeStr: string;
@@ -170,10 +171,11 @@ function VenueMap({
 /* ─── Ticket list ───────────────────────────────────────────────── */
 
 function TicketList({
-  tickets, selectedTicket, setSelectedTicket,
+  tickets, hasAnyTickets = true, selectedTicket, setSelectedTicket,
   registerHref, page, minPrice, registrationSlug,
 }: {
   tickets: TicketTypeRow[];
+  hasAnyTickets?: boolean;
   selectedTicket: string;
   setSelectedTicket: (id: string) => void;
   registerHref: string;
@@ -266,6 +268,10 @@ function TicketList({
         {registrationClosed ? (
           <div className="flex items-center justify-center h-12 rounded-xl text-[15px] font-semibold" style={{ background: '#F5F0E8', color: '#6B7A72', border: '1px solid #E5E0D4' }}>
             Registration closed
+          </div>
+        ) : !hasAnyTickets ? (
+          <div className="flex items-center justify-center h-12 rounded-xl text-[15px] font-semibold" style={{ background: '#F5F0E8', color: '#6B7A72', border: '1px solid #E5E0D4' }}>
+            Registration not open yet
           </div>
         ) : allSoldOut ? (
           <Link href={`/e/${registrationSlug}/waitlist`}
@@ -395,7 +401,7 @@ function ERAQandA({ page, dateStr }: { page: EventPageRow; dateStr: string }) {
 /* ─── Main component ────────────────────────────────────────────── */
 
 export function PublicEventPageClient({
-  page, tickets, dateStr, timeStr, endTimeStr, minPrice,
+  page, tickets, hasAnyTickets = true, dateStr, timeStr, endTimeStr, minPrice,
   registrationSlug, eventId, viewerRegistrationId = null, organizerUserId, seriesSlug, seriesName,
   sessions = [], speakers = [], sponsors = [],
   attendees = [], attendeeCount = 0, organizerAvatarUrl = null,
@@ -420,7 +426,10 @@ export function PublicEventPageClient({
   const registerHref = selectedTicket
     ? `/e/${registrationSlug}/register?ticket=${selectedTicket}`
     : `/e/${registrationSlug}/register`;
-  const registrationClosed = !!(page.registration_deadline && new Date(page.registration_deadline) < new Date());
+  const eventEndTime = (page.ends_at ?? page.starts_at) as string | null;
+  const registrationClosed =
+    !!(eventEndTime && new Date(eventEndTime) < new Date()) ||
+    !!(page.registration_deadline && new Date(page.registration_deadline) < new Date());
   const allSoldOut = tickets.length > 0 && tickets.every(t => t.quantity !== null && t.quantity_sold >= t.quantity);
   const totalPrice = selectedTicketObj ? fmtTicketPrice(selectedTicketObj.price, selectedTicketObj.currency) : minPrice;
 
@@ -924,6 +933,7 @@ export function PublicEventPageClient({
               <div className="lg:hidden mt-9">
                 <TicketList
                   tickets={tickets}
+                  hasAnyTickets={hasAnyTickets}
                   selectedTicket={selectedTicket}
                   setSelectedTicket={setSelectedTicket}
                   registerHref={registerHref}
@@ -939,6 +949,7 @@ export function PublicEventPageClient({
             <aside className="hidden lg:block" style={{ position: 'sticky', top: 120 }}>
               <TicketList
                 tickets={tickets}
+                hasAnyTickets={hasAnyTickets}
                 selectedTicket={selectedTicket}
                 setSelectedTicket={setSelectedTicket}
                 registerHref={registerHref}
@@ -1132,6 +1143,11 @@ export function PublicEventPageClient({
           <div className="inline-flex items-center h-11 px-6 rounded-lg font-semibold text-[14px]"
             style={{ background: '#F5F0E8', color: '#6B7A72', border: '1px solid #E5E0D4' }}>
             Closed
+          </div>
+        ) : !hasAnyTickets ? (
+          <div className="inline-flex items-center h-11 px-6 rounded-lg font-semibold text-[14px]"
+            style={{ background: '#F5F0E8', color: '#6B7A72', border: '1px solid #E5E0D4' }}>
+            Not open yet
           </div>
         ) : allSoldOut ? (
           <Link href={`/e/${registrationSlug}/waitlist`}

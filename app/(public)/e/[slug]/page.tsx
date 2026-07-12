@@ -74,12 +74,16 @@ export default async function PublicEventPage({ params, searchParams }: Props) {
 
   const admin = createAdminClient();
 
-  const [ticketsRes, eventRes] = await Promise.all([
+  const [ticketsRes, eventRes, anyTicketsRes] = await Promise.all([
     admin.from('ticket_types').select('*').eq('event_id', page.event_id).eq('is_visible', true).order('position'),
     admin.from('events').select('user_id').eq('id', page.event_id).single(),
+    // Count ALL ticket types (incl. hidden access-code ones) so the page can
+    // tell a not-set-up event (zero total) from an access-code event (hidden).
+    admin.from('ticket_types').select('id', { count: 'exact', head: true }).eq('event_id', page.event_id),
   ]);
 
   const allTickets = ticketsRes.data ?? [];
+  const hasAnyTickets = (anyTicketsRes.count ?? 0) > 0;
   const organizerUserId = eventRes.data?.user_id ?? null;
   const { date, time, endTime } = formatEventDateRange(page.starts_at, page.ends_at, page.timezone);
 
@@ -262,6 +266,7 @@ export default async function PublicEventPage({ params, searchParams }: Props) {
       <PublicEventPageClient
         page={page}
         tickets={allTickets}
+        hasAnyTickets={hasAnyTickets}
         dateStr={date}
         timeStr={time}
         endTimeStr={endTime}
