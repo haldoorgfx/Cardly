@@ -44,6 +44,23 @@ export function EventsOversightClient({ events: initialEvents, total, page, tota
   const [busy, setBusy] = useState<string | null>(null);
   const [actionError, setActionError] = useState('');
 
+  // Inline name edit
+  const [editName, setEditName] = useState<string | null>(null);
+  const [nameDraft, setNameDraft] = useState('');
+  const saveName = async (ev: EventRow, value: string) => {
+    const v = value.trim();
+    setEditName(null);
+    if (!v || v === ev.name) return;
+    setEvents(prev => prev.map(e => (e.id === ev.id ? { ...e, name: v } : e)));
+    try {
+      await fetch(`/api/admin/events/${ev.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: v }),
+      });
+    } catch { /* optimistic */ }
+  };
+
   // Bulk selection
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkBusy, setBulkBusy] = useState(false);
@@ -296,7 +313,28 @@ export function EventsOversightClient({ events: initialEvents, total, page, tota
                       />
                     </td>
                     <td className="px-4 py-3">
-                      <div className="font-medium text-[#0F1F18]">{ev.name}</div>
+                      {editName === ev.id ? (
+                        <input
+                          autoFocus
+                          value={nameDraft}
+                          onChange={e => setNameDraft(e.target.value)}
+                          onBlur={() => saveName(ev, nameDraft)}
+                          onKeyDown={e => {
+                            if (e.key === 'Enter') saveName(ev, nameDraft);
+                            if (e.key === 'Escape') setEditName(null);
+                          }}
+                          className="w-[220px] border border-[#1F4D3A]/40 rounded-lg px-2 py-1 text-[13px] outline-none focus:ring-2 focus:ring-[#1F4D3A]/20"
+                        />
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => { setNameDraft(ev.name); setEditName(ev.id); }}
+                          title="Click to edit name"
+                          className="font-medium text-[#0F1F18] hover:text-[#1F4D3A] transition-colors text-left"
+                        >
+                          {ev.name}
+                        </button>
+                      )}
                       <div className="flex items-center gap-1 mt-0.5">
                         <span className="text-[11px] text-[#6B7A72]">/{ev.slug}</span>
                         <a

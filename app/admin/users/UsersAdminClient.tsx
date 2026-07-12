@@ -137,6 +137,22 @@ export function UsersAdminClient({
   const [bulkBusy, setBulkBusy] = useState(false);
   const [bulkConfirm, setBulkConfirm] = useState<null | 'suspend' | 'unsuspend' | 'delete'>(null);
 
+  // Inline edit (name / plan)
+  const [editPlan, setEditPlan] = useState<string | null>(null);
+  const [editName, setEditName] = useState<string | null>(null);
+  const [nameDraft, setNameDraft] = useState('');
+
+  const saveField = async (userId: string, patch: { full_name?: string; plan?: string }) => {
+    setUsers(prev => prev.map(u => (u.id === userId ? { ...u, ...('full_name' in patch ? { full_name: patch.full_name || null } : {}), ...('plan' in patch ? { plan: patch.plan! } : {}) } : u)));
+    try {
+      await fetch('/api/admin/users/update', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, ...patch }),
+      });
+    } catch { /* optimistic; a refresh reconciles on error */ }
+  };
+
   const assignable = actorRole === 'super_admin' ? ASSIGNABLE_BY_SUPER : ASSIGNABLE_BY_ADMIN;
   const canSuspend = actorRole === 'super_admin';
   const canDelete  = actorRole === 'super_admin';
@@ -486,22 +502,63 @@ export function UsersAdminClient({
                       </td>
                     )}
                     <td className="px-4 py-3">
-                      <Link href={`/admin/users/${u.id}`} className="group flex items-center gap-1">
-                        <div>
-                          <div className="font-medium text-[#0F1F18] group-hover:text-[#1F4D3A] transition-colors">
-                            {u.full_name ?? '—'}
+                      {editName === u.id ? (
+                        <input
+                          autoFocus
+                          value={nameDraft}
+                          onChange={e => setNameDraft(e.target.value)}
+                          onBlur={() => { saveField(u.id, { full_name: nameDraft.trim() }); setEditName(null); }}
+                          onKeyDown={e => {
+                            if (e.key === 'Enter') { saveField(u.id, { full_name: nameDraft.trim() }); setEditName(null); }
+                            if (e.key === 'Escape') setEditName(null);
+                          }}
+                          className="w-[170px] border border-[#1F4D3A]/40 rounded-lg px-2 py-1 text-[13px] outline-none focus:ring-2 focus:ring-[#1F4D3A]/20"
+                        />
+                      ) : (
+                        <div className="group flex items-center gap-1">
+                          <div>
+                            <button
+                              type="button"
+                              onClick={() => { setNameDraft(u.full_name ?? ''); setEditName(u.id); }}
+                              title="Click to edit name"
+                              className="font-medium text-[#0F1F18] hover:text-[#1F4D3A] transition-colors text-left"
+                            >
+                              {u.full_name ?? '—'}
+                            </button>
                             {isSelf && <span className="ml-1.5 text-[10px] text-[#6B7A72]/60">(you)</span>}
+                            <Link href={`/admin/users/${u.id}`} className="flex items-center gap-0.5 text-[11px] text-[#6B7A72] hover:text-[#1F4D3A] transition-colors">
+                              {u.email}
+                              <ChevronRight size={10} strokeWidth={2} className="text-[#6B7A72]/30 group-hover:text-[#1F4D3A]/50 transition-colors" />
+                            </Link>
                           </div>
-                          <div className="text-[11px] text-[#6B7A72]">{u.email}</div>
                         </div>
-                        <ChevronRight size={11} strokeWidth={2} className="ml-0.5 text-[#6B7A72]/30 group-hover:text-[#1F4D3A]/50 transition-colors" />
-                      </Link>
+                      )}
                     </td>
 
                     <td className="px-4 py-3">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full  text-[10px] tracking-[0.1em] uppercase" style={planStyle}>
-                        {u.plan}
-                      </span>
+                      {editPlan === u.id ? (
+                        <select
+                          autoFocus
+                          defaultValue={u.plan}
+                          onChange={e => { saveField(u.id, { plan: e.target.value }); setEditPlan(null); }}
+                          onBlur={() => setEditPlan(null)}
+                          className="h-7 px-2 rounded-lg border border-[#1F4D3A]/40 text-[12px] bg-white outline-none focus:ring-2 focus:ring-[#1F4D3A]/20"
+                        >
+                          <option value="free">free</option>
+                          <option value="pro">pro</option>
+                          <option value="studio">studio</option>
+                        </select>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setEditPlan(u.id)}
+                          title="Click to change plan"
+                          className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] tracking-[0.1em] uppercase hover:ring-2 hover:ring-[#1F4D3A]/20 transition"
+                          style={planStyle}
+                        >
+                          {u.plan}
+                        </button>
+                      )}
                     </td>
 
                     <td className="px-4 py-3">

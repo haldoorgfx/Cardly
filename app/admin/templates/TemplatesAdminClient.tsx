@@ -180,6 +180,58 @@ export function TemplatesAdminClient({ initialTemplates }: { initialTemplates: T
   const [busy, setBusy]           = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<Template | null>(null);
 
+  // Bulk selection
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkBusy, setBulkBusy] = useState(false);
+  const [bulkConfirm, setBulkConfirm] = useState<null | 'delete' | 'publish' | 'unpublish'>(null);
+
+  const allSelected = templates.length > 0 && templates.every(t => selected.has(t.id));
+  const clearSelection = () => setSelected(new Set());
+  const toggleOne = (id: string) =>
+    setSelected(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  const toggleAll = () =>
+    setSelected(allSelected ? new Set() : new Set(templates.map(t => t.id)));
+
+  // Bulk runner — loops the existing per-template endpoints so their permission
+  // checks + audit logging apply to every affected row. Rows update as the batch
+  // resolves; failures are left untouched.
+  const runBulk = async (action: 'delete' | 'publish' | 'unpublish') => {
+    setBulkConfirm(null);
+    setBulkBusy(true);
+    const ids = Array.from(selected);
+    try {
+      const results = await Promise.allSettled(
+        ids.map(id =>
+          action === 'delete'
+            ? fetch(`/api/admin/templates/${id}`, { method: 'DELETE' })
+            : fetch(`/api/admin/templates/${id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ published: action === 'publish' }),
+              }),
+        ),
+      );
+      const okIds = ids.filter(
+        (_, i) => results[i].status === 'fulfilled' &&
+          (results[i] as PromiseFulfilledResult<Response>).value.ok,
+      );
+      setTemplates(prev =>
+        action === 'delete'
+          ? prev.filter(t => !okIds.includes(t.id))
+          : prev.map(t =>
+              okIds.includes(t.id) ? { ...t, published: action === 'publish' } : t,
+            ),
+      );
+      clearSelection();
+    } finally {
+      setBulkBusy(false);
+    }
+  };
+
   const openNew  = () => { setEditing(null); setShowForm(true); };
   const openEdit = (t: Template) => { setEditing(t); setShowForm(true); };
   const closeForm = () => { setShowForm(false); setEditing(null); };
@@ -263,9 +315,23 @@ export function TemplatesAdminClient({ initialTemplates }: { initialTemplates: T
     <div>
       {/* Header row */}
       <div className="mb-5 flex items-center justify-between">
-        <div className="text-[12px] text-[#6B7A72]">
-          {templates.length} template{templates.length !== 1 ? 's' : ''}
-          {' '}&mdash; {published} published
+        <div className="flex items-center gap-3">
+          {templates.length > 0 && (
+            <label className="flex items-center gap-2 cursor-pointer text-[12px] text-[#6B7A72]">
+              <input
+                type="checkbox"
+                aria-label="Select all templates"
+                checked={allSelected}
+                onChange={toggleAll}
+                className="h-4 w-4 rounded border-[#E5E0D4] accent-[#1F4D3A] cursor-pointer"
+              />
+              Select all
+            </label>
+          )}
+          <div className="text-[12px] text-[#6B7A72]">
+            {templates.length} template{templates.length !== 1 ? 's' : ''}
+            {' '}&mdash; {published} published
+          </div>
         </div>
         <button
           onClick={openNew}
@@ -276,6 +342,47 @@ export function TemplatesAdminClient({ initialTemplates }: { initialTemplates: T
           New template
         </button>
       </div>
+
+      {/* Bulk action bar */}
+      {selected.size > 0 && (
+        <div className="mb-4 flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[#1F4D3A]/25 bg-[#E8EFEB]">
+          <span className="text-[13px] font-medium text-[#1F4D3A]">
+            {selected.size} selected
+          </span>
+          <div className="flex-1" />
+          {bulkBusy && <Loader2 size={14} strokeWidth={2} className="animate-spin text-[#1F4D3A]" />}
+          <button
+            disabled={bulkBusy}
+            onClick={() => setBulkConfirm('publish')}
+            className="h-8 px-3 rounded-lg text-[12px] font-medium border border-[#E5E0D4] bg-white text-emerald-700 hover:bg-emerald-50 transition-colors disabled:opacity-50"
+          >
+            Publish
+          </button>
+          <button
+            disabled={bulkBusy}
+            onClick={() => setBulkConfirm('unpublish')}
+            className="h-8 px-3 rounded-lg text-[12px] font-medium border border-[#E5E0D4] bg-white text-[#6B7A72] hover:bg-[#FAF6EE] transition-colors disabled:opacity-50"
+          >
+            Unpublish
+          </button>
+          <button
+            disabled={bulkBusy}
+            onClick={() => setBulkConfirm('delete')}
+            className="h-8 px-3 rounded-lg text-[12px] font-medium text-white hover:opacity-90 transition disabled:opacity-50"
+            style={{ background: '#B8423C' }}
+          >
+            Delete
+          </button>
+          <button
+            disabled={bulkBusy}
+            onClick={clearSelection}
+            title="Clear selection"
+            className="h-8 w-8 grid place-items-center rounded-lg border border-[#E5E0D4] bg-white text-[#6B7A72] hover:bg-[#FAF6EE] transition-colors disabled:opacity-50"
+          >
+            <X size={13} strokeWidth={2} />
+          </button>
+        </div>
+      )}
 
       {/* Grid */}
       {templates.length === 0 ? (
@@ -298,10 +405,20 @@ export function TemplatesAdminClient({ initialTemplates }: { initialTemplates: T
             return (
               <div
                 key={t.id}
-                className={`bg-white border border-[#E5E0D4] rounded-2xl overflow-hidden transition-opacity ${!t.published ? 'opacity-60' : ''}`}
+                className={`bg-white border rounded-2xl overflow-hidden transition-opacity ${!t.published ? 'opacity-60' : ''} ${selected.has(t.id) ? 'border-[#1F4D3A] ring-1 ring-[#1F4D3A]/30' : 'border-[#E5E0D4]'}`}
               >
                 {/* Thumbnail */}
                 <div className="aspect-video bg-[#FAF6EE] border-b border-[#E5E0D4] overflow-hidden relative">
+                  {/* Select checkbox */}
+                  <label className="absolute top-2 left-2 z-10 h-6 w-6 grid place-items-center rounded-md bg-white/90 border border-[#E5E0D4] cursor-pointer">
+                    <input
+                      type="checkbox"
+                      aria-label={`Select ${t.name}`}
+                      checked={selected.has(t.id)}
+                      onChange={() => toggleOne(t.id)}
+                      className="h-4 w-4 rounded border-[#E5E0D4] accent-[#1F4D3A] cursor-pointer"
+                    />
+                  </label>
                   {t.thumbnail_url ? (
                     <img src={t.thumbnail_url} alt={t.name} className="w-full h-full object-cover" />
                   ) : (
@@ -398,6 +515,55 @@ export function TemplatesAdminClient({ initialTemplates }: { initialTemplates: T
             <div className="flex gap-2 justify-end">
               <button onClick={() => setConfirmDelete(null)} className="px-4 py-2 rounded-lg text-[13px] text-[#6B7A72] border border-[#E5E0D4] hover:bg-[#FAF6EE] transition-colors">Cancel</button>
               <button onClick={() => doDelete(confirmDelete)} className="px-4 py-2 rounded-lg text-[13px] font-medium text-white bg-[#B8423C] hover:opacity-90 transition">Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk delete confirm */}
+      {bulkConfirm === 'delete' && (
+        <div className="fixed inset-0 z-[300] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/40" onClick={() => setBulkConfirm(null)} />
+          <div className="relative bg-white rounded-2xl shadow-xl border border-[#E5E0D4] p-6 max-w-sm w-full">
+            <div className="flex items-start gap-3 mb-5">
+              <div className="w-9 h-9 rounded-full bg-red-50 flex items-center justify-center shrink-0">
+                <AlertTriangle size={16} strokeWidth={1.8} className="text-[#B8423C]" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-[15px] text-[#0F1F18]">
+                  Delete {selected.size} template{selected.size === 1 ? '' : 's'}?
+                </h3>
+                <p className="text-[13px] text-[#6B7A72] mt-1">
+                  The selected template{selected.size === 1 ? '' : 's'} will be permanently removed.
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-2 justify-end">
+              <button onClick={() => setBulkConfirm(null)} className="px-4 py-2 rounded-lg text-[13px] text-[#6B7A72] border border-[#E5E0D4] hover:bg-[#FAF6EE] transition-colors">Cancel</button>
+              <button onClick={() => runBulk('delete')} className="px-4 py-2 rounded-lg text-[13px] font-medium text-white bg-[#B8423C] hover:opacity-90 transition">Delete {selected.size}</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk publish / unpublish confirm */}
+      {(bulkConfirm === 'publish' || bulkConfirm === 'unpublish') && (
+        <div className="fixed inset-0 z-[300] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/40" onClick={() => setBulkConfirm(null)} />
+          <div className="relative bg-white rounded-2xl shadow-xl border border-[#E5E0D4] p-6 max-w-sm w-full">
+            <h3 className="font-semibold text-[15px] text-[#0F1F18]">
+              {bulkConfirm === 'publish' ? 'Publish' : 'Unpublish'} {selected.size} template{selected.size === 1 ? '' : 's'}?
+            </h3>
+            <p className="text-[13px] text-[#6B7A72] mt-1 mb-5">
+              {bulkConfirm === 'publish'
+                ? 'The selected templates will become available to organizers.'
+                : 'The selected templates will be hidden from organizers.'}
+            </p>
+            <div className="flex gap-2 justify-end">
+              <button onClick={() => setBulkConfirm(null)} className="px-4 py-2 rounded-lg text-[13px] text-[#6B7A72] border border-[#E5E0D4] hover:bg-[#FAF6EE] transition-colors">Cancel</button>
+              <button onClick={() => runBulk(bulkConfirm)} className="px-4 py-2 rounded-lg text-[13px] font-medium text-white hover:opacity-90 transition" style={{ background: '#1F4D3A' }}>
+                {bulkConfirm === 'publish' ? 'Publish' : 'Unpublish'} {selected.size}
+              </button>
             </div>
           </div>
         </div>

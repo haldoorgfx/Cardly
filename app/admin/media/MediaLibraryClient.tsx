@@ -64,6 +64,44 @@ export function MediaLibraryClient({
   // Selected for detail view
   const [selected, setSelected] = useState<CmsMedia | null>(null);
 
+  // Bulk selection
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkBusy, setBulkBusy] = useState(false);
+  const [bulkConfirmOpen, setBulkConfirmOpen] = useState(false);
+
+  const allSelected = items.length > 0 && items.every((m) => selectedIds.has(m.id));
+  const clearSelection = () => setSelectedIds(new Set());
+  const toggleOne = (id: string) =>
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  const toggleAll = () =>
+    setSelectedIds(allSelected ? new Set() : new Set(items.map((m) => m.id)));
+
+  // Bulk delete — loops the existing per-item DELETE endpoint so its Storage
+  // cleanup + audit logging apply to every file. Rows drop as the batch resolves.
+  async function runBulkDelete() {
+    setBulkConfirmOpen(false);
+    setBulkBusy(true);
+    const ids = Array.from(selectedIds);
+    try {
+      const results = await Promise.allSettled(
+        ids.map((id) => fetch(`/api/admin/media/${id}`, { method: 'DELETE' })),
+      );
+      const okIds = ids.filter(
+        (_, i) => results[i].status === 'fulfilled' &&
+          (results[i] as PromiseFulfilledResult<Response>).value.ok,
+      );
+      setItems((prev) => prev.filter((m) => !okIds.includes(m.id)));
+      if (selected && okIds.includes(selected.id)) setSelected(null);
+      clearSelection();
+    } finally {
+      setBulkBusy(false);
+    }
+  }
+
   // ── Search ──────────────────────────────────────────────────────────────────
 
   function handleSearch(e: React.FormEvent) {
@@ -215,11 +253,50 @@ export function MediaLibraryClient({
         </div>
       ) : (
         <>
-          {/* Count */}
-          <div className="mb-4 text-[13px] text-[#6B7A72]">
-            {total} {total === 1 ? 'item' : 'items'}
-            {defaultSearch && ` for "${defaultSearch}"`}
+          {/* Count + select all */}
+          <div className="mb-4 flex items-center gap-3">
+            <label className="flex items-center gap-2 cursor-pointer text-[13px] text-[#6B7A72]">
+              <input
+                type="checkbox"
+                aria-label="Select all media"
+                checked={allSelected}
+                onChange={toggleAll}
+                className="h-4 w-4 rounded border-[#E5E0D4] accent-[#1F4D3A] cursor-pointer"
+              />
+              Select all
+            </label>
+            <span className="text-[13px] text-[#6B7A72]">
+              {total} {total === 1 ? 'item' : 'items'}
+              {defaultSearch && ` for "${defaultSearch}"`}
+            </span>
           </div>
+
+          {/* Bulk action bar */}
+          {selectedIds.size > 0 && (
+            <div className="mb-4 flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[#1F4D3A]/25 bg-[#E8EFEB]">
+              <span className="text-[13px] font-medium text-[#1F4D3A]">
+                {selectedIds.size} selected
+              </span>
+              <div className="flex-1" />
+              {bulkBusy && <Loader2 size={14} className="animate-spin text-[#1F4D3A]" />}
+              <button
+                disabled={bulkBusy}
+                onClick={() => setBulkConfirmOpen(true)}
+                className="h-8 px-3 rounded-lg text-[12px] font-medium text-white hover:opacity-90 transition disabled:opacity-50"
+                style={{ background: '#B8423C' }}
+              >
+                Delete
+              </button>
+              <button
+                disabled={bulkBusy}
+                onClick={clearSelection}
+                title="Clear selection"
+                className="h-8 w-8 grid place-items-center rounded-lg border border-[#E5E0D4] bg-white text-[#6B7A72] hover:bg-[#FAF6EE] transition-colors disabled:opacity-50"
+              >
+                <X size={13} />
+              </button>
+            </div>
+          )}
 
           {/* Grid */}
           <div
@@ -234,6 +311,8 @@ export function MediaLibraryClient({
                 isEditing={editingId === item.id}
                 editingAlt={editingAlt}
                 savingAlt={savingAlt}
+                isSelected={selectedIds.has(item.id)}
+                onToggleSelect={() => toggleOne(item.id)}
                 onSelect={() => setSelected(item)}
                 onStartEdit={() => startEdit(item)}
                 onAltChange={setEditingAlt}
@@ -420,6 +499,42 @@ export function MediaLibraryClient({
           </div>
         </div>
       )}
+
+      {/* Bulk delete confirm */}
+      {bulkConfirmOpen && (
+        <div
+          className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4"
+          onClick={(e) => { if (e.target === e.currentTarget && !bulkBusy) setBulkConfirmOpen(false); }}
+        >
+          <div className="bg-white rounded-2xl shadow-lift w-full max-w-sm p-6">
+            <h2 className="text-[16px] font-semibold text-[#0F1F18] mb-2">
+              Delete {selectedIds.size} file{selectedIds.size === 1 ? '' : 's'}?
+            </h2>
+            <p className="text-[14px] text-[#6B7A72] mb-5">
+              This removes the selected file{selectedIds.size === 1 ? '' : 's'} from storage and the
+              media library. Any CMS blocks using {selectedIds.size === 1 ? 'this URL' : 'these URLs'} will
+              show broken images.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setBulkConfirmOpen(false)}
+                disabled={bulkBusy}
+                className="flex-1 h-10 rounded-xl border border-[#E5E0D4] text-[14px] font-medium text-[#3A4A42] hover:bg-[#FAF6EE] disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={runBulkDelete}
+                disabled={bulkBusy}
+                className="flex-1 h-10 rounded-xl bg-[#B8423C] text-white text-[14px] font-medium hover:bg-[#9e3630] disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {bulkBusy && <Loader2 size={14} className="animate-spin" />}
+                Delete {selectedIds.size}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -431,6 +546,8 @@ interface TileProps {
   isEditing: boolean;
   editingAlt: string;
   savingAlt: boolean;
+  isSelected: boolean;
+  onToggleSelect: () => void;
   onSelect: () => void;
   onStartEdit: () => void;
   onAltChange: (v: string) => void;
@@ -444,6 +561,8 @@ function MediaTile({
   isEditing,
   editingAlt,
   savingAlt,
+  isSelected,
+  onToggleSelect,
   onSelect,
   onStartEdit,
   onAltChange,
@@ -452,7 +571,18 @@ function MediaTile({
   onDeleteRequest,
 }: TileProps) {
   return (
-    <div className="group relative rounded-xl overflow-hidden border border-[#E5E0D4] bg-[#FAF6EE] aspect-square">
+    <div className={`group relative rounded-xl overflow-hidden border bg-[#FAF6EE] aspect-square ${isSelected ? 'border-[#1F4D3A] ring-1 ring-[#1F4D3A]/30' : 'border-[#E5E0D4]'}`}>
+      {/* Select checkbox */}
+      <label className={`absolute top-2 left-2 z-20 h-6 w-6 grid place-items-center rounded-md bg-white/90 border border-[#E5E0D4] cursor-pointer transition-opacity ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+        <input
+          type="checkbox"
+          aria-label={`Select ${item.filename ?? 'media'}`}
+          checked={isSelected}
+          onChange={onToggleSelect}
+          className="h-4 w-4 rounded border-[#E5E0D4] accent-[#1F4D3A] cursor-pointer"
+        />
+      </label>
+
       {/* Thumbnail */}
       <button className="w-full h-full" onClick={onSelect}>
         {/* eslint-disable-next-line @next/next/no-img-element */}

@@ -1,7 +1,7 @@
 ﻿'use client';
 
 import { useState } from 'react';
-import { Plus, CheckCircle2, XCircle, Radio, Clock, LayoutGrid, List, AlertCircle } from 'lucide-react';
+import { Plus, CheckCircle2, XCircle, Radio, Clock, LayoutGrid, List, AlertCircle, Loader2, X } from 'lucide-react';
 import { AdminNav } from './AdminNav';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -22,6 +22,52 @@ export function OperatorCollectionsClient({ collections, promoted: dbPromoted }:
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [actionError, setActionError] = useState<{ id: string; text: string } | null>(null);
   const [notice, setNotice] = useState('');
+
+  // Bulk selection (review queue)
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkBusy, setBulkBusy] = useState(false);
+
+  const allSelected = promoted.length > 0 && promoted.every((p: Promoted) => selectedIds.has(p.id));
+  const clearSelection = () => setSelectedIds(new Set());
+  const toggleOne = (id: string) =>
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  const toggleAll = () =>
+    setSelectedIds(allSelected ? new Set() : new Set(promoted.map((p: Promoted) => p.id)));
+
+  // Bulk approve / reject — loops the existing per-listing PATCH endpoint so its
+  // permission checks apply to every row. Rows drop as the batch resolves.
+  async function runBulk(action: 'approve' | 'reject') {
+    if (action === 'reject' &&
+        !confirm(`Reject ${selectedIds.size} promoted listing${selectedIds.size === 1 ? '' : 's'}? The organizer${selectedIds.size === 1 ? '' : 's'} will need to resubmit.`)) {
+      return;
+    }
+    setBulkBusy(true);
+    setActionError(null);
+    const ids = Array.from(selectedIds);
+    try {
+      const results = await Promise.allSettled(
+        ids.map(id =>
+          fetch(`/api/admin/promoted/${id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action }),
+          }),
+        ),
+      );
+      const okIds = ids.filter(
+        (_, i) => results[i].status === 'fulfilled' &&
+          (results[i] as PromiseFulfilledResult<Response>).value.ok,
+      );
+      setPromoted(prev => prev.filter(p => !okIds.includes(p.id)));
+      clearSelection();
+    } finally {
+      setBulkBusy(false);
+    }
+  }
 
   async function handleAction(id: string, action: 'approve' | 'reject') {
     if (action === 'reject' && !confirm('Reject this promoted listing? The organizer will need to resubmit.')) return;
@@ -163,6 +209,54 @@ export function OperatorCollectionsClient({ collections, promoted: dbPromoted }:
         {/* Review tab */}
         {activeTab === 'review' && (
           <div className="flex flex-col gap-4">
+            {/* Select all */}
+            {promoted.length > 0 && (
+              <label className="flex items-center gap-2 cursor-pointer text-[13px] w-fit" style={{ color: '#6B7A72' }}>
+                <input
+                  type="checkbox"
+                  aria-label="Select all listings"
+                  checked={allSelected}
+                  onChange={toggleAll}
+                  className="h-4 w-4 rounded border-[#E5E0D4] accent-[#1F4D3A] cursor-pointer"
+                />
+                Select all
+              </label>
+            )}
+
+            {/* Bulk action bar */}
+            {selectedIds.size > 0 && (
+              <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[#1F4D3A]/25 bg-[#E8EFEB]">
+                <span className="text-[13px] font-medium text-[#1F4D3A]">
+                  {selectedIds.size} selected
+                </span>
+                <div className="flex-1" />
+                {bulkBusy && <Loader2 size={14} className="animate-spin text-[#1F4D3A]" />}
+                <button
+                  disabled={bulkBusy}
+                  onClick={() => runBulk('approve')}
+                  className="h-8 px-3 rounded-lg text-[12px] font-medium text-white hover:opacity-90 transition disabled:opacity-50"
+                  style={{ background: '#1F4D3A' }}
+                >
+                  Approve
+                </button>
+                <button
+                  disabled={bulkBusy}
+                  onClick={() => runBulk('reject')}
+                  className="h-8 px-3 rounded-lg text-[12px] font-medium border border-[#E5E0D4] bg-white text-[#B8423C] hover:bg-red-50 transition-colors disabled:opacity-50"
+                >
+                  Reject
+                </button>
+                <button
+                  disabled={bulkBusy}
+                  onClick={clearSelection}
+                  title="Clear selection"
+                  className="h-8 w-8 grid place-items-center rounded-lg border border-[#E5E0D4] bg-white text-[#6B7A72] hover:bg-[#FAF6EE] transition-colors disabled:opacity-50"
+                >
+                  <X size={13} />
+                </button>
+              </div>
+            )}
+
             {promoted.length === 0 ? (
               <div className="rounded-2xl py-20 text-center" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
                 <CheckCircle2 size={32} style={{ color: '#C9C3B1' }} className="mx-auto mb-3" />
@@ -184,9 +278,17 @@ export function OperatorCollectionsClient({ collections, promoted: dbPromoted }:
 
                 return (
                   <div key={p.id} className="rounded-2xl overflow-hidden"
-                    style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
+                    style={{ background: '#FFFFFF', border: `1px solid ${selectedIds.has(p.id) ? '#1F4D3A' : '#E5E0D4'}` }}>
                     <div className="p-5">
                       <div className="flex items-start gap-4 mb-4">
+                        {/* Select checkbox */}
+                        <input
+                          type="checkbox"
+                          aria-label={`Select ${ep?.title ?? 'listing'}`}
+                          checked={selectedIds.has(p.id)}
+                          onChange={() => toggleOne(p.id)}
+                          className="mt-1 h-4 w-4 rounded border-[#E5E0D4] accent-[#1F4D3A] cursor-pointer shrink-0"
+                        />
                         {/* Cover */}
                         <div className="w-14 h-14 rounded-xl shrink-0 flex items-center justify-center"
                           style={{ background: '#E8EFEB' }}>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, Pencil, Trash2, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, Eye, EyeOff, Loader2, X } from 'lucide-react';
 import { ChangelogForm, type ChangelogEntry, type ChangelogType } from '@/components/admin/ChangelogForm';
 
 const TYPE_STYLES: Record<ChangelogType, { bg: string; color: string }> = {
@@ -24,6 +24,59 @@ export function ChangelogAdminClient({ initialEntries }: { initialEntries: Chang
   const [editEntry, setEditEntry] = useState<ChangelogEntry | null>(null);
   const [toggling, setToggling]   = useState<string | null>(null);
   const [deleting, setDeleting]   = useState<string | null>(null);
+
+  // Bulk selection
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkBusy, setBulkBusy] = useState(false);
+
+  const allSelected = entries.length > 0 && entries.every(e => selected.has(e.id));
+  const clearSelection = () => setSelected(new Set());
+  const toggleOne = (id: string) =>
+    setSelected(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  const toggleAll = () =>
+    setSelected(allSelected ? new Set() : new Set(entries.map(e => e.id)));
+
+  // Bulk runner — loops the existing per-entry endpoints so their permission
+  // checks + audit logging apply to every row. Rows update as the batch resolves.
+  const runBulk = async (action: 'delete' | 'publish' | 'unpublish') => {
+    if (action === 'delete' &&
+        !confirm(`Delete ${selected.size} changelog ${selected.size === 1 ? 'entry' : 'entries'}? This cannot be undone.`)) {
+      return;
+    }
+    setBulkBusy(true);
+    const ids = Array.from(selected);
+    try {
+      const results = await Promise.allSettled(
+        ids.map(id =>
+          action === 'delete'
+            ? fetch(`/api/admin/changelog?id=${id}`, { method: 'DELETE' })
+            : fetch('/api/admin/changelog', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id, published: action === 'publish' }),
+              }),
+        ),
+      );
+      const okIds = ids.filter(
+        (_, i) => results[i].status === 'fulfilled' &&
+          (results[i] as PromiseFulfilledResult<Response>).value.ok,
+      );
+      setEntries(prev =>
+        action === 'delete'
+          ? prev.filter(e => !okIds.includes(e.id))
+          : prev.map(e =>
+              okIds.includes(e.id) ? { ...e, published: action === 'publish' } : e,
+            ),
+      );
+      clearSelection();
+    } finally {
+      setBulkBusy(false);
+    }
+  };
 
   const handleSaved = (saved: ChangelogEntry) => {
     setEntries(prev => {
@@ -71,9 +124,23 @@ export function ChangelogAdminClient({ initialEntries }: { initialEntries: Chang
     <div>
       {/* Toolbar */}
       <div className="flex items-center justify-between mb-5">
-        <div className="text-[12px] text-[#6B7A72]">
-          {entries.length} {entries.length === 1 ? 'entry' : 'entries'} ·{' '}
-          {entries.filter(e => e.published).length} published
+        <div className="flex items-center gap-3">
+          {entries.length > 0 && (
+            <label className="flex items-center gap-2 cursor-pointer text-[12px] text-[#6B7A72]">
+              <input
+                type="checkbox"
+                aria-label="Select all entries"
+                checked={allSelected}
+                onChange={toggleAll}
+                className="h-4 w-4 rounded border-[#E5E0D4] accent-[#1F4D3A] cursor-pointer"
+              />
+              Select all
+            </label>
+          )}
+          <div className="text-[12px] text-[#6B7A72]">
+            {entries.length} {entries.length === 1 ? 'entry' : 'entries'} ·{' '}
+            {entries.filter(e => e.published).length} published
+          </div>
         </div>
         <button
           onClick={() => { setEditEntry(null); setShowForm(true); }}
@@ -84,6 +151,47 @@ export function ChangelogAdminClient({ initialEntries }: { initialEntries: Chang
           New entry
         </button>
       </div>
+
+      {/* Bulk action bar */}
+      {selected.size > 0 && (
+        <div className="mb-4 flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[#1F4D3A]/25 bg-[#E8EFEB]">
+          <span className="text-[13px] font-medium text-[#1F4D3A]">
+            {selected.size} selected
+          </span>
+          <div className="flex-1" />
+          {bulkBusy && <Loader2 size={14} strokeWidth={2} className="animate-spin text-[#1F4D3A]" />}
+          <button
+            disabled={bulkBusy}
+            onClick={() => runBulk('publish')}
+            className="h-8 px-3 rounded-lg text-[12px] font-medium border border-[#E5E0D4] bg-white text-[#2D7A4F] hover:bg-emerald-50 transition-colors disabled:opacity-50"
+          >
+            Publish
+          </button>
+          <button
+            disabled={bulkBusy}
+            onClick={() => runBulk('unpublish')}
+            className="h-8 px-3 rounded-lg text-[12px] font-medium border border-[#E5E0D4] bg-white text-[#6B7A72] hover:bg-[#FAF6EE] transition-colors disabled:opacity-50"
+          >
+            Unpublish
+          </button>
+          <button
+            disabled={bulkBusy}
+            onClick={() => runBulk('delete')}
+            className="h-8 px-3 rounded-lg text-[12px] font-medium text-white hover:opacity-90 transition disabled:opacity-50"
+            style={{ background: '#B8423C' }}
+          >
+            Delete
+          </button>
+          <button
+            disabled={bulkBusy}
+            onClick={clearSelection}
+            title="Clear selection"
+            className="h-8 w-8 grid place-items-center rounded-lg border border-[#E5E0D4] bg-white text-[#6B7A72] hover:bg-[#FAF6EE] transition-colors disabled:opacity-50"
+          >
+            <X size={13} strokeWidth={2} />
+          </button>
+        </div>
+      )}
 
       {/* List */}
       {entries.length === 0 ? (
@@ -96,8 +204,17 @@ export function ChangelogAdminClient({ initialEntries }: { initialEntries: Chang
             <div
               key={entry.id}
               className="bg-white rounded-xl border p-4 flex items-start gap-4"
-              style={{ borderColor: '#E5E0D4' }}
+              style={{ borderColor: selected.has(entry.id) ? '#1F4D3A' : '#E5E0D4' }}
             >
+              {/* Select checkbox */}
+              <input
+                type="checkbox"
+                aria-label={`Select ${entry.title}`}
+                checked={selected.has(entry.id)}
+                onChange={() => toggleOne(entry.id)}
+                className="mt-1 h-4 w-4 rounded border-[#E5E0D4] accent-[#1F4D3A] cursor-pointer shrink-0"
+              />
+
               {/* Type badge */}
               <span
                 className="mt-0.5 inline-flex items-center px-2 py-0.5 rounded-full  text-[9px] tracking-[0.14em] uppercase shrink-0"

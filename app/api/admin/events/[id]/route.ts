@@ -16,16 +16,26 @@ export async function PATCH(
   if ('error' in result) return result.error;
   const { user } = result;
 
-  let body: { moderation_status?: string };
+  let body: { moderation_status?: string; name?: string };
   try { body = await request.json(); }
   catch { return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 }); }
 
-  const { moderation_status } = body;
-  if (!moderation_status || !VALID_STATUSES.includes(moderation_status as ModerationStatus)) {
+  const { moderation_status, name } = body;
+  const hasModeration = moderation_status !== undefined;
+  const hasName = name !== undefined;
+
+  if (!hasModeration && !hasName) {
+    return NextResponse.json({ error: 'Nothing to update' }, { status: 400 });
+  }
+  if (hasModeration && !VALID_STATUSES.includes(moderation_status as ModerationStatus)) {
     return NextResponse.json(
       { error: `moderation_status must be one of: ${VALID_STATUSES.join(', ')}` },
       { status: 400 }
     );
+  }
+  const trimmedName = hasName ? String(name).trim() : undefined;
+  if (hasName && (!trimmedName || trimmedName.length > 200)) {
+    return NextResponse.json({ error: 'Name must be 1–200 characters' }, { status: 400 });
   }
 
   const adminClient = createAdminClient();
@@ -37,24 +47,28 @@ export async function PATCH(
 
   if (!before) return NextResponse.json({ error: 'Event not found' }, { status: 404 });
 
-  // Removing an event: also archive it so /c/[slug] returns 404 (that page filters by status='published').
-  // Restoring (ok/flagged): re-publish it so the attendee page works again.
-  const statusUpdate = moderation_status === 'removed' ? 'archived' : 'published';
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const update: Record<string, any> = { updated_at: new Date().toISOString() };
+  if (hasModeration) {
+    // Removing an event: also archive it so /c/[slug] returns 404 (that page filters by status='published').
+    // Restoring (ok/flagged): re-publish it so the attendee page works again.
+    update.moderation_status = moderation_status as ModerationStatus;
+    update.status = moderation_status === 'removed' ? 'archived' : 'published';
+  }
+  if (hasName) update.name = trimmedName;
 
-  const { data: after, error } = await adminClient
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: after, error } = await (adminClient as any)
     .from('events')
-    .update({
-      moderation_status: moderation_status as ModerationStatus,
-      status: statusUpdate,
-      updated_at: new Date().toISOString(),
-    })
+    .update(update)
     .eq('id', params.id)
     .select('id, name, slug, moderation_status, status')
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  await logAudit(user, `event.moderation.${moderation_status}`, 'event', params.id, {
+  const action = hasModeration ? `event.moderation.${moderation_status}` : 'event.renamed';
+  await logAudit(user, action, 'event', params.id, {
     before: { moderation_status: before.moderation_status, name: before.name },
     after:  { moderation_status: after.moderation_status,  name: after.name, status: after.status },
   });
