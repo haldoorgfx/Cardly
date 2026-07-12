@@ -184,7 +184,15 @@ function TicketList({
   const isSoldOut = (t: TicketTypeRow) => t.quantity !== null && t.quantity_sold >= t.quantity;
   const hasTickets = tickets.length > 0;
   const allSoldOut = hasTickets && tickets.every(isSoldOut);
-  const registrationClosed = !!(page.registration_deadline && new Date(page.registration_deadline) < new Date());
+  // Registration is closed once an explicit deadline passes OR the event itself
+  // has ended (prefer the end time, fall back to the start). Without the
+  // event-ended check, past events kept showing "Selling now / Get tickets" and
+  // only revealed "Registrations closed" after a click.
+  const eventEnd = page.ends_at ?? page.starts_at;
+  const eventEnded = !!(eventEnd && new Date(eventEnd as string) < new Date());
+  const registrationClosed =
+    eventEnded ||
+    !!(page.registration_deadline && new Date(page.registration_deadline) < new Date());
   const selectedObj = tickets.find(t => t.id === selectedTicket);
   const total = selectedObj ? fmtTicketPrice(selectedObj.price, selectedObj.currency) : minPrice;
 
@@ -198,7 +206,7 @@ function TicketList({
             <span className="font-sans font-normal text-[13px] ml-1" style={{ color: '#6B7A72' }}>/ ticket</span>
           </div>
         </div>
-        {hasTickets && !allSoldOut && (
+        {hasTickets && !allSoldOut && !registrationClosed && (
           <span className="text-[12px] font-medium px-3 py-1 rounded-full" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
             ● Selling now
           </span>
