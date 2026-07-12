@@ -17,8 +17,8 @@ const SIDEBAR = [
   {
     icon: <Mail size={18} strokeWidth={1.8} />,
     title: 'Email',
-    value: 'hello@cre8so.com',
-    href: 'mailto:hello@cre8so.com',
+    value: 'hello@eventera.so',
+    href: 'mailto:hello@eventera.so',
     desc: 'We reply within 24 hours.',
   },
   {

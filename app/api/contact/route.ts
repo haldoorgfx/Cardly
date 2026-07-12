@@ -45,7 +45,7 @@ export async function POST(request: Request) {
   try {
     await resend.emails.send({
       from:    'Eventera Contact <noreply@eventera.so>',
-      to:      ['hello@cre8so.com'],
+      to:      ['hello@eventera.so'],
       replyTo: email,
       subject: `[Contact] ${topic ? `${safeTopic} — ` : ''}${safeName}`,
       html: `

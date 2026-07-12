@@ -152,7 +152,7 @@ function RegistrationMockup() {
                 <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#28C840' }} />
               </div>
               <div style={{ background: '#FFFFFF', borderRadius: 5, padding: '3px 10px', fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#6B7A72', border: '1px solid #E5E0D4' }}>
-                app.karta.co/events/summit/registration
+                eventera.so/events/summit/registration
               </div>
             </div>
             <div style={{ background: '#FAF6EE', display: 'flex', height: 320, overflow: 'hidden' }}>

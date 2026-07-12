@@ -55,7 +55,7 @@ export default function BlogArticlePage() {
               Browse all posts <ArrowRight size={14} strokeWidth={2} />
             </Link>
             <a
-              href="mailto:hello@cre8so.com"
+              href="mailto:hello@eventera.so"
               className="inline-flex items-center gap-2 px-5 py-3 rounded-full font-medium text-[14px] transition-colors text-ink"
               style={{ border: '1px solid rgba(15,31,24,0.15)' }}
             >

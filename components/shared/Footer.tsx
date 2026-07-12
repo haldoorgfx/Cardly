@@ -67,9 +67,9 @@ export function Footer() {
 
         {/* Bottom row */}
         <div className="mt-7 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <span className="text-[12px] text-[#6B7A72]">© 2026 Eventera · Made with care in Lagos</span>
-          <a href="mailto:hello@cre8so.com" className="text-[12px] text-[#3A4A42] hover:text-[#0F1F18] transition">
-            hello@cre8so.com
+          <span className="text-[12px] text-[#6B7A72]">© 2026 Eventera · Made in Djibouti</span>
+          <a href="mailto:hello@eventera.so" className="text-[12px] text-[#3A4A42] hover:text-[#0F1F18] transition">
+            hello@eventera.so
           </a>
         </div>
       </div>
