@@ -4,19 +4,14 @@ import { createAdminClient, createClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation'; // still needed for invalid categories
 import { PublicNav } from '@/components/events/PublicNav';
 import { CategoryPage } from '@/components/discovery/CategoryPage';
+import { labelFromSlug } from '@/lib/categories';
 import type { Metadata } from 'next';
 
 interface Props { params: { category: string } }
 
-const VALID_CATEGORIES = ['tech', 'music', 'business', 'culture', 'food', 'sports', 'health', 'film', 'education'];
-
-function decodeCategory(slug: string): string {
-  const decoded = decodeURIComponent(slug).toLowerCase();
-  return decoded.charAt(0).toUpperCase() + decoded.slice(1);
-}
-
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const cat = decodeCategory(params.category);
+  const cat = labelFromSlug(params.category);
+  if (!cat) return { title: 'Events' };
   return {
     title: `${cat} Events`,
     description: `Discover upcoming ${cat.toLowerCase()} events across East Africa and beyond.`,
@@ -24,10 +19,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function CategoryEventPage({ params }: Props) {
-  const slug = params.category.toLowerCase();
-  if (!VALID_CATEGORIES.includes(slug)) notFound();
+  const category = labelFromSlug(params.category);
+  if (!category) notFound();
 
-  const category = decodeCategory(params.category);
   const admin = createAdminClient();
 
   const now = new Date().toISOString();

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Upload, Globe, ExternalLink, ChevronRight, ChevronLeft, Check, CreditCard, Smartphone, Gift, Layers } from 'lucide-react';
 import { PlacesAutocomplete } from '@/components/shared/PlacesAutocomplete';
 import { TIMEZONES, zonedDatetimeToISO, isoToZonedDatetimeValue } from '@/lib/events/format';
+import { CATEGORY_OPTIONS } from '@/lib/categories';
 import type { Database } from '@/types/database';
 import { ERAButton } from '@/components/ai/ERAButton';
 
@@ -411,7 +412,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing, onCom
               style={{ background: 'white', border: '1px solid #E5E0D4', color: category ? '#0F1F18' : '#6B7A72' }}
             >
               <option value="">Select a category</option>
-              {['Tech', 'Music', 'Business', 'Culture', 'Food', 'Sports', 'Health', 'Film', 'Education'].map(c => (
+              {CATEGORY_OPTIONS.map(c => (
                 <option key={c} value={c}>{c}</option>
               ))}
             </select>

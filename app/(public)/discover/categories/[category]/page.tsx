@@ -3,14 +3,13 @@ export const dynamic = 'force-dynamic';
 import { createAdminClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import { CategoryPageClient } from '@/components/discovery/CategoryPageClient';
+import { CATEGORY_SLUGS } from '@/lib/categories';
 import type { Metadata } from 'next';
 
 interface Props { params: Promise<{ category: string }> }
 
-const VALID_CATEGORIES = [
-  'tech', 'business', 'arts', 'music', 'sports', 'food', 'wellness',
-  'education', 'community', 'networking', 'fintech', 'design',
-];
+// Canonical category slugs, plus this surface's own curated aliases.
+const VALID_CATEGORIES = Array.from(new Set([...CATEGORY_SLUGS, 'fintech']));
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { category } = await params;

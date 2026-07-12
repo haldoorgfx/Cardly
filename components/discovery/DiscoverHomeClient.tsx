@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Search, MapPin, Calendar, ChevronDown, ArrowRight, Map as MapIcon, Ticket, Check, Tag, Globe, Users } from 'lucide-react';
 import { EventCard } from './EventCard';
 import { toggleSavedEvent } from '@/components/shared/saveEvent';
+import { EVENT_CATEGORIES } from '@/lib/categories';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type EventPage = any;
@@ -37,7 +38,7 @@ function hexColor(hex: string | undefined, fallback: string): string {
   return fallback;
 }
 
-const CATEGORIES = ['All', 'Music', 'Tech', 'Sports', 'Culture', 'Food', 'Business', 'Health', 'Arts'];
+const CATEGORIES = ['All', ...EVENT_CATEGORIES];
 
 const WHEN_OPTIONS = [
   { value: 'any', label: 'Any time' },
@@ -578,8 +579,7 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents, ban
                     {h.count} event{h.count !== 1 ? 's' : ''} · Tap to view
                   </div>
                 </div>
-                <span className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition group-hover:bg-[#1F4D3A] group-hover:text-white"
-                  style={{ border: '1px solid #E5E0D4', color: '#1F4D3A' }}>
+                <span className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 border border-[#E5E0D4] text-[#1F4D3A] transition-colors group-hover:bg-[#1F4D3A] group-hover:border-[#1F4D3A] group-hover:text-white">
                   <ArrowRight size={15} />
                 </span>
               </Link>

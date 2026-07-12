@@ -5,8 +5,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { EventCard, type DiscoveryEvent } from './EventCard';
 import { toggleSavedEvent } from '@/components/shared/saveEvent';
+import { EVENT_CATEGORIES, categorySlug } from '@/lib/categories';
 
-const ALL_CATEGORIES = ['Tech', 'Music', 'Business', 'Culture', 'Food', 'Sports', 'Health', 'Film', 'Education'] as const;
+const ALL_CATEGORIES = EVENT_CATEGORIES;
 
 interface CityCount { city: string; count: number }
 
@@ -38,7 +39,7 @@ export function CategoryPage({ category, events, savedIds, cityCounts }: Categor
         if (save) { next.delete(pageId); } else { next.add(pageId); }
         return next;
       });
-      router.push(`/account/login?next=${encodeURIComponent(`/events/category/${category.toLowerCase()}`)}`);
+      router.push(`/account/login?next=${encodeURIComponent(`/events/category/${categorySlug(category)}`)}`);
     }
   }, [router, category]);
 
@@ -100,7 +101,7 @@ export function CategoryPage({ category, events, savedIds, cityCounts }: Categor
             {ALL_CATEGORIES.map(cat => (
               <Link
                 key={cat}
-                href={`/events/category/${cat.toLowerCase()}`}
+                href={`/events/category/${categorySlug(cat)}`}
                 className="inline-flex items-center justify-center flex-none h-[30px] px-4 rounded-full text-[12px] font-medium whitespace-nowrap transition"
                 style={{
                   background: cat === category ? '#1F4D3A' : '#FFFFFF',

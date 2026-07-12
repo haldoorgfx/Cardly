@@ -58,31 +58,94 @@ const I = {
 };
 
 /* ── Brand platform icons ──────────────────────────────────────── */
+// Brand marks — official Simple Icons glyphs on a rounded tile in each
+// platform's brand colour, so they read as the real logos, not generic art.
 const Brand = {
   whatsapp: (s = 20) => (
-    <svg width={s} height={s} viewBox="0 0 24 24">
-      <path fill="#25D366" d="M12 .04C5.4.04.07 5.37.07 11.97c0 2.1.54 4.13 1.57 5.94L0 24l6.27-1.65a11.93 11.93 0 0 0 5.73 1.46h.01c6.6 0 11.93-5.33 11.93-11.93 0-3.18-1.24-6.17-3.49-8.42A11.86 11.86 0 0 0 12 .04zm5.43 14.34c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.77-1.66-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51l-.57-.01c-.2 0-.52.07-.79.37-.27.3-1.04 1.01-1.04 2.48s1.06 2.87 1.21 3.07c.15.2 2.1 3.2 5.07 4.49.71.3 1.26.49 1.69.62.71.22 1.35.19 1.86.12.57-.09 1.76-.72 2-1.41.25-.7.25-1.29.17-1.41-.07-.13-.27-.2-.57-.35z" />
+    <svg width={s} height={s} viewBox="0 0 24 24" aria-hidden>
+      <rect width="24" height="24" rx="6" fill="#25D366" />
+      <path fill="#fff" transform="translate(4 4) scale(0.667)" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.297-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
     </svg>
   ),
   x: (s = 20) => (
-    <svg width={s} height={s} viewBox="0 0 24 24">
-      <rect width="24" height="24" rx="5" fill="#000" />
-      <path fill="#fff" d="M17.3 5.5h2.5l-5.5 6.3 6.5 8.7h-5.1l-4-5.3-4.6 5.3H4.6L10.5 13 4.3 5.5h5.2l3.6 4.8 3.8-4.8z" />
+    <svg width={s} height={s} viewBox="0 0 24 24" aria-hidden>
+      <rect width="24" height="24" rx="6" fill="#000" />
+      <path fill="#fff" transform="translate(4.5 4.5) scale(0.625)" d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z" />
     </svg>
   ),
   linkedin: (s = 20) => (
-    <svg width={s} height={s} viewBox="0 0 24 24">
-      <rect width="24" height="24" rx="5" fill="#0A66C2" />
-      <path fill="#fff" d="M8.3 9.5v9H5.3v-9h3zm-1.5-4.4a1.7 1.7 0 1 1 0 3.4 1.7 1.7 0 0 1 0-3.4zm4 4.4h2.85v1.27h.04c.4-.74 1.37-1.52 2.82-1.52 3.02 0 3.58 1.96 3.58 4.5v4.75h-3v-4.21c0-1 0-2.3-1.42-2.3-1.42 0-1.64 1.1-1.64 2.23v4.28h-2.99v-9h-.24z" />
+    <svg width={s} height={s} viewBox="0 0 24 24" aria-hidden>
+      <rect width="24" height="24" rx="6" fill="#0A66C2" />
+      <path fill="#fff" transform="translate(4 4) scale(0.667)" d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
     </svg>
   ),
   email: (s = 20) => (
-    <svg width={s} height={s} viewBox="0 0 24 24">
-      <rect width="24" height="24" rx="5" fill="#EA4335" />
-      <path fill="#fff" d="M5 7.5l7 5 7-5V17H5V7.5zM18.5 6H5.5L12 10.5 18.5 6z" />
+    <svg width={s} height={s} viewBox="0 0 24 24" aria-hidden>
+      <rect width="24" height="24" rx="6" fill="#1F4D3A" />
+      <path d="M6 8.5h12a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-5a1 1 0 0 1 1-1z" fill="none" stroke="#fff" strokeWidth="1.5" strokeLinejoin="round" />
+      <path d="M5.4 9.2 12 13l6.6-3.8" fill="none" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
 };
+
+/** Rounded-rect path on a 2D context. */
+function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+
+/** Draw the Eventera mark (forest tile + gold E on a white plate) into the
+ *  centre of a QR PNG data URL and return the composited PNG. */
+function compositeQrMark(rawDataUrl: string): Promise<string> {
+  return new Promise((resolve) => {
+    const img = new window.Image();
+    img.onload = () => {
+      const size = 1024;
+      const canvas = document.createElement('canvas');
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) { resolve(rawDataUrl); return; }
+      ctx.drawImage(img, 0, 0, size, size);
+      const cx = size / 2, cy = size / 2;
+      const plate = size * 0.115;   // half-size of the white plate
+      const mark = size * 0.16;     // forest tile side
+      ctx.fillStyle = '#FFFFFF';
+      roundRect(ctx, cx - plate, cy - plate, plate * 2, plate * 2, plate * 0.42); ctx.fill();
+      ctx.fillStyle = '#1F4D3A';
+      roundRect(ctx, cx - mark / 2, cy - mark / 2, mark, mark, mark * 0.24); ctx.fill();
+      ctx.fillStyle = '#E8C57E';
+      ctx.font = `700 ${mark * 0.62}px "DM Sans", system-ui, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('E', cx, cy + mark * 0.04);
+      resolve(canvas.toDataURL('image/png'));
+    };
+    img.onerror = () => resolve(rawDataUrl);
+    img.src = rawDataUrl;
+  });
+}
+
+/** Inject the same Eventera mark into the centre of a QR SVG string so the SVG
+ *  download carries the logo too. */
+function injectMarkIntoSvg(svg: string): string {
+  const m = svg.match(/viewBox="0 0 ([\d.]+) /);
+  const vb = m ? parseFloat(m[1]) : 0;
+  if (!vb) return svg;
+  const c = vb / 2;
+  const plate = vb * 0.115;
+  const mark = vb * 0.16;
+  const overlay =
+    `<rect x="${c - plate}" y="${c - plate}" width="${plate * 2}" height="${plate * 2}" rx="${plate * 0.42}" fill="#FFFFFF"/>` +
+    `<rect x="${c - mark / 2}" y="${c - mark / 2}" width="${mark}" height="${mark}" rx="${mark * 0.24}" fill="#1F4D3A"/>` +
+    `<text x="${c}" y="${c}" font-family="DM Sans, system-ui, sans-serif" font-weight="700" font-size="${mark * 0.64}" fill="#E8C57E" text-anchor="middle" dominant-baseline="central">E</text>`;
+  return svg.replace('</svg>', `${overlay}</svg>`);
+}
 
 /* ── Event registration phone preview ─────────────────────────── */
 function RegistrationPreview({ eventName, dateLabel, venueLabel }: {
@@ -239,13 +302,22 @@ export default function PublishClient({
   const embedCode = `<iframe src="${shareUrl}"\n        width="${activeSz.w}" height="${activeSz.h}"\n        frameborder="0"></iframe>`;
 
   useEffect(() => {
-    Promise.all([
-      QRCode.toDataURL(shareUrl, { width: 1024, margin: 2, color: { dark: '#0F1F18', light: '#ffffff' } }),
-      QRCode.toString(shareUrl, { type: 'svg', margin: 2, color: { dark: '#0F1F18', light: '#ffffff' } } as Parameters<typeof QRCode.toString>[1]),
-    ]).then(([dataUrl, svgStr]) => {
-      setQrDataUrl(dataUrl);
-      setQrSvgString(svgStr);
-    });
+    let cancelled = false;
+    (async () => {
+      // Error-correction 'H' (30% recovery) so the centre Eventera mark never
+      // breaks scanning. The mark is baked INTO the image so downloads carry it.
+      const opts = { width: 1024, margin: 2, errorCorrectionLevel: 'H' as const, color: { dark: '#0F1F18', light: '#ffffff' } };
+      const [rawDataUrl, svgStr] = await Promise.all([
+        QRCode.toDataURL(shareUrl, opts),
+        QRCode.toString(shareUrl, { ...opts, type: 'svg' } as Parameters<typeof QRCode.toString>[1]),
+      ]);
+      const composited = await compositeQrMark(rawDataUrl);
+      if (!cancelled) {
+        setQrDataUrl(composited);
+        setQrSvgString(injectMarkIntoSvg(svgStr));
+      }
+    })();
+    return () => { cancelled = true; };
   }, [shareUrl]);
 
   const dateLabel = startsAt ? formatEventDate(startsAt, timezone) : '';
@@ -648,23 +720,6 @@ export default function PublishClient({
                     <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11, color: PT.muted }}>generating…</span>
                   </div>
                 )}
-                <div style={{
-                  position: 'absolute', left: '50%', top: '50%',
-                  transform: 'translate(-50%, -50%)',
-                  width: 44, height: 44,
-                  background: PT.surface, borderRadius: 10,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  boxShadow: `0 0 0 4px ${PT.surface}`,
-                }}>
-                  <div style={{
-                    width: 34, height: 34,
-                    background: PT.primary, borderRadius: 8,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontFamily: 'DM Sans, sans-serif', fontWeight: 700, fontSize: 16,
-                    color: PT.accent, letterSpacing: '-0.02em',
-                    boxShadow: '0 2px 8px rgba(31,77,58,0.35)',
-                  }}>E</div>
-                </div>
               </div>
             </div>
             <div style={{ display: 'flex', gap: 8 }}>

@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { Calendar } from 'lucide-react';
 
 interface Props {
@@ -70,7 +71,19 @@ export function AddToCalendarButton({
   variant = 'link', className = '', style,
 }: Props) {
   const [open, setOpen] = useState(false);
+  const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
+
+  const MENU_W = 208;
+  const place = useCallback(() => {
+    const r = btnRef.current?.getBoundingClientRect();
+    if (!r) return;
+    // Right-align the menu to the button; keep it on-screen.
+    const left = Math.max(8, Math.min(r.right - MENU_W, window.innerWidth - MENU_W - 8));
+    setPos({ top: r.bottom + 8, left });
+  }, []);
 
   const endIso = endsAt ?? new Date(new Date(startsAt).getTime() + 2 * 3600_000).toISOString();
   const details = [description, eventUrl].filter(Boolean).join('\n\n');
@@ -85,12 +98,25 @@ export function AddToCalendarButton({
 
   useEffect(() => {
     if (!open) return;
+    place();
     function onDoc(e: MouseEvent) {
-      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) setOpen(false);
+      const t = e.target as Node;
+      if (wrapRef.current?.contains(t) || menuRef.current?.contains(t)) return;
+      setOpen(false);
     }
+    function onReflow() { place(); }
+    function onEsc(e: KeyboardEvent) { if (e.key === 'Escape') setOpen(false); }
     document.addEventListener('mousedown', onDoc);
-    return () => document.removeEventListener('mousedown', onDoc);
-  }, [open]);
+    window.addEventListener('resize', onReflow);
+    window.addEventListener('scroll', onReflow, true);
+    document.addEventListener('keydown', onEsc);
+    return () => {
+      document.removeEventListener('mousedown', onDoc);
+      window.removeEventListener('resize', onReflow);
+      window.removeEventListener('scroll', onReflow, true);
+      document.removeEventListener('keydown', onEsc);
+    };
+  }, [open, place]);
 
   /** Generate the .ics and trigger a download the device opens in its calendar app. */
   function downloadIcs() {
@@ -127,23 +153,22 @@ export function AddToCalendarButton({
         }
       : { color: '#1F4D3A', textDecoration: 'none', cursor: 'pointer', background: 'none', border: 'none', padding: 0, ...style };
 
-  return (
-    <div ref={wrapRef} className="relative inline-flex">
-      <button type="button" onClick={() => setOpen(v => !v)} className={triggerClass} style={triggerStyle}>
-        <Calendar size={variant === 'solid' ? 15 : 13} strokeWidth={2} />
-        Add to calendar
-      </button>
-
-      {open && (
+  // Portal the menu to <body> with fixed positioning so it can never be clipped
+  // by an ancestor with overflow:hidden (e.g. the rounded event hero).
+  const menu = open && pos && typeof document !== 'undefined'
+    ? createPortal(
         <div
-          className="absolute z-50 mt-2 rounded-xl overflow-hidden"
+          ref={menuRef}
+          className="rounded-xl overflow-hidden"
           style={{
-            top: '100%',
-            right: 0,
-            minWidth: 200,
+            position: 'fixed',
+            top: pos.top,
+            left: pos.left,
+            width: MENU_W,
+            zIndex: 1000,
             background: '#FFFFFF',
             border: '1px solid #E5E0D4',
-            boxShadow: '0 12px 32px rgba(15,31,24,0.14)',
+            boxShadow: '0 12px 32px rgba(15,31,24,0.18)',
           }}
         >
           <button
@@ -164,8 +189,18 @@ export function AddToCalendarButton({
           >
             Google Calendar
           </a>
-        </div>
-      )}
+        </div>,
+        document.body,
+      )
+    : null;
+
+  return (
+    <div ref={wrapRef} className="relative inline-flex">
+      <button ref={btnRef} type="button" onClick={() => setOpen(v => !v)} className={triggerClass} style={triggerStyle}>
+        <Calendar size={variant === 'solid' ? 15 : 13} strokeWidth={2} />
+        Add to calendar
+      </button>
+      {menu}
     </div>
   );
 }
