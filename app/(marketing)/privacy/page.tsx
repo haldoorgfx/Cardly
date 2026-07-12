@@ -19,12 +19,6 @@ export default function PrivacyPage() {
           Last updated: May 2026
         </p>
 
-        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 mb-10 text-[14px] text-amber-800 leading-relaxed">
-          <strong>Note:</strong> We&apos;ll review this with a lawyer before
-          formal launch. What&apos;s below is our honest current practice,
-          written in plain English.
-        </div>
-
         <div className="space-y-10 text-[16px] text-brand-ink/75 leading-[1.8]">
           <section>
             <h2 className="font-display font-bold text-[22px] text-brand-ink mb-3">
@@ -94,9 +88,19 @@ export default function PrivacyPage() {
               Cookies
             </h2>
             <p>
-              We use a session cookie to keep you logged in. We do not use
-              tracking cookies or third-party advertising cookies. We do not run
-              Google Analytics or Facebook Pixel.
+              We use a required cookie to keep you signed in. With your consent
+              (via the cookie banner), we also use privacy-conscious analytics and
+              support tools to improve Eventera:
+            </p>
+            <ul className="mt-3 list-disc pl-5 space-y-1">
+              <li><strong>PostHog</strong> — product analytics and session replay (inputs are masked; we never record passwords or payment fields). Loads only if you accept.</li>
+              <li><strong>Crisp</strong> — the live support chat widget. Loads only if you accept.</li>
+              <li><strong>Sentry</strong> — error monitoring, so we can fix crashes.</li>
+              <li><strong>Vercel Analytics</strong> — aggregate, cookieless traffic measurement.</li>
+            </ul>
+            <p className="mt-3">
+              We do not run Google Analytics, Facebook Pixel, or advertising
+              cookies. You can reject the optional tools from the cookie banner.
             </p>
           </section>
 

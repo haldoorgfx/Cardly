@@ -199,8 +199,42 @@ export default async function PublicEventPage({ params, searchParams }: Props) {
     }
   }
 
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? '';
+  const eventUrl = `${appUrl}/e/${params.slug}`;
+  // schema.org/Event structured data → Google event rich results.
+  const eventJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Event',
+    name: page.title,
+    ...(page.starts_at ? { startDate: page.starts_at } : {}),
+    ...(page.ends_at ? { endDate: page.ends_at } : {}),
+    eventStatus: 'https://schema.org/EventScheduled',
+    eventAttendanceMode: page.is_online
+      ? 'https://schema.org/OnlineEventAttendanceMode'
+      : 'https://schema.org/OfflineEventAttendanceMode',
+    ...(page.seo_description || page.tagline
+      ? { description: page.seo_description ?? page.tagline }
+      : {}),
+    ...(page.cover_image_url ? { image: [page.cover_image_url] } : {}),
+    url: eventUrl,
+    location: page.is_online
+      ? { '@type': 'VirtualLocation', url: eventUrl }
+      : {
+          '@type': 'Place',
+          name: page.venue_name ?? page.city ?? 'Venue',
+          ...(([page.venue_address, page.city, page.country].filter(Boolean).join(', ')) ||
+          undefined
+            ? { address: [page.venue_address, page.city, page.country].filter(Boolean).join(', ') }
+            : {}),
+        },
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(eventJsonLd) }}
+      />
       {isPreview && editorEventId && (
         <div
           className="sticky top-0 z-50 flex items-center justify-between gap-4 px-5 py-3"

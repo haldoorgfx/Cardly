@@ -4,22 +4,32 @@ import posthog from 'posthog-js';
 import { PostHogProvider as PHProvider } from 'posthog-js/react';
 import { useEffect } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
+import { analyticsAllowed, CONSENT_EVENT } from '@/lib/consent';
 
-// ── Boot PostHog once ─────────────────────────────────────────────────────────
+// ── Boot PostHog once the visitor has accepted analytics ──────────────────────
 function PostHogInit() {
   useEffect(() => {
     const key = process.env.NEXT_PUBLIC_POSTHOG_KEY;
     const host = process.env.NEXT_PUBLIC_POSTHOG_HOST ?? 'https://app.posthog.com';
-    if (!key || posthog.__loaded) return;
+    if (!key) return;
 
-    posthog.init(key, {
-      api_host: host,
-      capture_pageview: false,      // we fire pageviews manually below
-      capture_pageleave: true,
-      persistence: 'localStorage+cookie',
-      autocapture: true,            // clicks, inputs, form submits
-      session_recording: { maskAllInputs: true }, // never record passwords/PII
-    });
+    const boot = () => {
+      // Only start tracking after explicit consent (GDPR/e-Privacy). Until then
+      // PostHog stays uninitialized — no autocapture, no session recording.
+      if (posthog.__loaded || !analyticsAllowed()) return;
+      posthog.init(key, {
+        api_host: host,
+        capture_pageview: false,      // we fire pageviews manually below
+        capture_pageleave: true,
+        persistence: 'localStorage+cookie',
+        autocapture: true,            // clicks, inputs, form submits
+        session_recording: { maskAllInputs: true }, // never record passwords/PII
+      });
+    };
+
+    boot();
+    window.addEventListener(CONSENT_EVENT, boot);
+    return () => window.removeEventListener(CONSENT_EVENT, boot);
   }, []);
 
   return null;

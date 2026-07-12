@@ -85,7 +85,7 @@ export default function RootLayout({
                     '@type': 'Offer',
                     price: '0',
                     priceCurrency: 'USD',
-                    description: 'Free plan available. Pro from $9/month.',
+                    description: 'Free plan available. Pro from $19/month.',
                   },
                   publisher: { '@id': `${APP_URL}/#organization` },
                 },

@@ -1,28 +1,34 @@
 'use client';
 
 import { useEffect } from 'react';
+import { analyticsAllowed, CONSENT_EVENT } from '@/lib/consent';
 
-// Crisp live chat widget — only loads when NEXT_PUBLIC_CRISP_WEBSITE_ID is set.
-// Get your ID from: https://app.crisp.chat → Settings → Website → Setup instructions
+// Crisp live chat widget — loads only when NEXT_PUBLIC_CRISP_WEBSITE_ID is set
+// AND the visitor has accepted cookies (Crisp sets its own cookies).
 export function CrispChat() {
   const websiteId = process.env.NEXT_PUBLIC_CRISP_WEBSITE_ID;
 
   useEffect(() => {
     if (!websiteId) return;
+    let script: HTMLScriptElement | null = null;
 
-    // Crisp's official snippet
-    const w = window as unknown as Record<string, unknown>;
-    w.$crisp = [];
-    w.CRISP_WEBSITE_ID = websiteId;
+    const boot = () => {
+      if (script || !analyticsAllowed()) return;
+      // Crisp's official snippet
+      const w = window as unknown as Record<string, unknown>;
+      w.$crisp = [];
+      w.CRISP_WEBSITE_ID = websiteId;
+      script = document.createElement('script');
+      script.src = 'https://client.crisp.chat/l.js';
+      script.async = true;
+      document.head.appendChild(script);
+    };
 
-    const script = document.createElement('script');
-    script.src = 'https://client.crisp.chat/l.js';
-    script.async = true;
-    document.head.appendChild(script);
-
+    boot();
+    window.addEventListener(CONSENT_EVENT, boot);
     return () => {
-      // Clean up on unmount (hot reload)
-      document.head.removeChild(script);
+      window.removeEventListener(CONSENT_EVENT, boot);
+      if (script && script.parentNode) script.parentNode.removeChild(script);
     };
   }, [websiteId]);
 

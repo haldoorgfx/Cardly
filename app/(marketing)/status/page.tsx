@@ -114,7 +114,7 @@ function StatusHero() {
           {allGood ? 'Everything is running.' : 'We\'re investigating an issue.'}
         </h1>
         <p className="mt-5 text-ink-soft text-[16px] leading-[1.55] max-w-[520px]">
-          We monitor all services 24/7. Subscribe to updates below if you want notifications during incidents.
+          Current status of the Eventera platform. If you&apos;re seeing a problem that isn&apos;t reflected here, contact support.
         </p>
 
         {/* Uptime strip */}
@@ -156,7 +156,7 @@ function ServicesList() {
             </h2>
           </div>
           <div className=" text-[10px] tracking-[0.16em] uppercase text-muted">
-            Updated every 60s
+            Manually updated
           </div>
         </div>
       </Reveal>
