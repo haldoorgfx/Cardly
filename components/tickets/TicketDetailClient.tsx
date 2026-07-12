@@ -8,7 +8,6 @@ import {
   ArrowLeftRight, Receipt, Share2, MessageSquare, X, ChevronRight, Check,
   Download, IdCard,
 } from 'lucide-react';
-import { EventToolsGrid } from './EventTools';
 import { GetCardModal, type CardVariant } from './GetCardModal';
 
 // ── Types ───────────────────────────────────────────────────────────────────
@@ -559,13 +558,6 @@ export default function TicketDetailClient({ reg, scannedByName, variant }: Prop
           </div>
         )}
 
-        {/* ── Event tools — engage with the event and organizer ── */}
-        {slug && (
-          <div className="mt-7">
-            <div className="mb-3 text-[11.5px] font-semibold uppercase tracking-[0.1em]" style={{ color: MUTED }}>Event tools</div>
-            <EventToolsGrid slug={slug} features={ep?.features ?? {}} />
-          </div>
-        )}
       </div>
 
       {/* ── QR fullscreen ── */}

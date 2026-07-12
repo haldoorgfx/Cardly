@@ -25,9 +25,19 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
   const admin = createAdminClient();
 
+  // Feedback opens once the event has started — OR as soon as the attendee has
+  // been checked in (they've clearly attended, e.g. rolling / early check-in),
+  // regardless of the scheduled start date.
   const { data: epFb } = await admin.from('event_pages').select('starts_at').eq('event_id', params.id).maybeSingle();
   if (epFb?.starts_at && new Date(epFb.starts_at) > new Date()) {
-    return NextResponse.json({ error: 'Feedback is not available yet — the event has not started' }, { status: 422 });
+    const { data: regRow } = await admin
+      .from('registrations')
+      .select('status')
+      .eq('id', registration_id)
+      .maybeSingle();
+    if (regRow?.status !== 'checked_in') {
+      return NextResponse.json({ error: 'Feedback opens once the event begins.' }, { status: 422 });
+    }
   }
 
   const { error } = await admin

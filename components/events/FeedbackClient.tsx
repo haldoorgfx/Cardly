@@ -101,7 +101,10 @@ export default function FeedbackClient({ eventId, eventTitle, registrationId, at
           comment,
         }),
       });
-      if (!res.ok) throw new Error('Submission failed.');
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error ?? 'Submission failed.');
+      }
       setSubmitted(true);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Something went wrong.');

@@ -186,7 +186,6 @@ const USER_NAV_GROUPS: NavGroup[] = [
     { href: '/my-tickets', label: 'Tickets', icon: <Ticket size={15} strokeWidth={1.8} />, matchPrefix: true, flag: 'tickets' },
     { href: '/my-cards',   label: 'My Cards',  icon: <IdCard size={15} strokeWidth={1.8} />, flag: 'tickets' },
     { href: '/saved',      label: 'Saved',     icon: <Heart size={15} strokeWidth={1.8} /> },
-    { href: '/discover',   label: 'Discover',  icon: <Globe size={15} strokeWidth={1.8} />, matchPrefix: true },
   ]},
   { key: 'organizing', title: 'Organizing', flag: 'organizing', collapsible: true, items: [
     { href: '/dashboard',  label: 'Events',    icon: <LayoutGrid size={15} strokeWidth={1.8} />, matchPrefix: true },
@@ -618,6 +617,7 @@ function CommandPalette({ onClose }: { onClose: () => void }) {
   }, [results, selected, navigate, onClose]);
 
   const quickActions = [
+    { label: 'Discover events', href: '/discover',         icon: <Globe size={13} strokeWidth={1.8} /> },
     { label: 'New event',       href: '/events/new',       icon: <Plus size={13} strokeWidth={1.8} /> },
     { label: 'My Events',       href: '/dashboard',        icon: <LayoutGrid size={13} strokeWidth={1.8} /> },
     { label: 'Analytics',       href: '/analytics',        icon: <TrendingUp size={13} strokeWidth={1.8} /> },

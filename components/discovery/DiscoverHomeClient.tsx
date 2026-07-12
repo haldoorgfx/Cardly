@@ -58,13 +58,6 @@ type FormatValue = (typeof FORMAT_OPTIONS)[number]['value'];
 const HOST_BG = ['#1F4D3A', '#163828', '#2A6A50', '#3E7E5E', '#C9A45E', '#245C44'];
 const NO_EVENTS: EventPage[] = [];
 
-const STATS = [
-  { v: '12,500+', l: 'Events',    s: 'Across all categories',   path: 'M3 4h18a2 2 0 012 2v14a2 2 0 01-2 2H3a2 2 0 01-2-2V6a2 2 0 012-2zM1 9h22M8 2v4M16 2v4' },
-  { v: '58,000+', l: 'Attendees', s: 'Joining experiences',     path: 'M16 11l2 2 4-4M3 20c0-3 2.7-5 6-5s6 2 6 5M9 12a4 4 0 100-8 4 4 0 000 8z' },
-  { v: '1,200+',  l: 'Hosts',     s: 'Creating amazing events', path: 'M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6l8-4zM9 12l2 2 4-4' },
-  { v: '45+',     l: 'Cities',    s: 'Worldwide',               path: 'M12 21a9 9 0 100-18 9 9 0 000 18zM3 12h18M12 3a14 14 0 010 18 14 14 0 010-18z' },
-];
-
 // Category tiles — on-brand only: forest-soft + gold-soft tints, neutral for "More".
 const CATS_TILES = [
   { n: 'Tech',      cat: 'Tech',      bg: '#E8EFEB', fg: '#1F4D3A', path: 'M8 9l-3 3 3 3M16 9l3 3-3 3M13 6l-2 12' },
@@ -439,26 +432,6 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents, ban
           <AdminPromoBanner banner={promoBanner} onCta={() => onBannerCta(promoBanner)} />
         </Band>
       )}
-
-      {/* ── Stats ───────────────────────────────────────────── */}
-      <Band bg="#FAF6EE" divider={false}>
-        <div className="grid grid-cols-2 lg:grid-cols-4 overflow-hidden rounded-2xl" style={{ border: '1px solid #E5E0D4', gap: 1, background: '#E5E0D4' }}>
-          {STATS.map(s => (
-            <div key={s.l} className="flex items-center gap-4 px-5 py-5" style={{ background: '#FFFFFF' }}>
-              <div className="w-[52px] h-[52px] rounded-[14px] flex items-center justify-center shrink-0" style={{ background: '#1F4D3A' }}>
-                <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke="#E8C57E" strokeWidth="1.7">
-                  <path d={s.path} />
-                </svg>
-              </div>
-              <div className="min-w-0">
-                <div className="font-display font-semibold text-[22px] leading-none" style={{ color: '#0F1F18', letterSpacing: '-0.01em' }}>{s.v}</div>
-                <div className="font-display font-medium text-[13px] mt-1" style={{ color: '#0F1F18' }}>{s.l}</div>
-                <div className="text-[11px] mt-0.5 truncate" style={{ color: '#6B7A72' }}>{s.s}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </Band>
 
       {/* ── Explore by category ─────────────────────────────── */}
       <Band bg="#FAF6EE">
