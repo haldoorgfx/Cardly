@@ -5,6 +5,7 @@ import Link from 'next/link';
 import {
   Layout, Ticket, Users, CalendarDays, User, ScanLine, Bell,
   Network, MessageSquare, Trophy, Briefcase, BarChart2, Video, Sparkles,
+  Utensils, Wallet, ScrollText, TicketCheck, Activity, CalendarRange,
 } from 'lucide-react';
 import { UpgradeSlideOver, type UpgradeFeature } from '@/components/app/UpgradeSlideOver';
 
@@ -35,6 +36,12 @@ const ICON_MAP: Record<string, React.ReactNode> = {
   chart:     <BarChart2 size={18} strokeWidth={1.8} />,
   video:     <Video size={18} strokeWidth={1.8} />,
   sparkles:  <Sparkles size={18} strokeWidth={1.8} />,
+  entitlements: <TicketCheck size={18} strokeWidth={1.8} />,
+  catering:  <Utensils size={18} strokeWidth={1.8} />,
+  cash:      <Wallet size={18} strokeWidth={1.8} />,
+  audit:     <ScrollText size={18} strokeWidth={1.8} />,
+  redemption: <Activity size={18} strokeWidth={1.8} />,
+  multiday:  <CalendarRange size={18} strokeWidth={1.8} />,
 };
 
 interface Props {
