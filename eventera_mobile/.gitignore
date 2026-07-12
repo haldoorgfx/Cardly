@@ -46,3 +46,8 @@ app.*.map.json
 
 # Supabase keys (local only)
 /lib/supabase_config.dart
+
+# Release signing — NEVER commit
+/android/key.properties
+/android/*.jks
+/android/*.keystore

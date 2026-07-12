@@ -156,6 +156,13 @@ function CardPreview({ id }: { id: string }) {
           alt={person.name}
           style={{ width:'100%', height:'100%', objectFit:'cover', display:'block' }}
           loading="lazy"
+          onError={(e) => {
+            // These are third-party preview photos — if the host is down, fall
+            // back to an initials avatar so the gallery never shows a broken image.
+            const initials = person.name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+            const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><rect width='120' height='120' fill='${accent}'/><text x='50%' y='50%' dy='.35em' text-anchor='middle' font-family='sans-serif' font-size='44' fill='white'>${initials}</text></svg>`;
+            (e.currentTarget as HTMLImageElement).src = `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+          }}
         />
       </div>
 

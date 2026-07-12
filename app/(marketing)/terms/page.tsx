@@ -1,3 +1,10 @@
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Terms of Service',
+  description: 'The terms governing your use of Eventera.',
+};
+
 export default function TermsPage() {
   return (
     <>

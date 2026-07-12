@@ -7,6 +7,25 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:135856716156:android:c9d423972856a0391d8cf9",
+        "android_client_info": {
+          "package_name": "com.cre8so.eventera"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDY9ikefjHsJ-5tp8zZrAzuEYlWIWRlpdk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:135856716156:android:0d5057e44f9519e31d8cf9",
         "android_client_info": {
           "package_name": "com.example.eventera_mobile"
