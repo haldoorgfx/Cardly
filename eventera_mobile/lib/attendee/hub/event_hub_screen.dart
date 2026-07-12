@@ -541,7 +541,7 @@ class _EventHubScreenState extends State<EventHubScreen> {
     final slug = (page?.customSlug ?? '').isNotEmpty
         ? page!.customSlug!
         : widget.slug;
-    final link = 'https://eventera.app/e/$slug';
+    final link = 'https://eventera.so/e/$slug';
     try {
       await Clipboard.setData(ClipboardData(text: link));
       await Share.share(link);

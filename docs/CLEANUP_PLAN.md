@@ -20,11 +20,11 @@ Source: `docs/AUDIT_REPORT.md` (2026-06-26). Reference blueprint: `docs/EVENTERA
 - Fix: Decide the provider strategy (keep Gemini for ERA + Anthropic for copilot, or unify). Set the chosen key(s) in env. Make ERA fail gracefully — replace `process.env.GOOGLE_AI_KEY!` non-null assertion with a guarded check returning the PRD's "friendly fallback, never raw error." Update PRD to reflect both providers.
 - Complexity: **Low–Medium**.
 
-**3. Finish the domain migration off `karta.cre8so.com`**
+**3. Finish the domain migration off `eventera.so`**
 - Issue: Old domain + a stale `app.karta.co` are hardcoded in user-facing strings, PDF footers, the developer API base URL, white-label CNAME, and DMCA emails.
-- Files (non-exhaustive — grep `karta.cre8so.com` and `app.karta.co` across `app/`):
+- Files (non-exhaustive — grep `eventera.so` and `app.karta.co` across `app/`):
   `app/(app)/events/[id]/promoter-links/page.tsx:50`, `.../revenue/print/page.tsx:151`, `.../roster/print/page.tsx:145`, `app/(app)/settings/DeveloperTab.tsx:63`, `app/(app)/settings/WhiteLabelTab.tsx:207`, `app/(marketing)/about/page.tsx:12,843`, `app/(marketing)/dmca/page.tsx:46–61`, `app/(marketing)/features/*`, plus `lib/email/*` and `app/layout.tsx` metadata/canonical.
-- Fix: Centralize the base URL on `process.env.NEXT_PUBLIC_APP_URL` (already referenced) and a single `SITE_DOMAIN` constant; replace all hardcoded strings. Set the env to the final domain (`eventera.app` or whichever is live). Update email from-address/links and `RESEND_FROM_EMAIL` to a verified Eventera domain. Fix the mojibake flag in `about/page.tsx:843`.
+- Fix: Centralize the base URL on `process.env.NEXT_PUBLIC_APP_URL` (already referenced) and a single `SITE_DOMAIN` constant; replace all hardcoded strings. Set the env to the final domain (`eventera.so` or whichever is live). Update email from-address/links and `RESEND_FROM_EMAIL` to a verified Eventera domain. Fix the mojibake flag in `about/page.tsx:843`.
 - Complexity: **Medium** (many files, but mechanical).
 
 **4. Configure and verify payments end-to-end**

@@ -133,7 +133,7 @@ function HelpCenter() {
               ))}
             </div>
             <p className="mt-3 text-[12px]" style={{ color: '#6B7A72' }}>
-              Don&apos;t see your question? <a href="mailto:hello@cre8so.com" className="underline" style={{ color: '#1F4D3A' }}>Email our team</a> and we&apos;ll help.
+              Don&apos;t see your question? <a href="mailto:hello@eventera.so" className="underline" style={{ color: '#1F4D3A' }}>Email our team</a> and we&apos;ll help.
             </p>
           </div>
         )}
@@ -143,7 +143,7 @@ function HelpCenter() {
           <h3 className="font-display font-bold text-[20px] mb-2" style={{ color: '#FAF6EE' }}>Still need help?</h3>
           <p className="text-[13px] mb-5" style={{ color: 'rgba(250,246,238,0.7)' }}>We read every message. Usually reply within a few hours.</p>
           <a
-            href="mailto:hello@cre8so.com"
+            href="mailto:hello@eventera.so"
             className="inline-flex items-center gap-2 h-10 px-6 rounded-full text-[13px] font-medium"
             style={{ background: '#E8C57E', color: '#1F4D3A' }}
           >
@@ -248,7 +248,7 @@ function LegalTab() {
     { title: 'Overview', body: 'Eventera is an event management platform operated by Cre8so. We collect information you provide when creating events, registering for events, or using our services. This policy explains what we collect, why, and how you can control it.' },
     { title: 'What we collect', body: 'We collect: account information (name, email, password hash), event data you create, registration data for events you attend, payment information processed through Stripe or Flutterwave (we do not store card numbers), and usage data to improve the platform.' },
     { title: 'How we use your data', body: 'We use your data to: provide and improve our services, send transactional emails (registration confirmations, event reminders), process payments, and comply with legal obligations. We do not sell your personal data to third parties.' },
-    { title: 'Your rights', body: 'You may request access to, correction of, or deletion of your personal data at any time by emailing privacy@cre8so.com. We will respond within 30 days. You may also export your data from your account settings.' },
+    { title: 'Your rights', body: 'You may request access to, correction of, or deletion of your personal data at any time by emailing privacy@eventera.so. We will respond within 30 days. You may also export your data from your account settings.' },
   ];
 
   const TERMS = [

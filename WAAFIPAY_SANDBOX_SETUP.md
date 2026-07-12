@@ -8,7 +8,7 @@ Everything needed to test mobile-money payments. The **secret keys live only on 
 
 ## 1. Backend environment variables
 
-Add these four to the deployment the app talks to (currently `karta.cre8so.com` on Vercel):
+Add these four to the deployment the app talks to (currently `eventera.so` on Vercel):
 
 ```
 WAAFIPAY_MERCHANT_UID=M0912255

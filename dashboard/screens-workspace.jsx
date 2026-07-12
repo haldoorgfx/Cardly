@@ -93,10 +93,10 @@ function BrandKitPage() {
 
 function TeamPage({ onModal }) {
   const members = [
-    { n: "Adaeze Okafor", e: "adaeze@karta.app", role: "Owner", events: "All events", status: "Active", g: "linear-gradient(135deg,#2A6A50,#C9A45E)" },
-    { n: "Emeka Nwosu", e: "emeka@karta.app", role: "Admin", events: "All events", status: "Active", g: "linear-gradient(135deg,#1F4D3A,#2A6A50)" },
-    { n: "Zainab Bello", e: "zainab@karta.app", role: "Editor", events: "2 events", status: "Active", g: "linear-gradient(135deg,#163828,#3E7E5E)" },
-    { n: "David Mwangi", e: "david@karta.app", role: "Check-in staff", events: "Africa Tech Fest", status: "Active", g: "linear-gradient(135deg,#3E7E5E,#C9A45E)" },
+    { n: "Adaeze Okafor", e: "adaeze@eventera.so", role: "Owner", events: "All events", status: "Active", g: "linear-gradient(135deg,#2A6A50,#C9A45E)" },
+    { n: "Emeka Nwosu", e: "emeka@eventera.so", role: "Admin", events: "All events", status: "Active", g: "linear-gradient(135deg,#1F4D3A,#2A6A50)" },
+    { n: "Zainab Bello", e: "zainab@eventera.so", role: "Editor", events: "2 events", status: "Active", g: "linear-gradient(135deg,#163828,#3E7E5E)" },
+    { n: "David Mwangi", e: "david@eventera.so", role: "Check-in staff", events: "Africa Tech Fest", status: "Active", g: "linear-gradient(135deg,#3E7E5E,#C9A45E)" },
     { n: "invited@partner.org", e: "Pending invite", role: "Editor", events: "1 event", status: "Pending", g: "linear-gradient(135deg,#A8C2B5,#6B7A72)" },
   ];
   const roleTone = { Owner: "gold", Admin: "forest", Editor: "neutral", "Check-in staff": "neutral" };
@@ -223,7 +223,7 @@ function SettingsAccount() {
         </div>
         <div className="grid sm:grid-cols-2 gap-4">
           <Field label="Full name" value="Adaeze Okafor" />
-          <Field label="Email" value="adaeze@karta.app" mono />
+          <Field label="Email" value="adaeze@eventera.so" mono />
           <Field label="Organization" value="Karta Events Co." />
           <Field label="Role" value="Owner" />
         </div>

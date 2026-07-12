@@ -1,8 +1,8 @@
 /// Extracts an event slug from an incoming deep link or pasted text.
 ///
 /// Handles:
-///   https://eventera.app/c/<slug>            (App Link)
-///   https://eventera.app/c/<slug>/<variant>  (slug is the first segment)
+///   https://eventera.so/c/<slug>            (App Link)
+///   https://eventera.so/c/<slug>/<variant>  (slug is the first segment)
 ///   eventera://c/<slug>                       (custom scheme, easy to test)
 ///   eventera://<slug>
 ///   a bare slug typed by the user

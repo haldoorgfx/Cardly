@@ -77,7 +77,7 @@ Future<void> exportEventToCalendar({
     endUtc = end.toUtc();
   }
 
-  final uid = 'eventera-${now.millisecondsSinceEpoch}@eventera.app';
+  final uid = 'eventera-${now.millisecondsSinceEpoch}@eventera.so';
 
   // Fold the event URL into the description so calendar apps that ignore the
   // URL property still surface the link.

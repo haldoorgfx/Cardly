@@ -14,7 +14,7 @@ class HelpSupportScreen extends StatelessWidget {
   const HelpSupportScreen({super.key});
 
   // Canonical support address (matches the web app).
-  static const String _supportEmail = 'hello@cre8so.com';
+  static const String _supportEmail = 'hello@eventera.so';
 
   // A handful of common questions, kept short and answerable in-app so the
   // screen is useful offline / without opening a browser.

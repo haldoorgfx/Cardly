@@ -128,9 +128,9 @@ function SavedReports() {
 
 function ScheduledReports() {
   const seed = [
-    { name: "Weekly revenue digest", to: "finance@karta.app", freq: "Every Monday · 8am", on: true },
-    { name: "Daily registration count", to: "team@karta.app", freq: "Daily · 6pm", on: true },
-    { name: "Post-event full export", to: "adaeze@karta.app", freq: "1 day after event", on: false },
+    { name: "Weekly revenue digest", to: "finance@eventera.so", freq: "Every Monday · 8am", on: true },
+    { name: "Daily registration count", to: "team@eventera.so", freq: "Daily · 6pm", on: true },
+    { name: "Post-event full export", to: "adaeze@eventera.so", freq: "1 day after event", on: false },
   ];
   const [items, setItems] = React.useState(seed);
   const toggle = (i) => setItems((a) => a.map((x, j) => j === i ? { ...x, on: !x.on } : x));

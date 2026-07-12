@@ -108,7 +108,7 @@ class _AttendeeHomeScreenState extends State<AttendeeHomeScreen> {
                   textInputAction: TextInputAction.go,
                   onSubmitted: (_) => _open(),
                   decoration: const InputDecoration(
-                    hintText: 'eventera.app/c/your-event  or  your-event',
+                    hintText: 'eventera.so/c/your-event  or  your-event',
                     prefixIcon: Icon(Icons.link, color: Brand.muted),
                   ),
                 ),

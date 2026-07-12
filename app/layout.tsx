@@ -7,7 +7,7 @@ import { PostHogProvider } from "@/components/shared/PostHogProvider";
 import { CrispChat } from "@/components/shared/CrispChat";
 import { Suspense } from "react";
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://eventera.app";
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://eventera.so";
 
 export const metadata: Metadata = {
   metadataBase: new URL(APP_URL),

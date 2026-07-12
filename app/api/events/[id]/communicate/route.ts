@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { Resend } from 'resend';
 
-const FROM = process.env.RESEND_FROM_EMAIL ?? 'noreply@karta.cre8so.com';
+const FROM = process.env.RESEND_FROM_EMAIL ?? 'noreply@eventera.so';
 
 function getResend() {
   const key = process.env.RESEND_API_KEY;

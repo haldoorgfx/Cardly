@@ -192,7 +192,7 @@ const FAQS: FAQ[] = [
   },
   {
     q: 'Can I pay annually by bank transfer or mobile money?',
-    a: 'Yes. Studio annual plans accept SWIFT bank transfer (USD/EUR/GBP), M-Pesa, MTN MoMo, and Paystack. Email billing@cre8so.com to set it up.',
+    a: 'Yes. Studio annual plans accept SWIFT bank transfer (USD/EUR/GBP), M-Pesa, MTN MoMo, and Paystack. Email billing@eventera.so to set it up.',
   },
   {
     q: 'Do you have an enterprise plan?',

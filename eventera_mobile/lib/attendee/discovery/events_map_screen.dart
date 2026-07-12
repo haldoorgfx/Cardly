@@ -182,7 +182,7 @@ class _EventsMapScreenState extends State<EventsMapScreen> {
                         TileLayer(
                           urlTemplate:
                               'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                          userAgentPackageName: 'com.eventera.app',
+                          userAgentPackageName: 'com.eventera.so',
                           maxNativeZoom: 19,
                         ),
                         MarkerLayer(

@@ -58,7 +58,7 @@ function AccountMenu({ open, onClose, plan }) {
         <Avatar initials="AO" size={40} />
         <div className="min-w-0">
           <div className="text-[13.5px] font-semibold text-ink leading-tight truncate">Adaeze Okafor</div>
-          <div className="font-mono text-[11px] text-muted truncate">adaeze@karta.app</div>
+          <div className="font-mono text-[11px] text-muted truncate">adaeze@eventera.so</div>
         </div>
       </div>
       <div className="py-1.5">

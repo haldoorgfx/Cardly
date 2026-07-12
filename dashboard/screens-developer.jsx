@@ -168,7 +168,7 @@ function WhiteLabelPage() {
           <Field label="Your domain" value="events.yourbrand.com" mono />
           <Pill tone="green" dot="#2D7A4F" className="mb-2.5">DNS verified</Pill>
         </div>
-        <div className="mt-3 font-mono text-[11.5px] text-muted">Attendees see your domain instead of karta.app — on event pages and Karta Cards.</div>
+        <div className="mt-3 font-mono text-[11.5px] text-muted">Attendees see your domain instead of eventera.so — on event pages and Karta Cards.</div>
       </Panel>
       <Panel title="Branding" className="mb-5">
         <div className="grid gap-3.5">

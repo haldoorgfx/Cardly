@@ -1223,7 +1223,7 @@ export function AppShell({ children, initialSections, initialProfile, initialEve
                         <div className="mx-3 my-1.5 h-px" style={{ background: '#E5E0D4' }} />
 
                         {[
-                          { href: 'https://help.karta.app', icon: <HelpCircle size={14} strokeWidth={1.8} />, label: 'Help center' },
+                          { href: 'https://help.eventera.so', icon: <HelpCircle size={14} strokeWidth={1.8} />, label: 'Help center' },
                         ].map(item => (
                           <a key={item.label} href={item.href} target="_blank" rel="noopener noreferrer"
                             onClick={() => setAccountMenuOpen(false)}

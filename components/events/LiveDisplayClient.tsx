@@ -164,7 +164,7 @@ export function LiveDisplayClient({ eventId, sessionLabel, initialQuestions, act
             SUBMIT YOUR QUESTION
           </div>
           <div className="text-[20px] font-display font-bold" style={{ color: '#E8C57E' }}>
-            karta.app/q
+            eventera.so/q
           </div>
         </div>
         <div className="flex gap-2">

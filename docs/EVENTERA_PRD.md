@@ -40,7 +40,7 @@
 **Stage:** Built, pre-launch
 **Stack:** Next.js 14 / Supabase / Vercel / Stripe + Flutterwave
 **Repository:** github.com/haldoorgfx/Cardly (master branch)
-**Live URL:** karta.cre8so.com (pending domain migration to eventera.app)
+**Live URL:** eventera.so (pending domain migration to eventera.so)
 **Company:** Wyoming LLC, founder based in Djibouti
 
 **What Eventera is:**
@@ -344,7 +344,7 @@ Sign up / Log in
 
 ## Flow 2: Attendee Discovers and Registers
 ```
-Visits eventera.app (or direct link)
+Visits eventera.so (or direct link)
   → Discovery feed or direct event URL
     → Public event page (/e/[slug])
       → Views event details, agenda, speakers
@@ -727,8 +727,8 @@ GitHub (master branch)
     → Vercel (auto-deploy on push)
         → Next.js App (Edge + Node.js runtime)
         → Environment variables (production)
-        → Custom domain: eventera.app
-            → karta.cre8so.com (current)
+        → Custom domain: eventera.so
+            → eventera.so (current)
 ```
 
 ## Data Flow
@@ -1192,7 +1192,7 @@ Database queries          < 100ms (with indexes)
 7. **Attendee accounts** — persistent cross-event identity not fully built
 8. **Flutter mobile app** — not yet started
 9. **.clone and .claire directories** — tracked in git, should be in .gitignore
-10. **Domain migration** — still on karta.cre8so.com, needs eventera.app
+10. **Domain migration** — still on eventera.so, needs eventera.so
 
 ## Nice to Have
 11. **Sentry deprecation warnings** — sentry.client.config.ts rename
@@ -1210,7 +1210,7 @@ Database queries          < 100ms (with indexes)
 - [ ] Verify Stripe live mode end-to-end
 - [ ] Fix Upstash Edge Runtime issue
 - [ ] Clean .gitignore
-- [ ] Migrate to eventera.app domain
+- [ ] Migrate to eventera.so domain
 - [ ] Full end-to-end audit and bug fixes
 
 ## Phase 1 — Soft Launch (Month 1)
@@ -1258,7 +1258,7 @@ Database queries          < 100ms (with indexes)
 - [ ] Flutterwave in LIVE mode
 - [ ] GOOGLE_AI_KEY in Vercel
 - [ ] Resend domain verified for emails
-- [ ] Custom domain eventera.app pointed to Vercel
+- [ ] Custom domain eventera.so pointed to Vercel
 - [ ] SSL certificate active
 - [ ] Error monitoring (Sentry) active
 
@@ -1271,8 +1271,8 @@ Database queries          < 100ms (with indexes)
 - [ ] Apple Developer account ($99/yr)
 - [ ] Google Play Console account ($25)
 - [ ] Social media handles secured (@eventera)
-- [ ] hello@eventera.app email working
-- [ ] support@eventera.app email working
+- [ ] hello@eventera.so email working
+- [ ] support@eventera.so email working
 - [ ] Trademark search completed
 
 ## Product

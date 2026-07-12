@@ -127,7 +127,7 @@ export default function PrivacyPage() {
             </p>
             <p className="mt-3">
               If you are an attendee who submitted data through an Eventera event
-              and want that data removed, email us at hello@cre8so.com with the
+              and want that data removed, email us at hello@eventera.so with the
               event name.
             </p>
           </section>
@@ -139,10 +139,10 @@ export default function PrivacyPage() {
             <p>
               Privacy questions:{" "}
               <a
-                href="mailto:hello@cre8so.com"
+                href="mailto:hello@eventera.so"
                 className="text-brand-primary hover:underline"
               >
-                hello@cre8so.com
+                hello@eventera.so
               </a>
               . We&apos;re a small team and we reply to every message.
             </p>

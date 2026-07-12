@@ -44,8 +44,8 @@ export async function POST(request: Request) {
 
   try {
     await resend.emails.send({
-      from:    'Eventera Contact <noreply@karta.cre8so.com>',
-      to:      ['hello@cre8so.com'],
+      from:    'Eventera Contact <noreply@eventera.so>',
+      to:      ['hello@eventera.so'],
       replyTo: email,
       subject: `[Contact] ${topic ? `${safeTopic} — ` : ''}${safeName}`,
       html: `
@@ -57,7 +57,7 @@ export async function POST(request: Request) {
     });
 
     await resend.emails.send({
-      from:    'Eventera <noreply@karta.cre8so.com>',
+      from:    'Eventera <noreply@eventera.so>',
       to:      [email],
       subject: 'We got your message',
       html: `

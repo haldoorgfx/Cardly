@@ -35,7 +35,7 @@ Cardly→Eventera rebrand and references `cardly.app`).
 
 1. **Set the missing production env vars in Vercel**, especially the 4 `STRIPE_PRICE_*`
    IDs (subscription checkout is dead without them) and `GOOGLE_AI_KEY` (ERA features).
-2. **Domain**: decide `karta.cre8so.com` vs `eventera.so`. Everything reads
+2. **Domain**: decide `eventera.so` vs `eventera.so`. Everything reads
    `NEXT_PUBLIC_APP_URL`, so it's a one-var + DNS change. Also update the 3 contact
    emails (`noreply@`, `dmca@`, `support@`) if the email domain moves.
 3. **Payments live-mode smoke test** — run one real Stripe, one Flutterwave, and one

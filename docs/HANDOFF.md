@@ -4,7 +4,7 @@ Read this + CLAUDE.md + docs/SYSTEM_MAP.md at session start.
 
 ## Where things stand
 
-Everything below is DEPLOYED and LIVE on karta.cre8so.com (Vercel, production
+Everything below is DEPLOYED and LIVE on eventera.so (Vercel, production
 branch `master`, tip commit `9e496bc`). `next-improvements` is synced to the
 same commit. Verified live in the browser, page by page.
 
@@ -57,7 +57,7 @@ same commit. Verified live in the browser, page by page.
 ## Next fronts (pick one per session)
 1. **Flutter mobile app** (eventera_mobile/) — v1 build; blocked on Android
    Studio install (see MOBILE_SETUP.md). Talks directly to same Supabase.
-2. **Domain migration** karta.cre8so.com → eventera.so — change
+2. **Domain migration** eventera.so → eventera.so — change
    NEXT_PUBLIC_APP_URL (everything already reads the env var) + DNS + Vercel
    domain.
 3. **Deferred consistency work** (see CONSISTENCY_AUDIT.md): fonts →
@@ -68,7 +68,7 @@ same commit. Verified live in the browser, page by page.
 
 ## Working notes for the agent (important)
 - METHOD THAT WORKS: audit LIVE in the browser (Claude in Chrome on
-  karta.cre8so.com or localhost:3000), screenshot, then fix. Static code
+  eventera.so or localhost:3000), screenshot, then fix. Static code
   review misses what rendering reveals.
 - Windows/pnpm repo: agent sandbox cannot run the user's node_modules or
   push to GitHub (credentials live in Windows). User runs `pnpm build` and

@@ -11,7 +11,7 @@ function getResend() {
   return new Resend(key);
 }
 
-const FROM_EMAIL = process.env.RESEND_FROM_EMAIL ?? 'noreply@karta.cre8so.com';
+const FROM_EMAIL = process.env.RESEND_FROM_EMAIL ?? 'noreply@eventera.so';
 
 // ── White-label branding ───────────────────────────────────────────────────────
 
@@ -93,7 +93,7 @@ export interface RegistrationConfirmEmailParams {
 
 export async function sendRegistrationConfirmEmail(params: RegistrationConfirmEmailParams) {
   const brand = await resolveBrand(params.eventId);
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://karta.cre8so.com';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://eventera.so';
   await send(brand, {
     to: params.to,
     subject: `You're registered for ${params.eventTitle}`,
@@ -183,7 +183,7 @@ export interface WaitlistConfirmEmailParams {
 
 export async function sendWaitlistConfirmEmail(params: WaitlistConfirmEmailParams) {
   const brand = await resolveBrand(params.eventId);
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://karta.cre8so.com';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://eventera.so';
   await send(brand, {
     to: params.to,
     subject: `You're #${params.position} on the waitlist for ${params.eventTitle}`,
@@ -204,7 +204,7 @@ export interface WaitlistInviteEmailParams {
 
 export async function sendWaitlistInviteEmail(params: WaitlistInviteEmailParams) {
   const brand = await resolveBrand(params.eventId);
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://karta.cre8so.com';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://eventera.so';
   await send(brand, {
     to: params.to,
     subject: `A spot opened up — register now for ${params.eventTitle}`,
@@ -290,7 +290,7 @@ export interface ApprovalEmailParams {
 
 export async function sendPendingApprovalEmail(params: ApprovalEmailParams) {
   const brand = await resolveBrand(params.eventId);
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://karta.cre8so.com';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://eventera.so';
   await send(brand, {
     to: params.to,
     subject: `Your registration for ${params.eventTitle} is pending approval`,
@@ -314,7 +314,7 @@ export async function sendPendingApprovalEmail(params: ApprovalEmailParams) {
 
 export async function sendApprovedEmail(params: ApprovalEmailParams & { qrCodeUrl: string }) {
   const brand = await resolveBrand(params.eventId);
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://karta.cre8so.com';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://eventera.so';
   await send(brand, {
     to: params.to,
     subject: `You're approved — see you at ${params.eventTitle}!`,
@@ -338,7 +338,7 @@ export async function sendApprovedEmail(params: ApprovalEmailParams & { qrCodeUr
 
 export async function sendDeniedEmail(params: ApprovalEmailParams) {
   const brand = await resolveBrand(params.eventId);
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://karta.cre8so.com';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://eventera.so';
   await send(brand, {
     to: params.to,
     subject: `Update on your registration for ${params.eventTitle}`,
@@ -359,7 +359,7 @@ export async function sendDeniedEmail(params: ApprovalEmailParams) {
 
 export async function sendTransferEmail(params: { to: string; name: string; eventTitle: string; eventSlug: string; qrCodeUrl: string; eventId?: string }) {
   const brand = await resolveBrand(params.eventId);
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://karta.cre8so.com';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://eventera.so';
   await send(brand, {
     to: params.to,
     subject: `You've received a ticket for ${params.eventTitle}`,

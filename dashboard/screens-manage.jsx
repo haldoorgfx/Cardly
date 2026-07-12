@@ -207,7 +207,7 @@ function EventPageEditor({ event }) {
         <div className="bg-surface border border-border rounded-2xl overflow-hidden">
           <div className="h-9 bg-cream border-b border-border flex items-center gap-2 px-4">
             <span className="flex gap-1.5">{[0, 1, 2].map((i) => <span key={i} className="w-2 h-2 rounded-full bg-ink/15" />)}</span>
-            <div className="ml-2 flex-1 max-w-[280px] h-5 rounded bg-surface border border-border flex items-center px-2 font-mono text-[10px] text-muted">karta.app/{event.slug}</div>
+            <div className="ml-2 flex-1 max-w-[280px] h-5 rounded bg-surface border border-border flex items-center px-2 font-mono text-[10px] text-muted">eventera.so/{event.slug}</div>
           </div>
           <div className="max-h-[560px] overflow-y-auto">
             {/* cover */}

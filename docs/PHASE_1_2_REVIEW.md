@@ -101,7 +101,7 @@ Each is a clean commit; none adds a feature; all are "consolidate and correct."
 ## Honest caveat on my own review
 
 I verified structure, routing, role wiring, and component adoption by reading the
-code at `HEAD`. I did **not** click through the live site at `karta.cre8so.com` in a
+code at `HEAD`. I did **not** click through the live site at `eventera.so` in a
 browser this pass — the handoff's own method note says rendering reveals things static
 review misses. If you want, the next step is a live `/design-review`-style walk of
 5–6 key pages (organizer dashboard vs. my-tickets vs. speaking) side-by-side to

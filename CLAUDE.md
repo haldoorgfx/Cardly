@@ -8,7 +8,7 @@
 
 Eventera is a full event management platform and marketplace. Organizers create and manage events of any type — conferences, NGO gatherings, corporate events, festivals. Attendees discover events in their city and register. The signature differentiator is the **Eventera Card**: a personalized, branded card auto-generated for every registered attendee. No other event platform does this.
 
-**Stage:** Built, pre-launch. Live at `karta.cre8so.com` (pending migration to `eventera.so`).
+**Stage:** Built, launching. Live at `eventera.so`.
 
 **Primary markets:** Africa — Djibouti, Ethiopia, Kenya, Somalia, UAE. Globally available.
 
@@ -73,10 +73,10 @@ Eventera is a full event management platform and marketplace. Organizers create 
 
 ## Domain & Environment
 
-The app domain is set via `NEXT_PUBLIC_APP_URL`. **Never hardcode domain strings in runtime code.** When the domain migrates from `karta.cre8so.com` to `eventera.so`, one env var change updates everything.
+The app domain is set via `NEXT_PUBLIC_APP_URL`. **Never hardcode domain strings in runtime code.** The live production domain is `eventera.so`; a single env var change moves the whole app to any future domain.
 
 ```env
-NEXT_PUBLIC_APP_URL=https://karta.cre8so.com   # current; change to eventera.so when ready
+NEXT_PUBLIC_APP_URL=https://eventera.so   # live production domain
 ```
 
 All runtime references to the domain must use `process.env.NEXT_PUBLIC_APP_URL`.
@@ -224,7 +224,7 @@ Abdalla is a designer, not a backend engineer. When explaining:
 
 ## Things That Will Break the Build
 
-- Hardcoding `karta.cre8so.com` or any domain in runtime TypeScript/TSX
+- Hardcoding `eventera.so` or any domain in runtime TypeScript/TSX
 - Using browser-based image rendering (html2canvas, dom-to-image)
 - Switching to Pages Router
 - Adding libraries not in the Tech Stack

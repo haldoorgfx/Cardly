@@ -299,7 +299,7 @@ async function seedPricing() {
       { question: 'Can I upgrade or downgrade mid-month?', answer: 'Yes. When you upgrade, you get immediate access to the new plan. When you downgrade, the change takes effect at the start of your next billing cycle.' },
       { question: 'Is there a free trial?', answer: 'Yes. Pro and Studio plans include a 14-day free trial. No credit card required to start.' },
       { question: 'What happens when my free tier event hits 50 cards?', answer: 'New card generation is paused. You can upgrade to Pro at any time to remove the limit retroactively — existing cards are not deleted.' },
-      { question: 'Do you offer discounts for NGOs or educational institutions?', answer: 'Yes. Email hello@cre8so.com with your organization name and use case. We evaluate each case individually.' },
+      { question: 'Do you offer discounts for NGOs or educational institutions?', answer: 'Yes. Email hello@eventera.so with your organization name and use case. We evaluate each case individually.' },
     ],
   };
 
@@ -336,7 +336,7 @@ async function seedHowItWorks() {
     steps: [
       { step: 1, short: 'Upload your design', duration: '~2 min', title: 'Drop in any design. Eventera handles the rest.', body: 'Export from Canva, Figma, Illustrator, Photoshop — anywhere. PNG or JPG, any aspect ratio. We auto-detect the canvas size and place it on the editor at the right scale.', bullets: ['PNG / JPG · up to 20 MB', 'Any aspect ratio · portrait, square, landscape', 'Auto-detected safe area for typography', 'Multiple designs per event (Speaker variant, Sponsor variant)'] },
       { step: 2, short: 'Mark editable zones', duration: '~3 min', title: 'Click to mark where attendees personalize.', body: 'Drop text fields, photo zones, and dropdowns directly on the canvas. Each zone has its own typography, max length, photo shape, and validation. Need different roles? Add variants.', bullets: ['Text · name, role, organization, anything', 'Photo · circle, square, hexagon, rounded — auto crop', 'Dropdown · pick from list (department, country, ticket tier)', 'Variants per event · up to unlimited on Studio'] },
-      { step: 3, short: 'Publish your link', duration: '~30 sec', title: 'One link. WhatsApp, email, QR. No accounts.', body: "Eventera generates a short URL and a QR code for your campaign. Share it however your audience already shares — WhatsApp groups, email blasts, printed flyers, event signage. Attendees never sign up.", bullets: ['Short URL · karta.cre8so.com/your-slug', 'QR code · downloadable PNG and SVG', 'Embed code · drop into any website', 'No attendee account, no app download'] },
+      { step: 3, short: 'Publish your link', duration: '~30 sec', title: 'One link. WhatsApp, email, QR. No accounts.', body: "Eventera generates a short URL and a QR code for your campaign. Share it however your audience already shares — WhatsApp groups, email blasts, printed flyers, event signage. Attendees never sign up.", bullets: ['Short URL · eventera.so/your-slug', 'QR code · downloadable PNG and SVG', 'Embed code · drop into any website', 'No attendee account, no app download'] },
       { step: 4, short: 'Watch your audience share', duration: 'Live', title: 'Track reach as your campaign goes off.', body: "Real-time analytics show how many cards have been generated, where they're being shared, and which variants are performing. Export to CSV or pipe to your data tool via webhook.", bullets: ['Live counter · cards generated, per variant', 'Share platform breakdown · WhatsApp, IG, X, LinkedIn', 'Top sharers · spot your loudest advocates', 'CSV export · or webhook events to your stack'] },
     ],
   };
@@ -424,12 +424,12 @@ async function seedAbout() {
       subtext: "Building Eventera alone for now. If you've worked on African campaigns and want to build the tool you wish existed — let's talk.",
       align: 'left',
     },
-    ctaButton: { label: 'Get in touch', href: 'mailto:hello@cre8so.com', variant: 'primary' },
+    ctaButton: { label: 'Get in touch', href: 'mailto:hello@eventera.so', variant: 'primary' },
     members: [
       { name: 'Abdalla', role: 'Founder', location: 'Djibouti' },
-      { name: 'Open role', role: 'Founding Engineer', location: 'Remote · Africa', is_open_role: true, apply_href: 'mailto:hello@cre8so.com' },
-      { name: 'Open role', role: 'Designer', location: 'Remote · Africa', is_open_role: true, apply_href: 'mailto:hello@cre8so.com' },
-      { name: 'Open role', role: 'Community', location: 'Remote · Africa', is_open_role: true, apply_href: 'mailto:hello@cre8so.com' },
+      { name: 'Open role', role: 'Founding Engineer', location: 'Remote · Africa', is_open_role: true, apply_href: 'mailto:hello@eventera.so' },
+      { name: 'Open role', role: 'Designer', location: 'Remote · Africa', is_open_role: true, apply_href: 'mailto:hello@eventera.so' },
+      { name: 'Open role', role: 'Community', location: 'Remote · Africa', is_open_role: true, apply_href: 'mailto:hello@eventera.so' },
     ],
   };
 
@@ -461,7 +461,7 @@ async function seedAbout() {
     headline: 'Want to talk?',
     subtext: 'We read every email. Press, partnerships, weird ideas, hard problems. Especially the hard problems.',
     buttons: [
-      { label: 'hello@cre8so.com', href: 'mailto:hello@cre8so.com', variant: 'primary' },
+      { label: 'hello@eventera.so', href: 'mailto:hello@eventera.so', variant: 'primary' },
       { label: 'Try the product first', href: '/signup', variant: 'outline' },
     ],
     background: 'default',
@@ -487,7 +487,7 @@ async function seedContact() {
       align: 'left',
     },
     channels: [
-      { icon: 'mail', label: 'Email', href: 'mailto:hello@cre8so.com', description: 'For general questions, feedback, and support.' },
+      { icon: 'mail', label: 'Email', href: 'mailto:hello@eventera.so', description: 'For general questions, feedback, and support.' },
       { icon: 'whatsapp', label: 'WhatsApp', href: '#', description: 'For quick questions and demo requests.' },
     ],
     reasons: [
@@ -553,7 +553,7 @@ async function seedPartners() {
   const cta: CtaContent = {
     headline: 'Interested in partnering?',
     subtext: "Tell us about your use case and we'll figure out the best fit together.",
-    buttons: [{ label: 'Apply to partner', href: 'mailto:partners@cre8so.com', variant: 'primary' }],
+    buttons: [{ label: 'Apply to partner', href: 'mailto:partners@eventera.so', variant: 'primary' }],
     background: 'default',
   };
 
@@ -578,8 +578,8 @@ async function seedPrivacy() {
       { h2: 'Where data is stored', paragraphs: ["We use Supabase for our database and file storage. Files are stored in Supabase's cloud infrastructure. Your account data lives in a Supabase database. You can read Supabase's own privacy policy at supabase.com/privacy."] },
       { h2: 'Cookies', paragraphs: ['We use a session cookie to keep you logged in. We do not use tracking cookies or third-party advertising cookies. We do not run Google Analytics or Facebook Pixel.'] },
       { h2: 'Attendee data retention', paragraphs: ['Attendee names, photos, and generated cards are stored as long as the event exists in your account. When you delete an event, all associated attendee data and generated cards are deleted too.'] },
-      { h2: 'Your rights', paragraphs: ['You can delete your account at any time. When you delete your account, all your events, design files, and associated attendee data are permanently removed. If you want to delete only specific events, you can do that from the dashboard.', 'If you are an attendee who submitted data through an Eventera event and want that data removed, email us at hello@cre8so.com with the event name.'] },
-      { h2: 'Contact', paragraphs: ['Privacy questions: hello@cre8so.com. We\'re a small team and we reply to every message.'] },
+      { h2: 'Your rights', paragraphs: ['You can delete your account at any time. When you delete your account, all your events, design files, and associated attendee data are permanently removed. If you want to delete only specific events, you can do that from the dashboard.', 'If you are an attendee who submitted data through an Eventera event and want that data removed, email us at hello@eventera.so with the event name.'] },
+      { h2: 'Contact', paragraphs: ['Privacy questions: hello@eventera.so. We\'re a small team and we reply to every message.'] },
     ],
   };
 
@@ -599,11 +599,11 @@ async function seedTerms() {
       { h2: 'Your account', paragraphs: ['You must be 18 or older to create an account. You are responsible for keeping your login credentials secure. You are responsible for everything that happens under your account.'] },
       { h2: 'What you can upload', paragraphs: ['You can upload designs that you own or have rights to use. Do not upload designs that infringe on someone else\'s copyright or trademark. Do not upload designs that contain illegal content, hate speech, or material that violates the rights of others.', 'We reserve the right to remove events and designs that violate these terms without notice.'] },
       { h2: 'Attendee data', paragraphs: ['Attendees who use your event link submit their data directly to your event. As the event creator, you are the data controller for that attendee information. You are responsible for informing your attendees about how their data is used.'] },
-      { h2: 'Payments', paragraphs: ['Pro and Studio plans are billed monthly or annually via Stripe. Prices are in USD. We may change pricing with 30 days notice. Refunds are handled case by case — email hello@cre8so.com.'] },
+      { h2: 'Payments', paragraphs: ['Pro and Studio plans are billed monthly or annually via Stripe. Prices are in USD. We may change pricing with 30 days notice. Refunds are handled case by case — email hello@eventera.so.'] },
       { h2: 'Cancellation', paragraphs: ['You can cancel your plan at any time from your billing settings. Cancellation takes effect at the end of your current billing period. Your events and data remain accessible until then.'] },
       { h2: 'Limitation of liability', paragraphs: ['Eventera is provided "as is." We make no warranties about uptime or fitness for a particular purpose. Our liability is limited to what you paid us in the past 12 months.'] },
       { h2: 'Changes to these terms', paragraphs: ['We may update these terms. We\'ll notify you via email at least 14 days before major changes take effect. Continued use of Eventera after that date constitutes acceptance.'] },
-      { h2: 'Contact', paragraphs: ['Legal questions: hello@cre8so.com.'] },
+      { h2: 'Contact', paragraphs: ['Legal questions: hello@eventera.so.'] },
     ],
   };
 

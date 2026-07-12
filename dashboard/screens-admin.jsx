@@ -2,7 +2,7 @@
 
 function AdminUsersPage({ onOpenDetail }) {
   const users = [
-    { n: "Adaeze Okafor", e: "adaeze@karta.app", org: "Karta Events Co.", plan: "pro", events: 4, joined: "Jan 2026", status: "Active", g: "linear-gradient(135deg,#2A6A50,#C9A45E)" },
+    { n: "Adaeze Okafor", e: "adaeze@eventera.so", org: "Karta Events Co.", plan: "pro", events: 4, joined: "Jan 2026", status: "Active", g: "linear-gradient(135deg,#2A6A50,#C9A45E)" },
     { n: "Samuel Adeyemi", e: "sam@paystack.com", org: "Paystack", plan: "studio", events: 11, joined: "Nov 2025", status: "Active", g: "linear-gradient(135deg,#1F4D3A,#2A6A50)" },
     { n: "Grace Wanjiru", e: "grace@safboda.co", org: "SafBoda", plan: "free", events: 1, joined: "Mar 2026", status: "Active", g: "linear-gradient(135deg,#3E7E5E,#C9A45E)" },
     { n: "Ibrahim Toure", e: "ibrahim@wave.com", org: "Wave", plan: "studio", events: 7, joined: "Dec 2025", status: "Active", g: "linear-gradient(135deg,#163828,#3E7E5E)" },
@@ -145,11 +145,11 @@ function AdminChangelogPage() {
 
 function AdminAuditPage() {
   const logs = [
-    ["adaeze@karta.app", "event.published", "Africa Tech Festival 2026", "41.79.x.x", "2 min ago"],
+    ["adaeze@eventera.so", "event.published", "Africa Tech Festival 2026", "41.79.x.x", "2 min ago"],
     ["sam@paystack.com", "api_key.created", "Production key", "102.89.x.x", "18 min ago"],
     ["system", "payout.processed", "₦4.2M · Africa Tech Fest", "—", "1 hr ago"],
     ["chioma@andela.com", "user.suspended", "by admin", "197.210.x.x", "3 hr ago"],
-    ["emeka@karta.app", "team.invited", "zainab@karta.app", "41.79.x.x", "5 hr ago"],
+    ["emeka@eventera.so", "team.invited", "zainab@eventera.so", "41.79.x.x", "5 hr ago"],
     ["grace@safboda.co", "login.failed", "3 attempts", "105.112.x.x", "Yesterday"],
   ];
   const actionTone = (a) => a.includes("failed") || a.includes("suspended") ? "red" : a.includes("created") || a.includes("published") || a.includes("processed") ? "green" : "neutral";

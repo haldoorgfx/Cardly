@@ -235,7 +235,7 @@ function AudienceTab() {
 
 function ChannelsTab() {
   const chans = [
-    { n: "Email", d: "Resend · events@karta.app", ic: "Bell", on: true, note: "Verified sender" },
+    { n: "Email", d: "Resend · events@eventera.so", ic: "Bell", on: true, note: "Verified sender" },
     { n: "WhatsApp", d: "Reminders & tickets via WhatsApp", ic: "Chat", on: true, note: "Twilio connected" },
     { n: "SMS", d: "Text reminders & check-in codes", ic: "Send", on: false, note: "Connect Twilio" },
     { n: "Push notifications", d: "In-app alerts for attendees", ic: "Bell", on: true, note: "Live" },

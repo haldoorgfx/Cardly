@@ -9,7 +9,7 @@ Reference: `docs/EVENTERA_PRD.md` v1.0
 
 Eventera is a large, genuinely impressive full-stack event-management platform — far beyond the original "Eventera Card" MVP. The codebase contains **176 page routes, 147 API routes, 186 components, 49 SQL migrations, and ~50 lib modules**, and it implements essentially every feature in the PRD (F01–F20): events, ticketing, registration/checkout, the signature card, agenda/sessions, speakers, networking, live engagement, check-in, sponsors/exhibitors, analytics, ERA AI, admin panel, teams, and white-label. Code hygiene is good: TypeScript `strict` is on, there are **zero `console.log` and zero TODO/FIXME** left in `app/lib/components`, and RLS is broadly applied (57 `ENABLE ROW LEVEL SECURITY` statements, ~88 policies across ~63 tables).
 
-The platform is **not broken structurally, but it is not launch-ready.** The blockers are operational rather than architectural: three database migrations (041/042/043) are unapplied and *will throw 500s at runtime* (the brand-rename migration 043 is explicitly required), the ERA AI key is absent from the environment, the old domain `karta.cre8so.com` is still hardcoded across user-facing strings and emails, and payment providers are unconfigured/test-mode. Note also that `CLAUDE.md` in the repo root describes the *old, narrow MVP scope* and is now stale relative to the PRD — the PRD is the correct blueprint.
+The platform is **not broken structurally, but it is not launch-ready.** The blockers are operational rather than architectural: three database migrations (041/042/043) are unapplied and *will throw 500s at runtime* (the brand-rename migration 043 is explicitly required), the ERA AI key is absent from the environment, the old domain `eventera.so` is still hardcoded across user-facing strings and emails, and payment providers are unconfigured/test-mode. Note also that `CLAUDE.md` in the repo root describes the *old, narrow MVP scope* and is now stale relative to the PRD — the PRD is the correct blueprint.
 
 > ⚠️ **Verification caveat:** `node_modules` is not installed in the audited workspace (even `next` is absent), so I could not run `pnpm build`, `pnpm audit`, or execute the app. All findings are from static reading of source, migrations, config, and env-key presence. Build-passing and live-mode payment claims must be re-verified in a real environment.
 
@@ -19,7 +19,7 @@ The platform is **not broken structurally, but it is not launch-ready.** The blo
 
 1. **Unapplied migrations 041 → 042 → 043 cause runtime 500s.** `supabase/pending_migrations_to_run.sql` states this directly: until 043 runs, the app reads `eventera_card_url` / `eventera_card_zone_data` columns that don't exist; 042 is needed so refunds/status changes stop failing a check constraint; 041 expands form field types. There is no migration-tracking table visible, so applied state is unknown and must be confirmed against production Supabase.
 2. **ERA AI is unconfigured.** `lib/ai/era.ts` instantiates Gemini with `process.env.GOOGLE_AI_KEY!` (non-null asserted), but `GOOGLE_AI_KEY` is **not** present in `.env.local`. Every ERA call will fail. Separately, `app/api/events/[id]/copilot/route.ts` uses Anthropic (`ANTHROPIC_API_KEY`), so there are now **two** AI providers — the PRD only documents Gemini.
-3. **Domain migration incomplete — `karta.cre8so.com` hardcoded in user-facing text and emails.** Appears in marketing footers, print/PDF footers ("Generated with Eventera · karta.cre8so.com"), the API base URL shown to developers (`https://karta.cre8so.com/api/v1`), the white-label CNAME target, and DMCA contact emails (`dmca@karta.cre8so.com`). Marketing feature pages also show a third stale domain `app.karta.co`.
+3. **Domain migration incomplete — `eventera.so` hardcoded in user-facing text and emails.** Appears in marketing footers, print/PDF footers ("Generated with Eventera · eventera.so"), the API base URL shown to developers (`https://eventera.so/api/v1`), the white-label CNAME target, and DMCA contact emails (`dmca@eventera.so`). Marketing feature pages also show a third stale domain `app.karta.co`.
 4. **Payments cannot be verified / not configured.** No `STRIPE_*`, `FLUTTERWAVE_*`, `WAAFIPAY_*`, or `UPSTASH_*` keys in `.env.local`. PRD lists payments as "test mode, needs live verification." A third processor — **Waafipay (Somali mobile money)** — exists in code (`lib/payments/waafipay.ts`, `api/payments/waafipay*`) but is **not in the PRD**, so the PRD payment section is out of date.
 5. **Build not verified.** With `node_modules` absent and `@google/generative-ai` declared in `package.json` but not installed here, a clean `pnpm install && pnpm build` must be run and confirmed green before launch (PRD launch checklist item #1).
 
@@ -94,7 +94,7 @@ Legend: ✅ built · 🟡 partial/unverified · ❌ missing
 - **F15 Marketplace/Discovery** — ✅ discover feed, categories, cities, search, organizer profiles, follows, saved, my-tickets (more complete than PRD's "partial"). Verify public access (#7).
 - **F16 ERA AI** — ✅ `lib/ai/era.ts`, ✅ `lib/ai/gate.ts`, ✅ 7 `api/era/*` routes, ✅ UI (`components/ai`). **Non-functional without `GOOGLE_AI_KEY` (#2).**
 - **F17 Developer/API** — 🟡 API keys (`lib/api-keys`, scoped+hashed) ✅, webhooks (HMAC, `lib/webhooks`) ✅, but **`/api/v1/*` only implements `render`** — the documented v1 surface is missing.
-- **F18 White-Label** — ✅ settings + `api/white-label` + `white_label_settings`; CNAME target still `karta.cre8so.com` (#3).
+- **F18 White-Label** — ✅ settings + `api/white-label` + `white_label_settings`; CNAME target still `eventera.so` (#3).
 - **F19 Admin Panel** — ✅ users (suspend/delete/role/impersonate), analytics, events, audit log, changelog, theme CMS, feature flags, content pages, media, billing, templates.
 - **F20 Teams** — ✅ teams, invites, members, per-event staff roles (`036_event_staff`, `008_teams`).
 
@@ -105,16 +105,16 @@ Legend: ✅ built · 🟡 partial/unverified · ❌ missing
 ## Brand Issues (Step 4)
 
 - ✅ **No `Karta` (capitalized product name) or `Cardly` strings** remain in `app/components/lib` — the product-name rename is effectively complete.
-- ❌ **Domain `karta.cre8so.com` still hardcoded** in user-facing strings/emails. Representative hits:
-  - `app/(app)/events/[id]/promoter-links/page.tsx:50` — fallback `'https://karta.cre8so.com'`
+- ❌ **Domain `eventera.so` still hardcoded** in user-facing strings/emails. Representative hits:
+  - `app/(app)/events/[id]/promoter-links/page.tsx:50` — fallback `'https://eventera.so'`
   - `app/(app)/events/[id]/revenue/print/page.tsx:151` & `roster/print/page.tsx:145` — PDF footer
-  - `app/(app)/settings/DeveloperTab.tsx:63` — `BASE_URL = 'https://karta.cre8so.com/api/v1'`
+  - `app/(app)/settings/DeveloperTab.tsx:63` — `BASE_URL = 'https://eventera.so/api/v1'`
   - `app/(app)/settings/WhiteLabelTab.tsx:207` — CNAME target
   - `app/(marketing)/about/page.tsx:12,843` — canonical URL + footer (plus mojibake flag)
-  - `app/(marketing)/dmca/page.tsx:46,47,60,61` — `dmca@karta.cre8so.com`
-  - `app/(marketing)/features/*` — `karta.cre8so.com/...` and `app.karta.co/...` in mockups
-- **Metadata (Step 4B):** `app/layout.tsx` title/description/OG should be confirmed to say "Eventera" and use the final domain (canonical URLs currently point at `karta.cre8so.com`).
-- **Email templates (Step 4C):** `lib/email` and `lib/registration/email` should be confirmed to use Eventera branding and a non-`karta.cre8so.com` from/links; `RESEND_FROM_EMAIL` must point at a verified Eventera domain.
+  - `app/(marketing)/dmca/page.tsx:46,47,60,61` — `dmca@eventera.so`
+  - `app/(marketing)/features/*` — `eventera.so/...` and `app.karta.co/...` in mockups
+- **Metadata (Step 4B):** `app/layout.tsx` title/description/OG should be confirmed to say "Eventera" and use the final domain (canonical URLs currently point at `eventera.so`).
+- **Email templates (Step 4C):** `lib/email` and `lib/registration/email` should be confirmed to use Eventera branding and a non-`eventera.so` from/links; `RESEND_FROM_EMAIL` must point at a verified Eventera domain.
 
 ---
 

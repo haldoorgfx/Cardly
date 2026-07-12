@@ -43,7 +43,7 @@ function EventCard({ event, onOpen }) {
           <button onClick={() => onOpen(event)} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-cream text-[12.5px] font-medium hover:bg-primary-dark transition-colors">
             Manage <Icon.Arrow w={13} />
           </button>
-          <button onClick={() => window.toast && window.toast("Opening karta.app/" + event.slug)} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-ink-soft text-[12.5px] hover:border-primary/40 hover:text-primary transition-colors">
+          <button onClick={() => window.toast && window.toast("Opening eventera.so/" + event.slug)} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-ink-soft text-[12.5px] hover:border-primary/40 hover:text-primary transition-colors">
             View public
           </button>
           {event.status === "live" && (

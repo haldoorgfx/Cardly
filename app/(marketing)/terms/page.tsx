@@ -124,7 +124,7 @@ export default function TermsPage() {
               photos with anyone, use them for advertising, or train AI models on
               them. Attendees may request deletion of their photo and generated
               card by contacting us at{' '}
-              <a href="mailto:privacy@cre8so.com" className="underline">privacy@cre8so.com</a>.
+              <a href="mailto:privacy@eventera.so" className="underline">privacy@eventera.so</a>.
             </p>
           </section>
 
@@ -154,7 +154,7 @@ export default function TermsPage() {
               You can cancel anytime from your account settings. After
               cancellation, your account reverts to the Free plan. If you want to
               delete your account and all associated data permanently, email
-              hello@cre8so.com.
+              hello@eventera.so.
             </p>
           </section>
 
@@ -192,10 +192,10 @@ export default function TermsPage() {
             <p>
               Questions about these terms:{" "}
               <a
-                href="mailto:hello@cre8so.com"
+                href="mailto:hello@eventera.so"
                 className="text-brand-primary hover:underline"
               >
-                hello@cre8so.com
+                hello@eventera.so
               </a>
               .
             </p>

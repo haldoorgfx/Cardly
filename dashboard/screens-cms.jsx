@@ -37,7 +37,7 @@ function CmsPagesPage() {
 
   return (
     <PageShell title="Pages & Content" subtitle="Edit your public site — no code" max="1180px"
-      actions={<><Btn icon="External" onClick={() => window.toast && window.toast("Opening live preview…")}>Preview</Btn><Btn variant="primary" icon="Check" onClick={() => window.toast && window.toast("Published to karta.app — live now")}>Publish</Btn></>}>
+      actions={<><Btn icon="External" onClick={() => window.toast && window.toast("Opening live preview…")}>Preview</Btn><Btn variant="primary" icon="Check" onClick={() => window.toast && window.toast("Published to eventera.so — live now")}>Publish</Btn></>}>
       <div className="flex items-center gap-2 mb-5 flex-wrap">
         {pages.map(([id, label]) => (
           <button key={id} onClick={() => setPage(id)} className={`px-3.5 py-1.5 rounded-lg text-[12.5px] font-medium border transition-colors ${page === id ? "bg-primary text-cream border-primary" : "bg-surface text-ink-soft border-border hover:border-primary/40"}`}>{label}</button>

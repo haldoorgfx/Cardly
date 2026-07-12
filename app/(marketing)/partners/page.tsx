@@ -98,7 +98,7 @@ function PartnersHero() {
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <a
-              href="mailto:partners@cre8so.com"
+              href="mailto:partners@eventera.so"
               className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full font-medium transition-colors bg-primary text-cream hover:bg-primary-dark"
             >
               Apply to partner <ArrowRight size={16} strokeWidth={2} />
@@ -316,10 +316,10 @@ function PartnerCTA() {
         </p>
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
           <a
-            href="mailto:partners@cre8so.com"
+            href="mailto:partners@eventera.so"
             className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full font-medium transition-colors bg-primary text-cream hover:bg-primary-dark"
           >
-            partners@cre8so.com <ArrowRight size={16} strokeWidth={2} />
+            partners@eventera.so <ArrowRight size={16} strokeWidth={2} />
           </a>
           <Link
             href="/contact"
