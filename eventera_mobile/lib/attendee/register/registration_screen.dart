@@ -8,6 +8,7 @@ import '../event_context.dart';
 import '../reg_store.dart';
 import 'confirm_screen.dart';
 import 'hosted_payment_screen.dart';
+import 'needs_field.dart';
 import 'waafipay_payment_screen.dart';
 import 'waitlist_screen.dart';
 
@@ -110,6 +111,11 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   List<_TicketType> _tickets = [];
   List<_FormField> _fields = [];
   final Map<String, String> _fieldValues = {};
+  // D01 — dietary/accessibility answers, kept OFF custom_fields. Selected chips
+  // per field id, plus an optional free-text note per field id. These flow into
+  // the dedicated registrations.dietary / accessibility columns on submit.
+  final Map<String, Set<String>> _needsValues = {};
+  final Map<String, String> _needsNotes = {};
 
   String? _selectedTicketId;
 
@@ -273,6 +279,16 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     for (final f in _fields) {
       if (f.fieldType == 'section') continue;
       if (f.required) {
+        if (f.fieldType == 'dietary' || f.fieldType == 'accessibility') {
+          // Satisfied by at least one chip or a note.
+          final chips = _needsValues[f.id] ?? const <String>{};
+          final note = _needsNotes[f.id]?.trim() ?? '';
+          if (chips.isEmpty && note.isEmpty) {
+            setState(() => _submitError = '${f.label} is required.');
+            return false;
+          }
+          continue;
+        }
         final v = _fieldValues[f.id]?.trim() ?? '';
         final ok = f.fieldType == 'checkbox' ? v == 'true' : v.isNotEmpty;
         if (!ok) {
@@ -304,12 +320,33 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     final ticket = _selectedTicket!;
     setState(() => _submitting = true);
 
-    // custom_fields keyed by field id (matches the web form).
+    // custom_fields keyed by field id (matches the web form). Dietary +
+    // accessibility answers are NEVER put here — they go to their dedicated
+    // registrations columns below.
     final customFields = <String, String>{};
     for (final f in _fields) {
-      if (f.fieldType == 'section') continue;
+      if (f.fieldType == 'section' ||
+          f.fieldType == 'dietary' ||
+          f.fieldType == 'accessibility') continue;
       final v = _fieldValues[f.id];
       if (v != null && v.trim().isNotEmpty) customFields[f.id] = v.trim();
+    }
+
+    // D01 — collect dietary + accessibility into their own arrays + notes.
+    final dietary = <String>[];
+    final accessibility = <String>[];
+    String? dietaryNote;
+    String? accessibilityNote;
+    for (final f in _fields) {
+      if (f.fieldType == 'dietary') {
+        dietary.addAll(_needsValues[f.id] ?? const <String>{});
+        final n = _needsNotes[f.id]?.trim();
+        if (n != null && n.isNotEmpty) dietaryNote = n;
+      } else if (f.fieldType == 'accessibility') {
+        accessibility.addAll(_needsValues[f.id] ?? const <String>{});
+        final n = _needsNotes[f.id]?.trim();
+        if (n != null && n.isNotEmpty) accessibilityNote = n;
+      }
     }
 
     final body = <String, dynamic>{
@@ -319,6 +356,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       if (_phoneCtrl.text.trim().isNotEmpty)
         'attendee_phone': _phoneCtrl.text.trim(),
       'custom_fields': customFields,
+      if (dietary.isNotEmpty) 'dietary': dietary,
+      if (dietaryNote != null) 'dietary_note': dietaryNote,
+      if (accessibility.isNotEmpty) 'accessibility': accessibility,
+      if (accessibilityNote != null) 'accessibility_note': accessibilityNote,
       if (ticket.isPwyw)
         'chosen_price': double.tryParse(_pwywCtrl.text.trim()) ?? 0,
       if (_promoApplied && _promoCtrl.text.trim().isNotEmpty)
@@ -974,6 +1015,23 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 ),
               ),
             ],
+          ),
+        );
+      case 'dietary':
+      case 'accessibility':
+        return wrap(
+          NeedsField(
+            kind: f.fieldType,
+            label: f.label,
+            required: f.required,
+            options: f.options,
+            selected: _needsValues[f.id] ?? const <String>{},
+            noteHint: 'Add a note (optional)',
+            onToggle: (o) => setState(() {
+              final set = _needsValues.putIfAbsent(f.id, () => <String>{});
+              if (!set.remove(o)) set.add(o);
+            }),
+            onNote: (v) => _needsNotes[f.id] = v,
           ),
         );
       default:

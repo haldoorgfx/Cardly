@@ -8,6 +8,7 @@ import { splitTicketAmount, type FeeBearer } from '@/lib/billing/fees';
 import { onRegistrationConfirmed } from '@/lib/integrations/dispatch';
 import type { Plan } from '@/lib/billing/plans';
 import { createNotification } from '@/lib/notifications';
+import { allowedNeedsTags } from '@/lib/registration/needs-options';
 import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
 import { z } from 'zod';
 
@@ -20,6 +21,12 @@ const RegisterSchema = z.object({
   custom_fields:   z.record(z.string().max(100), z.string().max(2000))
                     .refine(o => Object.keys(o).length <= 30, 'Too many custom fields')
                     .optional().default({}),
+  // Dietary + accessibility (G6 · D01) — stored in dedicated registrations
+  // columns (migration 082), NEVER in custom_fields.
+  dietary:              z.array(z.string().max(100)).max(50).optional().nullable(),
+  dietary_note:         z.string().max(2000).trim().optional().nullable(),
+  accessibility:        z.array(z.string().max(100)).max(50).optional().nullable(),
+  accessibility_note:   z.string().max(2000).trim().optional().nullable(),
   // PWYW — attendee's chosen price (used when ticket has min_price set).
   // Capped: this number becomes the charged amount, so it must be bounded.
   chosen_price:    z.number().min(0).max(100_000, 'Amount is too large').optional(),
@@ -61,7 +68,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     );
   }
 
-  const { attendee_name, attendee_email, ticket_type_id, attendee_phone, custom_fields, chosen_price, access_code, referral_code, utm_source, promo_code, preferred_processor } = parsed.data;
+  const { attendee_name, attendee_email, ticket_type_id, attendee_phone, custom_fields, chosen_price, access_code, referral_code, utm_source, promo_code, preferred_processor, dietary, dietary_note, accessibility, accessibility_note } = parsed.data;
 
   // 1. Verify event exists and is publicly accessible.
   //    Accept if events.status = 'published' OR event_pages.is_public = true —
@@ -236,6 +243,43 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     : splitTicketAmount(chargedPrice, organizerPlan, feeBearer);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // Dietary + accessibility (D01): server-authoritative tag validation. Load the
+  // event's configured dietary/accessibility fields and keep ONLY submitted tags
+  // that appear in their option list — the client's raw array is never trusted.
+  // Notes are only stored when a field of that kind actually exists on the form.
+  const allowedDietary: string[] = [];
+  const allowedAccessibility: string[] = [];
+  let hasDietaryField = false;
+  let hasAccessibilityField = false;
+  {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: daFields } = await (admin as any)
+      .from('registration_form_fields')
+      .select('field_type, options')
+      .eq('event_id', params.id)
+      .in('field_type', ['dietary', 'accessibility']);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ((daFields ?? []) as any[]).forEach((f) => {
+      const configured: string[] = Array.isArray(f.options) ? (f.options as string[]) : [];
+      // A field saved WITHOUT a custom option list renders the shared defaults on
+      // both clients — so those defaults are exactly what a submission may carry.
+      if (f.field_type === 'dietary') {
+        hasDietaryField = true;
+        allowedNeedsTags('dietary', configured)
+          .forEach((o) => { if (!allowedDietary.includes(o)) allowedDietary.push(o); });
+      } else if (f.field_type === 'accessibility') {
+        hasAccessibilityField = true;
+        allowedNeedsTags('accessibility', configured)
+          .forEach((o) => { if (!allowedAccessibility.includes(o)) allowedAccessibility.push(o); });
+      }
+    });
+  }
+  const cleanDietary = (dietary ?? []).filter((t) => allowedDietary.includes(t));
+  const cleanAccessibility = (accessibility ?? []).filter((t) => allowedAccessibility.includes(t));
+  const cleanDietaryNote = hasDietaryField ? (dietary_note?.trim() || null) : null;
+  const cleanAccessibilityNote = hasAccessibilityField ? (accessibility_note?.trim() || null) : null;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: registration, error: regError } = await (admin as any)
     .from('registrations')
     .insert({
@@ -245,6 +289,11 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       attendee_email: attendee_email.trim().toLowerCase(),
       attendee_phone: attendee_phone?.trim() || null,
       custom_fields: custom_fields ?? {},
+      // Dietary + accessibility (D01) — dedicated columns, not custom_fields.
+      dietary: cleanDietary.length > 0 ? cleanDietary : null,
+      dietary_note: cleanDietaryNote,
+      accessibility: cleanAccessibility.length > 0 ? cleanAccessibility : null,
+      accessibility_note: cleanAccessibilityNote,
       referral_code: referral_code ? referral_code.toUpperCase() : null,
       utm_source: utm_source ?? null,
       chosen_price: isPayWhatYouWant ? (chosen_price ?? null) : null,

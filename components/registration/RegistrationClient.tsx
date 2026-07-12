@@ -36,7 +36,7 @@ interface CanvasVariant {
 interface FormField {
   id: string;
   label: string;
-  field_type: 'text' | 'textarea' | 'select' | 'checkbox' | 'number' | string;
+  field_type: 'text' | 'textarea' | 'select' | 'checkbox' | 'number' | 'dietary' | 'accessibility' | string;
   options: string[] | null;
   is_required: boolean;
   position: number;
@@ -189,6 +189,15 @@ export default function RegistrationClient({
   const [name, setName] = useState(initialName);
   const [phone, setPhone] = useState('');
   const [customFieldValues, setCustomFieldValues] = useState<Record<string, string>>({});
+
+  // Dietary + accessibility answers live in their own registration columns —
+  // never mixed into custom_fields. One selection set per kind.
+  const [dietarySel, setDietarySel] = useState<string[]>([]);
+  const [dietaryNote, setDietaryNote] = useState('');
+  const [accessSel, setAccessSel] = useState<string[]>([]);
+  const [accessNote, setAccessNote] = useState('');
+  const hasDietaryField = formFields.some(f => f.field_type === 'dietary');
+  const hasAccessField = formFields.some(f => f.field_type === 'accessibility');
 
   // Card zone state
   const [zoneValues, setZoneValues] = useState<Record<string, string>>(() => {
@@ -346,6 +355,14 @@ export default function RegistrationClient({
     else if (!EMAIL_RE.test(email)) errs.email = 'Enter a valid email address';
     for (const f of formFields) {
       if (f.field_type === 'section') continue;
+      if (f.field_type === 'dietary') {
+        if (f.is_required && dietarySel.length === 0 && !dietaryNote.trim()) errs[`cf_${f.id}`] = `${f.label} is required`;
+        continue;
+      }
+      if (f.field_type === 'accessibility') {
+        if (f.is_required && accessSel.length === 0 && !accessNote.trim()) errs[`cf_${f.id}`] = `${f.label} is required`;
+        continue;
+      }
       if (f.is_required && !customFieldValues[f.id]?.trim()) {
         errs[`cf_${f.id}`] = `${f.label} is required`;
       }
@@ -404,6 +421,8 @@ export default function RegistrationClient({
           attendee_email: email,
           attendee_phone: phone.trim() || undefined,
           custom_fields: { ...zoneCustomFields, ...customFieldValues },
+          ...(hasDietaryField ? { dietary: dietarySel, dietary_note: dietaryNote.trim() || undefined } : {}),
+          ...(hasAccessField ? { accessibility: accessSel, accessibility_note: accessNote.trim() || undefined } : {}),
           chosen_price: isPWYW ? effectivePrice : undefined,
           access_code: unlockedTickets.find(t => t.id === selectedTicket?.id) ? accessCodeInput || undefined : undefined,
           referral_code: referralCode ?? null,
@@ -891,6 +910,60 @@ export default function RegistrationClient({
                       <div className="mt-1.5" style={{ borderBottom: '1px solid #E5E0D4' }} />
                     </div>
                   );
+                  // Dietary / accessibility — calm multi-select tags + an optional note.
+                  // Written to dedicated registration columns, never custom_fields.
+                  if (f.field_type === 'dietary' || f.field_type === 'accessibility') {
+                    const isDietary = f.field_type === 'dietary';
+                    const selected = isDietary ? dietarySel : accessSel;
+                    const setSel = isDietary ? setDietarySel : setAccessSel;
+                    const note = isDietary ? dietaryNote : accessNote;
+                    const setNote = isDietary ? setDietaryNote : setAccessNote;
+                    const tags = f.options ?? [];
+                    const toggle = (tag: string) => {
+                      setSel(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]);
+                      if (err) setFieldErrors(p => ({ ...p, [`cf_${f.id}`]: '' }));
+                    };
+                    return (
+                      <div key={f.id}>
+                        {labelEl}
+                        <p className="text-[12px] mb-2.5" style={{ color: '#6B7A72' }}>
+                          {isDietary
+                            ? 'Select anything that applies — we’ll share it with catering so there’s something for you.'
+                            : 'Tell us what will help you take part. We’ll prepare ahead of time.'}
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {tags.map(o => {
+                            const on = selected.includes(o);
+                            return (
+                              <button
+                                key={o}
+                                type="button"
+                                onClick={() => toggle(o)}
+                                className="px-3.5 py-2 rounded-full text-[13px] font-medium transition"
+                                style={{
+                                  border: `1.5px solid ${on ? '#1F4D3A' : '#E5E0D4'}`,
+                                  background: on ? '#E8EFEB' : 'white',
+                                  color: on ? '#1F4D3A' : '#3A4A42',
+                                }}
+                              >
+                                {on && <Check size={12} strokeWidth={2.8} className="inline mr-1 -mt-px" />}
+                                {o}
+                              </button>
+                            );
+                          })}
+                        </div>
+                        <textarea
+                          value={note}
+                          onChange={e => { setNote(e.target.value); if (err) setFieldErrors(p => ({ ...p, [`cf_${f.id}`]: '' })); }}
+                          rows={2}
+                          placeholder={isDietary ? 'Anything else catering should know (optional)' : 'Anything else that would help (optional)'}
+                          className={INPUT}
+                          style={{ marginTop: '0.75rem', borderColor: '#E5E0D4', background: 'white', color: '#0F1F18', resize: 'vertical' }}
+                        />
+                        {err && <p className="text-[12px] mt-1 font-medium" style={{ color: '#B8423C' }}>{err}</p>}
+                      </div>
+                    );
+                  }
                   // Radio — single choice always visible
                   if (f.field_type === 'radio' && f.options?.length) return (
                     <div key={f.id}>{labelEl}
