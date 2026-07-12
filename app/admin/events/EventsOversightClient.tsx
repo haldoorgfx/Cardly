@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { Search, Loader2, Flag, Trash2, RotateCcw, ExternalLink } from 'lucide-react';
+import { Search, Loader2, Flag, Trash2, RotateCcw, ExternalLink, X } from 'lucide-react';
 import type { EventRow } from './page';
 
 const STATUS_STYLES: Record<string, { bg: string; color: string }> = {
@@ -43,6 +43,56 @@ export function EventsOversightClient({ events: initialEvents, total, page, tota
   const [filters, setFilters] = useState<Filters>(defaultFilters);
   const [busy, setBusy] = useState<string | null>(null);
   const [actionError, setActionError] = useState('');
+
+  // Bulk selection
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkBusy, setBulkBusy] = useState(false);
+  const allSelected = events.length > 0 && events.every(e => selected.has(e.id));
+  const clearSelection = () => setSelected(new Set());
+  const toggleOne = (id: string) =>
+    setSelected(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  const toggleAll = () =>
+    setSelected(allSelected ? new Set() : new Set(events.map(e => e.id)));
+
+  // Bulk moderation — loops the per-event endpoint (its permission + audit
+  // logging apply per event). Optimistic update, then refresh to reconcile any
+  // server-side status change (e.g. removed → hidden).
+  const runBulkModeration = async (status: 'ok' | 'flagged' | 'removed') => {
+    if (
+      status === 'removed' &&
+      !confirm(`Remove ${selected.size} event${selected.size === 1 ? '' : 's'} from the marketplace?\n\nThey will no longer be publicly visible until restored.`)
+    ) return;
+    setBulkBusy(true);
+    setActionError('');
+    const ids = Array.from(selected);
+    try {
+      const results = await Promise.allSettled(
+        ids.map(id =>
+          fetch(`/api/admin/events/${id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ moderation_status: status }),
+          }),
+        ),
+      );
+      const okIds = ids.filter(
+        (_, i) => results[i].status === 'fulfilled' &&
+          (results[i] as PromiseFulfilledResult<Response>).value.ok,
+      );
+      setEvents(prev => prev.map(e => (okIds.includes(e.id) ? { ...e, moderation_status: status } : e)));
+      if (okIds.length < ids.length) {
+        setActionError(`${ids.length - okIds.length} event${ids.length - okIds.length === 1 ? '' : 's'} could not be updated.`);
+      }
+      clearSelection();
+      router.refresh();
+    } finally {
+      setBulkBusy(false);
+    }
+  };
 
   const hasActiveFilters = Object.values(defaultFilters).some(v => v !== '');
 
@@ -153,6 +203,45 @@ export function EventsOversightClient({ events: initialEvents, total, page, tota
         {page > 1 && ` — page ${page} of ${totalPages}`}
       </div>
 
+      {/* ── Bulk action bar ──────────────────────────────────── */}
+      {selected.size > 0 && (
+        <div className="mb-3 flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[#1F4D3A]/25 bg-[#E8EFEB]">
+          <span className="text-[13px] font-medium text-[#1F4D3A]">{selected.size} selected</span>
+          <div className="flex-1" />
+          {bulkBusy && <Loader2 size={14} strokeWidth={2} className="animate-spin text-[#1F4D3A]" />}
+          <button
+            disabled={bulkBusy}
+            onClick={() => runBulkModeration('flagged')}
+            className="h-8 px-3 rounded-lg text-[12px] font-medium border border-[#E5E0D4] bg-white text-[#C97A2D] hover:bg-amber-50 transition-colors disabled:opacity-50"
+          >
+            Flag
+          </button>
+          <button
+            disabled={bulkBusy}
+            onClick={() => runBulkModeration('ok')}
+            className="h-8 px-3 rounded-lg text-[12px] font-medium border border-[#E5E0D4] bg-white text-emerald-700 hover:bg-emerald-50 transition-colors disabled:opacity-50"
+          >
+            Restore
+          </button>
+          <button
+            disabled={bulkBusy}
+            onClick={() => runBulkModeration('removed')}
+            className="h-8 px-3 rounded-lg text-[12px] font-medium text-white hover:opacity-90 transition disabled:opacity-50"
+            style={{ background: '#B8423C' }}
+          >
+            Remove
+          </button>
+          <button
+            disabled={bulkBusy}
+            onClick={clearSelection}
+            title="Clear selection"
+            className="h-8 w-8 grid place-items-center rounded-lg border border-[#E5E0D4] bg-white text-[#6B7A72] hover:bg-[#FAF6EE] transition-colors disabled:opacity-50"
+          >
+            <X size={13} strokeWidth={2} />
+          </button>
+        </div>
+      )}
+
       {/* Table */}
       {events.length === 0 ? (
         <div className="py-16 text-center text-[14px] text-[#6B7A72]">No events match these filters.</div>
@@ -161,6 +250,16 @@ export function EventsOversightClient({ events: initialEvents, total, page, tota
           <table className="w-full text-[13px]">
             <thead>
               <tr style={{ background: '#FAF6EE', borderBottom: '1px solid #E5E0D4' }}>
+                <th className="w-10 px-4 py-3">
+                  <input
+                    type="checkbox"
+                    aria-label="Select all"
+                    checked={allSelected}
+                    onChange={toggleAll}
+                    disabled={events.length === 0}
+                    className="h-4 w-4 rounded border-[#E5E0D4] accent-[#1F4D3A] cursor-pointer disabled:cursor-not-allowed"
+                  />
+                </th>
                 <th className="text-left px-4 py-3  text-[10px] tracking-[0.14em] uppercase text-[#6B7A72]">Event</th>
                 <th className="text-left px-4 py-3  text-[10px] tracking-[0.14em] uppercase text-[#6B7A72]">Owner</th>
                 <th className="text-left px-4 py-3  text-[10px] tracking-[0.14em] uppercase text-[#6B7A72]">Status</th>
@@ -177,7 +276,16 @@ export function EventsOversightClient({ events: initialEvents, total, page, tota
                 const isBusy      = busy === ev.id;
 
                 return (
-                  <tr key={ev.id} className={`hover:bg-[#FAF6EE]/50 transition-colors ${ev.moderation_status === 'removed' ? 'opacity-50' : ''}`}>
+                  <tr key={ev.id} className={`hover:bg-[#FAF6EE]/50 transition-colors ${ev.moderation_status === 'removed' ? 'opacity-50' : ''} ${selected.has(ev.id) ? 'bg-[#E8EFEB]/50' : ''}`}>
+                    <td className="w-10 px-4 py-3">
+                      <input
+                        type="checkbox"
+                        aria-label={`Select ${ev.name}`}
+                        checked={selected.has(ev.id)}
+                        onChange={() => toggleOne(ev.id)}
+                        className="h-4 w-4 rounded border-[#E5E0D4] accent-[#1F4D3A] cursor-pointer"
+                      />
+                    </td>
                     <td className="px-4 py-3">
                       <div className="font-medium text-[#0F1F18]">{ev.name}</div>
                       <div className="flex items-center gap-1 mt-0.5">
