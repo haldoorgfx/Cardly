@@ -157,7 +157,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
         try {
           batch.add(_DiscoverEvent.fromRow(Map<String, dynamic>.from(r)));
         } catch (e, st) {
-          debugPrint('[Discover] skipped a row it could not parse: $e');
+          if (kDebugMode) debugPrint('[Discover] skipped a row it could not parse: $e');
           if (kDebugMode) debugPrintStack(stackTrace: st);
         }
       }
@@ -173,7 +173,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
             if (e.city.isNotEmpty) _cities.add(e.city);
           }
         } catch (e) {
-          debugPrint('[Discover] city derivation skipped: $e');
+          if (kDebugMode) debugPrint('[Discover] city derivation skipped: $e');
         }
         _hasMore = batch.length == _pageSize;
         _page += 1;
@@ -183,7 +183,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
       });
     } on ApiException catch (e, st) {
       // Surface the true Supabase/API cause to the console instead of hiding it.
-      debugPrint('[Discover] events load failed (ApiException): ${e.message}'
+      if (kDebugMode) debugPrint('[Discover] events load failed (ApiException): ${e.message}'
           '${e.status != null ? ' [${e.status}]' : ''}');
       if (kDebugMode) debugPrintStack(stackTrace: st);
       if (!mounted) return;
@@ -196,7 +196,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
       });
     } catch (e, st) {
       // Log the real exception so the actual cause is never swallowed.
-      debugPrint('[Discover] events load failed: $e');
+      if (kDebugMode) debugPrint('[Discover] events load failed: $e');
       if (kDebugMode) debugPrintStack(stackTrace: st);
       if (!mounted) return;
       setState(() {

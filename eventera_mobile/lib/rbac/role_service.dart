@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart' show debugPrint;
+import 'package:flutter/foundation.dart' show debugPrint, kDebugMode;
 
 import '../net.dart';
 
@@ -92,7 +92,7 @@ class RoleService {
         platformRole = pr.trim();
       }
     } catch (e) {
-      debugPrint('RoleService: platform_role load failed — $e');
+      if (kDebugMode) debugPrint('RoleService: platform_role load failed — $e');
     }
 
     // user_event_roles — own ACTIVE rows via RLS.
@@ -113,7 +113,7 @@ class RoleService {
         }
       }
     } catch (e) {
-      debugPrint('RoleService: user_event_roles load failed — $e');
+      if (kDebugMode) debugPrint('RoleService: user_event_roles load failed — $e');
     }
 
     // Owning an event ALWAYS makes you an organizer, even if no explicit
@@ -130,7 +130,7 @@ class RoleService {
             .limit(1);
         if ((owned as List).isNotEmpty) kinds.add(EventRoleKind.organizer);
       } catch (e) {
-        debugPrint('RoleService: owned-events check failed — $e');
+        if (kDebugMode) debugPrint('RoleService: owned-events check failed — $e');
       }
     }
 

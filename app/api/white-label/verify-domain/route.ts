@@ -4,8 +4,11 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 
 export const runtime = 'nodejs';
 
-// Attendee custom domains must CNAME to the platform host.
-const TARGET_HOST = 'karta.cre8so.com';
+// Attendee custom domains must CNAME to the platform host — derived from the
+// app URL so the domain migration (karta.cre8so.com → eventera.so) is one env change.
+const TARGET_HOST = process.env.NEXT_PUBLIC_APP_URL
+  ? new URL(process.env.NEXT_PUBLIC_APP_URL).hostname
+  : 'karta.cre8so.com';
 
 export async function POST() {
   const supabase = createClient();
