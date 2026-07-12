@@ -158,10 +158,37 @@ export function ERAButton({ label = 'ERA', plan, onFetch, onApply, requiresStudi
     );
   }
 
+  /* ── Not configured ──────────────────────────────────────────────────────
+   * ERA gracefully returns a "not set up yet" message when GOOGLE_AI_KEY is
+   * missing. That's not a suggestion — show it as an info note, never with an
+   * Apply button (there's nothing to apply). */
+  const notConfigured = /^ERA is (not set up|unavailable|not available)/i.test(result.trim());
+  if (notConfigured) {
+    return (
+      <div
+        className={`flex flex-wrap items-start gap-x-3 gap-y-2 px-3.5 py-3 rounded-xl ${mtResult}`}
+        style={{ background: 'rgba(232,197,126,0.08)', border: '1px solid rgba(232,197,126,0.3)' }}
+      >
+        <div className="flex items-start gap-2.5 flex-1 min-w-[180px]">
+          <span className="mt-0.5"><ERABadge locked /></span>
+          <p className="text-[12.5px] min-w-0" style={{ color: '#6B7A72', lineHeight: 1.55 }}>{result}</p>
+        </div>
+        <button
+          onClick={() => { setState('idle'); setResult(''); }}
+          className="shrink-0 rounded-lg p-1 transition hover:bg-[rgba(232,197,126,0.18)]"
+          style={{ color: '#6B7A72' }}
+          aria-label="Dismiss"
+        >
+          <X size={13} strokeWidth={2} />
+        </button>
+      </div>
+    );
+  }
+
   /* ── Result ──────────────────────────────────────────────────────────────── */
   return (
     <div
-      className={`rounded-xl overflow-hidden ${mtResult}`}
+      className={`w-full rounded-xl overflow-hidden ${mtResult}`}
       style={{ border: '1px solid rgba(31,77,58,0.18)', boxShadow: '0 2px 16px rgba(31,77,58,0.08)' }}
     >
       {/* Header */}
@@ -193,7 +220,7 @@ export function ERAButton({ label = 'ERA', plan, onFetch, onApply, requiresStudi
 
       {/* Actions */}
       <div
-        className="flex gap-2 px-4 py-3"
+        className="flex flex-wrap gap-2 px-4 py-3"
         style={{ borderTop: '1px solid rgba(31,77,58,0.1)', background: 'white' }}
       >
         <button

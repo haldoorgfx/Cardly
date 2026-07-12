@@ -5,7 +5,10 @@ import {
   ArrowRight, Quote,
 } from 'lucide-react';
 import { FAQAccordion, type FAQItem } from '@/components/marketing/FAQAccordion';
-import HeroDashboardMock from '@/components/marketing/HeroDashboardMock';
+import {
+  Scene1DashboardHero, Scene2Registration, Scene3Analytics,
+  Scene4Card, Scene5LiveQA, Scene6HowItWorks,
+} from '@/components/marketing/home-visuals';
 
 export const metadata = {
   title: { absolute: 'Eventera — The complete event platform' },
@@ -137,7 +140,7 @@ function Hero() {
         className="relative hidden sm:block flex-1 mx-auto w-full px-5 sm:px-8 lg:px-12 mt-8 overflow-hidden"
         style={{ maxWidth: 1280 }}
       >
-        <HeroDashboardMock />
+        <Scene1DashboardHero float />
       </div>
     </section>
   );
@@ -314,67 +317,10 @@ function ShowcaseRegistration() {
           </Link>
         </div>
 
-        {/* RIGHT — phone mockup */}
+        {/* RIGHT — registration → Card (Scene 2) */}
         <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <div style={{
-            width: 260, background: '#0A1610',
-            border: '2px solid rgba(232,197,126,0.15)',
-            borderRadius: 36, overflow: 'hidden',
-            boxShadow: '0 32px 80px rgba(15,31,24,0.6)', flexShrink: 0,
-          }}>
-            {/* Status bar */}
-            <div style={{ padding: '12px 20px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: 8, color: 'rgba(250,246,238,0.4)', fontFamily: 'var(--font-sans)' }}>9:41</span>
-              <div style={{ width: 22, height: 3, background: 'rgba(250,246,238,0.15)', borderRadius: 100 }} />
-              <div style={{ display: 'flex', gap: 2 }}>
-                {[9, 6, 3].map((h) => <div key={h} style={{ width: 3, height: h, background: 'rgba(250,246,238,0.3)', borderRadius: 1 }} />)}
-              </div>
-            </div>
-
-            {/* Event header */}
-            <div style={{ margin: '10px 12px', borderRadius: 12, background: 'linear-gradient(135deg, #163828, #2A6A50)', padding: '14px' }}>
-              <div style={{ fontSize: 8, color: 'rgba(250,246,238,0.5)', letterSpacing: '0.12em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)', marginBottom: 3 }}>
-                Pan-African Climate Summit
-              </div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: '#FAF6EE', fontFamily: 'var(--font-display)', letterSpacing: '-0.02em', marginBottom: 8 }}>
-                Register for this event
-              </div>
-              <div style={{ display: 'flex', gap: 4 }}>
-                <span style={{ fontSize: 7, background: 'rgba(250,246,238,0.12)', color: 'rgba(250,246,238,0.7)', borderRadius: 100, padding: '2px 7px', fontFamily: 'var(--font-sans)' }}>Mar 15 · Nairobi</span>
-                <span style={{ fontSize: 7, background: 'rgba(232,197,126,0.18)', color: '#E8C57E', borderRadius: 100, padding: '2px 7px', fontFamily: 'var(--font-sans)' }}>General · $25</span>
-              </div>
-            </div>
-
-            {/* Form */}
-            <div style={{ padding: '0 12px 16px' }}>
-              {[
-                { label: 'Full name', val: 'Amara Yusuf' },
-                { label: 'Email', val: 'amara@example.com' },
-                { label: 'Job title', val: 'Policy Lead' },
-              ].map((f) => (
-                <div key={f.label} style={{ marginBottom: 7 }}>
-                  <div style={{ fontSize: 7.5, color: 'rgba(250,246,238,0.35)', fontFamily: 'var(--font-sans)', letterSpacing: '0.06em', marginBottom: 3 }}>{f.label}</div>
-                  <div style={{ height: 28, background: 'rgba(250,246,238,0.05)', border: '1px solid rgba(250,246,238,0.09)', borderRadius: 7, display: 'flex', alignItems: 'center', padding: '0 9px' }}>
-                    <span style={{ fontSize: 9, color: 'rgba(250,246,238,0.65)', fontFamily: 'var(--font-sans)' }}>{f.val}</span>
-                  </div>
-                </div>
-              ))}
-
-              <div style={{ height: 34, background: '#1F4D3A', borderRadius: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 8 }}>
-                <span style={{ fontSize: 9, fontWeight: 600, color: '#FAF6EE', fontFamily: 'var(--font-sans)' }}>Register & get your Eventera Card →</span>
-              </div>
-
-              {/* Card preview hint */}
-              <div style={{ marginTop: 10, padding: '8px 10px', background: 'rgba(232,197,126,0.07)', border: '1px solid rgba(232,197,126,0.18)', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 7 }}>
-                <div style={{ width: 26, height: 26, borderRadius: 6, background: 'linear-gradient(135deg, #163828, #1F4D3A)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <span style={{ fontSize: 8, fontWeight: 700, color: '#E8C57E', letterSpacing: '0.06em', fontFamily: 'var(--font-sans)' }}>E</span>
-                </div>
-                <div>
-                  <div style={{ fontSize: 7.5, fontWeight: 600, color: '#E8C57E', fontFamily: 'var(--font-sans)', lineHeight: 1.3 }}>Your Eventera Card is generated</div>
-                  <div style={{ fontSize: 6.5, color: 'rgba(250,246,238,0.4)', fontFamily: 'var(--font-sans)' }}>Ready to share in 2 seconds</div>
-                </div>
-              </div>
-            </div>
+          <div style={{ width: '100%', maxWidth: 420 }}>
+            <Scene2Registration />
           </div>
         </div>
 
@@ -423,91 +369,9 @@ function ShowcaseAnalytics() {
           </div>
         </div>
 
-        {/* Wide browser frame — bleeds off the bottom */}
-        <div style={{ borderRadius: '12px 12px 0 0', overflow: 'hidden', border: '1px solid #E5E0D4', borderBottom: 'none', boxShadow: '0 -8px 40px rgba(15,31,24,0.07)' }}>
-          {/* Chrome bar */}
-          <div style={{ background: '#F0EDE5', padding: '9px 14px', borderBottom: '1px solid #E5E0D4', display: 'flex', alignItems: 'center', gap: 6 }}>
-            {['#FF5F57', '#FEBC2E', '#28C840'].map((c, i) => (
-              <div key={i} style={{ width: 9, height: 9, borderRadius: '50%', background: c }} />
-            ))}
-            <div style={{ flex: 1, height: 16, background: '#E5E0D4', borderRadius: 4, marginLeft: 10 }} />
-            <div style={{ width: 20, height: 16, background: '#E5E0D4', borderRadius: 3 }} />
-          </div>
-
-          {/* Dashboard */}
-          <div style={{ background: '#FAF6EE', display: 'flex' }}>
-            {/* Sidebar */}
-            <div style={{ width: 160, borderRight: '1px solid #E5E0D4', padding: '18px 12px', flexShrink: 0, background: '#FFFFFF' }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: '#1F4D3A', fontFamily: 'var(--font-display)', marginBottom: 14 }}>Analytics</div>
-              {['Overview', 'Registrations', 'Sessions', 'Networking', 'Revenue', 'Cards'].map((item, i) => (
-                <div key={item} style={{ padding: '7px 10px', borderRadius: 6, background: i === 0 ? '#E8EFEB' : 'transparent', color: i === 0 ? '#1F4D3A' : '#6B7A72', fontSize: 11, fontFamily: 'var(--font-sans)', marginBottom: 2, fontWeight: i === 0 ? 600 : 400 }}>
-                  {item}
-                </div>
-              ))}
-            </div>
-
-            {/* Main */}
-            <div style={{ flex: 1, padding: '18px 20px 0', minWidth: 0 }}>
-              {/* Stat cards */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 10, marginBottom: 16 }}>
-                {[
-                  { label: 'Total Registrations', val: '847', change: '+12%' },
-                  { label: 'Revenue', val: '$8,940', change: '+24%' },
-                  { label: 'Cards Shared', val: '1,204', change: '+31%' },
-                  { label: 'Check-in Rate', val: '87%', change: '+5 pts' },
-                ].map((s) => (
-                  <div key={s.label} style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 8, padding: '10px 12px' }}>
-                    <div style={{ fontSize: 8, color: '#6B7A72', fontFamily: 'var(--font-sans)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 5 }}>{s.label}</div>
-                    <div style={{ fontSize: 19, fontWeight: 700, color: '#0F1F18', fontFamily: 'var(--font-display)', letterSpacing: '-0.025em', lineHeight: 1 }}>{s.val}</div>
-                    <div style={{ fontSize: 9, color: '#2D7A4F', marginTop: 3, fontFamily: 'var(--font-sans)' }}>↑ {s.change}</div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Chart */}
-              <div style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 8, padding: '14px 16px', marginBottom: 12 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                  <div style={{ fontSize: 12, fontWeight: 600, color: '#0F1F18', fontFamily: 'var(--font-display)' }}>Registrations over time</div>
-                  <div style={{ display: 'flex', gap: 5 }}>
-                    {['7D', '30D', '90D'].map((t, i) => (
-                      <div key={t} style={{ fontSize: 9, padding: '3px 8px', borderRadius: 4, background: i === 1 ? '#E8EFEB' : 'transparent', color: i === 1 ? '#1F4D3A' : '#6B7A72', fontFamily: 'var(--font-sans)', fontWeight: i === 1 ? 600 : 400, border: '1px solid ' + (i === 1 ? 'transparent' : '#E5E0D4') }}>{t}</div>
-                    ))}
-                  </div>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'flex-end', gap: 5, height: 64 }}>
-                  {[22, 36, 28, 52, 40, 66, 55, 76, 62, 90, 72, 82].map((h, i) => (
-                    <div key={i} style={{ flex: 1, height: `${h}%`, borderRadius: 4, background: i === 9 ? '#1F4D3A' : (i >= 7 ? '#C8DDD2' : '#E8EFEB') }} />
-                  ))}
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6 }}>
-                  {['Wk 1', 'Wk 2', 'Wk 3', 'Wk 4', 'Wk 5', 'Wk 6'].map((w) => (
-                    <div key={w} style={{ fontSize: 8, color: '#6B7A72', fontFamily: 'var(--font-sans)' }}>{w}</div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Session table */}
-              <div style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: '8px 8px 0 0', overflow: 'hidden' }}>
-                <div style={{ padding: '10px 14px', borderBottom: '1px solid #E5E0D4', display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: 8 }}>
-                  {['Session', 'Registrations', 'Attendance', 'Engagement'].map((h) => (
-                    <div key={h} style={{ fontSize: 8, color: '#6B7A72', fontFamily: 'var(--font-sans)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>{h}</div>
-                  ))}
-                </div>
-                {[
-                  { session: 'Opening Keynote', reg: '847', att: '724', eng: '91%' },
-                  { session: 'Panel: Climate Policy', reg: '612', att: '538', eng: '88%' },
-                  { session: 'Workshop: Green Infra', reg: '380', att: '342', eng: '90%' },
-                ].map((row, i) => (
-                  <div key={i} style={{ padding: '9px 14px', borderBottom: i < 2 ? '1px solid #F0EDE5' : 'none', display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: 8, alignItems: 'center' }}>
-                    <div style={{ fontSize: 10, fontWeight: 500, color: '#0F1F18', fontFamily: 'var(--font-display)' }}>{row.session}</div>
-                    <div style={{ fontSize: 10, color: '#3A4A42', fontFamily: 'var(--font-sans)' }}>{row.reg}</div>
-                    <div style={{ fontSize: 10, color: '#3A4A42', fontFamily: 'var(--font-sans)' }}>{row.att}</div>
-                    <div style={{ fontSize: 10, fontWeight: 600, color: '#2D7A4F', fontFamily: 'var(--font-sans)' }}>{row.eng}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+        {/* Wide analytics browser — bleeds off the bottom */}
+        <div style={{ overflow: 'hidden' }}>
+          <Scene3Analytics />
         </div>
       </div>
     </section>
@@ -1393,6 +1257,44 @@ function FinalCTA() {
 /* ─────────────────────────────────────────────────────────
    PAGE ASSEMBLY
 ───────────────────────────────────────────────────────── */
+/* ─────────────────────────────────────────────────────────
+   HOME VISUALS SHOWCASE — the Card, live Q&A, and the flow
+───────────────────────────────────────────────────────── */
+function HomeVisualsShowcase() {
+  const eyebrow = (label: string, color = '#1F4D3A') => (
+    <div style={{ fontSize: 11, fontWeight: 600, color, fontFamily: 'var(--font-sans)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 14 }}>{label}</div>
+  );
+  return (
+    <section style={{ background: '#FAF6EE', padding: 'clamp(56px,8vw,96px) clamp(20px,5vw,64px)' }}>
+      <div style={{ maxWidth: 1120, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 'clamp(56px,8vw,88px)' }}>
+        {/* The Card */}
+        <div style={{ textAlign: 'center' }}>
+          {eyebrow('The Eventera Card', '#C9A45E')}
+          <h2 className="font-title font-bold" style={{ fontSize: 'clamp(24px,3vw,38px)', color: '#0F1F18', letterSpacing: '-0.025em', lineHeight: 1.15, marginBottom: 34 }}>
+            A branded card for every attendee — generated instantly.
+          </h2>
+          <div style={{ maxWidth: 820, margin: '0 auto' }}><Scene4Card /></div>
+        </div>
+
+        {/* Live Q&A */}
+        <div>
+          {eyebrow('Live engagement')}
+          <h2 className="font-title font-bold" style={{ fontSize: 'clamp(24px,3vw,38px)', color: '#0F1F18', letterSpacing: '-0.025em', lineHeight: 1.15, marginBottom: 34, maxWidth: 640 }}>
+            Live Q&amp;A and polls that fill the room.
+          </h2>
+          <Scene5LiveQA float />
+        </div>
+
+        {/* How it works strip */}
+        <div>
+          {eyebrow('From idea to live in minutes')}
+          <div style={{ overflowX: 'auto' }}><Scene6HowItWorks /></div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function LandingPage() {
   return (
     <>
@@ -1401,6 +1303,7 @@ export default function LandingPage() {
       <PlatformOverview />
       <ShowcaseRegistration />
       <ShowcaseAnalytics />
+      <HomeVisualsShowcase />
       <EventeraCardBanner />
       <EventeraDifference />
       <HowItWorks />

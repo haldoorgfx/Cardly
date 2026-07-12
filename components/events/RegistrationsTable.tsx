@@ -1135,8 +1135,10 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
 
       {/* ── Toolbar ── */}
       <div className="flex flex-col gap-3 mb-4">
-        {/* Row 1: search + action buttons */}
-        <div className="flex gap-2">
+        {/* Row 1: search + action buttons. flex-wrap so the ERA panel (w-full
+            when it has a result) drops to its own full-width line instead of
+            cramming the toolbar. */}
+        <div className="flex flex-wrap items-center gap-2">
           <div className="relative flex-1">
             <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: '#6B7A72' }} />
             <input
