@@ -162,12 +162,12 @@ function TrustStrip() {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
           <div className="flex flex-wrap items-center gap-3">
             <span style={{ fontSize: 12, color: '#6B7A72', fontFamily: 'var(--font-sans)', letterSpacing: '0.04em' }}>
-              Trusted by organizations across Africa:
+              Built for every kind of event:
             </span>
             {[
-              { initials: 'AU', name: 'African Union' },
-              { initials: 'UNDP', name: 'UNDP' },
-              { initials: 'MTN', name: 'MTN' },
+              { initials: 'CF', name: 'Conferences' },
+              { initials: 'FS', name: 'Festivals' },
+              { initials: 'NGO', name: 'NGOs' },
             ].map((org) => (
               <span
                 key={org.initials}
@@ -210,7 +210,7 @@ function TrustStrip() {
               whiteSpace: 'nowrap',
             }}
           >
-            4,200+ attendees registered · 850+ events · 11,000+ cards shared
+            Registration, check-in, agenda, networking — and a personalized card for every attendee
           </div>
         </div>
       </div>
@@ -297,7 +297,7 @@ function ShowcaseRegistration() {
             {[
               'Multiple ticket types — Free, General, VIP, Early Bird',
               'Custom registration fields with conditional logic',
-              'Stripe, Flutterwave, M-Pesa & Paystack payments',
+              'Card, mobile money (WaafiPay) & Flutterwave payments',
               'Eventera Card auto-generated at the moment of registration',
             ].map((item) => (
               <li key={item} style={{ display: 'flex', alignItems: 'flex-start', gap: 9, fontSize: 14, color: 'rgba(250,246,238,0.75)', fontFamily: 'var(--font-sans)' }}>
@@ -1243,14 +1243,14 @@ function Testimonial() {
     >
       <div className="mx-auto px-5 lg:px-10" style={{ maxWidth: 860 }}>
         <div style={{ fontSize: 11, fontFamily: 'var(--font-sans)', letterSpacing: '0.22em', textTransform: 'uppercase', color: '#1F4D3A', textAlign: 'center', marginBottom: 28 }}>
-          From organizers who&apos;ve run real events on Eventera
+          Why we built Eventera
         </div>
         <Quote size={38} strokeWidth={1.5} style={{ color: '#E8C57E', margin: '0 auto 20px', display: 'block' }} />
         <blockquote
           className="font-display"
           style={{ fontSize: 'clamp(20px, 2.8vw, 30px)', color: '#0F1F18', lineHeight: 1.4, letterSpacing: '-0.02em', textAlign: 'center', marginBottom: 28 }}
         >
-          &ldquo;We ran registration, check-in and the agenda on Eventera — but the cards are what people remember. 600 attendees, 740 cards shared. The reach was 10x what our email kit ever did.&rdquo;
+          &ldquo;On every other platform, registration ends with a confirmation email. We wanted it to end with something an attendee is proud to share — so every Eventera event ships with a personalized card, automatically.&rdquo;
         </blockquote>
         <div className="flex items-center justify-center gap-3">
           <div
@@ -1261,11 +1261,11 @@ function Testimonial() {
               fontSize: 13, fontWeight: 700, color: '#1F4D3A', fontFamily: 'var(--font-display)',
             }}
           >
-            AY
+            E
           </div>
           <div>
-            <div style={{ fontSize: 14, fontWeight: 600, color: '#0F1F18', fontFamily: 'var(--font-display)' }}>Amara Yusuf</div>
-            <div style={{ fontSize: 12, color: '#6B7A72', fontFamily: 'var(--font-sans)' }}>Comms Lead · Pan-African Climate Summit</div>
+            <div style={{ fontSize: 14, fontWeight: 600, color: '#0F1F18', fontFamily: 'var(--font-display)' }}>The Eventera team</div>
+            <div style={{ fontSize: 12, color: '#6B7A72', fontFamily: 'var(--font-sans)' }}>Made in Djibouti · Built for organizers everywhere</div>
           </div>
         </div>
       </div>
@@ -1291,7 +1291,7 @@ const LANDING_FAQS: FAQItem[] = [
   },
   {
     q: 'What payment methods do you support?',
-    a: 'Card payments via Stripe, plus Flutterwave, Paystack, M-Pesa, and MTN MoMo for African markets. You can accept both free and paid registrations on the same event.',
+    a: 'Card payments (Stripe), mobile money via WaafiPay, and Flutterwave — with more African methods rolling out. You can accept both free and paid registrations on the same event.',
   },
   {
     q: 'Does every plan include the Eventera Card?',
