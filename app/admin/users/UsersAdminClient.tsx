@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { Search, Loader2, AlertTriangle, Ban, Trash2, RotateCcw, ChevronRight, X } from 'lucide-react';
+import { Search, Loader2, AlertTriangle, Ban, Trash2, RotateCcw, ChevronRight, X, Download } from 'lucide-react';
 import Link from 'next/link';
 import type { UserRow } from './page';
 import type { UserRole } from '@/lib/auth/permissions';
@@ -367,6 +367,15 @@ export function UsersAdminClient({
             Clear
           </button>
         )}
+
+        <a
+          href={`/api/admin/users/export?${new URLSearchParams(
+            Object.fromEntries(Object.entries(defaultFilters).filter(([, v]) => v)),
+          ).toString()}`}
+          className="h-9 px-4 rounded-lg text-[13px] font-medium text-[#1F4D3A] border border-[#1F4D3A]/30 hover:bg-[#E8EFEB] transition-colors inline-flex items-center gap-1.5"
+        >
+          <Download size={13} strokeWidth={2} /> Export CSV
+        </a>
       </div>
 
       {/* Count */}

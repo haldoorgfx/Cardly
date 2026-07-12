@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { Search, Loader2, Flag, Trash2, RotateCcw, ExternalLink, X } from 'lucide-react';
+import { Search, Loader2, Flag, Trash2, RotateCcw, ExternalLink, X, Download } from 'lucide-react';
 import type { EventRow } from './page';
 
 const STATUS_STYLES: Record<string, { bg: string; color: string }> = {
@@ -187,6 +187,15 @@ export function EventsOversightClient({ events: initialEvents, total, page, tota
             Clear
           </button>
         )}
+
+        <a
+          href={`/api/admin/events/export?${new URLSearchParams(
+            Object.fromEntries(Object.entries(defaultFilters).filter(([, v]) => v)),
+          ).toString()}`}
+          className="h-9 px-4 rounded-lg text-[13px] font-medium text-[#1F4D3A] border border-[#1F4D3A]/30 hover:bg-[#E8EFEB] transition-colors inline-flex items-center gap-1.5"
+        >
+          <Download size={13} strokeWidth={2} /> Export CSV
+        </a>
       </div>
 
       {actionError && (
