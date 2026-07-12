@@ -7,6 +7,8 @@ import '../../net.dart';
 import '../../ui/components.dart';
 import '../../ui/tokens.dart';
 import '../register/waafipay_payment_screen.dart';
+import 'entitlement_transfer_sheet.dart';
+import 'entitlements_screen.dart';
 import 'fullscreen_qr_screen.dart';
 import 'ticket_stub.dart';
 
@@ -50,8 +52,61 @@ class TicketDetailScreen extends StatefulWidget {
 class _TicketDetailScreenState extends State<TicketDetailScreen> {
   late String _status = widget.status ?? 'confirmed';
   bool _transferred = false;
+  bool _canManage = false;
 
   TicketStatus get _ts => ticketStatusFrom(_status);
+
+  @override
+  void initState() {
+    super.initState();
+    _checkCanManage();
+  }
+
+  /// Only owners / active staff may run per-entitlement transfers (the
+  /// transfer_entitlement RPC enforces this too). We resolve it up front so the
+  /// manager-only "Transfer a pass" action never appears for a plain attendee.
+  Future<void> _checkCanManage() async {
+    try {
+      final reg = await supa
+          .from('registrations')
+          .select('event_id')
+          .eq('id', widget.registrationId)
+          .maybeSingle();
+      if (reg == null) return;
+      final can = await supa.rpc('can_manage_event',
+          params: {'p_event_id': asString(reg['event_id'])});
+      if (mounted && can == true) setState(() => _canManage = true);
+    } catch (_) {
+      // Silent — default stays false, so no manager action is shown.
+    }
+  }
+
+  /// Manager-only: transfer a single entitlement (pass) held by this
+  /// registration to another attendee. Gated by [_canManage].
+  Future<void> _openEntitlementTransfer() async {
+    final ok = await showMSheet<bool>(
+      context,
+      EntitlementTransferSheet(
+        registrationId: widget.registrationId,
+        fromName: widget.attendeeName ?? 'this attendee',
+      ),
+    );
+    if (ok == true && mounted) {
+      showToast(context, 'Pass transferred to its new holder.');
+    }
+  }
+
+  void _openEntitlements() {
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => EntitlementsScreen(
+        registrationId: widget.registrationId,
+        qrData: _qrData,
+        ticketCode: _ticketCode,
+        attendeeName: widget.attendeeName ?? '',
+        ticketTypeLabel: widget.ticketType ?? '',
+      ),
+    ));
+  }
 
   String get _qrData {
     final slug = widget.eventSlug;
@@ -190,6 +245,11 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
               Navigator.pop(context);
               _openTransfer();
             }),
+          if (_canManage)
+            _action(Icons.swap_horiz, 'Transfer a pass', () {
+              Navigator.pop(context);
+              _openEntitlementTransfer();
+            }),
           _action(Icons.receipt_long_outlined, 'View receipt', () {
             Navigator.pop(context);
             _openReceipt();
@@ -305,6 +365,31 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
                   ),
                 ],
               ],
+            ),
+          ],
+
+          if (_ts == TicketStatus.confirmed ||
+              _ts == TicketStatus.checkedIn) ...[
+            const SizedBox(height: 14),
+            MCard(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              onTap: _openEntitlements,
+              child: ListRow(
+                leading: Container(
+                  width: 40,
+                  height: 40,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: AppColors.forestSoft,
+                    borderRadius: BorderRadius.circular(11),
+                  ),
+                  child: const Icon(Icons.confirmation_number_outlined,
+                      size: 20, color: AppColors.forest),
+                ),
+                title: const Text('Passes & access'),
+                subtitle: const Text('What this ticket includes'),
+                chevron: true,
+              ),
             ),
           ],
 
