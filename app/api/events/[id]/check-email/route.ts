@@ -11,15 +11,15 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   const admin = createAdminClient();
   const { data } = await admin
     .from('registrations')
-    .select('id, qr_code_token')
+    .select('id')
     .eq('event_id', params.id)
     .eq('attendee_email', email)
     .in('status', ['confirmed', 'checked_in'])
     .limit(1)
     .maybeSingle();
 
-  return NextResponse.json({
-    registered: !!data,
-    token: (data as { qr_code_token?: string } | null)?.qr_code_token ?? null,
-  });
+  // Return ONLY a boolean. Never expose qr_code_token here — it's the bearer
+  // credential for the ticket/check-in, and this endpoint is unauthenticated
+  // (email-only), so returning it was an enumeration→ticket-takeover oracle.
+  return NextResponse.json({ registered: !!data });
 }

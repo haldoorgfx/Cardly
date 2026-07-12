@@ -1,16 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
+import { assertOwnsRegistration } from '@/lib/attendee-identity';
 
 // GET /api/events/[id]/people?reg=<registration_id>
-// Returns all confirmed registrations for the event (for networking)
+// Returns confirmed registrations for the event (attendee networking directory).
+// Requires a valid registration for THIS event — you must be an attendee to see
+// the attendee list. Never returns attendee_email to peers.
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
-  const admin = createAdminClient();
   const { searchParams } = new URL(req.url);
   const regId = searchParams.get('reg');
 
+  const identity = await assertOwnsRegistration(params.id, regId);
+  if (!identity.ok) {
+    return NextResponse.json({ error: identity.error }, { status: identity.status });
+  }
+
+  const admin = createAdminClient();
   const { data: people, error } = await admin
     .from('registrations')
-    .select('id, user_id, attendee_name, attendee_email, ticket_type_id, custom_fields, eventera_card_url, ticket_types(name)')
+    .select('id, user_id, attendee_name, ticket_type_id, custom_fields, eventera_card_url, ticket_types(name)')
     .eq('event_id', params.id)
     .in('status', ['confirmed', 'checked_in'])
     .order('created_at', { ascending: true })

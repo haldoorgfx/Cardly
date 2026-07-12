@@ -106,6 +106,9 @@ const ROUTE_TIERS: Array<{ prefix: string; tier: LimiterTier }> = [
   { prefix: '/api/auth',                      tier: 'strict'   },
   { prefix: '/api/billing',                   tier: 'strict'   },
   { prefix: '/api/payments',                  tier: 'strict'   },
+  // Storage-writing uploads (sharp/storage cost).
+  { prefix: '/api/sponsors/upload',           tier: 'render'   },
+  { prefix: '/api/upload',                    tier: 'render'   },
   // Expensive generation — image rendering and LLM calls
   { prefix: '/api/render',                    tier: 'render'   },
   { prefix: '/api/era',                       tier: 'render'   },
@@ -124,6 +127,14 @@ const ROUTE_TIERS: Array<{ prefix: string; tier: LimiterTier }> = [
 const ROUTE_TIER_PATTERNS: Array<{ pattern: RegExp; tier: LimiterTier }> = [
   { pattern: /^\/api\/events\/[^/]+\/register(\/|$)/, tier: 'public' },
   { pattern: /^\/api\/events\/[^/]+\/copilot(\/|$)/,  tier: 'render' },
+  // Expensive LLM matchmaking generation.
+  { pattern: /^\/api\/events\/[^/]+\/matches(\/|$)/,  tier: 'render' },
+  // Brute-forceable / oracle-style public endpoints — keep them strict.
+  { pattern: /^\/api\/events\/[^/]+\/unlock(\/|$)/,     tier: 'strict' },
+  { pattern: /^\/api\/events\/[^/]+\/check-email(\/|$)/, tier: 'strict' },
+  { pattern: /^\/api\/events\/[^/]+\/apply(\/|$)/,      tier: 'strict' },
+  // Storage-writing upload routes.
+  { pattern: /^\/api\/sessions\/[^/]+\/slides(\/|$)/,  tier: 'render' },
 ];
 
 export function getTierForPath(pathname: string): LimiterTier {

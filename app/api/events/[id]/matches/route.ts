@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { assertOwnsRegistration } from '@/lib/attendee-identity';
+import { authorizeEventContent } from '@/lib/auth/event-content';
 import { generateMatches, generateMatchesForOne } from '@/lib/matchmaking';
 
 // GET /api/events/[id]/matches?registration_id=xxx
@@ -125,8 +126,13 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-// POST /api/events/[id]/matches — organiser-triggered bulk generation
+// POST /api/events/[id]/matches — organiser-triggered bulk generation.
+// Gated to the event owner/contributors: this runs LLM generation over up to
+// 200 attendees, so it must not be publicly triggerable.
 export async function POST(_req: NextRequest, { params }: { params: { id: string } }) {
+  const auth = await authorizeEventContent(params.id);
+  if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
+
   const admin = createAdminClient();
 
   const { data: event } = await admin

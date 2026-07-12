@@ -1,5 +1,17 @@
 import { createAdminClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import {
+  authorizeEventContent,
+  eventIdForSponsor,
+  sniffImageMime,
+} from '@/lib/auth/event-content';
+
+const EXT: Record<string, string> = {
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+  'image/webp': 'webp',
+  'image/gif': 'gif',
+};
 
 export async function POST(req: Request) {
   const formData = await req.formData().catch(() => null);
@@ -9,23 +21,28 @@ export async function POST(req: Request) {
   const sponsorId = formData.get('sponsorId') as string | null;
   if (!file || !sponsorId) return NextResponse.json({ error: 'Missing file or sponsorId' }, { status: 400 });
 
-  if (!file.type.startsWith('image/')) {
-    return NextResponse.json({ error: 'File must be an image' }, { status: 400 });
-  }
   if (file.size > 5 * 1024 * 1024) {
     return NextResponse.json({ error: 'File too large (max 5 MB)' }, { status: 400 });
   }
 
-  const ext = file.name.split('.').pop() ?? 'png';
-  const path = `sponsor-logos/${sponsorId}.${ext}`;
+  // Authorize: only the event's organizer/contributors may set a sponsor logo.
+  const eventId = await eventIdForSponsor(sponsorId);
+  if (!eventId) return NextResponse.json({ error: 'Sponsor not found' }, { status: 404 });
+  const auth = await authorizeEventContent(eventId);
+  if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
+
+  // Validate the actual bytes (magic number), not the client-declared type —
+  // otherwise an HTML/SVG payload could be served from a public bucket (stored XSS).
+  const bytes = await file.arrayBuffer();
+  const mime = sniffImageMime(bytes);
+  if (!mime) return NextResponse.json({ error: 'File must be a JPEG, PNG, WebP, or GIF image' }, { status: 400 });
+
+  const path = `sponsor-logos/${sponsorId}.${EXT[mime]}`;
   const admin = createAdminClient();
 
   const { error: uploadError } = await admin.storage
     .from('event-assets')
-    .upload(path, await file.arrayBuffer(), {
-      contentType: file.type,
-      upsert: true,
-    });
+    .upload(path, bytes, { contentType: mime, upsert: true });
 
   if (uploadError) return NextResponse.json({ error: uploadError.message }, { status: 500 });
 
