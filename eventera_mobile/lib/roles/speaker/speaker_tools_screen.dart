@@ -80,7 +80,13 @@ class _SpeakerToolsScreenState extends State<SpeakerToolsScreen> {
         future: _future,
         builder: (context, snap) {
           if (snap.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator(color: AppColors.forest));
+            return const LoadingState();
+          }
+          if (snap.hasError) {
+            return ErrorStateView(
+              message: "We couldn't load your speaker tools.",
+              onRetry: () => setState(() => _future = _load()),
+            );
           }
           final sessions = snap.data ?? [];
           return ListView(
@@ -91,9 +97,6 @@ class _SpeakerToolsScreenState extends State<SpeakerToolsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('${sessions.length} session${sessions.length == 1 ? '' : 's'}',
-                        style: const TextStyle(color: AppColors.inkMuted, fontSize: 13)),
-                    const SizedBox(height: 10),
                     ToolCard(
                       icon: Icons.person_outline,
                       title: 'My speaker profile',
@@ -102,7 +105,11 @@ class _SpeakerToolsScreenState extends State<SpeakerToolsScreen> {
                           builder: (_) => SpeakerProfileScreen(
                               eventId: widget.eventId, eventName: widget.eventName))),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 22),
+                    if (sessions.isNotEmpty) ...[
+                      const SectionLabel('Your sessions'),
+                      const SizedBox(height: 10),
+                    ],
                     for (final s in sessions) ...[
                       ToolCard(
                         icon: Icons.meeting_room_outlined,
@@ -110,6 +117,7 @@ class _SpeakerToolsScreenState extends State<SpeakerToolsScreen> {
                         summary: 'Green room · logistics',
                         onTap: () => Navigator.of(context).push(MaterialPageRoute(
                             builder: (_) => GreenRoomScreen(
+                                eventId: widget.eventId, sessionId: s.id,
                                 eventName: widget.eventName, sessionTitle: s.title,
                                 startsAt: s.startsAt, endsAt: s.endsAt, room: s.room))),
                       ),
@@ -117,7 +125,7 @@ class _SpeakerToolsScreenState extends State<SpeakerToolsScreen> {
                       ToolCard(
                         icon: Icons.forum_outlined,
                         title: '${s.title} · Q&A',
-                        summary: 'Read audience questions (upvote-sorted)',
+                        summary: 'Answer, feature & moderate audience questions',
                         onTap: () => Navigator.of(context).push(MaterialPageRoute(
                             builder: (_) => SessionQaScreen(
                                 eventId: widget.eventId, sessionId: s.id,
@@ -126,8 +134,32 @@ class _SpeakerToolsScreenState extends State<SpeakerToolsScreen> {
                       const SizedBox(height: 10),
                     ],
                     if (sessions.isEmpty)
-                      const Text('No sessions assigned yet.',
-                          style: TextStyle(color: AppColors.inkMuted, fontSize: 13.5)),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(18),
+                        decoration: BoxDecoration(
+                          color: AppColors.creamSoft,
+                          borderRadius: BorderRadius.circular(AppRadius.card),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Icon(Icons.event_note_outlined,
+                                size: 26, color: AppColors.inkMuted),
+                            const SizedBox(height: 10),
+                            Text('No sessions yet',
+                                style: AppText.h3.copyWith(fontSize: 15)),
+                            const SizedBox(height: 4),
+                            Text(
+                              'When the organizer adds you to the schedule, your '
+                              'sessions — with green room details and live audience '
+                              'Q&A — will appear here.',
+                              style: AppText.bodySm
+                                  .copyWith(color: AppColors.inkMuted, height: 1.5),
+                            ),
+                          ],
+                        ),
+                      ),
                   ],
                 ),
               ),

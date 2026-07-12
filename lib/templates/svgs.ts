@@ -71,7 +71,7 @@ export function staticText(c: TextCfg): string {
   <!-- ── BADGE ── -->
   <text x="540" y="196"
     text-anchor="middle"
-    font-family="'Courier New', Courier, monospace"
+    font-family="'JetBrains Mono', monospace"
     font-size="30" font-weight="700"
     fill="${a}" letter-spacing="12">
     ${esc(c.badge.toUpperCase())}
@@ -80,15 +80,15 @@ export function staticText(c: TextCfg): string {
   <!-- ── EVENT NAME ── -->
   <text x="540" y="${line1Y}"
     text-anchor="middle"
-    font-family="'Arial Black', 'Arial', sans-serif"
-    font-size="${fs}" font-weight="900"
+    font-family="'DM Sans', 'Noto Sans Arabic', sans-serif"
+    font-size="${fs}" font-weight="700"
     fill="${white}" letter-spacing="-3">
     ${esc(c.line1)}
   </text>
   ${c.line2 ? `<text x="540" y="${line2Y}"
     text-anchor="middle"
-    font-family="'Arial Black', 'Arial', sans-serif"
-    font-size="${fs}" font-weight="900"
+    font-family="'DM Sans', 'Noto Sans Arabic', sans-serif"
+    font-size="${fs}" font-weight="700"
     fill="${white}" letter-spacing="-3">
     ${esc(c.line2)}
   </text>` : ''}
@@ -111,18 +111,18 @@ export function staticText(c: TextCfg): string {
   <!-- ── DATE ── -->
   <text x="390" y="1142"
     text-anchor="middle"
-    font-family="'Courier New', Courier, monospace"
+    font-family="'JetBrains Mono', monospace"
     font-size="28" font-weight="600"
     fill="${a}" fill-opacity="0.90" letter-spacing="4">
     ${esc(c.date)}
   </text>
   <text x="540" y="1142"
     text-anchor="middle"
-    font-family="'Courier New', Courier, monospace"
+    font-family="'JetBrains Mono', monospace"
     font-size="28" fill="${a}" fill-opacity="0.35">·</text>
   <text x="690" y="1142"
     text-anchor="middle"
-    font-family="'Courier New', Courier, monospace"
+    font-family="'JetBrains Mono', monospace"
     font-size="28" font-weight="500"
     fill="${a}" fill-opacity="0.72" letter-spacing="3">
     ${esc(c.location)}
@@ -131,7 +131,7 @@ export function staticText(c: TextCfg): string {
   <!-- ── HASHTAG ── -->
   <text x="540" y="1208"
     text-anchor="middle"
-    font-family="'Courier New', Courier, monospace"
+    font-family="'JetBrains Mono', monospace"
     font-size="26"
     fill="${c.light ? 'rgba(0,0,0,0.28)' : 'rgba(255,255,255,0.28)'}"
     letter-spacing="2">
@@ -141,7 +141,7 @@ export function staticText(c: TextCfg): string {
   <!-- ── EVENTERA WATERMARK ── -->
   <text x="${W - 60}" y="${H - 48}"
     text-anchor="end"
-    font-family="'Courier New', Courier, monospace"
+    font-family="'JetBrains Mono', monospace"
     font-size="22"
     fill="${c.light ? 'rgba(0,0,0,0.15)' : 'rgba(255,255,255,0.15)'}"
     letter-spacing="5">
@@ -231,10 +231,10 @@ ${t}
 </defs>
 <rect width="${W}" height="${H}" fill="url(#bg)"/>
 ${Array.from({length:10},(_,r)=>Array.from({length:9},(_,c)=>`<circle cx="${c*120+60}" cy="${r*135+67}" r="5" fill="rgba(123,224,192,0.12)"/>`).join('')).join('')}
-<text x="56" y="240" font-family="'Courier New',monospace" font-size="130" fill="rgba(123,224,192,0.18)" font-weight="bold">{</text>
-<text x="${W-56}" y="240" text-anchor="end" font-family="'Courier New',monospace" font-size="130" fill="rgba(123,224,192,0.18)" font-weight="bold">}</text>
-<text x="56" y="${H-50}" font-family="'Courier New',monospace" font-size="100" fill="rgba(123,224,192,0.14)">&lt;</text>
-<text x="${W-56}" y="${H-50}" text-anchor="end" font-family="'Courier New',monospace" font-size="100" fill="rgba(123,224,192,0.14)">/&gt;</text>
+<text x="56" y="240" font-family="'JetBrains Mono',monospace" font-size="130" fill="rgba(123,224,192,0.18)" font-weight="bold">{</text>
+<text x="${W-56}" y="240" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="130" fill="rgba(123,224,192,0.18)" font-weight="bold">}</text>
+<text x="56" y="${H-50}" font-family="'JetBrains Mono',monospace" font-size="100" fill="rgba(123,224,192,0.14)">&lt;</text>
+<text x="${W-56}" y="${H-50}" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="100" fill="rgba(123,224,192,0.14)">/&gt;</text>
 ${t}
 </svg>`;
 
@@ -298,7 +298,7 @@ ${[[384,134],[524,275],[944,92],[194,508],[624,525]].map(([cx,cy])=>`<circle cx=
 <circle cx="900" cy="200" r="70" fill="none" stroke="rgba(232,197,126,0.28)" stroke-width="2"/>
 <line x1="900" y1="132" x2="900" y2="268" stroke="rgba(232,197,126,0.32)" stroke-width="2"/>
 <line x1="832" y1="200" x2="968" y2="200" stroke="rgba(232,197,126,0.32)" stroke-width="2"/>
-<text x="900" y="120" text-anchor="middle" font-family="'Courier New',monospace" font-size="24" fill="rgba(232,197,126,0.55)">N</text>
+<text x="900" y="120" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="24" fill="rgba(232,197,126,0.55)">N</text>
 ${t}
 </svg>`;
 
@@ -315,7 +315,7 @@ ${t}
 ${Array.from({length:10},(_,i)=>`<line x1="${-80+i*145}" y1="0" x2="${60+i*145}" y2="${H}" stroke="rgba(255,210,138,0.08)" stroke-width="3.5"/>`).join('')}
 <ellipse cx="540" cy="740" rx="440" ry="190" fill="none" stroke="rgba(255,210,138,0.22)" stroke-width="4.5"/>
 <ellipse cx="540" cy="740" rx="310" ry="120" fill="none" stroke="rgba(255,255,255,0.09)" stroke-width="2.5"/>
-<text x="540" y="${H-55}" text-anchor="middle" font-family="'Arial Black',Arial,sans-serif" font-size="220" fill="rgba(255,255,255,0.04)" font-weight="900">10K</text>
+<text x="540" y="${H-55}" text-anchor="middle" font-family="'DM Sans','Noto Sans Arabic',sans-serif" font-size="220" fill="rgba(255,255,255,0.04)" font-weight="900">10K</text>
 ${t}
 </svg>`;
 
@@ -337,7 +337,7 @@ ${t}
 <circle cx="840" cy="240" r="78" fill="none" stroke="rgba(123,224,192,0.12)" stroke-width="1.5"/>
 <line x1="840" y1="134" x2="840" y2="346" stroke="rgba(123,224,192,0.26)" stroke-width="2.5"/>
 <line x1="734" y1="240" x2="946" y2="240" stroke="rgba(123,224,192,0.26)" stroke-width="2.5"/>
-<text x="840" y="122" text-anchor="middle" font-family="'Courier New',monospace" font-size="28" fill="rgba(123,224,192,0.58)">N</text>
+<text x="840" y="122" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="28" fill="rgba(123,224,192,0.58)">N</text>
 ${t}
 </svg>`;
 
@@ -689,7 +689,7 @@ ${t}
   </linearGradient>
 </defs>
 <rect width="${W}" height="${H}" fill="url(#bg)"/>
-<text x="540" y="820" text-anchor="middle" font-family="'Arial Black',Arial,sans-serif" font-size="620" font-weight="900" fill="rgba(255,215,0,0.04)" letter-spacing="-20">26</text>
+<text x="540" y="820" text-anchor="middle" font-family="'DM Sans','Noto Sans Arabic',sans-serif" font-size="620" font-weight="900" fill="rgba(255,215,0,0.04)" letter-spacing="-20">26</text>
 ${Array.from({length:8},(_,i)=>`<line x1="0" y1="${i*175}" x2="${W}" y2="${i*175}" stroke="rgba(255,215,0,0.04)" stroke-width="1"/>`).join('')}
 <circle cx="162" cy="162" r="84" fill="none" stroke="rgba(255,215,0,0.13)" stroke-width="2.5"/>
 <path d="M122,162 L162,100 L202,162 L162,224 Z" fill="none" stroke="rgba(255,215,0,0.22)" stroke-width="2"/>
@@ -707,7 +707,7 @@ ${t}
   </linearGradient>
 </defs>
 <rect width="${W}" height="${H}" fill="url(#bg)"/>
-<text x="540" y="${H-72}" text-anchor="middle" font-family="'Arial Black',Arial,sans-serif" font-size="340" font-weight="900" fill="rgba(167,139,250,0.04)" letter-spacing="-10">100</text>
+<text x="540" y="${H-72}" text-anchor="middle" font-family="'DM Sans','Noto Sans Arabic',sans-serif" font-size="340" font-weight="900" fill="rgba(167,139,250,0.04)" letter-spacing="-10">100</text>
 ${Array.from({length:5},(_,i)=>`<rect x="${90+i*30}" y="${90+i*30}" width="${W-180-i*60}" height="${H-180-i*60}" rx="4" fill="none" stroke="rgba(167,139,250,${(0.09-i*0.016).toFixed(3)})" stroke-width="1"/>`).join('')}
 ${t}
 </svg>`;
@@ -723,7 +723,7 @@ ${t}
   </linearGradient>
 </defs>
 <rect width="${W}" height="${H}" fill="url(#bg)"/>
-<text x="540" y="${H-72}" text-anchor="middle" font-family="'Arial Black',Arial,sans-serif" font-size="420" font-weight="900" fill="rgba(74,222,128,0.04)" letter-spacing="-15">100</text>
+<text x="540" y="${H-72}" text-anchor="middle" font-family="'DM Sans','Noto Sans Arabic',sans-serif" font-size="420" font-weight="900" fill="rgba(74,222,128,0.04)" letter-spacing="-15">100</text>
 <ellipse cx="540" cy="720" rx="450" ry="208" fill="none" stroke="rgba(74,222,128,0.13)" stroke-width="3.5"/>
 <ellipse cx="540" cy="720" rx="328" ry="136" fill="none" stroke="rgba(74,222,128,0.07)" stroke-width="2.5"/>
 ${Array.from({length:8},(_,i)=>`<line x1="${-62+i*167}" y1="0" x2="${62+i*167}" y2="${H}" stroke="rgba(74,222,128,0.04)" stroke-width="2.5"/>`).join('')}

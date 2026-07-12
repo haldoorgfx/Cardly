@@ -12,10 +12,27 @@ import { W, H } from '@/lib/templates/svgs';
  *   - CSS linear-gradient (rendered via SVG rect + linearGradient)
  */
 
+// A single CSS color we're willing to interpolate into SVG markup: hex,
+// rgb()/rgba() with plain numeric args, or a simple named color. Anything
+// else (quotes, angle brackets, url(), var(), calc()) is rejected outright —
+// this string is embedded in an SVG attribute that sharp rasterizes
+// server-side, so it must never be able to close the attribute or introduce
+// new elements.
+const SAFE_COLOR =
+  /^(#[0-9a-fA-F]{3,8}|rgba?\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*(?:,\s*(?:0|1|0?\.\d+)\s*)?\)|[a-zA-Z]{3,20})$/;
+
+function isSafeColor(c: string): boolean {
+  return SAFE_COLOR.test(c.trim());
+}
+
 function parseGradient(value: string): { from: string; to: string; angle: number } | null {
-  const match = value.match(/linear-gradient\(\s*([\d.]+)deg\s*,\s*([^,]+)\s*(?:\d+%\s*)?,\s*([^)]+?)\s*(?:\d+%\s*)?\)/);
+  const match = value.match(/^linear-gradient\(\s*([\d.]+)deg\s*,\s*([^,]+?)\s*(?:\d+%\s*)?,\s*([^)]+?)\s*(?:\d+%\s*)?\)$/);
   if (!match) return null;
-  return { angle: parseFloat(match[1]), from: match[2].trim(), to: match[3].trim() };
+  const from = match[2].trim();
+  const to = match[3].trim();
+  const angle = parseFloat(match[1]);
+  if (!isSafeColor(from) || !isSafeColor(to) || !Number.isFinite(angle)) return null;
+  return { angle, from, to };
 }
 
 function buildSolidSVG(value: string, w: number, h: number): string {
@@ -54,6 +71,15 @@ export async function POST(req: NextRequest) {
   const { variantId, value } = body;
   if (!variantId || !value) {
     return NextResponse.json({ error: 'Missing variantId or value' }, { status: 400 });
+  }
+
+  // Only a plain color or a simple two-stop linear-gradient is accepted —
+  // the value ends up inside server-rendered SVG markup.
+  if (value.length > 200 || (!isSafeColor(value) && !parseGradient(value))) {
+    return NextResponse.json(
+      { error: 'Use a solid color (hex, rgb, or a color name) or a simple linear-gradient.' },
+      { status: 400 },
+    );
   }
 
   const admin = createAdminClient();

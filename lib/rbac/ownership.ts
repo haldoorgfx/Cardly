@@ -63,3 +63,71 @@ export async function ownedSponsor(userId: string, sponsorId: string): Promise<a
   if (!contactEmail && (await hasRole(userId, sponsor.event_id as string, 'sponsor'))) return sponsor;
   return null;
 }
+
+/**
+ * Does this account have check-in access for this event? True for the event
+ * owner, or for an account whose email matches an active `event_staff` row
+ * with role 'check_in' or 'manager' (the two roles the Staff roles UI
+ * describes as including "Scan QR codes, add walk-ins").
+ *
+ * Invites are granted by email (see app/api/events/[id]/staff/route.ts),
+ * mirroring the speaker/sponsor ownership pattern above — no separate
+ * "accept invite" step required.
+ */
+export async function hasCheckInAccess(userId: string, eventId: string): Promise<boolean> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const admin = createAdminClient() as any;
+
+  const { data: event } = await admin
+    .from('events')
+    .select('id')
+    .eq('id', eventId)
+    .eq('user_id', userId)
+    .maybeSingle();
+  if (event) return true;
+
+  const email = await profileEmail(userId);
+  if (!email) return false;
+
+  const { data: staff } = await admin
+    .from('event_staff')
+    .select('id')
+    .eq('event_id', eventId)
+    .eq('email', email)
+    .in('role', ['check_in', 'manager'])
+    .neq('status', 'removed')
+    .maybeSingle();
+  return Boolean(staff);
+}
+
+/**
+ * Does this account have Q&A / polls moderation access for this event? True for
+ * the event owner, or for an account whose email matches an active `event_staff`
+ * row with role 'moderator' or 'manager' (the Staff roles UI describes 'moderator'
+ * as including "Moderate Q&A, polls, photo wall, live display").
+ */
+export async function hasModeratorAccess(userId: string, eventId: string): Promise<boolean> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const admin = createAdminClient() as any;
+
+  const { data: event } = await admin
+    .from('events')
+    .select('id')
+    .eq('id', eventId)
+    .eq('user_id', userId)
+    .maybeSingle();
+  if (event) return true;
+
+  const email = await profileEmail(userId);
+  if (!email) return false;
+
+  const { data: staff } = await admin
+    .from('event_staff')
+    .select('id')
+    .eq('event_id', eventId)
+    .eq('email', email)
+    .in('role', ['moderator', 'manager'])
+    .neq('status', 'removed')
+    .maybeSingle();
+  return Boolean(staff);
+}

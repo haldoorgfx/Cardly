@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Search, MapPin, Calendar, ChevronDown, ArrowRight, Map as MapIcon, Ticket, Check, Tag, Globe, Users } from 'lucide-react';
 import { EventCard } from './EventCard';
+import { toggleSavedEvent } from '@/components/shared/saveEvent';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type EventPage = any;
@@ -26,6 +27,7 @@ interface Props {
   featured: EventPage | null;
   events: EventPage[];
   banners?: PromoBanner[];
+  savedIds?: string[];
 }
 
 /** Parse `#RGB` / `#RRGGBB` hex → CSS color, else fallback. */
@@ -249,7 +251,7 @@ function AdminPromoBanner({ banner, onCta }: { banner: PromoBanner; onCta: () =>
 
 /* ─── Main ──────────────────────────────────────────────────────── */
 
-export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents, banners }: Props) {
+export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents, banners, savedIds }: Props) {
   const router = useRouter();
   const events = dbEvents ?? NO_EVENTS;
   const featured = dbFeatured ?? events[0] ?? null;
@@ -261,7 +263,7 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents, ban
   const [city, setCity] = useState('');
   const [when, setWhen] = useState('any');
   const [format, setFormat] = useState<FormatValue>('all');
-  const [saved, setSaved] = useState<Set<string>>(new Set());
+  const [saved, setSaved] = useState<Set<string>>(() => new Set(savedIds ?? []));
 
   // Distinct cities from real events (by frequency), padded with popular fallbacks
   const cities = useMemo(() => {
@@ -303,12 +305,23 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents, ban
     return Array.from(map.values()).sort((a, b) => b.count - a.count).slice(0, 6);
   }, [events]);
 
-  function toggleSave(id: string) {
+  async function toggleSave(id: string) {
+    const willSave = !saved.has(id);
     setSaved(prev => {
       const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
+      if (willSave) next.add(id); else next.delete(id);
       return next;
     });
+    const { unauthorized } = await toggleSavedEvent(id, willSave);
+    if (unauthorized) {
+      // Roll back and send the visitor to sign in, returning here after.
+      setSaved(prev => {
+        const next = new Set(prev);
+        if (willSave) next.delete(id); else next.add(id);
+        return next;
+      });
+      router.push('/account/login?next=/events');
+    }
   }
 
   function scrollToResults() {

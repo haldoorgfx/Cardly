@@ -41,7 +41,7 @@ class _SponsorDetailScreenState extends State<SponsorDetailScreen> {
     });
     try {
       final row = await supa
-          .from('sponsors')
+          .from('public_sponsors')
           .select('*')
           .eq('id', widget.sponsorId)
           .eq('event_id', widget.eventId)

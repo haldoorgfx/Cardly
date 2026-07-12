@@ -1,12 +1,15 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
   ChevronLeft, MoreHorizontal, MapPin, Lock, Clock, CalendarPlus,
   ArrowLeftRight, Receipt, Share2, MessageSquare, X, ChevronRight, Check,
-  Download,
+  Download, IdCard,
 } from 'lucide-react';
+import { EventToolsGrid } from './EventTools';
+import { GetCardModal, type CardVariant } from './GetCardModal';
 
 // ── Types ───────────────────────────────────────────────────────────────────
 
@@ -21,6 +24,7 @@ type EventPage = {
   city: string | null;
   country: string | null;
   is_online: boolean;
+  features: Record<string, boolean> | null;
 };
 
 type Registration = {
@@ -48,6 +52,7 @@ type Registration = {
 interface Props {
   reg: Registration;
   scannedByName: string | null;
+  variant: CardVariant | null;
 }
 
 // ── Brand ────────────────────────────────────────────────────────────────────
@@ -61,6 +66,7 @@ const INK = '#0F1F18';
 const INK_SOFT = '#3A4A42';
 const MUTED = '#6B7A72';
 const BORDER = '#E5E0D4';
+const BORDER_STRONG = '#C9C3B1';
 const DANGER = '#B8423C';
 const WARNING = '#C97A2D';
 const SUCCESS = '#2D7A4F';
@@ -164,7 +170,7 @@ function QRFullscreen({ token, name, label, code, onClose }: {
         <img src={`/api/qr/${token}`} alt="Check-in QR" width={230} height={230} style={{ display: 'block', borderRadius: 6 }} />
       </div>
 
-      <div className="mt-6 text-[14px]" style={{ letterSpacing: '0.2em', color: '#fff', fontFamily: '"JetBrains Mono", monospace' }}>{code}</div>
+      <div className="mt-6 text-[14px]" style={{ letterSpacing: '0.2em', color: '#fff', fontFamily: 'Inter, system-ui, sans-serif' }}>{code}</div>
       <div className="mt-2.5 flex items-center gap-1.5 text-[12px]" style={{ color: 'rgba(250,246,238,0.6)' }}>
         <span className="w-1.5 h-1.5 rounded-full" style={{ background: GOLD }} />
         Screen brightened for scanning
@@ -226,7 +232,7 @@ function ReceiptModal({ reg, onClose }: { reg: Registration; onClose: () => void
             <div className="font-display font-semibold text-[17px]" style={{ fontFamily: '"DM Sans", sans-serif', color: INK }}>
               {isFree ? 'Registration confirmed' : isPaid ? 'Payment successful' : 'Order pending'}
             </div>
-            <div className="text-[11.5px] mt-1.5" style={{ color: MUTED, fontFamily: '"JetBrains Mono", monospace' }}>Order #{orderNo}</div>
+            <div className="text-[11.5px] mt-1.5" style={{ color: MUTED, fontFamily: 'Inter, system-ui, sans-serif' }}>Order #{orderNo}</div>
           </div>
 
           <div className="rounded-xl p-4 mb-4" style={{ background: '#FBFAF6', border: `1px solid ${BORDER}` }}>
@@ -235,11 +241,11 @@ function ReceiptModal({ reg, onClose }: { reg: Registration; onClose: () => void
             </div>
             <div className="flex justify-between text-[13px] mb-3">
               <span style={{ color: INK_SOFT }}>1 × {ticketName}</span>
-              <span style={{ fontFamily: '"JetBrains Mono", monospace', color: INK }}>{isFree ? 'Free' : money(amount, currency)}</span>
+              <span style={{ fontFamily: 'Inter, system-ui, sans-serif', color: INK }}>{isFree ? 'Free' : money(amount, currency)}</span>
             </div>
             <div className="flex justify-between items-center pt-3" style={{ borderTop: `1px solid ${BORDER}` }}>
               <span className="font-display font-semibold text-[15px]" style={{ fontFamily: '"DM Sans", sans-serif', color: INK }}>Total {isPaid ? 'paid' : ''}</span>
-              <span style={{ fontFamily: '"JetBrains Mono", monospace', fontSize: 19, color: FOREST }}>{isFree ? 'Free' : money(amount, currency)}</span>
+              <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 19, color: FOREST }}>{isFree ? 'Free' : money(amount, currency)}</span>
             </div>
           </div>
 
@@ -263,11 +269,14 @@ function ReceiptModal({ reg, onClose }: { reg: Registration; onClose: () => void
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 
-export default function TicketDetailClient({ reg, scannedByName }: Props) {
+export default function TicketDetailClient({ reg, scannedByName, variant }: Props) {
+  const router = useRouter();
   const [showQR, setShowQR] = useState(false);
   const [showActions, setShowActions] = useState(false);
   const [showReceipt, setShowReceipt] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
+  const [showCardModal, setShowCardModal] = useState(false);
+  const [cardDataUrl, setCardDataUrl] = useState<string | null>(null);
 
   const ep = reg.events?.event_pages?.[0];
   const slug = reg.events?.slug ?? '';
@@ -306,6 +315,17 @@ export default function TicketDetailClient({ reg, scannedByName }: Props) {
 
   const qrLabel = [eventName, ticketName].filter(Boolean).join(' · ');
 
+  // Card generation: only offer it once the ticket is live (not blocked on
+  // payment), the event actually has a design, and no card exists yet.
+  const hasCard = !!reg.eventera_card_url || !!cardDataUrl;
+  const canGetCard = !isPendingPayment && !!variant && !hasCard;
+
+  function handleCardGenerated(dataUrl: string) {
+    setCardDataUrl(dataUrl);
+    setShowCardModal(false);
+    router.refresh();
+  }
+
   return (
     <div style={{ background: CREAM, minHeight: '100dvh' }}>
       {/* App bar */}
@@ -326,7 +346,7 @@ export default function TicketDetailClient({ reg, scannedByName }: Props) {
 
       <div className="max-w-md mx-auto px-4 pt-4 pb-10">
         {/* ── THE TICKET ── */}
-        <div className="overflow-hidden" style={{ background: '#fff', border: `1px solid ${BORDER}`, borderRadius: 18, boxShadow: '0 1px 2px rgba(15,31,24,0.04), 0 12px 32px rgba(15,31,24,0.07)' }}>
+        <div className="overflow-hidden" style={{ background: '#fff', border: `1px solid ${BORDER}`, borderRadius: 18, boxShadow: '0 2px 4px rgba(15,31,24,0.05), 0 18px 48px rgba(31,77,58,0.10)' }}>
           {/* Cover */}
           <div className="relative" style={{ height: 150 }}>
             {ep?.cover_image_url ? (
@@ -359,7 +379,7 @@ export default function TicketDetailClient({ reg, scannedByName }: Props) {
           <div className="relative" style={{ height: 24 }}>
             <div className="absolute rounded-full" style={{ width: 24, height: 24, background: CREAM, border: `1px solid ${BORDER}`, left: -13, top: 0 }} />
             <div className="absolute rounded-full" style={{ width: 24, height: 24, background: CREAM, border: `1px solid ${BORDER}`, right: -13, top: 0 }} />
-            <div className="absolute left-4 right-4 top-1/2" style={{ borderTop: `2px dashed ${BORDER}` }} />
+            <div className="absolute left-4 right-4 top-1/2" style={{ borderTop: `2px dashed ${BORDER_STRONG}` }} />
           </div>
 
           {/* Stub: framed QR + ticket code */}
@@ -411,7 +431,7 @@ export default function TicketDetailClient({ reg, scannedByName }: Props) {
             <div className="text-[11px] font-semibold uppercase tracking-[0.12em] mt-4" style={{ color: MUTED }}>
               {isCheckedIn ? 'Checked in at' : 'Ticket code'}
             </div>
-            <div className="text-[15px] mt-1" style={{ fontFamily: '"JetBrains Mono", monospace', letterSpacing: '0.06em', color: INK }}>
+            <div className="text-[15px] mt-1" style={{ fontFamily: 'Inter, system-ui, sans-serif', letterSpacing: '0.06em', color: INK }}>
               {isCheckedIn ? fmtStamp(reg.checked_in_at) : code}
             </div>
           </div>
@@ -457,7 +477,7 @@ export default function TicketDetailClient({ reg, scannedByName }: Props) {
               Reserved for a limited time · pay to confirm your seat
             </div>
             <Link
-              href={`/e/${slug}/register`}
+              href={`/e/${slug}/register/pay?reg=${reg.qr_code_token}`}
               className="mt-3.5 flex items-center justify-center h-12 rounded-2xl text-[15px] font-semibold transition hover:opacity-90"
               style={{ background: FOREST, color: CREAM }}
             >
@@ -499,6 +519,53 @@ export default function TicketDetailClient({ reg, scannedByName }: Props) {
             </Link>
           </div>
         )}
+
+        {/* ── Eventera Card — generate on-demand if it wasn't made at registration ── */}
+        {cardDataUrl ? (
+          <div className="mt-4 rounded-2xl overflow-hidden" style={{ background: '#fff', border: `1px solid ${BORDER}` }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={cardDataUrl} alt="Your Eventera Card" className="w-full block" />
+            <div className="p-4 flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <div className="font-display font-semibold text-[14px]" style={{ fontFamily: '"DM Sans", sans-serif', color: INK }}>Your Eventera Card</div>
+                <div className="text-[12px] mt-0.5" style={{ color: MUTED }}>Saved — you can find it in My Cards too.</div>
+              </div>
+              <a
+                href={cardDataUrl}
+                download={`eventera-card-${reg.attendee_name.replace(/\s+/g, '-').toLowerCase()}.png`}
+                className="shrink-0 flex items-center gap-1.5 h-9 px-3.5 rounded-full text-[12.5px] font-semibold transition hover:opacity-90"
+                style={{ background: FOREST_SOFT, color: FOREST }}
+              >
+                <Download size={13} strokeWidth={2.2} /> Download
+              </a>
+            </div>
+          </div>
+        ) : canGetCard && (
+          <div className="mt-4 rounded-2xl p-4 flex items-center gap-3.5" style={{ background: '#fff', border: `1px solid ${BORDER}` }}>
+            <div className="shrink-0 w-11 h-11 rounded-full flex items-center justify-center" style={{ background: FOREST_SOFT }}>
+              <IdCard size={20} strokeWidth={1.9} style={{ color: FOREST }} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="font-display font-semibold text-[14px]" style={{ fontFamily: '"DM Sans", sans-serif', color: INK }}>Get my Eventera Card</div>
+              <div className="text-[12px] mt-0.5" style={{ color: MUTED }}>Personalise your branded card for this event.</div>
+            </div>
+            <button
+              onClick={() => setShowCardModal(true)}
+              className="shrink-0 flex items-center gap-1 h-9 px-3.5 rounded-full text-[12.5px] font-semibold text-white transition hover:opacity-90"
+              style={{ background: FOREST }}
+            >
+              Get card <ChevronRight size={13} strokeWidth={2.5} />
+            </button>
+          </div>
+        )}
+
+        {/* ── Event tools — engage with the event and organizer ── */}
+        {slug && (
+          <div className="mt-7">
+            <div className="mb-3 text-[11.5px] font-semibold uppercase tracking-[0.1em]" style={{ color: MUTED }}>Event tools</div>
+            <EventToolsGrid slug={slug} features={ep?.features ?? {}} />
+          </div>
+        )}
       </div>
 
       {/* ── QR fullscreen ── */}
@@ -508,6 +575,18 @@ export default function TicketDetailClient({ reg, scannedByName }: Props) {
 
       {/* ── Receipt ── */}
       {showReceipt && <ReceiptModal reg={reg} onClose={() => setShowReceipt(false)} />}
+
+      {/* ── Get my Eventera Card ── */}
+      {showCardModal && variant && (
+        <GetCardModal
+          variant={variant}
+          registrationId={reg.id}
+          eventId={reg.events?.id ?? ''}
+          attendeeName={reg.attendee_name}
+          onClose={() => setShowCardModal(false)}
+          onGenerated={handleCardGenerated}
+        />
+      )}
 
       {/* ── Calendar source picker ── */}
       {showCalendar && canAddCalendar && (

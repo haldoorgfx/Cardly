@@ -129,13 +129,6 @@ function TicketTypeRow({ t, sold }: { t: TicketRow; sold: number }) {
       <div className=" text-[15px] font-semibold shrink-0" style={{ color: '#1F4D3A' }}>
         {priceStr}
       </div>
-
-      {/* Settings icon */}
-      <button className="h-7 w-7 rounded-lg grid place-items-center transition hover:bg-[#F5F3EE]" style={{ color: '#9BA8A1' }}>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-        </svg>
-      </button>
     </div>
   );
 }
@@ -439,16 +432,27 @@ export function TicketsPageClient({
   const [showRemaining, setShowRemaining]       = useState(checkoutShowRemaining);
   const [applyVat, setApplyVat]                 = useState(checkoutApplyVat);
 
-  async function saveCheckoutSetting(field: string, value: boolean) {
-    await fetch(`/api/events/${eventId}/checkout-settings`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ [field]: value }),
-    });
+  const [settingsMsg, setSettingsMsg] = useState<{ type: 'saved' | 'error'; text: string } | null>(null);
+
+  async function saveCheckoutSetting(field: string, value: boolean, revert: () => void) {
+    setSettingsMsg(null);
+    try {
+      const res = await fetch(`/api/events/${eventId}/checkout-settings`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ [field]: value }),
+      });
+      if (!res.ok) throw new Error();
+      setSettingsMsg({ type: 'saved', text: 'Setting saved' });
+      setTimeout(() => setSettingsMsg(m => (m?.type === 'saved' ? null : m)), 2000);
+    } catch {
+      revert();
+      setSettingsMsg({ type: 'error', text: 'Could not save — change reverted. Please try again.' });
+    }
   }
 
   function makeToggle(field: string, setter: (v: boolean) => void) {
-    return (v: boolean) => { setter(v); saveCheckoutSetting(field, v); };
+    return (v: boolean) => { setter(v); saveCheckoutSetting(field, v, () => setter(!v)); };
   }
 
   const subtitle = [
@@ -587,8 +591,19 @@ export function TicketsPageClient({
           {/* Checkout settings */}
           <div className="bg-white rounded-2xl overflow-hidden"
             style={{ border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
-            <div className="px-5 py-4 border-b" style={{ borderColor: '#E5E0D4' }}>
+            <div className="px-5 py-4 border-b flex items-center justify-between gap-3" style={{ borderColor: '#E5E0D4' }}>
               <span className="font-display text-[14px] font-semibold" style={{ color: '#0F1F18' }}>Checkout settings</span>
+              {settingsMsg && (
+                <span
+                  className="text-[12px] font-medium px-2 py-0.5 rounded-full"
+                  style={settingsMsg.type === 'saved'
+                    ? { background: 'rgba(45,122,79,0.1)', color: '#2D7A4F' }
+                    : { background: '#FEF2F2', color: '#B8423C' }}
+                  role="status"
+                >
+                  {settingsMsg.text}
+                </span>
+              )}
             </div>
             <div className="px-5 py-4 space-y-0">
               {[

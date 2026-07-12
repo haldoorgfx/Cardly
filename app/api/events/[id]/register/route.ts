@@ -17,9 +17,12 @@ const RegisterSchema = z.object({
   attendee_email:  z.string().min(1, 'Email is required').max(254, 'Email is too long').email('Please enter a valid email address').transform(v => v.toLowerCase()),
   attendee_phone:  z.string().max(30, 'Phone number is too long').trim().optional().nullable(),
   ticket_type_id:  z.string().uuid('Invalid ticket type'),
-  custom_fields:   z.record(z.string().max(100), z.string().max(2000)).optional().default({}),
-  // PWYW — attendee's chosen price (used when ticket has min_price set)
-  chosen_price:    z.number().min(0).optional(),
+  custom_fields:   z.record(z.string().max(100), z.string().max(2000))
+                    .refine(o => Object.keys(o).length <= 30, 'Too many custom fields')
+                    .optional().default({}),
+  // PWYW — attendee's chosen price (used when ticket has min_price set).
+  // Capped: this number becomes the charged amount, so it must be bounded.
+  chosen_price:    z.number().min(0).max(100_000, 'Amount is too large').optional(),
   // Access code — unlocks hidden tickets
   access_code:     z.string().max(100).optional(),
   // Promo / discount code
@@ -263,13 +266,15 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     return NextResponse.json({ error: regError.message }, { status: 500 });
   }
 
-  // Count the promo redemption (guarded against the usage cap so it can't exceed max_uses)
+  // Count the promo redemption via the ATOMIC increment (migration 017) —
+  // the old read-then-write here let two concurrent registrations both write
+  // N+1 and sneak past max_uses. The RPC raises when the cap is hit; by this
+  // point the registration exists, so a raced-over cap is logged, not fatal.
   if (appliedPromo) {
-    let upd = admin.from('promo_codes')
-      .update({ uses_count: appliedPromo.uses_count + 1 })
-      .eq('id', appliedPromo.id);
-    if (appliedPromo.max_uses !== null) upd = upd.lt('uses_count', appliedPromo.max_uses);
-    await upd;
+    const { error: promoErr } = await admin.rpc('increment_promo_code_uses', {
+      code_id: appliedPromo.id,
+    });
+    if (promoErr) console.error('[register] promo increment:', promoErr.message);
   }
 
   // Record the platform-fee split (best-effort — the columns exist after
@@ -484,7 +489,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
         type: 'ticket_confirmed',
         title: "You're in — ticket confirmed",
         body: `Your ticket for ${eventPage.title} is ready.`,
-        actionUrl: '/account/my-tickets',
+        actionUrl: '/my-tickets',
       });
     }
 

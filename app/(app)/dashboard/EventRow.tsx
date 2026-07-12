@@ -97,7 +97,16 @@ export default function EventRow({ event, index, regCount, revenue, currency }: 
   const [nameVal,       setNameVal]       = useState(event.name);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [busy,          setBusy]          = useState(false);
+  const [deleteErr,     setDeleteErr]     = useState('');
+  const [copied,        setCopied]        = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  function copyLink() {
+    navigator.clipboard.writeText(`${window.location.origin}/e/${event.slug}`).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
 
   const isLive     = event.status === 'published';
   const isDraft    = event.status === 'draft';
@@ -112,8 +121,15 @@ export default function EventRow({ event, index, regCount, revenue, currency }: 
 
   async function doDelete() {
     setBusy(true);
-    await fetch(`/api/events/${event.id}`, { method: 'DELETE' });
-    router.refresh();
+    setDeleteErr('');
+    try {
+      const res = await fetch(`/api/events/${event.id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error();
+      router.refresh();
+    } catch {
+      setBusy(false);
+      setDeleteErr('Could not delete. Please try again.');
+    }
   }
   async function doRename() {
     const trimmed = nameVal.trim();
@@ -138,6 +154,7 @@ export default function EventRow({ event, index, regCount, revenue, currency }: 
             </div>
             <div className="flex-1 text-[13px] text-[#0F1F18]">
               Delete <strong>&ldquo;{event.name}&rdquo;</strong>? This cannot be undone.
+              {deleteErr && <span className="block text-[12px] mt-1" style={{ color: '#B8423C' }}>{deleteErr}</span>}
             </div>
             <button onClick={() => setConfirmDelete(false)} className="px-3 py-1.5 rounded-lg text-[12px] font-medium transition hover:bg-[#F5F3EE]"
               style={{ border: '1px solid #E5E0D4', color: '#3A4A42', background: 'white' }}>
@@ -233,6 +250,12 @@ export default function EventRow({ event, index, regCount, revenue, currency }: 
 
       {/* ACTIONS */}
       <td className="px-5 py-3.5 text-right">
+        {copied && (
+          <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-[60] inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-white text-[13px] font-medium shadow-lg"
+            style={{ background: '#1F4D3A' }} role="status">
+            <LinkIcon size={13} strokeWidth={2} /> Link copied
+          </div>
+        )}
         <DropdownMenu.Root>
           <DropdownMenu.Trigger asChild>
             <button
@@ -264,7 +287,7 @@ export default function EventRow({ event, index, regCount, revenue, currency }: 
               )}
               {isLive && (
                 <>
-                  <MenuItem onSel={() => navigator.clipboard.writeText(`${window.location.origin}/e/${event.slug}`)}>
+                  <MenuItem onSel={copyLink}>
                     <LinkIcon size={13} strokeWidth={1.8} /> Copy link
                   </MenuItem>
                   <MenuItemLink href={`/e/${event.slug}`} external>

@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 
+import '../../app_mode.dart';
 import '../../biometric_service.dart';
-
 import '../../net.dart';
 import '../../rbac/admin_screen.dart';
 import '../../rbac/role_service.dart';
 import '../../rbac/speaking_screen.dart';
 import '../../rbac/sponsoring_screen.dart';
 import '../../screens/my_cards_screen.dart';
-import '../../screens/organizer/dashboard_screen.dart';
 import '../../ui/components.dart';
 import '../../ui/menu.dart';
 import '../../ui/tokens.dart';
@@ -33,6 +32,9 @@ class _AttendeeAccountTabState extends State<AttendeeAccountTab> {
   int _tickets = 0;
   int _saved = 0;
   int _following = 0;
+  // Real name from profiles.full_name (matches the organizer profile). The
+  // email-derived fallback reads like a username ("Cabdalla005"), not a person.
+  String? _fullName;
 
   // Role gating (mirrors the web unified-dashboard nav). Null until the first
   // load resolves, so we render nothing (never flash rows) while loading.
@@ -65,6 +67,7 @@ class _AttendeeAccountTabState extends State<AttendeeAccountTab> {
           _saved = 0;
           _following = 0;
           _roles = null;
+          _fullName = null;
         });
       }
       return;
@@ -97,12 +100,24 @@ class _AttendeeAccountTabState extends State<AttendeeAccountTab> {
       count(() =>
           supa.from('organizer_follows').select('id').eq('follower_id', uid)),
     ]);
+    String? fullName;
+    try {
+      final row = await supa
+          .from('profiles')
+          .select('full_name')
+          .eq('id', uid)
+          .maybeSingle();
+      final n = (row?['full_name'] as String?)?.trim();
+      if (n != null && n.isNotEmpty) fullName = n;
+    } catch (_) {/* fall back to the email-derived name */}
+
     if (!mounted) return;
     setState(() {
       _unread = results[0];
       _tickets = results[1];
       _saved = results[2];
       _following = results[3];
+      _fullName = fullName;
     });
   }
 
@@ -155,7 +170,9 @@ class _AttendeeAccountTabState extends State<AttendeeAccountTab> {
   // ── Signed-in ──────────────────────────────────────────────────────────
   List<Widget> _signedIn() {
     final email = currentUserEmail ?? '';
-    final name = _displayName(email);
+    final name = (_fullName != null && _fullName!.isNotEmpty)
+        ? _fullName!
+        : _displayName(email);
     return [
       _ProfileHeader(
         name: name,
@@ -167,6 +184,26 @@ class _AttendeeAccountTabState extends State<AttendeeAccountTab> {
         onEdit: () => _push(AttendeeProfileScreen(onSignInTap: _auth)),
       ),
       const SizedBox(height: 24),
+
+      // O12 mode switch — shown once the account can organize. Selecting
+      // Organize swaps the whole bottom nav to the organizer shell.
+      if (_roles?.hasOrganizing == true) ...[
+        const GroupLabel('Mode'),
+        SegControl(
+          segments: const ['Attend', 'Organize'],
+          index: 0,
+          onChanged: (i) {
+            if (i == 1) setAppMode(AppMode.organize);
+          },
+        ),
+        const SizedBox(height: 10),
+        Text(
+          "You're attending. Switch to Organize to run your events, "
+          'check people in and see your stats.',
+          style: AppText.bodySm.copyWith(color: AppColors.inkMuted),
+        ),
+        const SizedBox(height: 22),
+      ],
 
       const GroupLabel('My stuff'),
       MenuGroup(children: [
@@ -253,8 +290,8 @@ class _AttendeeAccountTabState extends State<AttendeeAccountTab> {
         icon: Icons.dashboard_customize_outlined,
         tone: ITone.forest,
         title: 'Organizing',
-        subtitle: 'Manage your events',
-        onTap: () => _push(const DashboardScreen()),
+        subtitle: 'Switch to organizer mode',
+        onTap: () => setAppMode(AppMode.organize),
       ));
     }
     if (roles.hasSpeaking) {

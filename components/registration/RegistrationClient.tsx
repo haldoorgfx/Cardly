@@ -63,6 +63,11 @@ interface Props {
   existingTicketToken?: string | null;
   availableProcessors?: string[];
   registrationsClosed?: boolean;
+  /** Who bears the platform fee. 'absorb' (default) = attendee pays the face
+   *  price; 'pass' = attendee pays face + fee. Mirrors lib/billing/fees.ts. */
+  feeBearer?: 'absorb' | 'pass';
+  /** Organizer's platform-fee rate (plan-based: free .05, pro .02, studio 0). */
+  feePercent?: number;
 }
 
 const INPUT = 'w-full rounded-xl px-4 py-3 text-[16px] outline-none transition border focus:border-[#E8C57E] focus:ring-[3px] focus:ring-[rgba(232,197,126,0.15)]';
@@ -158,6 +163,8 @@ export default function RegistrationClient({
   existingTicketToken = null,
   availableProcessors = ['stripe'],
   registrationsClosed = false,
+  feeBearer = 'absorb',
+  feePercent = 0,
 }: Props) {
   const router = useRouter();
 
@@ -241,7 +248,12 @@ export default function RegistrationClient({
   const promoDiscount = appliedPromo ? Math.min(effectivePrice, appliedPromo.discount_amount) : 0;
   const priceAfterPromo = Math.max(0, Math.round((effectivePrice - promoDiscount) * 100) / 100);
   const isFree = priceAfterPromo === 0;
-  const fee = priceAfterPromo > 0 ? Math.round(priceAfterPromo * 0.035 * 100) / 100 : 0;
+  // Match the server's split (lib/billing/fees.ts) EXACTLY so the total shown is
+  // the total charged. In 'absorb' mode the attendee pays face (no added fee);
+  // in 'pass' mode they pay face + the organizer's plan-based platform fee.
+  const fee = (feeBearer === 'pass' && priceAfterPromo > 0)
+    ? Math.round(priceAfterPromo * feePercent * 100) / 100
+    : 0;
   const total = priceAfterPromo + fee;
   const ccy = selectedTicket?.currency ?? 'USD';
   const allTickets = [...tickets, ...unlockedTickets];

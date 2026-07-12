@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition, useRef } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Modal } from '@/components/ui/Modal';
 
@@ -11,6 +12,7 @@ interface Sponsor {
   booth_location: string | null;
   website_url: string | null;
   logo_url: string | null;
+  contact_email: string | null;
   invite_token: string;
   lead_count: number;
 }
@@ -47,7 +49,7 @@ function tierLabel(tier: string | null) {
 function SponsorAvatar({ name, logoUrl }: { name: string; logoUrl: string | null }) {
   if (logoUrl) {
     return (
-      <img src={logoUrl} alt={name}
+      <Image src={logoUrl} alt={name} width={40} height={40}
         className="w-10 h-10 rounded-xl object-contain shrink-0 bg-white"
         style={{ border: '1px solid #E5E0D4' }} />
     );
@@ -104,7 +106,7 @@ function LogoUpload({
           <span className="text-[12px]" style={{ color: '#6B7A72' }}>Uploading…</span>
         ) : preview ? (
           <>
-            <img src={preview} alt="Logo" className="h-10 w-10 object-contain rounded-lg" style={{ border: '1px solid #E5E0D4' }} />
+            <Image src={preview} alt="Logo" width={40} height={40} className="h-10 w-10 object-contain rounded-lg" style={{ border: '1px solid #E5E0D4' }} />
             <span className="text-[12px]" style={{ color: '#6B7A72' }}>Replace logo</span>
           </>
         ) : (
@@ -130,6 +132,7 @@ function EditSponsorModal({
     tier:          sponsor.tier ?? 'standard',
     booth_location: sponsor.booth_location ?? '',
     website_url:   sponsor.website_url ?? '',
+    contact_email: sponsor.contact_email ?? '',
   });
   const [logoUrl, setLogoUrl] = useState<string | null>(sponsor.logo_url);
   const [saving, setSaving] = useState(false);
@@ -191,6 +194,15 @@ function EditSponsorModal({
             <input type="url" value={form.website_url} onChange={e => setForm(f => ({ ...f, website_url: e.target.value }))}
               placeholder="https://company.com"
               className="w-full border rounded-lg px-3 py-2.5 text-[13.5px] outline-none" style={{ borderColor: '#E5E0D4', color: '#0F1F18' }} />
+          </div>
+          <div className="sm:col-span-2">
+            <label className="block text-[10px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Contact email</label>
+            <input type="email" value={form.contact_email} onChange={e => setForm(f => ({ ...f, contact_email: e.target.value }))}
+              placeholder="sponsor@company.com"
+              className="w-full border rounded-lg px-3 py-2.5 text-[13.5px] outline-none" style={{ borderColor: '#E5E0D4', color: '#0F1F18' }} />
+            <p className="text-[11px] mt-1.5" style={{ color: '#9BA8A1' }}>
+              If they sign up with this email, they get automatic access to their sponsor portal.
+            </p>
           </div>
           <div className="sm:col-span-2">
             <LogoUpload
@@ -273,7 +285,7 @@ export function SponsorsClient({ eventId, sponsors: initial }: Props) {
   const [sponsors, setSponsors] = useState(initial);
   const [showAdd, setShowAdd]   = useState(false);
   const [copied, setCopied]     = useState<string | null>(null);
-  const [form, setForm]         = useState({ company_name: '', tier: 'gold', booth_location: '', website_url: '' });
+  const [form, setForm]         = useState({ company_name: '', tier: 'gold', booth_location: '', website_url: '', contact_email: '' });
   const [pendingLogoFile, setPendingLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const addLogoInputRef = useRef<HTMLInputElement>(null);
@@ -321,7 +333,7 @@ export function SponsorsClient({ eventId, sponsors: initial }: Props) {
         }
 
         setSponsors(prev => [{ ...data.sponsor, logo_url: logoUrl, lead_count: 0 }, ...prev]);
-        setForm({ company_name: '', tier: 'gold', booth_location: '', website_url: '' });
+        setForm({ company_name: '', tier: 'gold', booth_location: '', website_url: '', contact_email: '' });
         setPendingLogoFile(null);
         setLogoPreview(null);
         setShowAdd(false);
@@ -429,6 +441,16 @@ export function SponsorsClient({ eventId, sponsors: initial }: Props) {
                 className="w-full border rounded-lg px-3 py-2.5 text-[13.5px] outline-none"
                 style={{ borderColor: '#E5E0D4', color: '#0F1F18' }} />
             </div>
+            <div className="sm:col-span-2">
+              <div className="text-[9.5px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Contact email (optional)</div>
+              <input type="email" value={form.contact_email} onChange={e => setForm(f => ({ ...f, contact_email: e.target.value }))}
+                placeholder="sponsor@company.com"
+                className="w-full border rounded-lg px-3 py-2.5 text-[13.5px] outline-none"
+                style={{ borderColor: '#E5E0D4', color: '#0F1F18' }} />
+              <p className="text-[11px] mt-1.5" style={{ color: '#9BA8A1' }}>
+                If they sign up with this email, they get automatic access to their sponsor portal.
+              </p>
+            </div>
             {/* Logo upload (optional — uploaded after sponsor created) */}
             <div className="sm:col-span-2">
               <div className="text-[9.5px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Logo (optional)</div>
@@ -439,7 +461,9 @@ export function SponsorsClient({ eventId, sponsors: initial }: Props) {
                 style={{ borderColor: '#E5E0D4', background: logoPreview ? 'white' : '#FAF6EE' }}>
                 {logoPreview ? (
                   <>
-                    <img src={logoPreview} alt="Preview" className="h-10 w-10 object-contain rounded-lg" style={{ border: '1px solid #E5E0D4' }} />
+                    {/* Local FileReader data-URL preview — the optimizer can't process
+                        data: URLs, so this one stays unoptimized. */}
+                    <Image src={logoPreview} alt="Preview" width={40} height={40} unoptimized className="h-10 w-10 object-contain rounded-lg" style={{ border: '1px solid #E5E0D4' }} />
                     <span className="text-[12px]" style={{ color: '#6B7A72' }}>Change logo</span>
                   </>
                 ) : (

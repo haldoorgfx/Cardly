@@ -70,7 +70,7 @@ function HelpCenter() {
         <h1 className="font-title font-bold text-[42px] sm:text-[56px] leading-tight mb-4" style={{ color: '#0F1F18' }}>
           How can we help?
         </h1>
-        <p className="text-[15px] mb-8" style={{ color: '#6B7A72' }}>Search the docs, or browse by topic.</p>
+        <p className="text-[15px] mb-8" style={{ color: '#3A4A42' }}>Search the docs, or browse by topic.</p>
         <div className="max-w-[520px] mx-auto relative">
           <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2" style={{ color: '#6B7A72' }} />
           <input

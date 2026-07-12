@@ -85,7 +85,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           .from('notifications')
           .select(
               'id, type, title, body, action_url, icon, read_at, created_at')
-          .eq('user_id', currentUserId as Object)
+          .eq('user_id', currentUserId ?? '')
           .order('created_at', ascending: false)
           .limit(60);
       if (!mounted) return;
@@ -169,7 +169,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       await supa
           .from('notifications')
           .update({'read_at': DateTime.now().toUtc().toIso8601String()})
-          .eq('user_id', currentUserId as Object)
+          .eq('user_id', currentUserId ?? '')
           .isFilter('read_at', null);
     } catch (_) {
       if (!mounted) return;

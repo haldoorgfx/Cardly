@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Mic, Store, ArrowRight } from 'lucide-react';
 import MyTicketsClient from '@/components/tickets/MyTicketsClient';
 import { PageShell, PageHeader } from '@/components/dash';
+import { registrationOwnershipFilter } from '@/lib/registration/ownership';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = { title: 'Tickets' };
@@ -26,9 +27,9 @@ export default async function MyTicketsPage() {
     .select(`
       id, attendee_name, attendee_email, status, payment_status, amount_paid, eventera_card_url, qr_code_token, created_at,
       ticket_types(name, price),
-      events(id, name, slug, event_pages(id, title, cover_image_url, starts_at, ends_at, venue_name, city, is_online))
+      events(id, name, slug, event_pages(id, title, cover_image_url, starts_at, ends_at, venue_name, city, is_online, features))
     `)
-    .or(`attendee_email.eq.${(user.email ?? '').toLowerCase()},user_id.eq.${user.id}`)
+    .or(registrationOwnershipFilter(user.id, user.email))
     .in('status', ['confirmed', 'checked_in', 'pending', 'pending_approval'])
     .order('created_at', { ascending: false });
 
@@ -48,6 +49,18 @@ export default async function MyTicketsPage() {
     return new Date(ep.starts_at) < now;
   });
   const cardCount = allRegs.filter(r => r.eventera_card_url).length;
+
+  // "Next up" hero: the soonest confirmed upcoming event with a live QR, so the
+  // event you're about to attend surfaces its tools front-and-center.
+  const featuredPool = upcoming.filter(r => r.status === 'confirmed' || r.status === 'checked_in');
+  const featured =
+    [...featuredPool]
+      .filter(r => r.events?.event_pages?.[0]?.starts_at)
+      .sort((a, b) =>
+        new Date(a.events!.event_pages[0].starts_at!).getTime() -
+        new Date(b.events!.event_pages[0].starts_at!).getTime())[0]
+    ?? featuredPool[0]
+    ?? null;
 
   // ── Speaking + Your booths — match the logged-in email to speaker / sponsor records ──
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -77,7 +90,7 @@ export default async function MyTicketsPage() {
   }
 
   return (
-    <PageShell>
+    <PageShell width="wide">
       <PageHeader
         title="Tickets"
         subtitle={<>
@@ -86,7 +99,7 @@ export default async function MyTicketsPage() {
           {cardCount > 0 && <> · {cardCount} Eventera Card{cardCount !== 1 ? 's' : ''} collected</>}
         </>}
       />
-      <MyTicketsClient upcoming={upcoming} past={past} />
+      <MyTicketsClient upcoming={upcoming} past={past} featured={featured} />
 
       {/* Speaking — your speaker workspace lives in the dashboard */}
       {speaking.length > 0 && (
@@ -97,7 +110,7 @@ export default async function MyTicketsPage() {
             </span>
             <h2 className="font-display font-medium text-[18px]" style={{ color: '#0F1F18' }}>Speaking</h2>
           </div>
-          <div className="grid sm:grid-cols-2 gap-3">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {speaking.map(s => (
               <Link key={s.id} href="/speaking"
                 className="group bg-white rounded-2xl border p-4 flex items-center gap-3 transition-colors hover:border-[#1F4D3A]/40"
@@ -107,7 +120,7 @@ export default async function MyTicketsPage() {
                 </span>
                 <div className="min-w-0 flex-1">
                   <div className="font-medium text-[14px] truncate" style={{ color: '#0F1F18' }}>{s.eventName}</div>
-                  <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>Open speaker workspace</div>
+                  <div className="text-[12px] mt-0.5" style={{ color: '#3A4A42' }}>Open speaker workspace</div>
                 </div>
                 <ArrowRight size={14} strokeWidth={2} className="opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: '#1F4D3A' }} />
               </Link>
@@ -125,7 +138,7 @@ export default async function MyTicketsPage() {
             </span>
             <h2 className="font-display font-medium text-[18px]" style={{ color: '#0F1F18' }}>Your booths</h2>
           </div>
-          <div className="grid sm:grid-cols-2 gap-3">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {booths.map(b => (
               <Link key={b.id} href="/sponsoring"
                 className="group bg-white rounded-2xl border p-4 flex items-center gap-3 transition-colors hover:border-[#1F4D3A]/40"
@@ -134,11 +147,11 @@ export default async function MyTicketsPage() {
                   {b.logo_url
                     // eslint-disable-next-line @next/next/no-img-element
                     ? <img src={b.logo_url} alt="" className="w-full h-full object-contain" />
-                    : <Store size={16} strokeWidth={1.8} style={{ color: '#6B7A72' }} />}
+                    : <Store size={16} strokeWidth={1.8} style={{ color: '#3A4A42' }} />}
                 </span>
                 <div className="min-w-0 flex-1">
                   <div className="font-medium text-[14px] truncate" style={{ color: '#0F1F18' }}>{b.company_name}</div>
-                  <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>Open sponsor workspace</div>
+                  <div className="text-[12px] mt-0.5" style={{ color: '#3A4A42' }}>Open sponsor workspace</div>
                 </div>
                 <ArrowRight size={14} strokeWidth={2} className="opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: '#1F4D3A' }} />
               </Link>
@@ -176,6 +189,7 @@ type Registration = {
       venue_name: string | null;
       city: string | null;
       is_online: boolean;
+      features: Record<string, boolean> | null;
     }>;
   } | null;
 };

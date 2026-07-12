@@ -25,7 +25,7 @@ export default async function SponsorsPage({ params }: Props) {
 
   const { data: sponsors } = await admin
     .from('sponsors')
-    .select('id, company_name, tier, booth_location, website_url, logo_url, invite_token, created_at')
+    .select('id, company_name, tier, booth_location, website_url, logo_url, contact_email, invite_token, created_at')
     .eq('event_id', id)
     .order('created_at', { ascending: false });
 
@@ -42,7 +42,7 @@ export default async function SponsorsPage({ params }: Props) {
     });
   }
 
-  const enriched = (sponsors ?? []).map((s: { id: string; company_name: string; tier: string | null; booth_location: string | null; website_url: string | null; logo_url: string | null; invite_token: string; created_at: string }) => ({
+  const enriched = (sponsors ?? []).map((s: { id: string; company_name: string; tier: string | null; booth_location: string | null; website_url: string | null; logo_url: string | null; contact_email: string | null; invite_token: string; created_at: string }) => ({
     ...s,
     lead_count: leadCounts[s.id] ?? 0,
   }));

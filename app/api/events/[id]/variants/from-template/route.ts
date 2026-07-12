@@ -7,6 +7,7 @@ import {
   W, H,
   ZONE_PHOTO, ZONE_NAME, ZONE_TITLE, ZONE_ORG,
 } from '@/lib/templates/svgs';
+import { injectSvgFonts } from '@/lib/templates/svg-fonts';
 import type { Zone } from '@/types/database';
 
 /** Zone factory — positions match shared SVG constants */
@@ -79,7 +80,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   if (!config) return NextResponse.json({ error: 'Unknown template' }, { status: 400 });
 
   // Build SVG → rasterize to PNG
-  const svgStr = buildSVG(templateId, config.text);
+  const svgStr = injectSvgFonts(buildSVG(templateId, config.text));
   const pngBuf = await sharp(Buffer.from(svgStr)).png().toBuffer();
 
   // Upload to storage

@@ -118,6 +118,13 @@ export default async function DashboardPage() {
   const checkInRate = totalRegistrations > 0 ? Math.round((totalCheckedIn / totalRegistrations) * 100) : 0;
   const firstLiveEvent = allEvents.find(e => e.status === 'published');
 
+  // Registrations live per-event (there is no global registrations list), so the
+  // dashboard shortcut opens the busiest event's registrations — the one an
+  // organizer is most likely to want. Falls back to the first non-archived event.
+  const regShortcutEvent = allEvents
+    .filter(e => e.status !== 'archived')
+    .sort((a, b) => (regsByEvent[b.id]?.count ?? 0) - (regsByEvent[a.id]?.count ?? 0))[0];
+
   // ─── Attention items ───────────────────────────────────────────────────────
   const attentionItems: { id: string; name: string; reason: string; href: string }[] = [];
   for (const e of allEvents) {
@@ -176,15 +183,17 @@ export default async function DashboardPage() {
               <Plus size={15} strokeWidth={2.2} /> Create event
             </Link>
           )}
-          <Link href="/analytics"
-            className="whitespace-nowrap inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border text-[13.5px] transition hover:border-[#1F4D3A]/40 hover:text-[#1F4D3A]"
-            style={{ borderColor: '#E5E0D4', color: '#6B7A72', background: 'white' }}>
-            <Users size={15} strokeWidth={1.8} /> View all registrations
-          </Link>
+          {regShortcutEvent && (
+            <Link href={`/events/${regShortcutEvent.slug}/registrations`}
+              className="whitespace-nowrap inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border text-[13.5px] transition hover:border-[#1F4D3A]/40 hover:text-[#1F4D3A] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1F4D3A]/30"
+              style={{ borderColor: '#E5E0D4', color: '#3A4A42', background: 'white' }}>
+              <Users size={15} strokeWidth={1.8} /> View registrations
+            </Link>
+          )}
           {firstLiveEvent && (
             <Link href={`/events/${firstLiveEvent.slug}/check-in`}
-              className="whitespace-nowrap inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border text-[13.5px] transition hover:border-[#1F4D3A]/40 hover:text-[#1F4D3A]"
-              style={{ borderColor: '#E5E0D4', color: '#6B7A72', background: 'white' }}>
+              className="whitespace-nowrap inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border text-[13.5px] transition hover:border-[#1F4D3A]/40 hover:text-[#1F4D3A] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1F4D3A]/30"
+              style={{ borderColor: '#E5E0D4', color: '#3A4A42', background: 'white' }}>
               <ScanLine size={15} strokeWidth={1.8} /> Open check-in scanner
             </Link>
           )}

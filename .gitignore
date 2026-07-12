@@ -48,3 +48,4 @@ test-*.png
 
 # gstack reference toolkit — not part of the app, do not build/commit/deploy
 gstack-main/
+token.txt

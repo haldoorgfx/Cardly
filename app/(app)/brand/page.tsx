@@ -17,9 +17,9 @@ type Logos = { light?: string; dark?: string };
 export default function BrandKitPage() {
   const [loading, setLoading] = useState(true);
   const [logos, setLogos] = useState<Logos>({});
-  const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
   const [logoUploading, setLogoUploading] = useState<string | null>(null);
+  const [savedFlash, setSavedFlash] = useState(false);
+  const [uploadError, setUploadError] = useState('');
 
   const lightRef = useRef<HTMLInputElement>(null);
   const darkRef  = useRef<HTMLInputElement>(null);
@@ -32,29 +32,27 @@ export default function BrandKitPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const handleSave = async () => {
-    setSaving(true);
-    await fetch('/api/brand', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({}),
-    }).catch(() => {});
-    setSaving(false);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
-  };
-
   const handleLogoUpload = useCallback(async (variant: string, file: File) => {
     setLogoUploading(variant);
+    setUploadError('');
     const fd = new FormData();
     fd.append('file', file);
     fd.append('variant', variant);
     try {
       const res = await fetch('/api/brand/logo', { method: 'POST', body: fd });
-      const data = await res.json();
-      if (res.ok) setLogos(prev => ({ ...prev, [variant]: data.url }));
-    } catch { /* ignore */ }
-    setLogoUploading(null);
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) {
+        setLogos(prev => ({ ...prev, [variant]: data.url }));
+        setSavedFlash(true);
+        setTimeout(() => setSavedFlash(false), 2500);
+      } else {
+        setUploadError(data.error ?? 'Upload failed — please try again.');
+      }
+    } catch {
+      setUploadError('Upload failed — please check your connection.');
+    } finally {
+      setLogoUploading(null);
+    }
   }, []);
 
   if (loading) {
@@ -74,17 +72,24 @@ export default function BrandKitPage() {
       <div className="flex items-start justify-between gap-4 mb-8">
         <div>
           <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight text-[#0F1F18]" style={{ letterSpacing: '-0.02em' }}>Brand Kit</h1>
-          <p className="text-[14px] text-[#6B7A72] mt-1">Applied to event pages and Eventera Cards</p>
+          <p className="text-[14px] text-[#3A4A42] mt-1">Applied to event pages and Eventera Cards</p>
         </div>
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="inline-flex items-center gap-2 h-9 px-5 rounded-lg text-[13.5px] font-semibold text-white bg-primary hover:opacity-95 disabled:opacity-60 transition shrink-0 mt-1"
+        {/* Logos persist the moment they upload — no separate save step. */}
+        <div
+          className="shrink-0 mt-1 h-9 inline-flex items-center gap-1.5 text-[12.5px] font-medium transition-colors"
+          style={{ color: savedFlash ? '#2D7A4F' : '#6B7A72' }}
+          role="status"
+          aria-live="polite"
         >
-          <Check size={13} strokeWidth={2.5} />
-          {saved ? 'Saved' : saving ? 'Saving…' : 'Save brand kit'}
-        </button>
+          <Check size={13} strokeWidth={2.5} style={{ opacity: savedFlash ? 1 : 0.5 }} />
+          {savedFlash ? 'Saved' : 'Changes save automatically'}
+        </div>
       </div>
+      {uploadError && (
+        <div className="mb-5 px-4 py-3 rounded-xl text-[13px]" role="alert" style={{ background: 'rgba(184,66,60,0.08)', border: '1px solid rgba(184,66,60,0.25)', color: '#B8423C' }}>
+          {uploadError}
+        </div>
+      )}
 
       {/* Two-column layout */}
       <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_300px] xl:grid-cols-[minmax(0,1fr)_340px] gap-5">

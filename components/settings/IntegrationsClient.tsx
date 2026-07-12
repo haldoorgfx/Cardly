@@ -87,6 +87,7 @@ export function IntegrationsClient() {
   const [stripe, setStripe] = useState<StripeStatus | null>(null);
   const [open, setOpen] = useState<Provider | null>(null);
   const [banner, setBanner] = useState<{ kind: 'success' | 'error'; text: string } | null>(null);
+  const [stripeBusy, setStripeBusy] = useState(false);
 
   const load = useCallback(async () => {
     const [iRes, sRes] = await Promise.all([
@@ -111,15 +112,36 @@ export function IntegrationsClient() {
 
   async function startStripe() {
     setBanner(null);
-    const res = await fetch('/api/integrations/stripe/connect', { method: 'POST' });
-    const body = await res.json();
-    if (res.ok && body.url) { window.location.href = body.url; return; }
-    setBanner({ kind: 'error', text: body.error ?? 'Could not start Stripe onboarding.' });
+    setStripeBusy(true);
+    try {
+      const res = await fetch('/api/integrations/stripe/connect', { method: 'POST' });
+      const body = await res.json().catch(() => ({}));
+      if (res.ok && body.url) { window.location.href = body.url; return; }
+      setBanner({ kind: 'error', text: body.error ?? 'Could not start Stripe onboarding.' });
+    } catch {
+      setBanner({ kind: 'error', text: 'Could not reach Stripe. Please try again.' });
+    } finally {
+      setStripeBusy(false);
+    }
   }
 
   async function disconnectStripe() {
-    await fetch('/api/integrations/stripe', { method: 'DELETE' });
-    load();
+    if (!confirm('Disconnect Stripe?\n\nYou will stop accepting card payments until you reconnect.')) return;
+    setBanner(null);
+    setStripeBusy(true);
+    try {
+      const res = await fetch('/api/integrations/stripe', { method: 'DELETE' });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        setBanner({ kind: 'error', text: body.error ?? 'Could not disconnect Stripe.' });
+        return;
+      }
+      await load();
+    } catch {
+      setBanner({ kind: 'error', text: 'Could not disconnect Stripe. Please try again.' });
+    } finally {
+      setStripeBusy(false);
+    }
   }
 
   return (
@@ -188,14 +210,16 @@ export function IntegrationsClient() {
           )}
           <div className="flex gap-2">
             {stripe?.chargesEnabled ? (
-              <button onClick={disconnectStripe}
-                className="text-[12.5px] font-medium px-3 py-2 rounded-lg"
-                style={{ background: 'white', color: C.ink, border: `1px solid ${C.border}` }}>Disconnect</button>
+              <button onClick={disconnectStripe} disabled={stripeBusy}
+                className="text-[12.5px] font-medium px-3 py-2 rounded-lg disabled:opacity-50"
+                style={{ background: 'white', color: C.ink, border: `1px solid ${C.border}` }}>
+                {stripeBusy ? 'Working…' : 'Disconnect'}
+              </button>
             ) : (
-              <button onClick={startStripe} disabled={!stripe?.configured}
+              <button onClick={startStripe} disabled={!stripe?.configured || stripeBusy}
                 className="text-[12.5px] font-medium px-3 py-2 rounded-lg disabled:opacity-50"
                 style={{ background: C.primary, color: 'white', border: `1px solid ${C.primary}` }}>
-                {stripe?.connected ? 'Finish setup' : 'Connect Stripe'}
+                {stripeBusy ? 'Connecting…' : stripe?.connected ? 'Finish setup' : 'Connect Stripe'}
               </button>
             )}
           </div>
@@ -265,10 +289,21 @@ function ConnectModal({ meta, state, onClose, onChanged }: {
   }
 
   async function disconnect() {
-    setBusy('disconnect');
-    await fetch(`/api/integrations/${meta.provider}`, { method: 'DELETE' });
-    setBusy(null);
-    onChanged();
+    if (!confirm(`Disconnect ${meta.name}?\n\nEventera will stop sending data to this integration until you reconnect.`)) return;
+    setBusy('disconnect'); setError('');
+    try {
+      const res = await fetch(`/api/integrations/${meta.provider}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        setError(body.error ?? 'Could not disconnect.');
+        return;
+      }
+      onChanged();
+    } catch {
+      setError('Could not disconnect. Please try again.');
+    } finally {
+      setBusy(null);
+    }
   }
 
   return (

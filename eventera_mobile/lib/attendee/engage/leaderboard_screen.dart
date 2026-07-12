@@ -10,11 +10,17 @@ import '_shared.dart';
 /// Contract verified:
 ///  - GET /api/events/[id]/leaderboard
 ///    → { leaderboard: [{ rank, registration_id, attendee_name, total_points }] }.
-/// If a row carries an `is_you` / `is_current` flag it is highlighted as "You";
-/// this is optional and ignored when absent, so the contract is unchanged.
+/// The caller's own row is highlighted as "You" — matched client-side against
+/// [registrationId] using each row's `registration_id` (the endpoint carries no
+/// attendee identity of its own), falling back to any server `is_you` flag.
 class LeaderboardScreen extends StatefulWidget {
   final String eventId;
-  const LeaderboardScreen({super.key, required this.eventId});
+
+  /// The viewer's registration id for this event, used to highlight their row.
+  final String? registrationId;
+
+  const LeaderboardScreen(
+      {super.key, required this.eventId, this.registrationId});
 
   @override
   State<LeaderboardScreen> createState() => _LeaderboardScreenState();
@@ -36,11 +42,17 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
   bool _loading = true;
   String? _error;
   List<_Entry> _entries = [];
+  String? _rid;
 
   @override
   void initState() {
     super.initState();
-    _load();
+    _resolveThenLoad();
+  }
+
+  Future<void> _resolveThenLoad() async {
+    _rid = await effectiveRegId(widget.registrationId, widget.eventId);
+    await _load();
   }
 
   Future<void> _load() async {
@@ -52,12 +64,17 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
       final res = await apiGet('/api/events/${widget.eventId}/leaderboard');
       final list =
           (res is Map) ? asMapList(res['leaderboard']) : <Map<String, dynamic>>[];
+      final myRid = _rid;
       final entries = list
           .map((e) => _Entry(
                 rank: asInt(e['rank']),
                 name: asString(e['attendee_name'], 'Attendee'),
                 points: asInt(e['total_points']),
-                isYou: asBool(e['is_you']) || asBool(e['is_current']),
+                isYou: asBool(e['is_you']) ||
+                    asBool(e['is_current']) ||
+                    (myRid != null &&
+                        myRid.isNotEmpty &&
+                        asString(e['registration_id']) == myRid),
               ))
           .toList();
       if (!mounted) return;

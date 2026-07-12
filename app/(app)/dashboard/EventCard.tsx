@@ -48,7 +48,16 @@ export default function EventCard({ event, regCount, revenue, currency, checkinP
   const [nameVal,       setNameVal]       = useState(event.name);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [busy,          setBusy]          = useState(false);
+  const [deleteErr,     setDeleteErr]     = useState('');
+  const [copied,        setCopied]        = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  function copyLink() {
+    navigator.clipboard.writeText(`${window.location.origin}/e/${event.slug}`).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
 
   const isLive     = event.status === 'published';
   const isDraft    = event.status === 'draft';
@@ -64,8 +73,15 @@ export default function EventCard({ event, regCount, revenue, currency, checkinP
 
   async function doDelete() {
     setBusy(true);
-    await fetch(`/api/events/${event.id}`, { method: 'DELETE' });
-    router.refresh();
+    setDeleteErr('');
+    try {
+      const res = await fetch(`/api/events/${event.id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error();
+      router.refresh();
+    } catch {
+      setBusy(false);
+      setDeleteErr('Could not delete this event. Please try again.');
+    }
   }
   async function doRename() {
     const trimmed = nameVal.trim();
@@ -89,6 +105,7 @@ export default function EventCard({ event, regCount, revenue, currency, checkinP
         <div>
           <div className="font-display font-semibold text-[14px] text-[#0F1F18]">Delete &ldquo;{event.name}&rdquo;?</div>
           <div className="text-[12px] text-[#6B7A72] mt-0.5">This cannot be undone.</div>
+          {deleteErr && <div className="text-[12px] mt-1.5" style={{ color: '#B8423C' }}>{deleteErr}</div>}
         </div>
         <div className="flex gap-2">
           <button onClick={() => setConfirmDelete(false)} className="px-4 py-1.5 rounded-lg text-[12px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#3A4A42', background: 'white' }}>Cancel</button>
@@ -123,7 +140,7 @@ export default function EventCard({ event, regCount, revenue, currency, checkinP
           )}
           {isLive && (
             <DropdownMenu.Item className="flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer outline-none transition" style={{ color: '#3A4A42' }}
-              onSelect={() => navigator.clipboard.writeText(`${window.location.origin}/e/${event.slug}`)}
+              onSelect={copyLink}
               onMouseEnter={e => (e.currentTarget.style.background = '#FAF6EE')} onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
               <LinkIcon size={13} strokeWidth={1.8} /> Copy link
             </DropdownMenu.Item>
@@ -159,6 +176,13 @@ export default function EventCard({ event, regCount, revenue, currency, checkinP
   return (
     <div className={`group bg-white border rounded-2xl overflow-hidden transition-colors hover:border-[#1F4D3A]/40 flex flex-col ${isArchived ? 'opacity-70' : ''}`}
       style={{ borderColor: '#E5E0D4' }}>
+
+      {copied && (
+        <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-[60] inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-white text-[13px] font-medium shadow-lg"
+          style={{ background: '#1F4D3A' }} role="status">
+          <LinkIcon size={13} strokeWidth={2} /> Link copied
+        </div>
+      )}
 
       {/* ── Cover ── */}
       <div className="relative h-[88px] overflow-hidden"

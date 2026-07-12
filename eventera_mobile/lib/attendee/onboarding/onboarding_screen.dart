@@ -174,7 +174,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         await supa
             .from('profiles')
             .update(patch)
-            .eq('id', currentUserId as Object);
+            .eq('id', currentUserId ?? '');
       }
     } catch (_) {
       // Never trap the user in onboarding on a network hiccup — let them out.

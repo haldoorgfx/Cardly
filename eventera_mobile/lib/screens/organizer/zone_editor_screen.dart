@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../eventera_api.dart';
 import '../../models.dart';
@@ -153,6 +154,7 @@ class _ZoneEditorScreenState extends State<ZoneEditorScreen> {
   }
 
   Future<void> _save() async {
+    HapticFeedback.lightImpact();
     setState(() => _saving = true);
     try {
       await _api.saveZones(
@@ -424,7 +426,7 @@ class _ZoneEditorScreenState extends State<ZoneEditorScreen> {
                     style: TextStyle(color: Brand.inkSoft, fontSize: 14)),
                 const Spacer(),
                 Switch(
-                  activeColor: Brand.forest,
+                  activeThumbColor: Colors.white, activeTrackColor: Brand.forest,
                   value: z.required,
                   onChanged: (v) => setState(() => z.required = v),
                 ),

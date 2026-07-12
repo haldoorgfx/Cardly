@@ -77,8 +77,10 @@ function Toggle({ on, onChange }: { on: boolean; onChange: (v: boolean) => void 
   return (
     <button
       type="button"
+      role="switch"
+      aria-checked={on}
       onClick={() => onChange(!on)}
-      className="relative shrink-0 transition-colors"
+      className="relative shrink-0 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1F4D3A]"
       style={{
         width: 40, height: 23,
         borderRadius: 100,
@@ -254,7 +256,7 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
   return (
     <div
       className={embedded ? 'max-w-[760px] pb-16' : 'max-w-[760px] mx-auto px-5 pb-24'}
-      style={{ paddingTop: embedded ? 32 : 44 }}
+      style={{ paddingTop: embedded ? 0 : 44 }}
     >
       {/* Header — suppressed when embedded (organizer Settings supplies its own) */}
       {!embedded && (

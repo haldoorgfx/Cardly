@@ -88,6 +88,24 @@ export default async function RegisterPage({ params, searchParams }: Props) {
   ]);
 
   const page = (pageRes as any).data;
+
+  // Real fee model so the checkout total shown == the amount actually charged
+  // (mirrors lib/billing/fees.ts). Read defensively — pre-migration-040 events
+  // default to 'absorb' (attendee pays face price, no added fee).
+  let feeBearer: 'absorb' | 'pass' = 'absorb';
+  let feePercent = 0;
+  try {
+    const { data: ev } = await (admin as any)
+      .from('events').select('fee_bearer, user_id').eq('id', event.id).single();
+    if (ev?.fee_bearer === 'pass') feeBearer = 'pass';
+    if (ev?.user_id) {
+      const { data: prof } = await (admin as any)
+        .from('profiles').select('plan').eq('id', ev.user_id).single();
+      const plan = (prof?.plan ?? 'free') as 'free' | 'pro' | 'studio';
+      feePercent = plan === 'studio' ? 0 : plan === 'pro' ? 0.02 : 0.05;
+    }
+  } catch { /* defaults: absorb / 0 — safe (total = face price) */ }
+
   const now = new Date();
   const registrationsClosed = !!(
     (page?.registration_deadline && new Date(page.registration_deadline) < now) ||
@@ -160,6 +178,8 @@ export default async function RegisterPage({ params, searchParams }: Props) {
           alreadyRegistered={alreadyRegistered}
           existingTicketToken={existingTicketToken}
           registrationsClosed={registrationsClosed}
+          feeBearer={feeBearer}
+          feePercent={feePercent}
         />
       </div>
     </div>

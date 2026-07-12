@@ -2,10 +2,23 @@
 
 import Link from "next/link";
 import { useState, useTransition } from "react";
+import { useSearchParams } from "next/navigation";
 import { signIn } from "../actions";
 import { createClient } from "@/lib/supabase/client";
 
+// Only forward same-origin paths so ?next= can't become an open redirect.
+function safeNext(value: string | null): string {
+  if (!value || !value.startsWith("/") || value.startsWith("//") || value.startsWith("/\\")) {
+    return "";
+  }
+  return value;
+}
+
 export default function LoginClient() {
+  const searchParams = useSearchParams();
+  const next = safeNext(searchParams.get("next"));
+  const signupHref = next ? `/signup?next=${encodeURIComponent(next)}` : "/signup";
+
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [googlePending, setGooglePending] = useState(false);
@@ -25,9 +38,12 @@ export default function LoginClient() {
     setGooglePending(true);
     try {
       const supabase = createClient();
+      const callback = next
+        ? `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`
+        : `${window.location.origin}/auth/callback`;
       const { error: oauthError } = await supabase.auth.signInWithOAuth({
         provider: "google",
-        options: { redirectTo: `${window.location.origin}/auth/callback` },
+        options: { redirectTo: callback },
       });
       if (oauthError) {
         setError(oauthError.message);
@@ -45,33 +61,6 @@ export default function LoginClient() {
       className="min-h-screen flex flex-col items-center justify-center px-4 py-12 relative overflow-hidden"
       style={{ background: "#FAF6EE" }}
     >
-      {/* Mesh gradient blob — top right */}
-      <div
-        className="absolute pointer-events-none"
-        style={{
-          top: "-10%",
-          right: "-8%",
-          width: "500px",
-          height: "500px",
-          background:
-            "radial-gradient(ellipse, rgba(31,77,58,0.12) 0%, transparent 70%)",
-          filter: "blur(70px)",
-        }}
-      />
-      {/* Mesh gradient blob — bottom left */}
-      <div
-        className="absolute pointer-events-none"
-        style={{
-          bottom: "-10%",
-          left: "-8%",
-          width: "420px",
-          height: "420px",
-          background:
-            "radial-gradient(ellipse, rgba(232,197,126,0.14) 0%, transparent 70%)",
-          filter: "blur(60px)",
-        }}
-      />
-
       {/* Logo */}
       <div className="relative mb-8">
         <Link href="/">
@@ -92,10 +81,10 @@ export default function LoginClient() {
         <h1 className="text-[22px] font-bold text-[#0F1F18] tracking-tight mb-1">
           Welcome back
         </h1>
-        <p className="text-[14px] text-[#6B7A72] mb-7">
+        <p className="text-[14px] text-[#3A4A42] mb-7">
           Don&apos;t have an account?{" "}
           <Link
-            href="/signup"
+            href={signupHref}
             className="text-[#1F4D3A] font-medium hover:underline"
           >
             Sign up →
@@ -103,6 +92,7 @@ export default function LoginClient() {
         </p>
 
         <form className="space-y-4" onSubmit={handleSubmit}>
+          <input type="hidden" name="next" value={next} />
           {error && (
             <div className="text-[13px] text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
               {error}
@@ -143,7 +133,7 @@ export default function LoginClient() {
               </label>
               <Link
                 href="/forgot-password"
-                className="text-[12px] text-[#6B7A72] hover:text-[#1F4D3A] transition"
+                className="text-[12px] text-[#3A4A42] hover:text-[#1F4D3A] transition"
               >
                 Forgot password?
               </Link>
@@ -202,7 +192,7 @@ export default function LoginClient() {
 
         <div className="flex items-center gap-3 mt-5">
           <div className="flex-1 h-px" style={{ background: "#E5E0D4" }} />
-          <span className="text-[12px] text-[#6B7A72]">or</span>
+          <span className="text-[12px] text-[#3A4A42]">or</span>
           <div className="flex-1 h-px" style={{ background: "#E5E0D4" }} />
         </div>
 
@@ -223,13 +213,13 @@ export default function LoginClient() {
       </div>
 
       {/* Footer */}
-      <p className="relative mt-8 text-center text-[12px] text-[#6B7A72]">
+      <p className="relative mt-8 text-center text-[12px] text-[#3A4A42]">
         © 2026 Eventera ·{" "}
-        <Link href="/privacy" className="hover:text-[#3A4A42] transition">
+        <Link href="/privacy" className="underline-offset-2 hover:underline transition">
           Privacy
         </Link>{" "}
         ·{" "}
-        <Link href="/terms" className="hover:text-[#3A4A42] transition">
+        <Link href="/terms" className="underline-offset-2 hover:underline transition">
           Terms
         </Link>
       </p>

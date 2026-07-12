@@ -47,8 +47,11 @@ class _SpeakerDetailScreenState extends State<SpeakerDetailScreen> {
     });
     try {
       final col = _uuid.hasMatch(widget.speakerId) ? 'id' : 'slug';
+      // public_speakers omits `email` — it's a login-linking column (039), not
+      // a public contact field; the "email speaker" button below hides itself
+      // when email is absent.
       final row = await supa
-          .from('speakers')
+          .from('public_speakers')
           .select('*')
           .eq(col, widget.speakerId)
           .eq('event_id', widget.eventId)

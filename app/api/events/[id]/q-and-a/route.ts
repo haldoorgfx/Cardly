@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient, createClient } from '@/lib/supabase/server';
 import { assertOwnsRegistration } from '@/lib/attendee-identity';
+import { hasModeratorAccess } from '@/lib/rbac/ownership';
 import { z } from 'zod';
 import { sendQAAnsweredEmail } from '@/lib/email';
 
@@ -30,7 +31,24 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
   const { data, error } = await query;
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ questions: data });
+
+  // Both QandAClient and QAModerationClient already hide the name client-side
+  // when is_anonymous — but the raw registration_id + real attendee_name were
+  // still sitting in the JSON payload, defeating that for anyone reading the
+  // network response directly. Redact server-side so "anonymous" is actually
+  // anonymous, matching the app's own intent.
+  const questions = (data ?? []).map((q) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { registration_id: _registrationId, registrations, ...rest } = q as typeof q & {
+      registrations: { attendee_name: string } | null;
+    };
+    return {
+      ...rest,
+      registrations: q.is_anonymous ? null : registrations,
+    };
+  });
+
+  return NextResponse.json({ questions });
 }
 
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
@@ -77,6 +95,9 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!(await hasModeratorAccess(user.id, params.id))) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  }
 
   const { questionId, status, is_featured } = await req.json();
   if (!questionId) return NextResponse.json({ error: 'questionId required' }, { status: 400 });

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
+import { assertOwnsRegistration } from '@/lib/attendee-identity';
 import { generateMatches, generateMatchesForOne } from '@/lib/matchmaking';
 
 // GET /api/events/[id]/matches?registration_id=xxx
@@ -10,6 +11,13 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
   if (!registrationId) {
     return NextResponse.json({ error: 'registration_id required' }, { status: 400 });
+  }
+
+  // Without this, anyone could read another attendee's match suggestions
+  // (name + custom profile fields) by swapping the registration_id.
+  const identity = await assertOwnsRegistration(params.id, registrationId);
+  if (!identity.ok) {
+    return NextResponse.json({ error: identity.error }, { status: identity.status });
   }
 
   const admin = createAdminClient();

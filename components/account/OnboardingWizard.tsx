@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -400,7 +401,7 @@ export default function OnboardingWizard({
                 <div className="w-[84px] h-[84px] rounded-full overflow-hidden flex items-center justify-center"
                   style={{ background: FOREST_SOFT, border: `1.5px solid ${BORDER}` }}>
                   {watch('avatar_url')
-                    ? <img src={watch('avatar_url')} alt="" className="w-full h-full object-cover" />
+                    ? <Image src={watch('avatar_url')} alt="" width={84} height={84} className="w-full h-full object-cover" />
                     : <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke={FOREST} strokeWidth="1.6">
                         <circle cx="12" cy="8" r="4" /><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7" />
                       </svg>}

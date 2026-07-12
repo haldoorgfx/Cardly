@@ -4,6 +4,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import PollsManagerClient from '@/components/polls/PollsManagerClient';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
+import { hasModeratorAccess } from '@/lib/rbac/ownership';
 
 interface Props { params: { id: string } }
 
@@ -15,8 +16,10 @@ export default async function PollsManagerPage({ params }: Props) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
+  if (!(await hasModeratorAccess(user.id, id))) redirect('/dashboard');
+
   const admin = createAdminClient();
-  const { data: event } = await admin.from('events').select('id, name, slug').eq('id', id).eq('user_id', user.id).single();
+  const { data: event } = await admin.from('events').select('id, name, slug').eq('id', id).single();
   if (!event) redirect('/dashboard');
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

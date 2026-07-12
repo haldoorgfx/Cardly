@@ -33,17 +33,17 @@ function getCode(widget: WidgetId, slug: string): string {
 </a>`;
     case 'card':
       return `<!-- Eventera Event Card -->
-${iframeBase}/widget/card"
-  width="400" height="220"
+${iframeBase}"
+  width="400" height="560"
   frameborder="0" scrolling="no"
-  style="border-radius:16px;border:1px solid #E5E0D4;overflow:hidden;"
+  style="border-radius:16px;border:1px solid #E5E0D4;overflow:hidden;max-width:100%;"
   title="Event card">
 </iframe>`;
     case 'schedule':
       return `<!-- Eventera Schedule Widget -->
-${iframeBase}/widget/schedule"
+${iframeBase}/schedule"
   width="100%" height="600"
-  frameborder="0" scrolling="no"
+  frameborder="0"
   style="border-radius:16px;border:1px solid #E5E0D4;overflow:hidden;"
   title="Event schedule">
 </iframe>`;

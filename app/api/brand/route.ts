@@ -1,5 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
+
+// Whitelist of brand-kit fields. The PATCH used to spread arbitrary JSON into
+// the profile row — any authenticated user could stuff unbounded data in.
+const BrandKitPatchSchema = z.object({
+  logos: z.object({
+    light: z.string().url().max(500).optional(),
+    dark: z.string().url().max(500).optional(),
+  }).strip().optional(),
+  assets: z.array(z.object({
+    url: z.string().url().max(500),
+    name: z.string().max(120).optional(),
+    type: z.string().max(40).optional(),
+  }).strip()).max(50).optional(),
+}).strip();
 
 /** GET /api/brand — returns current user's brand_kit */
 export async function GET() {
@@ -23,12 +38,17 @@ export async function PATCH(req: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  let body: Record<string, unknown>;
+  let raw: unknown;
   try {
-    body = await req.json();
+    raw = await req.json();
   } catch {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
   }
+  const parsed = BrandKitPatchSchema.safeParse(raw);
+  if (!parsed.success) {
+    return NextResponse.json({ error: 'Invalid brand kit fields' }, { status: 400 });
+  }
+  const body = parsed.data;
 
   const admin = createAdminClient();
 

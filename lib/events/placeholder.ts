@@ -19,9 +19,9 @@ const BANNER_GRADIENTS: string[] = [
   'linear-gradient(150deg, #14241C 0%, #1F4D3A 50%, #C9A45E 130%)',
   'linear-gradient(150deg, #102A20 0%, #2A6A50 60%, #4F9A78 110%)',
   'linear-gradient(150deg, #1A1208 0%, #6B4D1E 55%, #C9A45E 110%)',
-  'linear-gradient(150deg, #0F1F18 0%, #2C5BAA 130%)',
-  'linear-gradient(150deg, #1A0E1E 0%, #4A2D52 55%, #6B4D9E 120%)',
-  'linear-gradient(150deg, #221016 0%, #6B2E3C 60%, #C0436B 120%)',
+  'linear-gradient(150deg, #0A1A16 0%, #163828 50%, #3A8A6E 120%)',
+  'linear-gradient(150deg, #1A140A 0%, #4A3418 55%, #C9A45E 120%)',
+  'linear-gradient(150deg, #241208 0%, #7A3B1E 55%, #D2853A 120%)',
   'linear-gradient(150deg, #0D2018 0%, #245446 50%, #D2853A 130%)',
 ];
 
@@ -30,7 +30,7 @@ export function bannerGradientFor(seed: string): string {
 }
 
 /** Solid avatar colors for initials placeholders. */
-export const AVATAR_COLORS = ['#1F4D3A', '#6B4D9E', '#C0436B', '#2C5BAA', '#D2853A', '#7C4DC4', '#2D7A4F', '#3A6B8C'];
+export const AVATAR_COLORS = ['#1F4D3A', '#8A5A2E', '#9C4A2E', '#6B7A72', '#D2853A', '#163828', '#2D7A4F', '#C9A45E'];
 
 export function avatarColorFor(seed: string): string {
   return AVATAR_COLORS[hashSeed(seed) % AVATAR_COLORS.length];

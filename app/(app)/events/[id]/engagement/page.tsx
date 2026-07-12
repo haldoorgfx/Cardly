@@ -6,6 +6,7 @@ export const metadata: Metadata = { title: 'Engagement' };
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
+import { hasModeratorAccess } from '@/lib/rbac/ownership';
 import Link from 'next/link';
 import React from 'react';
 import { MessageSquare, BarChart2, Users2, ArrowLeft } from 'lucide-react';
@@ -21,12 +22,13 @@ export default async function EngagementPage({ params }: Props) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
+  if (!(await hasModeratorAccess(user.id, id))) redirect('/dashboard');
+
   const admin = createAdminClient();
   const { data: event } = await admin
     .from('events')
     .select('id, name, slug')
     .eq('id', id)
-    .eq('user_id', user.id)
     .single();
 
   if (!event) redirect('/dashboard');

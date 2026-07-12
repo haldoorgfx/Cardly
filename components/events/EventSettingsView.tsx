@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Check, Copy, AlertTriangle, Trash2, X, MapPin, ArrowRight } from 'lucide-react';
 import { PlacesAutocomplete, type PlaceResult } from '@/components/shared/PlacesAutocomplete';
 import { EventFeaturesManager } from '@/components/events/EventFeaturesManager';
+import { zonedDatetimeToISO, isoToZonedDatetimeValue } from '@/lib/events/format';
 
 interface EventData {
   id: string;
@@ -52,13 +53,6 @@ const PAYMENT_METHODS: { value: PaymentProcessor; label: string; desc: string }[
   { value: 'flutterwave', label: 'Flutterwave',            desc: 'Card, bank transfer, USSD — African currencies' },
 ];
 
-function toLocalDate(iso: string | null) {
-  if (!iso) return '';
-  const d = new Date(iso);
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
-
 export function EventSettingsView({ event }: Props) {
   const router = useRouter();
   const [tab, setTab] = useState<Tab>('general');
@@ -68,8 +62,14 @@ export function EventSettingsView({ event }: Props) {
 
   // General
   const [name, setName] = useState(event.name);
-  const [startsAt, setStartsAt] = useState(toLocalDate(event.starts_at));
-  const [endsAt, setEndsAt] = useState(toLocalDate(event.ends_at));
+  // Dates are wall-clock time IN THE EVENT'S TIME ZONE (event.timezone), not
+  // the organizer's browser zone — see zonedDatetimeToISO / isoToZonedDatetimeValue
+  // in lib/events/format.ts. Using the browser zone here silently shifted
+  // starts_at/ends_at (and could clobber a correctly-saved timezone with a
+  // stale value) any time Settings was saved from a different zone than the
+  // one selected for the event.
+  const [startsAt, setStartsAt] = useState(isoToZonedDatetimeValue(event.starts_at, event.timezone));
+  const [endsAt, setEndsAt] = useState(isoToZonedDatetimeValue(event.ends_at, event.timezone));
   const [venue, setVenue] = useState(event.venue_name ?? '');
   const [placeData, setPlaceData] = useState<PlaceResult | null>(
     event.venue_lat && event.venue_lng ? {
@@ -127,6 +127,43 @@ export function EventSettingsView({ event }: Props) {
   const [deleteConfirm, setDeleteConfirm] = useState('');
   const [deleteError, setDeleteError] = useState('');
   const [deleting, setDeleting] = useState(false);
+  const [duplicating, setDuplicating] = useState(false);
+  const [archiving, setArchiving] = useState(false);
+  const [dangerError, setDangerError] = useState('');
+
+  async function handleDuplicate() {
+    setDuplicating(true);
+    setDangerError('');
+    try {
+      const res = await fetch(`/api/events/${event.id}/duplicate`, { method: 'POST' });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error ?? 'Could not duplicate this event.');
+      router.push(`/events/${data.slug ?? data.id}`);
+    } catch (e) {
+      setDangerError(e instanceof Error ? e.message : 'Could not duplicate this event.');
+      setDuplicating(false);
+    }
+  }
+
+  async function handleArchive() {
+    setArchiving(true);
+    setDangerError('');
+    try {
+      const res = await fetch(`/api/events/${event.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'archived' }),
+      });
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        throw new Error(d.error ?? 'Could not archive this event.');
+      }
+      router.push('/dashboard');
+    } catch (e) {
+      setDangerError(e instanceof Error ? e.message : 'Could not archive this event.');
+      setArchiving(false);
+    }
+  }
 
   async function handleDelete() {
     if (deleteConfirm !== event.name) {
@@ -158,8 +195,8 @@ export function EventSettingsView({ event }: Props) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             title:         name.trim(),
-            starts_at:     startsAt ? new Date(startsAt).toISOString() : null,
-            ends_at:       endsAt   ? new Date(endsAt).toISOString()   : null,
+            starts_at:     startsAt ? zonedDatetimeToISO(startsAt, timezone) : null,
+            ends_at:       endsAt   ? zonedDatetimeToISO(endsAt, timezone)   : null,
             max_capacity:           capacity ? parseInt(capacity) : null,
             is_public:              isPublic,
             payment_processors:     paymentProcessors,
@@ -463,12 +500,20 @@ export function EventSettingsView({ event }: Props) {
       {/* Danger zone tab */}
       {tab === 'danger' && (
         <div className="space-y-3">
+          {dangerError && (
+            <p className="text-[13px] px-1" style={{ color: '#B8423C' }}>{dangerError}</p>
+          )}
           <DangerCard
             title="Duplicate event"
-            desc="Create a copy of this event with the same settings and ticket types."
+            desc="Create a draft copy of this event with the same settings, ticket types, and card design."
             action={
-              <button disabled className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-[13px] font-medium border transition opacity-40 cursor-not-allowed" style={{ borderColor: '#E5E0D4', color: '#3A4A42' }}>
-                <Copy size={13} strokeWidth={2} /> Duplicate
+              <button
+                onClick={handleDuplicate}
+                disabled={duplicating}
+                className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-[13px] font-medium border transition hover:border-[#1F4D3A]/50 disabled:opacity-50"
+                style={{ borderColor: '#E5E0D4', color: '#3A4A42' }}
+              >
+                <Copy size={13} strokeWidth={2} /> {duplicating ? 'Duplicating…' : 'Duplicate'}
               </button>
             }
           />
@@ -477,18 +522,12 @@ export function EventSettingsView({ event }: Props) {
             desc="Hide this event from your dashboard without deleting any data."
             action={
               <button
-                onClick={async () => {
-                  const res = await fetch(`/api/events/${event.id}`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ status: 'archived' }),
-                  });
-                  if (res.ok) router.push('/dashboard');
-                }}
-                className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-[13px] font-medium border transition hover:border-[#C97A2D]/60"
+                onClick={handleArchive}
+                disabled={archiving}
+                className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-[13px] font-medium border transition hover:border-[#C97A2D]/60 disabled:opacity-50"
                 style={{ borderColor: '#FBD38D', color: '#C97A2D' }}
               >
-                <AlertTriangle size={13} strokeWidth={2} /> Archive
+                <AlertTriangle size={13} strokeWidth={2} /> {archiving ? 'Archiving…' : 'Archive'}
               </button>
             }
           />

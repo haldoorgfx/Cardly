@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic';
 
-import { createAdminClient } from '@/lib/supabase/server';
+import { createAdminClient, createClient } from '@/lib/supabase/server';
 import { DiscoverHomeClient, type PromoBanner } from '@/components/discovery/DiscoverHomeClient';
 import { PublicNav } from '@/components/events/PublicNav';
 import { MarketingFooter } from '@/components/marketing/MarketingFooter';
@@ -36,10 +36,21 @@ export default async function EventDiscoveryPage() {
     fetchPromoBanners(db, now),
   ]);
 
+  // Saved events for the signed-in visitor, so hearts render pre-filled.
+  let savedIds: string[] = [];
+  try {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { data } = await db.from('saved_events').select('event_page_id').eq('user_id', user.id);
+      savedIds = (data ?? []).map((r: { event_page_id: string }) => r.event_page_id);
+    }
+  } catch { /* non-blocking */ }
+
   return (
     <>
       <PublicNav />
-      <DiscoverHomeClient featured={featured ?? null} events={events ?? []} banners={banners} />
+      <DiscoverHomeClient featured={featured ?? null} events={events ?? []} banners={banners} savedIds={savedIds} />
       <MarketingFooter />
     </>
   );

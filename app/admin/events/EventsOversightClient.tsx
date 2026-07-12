@@ -42,6 +42,7 @@ export function EventsOversightClient({ events: initialEvents, total, page, tota
   const [events, setEvents] = useState<EventRow[]>(initialEvents);
   const [filters, setFilters] = useState<Filters>(defaultFilters);
   const [busy, setBusy] = useState<string | null>(null);
+  const [actionError, setActionError] = useState('');
 
   const hasActiveFilters = Object.values(defaultFilters).some(v => v !== '');
 
@@ -59,7 +60,9 @@ export function EventsOversightClient({ events: initialEvents, total, page, tota
   };
 
   const setModeration = async (event: EventRow, status: 'ok' | 'flagged' | 'removed') => {
+    if (status === 'removed' && !confirm(`Remove "${event.name}" from the marketplace?\n\nIt will no longer be publicly visible until restored.`)) return;
     setBusy(event.id);
+    setActionError('');
     try {
       const res = await fetch(`/api/admin/events/${event.id}`, {
         method: 'PATCH',
@@ -73,7 +76,12 @@ export function EventsOversightClient({ events: initialEvents, total, page, tota
             ? { ...e, moderation_status: updated.moderation_status, status: updated.status }
             : e
         ));
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setActionError(data.error ?? 'Could not update this event — please try again.');
       }
+    } catch {
+      setActionError('Network error — please try again.');
     } finally {
       setBusy(null);
     }
@@ -130,6 +138,14 @@ export function EventsOversightClient({ events: initialEvents, total, page, tota
           </button>
         )}
       </div>
+
+      {actionError && (
+        <div className="mb-4 rounded-xl px-4 py-3 flex items-center justify-between gap-3 text-[13px]" role="alert"
+          style={{ background: 'rgba(184,66,60,0.08)', border: '1px solid rgba(184,66,60,0.25)', color: '#B8423C' }}>
+          <span>{actionError}</span>
+          <button onClick={() => setActionError('')} className="shrink-0 text-[11px] underline">Dismiss</button>
+        </div>
+      )}
 
       {/* Count */}
       <div className="mb-4 text-[12px] text-[#6B7A72]">

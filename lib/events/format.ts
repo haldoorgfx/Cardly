@@ -22,6 +22,75 @@ export function formatEventDateRange(
   };
 }
 
+/**
+ * Convert a `datetime-local` input value ("YYYY-MM-DDTHH:mm", a wall-clock time
+ * with no offset) into a UTC ISO string, interpreting those digits as local time
+ * IN THE GIVEN IANA TIME ZONE — not the browser's own time zone.
+ *
+ * `new Date(localValue).toISOString()` (the naive approach) parses the string
+ * using the browser/runtime's local time zone. That only produces the right
+ * instant when the person filling in the form happens to be physically sitting
+ * in the same zone as the event they're creating — for anyone else it's off by
+ * the difference between the two zones. This walks the offset out via
+ * Intl.DateTimeFormat so the selected event time zone is always what's used.
+ */
+export function zonedDatetimeToISO(localValue: string, timeZone: string): string {
+  if (!localValue) return '';
+  const [datePart, timePart] = localValue.split('T');
+  if (!datePart || !timePart) return '';
+  const [year, month, day] = datePart.split('-').map(Number);
+  const [hour, minute] = timePart.split(':').map(Number);
+  if ([year, month, day, hour, minute].some(n => Number.isNaN(n))) return '';
+
+  // Treat the wall-clock digits as if they were UTC — a starting guess.
+  const utcGuess = Date.UTC(year, month - 1, day, hour, minute);
+
+  // Ask what that instant reads as inside the target zone, then correct by
+  // the difference (handles DST correctly since it's computed for this date).
+  const zoned = getZonedParts(new Date(utcGuess), timeZone);
+  const asUTC = Date.UTC(zoned.year, zoned.month - 1, zoned.day, zoned.hour, zoned.minute, zoned.second);
+  const offset = asUTC - utcGuess;
+
+  return new Date(utcGuess - offset).toISOString();
+}
+
+/**
+ * Inverse of zonedDatetimeToISO: given a UTC ISO string, return the
+ * `datetime-local` input value ("YYYY-MM-DDTHH:mm") representing that instant
+ * as wall-clock time IN THE GIVEN IANA TIME ZONE — not the browser's zone.
+ */
+export function isoToZonedDatetimeValue(isoString: string | null, timeZone: string): string {
+  if (!isoString) return '';
+  const d = new Date(isoString);
+  if (Number.isNaN(d.getTime())) return '';
+  const { year, month, day, hour, minute } = getZonedParts(d, timeZone);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${year}-${pad(month)}-${pad(day)}T${pad(hour)}:${pad(minute)}`;
+}
+
+function getZonedParts(date: Date, timeZone: string) {
+  const dtf = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit',
+    hour12: false,
+  });
+  const map: Record<string, string> = {};
+  for (const part of dtf.formatToParts(date)) {
+    if (part.type !== 'literal') map[part.type] = part.value;
+  }
+  // Some locales/zones render midnight as "24" for hour12: false.
+  const hour = map.hour === '24' ? 0 : Number(map.hour);
+  return {
+    year: Number(map.year),
+    month: Number(map.month),
+    day: Number(map.day),
+    hour,
+    minute: Number(map.minute),
+    second: Number(map.second),
+  };
+}
+
 export function formatShortDate(isoString: string, timezone = 'UTC'): string {
   return new Intl.DateTimeFormat('en-US', {
     month: 'short', day: 'numeric', year: 'numeric', timeZone: timezone,

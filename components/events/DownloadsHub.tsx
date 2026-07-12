@@ -103,7 +103,7 @@ function DownloadCard({ icon, title, description, actions }: DownloadCardProps) 
   );
 }
 
-function PillBtn({ onClick, children, variant = 'green' }: { onClick?: () => void; children: React.ReactNode; variant?: 'green' | 'grey' | 'solid' }) {
+function PillBtn({ onClick, children, variant = 'green', disabled }: { onClick?: () => void; children: React.ReactNode; variant?: 'green' | 'grey' | 'solid'; disabled?: boolean }) {
   const styles =
     variant === 'solid'
       ? { background: '#1F4D3A', color: 'white', border: '1px solid #1F4D3A' }
@@ -114,7 +114,8 @@ function PillBtn({ onClick, children, variant = 'green' }: { onClick?: () => voi
   return (
     <button
       onClick={onClick}
-      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[12.5px] font-medium transition hover:opacity-80"
+      disabled={disabled}
+      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[12.5px] font-medium transition hover:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed"
       style={styles}
     >
       {children}
@@ -122,8 +123,29 @@ function PillBtn({ onClick, children, variant = 'green' }: { onClick?: () => voi
   );
 }
 
+/** PDF download link that disables cleanly when there's no data to render. */
+function PdfLink({ href, filename, disabled }: { href: string; filename: string; disabled?: boolean }) {
+  const cls = 'inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[12.5px] font-medium transition';
+  const style = { background: 'white', color: '#3A4A42', border: '1px solid #E5E0D4' } as const;
+  if (disabled) {
+    return (
+      <span className={`${cls} opacity-40 cursor-not-allowed`} style={style} aria-disabled>
+        <FileDown size={13} strokeWidth={2} /> Download PDF
+      </span>
+    );
+  }
+  return (
+    <a href={href} download={filename} className={`${cls} hover:opacity-80`} style={style}>
+      <FileDown size={13} strokeWidth={2} /> Download PDF
+    </a>
+  );
+}
+
 export function DownloadsHub({ eventId, eventSlug, eventName, regs, sessions, ticketTypes, tracks }: Props) {
   const slug = slugify(eventName);
+  const noRegs = regs.length === 0;
+  const noSessions = sessions.length === 0;
+  const noTickets = ticketTypes.length === 0;
 
   // ── Attendee Roster ──────────────────────────────────────────────────────────
 
@@ -193,20 +215,13 @@ export function DownloadsHub({ eventId, eventSlug, eventName, regs, sessions, ti
         <DownloadCard
           icon={<Users size={18} strokeWidth={1.7} />}
           title="Attendee Roster"
-          description="Full list of registered attendees — opens directly in Excel or Google Sheets"
+          description={noRegs ? 'No registrations yet — the roster fills in as people register.' : 'Full list of registered attendees — opens directly in Excel or Google Sheets'}
           actions={
             <>
-              <PillBtn onClick={downloadRosterCSV} variant="green">
+              <PillBtn onClick={downloadRosterCSV} variant="green" disabled={noRegs}>
                 <FileSpreadsheet size={13} strokeWidth={2} /> Spreadsheet
               </PillBtn>
-              <a
-                href={`/api/events/${eventId}/roster/pdf`}
-                download={`eventera-roster-${slug}.pdf`}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[12.5px] font-medium transition hover:opacity-80"
-                style={{ background: 'white', color: '#3A4A42', border: '1px solid #E5E0D4' }}
-              >
-                <FileDown size={13} strokeWidth={2} /> Download PDF
-              </a>
+              <PdfLink href={`/api/events/${eventId}/roster/pdf`} filename={`eventera-roster-${slug}.pdf`} disabled={noRegs} />
             </>
           }
         />
@@ -215,20 +230,13 @@ export function DownloadsHub({ eventId, eventSlug, eventName, regs, sessions, ti
         <DownloadCard
           icon={<CalendarDays size={18} strokeWidth={1.7} />}
           title="Agenda"
-          description="Full event schedule with speakers and tracks"
+          description={noSessions ? 'No sessions scheduled yet — build your agenda to enable exports.' : 'Full event schedule with speakers and tracks'}
           actions={
             <>
-              <PillBtn onClick={downloadAgendaCSV} variant="green">
+              <PillBtn onClick={downloadAgendaCSV} variant="green" disabled={noSessions}>
                 <FileSpreadsheet size={13} strokeWidth={2} /> Spreadsheet
               </PillBtn>
-              <a
-                href={`/api/events/${eventId}/agenda/pdf`}
-                download={`eventera-agenda-${slug}.pdf`}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[12.5px] font-medium transition hover:opacity-80"
-                style={{ background: 'white', color: '#3A4A42', border: '1px solid #E5E0D4' }}
-              >
-                <FileDown size={13} strokeWidth={2} /> Download PDF
-              </a>
+              <PdfLink href={`/api/events/${eventId}/agenda/pdf`} filename={`eventera-agenda-${slug}.pdf`} disabled={noSessions} />
             </>
           }
         />
@@ -237,20 +245,13 @@ export function DownloadsHub({ eventId, eventSlug, eventName, regs, sessions, ti
         <DownloadCard
           icon={<TrendingUp size={18} strokeWidth={1.7} />}
           title="Revenue Report"
-          description="Financial summary and ticket sales breakdown"
+          description={noTickets ? 'No ticket types yet — add tickets to generate a revenue report.' : 'Financial summary and ticket sales breakdown'}
           actions={
             <>
-              <PillBtn onClick={downloadRevenueCSV} variant="green">
+              <PillBtn onClick={downloadRevenueCSV} variant="green" disabled={noTickets}>
                 <FileSpreadsheet size={13} strokeWidth={2} /> Spreadsheet
               </PillBtn>
-              <a
-                href={`/api/events/${eventId}/revenue/pdf`}
-                download={`eventera-revenue-${slug}.pdf`}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[12.5px] font-medium transition hover:opacity-80"
-                style={{ background: 'white', color: '#3A4A42', border: '1px solid #E5E0D4' }}
-              >
-                <FileDown size={13} strokeWidth={2} /> Download PDF
-              </a>
+              <PdfLink href={`/api/events/${eventId}/revenue/pdf`} filename={`eventera-revenue-${slug}.pdf`} disabled={noTickets} />
             </>
           }
         />

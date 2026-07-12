@@ -1,13 +1,12 @@
 // Sponsor tools entry — opened from the event hub when the user holds the sponsor
 // role at this event. Resolves the user's sponsor booth, then shows the tool cards
-// (lead scanner, my leads, booth team). DRAFT — verify via `flutter analyze`.
+// (lead scanner, my leads, booth team, products, meetings, directory preview).
 
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../ui/tokens.dart';
 import '../../ui/components.dart';
 import '../role_widgets.dart';
+import 'sponsor_api.dart';
 import 'lead_scanner_screen.dart';
 import 'my_leads_screen.dart';
 import 'booth_team_screen.dart';
@@ -30,25 +29,11 @@ class _SponsorToolsScreenState extends State<SponsorToolsScreen> {
   @override
   void initState() {
     super.initState();
-    _future = _resolveBooth();
+    _future = SponsorApi.resolveBooth(widget.eventId);
   }
 
-  Future<Map<String, dynamic>?> _resolveBooth() async {
-    final email =
-        Supabase.instance.client.auth.currentUser?.email?.toLowerCase() ?? '';
-    // Sponsors are publicly readable; find the one where this account is the contact.
-    final rows = await Supabase.instance.client
-        .from('sponsors')
-        .select('id, company_name, tier, contact_email')
-        .eq('event_id', widget.eventId);
-    for (final r in (rows as List)) {
-      final m = Map<String, dynamic>.from(r as Map);
-      if ((m['contact_email'] ?? '').toString().toLowerCase() == email) return m;
-    }
-    // Fallback: first sponsor at the event (covers booth-team members).
-    if ((rows).isNotEmpty) return Map<String, dynamic>.from(rows.first as Map);
-    return null;
-  }
+  void _reload() =>
+      setState(() => _future = SponsorApi.resolveBooth(widget.eventId));
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +43,13 @@ class _SponsorToolsScreenState extends State<SponsorToolsScreen> {
         future: _future,
         builder: (context, snap) {
           if (snap.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator(color: AppColors.forest));
+            return const LoadingState();
+          }
+          if (snap.hasError) {
+            return ErrorStateView(
+              message: "We couldn't load your booth. Check your connection and try again.",
+              onRetry: _reload,
+            );
           }
           final booth = snap.data;
           if (booth == null) {
@@ -71,6 +62,8 @@ class _SponsorToolsScreenState extends State<SponsorToolsScreen> {
           final sponsorId = (booth['id'] ?? '').toString();
           final name = (booth['company_name'] ?? 'Your booth').toString();
           final tier = (booth['tier'] ?? '').toString();
+          final description = (booth['description'] ?? '').toString();
+          final boothLocation = (booth['booth_location'] ?? '').toString();
           return ListView(
             children: [
               RoleBar(
@@ -113,7 +106,8 @@ class _SponsorToolsScreenState extends State<SponsorToolsScreen> {
                       onTap: () => Navigator.of(context).push(MaterialPageRoute(
                           builder: (_) => BoothProductsScreen(
                               sponsorId: sponsorId, eventId: widget.eventId,
-                              eventName: widget.eventName, boothName: name))),
+                              eventName: widget.eventName, boothName: name,
+                              boothDescription: description.isEmpty ? null : description))),
                     ),
                     const SizedBox(height: 10),
                     ToolCard(
@@ -131,7 +125,10 @@ class _SponsorToolsScreenState extends State<SponsorToolsScreen> {
                       summary: 'How attendees see your booth',
                       onTap: () => Navigator.of(context).push(MaterialPageRoute(
                           builder: (_) => DirectoryPreviewScreen(
-                              sponsorId: sponsorId, boothName: name))),
+                              sponsorId: sponsorId, eventId: widget.eventId,
+                              boothName: name,
+                              description: description.isEmpty ? null : description,
+                              category: boothLocation.isEmpty ? null : boothLocation))),
                     ),
                   ],
                 ),

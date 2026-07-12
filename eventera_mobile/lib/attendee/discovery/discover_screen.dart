@@ -11,6 +11,7 @@ import '../../ui/components.dart';
 import '../../ui/tokens.dart';
 import '../account/notifications_screen.dart';
 import '../app_shell.dart';
+import '../auth/attendee_auth_screen.dart';
 import '../event_landing_screen.dart';
 import '../hub/event_page_model.dart';
 import 'events_map_screen.dart';
@@ -150,18 +151,14 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
           .range(from, from + _pageSize - 1);
 
       final batch = <_DiscoverEvent>[];
-      if (rows is List) {
-        for (final r in rows) {
-          if (r is Map) {
-            // Parse each row defensively — one malformed row must never take
-            // down the entire feed.
-            try {
-              batch.add(_DiscoverEvent.fromRow(Map<String, dynamic>.from(r)));
-            } catch (e, st) {
-              debugPrint('[Discover] skipped a row it could not parse: $e');
-              if (kDebugMode) debugPrintStack(stackTrace: st);
-            }
-          }
+      for (final r in rows) {
+        // Parse each row defensively — one malformed row must never take
+        // down the entire feed.
+        try {
+          batch.add(_DiscoverEvent.fromRow(Map<String, dynamic>.from(r)));
+        } catch (e, st) {
+          debugPrint('[Discover] skipped a row it could not parse: $e');
+          if (kDebugMode) debugPrintStack(stackTrace: st);
         }
       }
 
@@ -479,8 +476,22 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
 
   void _openNotifications() {
     Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => NotificationsScreen(onSignInTap: () => mainTab.value = 3),
+      builder: (_) => NotificationsScreen(onSignInTap: _signInFromNotifications),
     ));
+  }
+
+  // The notifications screen is a PUSHED route, so merely flipping the
+  // bottom-nav tab index (as the avatar shortcut does) is invisible here —
+  // it's hidden underneath this route. Push the real sign-in screen, then
+  // swap in a fresh NotificationsScreen so it reloads under the new session.
+  void _signInFromNotifications() {
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (_) => const AttendeeAuthScreen()))
+        .then((_) {
+      if (!mounted || !isSignedIn) return;
+      Navigator.of(context).pop();
+      _openNotifications();
+    });
   }
 
   Widget _loadingBody() {

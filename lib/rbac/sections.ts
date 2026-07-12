@@ -72,10 +72,27 @@ export async function getVisibleSections(userId: string): Promise<VisibleSection
     tickets = await hasRegistrationByEmail(userId);
   }
 
+  // "speaking" — speaker role OR a speakers row matched by email (fallback).
+  // /speaking already resolves speaker rows by email match on its own, but
+  // without this the nav link never appears, so the page is unreachable for
+  // anyone whose role wasn't backfilled by the organizer's add-speaker flow.
+  let speaking = kinds.has('speaker');
+  if (!speaking) {
+    speaking = await hasSpeakerByEmail(userId);
+  }
+
+  // "sponsoring" — sponsor role OR a sponsors row matched by email (fallback).
+  // Same discoverability gap as speaking: /sponsoring's own "Claim" button is
+  // unreachable if the nav link never lights up.
+  let sponsoring = kinds.has('sponsor');
+  if (!sponsoring) {
+    sponsoring = await hasSponsorByEmail(userId);
+  }
+
   return {
     tickets,
-    speaking: kinds.has('speaker'),
-    sponsoring: kinds.has('sponsor'),
+    speaking,
+    sponsoring,
     organizing: kinds.has('organizer'),
     admin,
     speakingEventIds,
@@ -129,5 +146,38 @@ async function hasRegistrationByEmail(userId: string): Promise<boolean> {
     .or(filter)
     .limit(1);
 
+  return Boolean(data && data.length > 0);
+}
+
+/**
+ * Fallback for the "speaking" section: does this account's profile email match
+ * any `speakers.email`? Mirrors the email match /speaking already does itself.
+ */
+async function hasSpeakerByEmail(userId: string): Promise<boolean> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const db = createAdminClient() as any;
+
+  const { data: profile } = await db.from('profiles').select('email').eq('id', userId).single();
+  const email = (profile?.email as string | undefined)?.toLowerCase();
+  if (!email) return false;
+
+  const { data } = await db.from('speakers').select('id', { head: false }).ilike('email', email).limit(1);
+  return Boolean(data && data.length > 0);
+}
+
+/**
+ * Fallback for the "sponsoring" section: does this account's profile email
+ * match any `sponsors.contact_email`? Mirrors the email match /sponsoring
+ * already does itself when listing unclaimed sponsor rows.
+ */
+async function hasSponsorByEmail(userId: string): Promise<boolean> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const db = createAdminClient() as any;
+
+  const { data: profile } = await db.from('profiles').select('email').eq('id', userId).single();
+  const email = (profile?.email as string | undefined)?.toLowerCase();
+  if (!email) return false;
+
+  const { data } = await db.from('sponsors').select('id', { head: false }).ilike('contact_email', email).limit(1);
   return Boolean(data && data.length > 0);
 }

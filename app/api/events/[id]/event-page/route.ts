@@ -31,6 +31,10 @@ const EventPageSchema = z.object({
   seo_description:            z.string().max(300, 'SEO description must be 300 characters or less').trim().nullable().optional(),
   cover_url:                  z.string().url('Invalid cover URL').nullable().optional()
                                 .or(z.literal('')).transform(v => v === '' ? null : v),
+  // The real event_pages column is cover_image_url; the editor sends this and
+  // it was being silently stripped (covers never persisted). Accept it.
+  cover_image_url:            z.string().url('Invalid cover URL').nullable().optional()
+                                .or(z.literal('')).transform(v => v === '' ? null : v),
   organizer_name:             z.string().max(100).trim().nullable().optional(),
   organizer_email:            z.string().email('Invalid organiser email').max(254).nullable().optional()
                                 .or(z.literal('')).transform(v => v === '' ? null : v),
@@ -40,7 +44,10 @@ const EventPageSchema = z.object({
                                 .regex(/^[a-z0-9-]*$/, 'Slug may only contain lowercase letters, numbers, and hyphens')
                                 .nullable().optional(),
   payment_processor:          z.enum(['stripe', 'flutterwave', 'waafipay', 'free']).optional(),
-  payment_processors:         z.array(z.enum(['stripe', 'flutterwave', 'waafipay'])).min(1).optional(),
+  // Must match payment_processor's enum — EventPageEditor's "Free only" toggle
+  // sends payment_processors: ['free'], which this rejected until now, making
+  // it impossible to ever save an event with "Free only" selected.
+  payment_processors:         z.array(z.enum(['stripe', 'flutterwave', 'waafipay', 'free'])).min(1).optional(),
   collect_attendee_details:   z.boolean().optional(),
   apply_vat:                  z.boolean().optional(),
   variant_id:                 z.string().uuid().nullable().optional(),

@@ -58,13 +58,29 @@ function Panel({ title, children, pad = 'p-5' }: { title?: string; children: Rea
   );
 }
 
-export function ReportsClient({ eventName, totalRevenue, regCount, checkedIn, regs, ticketTypes }: Props) {
+type SourceKey = 'registrations' | 'orders' | 'sessions';
+const SOURCES: { key: SourceKey; label: string; desc: string }[] = [
+  { key: 'registrations', label: 'Registrations', desc: 'People who registered' },
+  { key: 'orders',        label: 'Orders',        desc: 'Transactions and revenue' },
+  { key: 'sessions',      label: 'Sessions',      desc: 'Agenda attendance' },
+];
+
+export function ReportsClient({ eventId, eventName, totalRevenue, regCount, checkedIn, regs, ticketTypes }: Props) {
   const [tab, setTab] = useState('roi');
+  const [source, setSource] = useState<SourceKey>('registrations');
+
+  // Rows shown/exported for the current data source.
+  const sourceRegs = source === 'orders'
+    ? regs.filter(r => (r.amount_paid ?? 0) > 0)
+    : regs;
 
   function handleExportCSV() {
+    const exportRows = tab === 'builder' ? sourceRegs : regs;
+    if (exportRows.length === 0) return;
+    const kind = tab === 'builder' ? source : 'registrations';
     const slug = eventName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
     const headers = ['Name', 'Ticket Type', 'Amount', 'Status', 'Registered date'];
-    const rows = regs.map(r => [
+    const rows = exportRows.map(r => [
       r.attendee_name ?? '',
       ticketTypes.find(t => t.id === r.ticket_type_id)?.name ?? '',
       r.amount_paid != null ? String(r.amount_paid) : '0',
@@ -78,7 +94,7 @@ export function ReportsClient({ eventName, totalRevenue, regCount, checkedIn, re
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `eventera-registrations-${slug}.csv`;
+    a.download = `eventera-${kind}-${slug}.csv`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -225,52 +241,82 @@ export function ReportsClient({ eventName, totalRevenue, regCount, checkedIn, re
         <div className="grid lg:grid-cols-[260px_1fr] gap-5">
           <Panel title="Data source">
             <div className="grid gap-1.5">
-              {[['Registrations', 'People who registered'], ['Orders', 'Transactions and revenue'], ['Sessions', 'Agenda attendance']].map(([label, desc]) => (
-                <button key={label} className="flex flex-col items-start gap-0.5 px-3 py-2.5 rounded-lg text-[13px] border transition-colors text-left hover:border-[#1F4D3A]/40"
-                  style={{ borderColor: label === 'Registrations' ? '#1F4D3A' : '#E5E0D4', background: label === 'Registrations' ? '#E8EFEB' : 'transparent', color: label === 'Registrations' ? '#1F4D3A' : '#3A4A42' }}>
-                  <span className="font-medium">{label}</span>
-                  <span className="text-[11.5px]" style={{ color: '#6B7A72' }}>{desc}</span>
-                </button>
-              ))}
+              {SOURCES.map(s => {
+                const selected = source === s.key;
+                return (
+                  <button key={s.key} onClick={() => setSource(s.key)}
+                    aria-pressed={selected}
+                    className="flex flex-col items-start gap-0.5 px-3 py-2.5 rounded-lg text-[13px] border transition-colors text-left hover:border-[#1F4D3A]/40"
+                    style={{ borderColor: selected ? '#1F4D3A' : '#E5E0D4', background: selected ? '#E8EFEB' : 'transparent', color: selected ? '#1F4D3A' : '#3A4A42' }}>
+                    <span className="font-medium">{s.label}</span>
+                    <span className="text-[11.5px]" style={{ color: '#6B7A72' }}>{s.desc}</span>
+                  </button>
+                );
+              })}
             </div>
           </Panel>
-          <Panel title="Preview">
-            <div className="overflow-x-auto">
-              <table className="w-full text-[13px]">
-                <thead>
-                  <tr className="border-b" style={{ borderColor: '#E5E0D4' }}>
-                    {['Name', 'Ticket', 'Amount', 'Status', 'Date'].map(h => (
-                      <th key={h} className="text-left py-2 px-3  text-[10px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody className="divide-y" style={{ borderColor: 'rgba(229,224,212,0.5)' }}>
-                  {regs.slice(0, 8).map(r => (
-                    <tr key={r.id} className="hover:bg-[#FAF6EE] transition-colors">
-                      <td className="py-2.5 px-3 font-medium" style={{ color: '#0F1F18' }}>{r.attendee_name ?? '—'}</td>
-                      <td className="py-2.5 px-3" style={{ color: '#3A4A42' }}>
-                        {ticketTypes.find(t => t.id === r.ticket_type_id)?.name ?? '—'}
-                      </td>
-                      <td className="py-2.5 px-3  text-[12px]" style={{ color: '#1F4D3A' }}>
-                        {fmtCurrency(r.amount_paid ?? 0, r.currency)}
-                      </td>
-                      <td className="py-2.5 px-3" style={{ color: '#6B7A72' }}>
-                        {r.status === 'checked_in' ? 'Checked In'
-                          : r.status.charAt(0).toUpperCase() + r.status.slice(1).replace(/_/g, ' ')}
-                      </td>
-                      <td className="py-2.5 px-3  text-[11px]" style={{ color: '#6B7A72' }}>
-                        {new Date(r.created_at).toLocaleDateString()}
-                      </td>
+          <Panel title={`Preview · ${SOURCES.find(s => s.key === source)?.label}`}>
+            {source === 'sessions' ? (
+              <div className="py-10 text-center">
+                <p className="text-[13.5px] font-medium" style={{ color: '#0F1F18' }}>Session attendance export</p>
+                <p className="text-[13px] mt-1.5 max-w-[360px] mx-auto leading-relaxed" style={{ color: '#6B7A72' }}>
+                  The full agenda — sessions, tracks and speakers — is exportable as a spreadsheet or PDF from the Downloads page.
+                </p>
+                <a href={`/events/${eventId}/downloads`}
+                  className="inline-flex items-center gap-1.5 mt-4 px-4 py-2 rounded-lg text-[12.5px] font-medium text-white transition hover:opacity-90"
+                  style={{ background: '#1F4D3A' }}>
+                  Go to Downloads
+                </a>
+              </div>
+            ) : sourceRegs.length === 0 ? (
+              <div className="py-10 text-center">
+                <p className="text-[13.5px] font-medium" style={{ color: '#0F1F18' }}>
+                  {source === 'orders' ? 'No paid orders yet' : 'No registrations yet'}
+                </p>
+                <p className="text-[13px] mt-1.5" style={{ color: '#6B7A72' }}>
+                  {source === 'orders'
+                    ? 'Paid registrations will appear here once tickets sell.'
+                    : 'Rows will appear here as people register.'}
+                </p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-[13px]">
+                  <thead>
+                    <tr className="border-b" style={{ borderColor: '#E5E0D4' }}>
+                      {['Name', 'Ticket', 'Amount', 'Status', 'Date'].map(h => (
+                        <th key={h} className="text-left py-2 px-3  text-[10px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>{h}</th>
+                      ))}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-              {regs.length > 8 && (
-                <div className="px-3 py-2.5  text-[11px]" style={{ color: '#6B7A72', borderTop: '1px solid rgba(229,224,212,0.6)' }}>
-                  Showing 8 of {regs.length} rows
-                </div>
-              )}
-            </div>
+                  </thead>
+                  <tbody className="divide-y" style={{ borderColor: 'rgba(229,224,212,0.5)' }}>
+                    {sourceRegs.slice(0, 8).map(r => (
+                      <tr key={r.id} className="hover:bg-[#FAF6EE] transition-colors">
+                        <td className="py-2.5 px-3 font-medium" style={{ color: '#0F1F18' }}>{r.attendee_name ?? '—'}</td>
+                        <td className="py-2.5 px-3" style={{ color: '#3A4A42' }}>
+                          {ticketTypes.find(t => t.id === r.ticket_type_id)?.name ?? '—'}
+                        </td>
+                        <td className="py-2.5 px-3  text-[12px]" style={{ color: '#1F4D3A' }}>
+                          {fmtCurrency(r.amount_paid ?? 0, r.currency)}
+                        </td>
+                        <td className="py-2.5 px-3" style={{ color: '#6B7A72' }}>
+                          {r.status === 'checked_in' ? 'Checked In'
+                            : r.status.charAt(0).toUpperCase() + r.status.slice(1).replace(/_/g, ' ')}
+                        </td>
+                        <td className="py-2.5 px-3  text-[11px]" style={{ color: '#6B7A72' }}>
+                          {new Date(r.created_at).toLocaleDateString()}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {sourceRegs.length > 8 && (
+                  <div className="px-3 py-2.5  text-[11px]" style={{ color: '#6B7A72', borderTop: '1px solid rgba(229,224,212,0.6)' }}>
+                    Showing 8 of {sourceRegs.length} rows
+                  </div>
+                )}
+              </div>
+            )}
           </Panel>
         </div>
       )}

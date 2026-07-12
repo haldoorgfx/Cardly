@@ -53,11 +53,11 @@ const SUB_STATUS_LABEL: Record<string, string> = {
 };
 
 const SUB_STATUS_STYLE: Record<string, { bg: string; color: string }> = {
-  pending: { bg: '#F5F5F0', color: '#6B7A72' },
+  pending: { bg: '#F5F5F0', color: '#3A4A42' },
   accept: { bg: '#E8EFEB', color: '#1F4D3A' },
   reject: { bg: 'rgba(184,66,60,0.1)', color: '#B8423C' },
   revision: { bg: '#FEF3C7', color: '#C97A2D' },
-  waitlist: { bg: '#E8EFEB', color: '#6B7A72' },
+  waitlist: { bg: '#E8EFEB', color: '#3A4A42' },
 };
 
 function fmtDate(iso: string | null): string {
@@ -263,7 +263,7 @@ export default async function SpeakingPage() {
             <h2 className="font-display text-[20px] font-semibold tracking-tight" style={{ color: '#0F1F18' }}>
               No speaking engagements yet
             </h2>
-            <p className="mt-2 text-[14px] max-w-[420px] mx-auto leading-[1.6]" style={{ color: '#6B7A72' }}>
+            <p className="mt-2 text-[14px] max-w-[420px] mx-auto leading-[1.6]" style={{ color: '#3A4A42' }}>
               When an organizer adds you as a speaker, or opens a call for papers on an
               event you speak at, it will appear here.
             </p>
@@ -284,7 +284,7 @@ export default async function SpeakingPage() {
                       <div className="font-display text-[15px] font-semibold truncate" style={{ color: '#0F1F18' }}>
                         {group.eventName}
                       </div>
-                      <div className="text-[12px]" style={{ color: '#6B7A72' }}>
+                      <div className="text-[12px]" style={{ color: '#3A4A42' }}>
                         {group.sessions.length} session{group.sessions.length !== 1 ? 's' : ''}
                       </div>
                     </div>
@@ -300,7 +300,7 @@ export default async function SpeakingPage() {
                 </div>
 
                 {group.sessions.length === 0 ? (
-                  <div className="px-5 sm:px-6 py-6 text-[13.5px]" style={{ color: '#6B7A72' }}>
+                  <div className="px-5 sm:px-6 py-6 text-[13.5px]" style={{ color: '#3A4A42' }}>
                     No sessions scheduled yet.
                   </div>
                 ) : (
@@ -314,7 +314,7 @@ export default async function SpeakingPage() {
                         </span>
                         <div className="min-w-0 flex-1">
                           <div className="text-[14px] font-medium" style={{ color: '#0F1F18' }}>{s.title}</div>
-                          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 text-[12.5px]" style={{ color: '#6B7A72' }}>
+                          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 text-[12.5px]" style={{ color: '#3A4A42' }}>
                             {s.starts_at && (
                               <span className="inline-flex items-center gap-1.5">
                                 <Clock size={12} strokeWidth={1.9} /> {fmtTime(s.starts_at)}
@@ -347,7 +347,7 @@ export default async function SpeakingPage() {
                     <div className="font-display text-[15px] font-semibold" style={{ color: '#0F1F18' }}>
                       Call for papers
                     </div>
-                    <div className="text-[12px]" style={{ color: '#6B7A72' }}>
+                    <div className="text-[12px]" style={{ color: '#3A4A42' }}>
                       Submit a talk proposal and track its status.
                     </div>
                   </div>
@@ -364,7 +364,7 @@ export default async function SpeakingPage() {
                           style={{ borderColor: '#F0EDE6' }}>
                           <div className="min-w-0">
                             <div className="text-[14px] font-medium" style={{ color: '#0F1F18' }}>{cfp.eventName}</div>
-                            <div className="text-[12.5px] mt-0.5" style={{ color: '#6B7A72' }}>
+                            <div className="text-[12.5px] mt-0.5" style={{ color: '#3A4A42' }}>
                               {cfp.deadlineAt
                                 ? <>Deadline {fmtDate(cfp.deadlineAt)}{dLeft !== null && dLeft > 0 ? ` · ${dLeft} day${dLeft !== 1 ? 's' : ''} left` : ''}</>
                                 : 'Submissions open'}
@@ -386,7 +386,7 @@ export default async function SpeakingPage() {
                 {mySubmissions.length > 0 && (
                   <div>
                     <div className="px-5 sm:px-6 pt-4 pb-2 text-[12px] font-medium uppercase tracking-wide border-t"
-                      style={{ color: '#6B7A72', borderColor: '#F0EDE6' }}>
+                      style={{ color: '#3A4A42', borderColor: '#F0EDE6' }}>
                       Your submissions
                     </div>
                     <ul>
@@ -403,7 +403,7 @@ export default async function SpeakingPage() {
                             </span>
                             <div className="min-w-0 flex-1">
                               <div className="text-[14px] font-medium" style={{ color: '#0F1F18' }}>{sub.title}</div>
-                              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-0.5 text-[12.5px]" style={{ color: '#6B7A72' }}>
+                              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-0.5 text-[12.5px]" style={{ color: '#3A4A42' }}>
                                 <span className="truncate">{sub.eventName}</span>
                                 {sub.submittedAt && <span>· Submitted {fmtDate(sub.submittedAt)}</span>}
                               </div>

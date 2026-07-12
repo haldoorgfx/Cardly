@@ -290,7 +290,7 @@ export default function PublishClient({
       setPublishError('Failed to publish. Please try again.');
       setPublishing(false);
     }
-  }, [eventId]);
+  }, [eventId, router]);
 
   const handleCopy = useCallback(async () => {
     try {
@@ -436,12 +436,12 @@ export default function PublishClient({
             <div style={{
               fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11,
               color: PT.muted, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 8,
-            }}>Your event is live</div>
+            }}>{isPublished ? 'Your event is live' : 'Ready when you are'}</div>
             <h1 style={{
               fontFamily: 'DM Sans, sans-serif', fontWeight: 700,
               fontSize: 32, lineHeight: 1.1, letterSpacing: '-0.025em',
               margin: 0, color: PT.ink, maxWidth: 720,
-            }}>{eventName} is live.</h1>
+            }}>{eventName} {isPublished ? 'is live.' : 'isn’t published yet.'}</h1>
             <div style={{
               display: 'inline-flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', rowGap: 6,
               marginTop: 10, fontFamily: 'Inter, sans-serif', fontSize: 14, color: PT.inkSoft,
@@ -456,8 +456,8 @@ export default function PublishClient({
                 </>
               )}
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-                <span style={{ width: 6, height: 6, borderRadius: '50%', background: PT.success, display: 'block' }} />
-                <span>Open for registration</span>
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: isPublished ? PT.success : PT.muted, display: 'block' }} />
+                <span>{isPublished ? 'Open for registration' : 'Not open for registration yet'}</span>
               </span>
               {dateRange && (
                 <>

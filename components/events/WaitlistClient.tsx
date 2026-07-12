@@ -36,14 +36,7 @@ function fmtDate(d: string) {
   return new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 }
 
-const TABS = [
-  { id: 'queue',    label: 'Waitlist queue' },
-  { id: 'groups',  label: 'Group bookings' },
-  { id: 'capacity', label: 'Session capacity' },
-];
-
 export function WaitlistClient({ eventId, eventName, waitlist, totalRegs, capacity }: Props) {
-  const [tab, setTab] = useState('queue');
   const [releasing, setReleasing] = useState(false);
   const [released, setReleased] = useState(0);
   const [selected, setSelected] = useState<string[]>([]);
@@ -149,20 +142,8 @@ export function WaitlistClient({ eventId, eventName, waitlist, totalRegs, capaci
         </div>
       )}
 
-      {/* Tabs */}
-      <div className="flex gap-1 rounded-xl p-1 mb-5 w-fit" style={{ background: '#F5F3EE', border: '1px solid #E5E0D4' }}>
-        {TABS.map(t => (
-          <button key={t.id} onClick={() => setTab(t.id)}
-            className="px-3.5 py-2 rounded-lg text-[13px] font-medium transition-all whitespace-nowrap"
-            style={tab === t.id ? { background: '#1F4D3A', color: 'white' } : { color: '#6B7A72' }}>
-            {t.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Queue tab */}
-      {tab === 'queue' && (
-        list.length === 0 ? (
+      {/* Waitlist queue */}
+      {list.length === 0 ? (
           <div className="bg-white rounded-2xl py-16 text-center" style={{ border: '1px solid #E5E0D4' }}>
             <div className="w-12 h-12 rounded-2xl grid place-items-center mx-auto mb-3" style={{ background: '#E8EFEB' }}>
               <svg width={20} height={20} fill="none" stroke="#1F4D3A" strokeWidth={1.5} viewBox="0 0 24 24">
@@ -211,35 +192,7 @@ export function WaitlistClient({ eventId, eventName, waitlist, totalRegs, capaci
               ))}
             </div>
           </div>
-        )
-      )}
-
-      {/* Group bookings tab */}
-      {tab === 'groups' && (
-        <div className="bg-white rounded-2xl py-16 text-center" style={{ border: '1px solid #E5E0D4' }}>
-          <div className="w-12 h-12 rounded-2xl grid place-items-center mx-auto mb-3" style={{ background: '#E8EFEB' }}>
-            <svg width={20} height={20} fill="none" stroke="#1F4D3A" strokeWidth={1.5} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
-            </svg>
-          </div>
-          <p className="text-[14px] font-medium mb-1" style={{ color: '#0F1F18' }}>Group bookings</p>
-          <p className="text-[13px]" style={{ color: '#6B7A72' }}>Manage organizations that reserved multiple spots.</p>
-        </div>
-      )}
-
-      {/* Session capacity tab */}
-      {tab === 'capacity' && (
-        <div className="bg-white rounded-2xl overflow-hidden" style={{ border: '1px solid #E5E0D4' }}>
-          <div className="px-5 py-3.5 border-b" style={{ borderColor: 'rgba(229,224,212,0.7)' }}>
-            <div className=" text-[9.5px] tracking-[0.14em] uppercase" style={{ color: '#6B7A72' }}>Session capacity</div>
-          </div>
-          <div className="p-5">
-            <p className="text-[13.5px]" style={{ color: '#3A4A42' }}>
-              Session-level capacity limits are configured in the <strong>Agenda</strong> section. Waitlist here shows overall event overflow.
-            </p>
-          </div>
-        </div>
-      )}
+        )}
     </div>
   );
 }

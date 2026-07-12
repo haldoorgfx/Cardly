@@ -1278,6 +1278,7 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
           </div>
         ) : (
           <>
+            <div className="overflow-x-auto">
             <table className="w-full text-left" style={{ minWidth: 640 }}>
               <thead>
                 <tr style={{ background: '#FAF6EE', borderBottom: '1px solid #E5E0D4' }}>
@@ -1348,6 +1349,7 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
                 ))}
               </tbody>
             </table>
+            </div>
           </>
         )}
       </div>

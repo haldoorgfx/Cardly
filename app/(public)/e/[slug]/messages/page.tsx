@@ -5,7 +5,7 @@ import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
 import { resolveViewerRegistrationId } from '@/lib/attendee/resolveViewerRegistration';
 import MessagingClient from '@/components/messaging/MessagingClient';
 
-interface Props { params: { slug: string }; searchParams: { reg?: string } }
+interface Props { params: { slug: string }; searchParams: { reg?: string; to?: string; name?: string } }
 
 export default async function MessagesPage({ params, searchParams }: Props) {
   const resolved = await resolvePublicSlug(params.slug);
@@ -17,6 +17,8 @@ export default async function MessagesPage({ params, searchParams }: Props) {
       <MessagingClient
         eventId={event.id}
         registrationId={await resolveViewerRegistrationId(event.id, searchParams.reg)}
+        initialRecipientId={searchParams.to}
+        initialRecipientName={searchParams.name}
       />
     </div>
   );

@@ -4,6 +4,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import QAModerationClient from '@/components/qa/QAModerationClient';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
+import { hasModeratorAccess } from '@/lib/rbac/ownership';
 
 interface Props { params: { id: string } }
 
@@ -15,9 +16,11 @@ export default async function QAModerationPage({ params }: Props) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
+  if (!(await hasModeratorAccess(user.id, id))) redirect('/dashboard');
+
   const admin = createAdminClient();
   const [{ data: event }, { data: sessions }] = await Promise.all([
-    admin.from('events').select('id, name, slug').eq('id', id).eq('user_id', user.id).single(),
+    admin.from('events').select('id, name, slug').eq('id', id).single(),
     admin.from('sessions').select('id, title').eq('event_id', id).eq('is_published', true).order('starts_at', { ascending: true }),
   ]);
 

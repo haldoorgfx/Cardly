@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
+import '../../app_config.dart';
 import '../../net.dart';
 import '../../ui/components.dart';
 import '../../ui/tokens.dart';
 import '../event_context.dart';
 import '../reg_store.dart';
 import 'confirm_screen.dart';
+import 'hosted_payment_screen.dart';
 import 'waafipay_payment_screen.dart';
 import 'waitlist_screen.dart';
 
@@ -118,7 +120,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   bool _promoApplied = false;
 
   // Payment redirect (shown as a copyable link).
-  String? _paymentUrl;
 
   @override
   void initState() {
@@ -301,10 +302,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     if (!_validateFields()) return;
 
     final ticket = _selectedTicket!;
-    setState(() {
-      _submitting = true;
-      _paymentUrl = null;
-    });
+    setState(() => _submitting = true);
 
     // custom_fields keyed by field id (matches the web form).
     final customFields = <String, String>{};
@@ -385,23 +383,53 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         return;
       }
 
+      // Hosted checkout in the browser (Flutterwave link, or the web pay page
+      // for Stripe). We wait on a payment screen that polls until it's paid.
+      final clientSecret = map['client_secret'] == null
+          ? null
+          : asString(map['client_secret']);
+      String? payUrl;
+      String? paymentIntentId;
       if (paymentRequired && redirectUrl != null && redirectUrl.isNotEmpty) {
-        // Card-based redirect flow (Flutterwave). We don't bundle url_launcher,
-        // so surface the link for the attendee to open/copy.
-        setState(() {
-          _submitting = false;
-          _paymentUrl = redirectUrl;
-        });
+        payUrl = redirectUrl; // Flutterwave hosted checkout
+      } else if (paymentRequired &&
+          clientSecret != null &&
+          clientSecret.isNotEmpty &&
+          (qrToken ?? '').isNotEmpty) {
+        // Stripe: the web pay page renders Elements for this registration.
+        payUrl = '${AppConfig.renderBaseUrl}/e/${widget.slug}/register/pay'
+            '?reg=${Uri.encodeQueryComponent(qrToken!)}';
+        // client_secret is "pi_xxx_secret_yyy" — the PI id is the prefix.
+        paymentIntentId = clientSecret.split('_secret').first;
+      }
+
+      if (paymentRequired && payUrl != null && (qrToken ?? '').isNotEmpty) {
+        setState(() => _submitting = false);
+        final paid = await Navigator.of(context).push<bool>(
+          MaterialPageRoute(
+            builder: (_) => HostedPaymentScreen(
+              payUrl: payUrl!,
+              qrToken: qrToken!,
+              paymentIntentId: paymentIntentId,
+              amount: asDouble(map['amount'], ticket.price),
+              currency: asString(map['currency'], ticket.currency),
+              ticketName: asString(map['ticket_name'], ticket.name),
+              eventName: widget.eventName,
+            ),
+          ),
+        );
+        if (paid == true && mounted) _goToConfirm(qrToken, ticket.name);
         return;
       }
 
       if (paymentRequired) {
-        // Card (Stripe) in-app payment isn't implemented in this module yet.
+        // No usable payment handle came back — shouldn't happen, but don't
+        // strand the attendee silently.
         setState(() {
           _submitting = false;
           _submitError =
-              'This ticket needs card payment, which isn’t available in the '
-              'app yet. Please complete registration on the web.';
+              'We couldn\'t start the payment. Please try again, or complete '
+              'your registration on the event\'s web page.';
         });
         return;
       }
@@ -540,10 +568,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             // ── Screen 10: order summary ──────────────────────────────
             const SizedBox(height: 24),
             _summary(),
-            if (_paymentUrl != null) ...[
-              const SizedBox(height: 16),
-              _paymentBox(_paymentUrl!),
-            ],
             if (_submitError != null) ...[
               const SizedBox(height: 16),
               _errorBox(_submitError!),
@@ -1006,37 +1030,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         border: Border.all(color: AppColors.border),
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: rows),
-    );
-  }
-
-  Widget _paymentBox(String url) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.gold.withValues(alpha: 0.14),
-        borderRadius: BorderRadius.circular(AppRadius.card),
-        border: Border.all(color: AppColors.gold.withValues(alpha: 0.5)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Complete your payment', style: AppText.bodyStrong),
-          const SizedBox(height: 6),
-          Text(
-            'Open this secure link in your browser to pay. Your ticket is '
-            'reserved and will confirm once payment completes.',
-            style: AppText.bodySm,
-          ),
-          const SizedBox(height: 10),
-          SelectableText(
-            url,
-            style: AppText.numSm.copyWith(
-              color: AppColors.forest,
-              decoration: TextDecoration.underline,
-            ),
-          ),
-        ],
-      ),
     );
   }
 

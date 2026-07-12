@@ -8,6 +8,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { PLANS } from '@/lib/billing/plans';
 import BillingActions from './BillingActions';
 import { BillingPortalButton } from './BillingPortalButton';
+import { UpgradeStudioButton } from './UpgradeStudioButton';
 
 export const dynamic = 'force-dynamic';
 
@@ -182,15 +183,7 @@ export default async function BillingPage({
           <h1 className="font-display font-semibold text-[24px] text-[#0F1F18] tracking-tight">Billing</h1>
           <p className="text-[14px] text-[#6B7A72] mt-1">Manage your plan and payment method</p>
         </div>
-        {plan !== 'studio' && (
-          <a
-            href="/settings/billing/upgrade"
-            className="inline-flex items-center gap-1.5 h-9 px-5 rounded-lg text-[13.5px] font-semibold text-[#0F1F18] transition hover:opacity-90 shrink-0 mt-1"
-            style={{ background: '#E8C57E' }}
-          >
-            + Upgrade to Studio
-          </a>
-        )}
+        {plan !== 'studio' && <UpgradeStudioButton />}
       </div>
 
       {checkout === 'success' && (

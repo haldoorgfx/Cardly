@@ -46,15 +46,36 @@ class _FollowingScreenState extends State<FollowingScreen> {
       _error = null;
     });
     try {
+      // Fetch the follow rows (own rows), then the organizers' PUBLIC profiles
+      // separately — profiles is now own-row locked, so the old embedded join
+      // on another user's profile would come back empty. public_profiles
+      // exposes only safe display columns.
       final rows = await supa
           .from('organizer_follows')
-          .select(
-              'id, organizer_id, notify_new_events, created_at, profiles!organizer_follows_organizer_id_fkey(id, full_name, avatar_url, email)')
-          .eq('follower_id', currentUserId as Object)
+          .select('id, organizer_id, notify_new_events, created_at')
+          .eq('follower_id', currentUserId ?? '')
           .order('created_at', ascending: false);
+      final followRows = asMapList(rows);
+      final orgIds = followRows
+          .map((r) => asString(r['organizer_id']))
+          .where((s) => s.isNotEmpty)
+          .toList();
+      final profById = <String, Map<String, dynamic>>{};
+      if (orgIds.isNotEmpty) {
+        final profs = await supa
+            .from('public_profiles')
+            .select('id, full_name, avatar_url')
+            .inFilter('id', orgIds);
+        for (final p in asMapList(profs)) {
+          profById[asString(p['id'])] = p;
+        }
+      }
       if (!mounted) return;
       setState(() {
-        _items = asMapList(rows).map(_Follow.fromRow).toList();
+        _items = followRows.map((r) {
+          r['profiles'] = profById[asString(r['organizer_id'])] ?? {};
+          return _Follow.fromRow(r);
+        }).toList();
         _loading = false;
       });
       // Suggestions are best-effort — never block or crash the screen.
@@ -113,8 +134,8 @@ class _FollowingScreenState extends State<FollowingScreen> {
       }
 
       final profRows = await supa
-          .from('profiles')
-          .select('id, full_name, avatar_url, email')
+          .from('public_profiles')
+          .select('id, full_name, avatar_url')
           .inFilter('id', ids);
       if (!mounted) return;
 

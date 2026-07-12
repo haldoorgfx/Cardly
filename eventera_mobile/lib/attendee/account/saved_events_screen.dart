@@ -50,7 +50,7 @@ class _SavedEventsScreenState extends State<SavedEventsScreen> {
           .from('saved_events')
           .select(
               'id, event_page_id, created_at, event_pages(id, title, custom_slug, cover_image_url, starts_at, ends_at, venue_name, city, is_online, events(slug))')
-          .eq('user_id', currentUserId as Object)
+          .eq('user_id', currentUserId ?? '')
           .order('created_at', ascending: false);
       if (!mounted) return;
       setState(() {

@@ -12,33 +12,45 @@ interface Props {
 export function ImpersonateButton({ userId, userName }: Props) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   async function start() {
     if (!confirm(`View app as "${userName}"?\n\nA banner will appear so you can exit at any time.`)) return;
     setLoading(true);
-    const res = await fetch('/api/admin/impersonate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId }),
-    });
-    if (res.ok) {
-      router.push('/dashboard');
-    } else {
-      const json = await res.json();
-      alert(json.error ?? 'Failed to start impersonation.');
+    setError('');
+    try {
+      const res = await fetch('/api/admin/impersonate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId }),
+      });
+      if (res.ok) {
+        router.push('/dashboard');
+        return;
+      }
+      const json = await res.json().catch(() => ({}));
+      setError(json.error ?? 'Failed to start impersonation.');
+    } catch {
+      setError('Network error — please try again.');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   return (
-    <button
-      onClick={start}
-      disabled={loading}
-      className="inline-flex items-center gap-2 h-9 px-4 text-[13px] font-semibold rounded-xl border transition hover:bg-[#FAF6EE] disabled:opacity-50"
-      style={{ borderColor: '#E5E0D4', color: '#3A4A42' }}
-    >
-      <Eye size={14} strokeWidth={2} />
-      {loading ? 'Starting…' : 'View as user'}
-    </button>
+    <div className="flex flex-col items-start gap-1.5">
+      <button
+        onClick={start}
+        disabled={loading}
+        className="inline-flex items-center gap-2 h-10 px-4 text-[13px] font-semibold rounded-xl border transition hover:bg-[#FAF6EE] disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1F4D3A]"
+        style={{ borderColor: '#E5E0D4', color: '#3A4A42' }}
+      >
+        <Eye size={14} strokeWidth={2} />
+        {loading ? 'Starting…' : 'View as user'}
+      </button>
+      {error && (
+        <p role="alert" className="text-[12px]" style={{ color: '#B8423C' }}>{error}</p>
+      )}
+    </div>
   );
 }
