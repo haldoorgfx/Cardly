@@ -123,6 +123,7 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
   const [linkedinUrl, setLinkedinUrl] = useState(profile.linkedin_url ?? '');
   const [xUrl, setXUrl] = useState(profile.x_url ?? '');
   const [photoUploading, setPhotoUploading] = useState(false);
+  const [photoError, setPhotoError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -203,23 +204,31 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
 
   async function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
+    // Reset the input so re-selecting the same file still fires onChange.
+    e.target.value = '';
     if (!file) return;
+    setPhotoError(null);
+    if (!file.type.startsWith('image/')) { setPhotoError('Please choose an image file.'); return; }
+    if (file.size > 8 * 1024 * 1024) { setPhotoError('Image is too large (max 8 MB).'); return; }
     setPhotoUploading(true);
     try {
       const supabase = createClient();
-      const ext = file.name.split('.').pop() ?? 'jpg';
-      const path = `avatars/${profile.id}.${ext}`;
+      const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+      // Cache-bust the path so the new photo replaces the old one everywhere.
+      const path = `avatars/${profile.id}-${Date.now()}.${ext}`;
       const { error: upErr } = await supabase.storage.from('uploads').upload(path, file, { upsert: true, contentType: file.type });
       if (upErr) throw upErr;
       const { data: { publicUrl } } = supabase.storage.from('uploads').getPublicUrl(path);
       setAvatarUrl(publicUrl);
-      await fetch('/api/account/profile', {
+      const res = await fetch('/api/account/profile', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ avatar_url: publicUrl }),
       });
+      if (!res.ok) throw new Error('Could not save your new photo. Please try again.');
     } catch (err) {
       console.error('Photo upload failed', err);
+      setPhotoError(err instanceof Error ? err.message : 'Upload failed. Please try again.');
     } finally {
       setPhotoUploading(false);
     }
@@ -305,6 +314,9 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
             {photoUploading ? 'Uploading…' : 'Edit photo'}
           </button>
         </div>
+        {photoError && (
+          <p className="text-[12.5px]" style={{ color: '#B8423C' }}>{photoError}</p>
+        )}
         {/* Name + phone */}
         <div className="grid gap-3 sm:grid-cols-2">
           <div>

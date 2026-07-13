@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { deleteAccount, signOut } from '@/app/(auth)/actions';
+import { deleteAccount } from '@/app/(auth)/actions';
 import { Check, ChevronDown } from 'lucide-react';
 
 // ── Option lists ──────────────────────────────────────────────────────────────
@@ -321,13 +321,6 @@ export default function SettingsClient({ profile, section }: Props) {
             </div>
           </div>
         </section>
-
-        {/* Sign out */}
-        <div className="pt-2 pb-4">
-          <button onClick={() => signOut()} className="text-[13px] transition hover:text-[#0F1F18] rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1F4D3A]" style={{ color: '#6B7A72' }}>
-            Sign out of Eventera →
-          </button>
-        </div>
         </>
         )}
 
