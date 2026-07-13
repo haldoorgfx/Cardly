@@ -17,7 +17,7 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
         >
           K
         </div>
-        <div className="text-[11px] font-mono tracking-widest mb-4" style={{ color: 'rgba(15,31,24,0.4)' }}>500</div>
+        <div className="text-[11px] tracking-widest mb-4" style={{ color: 'rgba(15,31,24,0.4)' }}>500</div>
         <h1 className="font-display font-bold text-[34px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.025em' }}>
           Something went wrong.
         </h1>
@@ -25,7 +25,7 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
           An unexpected error occurred. The team has been notified. You can try again or go back to the dashboard.
         </p>
         {error.digest && (
-          <p className="font-mono text-[11px] mt-3" style={{ color: 'rgba(15,31,24,0.3)' }}>
+          <p className="text-[11px] mt-3" style={{ color: 'rgba(15,31,24,0.3)' }}>
             Error ID: {error.digest}
           </p>
         )}

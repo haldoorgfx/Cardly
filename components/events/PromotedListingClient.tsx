@@ -1,7 +1,7 @@
 ﻿'use client';
 
 import { useState } from 'react';
-import { TrendingUp, MousePointer, Ticket, DollarSign, RefreshCw, LayoutGrid } from 'lucide-react';
+import { TrendingUp, MousePointer, Ticket, DollarSign, RefreshCw, LayoutGrid, Check } from 'lucide-react';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Campaign = any;
@@ -162,7 +162,7 @@ export function PromotedListingClient({ eventId, eventName, campaign }: Props) {
                     }}>
                     <div className="w-4 h-4 rounded flex items-center justify-center shrink-0"
                       style={{ background: active ? '#1F4D3A' : 'transparent', border: active ? 'none' : '1.5px solid #C9C3B1' }}>
-                      {active && <span className="text-white text-[10px]">✓</span>}
+                      {active && <Check size={12} strokeWidth={2.2} className="text-white" />}
                     </div>
                     {p.label}
                   </button>
@@ -178,13 +178,13 @@ export function PromotedListingClient({ eventId, eventName, campaign }: Props) {
                 <button onClick={submit} disabled={submitting}
                   className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-semibold transition hover:opacity-90 disabled:opacity-60"
                   style={{ background: '#1F4D3A', color: '#FAF6EE' }}>
-                  <RefreshCw size={13} /> {submitting ? 'Saving…' : submitted ? '✓ Changes saved' : 'Update campaign'}
+                  <RefreshCw size={13} /> {submitting ? 'Saving…' : submitted ? 'Changes saved' : 'Update campaign'}
                 </button>
               ) : (
                 <button onClick={submit} disabled={submitting || submitted}
-                  className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl text-[14px] font-semibold transition hover:opacity-90 disabled:opacity-60"
+                  className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-6 py-2.5 rounded-xl text-[14px] font-semibold transition hover:opacity-90 disabled:opacity-60"
                   style={{ background: '#1F4D3A', color: '#FAF6EE' }}>
-                  {submitted ? '✓ Submitted for review' : submitting ? 'Submitting…' : 'Launch campaign'}
+                  {submitted ? <><Check size={14} strokeWidth={1.8} /> Submitted for review</> : submitting ? 'Submitting…' : 'Launch campaign'}
                 </button>
               )}
             </div>

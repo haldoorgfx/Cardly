@@ -486,7 +486,7 @@ export default function CheckInDashboard({
                         }} />
                       ))}
                       <span className="absolute left-5 right-5 h-0.5 rounded-full animate-[scan-line_2s_ease-in-out_infinite]"
-                        style={{ background: 'rgba(232,197,126,0.7)', boxShadow: '0 0 10px #E8C57E', top: '50%' }} />
+                        style={{ background: 'rgba(232,197,126,0.7)', top: '50%' }} />
                       <ScanLine size={52} style={{ color: 'rgba(250,246,238,0.16)' }} />
                       <span className="absolute bottom-4 text-[12px]" style={{ color: 'rgba(250,246,238,0.4)' }}>
                         Tap to open camera scanner

@@ -114,7 +114,7 @@ export default function CardRedownload({ eventName, attendeeName, outputUrl, cre
                 width: 'min(300px, calc(100vw - 80px))',
                 objectFit: 'cover',
                 borderRadius: 14,
-                boxShadow: '0 0 40px rgba(232,197,126,0.30), 0 0 90px rgba(232,197,126,0.12), 0 18px 50px rgba(13,31,23,0.35)',
+                boxShadow: '0 18px 50px rgba(13,31,23,0.35)',
               }}
             />
             {/* Guilloche */}

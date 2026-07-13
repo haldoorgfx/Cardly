@@ -1,7 +1,7 @@
 ﻿'use client';
 
 import { useState, useRef } from 'react';
-import { ImageIcon, Gift, Clock, Send, X, Pin, Info } from 'lucide-react';
+import { ImageIcon, Gift, Clock, Send, X, Pin, Info, Heart, MessageCircle } from 'lucide-react';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Post = any;
@@ -218,8 +218,8 @@ export function NewsfeedClient({ eventId, eventName, initialPosts }: Props) {
                       </div>
                       <p className="text-[12px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.7)' }}>{post.body}</p>
                       <div className="flex items-center gap-3 mt-1.5 text-[10px]" style={{ color: 'rgba(255,255,255,0.3)' }}>
-                        <span>♥ {post.hearts}</span>
-                        <span>💬 {post.comments}</span>
+                        <span className="inline-flex items-center gap-1"><Heart size={12} strokeWidth={1.8} /> {post.hearts}</span>
+                        <span className="inline-flex items-center gap-1"><MessageCircle size={12} strokeWidth={1.8} /> {post.comments}</span>
                       </div>
                     </div>
                   </div>

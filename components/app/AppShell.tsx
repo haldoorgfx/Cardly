@@ -275,7 +275,7 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
   };
 
   const ctaLabel = profile?.plan === 'studio'
-    ? '✓ Studio plan'
+    ? 'Studio plan'
     : profile?.plan === 'pro'
     ? '+ Studio plan'
     : '+ Pro plan';

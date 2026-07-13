@@ -1,7 +1,7 @@
 ﻿'use client';
 
 import { useState } from 'react';
-import { X, UserPlus, Send, Trash2, Crown } from 'lucide-react';
+import { X, UserPlus, Send, Trash2, Crown, Check } from 'lucide-react';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Staff = any;
@@ -211,8 +211,8 @@ export function StaffRolesClient({ eventId, eventName, initialStaff, ownerEmail 
           {ROLES.map(r => (
             <div key={r.id} className="rounded-xl p-4" style={{ border: '1px solid #E5E0D4', background: '#FFFFFF' }}>
               <div className="font-semibold text-[14px] mb-2" style={{ color: '#0F1F18' }}>{r.label}</div>
-              <p className="text-[12px] mb-1" style={{ color: '#2D7A4F' }}>✓ {r.can}</p>
-              <p className="text-[12px]" style={{ color: '#B8423C' }}>✗ {r.cant}</p>
+              <p className="text-[12px] mb-1 flex items-center gap-1.5" style={{ color: '#2D7A4F' }}><Check size={14} strokeWidth={1.8} className="shrink-0" /> {r.can}</p>
+              <p className="text-[12px] flex items-center gap-1.5" style={{ color: '#B8423C' }}><X size={14} strokeWidth={1.8} className="shrink-0" /> {r.cant}</p>
             </div>
           ))}
         </div>

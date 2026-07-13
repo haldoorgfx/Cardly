@@ -5,6 +5,8 @@
  * pixel-identical. Pure JSX — no hooks — safe in server components.
  */
 
+import { Star } from 'lucide-react';
+
 export interface LeaderboardEntry {
   rank: number;
   registration_id: string;
@@ -49,7 +51,7 @@ export function LeaderboardView({ leaderboard, myRegistrationId, myEntry }: Prop
             const size = isFirst ? 72 : 56;
             return (
               <div key={entry.registration_id} className="flex flex-col items-center gap-2">
-                {isFirst && <span style={{ color: '#E8C57E', fontSize: 20 }}>★</span>}
+                {isFirst && <Star size={20} strokeWidth={1.8} fill="#E8C57E" style={{ color: '#E8C57E' }} />}
                 <div
                   className="rounded-full flex items-center justify-center font-display font-semibold text-white"
                   style={{ width: size, height: size, background: 'linear-gradient(135deg, #1F4D3A, #2A6A50)', border: isFirst ? '2px solid #E8C57E' : 'none', fontSize: isFirst ? 22 : 17 }}

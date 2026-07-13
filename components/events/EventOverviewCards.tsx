@@ -5,7 +5,7 @@ import Link from 'next/link';
 import {
   Layout, Ticket, Users, CalendarDays, User, ScanLine, Bell,
   Network, MessageSquare, Trophy, Briefcase, BarChart2, Video, Sparkles,
-  Utensils, Wallet, ScrollText, TicketCheck, Activity, CalendarRange,
+  Utensils, Wallet, ScrollText, TicketCheck, Activity, CalendarRange, Lock,
 } from 'lucide-react';
 import { UpgradeSlideOver, type UpgradeFeature } from '@/components/app/UpgradeSlideOver';
 
@@ -84,7 +84,7 @@ export function EventOverviewCards({ cards, userPlan }: Props) {
                   </div>
                   <span className="inline-flex items-center gap-1 font-semibold text-[9px] tracking-[0.08em] uppercase px-1.5 py-1 rounded"
                     style={{ background: 'rgba(232,197,126,0.2)', color: '#C9A45E' }}>
-                    🔒 {card.minPlan === 'studio' ? 'Studio' : 'Pro'}
+                    <Lock size={11} strokeWidth={1.8} /> {card.minPlan === 'studio' ? 'Studio' : 'Pro'}
                   </span>
                 </div>
                 <p className="font-display text-[14.5px] font-semibold leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.01em' }}>

@@ -2,7 +2,7 @@ import Link from 'next/link';
 import {
   Sparkles, Check, Ticket, BarChart2,
   LayoutGrid, Network, Briefcase, Sun, Users,
-  ArrowRight, Quote,
+  ArrowRight, Quote, Globe,
 } from 'lucide-react';
 import { FAQAccordion, type FAQItem } from '@/components/marketing/FAQAccordion';
 import {
@@ -443,7 +443,7 @@ function GeneratedCardMock() {
         borderRadius: 16,
         padding: '20px',
         width: '100%',
-        boxShadow: '0 24px 60px rgba(31,77,58,0.28)',
+        boxShadow: '0 12px 32px rgba(31,77,58,0.16)',
         position: 'relative',
       }}
     >
@@ -744,54 +744,13 @@ function HowItWorks() {
    SECTION 9 — USE CASES
 ───────────────────────────────────────────────────────── */
 const USE_CASES = [
-  {
-    title: 'Tech Conferences',
-    icon: <LayoutGrid size={20} strokeWidth={1.8} />,
-    body: 'Multi-track agendas, speaker directories, startup networking.',
-    gradient: 'linear-gradient(135deg, #163828 0%, #1F4D3A 55%, #2A6A50 100%)',
-  },
-  {
-    title: 'NGO Campaigns',
-    icon: <Network size={20} strokeWidth={1.8} />,
-    body: 'Supporter cards, awareness drives, fundraising registration.',
-    gradient: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #3E7E5E 100%)',
-  },
-  {
-    title: 'Political Events',
-    icon: <Users size={20} strokeWidth={1.8} />,
-    body: 'Rally registration, volunteer coordination, endorsement cards.',
-    gradient: 'linear-gradient(120deg, #163828 0%, #1F4D3A 100%)',
-  },
-  {
-    title: 'Corporate Events',
-    icon: <Briefcase size={20} strokeWidth={1.8} />,
-    body: 'Brand activations, product launches, lead retrieval for sponsors.',
-    gradient: 'linear-gradient(130deg, #1F4D3A 0%, #2A6A50 60%, #C9A45E 100%)',
-  },
-  {
-    title: 'Religious Organizations',
-    icon: <Sun size={20} strokeWidth={1.8} />,
-    body: 'Community conferences, Ramadan iftar events, charity drives.',
-    gradient: 'linear-gradient(160deg, #163828 0%, #1F4D3A 55%, #2A6A50 100%)',
-  },
-];
-
-function TopoLines() {
-  return (
-    <svg
-      viewBox="0 0 300 150"
-      xmlns="http://www.w3.org/2000/svg"
-      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }}
-      aria-hidden
-    >
-      <path d="M0 30 Q75 10 150 35 T300 25" stroke="#E8C57E" strokeWidth="1" fill="none" opacity="0.12" />
-      <path d="M0 55 Q80 35 160 58 T300 50" stroke="#E8C57E" strokeWidth="1" fill="none" opacity="0.10" />
-      <path d="M0 80 Q70 60 140 82 T300 75" stroke="#E8C57E" strokeWidth="1" fill="none" opacity="0.08" />
-      <path d="M0 105 Q90 85 170 108 T300 100" stroke="#E8C57E" strokeWidth="1" fill="none" opacity="0.06" />
-      <path d="M0 130 Q85 110 155 132 T300 125" stroke="#E8C57E" strokeWidth="1" fill="none" opacity="0.05" />
-    </svg>
-  );
-}
+  { title: 'Tech Conferences', icon: <LayoutGrid size={22} strokeWidth={1.8} />, body: 'Multi-track agendas, speaker directories, startup networking.' },
+  { title: 'NGO Campaigns', icon: <Network size={22} strokeWidth={1.8} />, body: 'Supporter cards, awareness drives, fundraising registration.' },
+  { title: 'Political Events', icon: <Users size={22} strokeWidth={1.8} />, body: 'Rally registration, volunteer coordination, endorsement cards.' },
+  { title: 'Corporate Events', icon: <Briefcase size={22} strokeWidth={1.8} />, body: 'Brand activations, product launches, lead retrieval for sponsors.' },
+  { title: 'Religious Organizations', icon: <Sun size={22} strokeWidth={1.8} />, body: 'Community conferences, Ramadan iftar events, charity drives.' },
+  { title: 'African Summits', icon: <Globe size={22} strokeWidth={1.8} />, body: 'Mobile-first, WhatsApp-native, Flutterwave payments — built for how Africa runs events.', accent: true },
+] as const;
 
 function UseCases() {
   return (
@@ -800,9 +759,10 @@ function UseCases() {
         <div className="text-center mb-12">
           <div
             style={{
-              fontSize: 11,
+              fontSize: 12,
               fontFamily: 'var(--font-sans)',
-              letterSpacing: '0.22em',
+              fontWeight: 600,
+              letterSpacing: '0.14em',
               textTransform: 'uppercase',
               color: '#1F4D3A',
               marginBottom: 14,
@@ -819,97 +779,43 @@ function UseCases() {
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {USE_CASES.map((c) => (
-            <article
-              key={c.title}
-              style={{
-                background: '#FFFFFF',
-                border: '1px solid #E5E0D4',
-                borderRadius: 16,
-                overflow: 'hidden',
-              }}
-            >
-              <div
-                style={{
-                  height: 150,
-                  background: c.gradient,
-                  position: 'relative',
-                  overflow: 'hidden',
-                }}
+          {USE_CASES.map((c) => {
+            const accent = 'accent' in c && c.accent;
+            return (
+              <article
+                key={c.title}
+                className="group bg-white border border-[#E5E0D4] rounded-2xl p-7 transition-all duration-200 hover:border-[#C9C3B1] hover:shadow-soft"
               >
-                <TopoLines />
                 <div
+                  className="flex items-center justify-center mb-[18px]"
                   style={{
-                    position: 'absolute',
-                    bottom: 14,
-                    left: 16,
-                    width: 36,
-                    height: 36,
-                    borderRadius: 8,
-                    background: 'rgba(250,246,238,0.12)',
-                    border: '1px solid rgba(250,246,238,0.2)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#FAF6EE',
+                    width: 48, height: 48, borderRadius: 12,
+                    background: accent ? '#F6EDDA' : '#E8EFEB',
+                    color: accent ? '#C9A45E' : '#1F4D3A',
                   }}
                 >
                   {c.icon}
                 </div>
-              </div>
-              <div style={{ padding: '20px 24px 24px' }}>
-                <div
-                  className="font-display font-semibold"
-                  style={{ fontSize: 18, color: '#0F1F18', letterSpacing: '-0.02em', marginBottom: 8 }}
-                >
-                  {c.title}
+                <div className="flex items-center gap-2 mb-2">
+                  <h3 className="font-title font-bold" style={{ fontSize: 19, color: '#0F1F18', letterSpacing: '-0.02em' }}>
+                    {c.title}
+                  </h3>
+                  {accent && (
+                    <span
+                      style={{
+                        fontSize: 10, fontWeight: 600, fontFamily: 'var(--font-sans)',
+                        letterSpacing: '0.1em', textTransform: 'uppercase',
+                        color: '#C9A45E', background: '#F6EDDA', borderRadius: 100, padding: '3px 8px',
+                      }}
+                    >
+                      Africa
+                    </span>
+                  )}
                 </div>
-                <p style={{ fontSize: 14, color: '#3A4A42', lineHeight: 1.6 }}>{c.body}</p>
-              </div>
-            </article>
-          ))}
-
-          <article
-            style={{
-              background: 'linear-gradient(135deg, #163828 0%, #1F4D3A 100%)',
-              border: '1px solid rgba(232,197,126,0.3)',
-              borderRadius: 16,
-              overflow: 'hidden',
-            }}
-          >
-            <div style={{ height: 150, background: 'linear-gradient(135deg, #163828 0%, #1F4D3A 100%)', position: 'relative', overflow: 'hidden' }}>
-              <TopoLines />
-              <span
-                style={{
-                  position: 'absolute',
-                  top: 14,
-                  left: 16,
-                  background: 'rgba(232,197,126,0.2)',
-                  border: '1px solid rgba(232,197,126,0.4)',
-                  color: '#E8C57E',
-                  fontSize: 10,
-                  fontFamily: 'var(--font-sans)',
-                  letterSpacing: '0.12em',
-                  textTransform: 'uppercase',
-                  borderRadius: 100,
-                  padding: '4px 10px',
-                }}
-              >
-                Built for Africa
-              </span>
-            </div>
-            <div style={{ padding: '20px 24px 24px' }}>
-              <h3
-                className="font-display font-semibold"
-                style={{ fontSize: 18, color: '#E8C57E', letterSpacing: '-0.02em', marginBottom: 8 }}
-              >
-                African Summits
-              </h3>
-              <p style={{ fontSize: 14, color: 'rgba(250,246,238,0.8)', lineHeight: 1.6 }}>
-                Mobile-first, WhatsApp-native, Flutterwave payments. Built for how Africa events run.
-              </p>
-            </div>
-          </article>
+                <p style={{ fontSize: 15, color: '#3A4A42', lineHeight: 1.6, fontFamily: 'var(--font-sans)' }}>{c.body}</p>
+              </article>
+            );
+          })}
         </div>
       </div>
     </section>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { RefreshCw, Calendar, ChevronDown, ChevronUp, ExternalLink, CalendarPlus } from 'lucide-react';
+import { RefreshCw, Calendar, ChevronDown, ChevronUp, ExternalLink, CalendarPlus, Check } from 'lucide-react';
 import Link from 'next/link';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -122,7 +122,7 @@ export function EventSeriesClient({ eventId, eventName, eventSlug, series }: Pro
           <div className="flex flex-wrap gap-x-6 gap-y-1">
             {INHERITED.map(item => (
               <span key={item} className="text-[12px] flex items-center gap-1" style={{ color: '#6B7A72' }}>
-                <span style={{ color: '#2D7A4F' }}>✓</span> {item}
+                <Check size={14} strokeWidth={1.8} style={{ color: '#2D7A4F' }} className="shrink-0" /> {item}
               </span>
             ))}
           </div>
@@ -132,7 +132,7 @@ export function EventSeriesClient({ eventId, eventName, eventSlug, series }: Pro
           <button onClick={save} disabled={saving}
             className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-[14px] font-semibold transition hover:opacity-90 disabled:opacity-60"
             style={{ background: '#1F4D3A', color: '#FAF6EE' }}>
-            {saved ? '✓ Saved' : saving ? 'Saving…' : 'Save series settings'}
+            {saved ? <><Check size={14} strokeWidth={1.8} /> Saved</> : saving ? 'Saving…' : 'Save series settings'}
           </button>
           {saveError && <span className="text-[12.5px]" style={{ color: '#B8423C' }}>{saveError}</span>}
         </div>

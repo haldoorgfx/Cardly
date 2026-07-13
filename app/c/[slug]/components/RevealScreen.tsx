@@ -192,7 +192,7 @@ export default function RevealScreen({
   `;
 
   const cardGlow = {
-    boxShadow: '0 0 40px rgba(232,197,126,0.32), 0 0 90px rgba(232,197,126,0.12), 0 18px 50px rgba(13,31,23,0.40)',
+    boxShadow: '0 18px 50px rgba(13,31,23,0.40)',
   } as const;
 
   return (
