@@ -46,7 +46,7 @@ function StatCard({
         ? { background: '#FDF6E3', border: '1px solid #EDD98A', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }
         : { background: 'white', border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
       <div className="flex items-center justify-between mb-3">
-        <span className="text-[11px] uppercase tracking-widest"
+        <span className="text-[12.5px] uppercase tracking-widest"
           style={{ color: gold ? '#C9A45E' : '#6B7A72' }}>{label}</span>
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
           stroke={gold ? '#C9A45E' : '#C9C3B1'} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -258,7 +258,7 @@ export default async function AnalyticsPage({
                     : ev.name.slice(0, 10);
                   return (
                     <div key={ev.id} className="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
-                      <span className="text-[10px]" style={{ color: '#6B7A72' }}>
+                      <span className="text-[12px]" style={{ color: '#6B7A72' }}>
                         {ev.regs > 0 ? fmtNum(ev.regs) : ''}
                       </span>
                       <div className="w-full rounded-t-md"
@@ -268,7 +268,7 @@ export default async function AnalyticsPage({
                           minHeight: '2px',
                           transition: 'height 0.3s ease',
                         }} />
-                      <span className="text-[10px] text-center leading-tight"
+                      <span className="text-[12px] text-center leading-tight"
                         style={{ color: '#6B7A72', maxWidth: '68px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', display: 'block' }}>
                         {short}
                       </span>
@@ -323,7 +323,7 @@ export default async function AnalyticsPage({
               <div className="flex justify-between mt-3 px-0.5">
                 {[revMonths[0], revMonths[Math.floor(revMonths.length / 2)], revMonths[revMonths.length - 1]]
                   .map((m, i) => (
-                    <span key={i} className="text-[10px]" style={{ color: '#6B7A72' }}>
+                    <span key={i} className="text-[12px]" style={{ color: '#6B7A72' }}>
                       {m.label}
                     </span>
                   ))}
@@ -351,7 +351,7 @@ export default async function AnalyticsPage({
               <thead>
                 <tr style={{ borderBottom: '1px solid #E5E0D4', background: '#FAFAF9' }}>
                   {['Event', 'Status', 'Registrations', 'Revenue', 'Cards', 'Check-in'].map(h => (
-                    <th key={h} className="px-5 py-3 text-left  text-[10px] tracking-[0.12em] uppercase"
+                    <th key={h} className="px-5 py-3 text-left  text-[12px] tracking-[0.12em] uppercase"
                       style={{ color: '#6B7A72' }}>
                       {h}
                     </th>

@@ -11,7 +11,7 @@ export default function AppError({ error, reset }: { error: Error & { digest?: s
   return (
     <div className="flex-1 grid place-items-center px-6 py-16">
       <div className="text-center max-w-[400px]">
-        <div className="text-[11px] tracking-widest text-[#0F1F18]/40 mb-4">ERROR</div>
+        <div className="text-[12.5px] tracking-widest text-[#0F1F18]/40 mb-4">ERROR</div>
         <h2 className="font-display font-bold text-[28px] leading-tight">Something went wrong.</h2>
         <p className="text-[14px] text-[#0F1F18]/60 mt-3 leading-relaxed">
           An unexpected error occurred. Try refreshing, or go back to the dashboard.

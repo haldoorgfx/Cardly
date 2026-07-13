@@ -22,7 +22,7 @@ const AVATAR_GRADS = [
 function InfoRow({ label, children, last }: { label: string; children: React.ReactNode; last?: boolean }) {
   return (
     <div className={`flex items-center justify-between gap-4 py-2.5 ${last ? '' : 'border-b'}`} style={{ borderColor: '#E5E0D4' }}>
-      <span className=" text-[10px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>{label}</span>
+      <span className=" text-[12px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>{label}</span>
       <span className="text-[13.5px] text-right" style={{ color: '#0F1F18' }}>{children}</span>
     </div>
   );
@@ -152,7 +152,7 @@ export default async function SpeakerDetailPage({ params }: Props) {
                       </span>
                       <div className="flex-1 min-w-0">
                         <div className="text-[13.5px] font-medium truncate" style={{ color: '#0F1F18' }}>{s.title}</div>
-                        <div className=" text-[11px] mt-0.5" style={{ color: '#6B7A72' }}>
+                        <div className=" text-[12.5px] mt-0.5" style={{ color: '#6B7A72' }}>
                           {s.starts_at ? new Date(s.starts_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—'}
                           {s.room ? ` · ${s.room}` : ''}
                         </div>

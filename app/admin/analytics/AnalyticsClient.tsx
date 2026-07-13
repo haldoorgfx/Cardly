@@ -23,11 +23,11 @@ const PLAN_COLORS: Record<string, string> = {
 function StatCard({ label, value, sub }: { label: string; value: number | string; sub?: string }) {
   return (
     <div className="bg-white border border-[#E5E0D4] rounded-2xl p-5">
-      <div className="text-[11px] text-[#6B7A72] uppercase tracking-[0.14em] mb-2">{label}</div>
+      <div className="text-[12.5px] text-[#6B7A72] uppercase tracking-[0.14em] mb-2">{label}</div>
       <div className="text-[32px] font-display font-bold text-[#0F1F18] tracking-tight leading-none">
         {typeof value === 'number' ? value.toLocaleString() : value}
       </div>
-      {sub && <div className="text-[11px] text-[#6B7A72] mt-1.5">{sub}</div>}
+      {sub && <div className="text-[12.5px] text-[#6B7A72] mt-1.5">{sub}</div>}
     </div>
   );
 }

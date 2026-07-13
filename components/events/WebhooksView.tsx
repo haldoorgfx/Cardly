@@ -124,7 +124,7 @@ export function WebhooksView(_props: Props) {
         <Key size={14} strokeWidth={2} style={{ color: '#1F4D3A', flexShrink: 0, marginTop: 1 }} />
         <span style={{ color: '#3A4A42' }}>
           Each endpoint gets a signing secret. Verify the{' '}
-          <code className="px-1 py-0.5 rounded text-[11px]" style={{ background: '#EDE9E0' }}>
+          <code className="px-1 py-0.5 rounded text-[12.5px]" style={{ background: '#EDE9E0' }}>
             X-Eventera-Signature
           </code>{' '}
           header (HMAC-SHA256) on every request. Webhooks apply account-wide, across all your events.
@@ -132,7 +132,7 @@ export function WebhooksView(_props: Props) {
       </div>
 
       {/* Endpoints */}
-      <h2 className="text-[11px] font-semibold mb-3" style={{ color: '#3A4A42', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+      <h2 className="text-[12.5px] font-semibold mb-3" style={{ color: '#3A4A42', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
         Endpoints
       </h2>
 
@@ -185,7 +185,7 @@ export function WebhooksView(_props: Props) {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-[12.5px] truncate" style={{ color: '#0F1F18' }}>{ep.url}</p>
-                  <p className="text-[11px] mt-0.5 truncate" style={{ color: '#3A4A42' }}>
+                  <p className="text-[12.5px] mt-0.5 truncate" style={{ color: '#3A4A42' }}>
                     {ep.events.map(e => EVENT_LABEL[e] ?? e).join(', ')} · last fired {timeAgo(ep.last_fired_at)}
                     {failing && ` · ${ep.failure_count} failure${ep.failure_count === 1 ? '' : 's'}`}
                   </p>
@@ -206,11 +206,11 @@ export function WebhooksView(_props: Props) {
                 {confirmDelete === ep.id ? (
                   <div className="flex items-center gap-1.5 shrink-0">
                     <button onClick={() => doDelete(ep.id)} disabled={busyId === ep.id}
-                      className="text-[11.5px] font-medium px-2.5 py-1 rounded-lg text-white disabled:opacity-60" style={{ background: '#B8423C' }}>
+                      className="text-[13px] font-medium px-2.5 py-1 rounded-lg text-white disabled:opacity-60" style={{ background: '#B8423C' }}>
                       {busyId === ep.id ? '…' : 'Delete'}
                     </button>
                     <button onClick={() => setConfirmDelete(null)}
-                      className="text-[11.5px] font-medium px-2.5 py-1 rounded-lg border" style={{ borderColor: '#E5E0D4', color: '#3A4A42' }}>
+                      className="text-[13px] font-medium px-2.5 py-1 rounded-lg border" style={{ borderColor: '#E5E0D4', color: '#3A4A42' }}>
                       Cancel
                     </button>
                   </div>
@@ -310,7 +310,7 @@ function AddEndpointModal({ onClose, onCreated }: { onClose: () => void; onCreat
           <div className="px-6 py-5 space-y-4">
             <p className="text-[13px]" style={{ color: '#3A4A42' }}>
               Save this signing secret now — it won&apos;t be shown in full again. Use it to verify the
-              {' '}<code className="px-1 py-0.5 rounded text-[11px]" style={{ background: '#EDE9E0' }}>X-Eventera-Signature</code> header.
+              {' '}<code className="px-1 py-0.5 rounded text-[12.5px]" style={{ background: '#EDE9E0' }}>X-Eventera-Signature</code> header.
             </p>
             <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl" style={{ background: '#0F1F18' }}>
               <code className="flex-1 text-[12px] break-all" style={{ color: '#E8C57E' }}>{created.secret}</code>
@@ -346,7 +346,7 @@ function AddEndpointModal({ onClose, onCreated }: { onClose: () => void; onCreat
                   onFocus={e => { if (!error) e.currentTarget.style.borderColor = '#1F4D3A'; }}
                   onBlur={e => { if (!error) e.currentTarget.style.borderColor = '#E5E0D4'; }}
                 />
-                <p className="text-[11.5px] mt-1.5" style={{ color: '#6B7A72' }}>Must be HTTPS and publicly reachable.</p>
+                <p className="text-[13px] mt-1.5" style={{ color: '#6B7A72' }}>Must be HTTPS and publicly reachable.</p>
               </div>
 
               {/* Event types */}
@@ -366,7 +366,7 @@ function AddEndpointModal({ onClose, onCreated }: { onClose: () => void; onCreat
                           )}
                         </div>
                         <span className="text-[12.5px] font-medium" style={{ color: on ? '#1F4D3A' : '#0F1F18' }}>{EVENT_LABEL[ev]}</span>
-                        <code className="ml-auto text-[11px]" style={{ color: '#6B7A72' }}>{ev}</code>
+                        <code className="ml-auto text-[12.5px]" style={{ color: '#6B7A72' }}>{ev}</code>
                       </label>
                     );
                   })}

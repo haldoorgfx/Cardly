@@ -219,7 +219,7 @@ export function EventsOversightClient({ events: initialEvents, total, page, tota
         <div className="mb-4 rounded-xl px-4 py-3 flex items-center justify-between gap-3 text-[13px]" role="alert"
           style={{ background: 'rgba(184,66,60,0.08)', border: '1px solid rgba(184,66,60,0.25)', color: '#B8423C' }}>
           <span>{actionError}</span>
-          <button onClick={() => setActionError('')} className="shrink-0 text-[11px] underline">Dismiss</button>
+          <button onClick={() => setActionError('')} className="shrink-0 text-[12.5px] underline">Dismiss</button>
         </div>
       )}
 
@@ -286,13 +286,13 @@ export function EventsOversightClient({ events: initialEvents, total, page, tota
                     className="h-4 w-4 rounded border-[#E5E0D4] accent-[#1F4D3A] cursor-pointer disabled:cursor-not-allowed"
                   />
                 </th>
-                <th className="text-left px-4 py-3  text-[10px] tracking-[0.14em] uppercase text-[#6B7A72]">Event</th>
-                <th className="text-left px-4 py-3  text-[10px] tracking-[0.14em] uppercase text-[#6B7A72]">Owner</th>
-                <th className="text-left px-4 py-3  text-[10px] tracking-[0.14em] uppercase text-[#6B7A72]">Status</th>
-                <th className="text-left px-4 py-3  text-[10px] tracking-[0.14em] uppercase text-[#6B7A72]">Moderation</th>
-                <th className="text-left px-4 py-3  text-[10px] tracking-[0.14em] uppercase text-[#6B7A72]">Views / Cards</th>
-                <th className="text-left px-4 py-3  text-[10px] tracking-[0.14em] uppercase text-[#6B7A72]">Created</th>
-                <th className="text-left px-4 py-3  text-[10px] tracking-[0.14em] uppercase text-[#6B7A72]">Actions</th>
+                <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#6B7A72]">Event</th>
+                <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#6B7A72]">Owner</th>
+                <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#6B7A72]">Status</th>
+                <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#6B7A72]">Moderation</th>
+                <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#6B7A72]">Views / Cards</th>
+                <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#6B7A72]">Created</th>
+                <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#6B7A72]">Actions</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-[#E5E0D4]">
@@ -336,7 +336,7 @@ export function EventsOversightClient({ events: initialEvents, total, page, tota
                         </button>
                       )}
                       <div className="flex items-center gap-1 mt-0.5">
-                        <span className="text-[11px] text-[#6B7A72]">/{ev.slug}</span>
+                        <span className="text-[12.5px] text-[#6B7A72]">/{ev.slug}</span>
                         <a
                           href={`/c/${ev.slug}`}
                           target="_blank"
@@ -351,26 +351,26 @@ export function EventsOversightClient({ events: initialEvents, total, page, tota
 
                     <td className="px-4 py-3">
                       <div className="text-[12px] text-[#0F1F18]">{ev.profiles?.full_name ?? '—'}</div>
-                      <div className="text-[11px] text-[#6B7A72]">{ev.profiles?.email ?? '—'}</div>
+                      <div className="text-[12.5px] text-[#6B7A72]">{ev.profiles?.email ?? '—'}</div>
                     </td>
 
                     <td className="px-4 py-3">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full  text-[10px] tracking-[0.1em] uppercase" style={statusStyle}>
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full  text-[12px] tracking-[0.1em] uppercase" style={statusStyle}>
                         {ev.status}
                       </span>
                     </td>
 
                     <td className="px-4 py-3">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full  text-[10px] tracking-[0.1em]" style={{ background: modStyle.bg, color: modStyle.color }}>
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full  text-[12px] tracking-[0.1em]" style={{ background: modStyle.bg, color: modStyle.color }}>
                         {modStyle.label}
                       </span>
                     </td>
 
-                    <td className="px-4 py-3  text-[11px] text-[#6B7A72]">
+                    <td className="px-4 py-3  text-[12.5px] text-[#6B7A72]">
                       {ev.view_count} / {ev.download_count}
                     </td>
 
-                    <td className="px-4 py-3  text-[11px] text-[#6B7A72]">
+                    <td className="px-4 py-3  text-[12.5px] text-[#6B7A72]">
                       {formatDate(ev.created_at)}
                     </td>
 

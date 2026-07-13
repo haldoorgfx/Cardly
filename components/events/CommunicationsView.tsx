@@ -105,7 +105,7 @@ function ComposeModal({
               </div>
 
               <div>
-                <label className="block text-[11px] uppercase tracking-widest mb-1.5" style={{ color: fieldErrors.subject ? '#B8423C' : '#6B7A72' }}>Subject *</label>
+                <label className="block text-[12.5px] uppercase tracking-widest mb-1.5" style={{ color: fieldErrors.subject ? '#B8423C' : '#6B7A72' }}>Subject *</label>
                 <input
                   value={subject}
                   onChange={e => { setSubject(e.target.value); if (fieldErrors.subject) setFieldErrors(p => ({ ...p, subject: '' })); }}
@@ -118,7 +118,7 @@ function ComposeModal({
               </div>
 
               <div>
-                <label className="block text-[11px] uppercase tracking-widest mb-1.5" style={{ color: fieldErrors.message ? '#B8423C' : '#6B7A72' }}>Message *</label>
+                <label className="block text-[12.5px] uppercase tracking-widest mb-1.5" style={{ color: fieldErrors.message ? '#B8423C' : '#6B7A72' }}>Message *</label>
                 <textarea
                   value={message}
                   onChange={e => { setMessage(e.target.value); if (fieldErrors.message) setFieldErrors(p => ({ ...p, message: '' })); }}
@@ -128,7 +128,7 @@ function ComposeModal({
                   style={{ border: `1.5px solid ${fieldErrors.message ? '#B8423C' : '#E5E0D4'}`, background: 'white', color: '#0F1F18' }}
                 />
                 {fieldErrors.message && <p className="text-[12px] mt-1" style={{ color: '#B8423C' }}>{fieldErrors.message}</p>}
-                <p className="text-[11.5px] mt-1" style={{ color: '#9BA8A1' }}>Plain text — line breaks are preserved in the email.</p>
+                <p className="text-[13px] mt-1" style={{ color: '#9BA8A1' }}>Plain text — line breaks are preserved in the email.</p>
               </div>
             </div>
           </>
@@ -155,7 +155,7 @@ function CampaignDraftModal({ draft, onClose }: { draft: string; onClose: () => 
         <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: '1px solid #E5E0D4' }}>
           <div>
             <div className="flex items-center gap-2 mb-0.5">
-              <span className="inline-flex items-center gap-[3px] text-[10px] font-bold tracking-[0.07em] px-1.5 py-0.5 rounded-[5px] text-white" style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 100%)', boxShadow: '0 1px 4px rgba(31,77,58,0.3)' }}>
+              <span className="inline-flex items-center gap-[3px] text-[12px] font-bold tracking-[0.07em] px-1.5 py-0.5 rounded-[5px] text-white" style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 100%)', boxShadow: '0 1px 4px rgba(31,77,58,0.3)' }}>
                 <Sparkles size={8} strokeWidth={2.5} />ERA
               </span>
               <h3 className="font-display text-[15px] font-semibold" style={{ color: '#0F1F18' }}>Campaign draft</h3>
@@ -279,7 +279,7 @@ export function CommunicationsView({ eventId, eventName, registrantCount, plan =
             style={{ gridTemplateColumns: '1fr 120px 100px 155px', borderBottom: '1px solid #E5E0D4', background: '#FAFAF8' }}
           >
             {['Subject', 'Type', 'Recipients', 'Status'].map(h => (
-              <span key={h} className="text-[11px] font-medium" style={{ color: '#6B7A72', letterSpacing: '0.03em' }}>{h}</span>
+              <span key={h} className="text-[12.5px] font-medium" style={{ color: '#6B7A72', letterSpacing: '0.03em' }}>{h}</span>
             ))}
           </div>
 
@@ -291,11 +291,11 @@ export function CommunicationsView({ eventId, eventName, registrantCount, plan =
               </div>
               <span className="text-[13px] truncate" style={{ color: '#0F1F18' }}>You&apos;re in! Here&apos;s everything you need</span>
             </div>
-            <div><span className="inline-flex items-center h-5 px-2 rounded-full text-[11px] font-medium whitespace-nowrap" style={{ background: 'rgba(232,197,126,0.2)', color: '#9A7A3A' }}>Confirmation</span></div>
+            <div><span className="inline-flex items-center h-5 px-2 rounded-full text-[12.5px] font-medium whitespace-nowrap" style={{ background: 'rgba(232,197,126,0.2)', color: '#9A7A3A' }}>Confirmation</span></div>
             <span className="text-[12.5px]" style={{ color: '#6B7A72' }}>
               {registrantCount > 0 ? registrantCount : '—'}
             </span>
-            <div><span className="inline-flex items-center gap-1 h-5 px-2 rounded-full text-[11px] font-medium whitespace-nowrap" style={{ background: 'rgba(31,77,58,0.08)', color: '#1F4D3A' }}>
+            <div><span className="inline-flex items-center gap-1 h-5 px-2 rounded-full text-[12.5px] font-medium whitespace-nowrap" style={{ background: 'rgba(31,77,58,0.08)', color: '#1F4D3A' }}>
               Automated
             </span></div>
           </div>
@@ -308,9 +308,9 @@ export function CommunicationsView({ eventId, eventName, registrantCount, plan =
               </div>
               <span className="text-[13px] truncate" style={{ color: '#0F1F18' }}>Your event is tomorrow</span>
             </div>
-            <div><span className="inline-flex items-center h-5 px-2 rounded-full text-[11px] font-medium whitespace-nowrap" style={{ background: '#F5F0E8', color: '#6B7A72' }}>Reminder</span></div>
+            <div><span className="inline-flex items-center h-5 px-2 rounded-full text-[12.5px] font-medium whitespace-nowrap" style={{ background: '#F5F0E8', color: '#6B7A72' }}>Reminder</span></div>
             <span className="text-[12.5px]" style={{ color: '#6B7A72' }}>—</span>
-            <div><span className="inline-flex items-center gap-1 h-5 px-2 rounded-full text-[11px] font-medium whitespace-nowrap" style={{ background: 'rgba(201,122,45,0.1)', color: '#C97A2D' }}>
+            <div><span className="inline-flex items-center gap-1 h-5 px-2 rounded-full text-[12.5px] font-medium whitespace-nowrap" style={{ background: 'rgba(201,122,45,0.1)', color: '#C97A2D' }}>
               Scheduled · day before
             </span></div>
           </div>
@@ -330,7 +330,7 @@ export function CommunicationsView({ eventId, eventName, registrantCount, plan =
         {/* ERA section header */}
         <div className="flex items-center gap-2.5 px-5 py-3" style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 100%)' }}>
           <Sparkles size={13} strokeWidth={2} color="white" style={{ opacity: 0.88 }} />
-          <span className="text-[11px] font-bold tracking-[0.1em] uppercase" style={{ color: 'rgba(255,255,255,0.85)' }}>ERA · Campaign Draft</span>
+          <span className="text-[12.5px] font-bold tracking-[0.1em] uppercase" style={{ color: 'rgba(255,255,255,0.85)' }}>ERA · Campaign Draft</span>
         </div>
         <div className="p-5" style={{ background: 'white' }}>
         <div className="flex items-center justify-between mb-3">
@@ -409,11 +409,11 @@ function CampaignCard({ subject, type, typeStyle, recipients, status, statusStyl
         <span className="text-[13px] font-medium leading-snug" style={{ color: '#0F1F18' }}>{subject}</span>
       </div>
       <div className="flex items-center gap-2 flex-wrap pl-9">
-        <span className="inline-flex items-center h-5 px-2 rounded-full text-[11px] font-medium" style={typeStyle}>{type}</span>
+        <span className="inline-flex items-center h-5 px-2 rounded-full text-[12.5px] font-medium" style={typeStyle}>{type}</span>
         {recipients !== null && (
           <span className="text-[12px]" style={{ color: '#6B7A72' }}>{recipients} recipients</span>
         )}
-        <span className="inline-flex items-center gap-1 h-5 px-2 rounded-full text-[11px] font-medium" style={statusStyle}>
+        <span className="inline-flex items-center gap-1 h-5 px-2 rounded-full text-[12.5px] font-medium" style={statusStyle}>
           {status}{statusSub && <span className="opacity-70">· {statusSub}</span>}
         </span>
       </div>
@@ -427,11 +427,11 @@ function CommStat({ label, value, sub, icon, accent }: {
   return (
     <div className="rounded-2xl p-4" style={{ background: accent ? 'rgba(31,77,58,0.06)' : 'white', border: accent ? '1px solid rgba(31,77,58,0.2)' : '1px solid #E5E0D4' }}>
       <div className="flex items-center justify-between mb-2">
-        <span className="text-[11px] font-medium" style={{ color: '#6B7A72' }}>{label}</span>
+        <span className="text-[12.5px] font-medium" style={{ color: '#6B7A72' }}>{label}</span>
         <span style={{ color: accent ? '#1F4D3A' : '#6B7A72' }}>{icon}</span>
       </div>
       <p className="text-[22px] font-bold" style={{ color: accent ? '#1F4D3A' : '#0F1F18' }}>{value}</p>
-      {sub && <p className="text-[11px] mt-0.5" style={{ color: '#6B7A72' }}>{sub}</p>}
+      {sub && <p className="text-[12.5px] mt-0.5" style={{ color: '#6B7A72' }}>{sub}</p>}
     </div>
   );
 }

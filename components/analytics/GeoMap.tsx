@@ -171,13 +171,13 @@ export default function GeoMap({ cityData, totalCards }: Props) {
 
         {/* Drag hint */}
         <div className="absolute bottom-3 left-3 pointer-events-none">
-          <span className="text-[9.5px] text-[#0F1F18]/30">drag to pan · scroll to zoom</span>
+          <span className="text-[11.5px] text-[#0F1F18]/30">drag to pan · scroll to zoom</span>
         </div>
 
         {/* No-data badge */}
         {!hasRealData && (
           <div className="absolute bottom-3 left-0 right-0 flex justify-center pointer-events-none">
-            <span className="bg-white/80 backdrop-blur-sm text-[10.5px] text-[#0F1F18]/40 px-2.5 py-1 rounded-lg border border-[#E5E0D4]/60">
+            <span className="bg-white/80 backdrop-blur-sm text-[12px] text-[#0F1F18]/40 px-2.5 py-1 rounded-lg border border-[#E5E0D4]/60">
               Waiting for real attendee data
             </span>
           </div>

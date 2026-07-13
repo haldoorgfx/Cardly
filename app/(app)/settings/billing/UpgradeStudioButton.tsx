@@ -36,7 +36,7 @@ export function UpgradeStudioButton() {
       >
         {isPending ? 'Opening…' : '+ Upgrade to Studio'}
       </button>
-      {error && <span role="alert" className="text-[11px]" style={{ color: '#B8423C' }}>{error}</span>}
+      {error && <span role="alert" className="text-[12.5px]" style={{ color: '#B8423C' }}>{error}</span>}
     </div>
   );
 }

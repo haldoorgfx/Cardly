@@ -151,7 +151,7 @@ export default function PersonalAgendaClient({ sessions: initialSessions, regist
                           )}
                           {track && (
                             <span
-                              className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full"
+                              className="inline-flex items-center gap-1 text-[12.5px] font-medium px-2 py-0.5 rounded-full"
                               style={{ background: `${track.color}18`, color: track.color }}
                             >
                               <span className="w-1.5 h-1.5 rounded-full" style={{ background: track.color }} />

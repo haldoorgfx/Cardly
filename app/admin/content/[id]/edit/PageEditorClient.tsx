@@ -147,7 +147,7 @@ function FieldEditor({
               onChange([...value, blank]);
             } else onChange([...value, '']);
           }}
-          className="text-[11px] text-[#1F4D3A] hover:text-[#163828] transition-colors flex items-center gap-1"
+          className="text-[12.5px] text-[#1F4D3A] hover:text-[#163828] transition-colors flex items-center gap-1"
         >
           <Plus size={11} /> Add item
         </button>
@@ -181,7 +181,7 @@ function ObjectEditor({ value, onChange }: {
     <div className="space-y-2">
       {Object.entries(value).map(([k, v]) => (
         <div key={k}>
-          <div className="text-[10px] uppercase tracking-[0.12em] text-[#6B7A72] mb-1">{k}</div>
+          <div className="text-[12px] uppercase tracking-[0.12em] text-[#6B7A72] mb-1">{k}</div>
           <FieldEditor
             name={k}
             value={v}
@@ -239,13 +239,13 @@ function BlockRow({
           <GripVertical size={14} />
         </div>
         <div className="w-6 h-6 rounded-md bg-[#FAF6EE] border border-[#E5E0D4] grid place-items-center shrink-0">
-          <span className=" text-[9px] text-[#6B7A72]">{index + 1}</span>
+          <span className=" text-[11.5px] text-[#6B7A72]">{index + 1}</span>
         </div>
         <div className="flex-1 min-w-0">
           <div className="font-medium text-[13px] text-[#0F1F18]">
             {BLOCK_LABELS[block.type as BlockType] ?? block.type}
           </div>
-          <div className=" text-[10px] text-[#6B7A72] truncate">
+          <div className=" text-[12px] text-[#6B7A72] truncate">
             {getContentSummary(block.content as unknown as Record<string, unknown>)}
           </div>
         </div>
@@ -272,7 +272,7 @@ function BlockRow({
           <div className="space-y-4">
             {Object.entries(content).map(([key, val]) => (
               <div key={key}>
-                <div className="text-[11px] uppercase tracking-[0.12em] text-[#6B7A72] mb-1.5">{key}</div>
+                <div className="text-[12.5px] uppercase tracking-[0.12em] text-[#6B7A72] mb-1.5">{key}</div>
                 <FieldEditor
                   name={key}
                   value={val}
@@ -413,7 +413,7 @@ export function PageEditorClient({ page }: { page: CmsPageWithBlocks }) {
 
           <div className="flex items-center gap-2 shrink-0 ml-auto">
             {/* Status badge */}
-            <span className={` text-[10px] tracking-[0.14em] uppercase px-2 py-1 rounded-full ${
+            <span className={` text-[12px] tracking-[0.14em] uppercase px-2 py-1 rounded-full ${
               status === 'published'
                 ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                 : 'bg-amber-50 text-amber-700 border border-amber-200'
@@ -453,11 +453,11 @@ export function PageEditorClient({ page }: { page: CmsPageWithBlocks }) {
         <div className="mb-6 p-4 bg-white border border-[#E5E0D4] rounded-xl">
           <div className="flex items-center justify-between">
             <div>
-              <div className=" text-[10px] uppercase tracking-[0.14em] text-[#6B7A72] mb-1">Slug</div>
+              <div className=" text-[12px] uppercase tracking-[0.14em] text-[#6B7A72] mb-1">Slug</div>
               <div className=" text-[13px] text-[#3A4A42]">/{page.slug}</div>
             </div>
             <div>
-              <div className=" text-[10px] uppercase tracking-[0.14em] text-[#6B7A72] mb-1">Blocks</div>
+              <div className=" text-[12px] uppercase tracking-[0.14em] text-[#6B7A72] mb-1">Blocks</div>
               <div className=" text-[13px] text-[#3A4A42]">{blocks.length}</div>
             </div>
             <button
@@ -508,12 +508,12 @@ export function PageEditorClient({ page }: { page: CmsPageWithBlocks }) {
                   className="text-left px-3 py-2 rounded-lg hover:bg-[#FAF6EE] transition-colors"
                 >
                   <div className="text-[12px] font-medium text-[#0F1F18]">{BLOCK_LABELS[type]}</div>
-                  <div className=" text-[10px] text-[#6B7A72]">{type}</div>
+                  <div className=" text-[12px] text-[#6B7A72]">{type}</div>
                 </button>
               ))}
               <button
                 onClick={() => setShowAddBlock(false)}
-                className="col-span-3 mt-1 text-[11px] text-[#6B7A72] hover:text-[#0F1F18] transition-colors py-1"
+                className="col-span-3 mt-1 text-[12.5px] text-[#6B7A72] hover:text-[#0F1F18] transition-colors py-1"
               >
                 Cancel
               </button>

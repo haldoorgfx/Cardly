@@ -56,7 +56,7 @@ export function MeetingsClient({ eventName }: Props) {
           { label: 'No-shows', value: '—' },
         ].map(s => (
           <div key={s.label} className="bg-white rounded-2xl p-5" style={{ border: '1px solid #E5E0D4' }}>
-            <div className=" text-[9.5px] tracking-[0.14em] uppercase mb-2" style={{ color: '#6B7A72' }}>{s.label}</div>
+            <div className=" text-[11.5px] tracking-[0.14em] uppercase mb-2" style={{ color: '#6B7A72' }}>{s.label}</div>
             <div className=" text-[24px] leading-none" style={{ color: '#1F4D3A' }}>{s.value}</div>
           </div>
         ))}
@@ -78,7 +78,7 @@ export function MeetingsClient({ eventName }: Props) {
         <div className="bg-white rounded-2xl overflow-hidden" style={{ border: '1px solid #E5E0D4' }}>
           <div className="flex items-center justify-between px-5 py-3.5 border-b" style={{ borderColor: 'rgba(229,224,212,0.7)' }}>
             <div className="font-display text-[14px] font-semibold" style={{ color: '#0F1F18' }}>Day 1 · Meeting hall</div>
-            <span className="inline-flex items-center gap-1.5 text-[11px] font-medium px-2.5 py-1 rounded-full border" style={{ background: 'rgba(45,122,79,0.08)', color: '#2D7A4F', borderColor: 'rgba(45,122,79,0.2)' }}>
+            <span className="inline-flex items-center gap-1.5 text-[12.5px] font-medium px-2.5 py-1 rounded-full border" style={{ background: 'rgba(45,122,79,0.08)', color: '#2D7A4F', borderColor: 'rgba(45,122,79,0.2)' }}>
               <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#2D7A4F' }} />Live
             </span>
           </div>
@@ -87,7 +87,7 @@ export function MeetingsClient({ eventName }: Props) {
               <div className="grid items-center gap-2 mb-2" style={{ gridTemplateColumns: '56px repeat(5, 1fr)' }}>
                 <span />
                 {TABLES.map((t, i) => (
-                  <div key={i} className="text-center  text-[9.5px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>{t}</div>
+                  <div key={i} className="text-center  text-[11.5px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>{t}</div>
                 ))}
               </div>
               {SLOTS.map((s, r) => (
@@ -101,12 +101,12 @@ export function MeetingsClient({ eventName }: Props) {
                     return (
                       <div key={c} className="rounded-lg h-[44px] flex items-center justify-center gap-1 px-1"
                         style={{ background: 'rgba(232,239,235,0.7)', border: '1px solid rgba(31,77,58,0.2)' }}>
-                        <span className="w-6 h-6 rounded-full grid place-items-center text-cream font-display text-[9px] font-semibold"
+                        <span className="w-6 h-6 rounded-full grid place-items-center text-cream font-display text-[11.5px] font-semibold"
                           style={{ background: GRADS[ai] }}>{INITIALS[ai]}</span>
                         <svg width={10} height={10} fill="none" stroke="#6B7A72" strokeWidth={1.5} viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
                         </svg>
-                        <span className="w-6 h-6 rounded-full grid place-items-center text-cream font-display text-[9px] font-semibold"
+                        <span className="w-6 h-6 rounded-full grid place-items-center text-cream font-display text-[11.5px] font-semibold"
                           style={{ background: GRADS[bi] }}>{INITIALS[bi]}</span>
                       </div>
                     );
@@ -129,7 +129,7 @@ export function MeetingsClient({ eventName }: Props) {
             <div key={i} className="bg-white rounded-2xl p-4 flex items-center gap-4" style={{ border: '1px solid #E5E0D4' }}>
               <div className="flex items-center -space-x-2 shrink-0">
                 {[r.from as [string, number], r.to as [string, number]].map(([, idx], j) => (
-                  <span key={j} className="w-9 h-9 rounded-full grid place-items-center text-cream font-display text-[11px] font-semibold"
+                  <span key={j} className="w-9 h-9 rounded-full grid place-items-center text-cream font-display text-[12.5px] font-semibold"
                     style={{ background: GRADS[idx as number], outline: '2px solid white' }}>
                     {INITIALS[idx as number]}
                   </span>
@@ -142,7 +142,7 @@ export function MeetingsClient({ eventName }: Props) {
                   <span className="font-medium">{(r.to as [string, number])[0]}</span>
                 </div>
                 <div className="text-[12.5px] mt-0.5" style={{ color: '#3A4A42' }}>{r.topic}</div>
-                <div className=" text-[10.5px] tracking-[0.1em] uppercase mt-1" style={{ color: '#6B7A72' }}>{r.when}</div>
+                <div className=" text-[12px] tracking-[0.1em] uppercase mt-1" style={{ color: '#6B7A72' }}>{r.when}</div>
               </div>
               <div className="flex items-center gap-2 shrink-0">
                 <button onClick={() => dismiss(i)} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-[12.5px] font-medium border transition-colors"
@@ -179,7 +179,7 @@ export function MeetingsClient({ eventName }: Props) {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {[['Meeting length', '30 min'], ['Tables', '5'], ['From', '10:00'], ['Until', '16:00']].map(([label, val]) => (
                 <div key={label}>
-                  <div className=" text-[9.5px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>{label}</div>
+                  <div className=" text-[11.5px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>{label}</div>
                   <div className="border rounded-lg px-3 py-2.5 text-[13.5px]" style={{ borderColor: '#E5E0D4', color: '#3A4A42', background: 'rgba(250,246,238,0.5)' }}>{val}</div>
                 </div>
               ))}

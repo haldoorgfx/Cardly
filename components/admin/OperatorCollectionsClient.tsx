@@ -120,7 +120,7 @@ export function OperatorCollectionsClient({ collections, promoted: dbPromoted }:
           <div className="mb-4 rounded-xl px-4 py-3 flex items-start justify-between gap-3 text-[13px]" role="status"
             style={{ background: '#E8EFEB', border: '1px solid #C9E0D4', color: '#1F4D3A' }}>
             <span>{notice}</span>
-            <button onClick={() => setNotice('')} className="shrink-0 text-[11px] underline">Dismiss</button>
+            <button onClick={() => setNotice('')} className="shrink-0 text-[12.5px] underline">Dismiss</button>
           </div>
         )}
 
@@ -167,12 +167,12 @@ export function OperatorCollectionsClient({ collections, promoted: dbPromoted }:
                   <div className="flex items-center gap-2 mb-0.5">
                     <span className="font-semibold text-[15px]" style={{ color: '#0F1F18' }}>{col.name}</span>
                     {col.status === 'live' ? (
-                      <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold"
+                      <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[12.5px] font-semibold"
                         style={{ background: 'rgba(45,122,79,0.1)', color: '#2D7A4F' }}>
                         <Radio size={9} className="animate-pulse" /> Live
                       </span>
                     ) : (
-                      <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold"
+                      <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[12.5px] font-semibold"
                         style={{ background: 'rgba(107,122,114,0.1)', color: '#6B7A72' }}>
                         <Clock size={9} /> Scheduled
                       </span>
@@ -188,7 +188,7 @@ export function OperatorCollectionsClient({ collections, promoted: dbPromoted }:
                   <div className="font-bold text-[20px]" style={{ color: '#1F4D3A', fontFamily: 'Inter, system-ui, sans-serif' }}>
                     {col.event_count ?? 0}
                   </div>
-                  <div className="text-[11px]" style={{ color: '#6B7A72' }}>events</div>
+                  <div className="text-[12.5px]" style={{ color: '#6B7A72' }}>events</div>
                 </div>
               </div>
             ))}
@@ -306,7 +306,7 @@ export function OperatorCollectionsClient({ collections, promoted: dbPromoted }:
                             {ep?.city && ep?.venue_name ? `${ep.venue_name}, ${ep.city}` : ep?.city ?? ep?.venue_name ?? 'Location TBA'}
                             {ep?.starts_at ? ` · ${new Date(ep.starts_at).toLocaleDateString('en', { month: 'short', day: 'numeric', year: 'numeric' })}` : ''}
                           </p>
-                          <p className="text-[11px] mt-0.5" style={{ color: '#C9C3B1', fontFamily: 'Inter, system-ui, sans-serif' }}>
+                          <p className="text-[12.5px] mt-0.5" style={{ color: '#C9C3B1', fontFamily: 'Inter, system-ui, sans-serif' }}>
                             Submitted {new Date(p.submitted_at).toLocaleDateString('en', { month: 'short', day: 'numeric' })}
                           </p>
                         </div>
@@ -316,7 +316,7 @@ export function OperatorCollectionsClient({ collections, promoted: dbPromoted }:
                           <div className="font-bold text-[18px]" style={{ color: score >= total ? '#2D7A4F' : score >= total - 1 ? '#C97A2D' : '#B8423C', fontFamily: 'Inter, system-ui, sans-serif' }}>
                             {score}/{total}
                           </div>
-                          <div className="text-[10px]" style={{ color: '#6B7A72' }}>quality</div>
+                          <div className="text-[12px]" style={{ color: '#6B7A72' }}>quality</div>
                         </div>
                       </div>
 

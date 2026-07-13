@@ -59,7 +59,7 @@ function RoleBadge({ role }: { role: string }) {
 
   return (
     <span
-      className="inline-flex items-center text-[11.5px] font-medium px-2.5 py-1 rounded-full whitespace-nowrap"
+      className="inline-flex items-center text-[13px] font-medium px-2.5 py-1 rounded-full whitespace-nowrap"
       style={{ background: s.bg, color: s.color, border: `1px solid ${s.border}` }}
     >
       {role === 'owner' && <Shield size={9} strokeWidth={2.5} className="mr-1" />}
@@ -72,7 +72,7 @@ function StatusBadge({ status }: { status: 'active' | 'pending' }) {
   if (status === 'active') {
     return (
       <span
-        className="inline-flex items-center gap-1.5 text-[11.5px] font-medium px-2.5 py-1 rounded-full"
+        className="inline-flex items-center gap-1.5 text-[13px] font-medium px-2.5 py-1 rounded-full"
         style={{ background: '#F0FAF4', color: '#1F4D3A', border: '1px solid #A8D5B5' }}
       >
         <span className="h-1.5 w-1.5 rounded-full bg-[#2D7A4F]" />
@@ -82,7 +82,7 @@ function StatusBadge({ status }: { status: 'active' | 'pending' }) {
   }
   return (
     <span
-      className="inline-flex items-center gap-1.5 text-[11.5px] font-medium px-2.5 py-1 rounded-full"
+      className="inline-flex items-center gap-1.5 text-[13px] font-medium px-2.5 py-1 rounded-full"
       style={{ background: '#FFF7ED', color: '#C97A2D', border: '1px solid #FBD5A0' }}
     >
       <span className="h-1.5 w-1.5 rounded-full bg-[#C97A2D]" />
@@ -107,7 +107,7 @@ function UpsellCard() {
             <div className="flex items-center gap-2 mb-0.5">
               <h2 className="font-display font-bold text-[17px] text-[#0F1F18]">Team collaboration</h2>
               <span
-                className="text-[9px] tracking-widest px-2 py-0.5 rounded-full"
+                className="text-[11.5px] tracking-widest px-2 py-0.5 rounded-full"
                 style={{ background: 'rgba(232,197,126,0.18)', color: '#C9A45E', border: '1px solid rgba(232,197,126,0.35)' }}
               >
                 STUDIO
@@ -177,7 +177,7 @@ function InviteModal({ teamId, onClose, onInvited }: { teamId: string; onClose: 
         <p className="text-[13px] text-[#6B7A72] mb-5">They&apos;ll receive a link to join your team.</p>
         <form onSubmit={submit} className="space-y-3">
           <div>
-            <label className="block text-[11px] tracking-widest text-[#6B7A72] uppercase mb-1.5">Email</label>
+            <label className="block text-[12.5px] tracking-widest text-[#6B7A72] uppercase mb-1.5">Email</label>
             <input
               type="email"
               value={email}
@@ -188,7 +188,7 @@ function InviteModal({ teamId, onClose, onInvited }: { teamId: string; onClose: 
             />
           </div>
           <div>
-            <label className="block text-[11px] tracking-widest text-[#6B7A72] uppercase mb-1.5">Role</label>
+            <label className="block text-[12.5px] tracking-widest text-[#6B7A72] uppercase mb-1.5">Role</label>
             <select
               value={role}
               onChange={e => setRole(e.target.value as 'admin' | 'member')}
@@ -271,7 +271,7 @@ function MemberSettingsModal({
         <h2 className="font-display font-bold text-[18px] text-[#0F1F18] mb-1">Member settings</h2>
         <p className="text-[13px] text-[#6B7A72] mb-5">{name}</p>
 
-        <label className="block text-[11px] tracking-widest text-[#6B7A72] uppercase mb-1.5">Role</label>
+        <label className="block text-[12.5px] tracking-widest text-[#6B7A72] uppercase mb-1.5">Role</label>
         <select
           value={role}
           onChange={e => setRole(e.target.value as 'admin' | 'member')}
@@ -478,7 +478,7 @@ export function TeamClient({
           style={{ gridTemplateColumns: '1fr 110px 120px 100px 36px' }}
         >
           {['MEMBER', 'ROLE', 'EVENT ACCESS', 'STATUS', ''].map(col => (
-            <div key={col} className="text-[10.5px] tracking-widest text-[#6B7A72]">
+            <div key={col} className="text-[12px] tracking-widest text-[#6B7A72]">
               {col}
             </div>
           ))}
@@ -502,7 +502,7 @@ export function TeamClient({
                 <div className="min-w-0">
                   <div className="text-[13.5px] font-medium text-[#0F1F18] truncate">
                     {m.profile.full_name ?? m.profile.email}
-                    {isMe && <span className="ml-1.5 text-[11px] text-[#6B7A72] font-normal">(you)</span>}
+                    {isMe && <span className="ml-1.5 text-[12.5px] text-[#6B7A72] font-normal">(you)</span>}
                   </div>
                   {m.profile.full_name && (
                     <div className="text-[12px] text-[#6B7A72] truncate">{m.profile.email}</div>

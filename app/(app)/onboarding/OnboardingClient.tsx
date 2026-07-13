@@ -25,7 +25,7 @@ const PRESETS = [
 type Accent = { id: string; label: string; grad: string; ring: string };
 
 const INPUT = 'w-full bg-white border border-[#E5E0D4] rounded-xl px-3.5 py-3 text-[14.5px] text-[#0F1F18] placeholder:text-[#6B7A72]/60 focus:border-[#E8C57E] outline-none transition-colors';
-const LABEL = 'block  text-[9.5px] tracking-[0.14em] uppercase text-[#6B7A72] mb-1.5';
+const LABEL = 'block  text-[11.5px] tracking-[0.14em] uppercase text-[#6B7A72] mb-1.5';
 
 function MiniCard({ accent, name = 'Your Name', role = 'Attendee', eventLabel = 'Africa Tech Fest' }: {
   accent: Accent; name?: string; role?: string; eventLabel?: string;
@@ -198,7 +198,7 @@ export default function OnboardingClient() {
         </div>
 
         <div className="relative flex-1">
-          <div className=" text-[10px] tracking-[0.2em] uppercase mb-5" style={{ color: 'rgba(232,197,126,0.8)' }}>
+          <div className=" text-[12px] tracking-[0.2em] uppercase mb-5" style={{ color: 'rgba(232,197,126,0.8)' }}>
             Get set up
           </div>
           <div className="flex flex-col gap-1">
@@ -208,7 +208,7 @@ export default function OnboardingClient() {
               return (
                 <div key={i} className="flex items-center gap-3 py-2">
                   <span
-                    className="w-6 h-6 rounded-full grid place-items-center  text-[11px] shrink-0"
+                    className="w-6 h-6 rounded-full grid place-items-center  text-[12.5px] shrink-0"
                     style={{
                       background: done ? '#E8C57E' : active ? '#FAF6EE' : 'rgba(250,246,238,0.1)',
                       color: done || active ? '#163828' : 'rgba(250,246,238,0.5)',

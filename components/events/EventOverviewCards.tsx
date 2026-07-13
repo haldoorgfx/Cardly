@@ -82,7 +82,7 @@ export function EventOverviewCards({ cards, userPlan }: Props) {
                   <div className="h-10 w-10 rounded-xl grid place-items-center shrink-0" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
                     {icon}
                   </div>
-                  <span className="inline-flex items-center gap-1 font-semibold text-[9px] tracking-[0.08em] uppercase px-1.5 py-1 rounded"
+                  <span className="inline-flex items-center gap-1 font-semibold text-[11.5px] tracking-[0.08em] uppercase px-1.5 py-1 rounded"
                     style={{ background: 'rgba(232,197,126,0.2)', color: '#C9A45E' }}>
                     <Lock size={11} strokeWidth={1.8} /> {card.minPlan === 'studio' ? 'Studio' : 'Pro'}
                   </span>
@@ -122,7 +122,7 @@ export function EventOverviewCards({ cards, userPlan }: Props) {
                   {card.iconId === 'sparkles' ? <Sparkles size={18} strokeWidth={1.8} /> : icon}
                 </div>
                 {card.badge && (
-                  <span className="text-[11px] font-medium shrink-0 ml-2"
+                  <span className="text-[12.5px] font-medium shrink-0 ml-2"
                     style={{ color: card.badgeGreen ? '#2D7A4F' : '#6B7A72' }}>
                     {card.badge}
                   </span>

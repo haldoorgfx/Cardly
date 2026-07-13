@@ -22,14 +22,14 @@ export default async function ContentPreviewPage({ params }: { params: { id: str
             <ArrowLeft size={13} /> All pages
           </Link>
           <div className="h-4 w-px bg-white/15" />
-          <div className=" text-[11px] text-white/40 uppercase tracking-[0.14em]">
+          <div className=" text-[12.5px] text-white/40 uppercase tracking-[0.14em]">
             Preview
           </div>
           <div className="font-display font-semibold text-[14px] text-white">
             {page.title}
           </div>
           <div className="flex items-center gap-2 ml-auto">
-            <span className={` text-[10px] tracking-[0.14em] uppercase px-2 py-1 rounded-full ${
+            <span className={` text-[12px] tracking-[0.14em] uppercase px-2 py-1 rounded-full ${
               page.status === 'published'
                 ? 'bg-emerald-500/20 text-emerald-400'
                 : 'bg-amber-500/20 text-amber-400'

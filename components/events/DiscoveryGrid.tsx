@@ -139,7 +139,7 @@ function EventCard({ page, slug }: { page: PageWithSlug; slug: string }) {
         />
         {/* Date badge */}
         <div
-          className="absolute top-3 left-3 px-2.5 py-1 rounded-lg text-[11px] font-medium"
+          className="absolute top-3 left-3 px-2.5 py-1 rounded-lg text-[12.5px] font-medium"
           style={{
             background: 'rgba(10,20,14,0.6)',
             backdropFilter: 'blur(8px)',

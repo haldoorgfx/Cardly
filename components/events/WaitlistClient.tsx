@@ -117,7 +117,7 @@ export function WaitlistClient({ eventId, eventName, waitlist, totalRegs, capaci
           { label: 'Converted', value: '—' },
         ].map(s => (
           <div key={s.label} className="bg-white rounded-2xl p-5" style={{ border: '1px solid #E5E0D4' }}>
-            <div className=" text-[9.5px] tracking-[0.14em] uppercase mb-2" style={{ color: '#6B7A72' }}>{s.label}</div>
+            <div className=" text-[11.5px] tracking-[0.14em] uppercase mb-2" style={{ color: '#6B7A72' }}>{s.label}</div>
             <div className=" text-[24px] leading-none" style={{ color: '#1F4D3A' }}>{s.value}</div>
           </div>
         ))}
@@ -127,7 +127,7 @@ export function WaitlistClient({ eventId, eventName, waitlist, totalRegs, capaci
       {capacity > 0 && (
         <div className="bg-white rounded-2xl p-5 mb-5" style={{ border: '1px solid #E5E0D4' }}>
           <div className="flex items-center justify-between mb-3">
-            <div className=" text-[9.5px] tracking-[0.14em] uppercase" style={{ color: '#6B7A72' }}>Capacity usage</div>
+            <div className=" text-[11.5px] tracking-[0.14em] uppercase" style={{ color: '#6B7A72' }}>Capacity usage</div>
             <div className=" text-[12px]" style={{ color: '#3A4A42' }}>{totalRegs} / {capacity} · {spotsLeft} spot{spotsLeft !== 1 ? 's' : ''} available</div>
           </div>
           <div className="h-3 rounded-full overflow-hidden" style={{ background: '#E8EFEB' }}>
@@ -135,9 +135,9 @@ export function WaitlistClient({ eventId, eventName, waitlist, totalRegs, capaci
               style={{ width: `${Math.min(filled, 100)}%`, background: filled >= 90 ? '#B8423C' : filled >= 75 ? '#C97A2D' : '#1F4D3A' }} />
           </div>
           <div className="flex items-center justify-between mt-1.5">
-            <span className=" text-[10px]" style={{ color: '#9BA8A1' }}>0</span>
-            <span className=" text-[10px]" style={{ color: '#9BA8A1' }}>{filled}% full</span>
-            <span className=" text-[10px]" style={{ color: '#9BA8A1' }}>{capacity}</span>
+            <span className=" text-[12px]" style={{ color: '#9BA8A1' }}>0</span>
+            <span className=" text-[12px]" style={{ color: '#9BA8A1' }}>{filled}% full</span>
+            <span className=" text-[12px]" style={{ color: '#9BA8A1' }}>{capacity}</span>
           </div>
         </div>
       )}
@@ -156,11 +156,11 @@ export function WaitlistClient({ eventId, eventName, waitlist, totalRegs, capaci
         ) : (
           <div className="bg-white rounded-2xl overflow-hidden" style={{ border: '1px solid #E5E0D4' }}>
             <div className="px-5 py-3 border-b flex items-center justify-between" style={{ borderColor: 'rgba(229,224,212,0.7)' }}>
-              <div className=" text-[9.5px] tracking-[0.14em] uppercase" style={{ color: '#6B7A72' }}>
+              <div className=" text-[11.5px] tracking-[0.14em] uppercase" style={{ color: '#6B7A72' }}>
                 {list.length} waiting · oldest first
               </div>
               {selected.length > 0 && (
-                <span className=" text-[10.5px]" style={{ color: '#1F4D3A' }}>{selected.length} selected</span>
+                <span className=" text-[12px]" style={{ color: '#1F4D3A' }}>{selected.length} selected</span>
               )}
             </div>
             <div className="divide-y" style={{ borderColor: 'rgba(229,224,212,0.5)' }}>
@@ -170,10 +170,10 @@ export function WaitlistClient({ eventId, eventName, waitlist, totalRegs, capaci
                   style={{ background: selected.includes(entry.id) ? 'rgba(232,239,235,0.6)' : 'transparent' }}>
                   <input type="checkbox" checked={selected.includes(entry.id)} onChange={() => toggle(entry.id)}
                     className="w-4 h-4 rounded accent-[#1F4D3A] shrink-0 cursor-pointer" />
-                  <div className="w-1 text-center  text-[11px] shrink-0" style={{ color: '#9BA8A1' }}>
+                  <div className="w-1 text-center  text-[12.5px] shrink-0" style={{ color: '#9BA8A1' }}>
                     #{i + 1}
                   </div>
-                  <span className="w-8 h-8 rounded-full grid place-items-center text-cream font-display text-[10px] font-semibold shrink-0"
+                  <span className="w-8 h-8 rounded-full grid place-items-center text-cream font-display text-[12px] font-semibold shrink-0"
                     style={{ background: GRADS[i % GRADS.length] }}>
                     {initials(entry.attendee_name)}
                   </span>
@@ -181,12 +181,12 @@ export function WaitlistClient({ eventId, eventName, waitlist, totalRegs, capaci
                     <div className="text-[13.5px] font-medium truncate" style={{ color: '#0F1F18' }}>
                       {entry.attendee_name ?? '—'}
                     </div>
-                    <div className=" text-[11px] truncate" style={{ color: '#6B7A72' }}>
+                    <div className=" text-[12.5px] truncate" style={{ color: '#6B7A72' }}>
                       {entry.attendee_email ?? ''} · {entry.ticket_types?.name ?? 'General'}
                     </div>
                   </div>
                   <div className="text-right shrink-0">
-                    <div className=" text-[11px]" style={{ color: '#9BA8A1' }}>{fmtDate(entry.created_at)}</div>
+                    <div className=" text-[12.5px]" style={{ color: '#9BA8A1' }}>{fmtDate(entry.created_at)}</div>
                   </div>
                 </div>
               ))}

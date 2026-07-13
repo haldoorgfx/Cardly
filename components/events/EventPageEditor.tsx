@@ -240,7 +240,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing, onCom
       {/* -- Step header ----------------------------------------------- */}
       <div className="flex items-start justify-between gap-4 mb-8">
         <div>
-          <p className="text-[11px] font-medium mb-1" style={{ color: '#6B7A72', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+          <p className="text-[12.5px] font-medium mb-1" style={{ color: '#6B7A72', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
             Step {step} of {STEPS.length}
           </p>
           <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
@@ -280,7 +280,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing, onCom
               >
                 {s.id < step
                   ? <Check size={12} strokeWidth={3} color="white" />
-                  : <span className="text-[11px] font-semibold" style={{ color: s.id === step ? 'white' : '#6B7A72' }}>{s.id}</span>
+                  : <span className="text-[12.5px] font-semibold" style={{ color: s.id === step ? 'white' : '#6B7A72' }}>{s.id}</span>
                 }
               </div>
               <span
@@ -330,7 +330,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing, onCom
               <span className="text-[13px] font-medium" style={{ color: 'rgba(255,255,255,0.85)' }}>
                 Click to upload cover image
               </span>
-              <span className="text-[11px]" style={{ color: 'rgba(255,255,255,0.5)' }}>PNG, JPG or WebP · Max 10 MB</span>
+              <span className="text-[12.5px]" style={{ color: 'rgba(255,255,255,0.5)' }}>PNG, JPG or WebP · Max 10 MB</span>
             </div>
             {coverUrl && (
               <div

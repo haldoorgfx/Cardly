@@ -223,7 +223,7 @@ export default function NotificationsCenter({ initialNotifs, initialPrefs }: Pro
                 <div className="flex-1 min-w-0">
                   <p className="text-[13.5px] font-medium leading-snug" style={{ color: '#0F1F18' }}>{n.title}</p>
                   {n.body && <p className="text-[12.5px] mt-0.5" style={{ color: '#3A4A42' }}>{n.body}</p>}
-                  <p className="text-[11px] mt-1 " style={{ color: '#6B7A72' }}>{fmtTime(n.created_at)}</p>
+                  <p className="text-[12.5px] mt-1 " style={{ color: '#6B7A72' }}>{fmtTime(n.created_at)}</p>
                 </div>
                 {!n.read_at && (
                   <span className="h-2 w-2 rounded-full shrink-0 mt-2" style={{ background: '#E8C57E' }} />

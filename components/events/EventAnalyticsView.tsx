@@ -116,7 +116,7 @@ export function EventAnalyticsView({
         <div className="rounded-2xl overflow-hidden mb-6" style={{ border: '1px solid rgba(31,77,58,0.18)', boxShadow: '0 2px 16px rgba(31,77,58,0.07)' }}>
           <div className="flex items-center gap-2.5 px-5 py-3" style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 100%)' }}>
             <Sparkles size={13} strokeWidth={2} color="white" style={{ opacity: 0.88 }} />
-            <span className="text-[11px] font-bold tracking-[0.1em] uppercase" style={{ color: 'rgba(255,255,255,0.85)' }}>ERA · Analytics Insight</span>
+            <span className="text-[12.5px] font-bold tracking-[0.1em] uppercase" style={{ color: 'rgba(255,255,255,0.85)' }}>ERA · Analytics Insight</span>
           </div>
           <div className="px-5 py-4" style={{ background: '#F5F9F6' }}>
             <p className="text-[14px]" style={{ color: '#0F1F18', lineHeight: 1.75 }}>{eraInsight}</p>

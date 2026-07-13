@@ -375,14 +375,14 @@ export function RegistrationsAdminClient({
                     />
                   </th>
                 )}
-                <th className="text-left px-4 py-3  text-[10px] tracking-[0.14em] uppercase text-[#6B7A72]">Attendee</th>
-                <th className="text-left px-4 py-3  text-[10px] tracking-[0.14em] uppercase text-[#6B7A72]">Event</th>
-                <th className="text-left px-4 py-3  text-[10px] tracking-[0.14em] uppercase text-[#6B7A72]">Ticket</th>
-                <th className="text-left px-4 py-3  text-[10px] tracking-[0.14em] uppercase text-[#6B7A72]">Status</th>
-                <th className="text-left px-4 py-3  text-[10px] tracking-[0.14em] uppercase text-[#6B7A72]">Payment</th>
-                <th className="text-left px-4 py-3  text-[10px] tracking-[0.14em] uppercase text-[#6B7A72]">Amount</th>
-                <th className="text-left px-4 py-3  text-[10px] tracking-[0.14em] uppercase text-[#6B7A72]">Created</th>
-                <th className="text-left px-4 py-3  text-[10px] tracking-[0.14em] uppercase text-[#6B7A72]">Actions</th>
+                <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#6B7A72]">Attendee</th>
+                <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#6B7A72]">Event</th>
+                <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#6B7A72]">Ticket</th>
+                <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#6B7A72]">Status</th>
+                <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#6B7A72]">Payment</th>
+                <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#6B7A72]">Amount</th>
+                <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#6B7A72]">Created</th>
+                <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#6B7A72]">Actions</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-[#E5E0D4]">
@@ -407,7 +407,7 @@ export function RegistrationsAdminClient({
 
                     <td className="px-4 py-3">
                       <div className="font-medium text-[#0F1F18]">{r.attendee_name}</div>
-                      <div className="text-[11px] text-[#6B7A72]">{r.attendee_email}</div>
+                      <div className="text-[12.5px] text-[#6B7A72]">{r.attendee_email}</div>
                     </td>
 
                     <td className="px-4 py-3">
@@ -428,13 +428,13 @@ export function RegistrationsAdminClient({
                     <td className="px-4 py-3 text-[#3A4A42]">{r.ticket_name ?? '—'}</td>
 
                     <td className="px-4 py-3">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] tracking-[0.06em] uppercase" style={statusStyle}>
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[12px] tracking-[0.06em] uppercase" style={statusStyle}>
                         {r.status.replace('_', ' ')}
                       </span>
                     </td>
 
                     <td className="px-4 py-3">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] tracking-[0.06em] uppercase" style={paymentStyle}>
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[12px] tracking-[0.06em] uppercase" style={paymentStyle}>
                         {r.payment_status}
                       </span>
                     </td>
@@ -443,14 +443,14 @@ export function RegistrationsAdminClient({
                       {formatAmount(r.amount_paid, r.currency)}
                     </td>
 
-                    <td className="px-4 py-3  text-[11px] text-[#6B7A72]">
+                    <td className="px-4 py-3  text-[12.5px] text-[#6B7A72]">
                       {formatDate(r.created_at)}
                     </td>
 
                     {/* Actions */}
                     <td className="px-4 py-3">
                       {!canManage ? (
-                        <span className="text-[11px] text-[#6B7A72]/30">—</span>
+                        <span className="text-[12.5px] text-[#6B7A72]/30">—</span>
                       ) : isBusy ? (
                         <Loader2 size={13} strokeWidth={2} className="animate-spin text-[#6B7A72]" />
                       ) : (

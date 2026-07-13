@@ -140,7 +140,7 @@ export function PromoterLinksManager({ eventId, eventSlug, initialCodes, appUrl 
                 value={form.code}
                 onChange={e => setForm(f => ({ ...f, code: e.target.value.toUpperCase().replace(/[^A-Z0-9_-]/g, '') }))}
               />
-              <p className="text-[11px] mt-1" style={{ color: '#6B7A72' }}>Letters, numbers, hyphens only</p>
+              <p className="text-[12.5px] mt-1" style={{ color: '#6B7A72' }}>Letters, numbers, hyphens only</p>
             </div>
             <div>
               <label className="block text-[12px] font-medium mb-1.5" style={{ color: '#3A4A42' }}>Label (optional)</label>
@@ -206,7 +206,7 @@ export function PromoterLinksManager({ eventId, eventSlug, initialCodes, appUrl 
                     <button
                       onClick={() => navigator.clipboard.writeText(link)}
                       title="Click to copy link"
-                      className="group mt-2 flex items-center gap-1.5 text-[11.5px] max-w-full transition-colors"
+                      className="group mt-2 flex items-center gap-1.5 text-[13px] max-w-full transition-colors"
                       style={{ color: '#9BA6A0' }}
                     >
                       <span className="truncate">{link}</span>
@@ -218,14 +218,14 @@ export function PromoterLinksManager({ eventId, eventSlug, initialCodes, appUrl 
                   <div className="flex items-center gap-5 shrink-0 sm:border-l sm:pl-5" style={{ borderColor: '#F0EDE6' }}>
                     <div className="text-center">
                       <div className="font-title font-bold text-[20px] leading-none" style={{ color: c.uses > 0 ? '#1F4D3A' : '#C9C3B1' }}>{c.uses}</div>
-                      <div className="text-[10px] uppercase tracking-[0.1em] mt-1" style={{ color: '#6B7A72' }}>sign-ups</div>
+                      <div className="text-[12px] uppercase tracking-[0.1em] mt-1" style={{ color: '#6B7A72' }}>sign-ups</div>
                     </div>
                     {c.revenue > 0 && (
                       <div className="text-center">
                         <div className="font-title font-bold text-[20px] leading-none flex items-center gap-1" style={{ color: '#1F4D3A' }}>
                           <TrendingUp size={13} strokeWidth={2.2} />{fmt(c.revenue)}
                         </div>
-                        <div className="text-[10px] uppercase tracking-[0.1em] mt-1" style={{ color: '#6B7A72' }}>revenue</div>
+                        <div className="text-[12px] uppercase tracking-[0.1em] mt-1" style={{ color: '#6B7A72' }}>revenue</div>
                       </div>
                     )}
                   </div>

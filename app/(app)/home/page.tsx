@@ -158,7 +158,7 @@ export default async function HomePage() {
                           <div className="w-8 h-8 rounded-lg shrink-0" style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 130%)' }} />
                           <div className="min-w-0 flex-1">
                             <div className="text-[13px] font-medium truncate" style={{ color: '#0F1F18' }}>{item.name}</div>
-                            <div className="text-[11.5px]" style={{ color: '#B45309' }}>{item.reason}</div>
+                            <div className="text-[13px]" style={{ color: '#B45309' }}>{item.reason}</div>
                           </div>
                           <ArrowRight size={14} strokeWidth={2.2} style={{ color: '#B45309' }} />
                         </Link>
@@ -181,7 +181,7 @@ export default async function HomePage() {
                           <div className="w-8 h-8 rounded-lg shrink-0" style={{ background: 'linear-gradient(135deg,#1F4D3A,#2A6A50)' }} />
                           <div className="min-w-0 flex-1">
                             <div className="text-[13px] font-medium truncate" style={{ color: '#0F1F18' }}>{a.name}</div>
-                            <div className="text-[11.5px]" style={{ color: '#3A4A42' }}>{a.when ? new Date(a.when).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : 'Date TBA'}</div>
+                            <div className="text-[13px]" style={{ color: '#3A4A42' }}>{a.when ? new Date(a.when).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : 'Date TBA'}</div>
                           </div>
                           <ArrowRight size={14} strokeWidth={2} style={{ color: '#3A4A42' }} />
                         </Link>
@@ -218,7 +218,7 @@ export default async function HomePage() {
                             <span style={{ color: '#3A4A42' }}> · {r.event}</span>
                           </div>
                           {r.amount > 0 && <span className="text-[12.5px] font-medium shrink-0" style={{ color: '#2D7A4F' }}>{formatRevenue(r.amount, 'USD')}</span>}
-                          <span className="text-[11.5px] shrink-0" style={{ color: '#3A4A42' }}>{timeAgo(r.when)}</span>
+                          <span className="text-[13px] shrink-0" style={{ color: '#3A4A42' }}>{timeAgo(r.when)}</span>
                         </div>
                       ))}
                     </div>
@@ -240,7 +240,7 @@ export default async function HomePage() {
 
           {(sections.speaking || sections.sponsoring || sections.admin) && (
             <section>
-              <div className="text-[10px] tracking-[0.2em] uppercase mb-3" style={{ color: '#3A4A42' }}>More</div>
+              <div className="text-[12px] tracking-[0.2em] uppercase mb-3" style={{ color: '#3A4A42' }}>More</div>
               <div className="grid sm:grid-cols-3 gap-3">
                 {sections.speaking && <RoleLink href="/speaking" icon={<Mic size={18} strokeWidth={1.8} />} label="Speaking" desc="Your sessions" />}
                 {sections.sponsoring && <RoleLink href="/sponsoring" icon={<Briefcase size={18} strokeWidth={1.8} />} label="Sponsoring" desc="Booths & leads" />}

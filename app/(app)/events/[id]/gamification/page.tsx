@@ -69,7 +69,7 @@ export default async function GamificationPage({ params }: Props) {
 
       <div className="max-w-[760px] mx-auto px-4 sm:px-6 py-10">
         <div className="mb-8">
-          <div className="text-[10px] tracking-[0.22em] uppercase mb-2" style={{ color: '#6B7A72' }}>Engagement</div>
+          <div className="text-[12px] tracking-[0.22em] uppercase mb-2" style={{ color: '#6B7A72' }}>Engagement</div>
           <h1 className="font-display font-bold text-[28px] tracking-tight" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>Gamification</h1>
           <p className="mt-1.5 text-[14px]" style={{ color: '#6B7A72' }}>Points attendees earn across Q&amp;A, polls, and messages.</p>
         </div>
@@ -107,7 +107,7 @@ export default async function GamificationPage({ params }: Props) {
                       <div className="text-center">
                         <div className="font-display font-medium text-[13px] truncate max-w-[80px]" style={{ color: '#0F1F18' }}>{entry.attendee_name.split(' ')[0]}</div>
                         <div className="text-[13px] font-semibold" style={{ color: isFirst ? '#E8C57E' : '#1F4D3A' }}>{entry.total_points}pts</div>
-                        <div className="text-[11px]" style={{ color: '#6B7A72' }}>#{entry.rank}</div>
+                        <div className="text-[12.5px]" style={{ color: '#6B7A72' }}>#{entry.rank}</div>
                       </div>
                     </div>
                   );

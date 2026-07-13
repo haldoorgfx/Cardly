@@ -392,7 +392,7 @@ export function MediaLibraryClient({
 
               {/* URL copy */}
               <div className="mt-4">
-                <label className="block text-[11px] uppercase tracking-[0.12em] text-[#6B7A72] mb-1">
+                <label className="block text-[12.5px] uppercase tracking-[0.12em] text-[#6B7A72] mb-1">
                   URL
                 </label>
                 <div className="flex items-center gap-2">
@@ -413,7 +413,7 @@ export function MediaLibraryClient({
 
               {/* Alt text */}
               <div className="mt-4">
-                <label className="block text-[11px] uppercase tracking-[0.12em] text-[#6B7A72] mb-1">
+                <label className="block text-[12.5px] uppercase tracking-[0.12em] text-[#6B7A72] mb-1">
                   Alt text
                 </label>
                 {editingId === selected.id ? (
@@ -607,7 +607,7 @@ function MediaTile({
               onChange={(e) => onAltChange(e.target.value)}
               autoFocus
               placeholder="Alt text"
-              className="flex-1 h-7 px-2 rounded text-[11px] bg-white text-[#0F1F18] border border-[#1F4D3A] focus:outline-none min-w-0"
+              className="flex-1 h-7 px-2 rounded text-[12.5px] bg-white text-[#0F1F18] border border-[#1F4D3A] focus:outline-none min-w-0"
             />
             <button
               onClick={onSaveAlt}

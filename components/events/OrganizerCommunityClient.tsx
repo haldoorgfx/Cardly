@@ -100,7 +100,7 @@ export function OrganizerCommunityClient({ eventName, eventSlug, channels: dbCha
               <div className="flex items-center gap-2 mb-0.5">
                 <span className="font-semibold text-[14px]" style={{ color: '#0F1F18' }}>#{ch.name}</span>
                 {ch.is_pinned && (
-                  <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold"
+                  <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[12px] font-semibold"
                     style={{ background: '#E8C57E20', color: '#8B6914' }}>
                     <Pin size={9} /> Pinned
                   </span>
@@ -113,7 +113,7 @@ export function OrganizerCommunityClient({ eventName, eventSlug, channels: dbCha
                 <div className="text-[15px] font-semibold" style={{ color: '#0F1F18' }}>
                   {(counts[ch.id] ?? 0).toLocaleString()}
                 </div>
-                <div className="text-[11px]" style={{ color: '#C9C3B1' }}>messages</div>
+                <div className="text-[12.5px]" style={{ color: '#C9C3B1' }}>messages</div>
               </div>
               <button className="w-8 h-8 rounded-lg flex items-center justify-center transition hover:opacity-70"
                 style={{ color: '#C9C3B1' }}>

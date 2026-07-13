@@ -35,7 +35,7 @@ function CapacityBar({ filled, capacity }: { filled: number; capacity: number })
       <div className="flex-1 rounded-full overflow-hidden" style={{ height: 4, background: '#E5E0D4' }}>
         <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: color }} />
       </div>
-      <span className="text-[11px] font-semibold shrink-0" style={{ color, fontFamily: 'Inter, system-ui, sans-serif' }}>
+      <span className="text-[12.5px] font-semibold shrink-0" style={{ color, fontFamily: 'Inter, system-ui, sans-serif' }}>
         {pct >= 100 ? 'Full' : `${filled}/${capacity}`}
       </span>
     </div>
@@ -152,7 +152,7 @@ export function WorkshopsClient({ eventId, eventSlug, sessions, bookedIds: initi
 
         {Object.entries(displayByDay).map(([day, daySessions]) => (
           <div key={day} className="mb-7">
-            <div className="text-[11px] font-bold tracking-[0.12em] uppercase mb-3"
+            <div className="text-[12.5px] font-bold tracking-[0.12em] uppercase mb-3"
               style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
               {day}
             </div>
@@ -177,7 +177,7 @@ export function WorkshopsClient({ eventId, eventSlug, sessions, bookedIds: initi
                       <div className="flex-1 min-w-0">
                         {/* Track badge */}
                         {s.tracks && (
-                          <span className="inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold mb-1"
+                          <span className="inline-block px-2 py-0.5 rounded-full text-[12px] font-semibold mb-1"
                             style={{ background: `${s.tracks.color}15`, color: s.tracks.color }}>
                             {s.tracks.name}
                           </span>

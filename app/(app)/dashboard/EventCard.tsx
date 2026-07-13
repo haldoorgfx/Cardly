@@ -197,7 +197,7 @@ export default function EventCard({ event, regCount, revenue, currency, checkinP
         )}
 
         {/* Status pill */}
-        <span className={`absolute top-3 left-3 inline-flex items-center gap-1.5 text-[9.5px] tracking-[0.1em] uppercase px-2 py-0.5 rounded-full border ${st.cls} bg-cream/95`}
+        <span className={`absolute top-3 left-3 inline-flex items-center gap-1.5 text-[11.5px] tracking-[0.1em] uppercase px-2 py-0.5 rounded-full border ${st.cls} bg-cream/95`}
           style={{ background: 'rgba(250,246,238,0.95)' }}>
           <span className={`w-1.5 h-1.5 rounded-full ${st.pulse ? 'animate-pulse' : ''}`} style={{ background: st.dot }} />
           {st.label}

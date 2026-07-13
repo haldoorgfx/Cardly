@@ -82,7 +82,7 @@ export function FlagsAdminClient({ initialFlags }: Props) {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="text-[13.5px] font-semibold text-[#0F1F18]">{flag.label}</span>
-                    <span className=" text-[10px] text-[#6B7A72]/60">{flag.flag}</span>
+                    <span className=" text-[12px] text-[#6B7A72]/60">{flag.flag}</span>
                   </div>
                   {flag.description && (
                     <p className="text-[12.5px] text-[#6B7A72] mt-0.5 leading-relaxed">{flag.description}</p>
@@ -107,7 +107,7 @@ export function FlagsAdminClient({ initialFlags }: Props) {
           </div>
 
           <p className="mt-4 text-[12px] text-[#6B7A72]/60 px-1">
-            Per-user overrides can be set via the API: <code className=" text-[11px]">POST /api/admin/flags/[flag]/overrides</code>
+            Per-user overrides can be set via the API: <code className=" text-[12.5px]">POST /api/admin/flags/[flag]/overrides</code>
           </p>
         </div>
       </div>

@@ -172,7 +172,7 @@ export function RevenueView({ registrations }: Props) {
       <div className="min-w-[420px]">
         {tab === 'tickets' ? (
           <>
-            <div className="grid grid-cols-3 px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider" style={{ background: '#F4F1EB', color: '#6B7A72', letterSpacing: '0.06em' }}>
+            <div className="grid grid-cols-3 px-4 py-2.5 text-[12.5px] font-semibold uppercase tracking-wider" style={{ background: '#F4F1EB', color: '#6B7A72', letterSpacing: '0.06em' }}>
               <span>Ticket type</span><span className="text-right">Registrations</span><span className="text-right">Revenue</span>
             </div>
             {byTicket.length === 0 && (
@@ -202,7 +202,7 @@ export function RevenueView({ registrations }: Props) {
           </>
         ) : tab === 'promoters' ? (
           <>
-            <div className="grid grid-cols-3 px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider" style={{ background: '#F4F1EB', color: '#6B7A72', letterSpacing: '0.06em' }}>
+            <div className="grid grid-cols-3 px-4 py-2.5 text-[12.5px] font-semibold uppercase tracking-wider" style={{ background: '#F4F1EB', color: '#6B7A72', letterSpacing: '0.06em' }}>
               <span>Promoter code</span><span className="text-right">Registrations</span><span className="text-right">Revenue</span>
             </div>
             {byPromoter.length === 0 && (
@@ -226,7 +226,7 @@ export function RevenueView({ registrations }: Props) {
           </>
         ) : (
           <>
-            <div className="grid grid-cols-3 px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider" style={{ background: '#F4F1EB', color: '#6B7A72', letterSpacing: '0.06em' }}>
+            <div className="grid grid-cols-3 px-4 py-2.5 text-[12.5px] font-semibold uppercase tracking-wider" style={{ background: '#F4F1EB', color: '#6B7A72', letterSpacing: '0.06em' }}>
               <span>UTM source</span><span className="text-right">Registrations</span><span className="text-right">Revenue</span>
             </div>
             {bySource.length === 0 && (

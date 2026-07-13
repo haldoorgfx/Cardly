@@ -223,7 +223,7 @@ export function QRScanner({ eventId, eventSlug, eventName, totalRegistrations, i
             : cameraError}
         </div>
         {isDenied && (
-          <div className="text-[11px] mb-6 max-w-[240px] px-3 py-2 rounded-xl" style={{ color: 'rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.05)' }}>
+          <div className="text-[12.5px] mb-6 max-w-[240px] px-3 py-2 rounded-xl" style={{ color: 'rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.05)' }}>
             On iPhone: Settings → Safari → Camera → Allow<br/>
             On Android: tap the 🔒 in the address bar → Camera
           </div>
@@ -314,7 +314,7 @@ export function QRScanner({ eventId, eventSlug, eventName, totalRegistrations, i
                       {[reg.ticket_types?.name, reg.attendee_email, reg.attendee_phone].filter(Boolean).join(' · ')}
                     </div>
                     {isCheckedIn && reg.checked_in_at && (
-                      <div className="flex items-center gap-1 mt-1 text-[11px]" style={{ color: 'rgba(45,122,79,0.9)' }}>
+                      <div className="flex items-center gap-1 mt-1 text-[12.5px]" style={{ color: 'rgba(45,122,79,0.9)' }}>
                         <Clock size={10} /> {new Date(reg.checked_in_at).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
                       </div>
                     )}
@@ -370,7 +370,7 @@ export function QRScanner({ eventId, eventSlug, eventName, totalRegistrations, i
           <div className=" text-[13px]" style={{ color: '#E8C57E' }}>
             {checkedIn} / {totalRegistrations}
           </div>
-          <div className="text-[10px] tracking-wider uppercase" style={{ color: 'rgba(255,255,255,0.35)' }}>
+          <div className="text-[12px] tracking-wider uppercase" style={{ color: 'rgba(255,255,255,0.35)' }}>
             checked in
           </div>
         </div>

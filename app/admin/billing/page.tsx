@@ -73,7 +73,7 @@ export default async function BillingAdminPage({
   return (
     <div className="p-6 lg:p-10 max-w-[1100px]">
       <div className="mb-8">
-        <div className=" text-[10px] tracking-[0.22em] uppercase text-[#6B7A72] mb-2">
+        <div className=" text-[12px] tracking-[0.22em] uppercase text-[#6B7A72] mb-2">
           Admin · Billing
         </div>
         <h1 className="font-display font-semibold text-[26px] sm:text-[30px] text-[#0F1F18] tracking-tight">
@@ -88,13 +88,13 @@ export default async function BillingAdminPage({
       {/* Ticket-fee take-rate — Eventera's cut + what's owed to organizers */}
       {feeCurrencies.length > 0 && (
         <div className="mb-8">
-          <div className="text-[10px] tracking-[0.18em] uppercase text-[#6B7A72] mb-3">Ticket fees · take-rate revenue</div>
+          <div className="text-[12px] tracking-[0.18em] uppercase text-[#6B7A72] mb-3">Ticket fees · take-rate revenue</div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {feeCurrencies.map(([cur, v]) => (
               <div key={cur} className="rounded-2xl bg-white border p-5" style={{ borderColor: '#E5E0D4' }}>
                 <div className="flex items-center justify-between mb-3">
                   <span className="font-display font-semibold text-[14px] text-[#0F1F18]">{cur}</span>
-                  <span className="text-[11px] text-[#6B7A72]">{v.count} paid ticket{v.count !== 1 ? 's' : ''}</span>
+                  <span className="text-[12.5px] text-[#6B7A72]">{v.count} paid ticket{v.count !== 1 ? 's' : ''}</span>
                 </div>
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between text-[13px]"><span className="text-[#6B7A72]">Gross processed</span><span className="font-medium text-[#0F1F18]">{fmtCur(v.gross, cur)}</span></div>

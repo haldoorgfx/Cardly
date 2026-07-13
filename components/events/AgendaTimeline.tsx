@@ -231,7 +231,7 @@ function DayGrid({ daySessions, tracks, dateKey, onSlotClick, onSessionClick }: 
             {hours.map((h, i) => (
               <div
                 key={h}
-                className="absolute right-2 text-right text-[11px] font-semibold -translate-y-1/2 select-none"
+                className="absolute right-2 text-right text-[12.5px] font-semibold -translate-y-1/2 select-none"
                 style={{ top: i * ROW_HEIGHT, color: '#6B7A72' }}
               >
                 {formatHour(h)}
@@ -282,7 +282,7 @@ function DayGrid({ daySessions, tracks, dateKey, onSlotClick, onSessionClick }: 
                     }}
                   >
                     <span
-                      className="text-[10.5px] font-semibold"
+                      className="text-[12px] font-semibold"
                       style={{ color: '#1F4D3A' }}
                     >
                       + {formatTime(hoverInfo.h, hoverInfo.m)}
@@ -372,13 +372,13 @@ function DayGrid({ daySessions, tracks, dateKey, onSlotClick, onSessionClick }: 
                         {session.session_type === 'break' ? (
                           <div className="px-3 h-full flex items-center justify-center gap-2 text-center">
                             <span className="font-display font-medium" style={{ fontSize: 12, color: cfg.titleColor, letterSpacing: '0.01em' }}>{session.title}</span>
-                            {timeRange && <span className="text-[10px] font-medium shrink-0" style={{ color: cfg.metaColor }}>· {timeRange}</span>}
+                            {timeRange && <span className="text-[12px] font-medium shrink-0" style={{ color: cfg.metaColor }}>· {timeRange}</span>}
                           </div>
                         ) : (
                           <div className="px-2.5 py-2 h-full flex flex-col gap-1 overflow-hidden">
-                            {timeRange && <div className="text-[10px] font-semibold tracking-[0.02em]" style={{ color: cfg.metaColor }}>{timeRange}</div>}
+                            {timeRange && <div className="text-[12px] font-semibold tracking-[0.02em]" style={{ color: cfg.metaColor }}>{timeRange}</div>}
                             <div className="font-display font-semibold leading-snug line-clamp-2" style={{ fontSize: 13, color: cfg.titleColor, letterSpacing: '-0.01em' }}>{session.title}</div>
-                            {showMeta && spkrs && <span className="text-[10.5px] font-medium truncate" style={{ color: cfg.metaColor }}>{spkrs}</span>}
+                            {showMeta && spkrs && <span className="text-[12px] font-medium truncate" style={{ color: cfg.metaColor }}>{spkrs}</span>}
                           </div>
                         )}
                       </div>
@@ -416,7 +416,7 @@ function TimelineLegend({ usedTypes }: { usedTypes: Set<string> }) {
         return (
           <div key={l.type} className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full" style={{ background: 'rgba(15,31,24,0.03)' }}>
             <span className="h-2 w-2 rounded-full shrink-0" style={{ background: cfg.dotColor }} />
-            <span className="text-[11.5px] font-medium" style={{ color: '#3A4A42' }}>
+            <span className="text-[13px] font-medium" style={{ color: '#3A4A42' }}>
               {l.label}
             </span>
           </div>

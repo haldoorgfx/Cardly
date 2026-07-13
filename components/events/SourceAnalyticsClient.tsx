@@ -49,7 +49,7 @@ function CopyButton({ text }: { text: string }) {
     });
   }
   return (
-    <button onClick={copy} className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-medium transition hover:opacity-80"
+    <button onClick={copy} className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[12.5px] font-medium transition hover:opacity-80"
       style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
       {copied ? <Check size={11} /> : <Copy size={11} />}
       {copied ? 'Copied' : 'Copy'}
@@ -97,7 +97,7 @@ export function SourceAnalyticsClient({ eventName, publicSlug, sources, total }:
       {/* Header */}
       <div className="flex items-start justify-between mb-8">
         <div>
-          <p className="text-[11px] tracking-[0.16em] uppercase mb-2 font-medium" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
+          <p className="text-[12.5px] tracking-[0.16em] uppercase mb-2 font-medium" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
             Insights
           </p>
           <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
@@ -184,7 +184,7 @@ export function SourceAnalyticsClient({ eventName, publicSlug, sources, total }:
                   <span className="text-[12px] font-medium" style={{ color: '#3A4A42' }}>{link.label}</span>
                   <CopyButton text={link.url} />
                 </div>
-                <div className="px-3 py-2 rounded-lg text-[11px] break-all" style={{ background: '#F0EDE6', color: '#3A4A42', fontFamily: 'Inter, system-ui, sans-serif' }}>
+                <div className="px-3 py-2 rounded-lg text-[12.5px] break-all" style={{ background: '#F0EDE6', color: '#3A4A42', fontFamily: 'Inter, system-ui, sans-serif' }}>
                   {link.url.replace(BASE + '/', '').split('?').map((part, i) => (
                     i === 0
                       ? <span key={i} style={{ color: '#0F1F18' }}>{BASE}/{part}?</span>

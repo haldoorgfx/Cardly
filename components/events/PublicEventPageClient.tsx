@@ -246,7 +246,7 @@ function TicketList({
                 </div>
               </div>
               {remaining !== null && !soldOut && remaining <= 20 && (
-                <div className="text-[11px] mt-2 font-medium" style={{ color: '#C9A45E' }}>
+                <div className="text-[12.5px] mt-2 font-medium" style={{ color: '#C9A45E' }}>
                   {remaining} left at this price
                 </div>
               )}
@@ -287,7 +287,7 @@ function TicketList({
           </Link>
         )}
 
-        <div className="flex items-center justify-center gap-1.5 mt-3 text-[11px]" style={{ color: '#6B7A72' }}>
+        <div className="flex items-center justify-center gap-1.5 mt-3 text-[12.5px]" style={{ color: '#6B7A72' }}>
           <svg viewBox="0 0 24 24" className="w-3 h-3 shrink-0" fill="none" stroke="#1F4D3A" strokeWidth="2">
             <path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6l8-4z"/>
           </svg>
@@ -384,7 +384,7 @@ function ERAQandA({ page, dateStr }: { page: EventPageRow; dateStr: string }) {
         <div className="mt-3 rounded-xl overflow-hidden" style={{ border: '1px solid rgba(31,77,58,0.18)', boxShadow: '0 2px 12px rgba(31,77,58,0.07)' }}>
           <div className="flex items-center gap-2 px-4 py-2.5" style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 100%)' }}>
             <Sparkles size={12} strokeWidth={2} color="white" style={{ opacity: 0.88 }} />
-            <span className="text-[10px] font-bold tracking-[0.1em] uppercase" style={{ color: 'rgba(255,255,255,0.85)' }}>ERA Answer</span>
+            <span className="text-[12px] font-bold tracking-[0.1em] uppercase" style={{ color: 'rgba(255,255,255,0.85)' }}>ERA Answer</span>
           </div>
           <div className="px-4 py-3.5" style={{ background: '#F5F9F6' }}>
             <p className="text-[14px]" style={{ color: '#0F1F18', lineHeight: 1.7 }}>{answer}</p>
@@ -547,7 +547,7 @@ export function PublicEventPageClient({
           <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(10,20,14,0.92) 0%, rgba(10,20,14,0.4) 45%, transparent 75%)' }} />
 
           {(page.category || seriesSlug) && (
-            <span className="absolute top-5 left-5 z-10 px-3 py-[6px] rounded-full text-[11px] font-semibold uppercase tracking-[0.06em]"
+            <span className="absolute top-5 left-5 z-10 px-3 py-[6px] rounded-full text-[12.5px] font-semibold uppercase tracking-[0.06em]"
               style={{ background: '#E8C57E', color: '#0F1F18' }}>
               {seriesSlug && seriesName ? `Series: ${seriesName}` : page.category}
             </span>
@@ -997,7 +997,7 @@ export function PublicEventPageClient({
                         <div>
                           <div className="font-title font-semibold text-[15px]" style={{ color: '#0F1F18' }}>{s.title}</div>
                           {s.session_type && (
-                            <span className="inline-block mt-1 text-[11px] font-semibold uppercase tracking-[0.05em] px-2 py-0.5 rounded-full"
+                            <span className="inline-block mt-1 text-[12.5px] font-semibold uppercase tracking-[0.05em] px-2 py-0.5 rounded-full"
                               style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
                               {s.session_type}
                             </span>
@@ -1062,7 +1062,7 @@ export function PublicEventPageClient({
                   <div key={tier}>
                     {/* Tier label — plain text, no emoji */}
                     <div className="flex items-center gap-3 mb-5">
-                      <span className="text-[11px] font-semibold uppercase tracking-[0.14em]" style={{ color: '#6B7A72' }}>{meta.label}</span>
+                      <span className="text-[12.5px] font-semibold uppercase tracking-[0.14em]" style={{ color: '#6B7A72' }}>{meta.label}</span>
                       <div className="flex-1 h-px" style={{ background: '#E5E0D4' }} />
                     </div>
                     <div className={`grid gap-4 ${meta.cols}`}>
@@ -1084,7 +1084,7 @@ export function PublicEventPageClient({
                               <div className="text-[12px] text-center leading-relaxed" style={{ color: '#6B7A72' }}>{s.tagline}</div>
                             )}
                             {s.logo_url && tier !== 'standard' && tier !== 'partner' && tier !== 'media' && (
-                              <div className="text-[11px] font-medium" style={{ color: '#6B7A72' }}>{s.company_name}</div>
+                              <div className="text-[12.5px] font-medium" style={{ color: '#6B7A72' }}>{s.company_name}</div>
                             )}
                           </div>
                         );

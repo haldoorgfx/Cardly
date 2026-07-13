@@ -205,7 +205,7 @@ export default async function BillingPage({
           <div className="flex items-start justify-between">
             <div>
               <div
-                className="text-[10px] tracking-[0.18em] uppercase mb-2"
+                className="text-[12px] tracking-[0.18em] uppercase mb-2"
                 style={{ color: 'rgba(250,246,238,0.55)' }}
               >
                 CURRENT PLAN
@@ -221,7 +221,7 @@ export default async function BillingPage({
             </div>
             {isTrialing && (
               <span
-                className="text-[11px] px-2.5 py-1 rounded-full"
+                className="text-[12.5px] px-2.5 py-1 rounded-full"
                 style={{ background: 'rgba(232,197,126,0.18)', color: '#E8C57E', border: '1px solid rgba(232,197,126,0.3)' }}
               >
                 TRIAL
@@ -354,7 +354,7 @@ export default async function BillingPage({
                 {['DATE', 'DESCRIPTION', 'AMOUNT', 'STATUS', ''].map(col => (
                   <th
                     key={col}
-                    className="px-6 py-3 text-left text-[10.5px] tracking-widest text-[#6B7A72]"
+                    className="px-6 py-3 text-left text-[12px] tracking-widest text-[#6B7A72]"
                   >
                     {col}
                   </th>
@@ -376,7 +376,7 @@ export default async function BillingPage({
                   <td className="px-6 py-4">
                     {inv.status === 'paid' && (
                       <span
-                        className="inline-flex items-center gap-1.5 text-[11.5px] font-medium px-2.5 py-1 rounded-full"
+                        className="inline-flex items-center gap-1.5 text-[13px] font-medium px-2.5 py-1 rounded-full"
                         style={{ background: '#F0FAF4', color: '#1F4D3A', border: '1px solid #A8D5B5' }}
                       >
                         Paid
@@ -387,7 +387,7 @@ export default async function BillingPage({
                     )}
                     {inv.status === 'open' && (
                       <span
-                        className="inline-flex items-center text-[11.5px] font-medium px-2.5 py-1 rounded-full"
+                        className="inline-flex items-center text-[13px] font-medium px-2.5 py-1 rounded-full"
                         style={{ background: '#FFF7ED', color: '#C97A2D', border: '1px solid #FBD5A0' }}
                       >
                         Due
@@ -398,7 +398,7 @@ export default async function BillingPage({
                     )}
                     {inv.status === 'uncollectible' && (
                       <span
-                        className="inline-flex items-center text-[11.5px] font-medium px-2.5 py-1 rounded-full"
+                        className="inline-flex items-center text-[13px] font-medium px-2.5 py-1 rounded-full"
                         style={{ background: '#FEE2E2', color: '#991B1B', border: '1px solid #FECACA' }}
                       >
                         Uncollectible

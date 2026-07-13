@@ -182,7 +182,7 @@ export function EventSeriesClient({ eventId, eventName, eventSlug, series }: Pro
                       {inst.registrations_count > 0 && ` · ${inst.registrations_count} registrations`}
                     </div>
                   </div>
-                  <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold shrink-0"
+                  <span className="px-2 py-0.5 rounded-full text-[12.5px] font-semibold shrink-0"
                     style={{
                       background: inst.status === 'published' ? 'rgba(45,122,79,0.1)' : 'rgba(107,122,114,0.1)',
                       color: inst.status === 'published' ? '#2D7A4F' : '#6B7A72',
@@ -221,7 +221,7 @@ export function EventSeriesClient({ eventId, eventName, eventSlug, series }: Pro
           <div className="text-[12px] mb-2" style={{ color: '#6B7A72' }}>Recurring series · {FREQ_OPTIONS.find(f => f.key === freq)?.label}</div>
           <div className="flex gap-1.5 mb-3 flex-wrap">
             {instances.slice(0, 3).map((inst: Instance) => (
-              <span key={inst.id} className="px-2.5 py-1 rounded-lg text-[11px] font-medium"
+              <span key={inst.id} className="px-2.5 py-1 rounded-lg text-[12.5px] font-medium"
                 style={{ background: '#F5F2EC', color: '#3A4A42' }}>
                 {new Date(inst.scheduled_date).toLocaleDateString('en', { month: 'short', day: 'numeric' })}
               </span>

@@ -62,7 +62,7 @@ export function PhotoWallAdmin({ eventId, eventName, initialPhotos }: Props) {
     <div className="max-w-[1000px] mx-auto px-5 py-10">
       {/* Header */}
       <div className="mb-8">
-        <p className="text-[11px] tracking-[0.16em] uppercase mb-2 font-medium" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
+        <p className="text-[12.5px] tracking-[0.16em] uppercase mb-2 font-medium" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
           Engagement
         </p>
         <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight mb-1" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
@@ -85,7 +85,7 @@ export function PhotoWallAdmin({ eventId, eventName, initialPhotos }: Props) {
             {s.icon}
             <div>
               <div className="font-semibold text-[18px] font-display" style={{ color: '#0F1F18' }}>{s.value}</div>
-              <div className="text-[11px]" style={{ color: '#6B7A72' }}>{s.label}</div>
+              <div className="text-[12.5px]" style={{ color: '#6B7A72' }}>{s.label}</div>
             </div>
           </div>
         ))}
@@ -140,7 +140,7 @@ export function PhotoWallAdmin({ eventId, eventName, initialPhotos }: Props) {
                     </div>
                   )}
                   {/* Likes overlay */}
-                  <div className="absolute top-2 right-2 flex items-center gap-1 px-2 py-1 rounded-full text-[11px] font-semibold"
+                  <div className="absolute top-2 right-2 flex items-center gap-1 px-2 py-1 rounded-full text-[12.5px] font-semibold"
                     style={{ background: 'rgba(15,31,24,0.65)', color: '#FFFFFF' }}>
                     <Heart size={10} fill="currentColor" /> {photo.likes}
                   </div>
@@ -151,13 +151,13 @@ export function PhotoWallAdmin({ eventId, eventName, initialPhotos }: Props) {
                   <div className="flex items-center justify-between gap-2 mb-2">
                     <div>
                       {photo.attendee_name && (
-                        <div className="text-[11px] font-medium truncate" style={{ color: '#0F1F18' }}>{photo.attendee_name}</div>
+                        <div className="text-[12.5px] font-medium truncate" style={{ color: '#0F1F18' }}>{photo.attendee_name}</div>
                       )}
                       {photo.caption && (
-                        <div className="text-[11px] truncate" style={{ color: '#6B7A72' }}>{photo.caption}</div>
+                        <div className="text-[12.5px] truncate" style={{ color: '#6B7A72' }}>{photo.caption}</div>
                       )}
                     </div>
-                    <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full shrink-0 ${pill.cls}`} style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
+                    <span className={`text-[12px] font-medium px-1.5 py-0.5 rounded-full shrink-0 ${pill.cls}`} style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
                       {pill.label}
                     </span>
                   </div>
@@ -170,21 +170,21 @@ export function PhotoWallAdmin({ eventId, eventName, initialPhotos }: Props) {
                           <button
                             onClick={() => moderate(photo.id, 'approved')}
                             disabled={busy === photo.id + 'approved'}
-                            className="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg text-[11px] font-medium transition hover:opacity-90 disabled:opacity-40"
+                            className="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg text-[12.5px] font-medium transition hover:opacity-90 disabled:opacity-40"
                             style={{ background: '#1F4D3A', color: '#FAF6EE' }}>
                             <Check size={10} /> Approve
                           </button>
                           <button
                             onClick={() => moderate(photo.id, 'featured')}
                             disabled={busy === photo.id + 'featured'}
-                            className="flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-[11px] font-medium transition hover:opacity-90 disabled:opacity-40"
+                            className="flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-[12.5px] font-medium transition hover:opacity-90 disabled:opacity-40"
                             style={{ background: '#FEF3C7', color: '#92400E', border: '1px solid #FDE68A' }}>
                             <Star size={10} />
                           </button>
                           <button
                             onClick={() => moderate(photo.id, 'rejected')}
                             disabled={busy === photo.id + 'rejected'}
-                            className="flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-[11px] font-medium transition hover:opacity-90 disabled:opacity-40"
+                            className="flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-[12.5px] font-medium transition hover:opacity-90 disabled:opacity-40"
                             style={{ background: '#FEF2F2', color: '#B8423C', border: '1px solid #FECACA' }}>
                             <X size={10} />
                           </button>
@@ -194,7 +194,7 @@ export function PhotoWallAdmin({ eventId, eventName, initialPhotos }: Props) {
                         <button
                           onClick={() => moderate(photo.id, 'approved')}
                           disabled={busy === photo.id + 'approved'}
-                          className="flex-1 py-1.5 rounded-lg text-[11px] font-medium transition hover:opacity-90 disabled:opacity-40"
+                          className="flex-1 py-1.5 rounded-lg text-[12.5px] font-medium transition hover:opacity-90 disabled:opacity-40"
                           style={{ background: '#F0EDE6', color: '#3A4A42' }}>
                           Unfeature
                         </button>

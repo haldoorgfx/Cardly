@@ -39,7 +39,7 @@ export function AdminNav() {
           </span>
         </Link>
         <span
-          className=" text-[9px] tracking-[0.16em] uppercase px-1.5 py-0.5 rounded-md ml-auto shrink-0"
+          className=" text-[11.5px] tracking-[0.16em] uppercase px-1.5 py-0.5 rounded-md ml-auto shrink-0"
           style={{ background: 'rgba(232,197,126,0.15)', color: '#E8C57E' }}
         >
           Admin
@@ -48,7 +48,7 @@ export function AdminNav() {
 
       {/* Nav */}
       <nav className="flex-1 px-3 py-5 space-y-0.5">
-        <div className="px-2 mb-3 text-[10px] text-white/25 uppercase tracking-widest">
+        <div className="px-2 mb-3 text-[12px] text-white/25 uppercase tracking-widest">
           Platform
         </div>
         {NAV.map(({ href, label, icon: Icon }) => {

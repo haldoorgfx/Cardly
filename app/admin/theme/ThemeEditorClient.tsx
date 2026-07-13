@@ -85,7 +85,7 @@ function LogoUploadCard({
         ) : (
           <div className="flex flex-col items-center gap-1">
             <ImageIcon size={16} strokeWidth={1.5} style={{ color: previewTextColor }} />
-            <span className="text-[10px]" style={{ color: previewTextColor }}>No logo</span>
+            <span className="text-[12px]" style={{ color: previewTextColor }}>No logo</span>
           </div>
         )}
       </div>
@@ -93,7 +93,7 @@ function LogoUploadCard({
       {/* Controls */}
       <div className="p-3 space-y-2" style={{ background: '#FAF6EE' }}>
         <div className="text-[12px] font-semibold text-[#0F1F18]">{label}</div>
-        <div className="text-[11px] text-[#6B7A72] leading-snug">{description}</div>
+        <div className="text-[12.5px] text-[#6B7A72] leading-snug">{description}</div>
         <div className="flex items-center gap-2 pt-1">
           <input
             ref={inputRef}
@@ -124,12 +124,12 @@ function LogoUploadCard({
           )}
         </div>
         {state === 'done' && (
-          <div className="flex items-center gap-1 text-[11px] text-emerald-600">
+          <div className="flex items-center gap-1 text-[12.5px] text-emerald-600">
             <Check size={11} strokeWidth={2.5} /> Uploaded — save to apply
           </div>
         )}
         {state === 'error' && (
-          <div className="flex items-center gap-1 text-[11px] text-red-500">
+          <div className="flex items-center gap-1 text-[12.5px] text-red-500">
             <AlertCircle size={11} strokeWidth={2} /> {error}
           </div>
         )}
@@ -229,7 +229,7 @@ export function ThemeEditorClient({ settings }: Props) {
           />
         </div>
 
-        <p className="mt-4 text-[11px] text-[#6B7A72]">PNG, JPG, WebP, or SVG · max 2 MB each</p>
+        <p className="mt-4 text-[12.5px] text-[#6B7A72]">PNG, JPG, WebP, or SVG · max 2 MB each</p>
       </section>
 
       {/* Colors */}
@@ -255,7 +255,7 @@ export function ThemeEditorClient({ settings }: Props) {
                 </label>
                 <div className="min-w-0">
                   <div className="text-[13px] font-medium text-[#0F1F18]">{label}</div>
-                  <div className="text-[11px] text-[#6B7A72] truncate">{desc}</div>
+                  <div className="text-[12.5px] text-[#6B7A72] truncate">{desc}</div>
                 </div>
               </div>
               <input
@@ -282,7 +282,7 @@ export function ThemeEditorClient({ settings }: Props) {
           ] as const).map(({ key, label, desc }) => (
             <div key={key}>
               <label className="block text-[13px] font-medium text-[#0F1F18] mb-1">{label}</label>
-              <p className="text-[11px] text-[#6B7A72] mb-2">{desc}</p>
+              <p className="text-[12.5px] text-[#6B7A72] mb-2">{desc}</p>
               <select
                 value={form.fonts[key]}
                 onChange={e => setFont(key, e.target.value)}

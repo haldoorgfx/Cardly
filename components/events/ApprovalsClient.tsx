@@ -64,7 +64,7 @@ export function ApprovalsClient({ eventId, eventName, initialRegs }: Props) {
 
       {/* Header */}
       <div className="mb-8">
-        <p className="text-[11px] tracking-[0.16em] uppercase mb-2 font-medium" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
+        <p className="text-[12.5px] tracking-[0.16em] uppercase mb-2 font-medium" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
           Manage
         </p>
         <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight mb-1" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
@@ -133,7 +133,7 @@ export function ApprovalsClient({ eventId, eventName, initialRegs }: Props) {
                       <div className="font-medium text-[14px] truncate" style={{ color: '#0F1F18' }}>{r.attendee_name ?? 'Unknown'}</div>
                       <div className="text-[12px] truncate" style={{ color: '#6B7A72' }}>{r.attendee_email}</div>
                       {r.ticket_types?.name && (
-                        <div className="text-[11px] mt-0.5" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
+                        <div className="text-[12.5px] mt-0.5" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
                           {r.ticket_types.name}
                         </div>
                       )}
@@ -142,7 +142,7 @@ export function ApprovalsClient({ eventId, eventName, initialRegs }: Props) {
 
                   {/* Right: status + actions */}
                   <div className="flex items-center gap-2 shrink-0">
-                    <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${pill.cls}`} style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
+                    <span className={`text-[12.5px] font-medium px-2 py-0.5 rounded-full ${pill.cls}`} style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
                       {pill.label}
                     </span>
                     {isPending && (
@@ -173,14 +173,14 @@ export function ApprovalsClient({ eventId, eventName, initialRegs }: Props) {
                   <div className="mt-3 pt-3 space-y-1.5" style={{ borderTop: '1px solid #F0EDE6' }}>
                     {Object.entries(r.attendee_data.answers as Record<string, string>).map(([q, a]) => (
                       <div key={q}>
-                        <div className="text-[11px] font-medium mb-0.5" style={{ color: '#6B7A72' }}>{q}</div>
+                        <div className="text-[12.5px] font-medium mb-0.5" style={{ color: '#6B7A72' }}>{q}</div>
                         <div className="text-[13px]" style={{ color: '#0F1F18' }}>{a}</div>
                       </div>
                     ))}
                   </div>
                 )}
 
-                <div className="mt-2 text-[11px]" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
+                <div className="mt-2 text-[12.5px]" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
                   Applied {fmtTime(r.created_at)}
                 </div>
               </div>

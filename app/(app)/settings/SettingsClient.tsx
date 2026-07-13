@@ -103,7 +103,7 @@ function SelectField({
   const opts = options.map(o => typeof o === 'string' ? { value: o, label: o } : o);
   return (
     <div>
-      <label className="block text-[11px] tracking-widest text-[#6B7A72] uppercase mb-1.5">
+      <label className="block text-[12.5px] tracking-widest text-[#6B7A72] uppercase mb-1.5">
         {label}
       </label>
       <div className="relative">
@@ -222,7 +222,7 @@ export default function SettingsClient({ profile, section }: Props) {
             />
             {/* Currency: platform-locked to USD, shown as read-only */}
             <div>
-              <label className="block text-[11px] tracking-widest text-[#6B7A72] uppercase mb-1.5">
+              <label className="block text-[12.5px] tracking-widest text-[#6B7A72] uppercase mb-1.5">
                 Currency
               </label>
               <div
@@ -231,7 +231,7 @@ export default function SettingsClient({ profile, section }: Props) {
               >
                 <span className="font-medium text-[#1F4D3A]">USD</span>
                 <span className="text-[#6B7A72]">· US Dollar</span>
-                <span className="ml-auto text-[10px] px-1.5 py-0.5 rounded" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
+                <span className="ml-auto text-[12px] px-1.5 py-0.5 rounded" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
                   Platform default
                 </span>
               </div>
@@ -314,7 +314,7 @@ export default function SettingsClient({ profile, section }: Props) {
                 {deleting ? 'Deleting…' : deleteConfirm ? 'Confirm — delete forever' : 'Delete'}
               </button>
               {deleteConfirm && !deleting && (
-                <button onClick={() => setDeleteConfirm(false)} className="text-[11.5px] transition" style={{ color: '#6B7A72' }}>
+                <button onClick={() => setDeleteConfirm(false)} className="text-[13px] transition" style={{ color: '#6B7A72' }}>
                   Cancel
                 </button>
               )}

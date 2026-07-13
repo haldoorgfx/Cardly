@@ -142,7 +142,7 @@ export default function SpeakerDirectoryClient({ speakers, eventSlug }: Props) {
             {/* Content */}
             <div className="flex-1 min-w-0 p-5 sm:p-6 flex flex-col justify-center">
               <span
-                className="inline-flex items-center gap-1.5 self-start text-[11px] font-semibold uppercase tracking-[0.06em] px-2.5 py-1 rounded-full mb-3"
+                className="inline-flex items-center gap-1.5 self-start text-[12.5px] font-semibold uppercase tracking-[0.06em] px-2.5 py-1 rounded-full mb-3"
                 style={{ background: '#FBF3DF', color: '#C9A45E' }}
               >
                 <svg viewBox="0 0 24 24" className="w-3 h-3" fill="currentColor"><path d="M12 2l2.9 6.3 6.9.7-5.1 4.6 1.4 6.8L12 17.8 5.9 20.4l1.4-6.8L2.2 9l6.9-.7z" /></svg>
@@ -202,7 +202,7 @@ export default function SpeakerDirectoryClient({ speakers, eventSlug }: Props) {
               )}
               {/* Type pill */}
               <span
-                className="absolute top-2.5 left-2.5 text-[11px] font-medium px-2 py-0.5 rounded-full"
+                className="absolute top-2.5 left-2.5 text-[12.5px] font-medium px-2 py-0.5 rounded-full"
                 style={{ background: 'rgba(31,77,58,0.85)', color: '#fff' }}
               >
                 {speaker.speaker_type ? TYPE_LABELS[speaker.speaker_type] ?? speaker.speaker_type : 'Speaker'}

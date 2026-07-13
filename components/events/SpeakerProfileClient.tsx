@@ -108,7 +108,7 @@ export default function SpeakerProfileClient({ speaker, sessions, eventSlug }: P
             {/* Identity */}
             <div className="flex-1 min-w-0">
               <span
-                className="inline-block text-[11px] font-semibold uppercase tracking-[0.06em] px-2.5 py-1 rounded-full mb-2.5"
+                className="inline-block text-[12.5px] font-semibold uppercase tracking-[0.06em] px-2.5 py-1 rounded-full mb-2.5"
                 style={{ background: '#E8EFEB', color: '#1F4D3A' }}
               >
                 {typeLabel}
@@ -201,7 +201,7 @@ export default function SpeakerProfileClient({ speaker, sessions, eventSlug }: P
                   </p>
                   {session.tracks && (
                     <span
-                      className="inline-flex items-center gap-1.5 text-[11px] font-medium px-2 py-0.5 rounded-full mt-2"
+                      className="inline-flex items-center gap-1.5 text-[12.5px] font-medium px-2 py-0.5 rounded-full mt-2"
                       style={{ background: '#E8EFEB', color: '#1F4D3A' }}
                     >
                       <span className="w-2 h-2 rounded-full" style={{ background: session.tracks.color }} />

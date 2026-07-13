@@ -118,7 +118,7 @@ export function NewsfeedClient({ eventId, eventName, initialPosts }: Props) {
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <span className="font-semibold text-[14px]" style={{ color: '#0F1F18' }}>Scheduled</span>
-                <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold"
+                <span className="px-2 py-0.5 rounded-full text-[12.5px] font-semibold"
                   style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
                   {scheduled.length} queued
                 </span>
@@ -128,7 +128,7 @@ export function NewsfeedClient({ eventId, eventName, initialPosts }: Props) {
                   <div key={p.id} className="flex items-start gap-4 px-5 py-4"
                     style={{ background: '#FFFFFF', borderBottom: i < scheduled.length - 1 ? '1px solid #E5E0D4' : 'none' }}>
                     <div className="shrink-0 mt-0.5">
-                      <div className="text-[11px] font-semibold" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
+                      <div className="text-[12.5px] font-semibold" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
                         {p.scheduled_at ? fmtDateTime(p.scheduled_at) : '—'}
                       </div>
                     </div>
@@ -162,11 +162,11 @@ export function NewsfeedClient({ eventId, eventName, initialPosts }: Props) {
                 {published.map((p: Post) => (
                   <div key={p.id} className="rounded-2xl px-5 py-4" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="text-[11px]" style={{ color: '#C9C3B1', fontFamily: 'Inter, system-ui, sans-serif' }}>
+                      <span className="text-[12.5px]" style={{ color: '#C9C3B1', fontFamily: 'Inter, system-ui, sans-serif' }}>
                         {p.published_at ? fmtTime(p.published_at) : '—'}
                       </span>
                       {p.is_pinned && (
-                        <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold"
+                        <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[12px] font-semibold"
                           style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
                           <Pin size={9} /> Pinned
                         </span>
@@ -183,14 +183,14 @@ export function NewsfeedClient({ eventId, eventName, initialPosts }: Props) {
         {/* Right: Live preview */}
         <div className="w-full lg:w-72 lg:shrink-0">
           <div className="lg:sticky lg:top-4">
-            <p className="text-[11px] font-semibold mb-2" style={{ color: '#6B7A72', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+            <p className="text-[12.5px] font-semibold mb-2" style={{ color: '#6B7A72', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
               Live preview — what attendees see
             </p>
             <div className="rounded-2xl overflow-hidden" style={{ background: '#0F1F18', border: '1px solid #163828' }}>
               {/* Feed header */}
               <div className="px-4 pt-4 pb-3 border-b" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
                 <div className="font-display font-bold text-[15px]" style={{ color: '#FAF6EE' }}>{eventName}</div>
-                <div className="text-[10px] font-semibold tracking-widest mt-0.5" style={{ color: '#E8C57E' }}>
+                <div className="text-[12px] font-semibold tracking-widest mt-0.5" style={{ color: '#E8C57E' }}>
                   FEED · DAY 1
                 </div>
               </div>
@@ -203,21 +203,21 @@ export function NewsfeedClient({ eventId, eventName, initialPosts }: Props) {
                   { author: 'Leila Haddad', time: '12:05', body: 'Anyone heading to the harbor walk after sessions? Meet at the gold lounge — look for my Eventera Card.', pinned: false, hearts: 31, comments: 8 },
                 ].map((post, i) => (
                   <div key={i} className="flex items-start gap-2.5">
-                    <div className="w-7 h-7 rounded-full shrink-0 flex items-center justify-center text-[10px] font-bold"
+                    <div className="w-7 h-7 rounded-full shrink-0 flex items-center justify-center text-[12px] font-bold"
                       style={{ background: 'linear-gradient(135deg,#1F4D3A,#2A6A50)', color: '#FAF6EE' }}>
                       {post.author[0]}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5 mb-0.5">
-                        <span className="text-[11px] font-semibold" style={{ color: '#FAF6EE' }}>{post.author}</span>
+                        <span className="text-[12.5px] font-semibold" style={{ color: '#FAF6EE' }}>{post.author}</span>
                         {post.pinned && (
-                          <span className="text-[9px] font-bold tracking-wider px-1.5 py-0.5 rounded"
+                          <span className="text-[11.5px] font-bold tracking-wider px-1.5 py-0.5 rounded"
                             style={{ background: '#E8C57E20', color: '#E8C57E' }}>PINNED</span>
                         )}
-                        <span className="text-[10px] ml-auto" style={{ color: 'rgba(255,255,255,0.3)' }}>{post.time}</span>
+                        <span className="text-[12px] ml-auto" style={{ color: 'rgba(255,255,255,0.3)' }}>{post.time}</span>
                       </div>
                       <p className="text-[12px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.7)' }}>{post.body}</p>
-                      <div className="flex items-center gap-3 mt-1.5 text-[10px]" style={{ color: 'rgba(255,255,255,0.3)' }}>
+                      <div className="flex items-center gap-3 mt-1.5 text-[12px]" style={{ color: 'rgba(255,255,255,0.3)' }}>
                         <span className="inline-flex items-center gap-1"><Heart size={12} strokeWidth={1.8} /> {post.hearts}</span>
                         <span className="inline-flex items-center gap-1"><MessageCircle size={12} strokeWidth={1.8} /> {post.comments}</span>
                       </div>

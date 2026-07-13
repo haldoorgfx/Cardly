@@ -96,7 +96,7 @@ function LogoUpload({
 
   return (
     <div>
-      <div className="text-[10px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Logo</div>
+      <div className="text-[12px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Logo</div>
       <input ref={inputRef} type="file" accept="image/*" className="hidden"
         onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f); }} />
       <button type="button" onClick={() => inputRef.current?.click()}
@@ -172,35 +172,35 @@ function EditSponsorModal({
         <div className="px-4 sm:px-6 py-5 grid sm:grid-cols-2 gap-4">
           {error && <p className="sm:col-span-2 text-[13px] px-3 py-2 rounded-lg" style={{ background: '#FEF2F2', color: '#B8423C' }}>{error}</p>}
           <div className="sm:col-span-2">
-            <label className="block text-[10px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Company name *</label>
+            <label className="block text-[12px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Company name *</label>
             <input type="text" value={form.company_name} onChange={e => setForm(f => ({ ...f, company_name: e.target.value }))}
               className="w-full border rounded-lg px-3 py-2.5 text-[13.5px] outline-none" style={{ borderColor: '#E5E0D4', color: '#0F1F18' }} />
           </div>
           <div>
-            <label className="block text-[10px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Tier</label>
+            <label className="block text-[12px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Tier</label>
             <select value={form.tier} onChange={e => setForm(f => ({ ...f, tier: e.target.value }))}
               className="w-full border rounded-lg px-3 py-2.5 text-[13.5px] outline-none bg-white" style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}>
               {TIERS.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
             </select>
           </div>
           <div>
-            <label className="block text-[10px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Booth location</label>
+            <label className="block text-[12px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Booth location</label>
             <input type="text" value={form.booth_location} onChange={e => setForm(f => ({ ...f, booth_location: e.target.value }))}
               placeholder="Hall B · Booth 14"
               className="w-full border rounded-lg px-3 py-2.5 text-[13.5px] outline-none" style={{ borderColor: '#E5E0D4', color: '#0F1F18' }} />
           </div>
           <div className="sm:col-span-2">
-            <label className="block text-[10px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Website</label>
+            <label className="block text-[12px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Website</label>
             <input type="url" value={form.website_url} onChange={e => setForm(f => ({ ...f, website_url: e.target.value }))}
               placeholder="https://company.com"
               className="w-full border rounded-lg px-3 py-2.5 text-[13.5px] outline-none" style={{ borderColor: '#E5E0D4', color: '#0F1F18' }} />
           </div>
           <div className="sm:col-span-2">
-            <label className="block text-[10px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Contact email</label>
+            <label className="block text-[12px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Contact email</label>
             <input type="email" value={form.contact_email} onChange={e => setForm(f => ({ ...f, contact_email: e.target.value }))}
               placeholder="sponsor@company.com"
               className="w-full border rounded-lg px-3 py-2.5 text-[13.5px] outline-none" style={{ borderColor: '#E5E0D4', color: '#0F1F18' }} />
-            <p className="text-[11px] mt-1.5" style={{ color: '#9BA8A1' }}>
+            <p className="text-[12.5px] mt-1.5" style={{ color: '#9BA8A1' }}>
               If they sign up with this email, they get automatic access to their sponsor portal.
             </p>
           </div>
@@ -388,7 +388,7 @@ export function SponsorsClient({ eventId, sponsors: initial }: Props) {
             { label: 'Portal links sent', value: sponsors.length, accent: true },
           ].map(s => (
             <div key={s.label} className="bg-white rounded-2xl p-5" style={{ border: '1px solid #E5E0D4' }}>
-              <div className="text-[10px] tracking-[0.12em] uppercase mb-2" style={{ color: '#6B7A72' }}>{s.label}</div>
+              <div className="text-[12px] tracking-[0.12em] uppercase mb-2" style={{ color: '#6B7A72' }}>{s.label}</div>
               <div className="text-[26px] leading-none tracking-tight" style={{ color: s.accent ? '#C9A45E' : '#1F4D3A' }}>{s.value}</div>
             </div>
           ))}
@@ -413,14 +413,14 @@ export function SponsorsClient({ eventId, sponsors: initial }: Props) {
         >
           <div className="grid sm:grid-cols-2 gap-3">
             <div>
-              <div className="text-[9.5px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Company name *</div>
+              <div className="text-[11.5px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Company name *</div>
               <input type="text" value={form.company_name} onChange={e => setForm(f => ({ ...f, company_name: e.target.value }))}
                 placeholder="Paystack"
                 className="w-full border rounded-lg px-3 py-2.5 text-[13.5px] outline-none"
                 style={{ borderColor: '#E5E0D4', color: '#0F1F18' }} />
             </div>
             <div>
-              <div className="text-[9.5px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Tier</div>
+              <div className="text-[11.5px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Tier</div>
               <select value={form.tier} onChange={e => setForm(f => ({ ...f, tier: e.target.value }))}
                 className="w-full border rounded-lg px-3 py-2.5 text-[13.5px] outline-none bg-white"
                 style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}>
@@ -428,32 +428,32 @@ export function SponsorsClient({ eventId, sponsors: initial }: Props) {
               </select>
             </div>
             <div>
-              <div className="text-[9.5px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Booth location</div>
+              <div className="text-[11.5px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Booth location</div>
               <input type="text" value={form.booth_location} onChange={e => setForm(f => ({ ...f, booth_location: e.target.value }))}
                 placeholder="Hall B · Booth 14"
                 className="w-full border rounded-lg px-3 py-2.5 text-[13.5px] outline-none"
                 style={{ borderColor: '#E5E0D4', color: '#0F1F18' }} />
             </div>
             <div>
-              <div className="text-[9.5px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Website</div>
+              <div className="text-[11.5px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Website</div>
               <input type="url" value={form.website_url} onChange={e => setForm(f => ({ ...f, website_url: e.target.value }))}
                 placeholder="https://paystack.com"
                 className="w-full border rounded-lg px-3 py-2.5 text-[13.5px] outline-none"
                 style={{ borderColor: '#E5E0D4', color: '#0F1F18' }} />
             </div>
             <div className="sm:col-span-2">
-              <div className="text-[9.5px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Contact email (optional)</div>
+              <div className="text-[11.5px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Contact email (optional)</div>
               <input type="email" value={form.contact_email} onChange={e => setForm(f => ({ ...f, contact_email: e.target.value }))}
                 placeholder="sponsor@company.com"
                 className="w-full border rounded-lg px-3 py-2.5 text-[13.5px] outline-none"
                 style={{ borderColor: '#E5E0D4', color: '#0F1F18' }} />
-              <p className="text-[11px] mt-1.5" style={{ color: '#9BA8A1' }}>
+              <p className="text-[12.5px] mt-1.5" style={{ color: '#9BA8A1' }}>
                 If they sign up with this email, they get automatic access to their sponsor portal.
               </p>
             </div>
             {/* Logo upload (optional — uploaded after sponsor created) */}
             <div className="sm:col-span-2">
-              <div className="text-[9.5px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Logo (optional)</div>
+              <div className="text-[11.5px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Logo (optional)</div>
               <input ref={addLogoInputRef} type="file" accept="image/*" className="hidden"
                 onChange={e => { const f = e.target.files?.[0]; if (f) handleLogoFileSelect(f); }} />
               <button type="button" onClick={() => addLogoInputRef.current?.click()}
@@ -495,7 +495,7 @@ export function SponsorsClient({ eventId, sponsors: initial }: Props) {
                 const count = sponsors.filter(s => s.tier === t.value).length;
                 if (count === 0) return null;
                 return (
-                  <span key={t.value} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium"
+                  <span key={t.value} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[12.5px] font-medium"
                     style={{ background: ts.bg, color: ts.color, border: `1px solid ${ts.border}` }}>
                     {t.label} · {count}
                   </span>
@@ -514,20 +514,20 @@ export function SponsorsClient({ eventId, sponsors: initial }: Props) {
                           {sponsor.company_name}
                         </span>
                         {sponsor.tier && (
-                          <span className="inline-flex items-center text-[11px] font-medium px-2.5 py-0.5 rounded-full border"
+                          <span className="inline-flex items-center text-[12.5px] font-medium px-2.5 py-0.5 rounded-full border"
                             style={{ background: ts.bg, color: ts.color, borderColor: ts.border }}>
                             {tierLabel(sponsor.tier)}
                           </span>
                         )}
                       </div>
-                      <div className="text-[11px] mt-0.5 flex items-center gap-3 flex-wrap" style={{ color: '#6B7A72' }}>
+                      <div className="text-[12.5px] mt-0.5 flex items-center gap-3 flex-wrap" style={{ color: '#6B7A72' }}>
                         {sponsor.booth_location && <span>{sponsor.booth_location}</span>}
                         {sponsor.website_url && <span>{sponsor.website_url}</span>}
                       </div>
                     </div>
                     <div className="text-center shrink-0 hidden sm:block">
                       <div className="text-[15px]" style={{ color: '#1F4D3A' }}>{sponsor.lead_count}</div>
-                      <div className="text-[9.5px] tracking-[0.1em] uppercase" style={{ color: '#6B7A72' }}>leads</div>
+                      <div className="text-[11.5px] tracking-[0.1em] uppercase" style={{ color: '#6B7A72' }}>leads</div>
                     </div>
 
                     {/* Edit button */}

@@ -22,7 +22,7 @@ const AVATAR_GRADS = [
 function InfoRow({ label, children, last }: { label: string; children: React.ReactNode; last?: boolean }) {
   return (
     <div className={`flex items-center justify-between gap-4 py-2.5 ${last ? '' : 'border-b'}`} style={{ borderColor: '#E5E0D4' }}>
-      <span className=" text-[10px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>{label}</span>
+      <span className=" text-[12px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>{label}</span>
       <span className="text-[13.5px] text-right" style={{ color: '#0F1F18' }}>{children}</span>
     </div>
   );
@@ -162,14 +162,14 @@ export default async function SessionDetailPage({ params }: Props) {
                           <img src={sp.photo_url} alt={sp.name}
                             className="w-8 h-8 rounded-lg object-cover shrink-0" />
                         ) : (
-                          <div className="w-8 h-8 rounded-lg grid place-items-center shrink-0 text-white text-[11px] font-semibold"
+                          <div className="w-8 h-8 rounded-lg grid place-items-center shrink-0 text-white text-[12.5px] font-semibold"
                             style={{ background: AVATAR_GRADS[gradIdx] }}>
                             {initials(sp.name)}
                           </div>
                         )}
                         <div className="min-w-0">
                           <div className="text-[13px] font-medium truncate" style={{ color: '#0F1F18' }}>{sp.name}</div>
-                          {sp.company && <div className=" text-[10.5px]" style={{ color: '#6B7A72' }}>{sp.company}</div>}
+                          {sp.company && <div className=" text-[12px]" style={{ color: '#6B7A72' }}>{sp.company}</div>}
                         </div>
                       </Link>
                     );
@@ -189,7 +189,7 @@ export default async function SessionDetailPage({ params }: Props) {
                   <div className=" text-[30px] font-medium leading-none tracking-tight" style={{ color: '#1F4D3A' }}>
                     {session.registrations_count}
                   </div>
-                  <div className=" text-[10px] tracking-[0.12em] uppercase mt-1.5" style={{ color: '#6B7A72' }}>
+                  <div className=" text-[12px] tracking-[0.12em] uppercase mt-1.5" style={{ color: '#6B7A72' }}>
                     registered · cap {session.capacity}
                   </div>
                   <div className="mt-3 h-2 rounded-full overflow-hidden" style={{ background: '#E5E0D4' }}>

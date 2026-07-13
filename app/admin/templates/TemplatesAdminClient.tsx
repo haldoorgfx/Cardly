@@ -96,7 +96,7 @@ function TemplateModal({
               placeholder="https://… (from Supabase templates bucket)"
               className="w-full border border-[#E5E0D4] rounded-lg px-3 py-2 text-[13px] outline-none focus:ring-2 focus:ring-[#1F4D3A]/20 text-[#0F1F18]"
             />
-            <p className="text-[11px] text-[#6B7A72] mt-1">Upload to the &ldquo;templates&rdquo; Supabase storage bucket, paste the public URL here.</p>
+            <p className="text-[12.5px] text-[#6B7A72] mt-1">Upload to the &ldquo;templates&rdquo; Supabase storage bucket, paste the public URL here.</p>
           </div>
 
           {/* Background URL */}
@@ -439,12 +439,12 @@ export function TemplatesAdminClient({ initialTemplates }: { initialTemplates: T
                 <div className="p-4">
                   <div className="flex items-start justify-between gap-2 mb-2">
                     <h3 className="font-medium text-[14px] text-[#0F1F18] leading-snug">{t.name}</h3>
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full  text-[9px] tracking-[0.1em] uppercase shrink-0" style={planStyle}>
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full  text-[11.5px] tracking-[0.1em] uppercase shrink-0" style={planStyle}>
                       {t.min_plan}
                     </span>
                   </div>
                   {t.category && (
-                    <div className="text-[11px] text-[#6B7A72] mb-3">{t.category}</div>
+                    <div className="text-[12.5px] text-[#6B7A72] mb-3">{t.category}</div>
                   )}
 
                   {/* Actions */}

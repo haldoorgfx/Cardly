@@ -65,7 +65,7 @@ export default async function AttendingHubPage({
               <div className="text-[14px] font-semibold" style={{ color: '#0F1F18' }}>Your ticket</div>
               <div className="text-[12px] truncate" style={{ color: '#3A4A42' }}>{ticketName}</div>
             </div>
-            <span className="ml-auto text-[11px] font-medium px-2.5 py-1 rounded-full capitalize" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>{status.replace('_', ' ')}</span>
+            <span className="ml-auto text-[12.5px] font-medium px-2.5 py-1 rounded-full capitalize" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>{status.replace('_', ' ')}</span>
           </div>
           {qrToken ? (
             <div className="flex items-center gap-4">
@@ -103,7 +103,7 @@ export default async function AttendingHubPage({
 
       {/* Event tools — 8-card grid */}
       <div>
-        <div className="text-[10px] tracking-[0.2em] uppercase mb-3" style={{ color: '#3A4A42' }}>Your event tools</div>
+        <div className="text-[12px] tracking-[0.2em] uppercase mb-3" style={{ color: '#3A4A42' }}>Your event tools</div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {TOOLS.map((t) => (
             <Link key={t.seg} href={`/attending/${slug}/${t.seg}`}
@@ -111,7 +111,7 @@ export default async function AttendingHubPage({
               style={{ borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
               <span className="grid place-items-center w-10 h-10 rounded-xl mb-3" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>{t.icon}</span>
               <div className="text-[13.5px] font-semibold" style={{ color: '#0F1F18' }}>{t.label}</div>
-              <div className="text-[11.5px] mt-0.5" style={{ color: '#3A4A42' }}>{t.desc}</div>
+              <div className="text-[13px] mt-0.5" style={{ color: '#3A4A42' }}>{t.desc}</div>
             </Link>
           ))}
         </div>

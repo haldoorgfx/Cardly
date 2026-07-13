@@ -7,11 +7,11 @@ import type { CmsPage } from '@/lib/cms/types';
 
 function StatusBadge({ status }: { status: 'draft' | 'published' }) {
   return status === 'published' ? (
-    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] bg-emerald-50 text-emerald-700 border border-emerald-200">
+    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[12.5px] bg-emerald-50 text-emerald-700 border border-emerald-200">
       <Globe size={9} strokeWidth={2.5} /> Published
     </span>
   ) : (
-    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] bg-amber-50 text-amber-700 border border-amber-200">
+    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[12.5px] bg-amber-50 text-amber-700 border border-amber-200">
       <FileText size={9} strokeWidth={2.5} /> Draft
     </span>
   );
@@ -139,10 +139,10 @@ export function ContentAdminClient({ initialPages }: { initialPages: CmsPage[] }
             onChange={toggleAll}
             className="h-4 w-4 rounded border-[#E5E0D4] accent-[#1F4D3A] cursor-pointer"
           />
-          <span className="text-[11px] uppercase tracking-[0.14em] text-[#6B7A72]">Page</span>
-          <span className="text-[11px] uppercase tracking-[0.14em] text-[#6B7A72] text-right">Blocks</span>
-          <span className="text-[11px] uppercase tracking-[0.14em] text-[#6B7A72] text-right px-6">Status</span>
-          <span className="text-[11px] uppercase tracking-[0.14em] text-[#6B7A72] text-right">Actions</span>
+          <span className="text-[12.5px] uppercase tracking-[0.14em] text-[#6B7A72]">Page</span>
+          <span className="text-[12.5px] uppercase tracking-[0.14em] text-[#6B7A72] text-right">Blocks</span>
+          <span className="text-[12.5px] uppercase tracking-[0.14em] text-[#6B7A72] text-right px-6">Status</span>
+          <span className="text-[12.5px] uppercase tracking-[0.14em] text-[#6B7A72] text-right">Actions</span>
         </div>
         {pages.map((page) => (
           <div
@@ -158,7 +158,7 @@ export function ContentAdminClient({ initialPages }: { initialPages: CmsPage[] }
             />
             <div className="min-w-0">
               <div className="font-medium text-[14px] text-[#0F1F18]">{page.title}</div>
-              <div className=" text-[11px] text-[#6B7A72] mt-0.5">/{page.slug}</div>
+              <div className=" text-[12.5px] text-[#6B7A72] mt-0.5">/{page.slug}</div>
             </div>
             <div className="text-[13px] text-[#6B7A72] text-right px-6">
               —

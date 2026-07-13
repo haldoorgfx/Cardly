@@ -172,12 +172,12 @@ export default async function SponsoringPage() {
                       <span className="font-display text-[16px] font-semibold truncate" style={{ color: '#0F1F18' }}>
                         {card.companyName}
                       </span>
-                      <span className="text-[10.5px] font-medium px-2 py-0.5 rounded-full border"
+                      <span className="text-[12px] font-medium px-2 py-0.5 rounded-full border"
                         style={{ background: '#E8EFEB', color: '#1F4D3A', borderColor: 'rgba(31,77,58,0.2)' }}>
                         {card.mode === 'exhibitor' ? 'Exhibitor' : 'Sponsor'}
                       </span>
                       {card.tier && (
-                        <span className="text-[10.5px] font-medium px-2 py-0.5 rounded-full border capitalize"
+                        <span className="text-[12px] font-medium px-2 py-0.5 rounded-full border capitalize"
                           style={{ background: 'rgba(232,197,126,0.16)', color: '#C9A45E', borderColor: 'rgba(232,197,126,0.4)' }}>
                           {card.tier}
                         </span>
@@ -204,7 +204,7 @@ export default async function SponsoringPage() {
                         <span style={{ color: '#3A4A42' }}>{stat.icon}</span>
                         {stat.value}
                       </div>
-                      <div className="text-[11px] mt-0.5 uppercase tracking-[0.06em]" style={{ color: '#3A4A42' }}>{stat.label}</div>
+                      <div className="text-[12.5px] mt-0.5 uppercase tracking-[0.06em]" style={{ color: '#3A4A42' }}>{stat.label}</div>
                     </div>
                   ))}
                 </div>

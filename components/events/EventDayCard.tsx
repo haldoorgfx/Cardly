@@ -120,7 +120,7 @@ export function EventDayCard({ day, entitlements, save, remove }: Props) {
               className="w-full h-10 px-3 rounded-lg text-[13.5px] outline-none transition" style={inputStyle}
               onFocus={(e) => (e.target.style.borderColor = '#E8C57E')} onBlur={(e) => (e.target.style.borderColor = '#E5E0D4')} />
             {errors.capacity?.message && (
-              <p className="text-[11.5px] mt-1 flex items-center gap-1" style={{ color: '#B8423C' }}>
+              <p className="text-[13px] mt-1 flex items-center gap-1" style={{ color: '#B8423C' }}>
                 <AlertCircle size={11} strokeWidth={2} />{errors.capacity.message}
               </p>
             )}
@@ -131,7 +131,7 @@ export function EventDayCard({ day, entitlements, save, remove }: Props) {
         <div className="flex items-center justify-between rounded-lg px-3.5 py-3" style={{ background: '#FAF6EE', border: '1px solid #E5E0D4' }}>
           <div>
             <div className="text-[13.5px] font-medium" style={{ color: '#0F1F18' }}>Check-in enabled</div>
-            <div className="text-[11.5px]" style={{ color: '#6B7A72' }}>Allow scanning attendees in on this day.</div>
+            <div className="text-[13px]" style={{ color: '#6B7A72' }}>Allow scanning attendees in on this day.</div>
           </div>
           <button
             type="button" role="switch" aria-checked={checkinEnabled} aria-label="Check-in enabled"

@@ -93,7 +93,7 @@ export function WalkInClient({ eventId, eventSlug, eventName, tickets, checkedIn
           </Link>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-bold tracking-[0.14em] px-2 py-0.5 rounded-full" style={{ background: '#E8C57E', color: '#0F1F18', fontFamily: 'Inter, system-ui, sans-serif' }}>
+              <span className="text-[12px] font-bold tracking-[0.14em] px-2 py-0.5 rounded-full" style={{ background: '#E8C57E', color: '#0F1F18', fontFamily: 'Inter, system-ui, sans-serif' }}>
                 DOOR MODE
               </span>
             </div>
@@ -145,7 +145,7 @@ export function WalkInClient({ eventId, eventSlug, eventName, tickets, checkedIn
           <div className="flex items-center gap-2 mb-8">
             {(['info', 'ticket', 'payment'] as Step[]).map((s, i) => (
               <div key={s} className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold transition"
+                <div className="w-6 h-6 rounded-full flex items-center justify-center text-[12.5px] font-bold transition"
                   style={{
                     background: step === s ? '#E8C57E' : ['info', 'ticket', 'payment'].indexOf(step) > i ? '#2D7A4F' : 'rgba(255,255,255,0.1)',
                     color: step === s ? '#0F1F18' : 'rgba(255,255,255,0.5)',
@@ -264,7 +264,7 @@ export function WalkInClient({ eventId, eventSlug, eventName, tickets, checkedIn
                         border: form.payment === opt.id ? '1px solid rgba(232,197,126,0.4)' : '1px solid rgba(255,255,255,0.08)',
                       }}>
                       <div className="text-[15px] font-semibold" style={{ color: '#FAF6EE' }}>{opt.label}</div>
-                      <div className="text-[11px]" style={{ color: 'rgba(255,255,255,0.4)' }}>{opt.sub}</div>
+                      <div className="text-[12.5px]" style={{ color: 'rgba(255,255,255,0.4)' }}>{opt.sub}</div>
                     </button>
                   ))}
                 </div>

@@ -195,7 +195,7 @@ export function PromoCodesManager({ eventId, initialCodes, eventDates }: Props) 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {error && <p className="sm:col-span-2 text-[13px] px-3 py-2 rounded-lg" style={{ background: '#FEF2F2', color: '#B8423C' }}>{error}</p>}
           <div>
-            <label className="block text-[10px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Discount type</label>
+            <label className="block text-[12px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Discount type</label>
             <select className={INPUT} style={INPUT_STYLE} value={editForm.discount_type}
               onChange={e => setEditForm(f => ({ ...f, discount_type: e.target.value as 'percent' | 'fixed' }))}>
               <option value="percent">Percentage (%)</option>
@@ -203,7 +203,7 @@ export function PromoCodesManager({ eventId, initialCodes, eventDates }: Props) 
             </select>
           </div>
           <div>
-            <label className="block text-[10px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>
+            <label className="block text-[12px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>
               {editForm.discount_type === 'percent' ? 'Discount (%)' : 'Discount amount'} *
             </label>
             <input type="number" min="0" className={INPUT} style={INPUT_STYLE}
@@ -211,28 +211,28 @@ export function PromoCodesManager({ eventId, initialCodes, eventDates }: Props) 
               onChange={e => setEditForm(f => ({ ...f, discount_value: e.target.value }))} />
           </div>
           <div>
-            <label className="block text-[10px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Max uses (blank = unlimited)</label>
+            <label className="block text-[12px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Max uses (blank = unlimited)</label>
             <input type="number" min="1" className={INPUT} style={INPUT_STYLE}
               value={editForm.max_uses} placeholder="Unlimited"
               onChange={e => setEditForm(f => ({ ...f, max_uses: e.target.value }))} />
           </div>
           <div>
-            <label className="block text-[10px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Valid from</label>
+            <label className="block text-[12px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Valid from</label>
             <input type="datetime-local" className={INPUT} style={INPUT_STYLE}
               value={editForm.valid_from}
               max={eventEndMax}
               onChange={e => setEditForm(f => ({ ...f, valid_from: e.target.value }))} />
           </div>
           <div>
-            <label className="block text-[10px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>
-              Valid until{eventDates?.ends_at && <span className="ml-1 normal-case font-sans text-[10px]" style={{ color: '#9BA8A1' }}>max {new Date(eventDates.ends_at).toLocaleDateString()}</span>}
+            <label className="block text-[12px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>
+              Valid until{eventDates?.ends_at && <span className="ml-1 normal-case font-sans text-[12px]" style={{ color: '#9BA8A1' }}>max {new Date(eventDates.ends_at).toLocaleDateString()}</span>}
             </label>
             <input type="datetime-local" className={INPUT} style={INPUT_STYLE}
               value={editForm.valid_until}
               max={eventEndMax}
               onChange={e => setEditForm(f => ({ ...f, valid_until: e.target.value }))} />
             {editForm.valid_until && eventEndMax && editForm.valid_until > eventEndMax && (
-              <p className="text-[11px] mt-1" style={{ color: '#C97A2D' }}>Exceeds event end date</p>
+              <p className="text-[12.5px] mt-1" style={{ color: '#C97A2D' }}>Exceeds event end date</p>
             )}
           </div>
         </div>
@@ -335,7 +335,7 @@ export function PromoCodesManager({ eventId, initialCodes, eventDates }: Props) 
             </div>
             <div>
               <label className="block text-[12px] mb-1.5" style={{ color: '#6B7A72' }}>
-                Valid from{eventDates?.starts_at && <span className="ml-1  text-[10px]" style={{ color: '#9BA8A1' }}>event: {new Date(eventDates.starts_at).toLocaleDateString()}</span>}
+                Valid from{eventDates?.starts_at && <span className="ml-1  text-[12px]" style={{ color: '#9BA8A1' }}>event: {new Date(eventDates.starts_at).toLocaleDateString()}</span>}
               </label>
               <input
                 type="datetime-local"
@@ -348,7 +348,7 @@ export function PromoCodesManager({ eventId, initialCodes, eventDates }: Props) 
             </div>
             <div>
               <label className="block text-[12px] mb-1.5" style={{ color: '#6B7A72' }}>
-                Valid until{eventDates?.ends_at && <span className="ml-1  text-[10px]" style={{ color: '#9BA8A1' }}>max: {new Date(eventDates.ends_at).toLocaleDateString()}</span>}
+                Valid until{eventDates?.ends_at && <span className="ml-1  text-[12px]" style={{ color: '#9BA8A1' }}>max: {new Date(eventDates.ends_at).toLocaleDateString()}</span>}
               </label>
               <input
                 type="datetime-local"
@@ -359,7 +359,7 @@ export function PromoCodesManager({ eventId, initialCodes, eventDates }: Props) 
                 onChange={e => setForm(f => ({ ...f, valid_until: e.target.value }))}
               />
               {form.valid_until && eventEndMax && form.valid_until > eventEndMax && (
-                <p className="text-[11px] mt-1" style={{ color: '#C97A2D' }}>Exceeds event end date</p>
+                <p className="text-[12.5px] mt-1" style={{ color: '#C97A2D' }}>Exceeds event end date</p>
               )}
             </div>
           </div>
@@ -412,12 +412,12 @@ export function PromoCodesManager({ eventId, initialCodes, eventDates }: Props) 
 
                   {/* Dates */}
                   {c.valid_from && (
-                    <span className=" text-[11px]" style={{ color: '#6B7A72' }}>
+                    <span className=" text-[12.5px]" style={{ color: '#6B7A72' }}>
                       From {new Date(c.valid_from).toLocaleDateString()}
                     </span>
                   )}
                   {c.valid_until && (
-                    <span className=" text-[11px]" style={{ color: new Date(c.valid_until) < new Date() ? '#B8423C' : '#6B7A72' }}>
+                    <span className=" text-[12.5px]" style={{ color: new Date(c.valid_until) < new Date() ? '#B8423C' : '#6B7A72' }}>
                       Until {new Date(c.valid_until).toLocaleDateString()}
                       {new Date(c.valid_until) < new Date() && ' (expired)'}
                     </span>

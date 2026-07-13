@@ -271,7 +271,7 @@ export function KioskClient({ eventId, eventSlug, eventName }: Props) {
                     <div className="font-semibold text-[15px] truncate" style={{ color: '#FAF6EE' }}>{r.attendee_name ?? 'Unknown'}</div>
                     <div className="text-[12px] truncate" style={{ color: 'rgba(255,255,255,0.4)' }}>{r.attendee_email} · {r.ticket_types?.name ?? 'General'}</div>
                   </div>
-                  <div className="text-[11px] px-2 py-1 rounded-full" style={{
+                  <div className="text-[12.5px] px-2 py-1 rounded-full" style={{
                     background: r.status === 'checked_in' ? 'rgba(45,122,79,0.2)' : 'rgba(232,197,126,0.15)',
                     color: r.status === 'checked_in' ? '#2D7A4F' : '#E8C57E',
                   }}>

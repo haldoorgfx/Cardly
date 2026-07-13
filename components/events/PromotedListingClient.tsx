@@ -124,7 +124,7 @@ export function PromotedListingClient({ eventId, eventName, campaign }: Props) {
               onChange={e => setBudget(parseInt(e.target.value))}
               className="w-full accent-[#1F4D3A]"
             />
-            <div className="flex justify-between text-[11px] mt-1" style={{ color: '#C9C3B1' }}>
+            <div className="flex justify-between text-[12.5px] mt-1" style={{ color: '#C9C3B1' }}>
               <span>$5</span><span>$200</span>
             </div>
           </div>
@@ -213,7 +213,7 @@ export function PromotedListingClient({ eventId, eventName, campaign }: Props) {
 
           {/* Live preview mockup */}
           <div className="rounded-2xl p-4" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
-            <div className="text-[11px] font-semibold mb-3 uppercase tracking-wider" style={{ color: '#6B7A72' }}>Feed preview</div>
+            <div className="text-[12.5px] font-semibold mb-3 uppercase tracking-wider" style={{ color: '#6B7A72' }}>Feed preview</div>
             <div className="flex flex-col gap-2">
               {/* Organic card */}
               <div className="h-10 rounded-xl" style={{ background: '#F5F2EC' }} />
@@ -221,7 +221,7 @@ export function PromotedListingClient({ eventId, eventName, campaign }: Props) {
               <div className="rounded-xl p-2.5" style={{ background: '#E8EFEB', border: '1.5px solid #1F4D3A' }}>
                 <div className="flex items-center justify-between mb-1.5">
                   <div className="h-3 w-24 rounded-full" style={{ background: '#C9E0D4' }} />
-                  <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full"
+                  <span className="text-[11.5px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full"
                     style={{ background: '#1F4D3A', color: '#FAF6EE' }}>
                     Promoted
                   </span>
@@ -239,7 +239,7 @@ export function PromotedListingClient({ eventId, eventName, campaign }: Props) {
               <LayoutGrid size={13} style={{ color: '#6B7A72' }} />
               <span className="text-[12px] font-semibold" style={{ color: '#3A4A42' }}>Placement rules</span>
             </div>
-            <p className="text-[11px]" style={{ color: '#6B7A72' }}>
+            <p className="text-[12.5px]" style={{ color: '#6B7A72' }}>
               Promoted listings are reviewed within 24h. They appear as native cards with a &ldquo;Promoted&rdquo; label. Max 1 promoted card per 5 organic cards.
             </p>
           </div>

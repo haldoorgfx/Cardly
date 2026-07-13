@@ -182,7 +182,7 @@ export function RegistrationFormBuilder({ eventId, initialFields }: Props) {
             <AlignLeft size={13} strokeWidth={2} />
             {f.label}
             <span
-              className="text-[10px] px-1.5 py-0.5 rounded"
+              className="text-[12px] px-1.5 py-0.5 rounded"
               style={{ background: 'rgba(31,77,58,0.08)', color: '#1F4D3A' }}
             >
               required
@@ -233,10 +233,10 @@ export function RegistrationFormBuilder({ eventId, initialFields }: Props) {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-[14px] font-medium" style={{ color: '#0F1F18' }}>{f.label}</span>
-                    <span className="text-[11px]" style={{ color: '#6B7A72' }}>{info?.label}</span>
+                    <span className="text-[12.5px]" style={{ color: '#6B7A72' }}>{info?.label}</span>
                     {f.is_required && (
                       <span
-                        className="text-[10px] px-1.5 py-0.5 rounded"
+                        className="text-[12px] px-1.5 py-0.5 rounded"
                         style={{ background: 'rgba(31,77,58,0.08)', color: '#1F4D3A' }}
                       >
                         required
@@ -307,7 +307,7 @@ export function RegistrationFormBuilder({ eventId, initialFields }: Props) {
                       <div className="text-[13px] font-medium" style={{ color: form.field_type === ft.value ? '#0F1F18' : '#3A4A42' }}>
                         {ft.label}
                       </div>
-                      <div className="text-[11px]" style={{ color: '#6B7A72' }}>{ft.hint}</div>
+                      <div className="text-[12.5px]" style={{ color: '#6B7A72' }}>{ft.hint}</div>
                     </div>
                   </button>
                 ))}

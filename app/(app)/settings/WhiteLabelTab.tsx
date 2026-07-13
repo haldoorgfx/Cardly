@@ -123,7 +123,7 @@ export function WhiteLabelTab({ plan }: { plan: string }) {
           </svg>
         </div>
         <div
-          className="inline-flex items-center h-7 px-3 rounded-full text-[11px] font-medium mb-3"
+          className="inline-flex items-center h-7 px-3 rounded-full text-[12.5px] font-medium mb-3"
           style={{ border: '1px solid #E8C57E', color: '#C9A45E' }}
         >
           Studio plan feature
@@ -359,7 +359,7 @@ export function WhiteLabelTab({ plan }: { plan: string }) {
                 <div className="font-display font-medium text-[14px] mb-1" style={{ color: '#0F1F18' }}>
                   Annual Developer Summit
                 </div>
-                <div className=" text-[11px] mb-3" style={{ color: '#6B7A72' }}>
+                <div className=" text-[12.5px] mb-3" style={{ color: '#6B7A72' }}>
                   12 Mar · 09:00 · Lagos
                 </div>
                 <div
@@ -369,7 +369,7 @@ export function WhiteLabelTab({ plan }: { plan: string }) {
                   Register now
                 </div>
                 {!settings.hide_powered_by && (
-                  <div className="text-center text-[10px] mt-2.5" style={{ color: '#C9C3B1' }}>
+                  <div className="text-center text-[12px] mt-2.5" style={{ color: '#C9C3B1' }}>
                     Powered by Eventera
                   </div>
                 )}

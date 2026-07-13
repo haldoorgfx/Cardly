@@ -226,7 +226,7 @@ function ApiKeysSection({ plan }: { plan: string }) {
             <thead>
               <tr style={{ borderBottom: '1px solid #E5E0D4', background: '#FAF6EE' }}>
                 {['Name', 'Key', 'Scopes', 'Last used', 'Created', 'Actions'].map(h => (
-                  <th key={h} className="text-left px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider" style={{ color: '#6B7A72' }}>
+                  <th key={h} className="text-left px-4 py-2.5 text-[12.5px] font-semibold uppercase tracking-wider" style={{ color: '#6B7A72' }}>
                     {h}
                   </th>
                 ))}
@@ -250,7 +250,7 @@ function ApiKeysSection({ plan }: { plan: string }) {
                   <td className="px-4 py-3">
                     <div className="flex flex-wrap gap-1.5">
                       {(k.scopes ?? ['events:read']).map(s => (
-                        <span key={s} className="inline-flex items-center h-5 px-2 rounded-full text-[11px] font-medium" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
+                        <span key={s} className="inline-flex items-center h-5 px-2 rounded-full text-[12.5px] font-medium" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
                           {s}
                         </span>
                       ))}
@@ -395,7 +395,7 @@ function WebhooksSection() {
                     <ExternalLink size={11} strokeWidth={2} />
                   </a>
                 </div>
-                <div className="text-[11.5px] text-[#6B7A72] mt-0.5">
+                <div className="text-[13px] text-[#6B7A72] mt-0.5">
                   {h.events.join(', ')}
                   {h.last_fired_at && ` · last fired ${relativeTime(h.last_fired_at)}`}
                   {h.failure_count > 0 && <span className="text-[#C97A2D] ml-1">· {h.failure_count} failure{h.failure_count !== 1 ? 's' : ''}</span>}
@@ -403,7 +403,7 @@ function WebhooksSection() {
               </div>
               <button
                 onClick={() => toggle(h.id, !h.enabled)}
-                className="text-[11px] px-2 py-1 rounded-lg transition"
+                className="text-[12.5px] px-2 py-1 rounded-lg transition"
                 style={{ background: h.enabled ? 'rgba(31,77,58,0.08)' : '#F5F5F0', color: h.enabled ? '#1F4D3A' : '#6B7A72' }}
               >
                 {h.enabled ? 'Enabled' : 'Disabled'}
@@ -422,7 +422,7 @@ function WebhooksSection() {
       )}
 
       <p className="mt-3 text-[12px] text-[#6B7A72]">
-        Each request includes an <code className=" text-[11px] bg-[#FAF6EE] px-1 py-0.5 rounded-md">X-Eventera-Signature</code> header (HMAC-SHA256) for verification.
+        Each request includes an <code className=" text-[12.5px] bg-[#FAF6EE] px-1 py-0.5 rounded-md">X-Eventera-Signature</code> header (HMAC-SHA256) for verification.
       </p>
     </div>
   );
@@ -439,7 +439,7 @@ export function DeveloperTab({ plan }: { plan: string }) {
           <Key size={15} strokeWidth={2} color="#1F4D3A" />
           <div className="text-[13.5px] font-semibold text-[#0F1F18]">API keys</div>
           {plan === 'studio' && (
-            <span className="ml-auto text-[10px] px-2 py-0.5 rounded-full" style={{ background: 'rgba(31,77,58,0.08)', color: '#1F4D3A' }}>
+            <span className="ml-auto text-[12px] px-2 py-0.5 rounded-full" style={{ background: 'rgba(31,77,58,0.08)', color: '#1F4D3A' }}>
               STUDIO
             </span>
           )}

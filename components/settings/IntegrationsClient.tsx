@@ -178,10 +178,10 @@ export function IntegrationsClient() {
               <div className="font-display text-[14.5px] font-semibold mb-1" style={{ color: C.ink }}>{m.name}</div>
               <p className="text-[12.5px] mb-4 flex-1" style={{ color: C.muted }}>{m.blurb}</p>
               {connected && state?.hint && (
-                <p className="text-[11px] mb-3 truncate" style={{ color: C.muted }} title={state.hint}>{state.hint}</p>
+                <p className="text-[12.5px] mb-3 truncate" style={{ color: C.muted }} title={state.hint}>{state.hint}</p>
               )}
               {connected && state?.last_error && (
-                <p className="text-[11px] mb-3" style={{ color: C.danger }}>Last delivery failed: {state.last_error}</p>
+                <p className="text-[12.5px] mb-3" style={{ color: C.danger }}>Last delivery failed: {state.last_error}</p>
               )}
               <div className="flex gap-2">
                 <button onClick={() => setOpen(m.provider)}
@@ -206,7 +206,7 @@ export function IntegrationsClient() {
           <div className="font-display text-[14.5px] font-semibold mb-1" style={{ color: C.ink }}>Stripe</div>
           <p className="text-[12.5px] mb-4 flex-1" style={{ color: C.muted }}>Accept card payments for paid events. Funds settle to your own Stripe account.</p>
           {stripe && !stripe.configured && (
-            <p className="text-[11px] mb-3" style={{ color: C.muted }}>Stripe isn’t enabled on the platform yet.</p>
+            <p className="text-[12.5px] mb-3" style={{ color: C.muted }}>Stripe isn’t enabled on the platform yet.</p>
           )}
           <div className="flex gap-2">
             {stripe?.chargesEnabled ? (
@@ -243,7 +243,7 @@ function StatusPill({ connected, error }: { connected: boolean; error: boolean }
     ? (error ? ['#FBEDEC', C.danger, 'Attention'] : [C.soft, C.primary, 'Connected'])
     : ['#F5F3EE', C.muted, 'Not connected'];
   return (
-    <span className="text-[9.5px] tracking-[0.12em] uppercase px-2 py-1 rounded-full"
+    <span className="text-[11.5px] tracking-[0.12em] uppercase px-2 py-1 rounded-full"
       style={{ background: bg, color: fg, border: `1px solid ${C.border}` }}>{label}</span>
   );
 }
@@ -254,7 +254,7 @@ function StripePill({ stripe }: { stripe: StripeStatus | null }) {
     : stripe.connected ? 'Pending' : 'Not connected';
   const active = stripe?.chargesEnabled;
   return (
-    <span className="text-[9.5px] tracking-[0.12em] uppercase px-2 py-1 rounded-full"
+    <span className="text-[11.5px] tracking-[0.12em] uppercase px-2 py-1 rounded-full"
       style={{ background: active ? C.soft : '#F5F3EE', color: active ? C.primary : C.muted, border: `1px solid ${C.border}` }}>{label}</span>
   );
 }
@@ -318,7 +318,7 @@ function ConnectModal({ meta, state, onClose, onChanged }: {
         </p>
 
         {meta.snippet && (
-          <pre className="text-[10.5px] rounded-lg p-3 mb-4 overflow-x-auto font-mono" style={{ background: C.cream, color: C.ink, border: `1px solid ${C.border}` }}>{meta.snippet}</pre>
+          <pre className="text-[12px] rounded-lg p-3 mb-4 overflow-x-auto font-mono" style={{ background: C.cream, color: C.ink, border: `1px solid ${C.border}` }}>{meta.snippet}</pre>
         )}
 
         {meta.fields.map(f => (

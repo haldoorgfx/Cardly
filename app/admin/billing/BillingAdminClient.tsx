@@ -217,13 +217,13 @@ function InvoicesPanel({ user, onClose }: { user: BillingUserRow; onClose: () =>
                   <div className="flex items-start justify-between mb-2">
                     <div>
                       <div className=" text-[12px] text-[#0F1F18]">{inv.number ?? inv.id}</div>
-                      <div className="text-[11px] text-[#6B7A72] mt-0.5">
+                      <div className="text-[12.5px] text-[#6B7A72] mt-0.5">
                         {new Date(inv.created * 1000).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
                       </div>
                     </div>
                     <div className="text-right">
                       <div className="font-semibold text-[14px] text-[#0F1F18]">{formatAmount(inv.amount, inv.currency)}</div>
-                      <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${inv.status === 'paid' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}>
+                      <span className={`text-[12px] px-1.5 py-0.5 rounded-full ${inv.status === 'paid' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}>
                         {inv.status}
                       </span>
                     </div>
@@ -231,11 +231,11 @@ function InvoicesPanel({ user, onClose }: { user: BillingUserRow; onClose: () =>
                   <div className="flex items-center gap-2 mt-3 pt-2 border-t border-[#E5E0D4]">
                     {inv.pdf && (
                       <a href={inv.pdf} target="_blank" rel="noopener noreferrer"
-                        className="text-[11px] text-[#1F4D3A] hover:underline ">PDF ↗</a>
+                        className="text-[12.5px] text-[#1F4D3A] hover:underline ">PDF ↗</a>
                     )}
                     {inv.hosted && (
                       <a href={inv.hosted} target="_blank" rel="noopener noreferrer"
-                        className="text-[11px] text-[#1F4D3A] hover:underline ">View ↗</a>
+                        className="text-[12.5px] text-[#1F4D3A] hover:underline ">View ↗</a>
                     )}
                     {inv.status === 'paid' && (
                       <div className="ml-auto flex items-center gap-2">
@@ -243,12 +243,12 @@ function InvoicesPanel({ user, onClose }: { user: BillingUserRow; onClose: () =>
                           value={refundAmounts[inv.id] ?? ''}
                           onChange={e => setRefundAmounts(m => ({ ...m, [inv.id]: e.target.value }))}
                           placeholder="Partial $ (blank=full)"
-                          className="h-8 w-32 border border-[#E5E0D4] rounded-lg px-2 text-[11px] outline-none focus:ring-2 focus:ring-[#1F4D3A]/20"
+                          className="h-8 w-32 border border-[#E5E0D4] rounded-lg px-2 text-[12.5px] outline-none focus:ring-2 focus:ring-[#1F4D3A]/20"
                         />
                         <button
                           onClick={() => issueRefund(inv.id, inv.amount)}
                           disabled={refunding === inv.id}
-                          className="flex items-center gap-1 h-8 px-2.5 rounded-lg border border-[#E5E0D4] text-[11px] text-[#B8423C] hover:bg-red-50 transition-colors disabled:opacity-50"
+                          className="flex items-center gap-1 h-8 px-2.5 rounded-lg border border-[#E5E0D4] text-[12.5px] text-[#B8423C] hover:bg-red-50 transition-colors disabled:opacity-50"
                         >
                           {refunding === inv.id ? <Loader2 size={10} strokeWidth={2} className="animate-spin" /> : <RotateCcw size={10} strokeWidth={2} />}
                           Refund
@@ -257,7 +257,7 @@ function InvoicesPanel({ user, onClose }: { user: BillingUserRow; onClose: () =>
                     )}
                   </div>
                   {refundMsg && refundMsg.id === inv.id && (
-                    <p role="alert" className="text-[11px] mt-2 text-right" style={{ color: refundMsg.type === 'success' ? '#2D7A4F' : '#B8423C' }}>
+                    <p role="alert" className="text-[12.5px] mt-2 text-right" style={{ color: refundMsg.type === 'success' ? '#2D7A4F' : '#B8423C' }}>
                       {refundMsg.text}
                     </p>
                   )}
@@ -344,12 +344,12 @@ export function BillingAdminClient({ users: initialUsers, total, page, totalPage
           <table className="w-full text-[13px]">
             <thead>
               <tr style={{ background: '#FAF6EE', borderBottom: '1px solid #E5E0D4' }}>
-                <th className="text-left px-4 py-3  text-[10px] tracking-[0.14em] uppercase text-[#6B7A72]">User</th>
-                <th className="text-left px-4 py-3  text-[10px] tracking-[0.14em] uppercase text-[#6B7A72]">Plan</th>
-                <th className="text-left px-4 py-3  text-[10px] tracking-[0.14em] uppercase text-[#6B7A72]">Subscription</th>
-                <th className="text-left px-4 py-3  text-[10px] tracking-[0.14em] uppercase text-[#6B7A72]">Period ends</th>
-                <th className="text-left px-4 py-3  text-[10px] tracking-[0.14em] uppercase text-[#6B7A72]">Cards / mo</th>
-                <th className="text-left px-4 py-3  text-[10px] tracking-[0.14em] uppercase text-[#6B7A72]">Actions</th>
+                <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#6B7A72]">User</th>
+                <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#6B7A72]">Plan</th>
+                <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#6B7A72]">Subscription</th>
+                <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#6B7A72]">Period ends</th>
+                <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#6B7A72]">Cards / mo</th>
+                <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#6B7A72]">Actions</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-[#E5E0D4]">
@@ -361,31 +361,31 @@ export function BillingAdminClient({ users: initialUsers, total, page, totalPage
                   <tr key={u.id} className="hover:bg-[#FAF6EE]/50 transition-colors">
                     <td className="px-4 py-3">
                       <div className="font-medium text-[#0F1F18]">{u.full_name ?? '—'}</div>
-                      <div className="text-[11px] text-[#6B7A72]">{u.email}</div>
+                      <div className="text-[12.5px] text-[#6B7A72]">{u.email}</div>
                       {u.stripe_customer_id && (
-                        <div className="text-[10px] text-[#6B7A72]/50 mt-0.5">{u.stripe_customer_id}</div>
+                        <div className="text-[12px] text-[#6B7A72]/50 mt-0.5">{u.stripe_customer_id}</div>
                       )}
                     </td>
                     <td className="px-4 py-3">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full  text-[10px] tracking-[0.1em] uppercase" style={planStyle}>
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full  text-[12px] tracking-[0.1em] uppercase" style={planStyle}>
                         {u.plan}
                       </span>
                       {u.billing_cycle && u.billing_cycle !== 'none' && (
-                        <div className="text-[10px] text-[#6B7A72] mt-0.5">{u.billing_cycle}</div>
+                        <div className="text-[12px] text-[#6B7A72] mt-0.5">{u.billing_cycle}</div>
                       )}
                     </td>
                     <td className="px-4 py-3">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full  text-[10px]" style={{ background: subStyle.bg, color: subStyle.color }}>
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full  text-[12px]" style={{ background: subStyle.bg, color: subStyle.color }}>
                         {u.subscription_status}
                       </span>
                       {u.cancel_at_period_end && (
-                        <div className="text-[10px] text-[#C97A2D] mt-0.5">cancels at period end</div>
+                        <div className="text-[12px] text-[#C97A2D] mt-0.5">cancels at period end</div>
                       )}
                     </td>
-                    <td className="px-4 py-3  text-[11px] text-[#6B7A72]">
+                    <td className="px-4 py-3  text-[12.5px] text-[#6B7A72]">
                       {formatDate(u.current_period_end)}
                     </td>
-                    <td className="px-4 py-3  text-[11px] text-[#6B7A72]">
+                    <td className="px-4 py-3  text-[12.5px] text-[#6B7A72]">
                       {u.cards_this_month}
                     </td>
                     <td className="px-4 py-3">

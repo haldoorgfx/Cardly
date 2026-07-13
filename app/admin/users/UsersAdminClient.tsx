@@ -467,13 +467,13 @@ export function UsersAdminClient({
                     />
                   </th>
                 )}
-                <th className="text-left px-4 py-3  text-[10px] tracking-[0.14em] uppercase text-[#6B7A72]">User</th>
-                <th className="text-left px-4 py-3  text-[10px] tracking-[0.14em] uppercase text-[#6B7A72]">Plan</th>
-                <th className="text-left px-4 py-3  text-[10px] tracking-[0.14em] uppercase text-[#6B7A72]">Role</th>
-                <th className="text-left px-4 py-3  text-[10px] tracking-[0.14em] uppercase text-[#6B7A72]">Status</th>
-                <th className="text-left px-4 py-3  text-[10px] tracking-[0.14em] uppercase text-[#6B7A72]">Joined</th>
-                <th className="text-left px-4 py-3  text-[10px] tracking-[0.14em] uppercase text-[#6B7A72]">Change role</th>
-                <th className="text-left px-4 py-3  text-[10px] tracking-[0.14em] uppercase text-[#6B7A72]">Actions</th>
+                <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#6B7A72]">User</th>
+                <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#6B7A72]">Plan</th>
+                <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#6B7A72]">Role</th>
+                <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#6B7A72]">Status</th>
+                <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#6B7A72]">Joined</th>
+                <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#6B7A72]">Change role</th>
+                <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#6B7A72]">Actions</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-[#E5E0D4]">
@@ -525,8 +525,8 @@ export function UsersAdminClient({
                             >
                               {u.full_name ?? '—'}
                             </button>
-                            {isSelf && <span className="ml-1.5 text-[10px] text-[#6B7A72]/60">(you)</span>}
-                            <Link href={`/admin/users/${u.id}`} className="flex items-center gap-0.5 text-[11px] text-[#6B7A72] hover:text-[#1F4D3A] transition-colors">
+                            {isSelf && <span className="ml-1.5 text-[12px] text-[#6B7A72]/60">(you)</span>}
+                            <Link href={`/admin/users/${u.id}`} className="flex items-center gap-0.5 text-[12.5px] text-[#6B7A72] hover:text-[#1F4D3A] transition-colors">
                               {u.email}
                               <ChevronRight size={10} strokeWidth={2} className="text-[#6B7A72]/30 group-hover:text-[#1F4D3A]/50 transition-colors" />
                             </Link>
@@ -553,7 +553,7 @@ export function UsersAdminClient({
                           type="button"
                           onClick={() => setEditPlan(u.id)}
                           title="Click to change plan"
-                          className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] tracking-[0.1em] uppercase hover:ring-2 hover:ring-[#1F4D3A]/20 transition"
+                          className="inline-flex items-center px-2 py-0.5 rounded-full text-[12px] tracking-[0.1em] uppercase hover:ring-2 hover:ring-[#1F4D3A]/20 transition"
                           style={planStyle}
                         >
                           {u.plan}
@@ -562,31 +562,31 @@ export function UsersAdminClient({
                     </td>
 
                     <td className="px-4 py-3">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full  text-[10px] tracking-[0.1em]" style={roleStyle}>
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full  text-[12px] tracking-[0.1em]" style={roleStyle}>
                         {u.role}
                       </span>
                     </td>
 
                     <td className="px-4 py-3">
                       {u.suspended ? (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full  text-[10px] bg-red-50 text-[#B8423C]">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full  text-[12px] bg-red-50 text-[#B8423C]">
                           <Ban size={9} strokeWidth={2.2} /> suspended
                         </span>
                       ) : (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full  text-[10px] bg-emerald-50 text-emerald-700">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full  text-[12px] bg-emerald-50 text-emerald-700">
                           active
                         </span>
                       )}
                     </td>
 
-                    <td className="px-4 py-3  text-[11px] text-[#6B7A72]">
+                    <td className="px-4 py-3  text-[12.5px] text-[#6B7A72]">
                       {formatDate(u.created_at)}
                     </td>
 
                     {/* Role change */}
                     <td className="px-4 py-3">
                       {isSelf || isSuperA ? (
-                        <span className="text-[11px] text-[#6B7A72]/40 ">
+                        <span className="text-[12.5px] text-[#6B7A72]/40 ">
                           {isSelf ? 'you' : 'protected'}
                         </span>
                       ) : (
@@ -615,7 +615,7 @@ export function UsersAdminClient({
                     {/* Actions */}
                     <td className="px-4 py-3">
                       {isSelf || isSuperA ? (
-                        <span className="text-[11px] text-[#6B7A72]/30 ">—</span>
+                        <span className="text-[12.5px] text-[#6B7A72]/30 ">—</span>
                       ) : isBusy ? (
                         <Loader2 size={13} strokeWidth={2} className="animate-spin text-[#6B7A72]" />
                       ) : (

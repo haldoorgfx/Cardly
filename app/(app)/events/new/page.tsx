@@ -111,7 +111,7 @@ export default function NewEventPage() {
           <div className="space-y-5">
             {/* Event name */}
             <div>
-              <label className="block text-[11px] font-semibold uppercase tracking-widest mb-2"
+              <label className="block text-[12.5px] font-semibold uppercase tracking-widest mb-2"
                 style={{ color: '#6B7A72' }}>
                 Event Name
               </label>
@@ -133,7 +133,7 @@ export default function NewEventPage() {
             {/* Dates */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-[11px] font-semibold uppercase tracking-widest mb-2"
+                <label className="block text-[12.5px] font-semibold uppercase tracking-widest mb-2"
                   style={{ color: '#6B7A72' }}>
                   <span className="inline-flex items-center gap-1.5"><CalendarDays size={10} strokeWidth={2} /> Starts</span>
                 </label>
@@ -146,7 +146,7 @@ export default function NewEventPage() {
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-semibold uppercase tracking-widest mb-2"
+                <label className="block text-[12.5px] font-semibold uppercase tracking-widest mb-2"
                   style={{ color: '#6B7A72' }}>
                   Ends
                 </label>
@@ -163,14 +163,14 @@ export default function NewEventPage() {
             {/* Venue */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="text-[11px] font-semibold uppercase tracking-widest flex items-center gap-1.5"
+                <label className="text-[12.5px] font-semibold uppercase tracking-widest flex items-center gap-1.5"
                   style={{ color: '#6B7A72' }}>
                   Venue
                 </label>
                 <button
                   type="button"
                   onClick={() => { setIsOnline(v => !v); setPlaceData(null); setVenue(''); }}
-                  className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-widest transition"
+                  className="flex items-center gap-1.5 text-[12.5px] font-semibold uppercase tracking-widest transition"
                   style={{ color: isOnline ? '#1F4D3A' : '#9BA8A1' }}>
                   <Wifi size={10} strokeWidth={2} />
                   {isOnline ? 'Switch to in-person' : 'Online event'}

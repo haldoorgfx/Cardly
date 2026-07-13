@@ -48,7 +48,7 @@ function StatCard({
     <div className="bg-white rounded-2xl p-5"
       style={{ border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
       <div className="flex items-center justify-between mb-3">
-        <span className="text-[10px] font-semibold uppercase tracking-widest"
+        <span className="text-[12px] font-semibold uppercase tracking-widest"
           style={{ color: gold ? '#C9A45E' : '#6B7A72' }}>
           {label}
         </span>
@@ -101,19 +101,19 @@ function TicketTypeRow({ t, sold }: { t: TicketRow; sold: number }) {
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-0.5 flex-wrap">
           <span className="font-display text-[14px] font-semibold" style={{ color: '#0F1F18' }}>{t.name}</span>
-          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10.5px] font-medium"
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[12px] font-medium"
             style={statusStyle}>
             {statusLabel}
           </span>
         </div>
         {t.sales_end && (
-          <div className=" text-[11px]" style={{ color: '#6B7A72' }}>
+          <div className=" text-[12.5px]" style={{ color: '#6B7A72' }}>
             Until {new Date(t.sales_end).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
           </div>
         )}
         {cap > 0 && (
           <div className="mt-2">
-            <div className="flex items-center justify-between  text-[10.5px] mb-1" style={{ color: '#9BA8A1' }}>
+            <div className="flex items-center justify-between  text-[12px] mb-1" style={{ color: '#9BA8A1' }}>
               <span>{sold}/{cap}</span>
               <span>{pct}%</span>
             </div>
@@ -220,14 +220,14 @@ function AddPromoModal({ onClose, eventId }: { onClose: () => void; eventId: str
 
         <div className="space-y-4">
           <div>
-            <label className="block text-[11px] uppercase tracking-widest mb-1.5" style={{ color: '#6B7A72' }}>Code</label>
+            <label className="block text-[12.5px] uppercase tracking-widest mb-1.5" style={{ color: '#6B7A72' }}>Code</label>
             <input value={code} onChange={e => setCode(e.target.value.toUpperCase())}
               placeholder="EARLY20" className="w-full h-10 px-3 rounded-lg text-[14px] outline-none"
               style={{ border: '1.5px solid #E5E0D4', background: 'white', color: '#0F1F18' }} />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-[11px] uppercase tracking-widest mb-1.5" style={{ color: '#6B7A72' }}>Type</label>
+              <label className="block text-[12.5px] uppercase tracking-widest mb-1.5" style={{ color: '#6B7A72' }}>Type</label>
               <select value={type} onChange={e => setType(e.target.value as 'percent' | 'fixed')}
                 className="w-full h-10 px-3 rounded-lg text-[13px] outline-none"
                 style={{ border: '1.5px solid #E5E0D4', background: 'white', color: '#0F1F18' }}>
@@ -236,7 +236,7 @@ function AddPromoModal({ onClose, eventId }: { onClose: () => void; eventId: str
               </select>
             </div>
             <div>
-              <label className="block text-[11px] uppercase tracking-widest mb-1.5" style={{ color: '#6B7A72' }}>Value</label>
+              <label className="block text-[12.5px] uppercase tracking-widest mb-1.5" style={{ color: '#6B7A72' }}>Value</label>
               <input value={value} onChange={e => setValue(e.target.value)}
                 placeholder={type === 'percent' ? '20' : '5000'} type="number"
                 min="0.01" max={type === 'percent' ? '100' : '9999999'} step="any"
@@ -245,7 +245,7 @@ function AddPromoModal({ onClose, eventId }: { onClose: () => void; eventId: str
             </div>
           </div>
           <div>
-            <label className="block text-[11px] uppercase tracking-widest mb-1.5" style={{ color: '#6B7A72' }}>Max uses (optional)</label>
+            <label className="block text-[12.5px] uppercase tracking-widest mb-1.5" style={{ color: '#6B7A72' }}>Max uses (optional)</label>
             <input value={maxUses} onChange={e => setMaxUses(e.target.value)}
               placeholder="100" type="number"
               className="w-full h-10 px-3 rounded-lg text-[13px] outline-none"
@@ -352,7 +352,7 @@ function CreateTicketModal({ onClose, eventId, defaultCurrency }: { onClose: () 
           {err && <p className="text-[12px] text-red-600">{err}</p>}
 
           <div>
-            <label className="block text-[10.5px] uppercase tracking-widest mb-1.5" style={{ color: '#6B7A72' }}>Ticket Name</label>
+            <label className="block text-[12px] uppercase tracking-widest mb-1.5" style={{ color: '#6B7A72' }}>Ticket Name</label>
             <input value={name} onChange={e => setName(e.target.value)}
               placeholder="General admission" className="w-full h-10 px-3 rounded-lg text-[14px] outline-none"
               style={{ border: '1.5px solid #E5E0D4', background: 'white', color: '#0F1F18' }} autoFocus />
@@ -360,14 +360,14 @@ function CreateTicketModal({ onClose, eventId, defaultCurrency }: { onClose: () 
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-[10.5px] uppercase tracking-widest mb-1.5" style={{ color: '#6B7A72' }}>Price ({defaultCurrency})</label>
+              <label className="block text-[12px] uppercase tracking-widest mb-1.5" style={{ color: '#6B7A72' }}>Price ({defaultCurrency})</label>
               <input value={price} onChange={e => setPrice(e.target.value)}
                 type="number" min="0" max="9999999" step="any" placeholder="0"
                 className="w-full h-10 px-3 rounded-lg text-[13px] outline-none"
                 style={{ border: '1.5px solid #E5E0D4', background: 'white', color: '#0F1F18' }} />
             </div>
             <div>
-              <label className="block text-[10.5px] uppercase tracking-widest mb-1.5" style={{ color: '#6B7A72' }}>Quantity</label>
+              <label className="block text-[12px] uppercase tracking-widest mb-1.5" style={{ color: '#6B7A72' }}>Quantity</label>
               <input value={qty} onChange={e => setQty(e.target.value)}
                 type="number" min="1" max="1000000" step="1" placeholder="Unlimited"
                 className="w-full h-10 px-3 rounded-lg text-[13px] outline-none"
@@ -377,13 +377,13 @@ function CreateTicketModal({ onClose, eventId, defaultCurrency }: { onClose: () 
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-[10.5px] uppercase tracking-widest mb-1.5" style={{ color: '#6B7A72' }}>Sales Start</label>
+              <label className="block text-[12px] uppercase tracking-widest mb-1.5" style={{ color: '#6B7A72' }}>Sales Start</label>
               <input type="date" value={salesStart} onChange={e => setSalesStart(e.target.value)}
                 className="w-full h-10 px-3 rounded-lg text-[13px] outline-none"
                 style={{ border: '1.5px solid #E5E0D4', background: 'white', color: '#0F1F18' }} />
             </div>
             <div>
-              <label className="block text-[10.5px] uppercase tracking-widest mb-1.5" style={{ color: '#6B7A72' }}>Sales End</label>
+              <label className="block text-[12px] uppercase tracking-widest mb-1.5" style={{ color: '#6B7A72' }}>Sales End</label>
               <input type="date" value={salesEnd} onChange={e => setSalesEnd(e.target.value)}
                 className="w-full h-10 px-3 rounded-lg text-[13px] outline-none"
                 style={{ border: '1.5px solid #E5E0D4', background: 'white', color: '#0F1F18' }} />
@@ -521,7 +521,7 @@ export function TicketsPageClient({
         <div className="bg-white rounded-2xl overflow-hidden mb-6"
           style={{ border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
           <div className="px-5 py-3.5 border-b" style={{ borderColor: '#E5E0D4' }}>
-            <span className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: '#6B7A72' }}>
+            <span className="text-[12px] font-semibold uppercase tracking-widest" style={{ color: '#6B7A72' }}>
               Ticket Types
             </span>
           </div>
@@ -577,7 +577,7 @@ export function TicketsPageClient({
                         <span className="text-[13px] flex-1 truncate" style={{ color: '#3A4A42' }}>
                           {discStr} {scope}
                         </span>
-                        <span className=" text-[11.5px] shrink-0" style={{ color: '#6B7A72' }}>
+                        <span className=" text-[13px] shrink-0" style={{ color: '#6B7A72' }}>
                           {used}{max > 0 ? `/${max}` : ''} used
                         </span>
                       </div>

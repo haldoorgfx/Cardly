@@ -202,7 +202,7 @@ export default function ScheduleClient({ sessions, tracks, registrationId, saved
                         <span className="text-[12px]" style={{ color: '#6B7A72' }}>{session.room}</span>
                       )}
                       <span
-                        className="text-[11px] font-medium px-2 py-0.5 rounded-full"
+                        className="text-[12.5px] font-medium px-2 py-0.5 rounded-full"
                         style={{ background: '#E8EFEB', color: '#1F4D3A' }}
                       >
                         {session.session_type}

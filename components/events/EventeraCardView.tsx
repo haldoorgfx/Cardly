@@ -113,7 +113,7 @@ export function EventeraCardView({ eventName, eventSlug, eventStatus, totalCards
         <div className="flex flex-col gap-4">
           {hasDesign ? (
             <div>
-              <div className="text-[11px] font-semibold uppercase tracking-wider mb-2" style={{ color: '#6B7A72' }}>
+              <div className="text-[12.5px] font-semibold uppercase tracking-wider mb-2" style={{ color: '#6B7A72' }}>
                 Card design
               </div>
               <div
@@ -224,12 +224,12 @@ export function EventeraCardView({ eventName, eventSlug, eventStatus, totalCards
                     )}
                     <div className="flex-1 min-w-0">
                       <div className="text-[13.5px] font-medium" style={{ color: '#0F1F18' }}>{v.name ?? `Variant ${v.position + 1}`}</div>
-                      <div className="text-[11px] mt-0.5" style={{ color: '#6B7A72' }}>
+                      <div className="text-[12.5px] mt-0.5" style={{ color: '#6B7A72' }}>
                         {v.zonesCount > 0 ? `${v.zonesCount} zone${v.zonesCount !== 1 ? 's' : ''}` : 'No zones yet'}
                       </div>
                     </div>
                     {i === 0 && (
-                      <span className="text-[10px] font-medium px-1.5 py-0.5 rounded" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
+                      <span className="text-[12px] font-medium px-1.5 py-0.5 rounded" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
                         PRIMARY
                       </span>
                     )}
@@ -274,7 +274,7 @@ export function EventeraCardView({ eventName, eventSlug, eventStatus, totalCards
         <div className="p-5 grid sm:grid-cols-2 gap-6 sm:gap-8 items-start">
           {/* How check-in works today */}
           <div>
-            <div className="text-[11px] font-semibold uppercase tracking-wider mb-3" style={{ color: '#6B7A72' }}>How it works</div>
+            <div className="text-[12.5px] font-semibold uppercase tracking-wider mb-3" style={{ color: '#6B7A72' }}>How it works</div>
             <p className="text-[13px] mb-4" style={{ color: '#3A4A42', lineHeight: 1.55 }}>
               Each registrant gets a unique QR code by email and on their Eventera Card. Open the scanner at the door and check people in as they arrive.
             </p>
@@ -290,7 +290,7 @@ export function EventeraCardView({ eventName, eventSlug, eventStatus, totalCards
           </div>
           {/* What each card carries */}
           <div>
-            <div className="text-[11px] font-semibold uppercase tracking-wider mb-3" style={{ color: '#6B7A72' }}>Each card carries</div>
+            <div className="text-[12.5px] font-semibold uppercase tracking-wider mb-3" style={{ color: '#6B7A72' }}>Each card carries</div>
             <div className="space-y-2">
               {[
                 { label: 'Attendee name', always: true },
@@ -311,7 +311,7 @@ export function EventeraCardView({ eventName, eventSlug, eventStatus, totalCards
                     )}
                   </div>
                   {item.label}
-                  {!item.always && <span className="text-[11px] ml-auto" style={{ color: '#6B7A72' }}>if provided</span>}
+                  {!item.always && <span className="text-[12.5px] ml-auto" style={{ color: '#6B7A72' }}>if provided</span>}
                 </div>
               ))}
             </div>
@@ -339,7 +339,7 @@ function StatCard({
       }}
     >
       <div className="flex items-center justify-between mb-3">
-        <span className="text-[11px] font-medium" style={{ color: '#6B7A72', letterSpacing: '0.03em' }}>{label}</span>
+        <span className="text-[12.5px] font-medium" style={{ color: '#6B7A72', letterSpacing: '0.03em' }}>{label}</span>
         <span style={{ color: accent ? '#1F4D3A' : '#6B7A72' }}>{icon}</span>
       </div>
       <p className="text-[26px] font-bold leading-none" style={{ color: accent ? '#1F4D3A' : '#0F1F18' }}>{value}</p>

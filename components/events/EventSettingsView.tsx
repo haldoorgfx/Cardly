@@ -370,7 +370,7 @@ export function EventSettingsView({ event }: Props) {
             <div className="space-y-3">
               <InfoRow label="Status" last={false}>
                 <span
-                  className="inline-flex items-center gap-1.5 h-5 px-2 rounded-full text-[11px] font-medium"
+                  className="inline-flex items-center gap-1.5 h-5 px-2 rounded-full text-[12.5px] font-medium"
                   style={{ background: statusBadge.bg, color: statusBadge.color }}
                 >
                   <span className="h-1.5 w-1.5 rounded-full" style={{ background: statusBadge.dot }} />
@@ -427,7 +427,7 @@ export function EventSettingsView({ event }: Props) {
 
           {/* Payment methods — which processors buyers can use for paid tickets */}
           <div className="mt-4 pt-4" style={{ borderTop: '1px solid #F0EDE7' }}>
-            <div className="text-[11px] font-semibold uppercase tracking-wider mb-1" style={{ color: '#6B7A72', letterSpacing: '0.06em' }}>Payment methods</div>
+            <div className="text-[12.5px] font-semibold uppercase tracking-wider mb-1" style={{ color: '#6B7A72', letterSpacing: '0.06em' }}>Payment methods</div>
             <p className="text-[12px] mb-3" style={{ color: '#6B7A72' }}>
               Which methods buyers can use to pay for paid tickets. Free tickets skip payment entirely.
             </p>
@@ -466,13 +466,13 @@ export function EventSettingsView({ event }: Props) {
                 );
               })}
             </div>
-            <p className="text-[11px] mt-2" style={{ color: '#9BA8A1' }}>
+            <p className="text-[12.5px] mt-2" style={{ color: '#9BA8A1' }}>
               At least one method must stay enabled. Save changes to apply.
             </p>
           </div>
 
           <div className="mt-4 pt-4" style={{ borderTop: '1px solid #F0EDE7' }}>
-            <div className="text-[11px] font-semibold uppercase tracking-wider mb-1" style={{ color: '#6B7A72', letterSpacing: '0.06em' }}>Platform fee</div>
+            <div className="text-[12.5px] font-semibold uppercase tracking-wider mb-1" style={{ color: '#6B7A72', letterSpacing: '0.06em' }}>Platform fee</div>
             <InfoRow
               label="Pass the platform fee to attendees"
               desc={passFee

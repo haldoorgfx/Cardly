@@ -61,7 +61,7 @@ export function LeaderboardView({ leaderboard, myRegistrationId, myEntry }: Prop
                 <div className="text-center">
                   <div className="font-display font-medium text-[13px] truncate max-w-[80px]" style={{ color: isYou(entry.registration_id) ? '#1F4D3A' : '#0F1F18' }}>{isYou(entry.registration_id) ? 'You' : entry.attendee_name.split(' ')[0]}</div>
                   <div className=" text-[13px] font-semibold" style={{ color: isFirst ? '#E8C57E' : '#1F4D3A' }}>{entry.total_points}pts</div>
-                  <div className=" text-[11px]" style={{ color: '#6B7A72' }}>#{entry.rank}</div>
+                  <div className=" text-[12.5px]" style={{ color: '#6B7A72' }}>#{entry.rank}</div>
                 </div>
               </div>
             );

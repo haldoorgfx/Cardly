@@ -153,7 +153,7 @@ export function IntegrationsView({ eventId }: Props) {
         {filteredCategories.map(cat => (
           <div key={cat.label}>
             <h2
-              className="text-[11px] font-semibold mb-4"
+              className="text-[12.5px] font-semibold mb-4"
               style={{ color: '#6B7A72', letterSpacing: '0.06em', textTransform: 'uppercase', fontFamily: 'Inter, system-ui, sans-serif' }}
             >
               {cat.label}
@@ -192,7 +192,7 @@ function AppCard({ app, onConfigure }: { app: Integration; onConfigure?: () => v
           {app.icon}
         </div>
         <span
-          className="inline-flex items-center gap-1 h-5 px-2 rounded-full text-[11px] font-medium"
+          className="inline-flex items-center gap-1 h-5 px-2 rounded-full text-[12.5px] font-medium"
           style={app.status === 'builtin'
             ? { background: 'rgba(45,122,79,0.1)', color: '#2D7A4F' }
             : { background: '#F5F0E8', color: '#9BA8A1' }

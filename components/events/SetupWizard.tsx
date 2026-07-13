@@ -101,7 +101,7 @@ export function SetupWizard({
                   >
                     {done
                       ? <Check size={12} strokeWidth={3} color="white" />
-                      : <span className="text-[11px] font-semibold" style={{ color: active ? 'white' : '#6B7A72' }}>{s.id}</span>
+                      : <span className="text-[12.5px] font-semibold" style={{ color: active ? 'white' : '#6B7A72' }}>{s.id}</span>
                     }
                   </div>
                   <span
@@ -259,7 +259,7 @@ function StepHeader({
 }) {
   return (
     <div className="mb-8">
-      <p className="text-[11px] font-semibold uppercase tracking-widest mb-1" style={{ color: '#6B7A72' }}>
+      <p className="text-[12.5px] font-semibold uppercase tracking-widest mb-1" style={{ color: '#6B7A72' }}>
         Step {step} of {total}{optional ? ' · Optional' : ''}
       </p>
       <h1
@@ -299,7 +299,7 @@ function PublishStep({
   return (
     <div>
       <div className="mb-10">
-        <p className="text-[11px] font-semibold uppercase tracking-widest mb-1" style={{ color: '#6B7A72' }}>
+        <p className="text-[12.5px] font-semibold uppercase tracking-widest mb-1" style={{ color: '#6B7A72' }}>
           Step 5 of 5
         </p>
         <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight mb-2" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
@@ -359,7 +359,7 @@ function PublishStep({
           <ArrowRight size={15} strokeWidth={2} color="#1F4D3A" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-[11px] font-semibold uppercase tracking-widest mb-0.5" style={{ color: '#6B7A72' }}>
+          <p className="text-[12.5px] font-semibold uppercase tracking-widest mb-0.5" style={{ color: '#6B7A72' }}>
             Your event URL
           </p>
           <p className="text-[13px] truncate" style={{ color: '#0F1F18' }}>

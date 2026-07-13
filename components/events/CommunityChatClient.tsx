@@ -145,12 +145,12 @@ export function CommunityChatClient({ eventId, eventName, channels, initialMessa
         {/* Event name */}
         <div className="px-4 py-4 border-b" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
           <div className="font-display font-semibold text-[14px]" style={{ color: '#FAF6EE' }}>{eventName}</div>
-          <div className="text-[11px] mt-0.5" style={{ color: 'rgba(255,255,255,0.35)' }}>Community</div>
+          <div className="text-[12.5px] mt-0.5" style={{ color: 'rgba(255,255,255,0.35)' }}>Community</div>
         </div>
 
         {/* Channels */}
         <div className="flex-1 overflow-y-auto py-3">
-          <div className="px-3 mb-2 text-[10px] font-bold tracking-[0.12em] uppercase" style={{ color: 'rgba(255,255,255,0.25)' }}>
+          <div className="px-3 mb-2 text-[12px] font-bold tracking-[0.12em] uppercase" style={{ color: 'rgba(255,255,255,0.25)' }}>
             Channels
           </div>
           {channels.map((ch: Channel) => (
@@ -188,7 +188,7 @@ export function CommunityChatClient({ eventId, eventName, channels, initialMessa
             </span>
           )}
           {pinned.length > 0 && (
-            <span className="ml-auto flex items-center gap-1 text-[11px]" style={{ color: '#6B7A72' }}>
+            <span className="ml-auto flex items-center gap-1 text-[12.5px]" style={{ color: '#6B7A72' }}>
               <Pin size={11} /> {pinned.length} pinned
             </span>
           )}
@@ -202,7 +202,7 @@ export function CommunityChatClient({ eventId, eventName, channels, initialMessa
               style={{ background: '#E8EFEB', border: '1px solid #C9E0D4' }}>
               <Pin size={13} style={{ color: '#1F4D3A', marginTop: 2 }} />
               <div>
-                <div className="text-[11px] font-semibold mb-0.5" style={{ color: '#1F4D3A' }}>Pinned message</div>
+                <div className="text-[12.5px] font-semibold mb-0.5" style={{ color: '#1F4D3A' }}>Pinned message</div>
                 <div className="text-[13px]" style={{ color: '#0F1F18' }}>{pinned[0].content}</div>
               </div>
             </div>
@@ -217,7 +217,7 @@ export function CommunityChatClient({ eventId, eventName, channels, initialMessa
                 <div className="flex-1 min-w-0">
                   <div className="flex items-baseline gap-2 mb-0.5">
                     <span className="font-semibold text-[13px]" style={{ color: '#0F1F18' }}>{name}</span>
-                    <span className="text-[11px]" style={{ color: '#C9C3B1' }}>{fmtTime(msg.created_at)}</span>
+                    <span className="text-[12.5px]" style={{ color: '#C9C3B1' }}>{fmtTime(msg.created_at)}</span>
                     {msg.is_pinned && <Pin size={10} style={{ color: '#1F4D3A' }} />}
                   </div>
                   <p className="text-[14px]" style={{ color: '#3A4A42', lineHeight: 1.5 }}>{msg.content}</p>
@@ -283,7 +283,7 @@ export function CommunityChatClient({ eventId, eventName, channels, initialMessa
             </button>
           </div>
           {!registrationId && (
-            <p className="text-[11px] text-center mt-2" style={{ color: '#C9C3B1' }}>
+            <p className="text-[12.5px] text-center mt-2" style={{ color: '#C9C3B1' }}>
               Register for the event to post messages
             </p>
           )}
