@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Copy, Check, Download } from 'lucide-react';
+import { PageShell, PageHeader } from '@/components/dash';
 
 interface Source { name: string; count: number; pct: number; }
 interface Props {
@@ -93,28 +94,21 @@ export function SourceAnalyticsClient({ eventName, publicSlug, sources, total }:
   ];
 
   return (
-    <div className="max-w-[960px] mx-auto px-5 py-10">
-      {/* Header */}
-      <div className="flex items-start justify-between mb-8">
-        <div>
-          <p className="text-[12.5px] tracking-[0.16em] uppercase mb-2 font-medium" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
-            Insights
-          </p>
-          <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
-            Registrations by source
-          </h1>
-          <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>
-            Where your attendees are coming from — <span className="font-medium" style={{ color: '#0F1F18' }}>{eventName}</span>
-          </p>
-        </div>
-        <button
-          onClick={exportCsv}
-          disabled={sources.length === 0}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg text-[13px] font-medium border transition hover:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed"
-          style={{ borderColor: '#E5E0D4', color: exported ? '#2D7A4F' : '#3A4A42' }}>
-          {exported ? <Check size={14} /> : <Download size={14} />} {exported ? 'Exported' : 'Export CSV'}
-        </button>
-      </div>
+    <PageShell width="wide">
+      <PageHeader
+        eyebrow="Insights"
+        title="Registrations by source"
+        subtitle={<>Where your attendees are coming from — <span className="font-medium" style={{ color: '#0F1F18' }}>{eventName}</span></>}
+        actions={
+          <button
+            onClick={exportCsv}
+            disabled={sources.length === 0}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-[13px] font-medium border transition hover:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed"
+            style={{ borderColor: '#E5E0D4', color: exported ? '#2D7A4F' : '#3A4A42' }}>
+            {exported ? <Check size={14} /> : <Download size={14} />} {exported ? 'Exported' : 'Export CSV'}
+          </button>
+        }
+      />
 
       {/* Hero card (Eventera Card metric) */}
       {cardRegs && cardRegs.count > 0 && (
@@ -196,6 +190,6 @@ export function SourceAnalyticsClient({ eventName, publicSlug, sources, total }:
           </div>
         </div>
       </div>
-    </div>
+    </PageShell>
   );
 }

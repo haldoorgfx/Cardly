@@ -69,11 +69,13 @@ export function SearchPageClient({ initialQuery, initialCity, events: serverEven
                 onChange={e => setQuery(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Search events, organizers, topics…"
+                aria-label="Search events, organizers, topics"
                 className="flex-1 bg-transparent text-[14px] outline-none"
                 style={{ color: '#0F1F18' }}
               />
               {query && (
                 <button onClick={() => { setQuery(''); doSearch('', cityFilter); }}
+                  aria-label="Clear search"
                   style={{ color: '#C9C3B1' }}>
                   <X size={14} />
                 </button>

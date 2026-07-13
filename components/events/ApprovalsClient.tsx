@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Check, X, Clock, Users, CheckCircle2, XCircle } from 'lucide-react';
+import { PageShell, PageHeader } from '@/components/dash';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Reg = any;
@@ -55,25 +56,18 @@ export function ApprovalsClient({ eventId, eventName, initialRegs }: Props) {
   }
 
   return (
-    <div className="max-w-[860px] mx-auto px-5 py-10">
+    <PageShell width="wide">
       {actionError && (
         <div className="mb-5 px-4 py-3 rounded-xl text-[13px] font-medium" style={{ background: '#FEF2F2', color: '#B91C1C', border: '1px solid #FECACA' }}>
           {actionError}
         </div>
       )}
 
-      {/* Header */}
-      <div className="mb-8">
-        <p className="text-[12.5px] tracking-[0.16em] uppercase mb-2 font-medium" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
-          Manage
-        </p>
-        <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight mb-1" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
-          Approvals
-        </h1>
-        <p className="text-[14px]" style={{ color: '#6B7A72' }}>
-          Review and approve attendee applications for <span className="font-medium" style={{ color: '#0F1F18' }}>{eventName}</span>.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="Manage"
+        title="Approvals"
+        subtitle={<>Review and approve attendee applications for <span className="font-medium" style={{ color: '#0F1F18' }}>{eventName}</span>.</>}
+      />
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3 mb-6">
@@ -188,6 +182,6 @@ export function ApprovalsClient({ eventId, eventName, initialRegs }: Props) {
           })}
         </div>
       )}
-    </div>
+    </PageShell>
   );
 }

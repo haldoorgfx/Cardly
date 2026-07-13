@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import QAModerationClient from '@/components/qa/QAModerationClient';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { hasModeratorAccess } from '@/lib/rbac/ownership';
+import { PageShell, PageHeader } from '@/components/dash';
 
 interface Props { params: { id: string } }
 
@@ -42,22 +43,17 @@ export default async function QAModerationPage({ params }: Props) {
     .order('created_at', { ascending: false });
 
   return (
-    <div className="min-h-full" style={{ background: '#FAF6EE' }}>
-      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-6">
-        <div className="mb-5">
-          <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>Q&amp;A Moderation</h1>
-          <p className="text-[13px] mt-1" style={{ color: '#6B7A72' }}>Feature, answer, or hide questions in real time.</p>
-        </div>
-        <QAModerationClient
-          eventId={id}
-          eventSlug={event.slug}
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          initialQuestions={(questions ?? []) as any}
-          sessions={(sessions ?? []) as { id: string; title: string }[]}
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          initialPolls={(polls ?? []) as any}
-        />
-      </div>
-    </div>
+    <PageShell width="wide">
+      <PageHeader title="Q&amp;A Moderation" subtitle="Feature, answer, or hide questions in real time." />
+      <QAModerationClient
+        eventId={id}
+        eventSlug={event.slug}
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        initialQuestions={(questions ?? []) as any}
+        sessions={(sessions ?? []) as { id: string; title: string }[]}
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        initialPolls={(polls ?? []) as any}
+      />
+    </PageShell>
   );
 }

@@ -302,6 +302,7 @@ export default function PeopleDiscoveryClient({ eventId, eventSlug, registration
           <input
             type="text"
             placeholder="Search by name…"
+            aria-label="Search by name"
             value={query}
             onChange={e => setQuery(e.target.value)}
             className="w-full rounded-full pl-9 pr-4 py-2.5 text-[13px] outline-none"

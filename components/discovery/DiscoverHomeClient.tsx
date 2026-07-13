@@ -390,6 +390,7 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents, ban
               <input value={query} onChange={e => setQuery(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter') scrollToResults(); }}
                 placeholder="Search events, topics, organizers or venues"
+                aria-label="Search events, topics, organizers or venues"
                 className="flex-1 bg-transparent text-[16px] outline-none" style={{ color: '#0F1F18' }} />
             </div>
 

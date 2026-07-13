@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { ChevronLeft, CheckCircle2, CheckCircle, Scan } from 'lucide-react';
 import { RegistrationDetailActions } from '@/components/events/RegistrationDetailActions';
+import { PageShell } from '@/components/dash';
 
 interface Props { params: Promise<{ id: string; regId: string }> }
 
@@ -101,8 +102,7 @@ export default async function AttendeeDetailPage({ params }: Props) {
   ];
 
   return (
-    <div className="min-h-full" style={{ background: '#FAF6EE' }}>
-      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+    <PageShell width="wide">
 
         {/* Back */}
         <Link href={`/events/${_ev.slug}/registrations`}
@@ -217,7 +217,6 @@ export default async function AttendeeDetailPage({ params }: Props) {
           </div>
 
         </div>
-      </div>
-    </div>
+    </PageShell>
   );
 }

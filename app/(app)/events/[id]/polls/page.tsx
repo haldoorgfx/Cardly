@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import PollsManagerClient from '@/components/polls/PollsManagerClient';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { hasModeratorAccess } from '@/lib/rbac/ownership';
+import { PageShell, PageHeader } from '@/components/dash';
 
 interface Props { params: { id: string } }
 
@@ -30,15 +31,10 @@ export default async function PollsManagerPage({ params }: Props) {
     .order('created_at', { ascending: false });
 
   return (
-    <div className="min-h-full" style={{ background: '#FAF6EE' }}>
-      <div className="max-w-[900px] mx-auto px-4 sm:px-6 py-8">
-        <div className="mb-6">
-          <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>Polls</h1>
-          <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>Create and launch live polls during sessions.</p>
-        </div>
-        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-        <PollsManagerClient eventId={id} initialPolls={(polls ?? []) as any} />
-      </div>
-    </div>
+    <PageShell width="wide">
+      <PageHeader title="Polls" subtitle="Create and launch live polls during sessions." />
+      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+      <PollsManagerClient eventId={id} initialPolls={(polls ?? []) as any} />
+    </PageShell>
   );
 }

@@ -1,8 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { RefreshCw, Calendar, ChevronDown, ChevronUp, ExternalLink, CalendarPlus, Check } from 'lucide-react';
+import { Calendar, ChevronDown, ChevronUp, ExternalLink, CalendarPlus, Check } from 'lucide-react';
 import Link from 'next/link';
+import { PageShell, PageHeader } from '@/components/dash';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Series = any;
@@ -68,20 +69,9 @@ export function EventSeriesClient({ eventId, eventName, eventSlug, series }: Pro
   }
 
   return (
-    <div className="max-w-[760px] mx-auto px-6 py-8">
+    <PageShell width="wide">
       {/* Header */}
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-          style={{ background: '#E8EFEB' }}>
-          <RefreshCw size={18} style={{ color: '#1F4D3A' }} />
-        </div>
-        <div>
-          <h1 className="font-display font-bold text-[22px]" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
-            Event Series
-          </h1>
-          <p className="text-[13px]" style={{ color: '#6B7A72' }}>{eventName}</p>
-        </div>
-      </div>
+      <PageHeader title="Event Series" subtitle={eventName} />
 
       {/* Recurrence config */}
       <div className="rounded-2xl p-6 mb-5" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
@@ -234,6 +224,6 @@ export function EventSeriesClient({ eventId, eventName, eventSlug, series }: Pro
           </div>
         </div>
       </div>
-    </div>
+    </PageShell>
   );
 }

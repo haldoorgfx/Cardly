@@ -166,7 +166,7 @@ export default function NotificationsCenter({ initialNotifs, initialPrefs }: Pro
   const unreadCount = notifications.filter(n => !n.read_at).length;
 
   return (
-    <PageShell width="narrow">
+    <PageShell width="wide">
       {/* Header */}
       <PageHeader
         title="Notifications"

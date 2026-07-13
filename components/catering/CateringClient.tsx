@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Download, RotateCw, UtensilsCrossed, Accessibility } from 'lucide-react';
 import { EntitlementIcon } from '@/components/tickets/EntitlementIcon';
+import { PageShell, PageHeader } from '@/components/dash';
 
 export interface DietaryCount {
   tag: string;
@@ -71,8 +72,7 @@ export function CateringClient({ eventSlug, meals, loadError }: Props) {
   }
 
   return (
-    <div className="min-h-full" style={{ background: '#FAF6EE' }}>
-      <div className="max-w-[760px] mx-auto px-4 sm:px-6 py-8 pb-24">
+    <PageShell width="wide">
 
         <Link
           href={`/events/${eventSlug}`}
@@ -82,16 +82,10 @@ export function CateringClient({ eventSlug, meals, loadError }: Props) {
           <ArrowLeft size={15} strokeWidth={2} /> Back to event
         </Link>
 
-        <div className="mb-6 flex items-start justify-between gap-4 flex-wrap">
-          <div>
-            <h1 className="font-display font-semibold text-[24px] sm:text-[28px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
-              Catering
-            </h1>
-            <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>
-              What to prepare, per meal. Counts come from meals actually redeemed at check-in, broken down by the dietary needs attendees shared.
-            </p>
-          </div>
-          {hasMeals && (
+        <PageHeader
+          title="Catering"
+          subtitle="What to prepare, per meal. Counts come from meals actually redeemed at check-in, broken down by the dietary needs attendees shared."
+          actions={hasMeals ? (
             <button
               onClick={handleExport}
               disabled={exporting}
@@ -100,8 +94,8 @@ export function CateringClient({ eventSlug, meals, loadError }: Props) {
             >
               <Download size={15} strokeWidth={2} /> Export CSV
             </button>
-          )}
-        </div>
+          ) : undefined}
+        />
 
         {/* Cross-link to accessibility */}
         <Link
@@ -192,7 +186,6 @@ export function CateringClient({ eventSlug, meals, loadError }: Props) {
             ))}
           </div>
         )}
-      </div>
-    </div>
+    </PageShell>
   );
 }

@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import Link from 'next/link';
 import { ChevronLeft, Clock, MapPin } from 'lucide-react';
+import { PageShell } from '@/components/dash';
 
 interface Props { params: Promise<{ id: string; sessionId: string }> }
 
@@ -81,8 +82,7 @@ export default async function SessionDetailPage({ params }: Props) {
     : 0;
 
   return (
-    <div className="min-h-full" style={{ background: '#FAF6EE' }}>
-      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+    <PageShell width="wide">
 
         {/* Back */}
         <Link href={`/events/${_ev.slug}/agenda`}
@@ -212,7 +212,6 @@ export default async function SessionDetailPage({ params }: Props) {
           </div>
 
         </div>
-      </div>
-    </div>
+    </PageShell>
   );
 }

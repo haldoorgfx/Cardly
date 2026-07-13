@@ -565,6 +565,7 @@ export default function CheckInDashboard({
                     value={searchQuery}
                     onChange={e => setSearchQuery(e.target.value)}
                     placeholder="Name, email, phone, or badge ID…"
+                    aria-label="Search attendees"
                     className="w-full rounded-xl pl-9 pr-9 py-2.5 text-[13px] outline-none"
                     style={{
                       background: 'rgba(250,246,238,0.09)',

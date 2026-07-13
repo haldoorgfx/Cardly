@@ -311,6 +311,7 @@ export function DiscoveryFeed({ events }: DiscoveryFeedProps) {
                   </svg>
                   <input type="text" value={query} onChange={e => setQuery(e.target.value)}
                     placeholder="Search events, topics or organizers"
+                    aria-label="Search events, topics or organizers"
                     className="flex-1 text-[15px] outline-none bg-transparent" style={{ color: '#0F1F18' }} />
                 </div>
                 <div className="flex gap-2.5 pt-3.5 flex-wrap">

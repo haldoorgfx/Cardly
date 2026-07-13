@@ -103,6 +103,7 @@ export function FaqClient() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search questions…"
+              aria-label="Search questions"
               className="w-full rounded-2xl border outline-none transition-colors focus:border-[#1F4D3A]"
               style={{ background: '#FFFFFF', borderColor: '#E5E0D4', color: '#0F1F18', fontFamily: 'var(--font-sans)', fontSize: 16, padding: '16px 18px 16px 48px' }}
             />

@@ -440,6 +440,7 @@ export function UsersAdminClient({
             disabled={bulkBusy}
             onClick={clearSelection}
             title="Clear selection"
+            aria-label="Clear selection"
             className="h-8 w-8 grid place-items-center rounded-lg border border-[#E5E0D4] bg-white text-[#6B7A72] hover:bg-[#FAF6EE] transition-colors disabled:opacity-50"
           >
             <X size={13} strokeWidth={2} />

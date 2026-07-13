@@ -2,6 +2,7 @@
 
 import { Users, CalendarDays, TrendingUp, IdCard, FileSpreadsheet, FileDown } from 'lucide-react';
 import Link from 'next/link';
+import { PageShell, PageHeader } from '@/components/dash';
 
 interface Reg {
   id: string;
@@ -199,14 +200,9 @@ export function DownloadsHub({ eventId, eventSlug, eventName, regs, sessions, ti
   }
 
   return (
-    <div className="max-w-[900px] mx-auto px-4 sm:px-6 py-8">
+    <PageShell width="wide">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight mb-1" style={{ color: '#0F1F18' }}>
-          Downloads
-        </h1>
-        <p className="text-[14px]" style={{ color: '#6B7A72' }}>{eventName}</p>
-      </div>
+      <PageHeader title="Downloads" subtitle={eventName} />
 
       {/* Cards grid */}
       <div className="grid gap-5 md:grid-cols-2">
@@ -275,6 +271,6 @@ export function DownloadsHub({ eventId, eventSlug, eventName, regs, sessions, ti
         />
 
       </div>
-    </div>
+    </PageShell>
   );
 }

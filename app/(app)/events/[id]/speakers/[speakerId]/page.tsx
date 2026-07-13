@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import Link from 'next/link';
 import { ChevronLeft, CalendarDays, Star, ExternalLink } from 'lucide-react';
+import { PageShell } from '@/components/dash';
 
 interface Props { params: Promise<{ id: string; speakerId: string }> }
 
@@ -69,8 +70,7 @@ export default async function SpeakerDetailPage({ params }: Props) {
   ].filter(Boolean) as { label: string; url: string }[];
 
   return (
-    <div className="min-h-full" style={{ background: '#FAF6EE' }}>
-      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+    <PageShell width="wide">
 
         {/* Back */}
         <Link href={`/events/${_ev.slug}/speakers`}
@@ -193,7 +193,6 @@ export default async function SpeakerDetailPage({ params }: Props) {
           </div>
 
         </div>
-      </div>
-    </div>
+    </PageShell>
   );
 }

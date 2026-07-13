@@ -7,6 +7,7 @@ import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { EntitlementsClient } from '@/components/tickets/EntitlementsClient';
 import type { Entitlement, EntitlementInput, TicketTypeLite } from '@/components/tickets/entitlement-model';
 import type { EntitlementType } from '@/components/tickets/EntitlementIcon';
+import { PageShell } from '@/components/dash';
 
 export async function generateMetadata() {
   return { title: 'Entitlements' };
@@ -206,23 +207,23 @@ export default async function EntitlementsPage({ params }: { params: Promise<{ i
   }
 
   return (
-    <div className="min-h-full" style={{ background: '#FAF6EE' }}>
-      <div className="max-w-[760px] mx-auto px-6 py-8 pb-24">
-        <div className="mb-6">
-          <h1 className="font-display font-semibold text-[24px]" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
-            Entitlements
-          </h1>
-          <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>
-            Define what attendees can redeem — entry, meals, sessions, merch, transport and more. Each entitlement scans on its own, with its own validity window and redemption limit. Attach them to ticket types so the right people hold the right things.
-          </p>
-          <a
-            href={`/events/${event.slug}/catering`}
-            className="inline-flex items-center gap-1.5 text-[13px] font-medium mt-3 transition hover:text-[#163828]"
-            style={{ color: '#1F4D3A' }}
-          >
-            View catering counts →
-          </a>
-        </div>
+    <PageShell width="wide">
+      <div className="mb-6">
+        <h1 className="font-display font-semibold text-[24px]" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
+          Entitlements
+        </h1>
+        <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>
+          Define what attendees can redeem — entry, meals, sessions, merch, transport and more. Each entitlement scans on its own, with its own validity window and redemption limit. Attach them to ticket types so the right people hold the right things.
+        </p>
+        <a
+          href={`/events/${event.slug}/catering`}
+          className="inline-flex items-center gap-1.5 text-[13px] font-medium mt-3 transition hover:text-[#163828]"
+          style={{ color: '#1F4D3A' }}
+        >
+          View catering counts →
+        </a>
+      </div>
+      <div className="pb-16">
         <EntitlementsClient
           initialEntitlements={entitlements}
           ticketTypes={tt}
@@ -231,6 +232,6 @@ export default async function EntitlementsPage({ params }: { params: Promise<{ i
           deleteEntitlement={deleteEntitlement}
         />
       </div>
-    </div>
+    </PageShell>
   );
 }

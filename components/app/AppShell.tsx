@@ -629,6 +629,7 @@ function CommandPalette({ onClose }: { onClose: () => void }) {
             value={query}
             onChange={e => setQuery(e.target.value)}
             placeholder="Search events, or jump to…"
+            aria-label="Search events, or jump to a page"
             className="flex-1 text-[14px] placeholder-[#6B7A72] outline-none bg-transparent text-[#0F1F18]"
           />
           {loading && (

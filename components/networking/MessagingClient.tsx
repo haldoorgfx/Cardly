@@ -181,6 +181,7 @@ export default function MessagingClient({ eventId, registrationId, initialThread
                   onChange={e => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
                   placeholder="Send a message…"
+                  aria-label="Message"
                   rows={1}
                   className="flex-1 rounded-2xl px-4 py-2.5 text-[14px] resize-none outline-none"
                   style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#0F1F18', minHeight: 44, maxHeight: 120 }}

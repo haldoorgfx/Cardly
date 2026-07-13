@@ -231,7 +231,7 @@ function PhotoField({ zone, previewUrl, error, onChange, onClear }: {
               </button>
             </div>
           </div>
-          <button onClick={onClear} className="shrink-0" style={{ color: '#6B7A72' }}>
+          <button onClick={onClear} aria-label="Remove" className="shrink-0" style={{ color: '#6B7A72' }}>
             <X size={16} strokeWidth={2} />
           </button>
         </div>

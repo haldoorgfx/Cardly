@@ -84,6 +84,7 @@ export function SearchAndMap({ events, savedIds, query: initialQuery, totalCount
               value={q}
               onChange={e => handleSearchChange(e.target.value)}
               placeholder="Search events, artists, topics…"
+              aria-label="Search events, artists, topics"
               className="w-full h-10 pl-9 pr-4 rounded-xl text-[14px] outline-none"
               style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', color: '#0F1F18' }}
             />

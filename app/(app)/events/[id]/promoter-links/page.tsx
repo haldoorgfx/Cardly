@@ -4,6 +4,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { PromoterLinksManager } from '@/components/events/PromoterLinksManager';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
+import { PageShell, PageHeader } from '@/components/dash';
 
 interface Props { params: Promise<{ id: string }> }
 
@@ -50,24 +51,18 @@ export default async function PromoterLinksPage({ params }: Props) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? '';
 
   return (
-    <div className="min-h-full" style={{ background: '#FAF6EE' }}>
-      <div className="max-w-[900px] mx-auto px-4 sm:px-6 py-8">
-        <div className="mb-6">
-          <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
-            Promoter links
-          </h1>
-          <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>
-            Generate trackable links for partners, affiliates, and community promoters.
-          </p>
-        </div>
-        <PromoterLinksManager
-          eventId={id}
-          eventSlug={event.slug}
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          initialCodes={codesWithStats as any}
-          appUrl={appUrl}
-        />
-      </div>
-    </div>
+    <PageShell width="wide">
+      <PageHeader
+        title="Promoter links"
+        subtitle="Generate trackable links for partners, affiliates, and community promoters."
+      />
+      <PromoterLinksManager
+        eventId={id}
+        eventSlug={event.slug}
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        initialCodes={codesWithStats as any}
+        appUrl={appUrl}
+      />
+    </PageShell>
   );
 }

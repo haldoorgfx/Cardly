@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Sparkles, Search, Plug, Settings, CreditCard, MessageSquare, Briefcase, BarChart2, Zap, Calendar, Video, Share2, Send, DollarSign } from 'lucide-react';
+import { PageShell, PageHeader } from '@/components/dash';
 
 interface Props {
   eventId: string;
@@ -93,33 +94,33 @@ export function IntegrationsView({ eventId }: Props) {
     : CATEGORIES;
 
   return (
-    <div className="max-w-[1000px] mx-auto px-4 sm:px-6 py-8">
+    <PageShell width="wide">
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
-        <div>
-          <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
-            Integrations
-          </h1>
-          <p className="text-[13px] mt-1" style={{ color: '#6B7A72' }}>
+      <PageHeader
+        title="Integrations"
+        subtitle={
+          <>
             Connect Eventera to your stack ·{' '}
             <span style={{ color: '#1F4D3A', fontWeight: 500 }}>{builtinCount} of {totalCount}</span> built-in
-          </p>
-        </div>
-        <div className="relative sm:w-[240px] shrink-0">
-          <Search size={14} strokeWidth={2} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: '#6B7A72' }} />
-          <input
-            value={query}
-            onChange={e => setQuery(e.target.value)}
-            placeholder="Search integrations"
-            aria-label="Search integrations"
-            className="w-full h-9 pl-9 pr-3 rounded-lg text-[13px] outline-none transition"
-            style={{ border: '1px solid #E5E0D4', background: 'white', color: '#0F1F18' }}
-            onFocus={e => (e.currentTarget.style.borderColor = '#1F4D3A')}
-            onBlur={e => (e.currentTarget.style.borderColor = '#E5E0D4')}
-          />
-        </div>
-      </div>
+          </>
+        }
+        actions={
+          <div className="relative sm:w-[240px] shrink-0">
+            <Search size={14} strokeWidth={2} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: '#6B7A72' }} />
+            <input
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              placeholder="Search integrations"
+              aria-label="Search integrations"
+              className="w-full h-9 pl-9 pr-3 rounded-lg text-[13px] outline-none transition"
+              style={{ border: '1px solid #E5E0D4', background: 'white', color: '#0F1F18' }}
+              onFocus={e => (e.currentTarget.style.borderColor = '#1F4D3A')}
+              onBlur={e => (e.currentTarget.style.borderColor = '#E5E0D4')}
+            />
+          </div>
+        }
+      />
 
       {/* Promo banner */}
       <div
@@ -166,7 +167,7 @@ export function IntegrationsView({ eventId }: Props) {
           </div>
         ))}
       </div>
-    </div>
+    </PageShell>
   );
 }
 

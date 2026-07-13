@@ -4,6 +4,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { RegistrationFormBuilder } from '@/components/events/RegistrationFormBuilder';
+import { PageShell, PageHeader } from '@/components/dash';
 
 interface Props { params: Promise<{ id: string }> }
 
@@ -25,21 +26,14 @@ export default async function FormBuilderPage({ params }: Props) {
   if (!event) redirect('/dashboard');
 
   return (
-    <div className="min-h-full" style={{ background: '#FAF6EE' }}>
-      <div className="px-4 sm:px-6 lg:px-8 py-8 pb-24 max-w-[760px] mx-auto">
-        <div className="mb-6">
-          <h1
-            className="font-display font-semibold text-[24px]"
-            style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}
-          >
-            Registration form
-          </h1>
-          <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>
-            Collect anything extra from attendees — company, city, dietary needs, custom questions.
-          </p>
-        </div>
+    <PageShell width="wide">
+      <PageHeader
+        title="Registration form"
+        subtitle="Collect anything extra from attendees — company, city, dietary needs, custom questions."
+      />
+      <div className="pb-16">
         <RegistrationFormBuilder eventId={id} initialFields={fields ?? []} />
       </div>
-    </div>
+    </PageShell>
   );
 }

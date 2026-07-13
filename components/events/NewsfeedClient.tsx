@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { ImageIcon, Gift, Clock, Send, X, Pin, Info, Heart, MessageCircle } from 'lucide-react';
+import { PageShell, PageHeader } from '@/components/dash';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Post = any;
@@ -70,10 +71,8 @@ export function NewsfeedClient({ eventId, eventName, initialPosts }: Props) {
   }
 
   return (
-    <div className="flex-1 p-6 max-w-5xl">
-      <h1 className="font-display font-bold text-[26px] mb-6" style={{ color: '#0F1F18', letterSpacing: '-0.025em' }}>
-        Event newsfeed
-      </h1>
+    <PageShell width="wide">
+      <PageHeader title="Event newsfeed" />
 
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Left: Composer + Scheduled */}
@@ -229,6 +228,6 @@ export function NewsfeedClient({ eventId, eventName, initialPosts }: Props) {
           </div>
         </div>
       </div>
-    </div>
+    </PageShell>
   );
 }

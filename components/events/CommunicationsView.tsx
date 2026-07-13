@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Bell, BarChart2, ExternalLink, Clock, Plus, CheckCircle2, Send, Copy, Check, X, Sparkles } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { ERAButton } from '@/components/ai/ERAButton';
+import { PageShell, PageHeader } from '@/components/dash';
 
 interface Props {
   eventId: string;
@@ -193,7 +194,7 @@ export function CommunicationsView({ eventId, eventName, registrantCount, plan =
   const [campaignType, setCampaignType] = useState<'email' | 'whatsapp'>('email');
 
   return (
-    <div className="max-w-[1000px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+    <PageShell width="wide">
       {composeOpen && (
         <ComposeModal
           eventId={eventId}
@@ -207,25 +208,21 @@ export function CommunicationsView({ eventId, eventName, registrantCount, plan =
       )}
 
       {/* Header */}
-      <div className="flex items-start justify-between gap-3 mb-6 sm:mb-8 flex-wrap">
-        <div>
-          <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
-            Communications
-          </h1>
-          <p className="text-[13px] mt-1" style={{ color: '#6B7A72' }}>
-            Email your attendees and send updates
-          </p>
-        </div>
-        <button
-          onClick={() => setComposeOpen(true)}
-          disabled={registrantCount === 0}
-          className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-white text-[13px] font-semibold transition hover:opacity-90 disabled:opacity-50 shrink-0"
-          style={{ background: '#1F4D3A' }}
-        >
-          <Plus size={14} strokeWidth={2.5} />
-          New email
-        </button>
-      </div>
+      <PageHeader
+        title="Communications"
+        subtitle="Email your attendees and send updates"
+        actions={
+          <button
+            onClick={() => setComposeOpen(true)}
+            disabled={registrantCount === 0}
+            className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-white text-[13px] font-semibold transition hover:opacity-90 disabled:opacity-50 shrink-0"
+            style={{ background: '#1F4D3A' }}
+          >
+            <Plus size={14} strokeWidth={2.5} />
+            New email
+          </button>
+        }
+      />
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
@@ -385,7 +382,7 @@ export function CommunicationsView({ eventId, eventName, registrantCount, plan =
           Use <strong>Compose</strong> to send a custom update to all confirmed attendees.
         </span>
       </div>
-    </div>
+    </PageShell>
   );
 }
 

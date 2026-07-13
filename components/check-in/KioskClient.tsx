@@ -246,6 +246,7 @@ export function KioskClient({ eventId, eventSlug, eventName }: Props) {
               value={searchQuery}
               onChange={e => handleSearch(e.target.value)}
               placeholder="Search by name or email…"
+              aria-label="Search by name or email"
               className="w-full pl-11 pr-12 py-4 rounded-2xl text-[16px] outline-none"
               style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(232,197,126,0.4)', color: '#FAF6EE' }}
             />

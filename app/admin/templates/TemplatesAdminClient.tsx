@@ -59,7 +59,7 @@ function TemplateModal({
           <h2 className="font-display font-semibold text-[17px] text-[#0F1F18]">
             {initial.name ? 'Edit template' : 'New template'}
           </h2>
-          <button onClick={onClose} className="h-8 w-8 rounded-lg grid place-items-center hover:bg-[#F5F5F4] transition-colors">
+          <button onClick={onClose} aria-label="Close" className="h-8 w-8 rounded-lg grid place-items-center hover:bg-[#F5F5F4] transition-colors">
             <X size={15} strokeWidth={2} className="text-[#6B7A72]" />
           </button>
         </div>
@@ -377,6 +377,7 @@ export function TemplatesAdminClient({ initialTemplates }: { initialTemplates: T
             disabled={bulkBusy}
             onClick={clearSelection}
             title="Clear selection"
+            aria-label="Clear selection"
             className="h-8 w-8 grid place-items-center rounded-lg border border-[#E5E0D4] bg-white text-[#6B7A72] hover:bg-[#FAF6EE] transition-colors disabled:opacity-50"
           >
             <X size={13} strokeWidth={2} />

@@ -4,6 +4,7 @@ import { useState, useTransition, useRef } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Modal } from '@/components/ui/Modal';
+import { PageShell, PageHeader } from '@/components/dash';
 
 interface Sponsor {
   id: string;
@@ -345,7 +346,7 @@ export function SponsorsClient({ eventId, sponsors: initial }: Props) {
   }
 
   return (
-    <div className="min-h-full" style={{ background: '#FAF6EE' }}>
+    <>
       {editingSponsor && (
         <EditSponsorModal
           sponsor={editingSponsor}
@@ -361,23 +362,22 @@ export function SponsorsClient({ eventId, sponsors: initial }: Props) {
         />
       )}
 
-      <div className="max-w-[1100px] mx-auto px-4 sm:px-6 py-8">
+      <PageShell width="wide">
 
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6 gap-4 flex-wrap">
-          <div>
-            <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>Sponsors</h1>
-            <p className="text-[14px] mt-1.5" style={{ color: '#6B7A72' }}>Manage packages, booths, and lead capture.</p>
-          </div>
-          <button onClick={() => setShowAdd(v => !v)}
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-[13.5px] font-medium text-cream transition-colors"
-            style={{ background: '#1F4D3A' }}>
-            <svg width={15} height={15} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-            </svg>
-            Add sponsor
-          </button>
-        </div>
+        <PageHeader
+          title="Sponsors"
+          subtitle="Manage packages, booths, and lead capture."
+          actions={
+            <button onClick={() => setShowAdd(v => !v)}
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-[13.5px] font-medium text-cream transition-colors"
+              style={{ background: '#1F4D3A' }}>
+              <svg width={15} height={15} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+              </svg>
+              Add sponsor
+            </button>
+          }
+        />
 
         {/* Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -576,7 +576,7 @@ export function SponsorsClient({ eventId, sponsors: initial }: Props) {
             </div>
           </div>
         )}
-      </div>
-    </div>
+      </PageShell>
+    </>
   );
 }

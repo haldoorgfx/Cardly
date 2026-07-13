@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { X, UserPlus, Send, Trash2, Crown, Check } from 'lucide-react';
+import { PageShell, PageHeader } from '@/components/dash';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Staff = any;
@@ -97,29 +98,27 @@ export function StaffRolesClient({ eventId, eventName, initialStaff, ownerEmail 
 
   return (
     <>
-      <div className="max-w-[860px] mx-auto px-5 py-10">
+      <PageShell width="wide">
         {/* Header */}
-        <div className="flex items-start justify-between mb-8">
-          <div>
-            <p className="text-[12.5px] tracking-[0.16em] uppercase mb-2 font-medium" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
-              Configure
-            </p>
-            <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
-              Event staff
-            </h1>
-            <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>
+        <PageHeader
+          eyebrow="Configure"
+          title="Event staff"
+          subtitle={
+            <>
               Invite team members to help run <span className="font-medium" style={{ color: '#0F1F18' }}>{eventName}</span>. Scoped to this event only.
-            </p>
-          </div>
-          <button
-            onClick={() => setShowModal(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-semibold transition hover:opacity-90"
-            style={{ background: '#1F4D3A', color: '#FAF6EE' }}
-          >
-            <UserPlus size={14} />
-            Invite staff
-          </button>
-        </div>
+            </>
+          }
+          actions={
+            <button
+              onClick={() => setShowModal(true)}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-semibold transition hover:opacity-90"
+              style={{ background: '#1F4D3A', color: '#FAF6EE' }}
+            >
+              <UserPlus size={14} />
+              Invite staff
+            </button>
+          }
+        />
 
         {/* Staff list */}
         <div className="rounded-2xl overflow-hidden mb-8" style={{ border: '1px solid #E5E0D4', background: '#FFFFFF' }}>
@@ -216,7 +215,7 @@ export function StaffRolesClient({ eventId, eventName, initialStaff, ownerEmail 
             </div>
           ))}
         </div>
-      </div>
+      </PageShell>
 
       {/* Invite modal */}
       {showModal && (

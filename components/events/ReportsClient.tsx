@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { PageShell, PageHeader } from '@/components/dash';
 
 interface Reg {
   id: string;
@@ -123,21 +124,20 @@ export function ReportsClient({ eventId, eventName, totalRevenue, regCount, chec
   const maxDay = Math.max(...days.map(d => d.count), 1);
 
   return (
-    <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-8">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6 gap-4 flex-wrap">
-        <div>
-          <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>Reports</h1>
-          <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>{eventName}</p>
-        </div>
-        <button onClick={handleExportCSV} className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-[13.5px] font-medium border"
-          style={{ borderColor: '#E5E0D4', color: '#3A4A42', background: 'white' }}>
-          <svg width={15} height={15} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
-          </svg>
-          Export CSV
-        </button>
-      </div>
+    <PageShell width="wide">
+      <PageHeader
+        title="Reports"
+        subtitle={eventName}
+        actions={
+          <button onClick={handleExportCSV} className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-[13.5px] font-medium border"
+            style={{ borderColor: '#E5E0D4', color: '#3A4A42', background: 'white' }}>
+            <svg width={15} height={15} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+            </svg>
+            Export CSV
+          </button>
+        }
+      />
 
       {/* Tabs */}
       <div className="flex gap-1 rounded-xl p-1 mb-6 w-fit" style={{ background: '#F5F3EE', border: '1px solid #E5E0D4' }}>
@@ -333,6 +333,6 @@ export function ReportsClient({ eventId, eventName, totalRevenue, regCount, chec
           <p className="text-[13px]" style={{ color: '#6B7A72' }}>Set up automatic exports — daily, weekly, or post-event.</p>
         </div>
       )}
-    </div>
+    </PageShell>
   );
 }

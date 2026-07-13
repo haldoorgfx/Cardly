@@ -282,6 +282,7 @@ export function QRScanner({ eventId, eventSlug, eventName, totalRegistrations, i
               value={searchQuery}
               onChange={e => handleSearch(e.target.value)}
               placeholder="Name, email, phone, or badge ID…"
+              aria-label="Search attendees"
               autoFocus
               className="flex-1 bg-transparent outline-none text-[15px]"
               style={{ color: 'white', caretColor: '#E8C57E' }}

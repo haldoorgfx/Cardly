@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
+import { PageShell, PageHeader } from '@/components/dash';
 
 interface Props { params: Promise<{ id: string }> }
 
@@ -57,7 +58,7 @@ export default async function GamificationPage({ params }: Props) {
   const rest = leaderboard.slice(3);
 
   return (
-    <div className="min-h-full" style={{ background: '#FAF6EE' }}>
+    <>
       <div className="sticky top-0 z-30 border-b bg-white" style={{ borderColor: '#E5E0D4' }}>
         <div className="max-w-[760px] mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-3">
           <Link href={`/events/${event.slug}`} className="inline-flex items-center gap-1 text-[12px] text-[#6B7A72] hover:text-[#1F4D3A] transition-colors">
@@ -67,12 +68,8 @@ export default async function GamificationPage({ params }: Props) {
         </div>
       </div>
 
-      <div className="max-w-[760px] mx-auto px-4 sm:px-6 py-10">
-        <div className="mb-8">
-          <div className="text-[12px] tracking-[0.22em] uppercase mb-2" style={{ color: '#6B7A72' }}>Engagement</div>
-          <h1 className="font-display font-bold text-[28px] tracking-tight" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>Gamification</h1>
-          <p className="mt-1.5 text-[14px]" style={{ color: '#6B7A72' }}>Points attendees earn across Q&amp;A, polls, and messages.</p>
-        </div>
+      <PageShell width="wide">
+        <PageHeader eyebrow="Engagement" title="Gamification" subtitle={<>Points attendees earn across Q&amp;A, polls, and messages.</>} />
 
         {leaderboard.length === 0 ? (
           <div className="bg-white rounded-2xl p-8 text-center" style={{ border: '1px solid #E5E0D4' }}>
@@ -130,7 +127,7 @@ export default async function GamificationPage({ params }: Props) {
             )}
           </>
         )}
-      </div>
-    </div>
+      </PageShell>
+    </>
   );
 }

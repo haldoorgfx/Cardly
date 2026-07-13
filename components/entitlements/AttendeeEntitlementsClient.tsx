@@ -11,6 +11,7 @@ import { UnredeemModal } from './UnredeemModal';
 import { ExtendModal } from './ExtendModal';
 import { TransferModal } from './TransferModal';
 import { initials } from './format';
+import { PageShell } from '@/components/dash';
 
 interface Props {
   eventSlug: string;
@@ -43,8 +44,8 @@ export function AttendeeEntitlementsClient({ eventSlug, header, entitlements, ac
   const closeAndRefresh = (close: () => void) => { close(); router.refresh(); };
 
   return (
-    <div className="min-h-full" style={{ background: '#FAF6EE' }}>
-      <div className="max-w-[760px] mx-auto px-4 sm:px-6 py-8 pb-24">
+    <PageShell width="wide">
+      <div className="pb-16">
 
         <Link href={`/events/${eventSlug}/registrations/${header.registrationId}`}
           className="inline-flex items-center gap-1.5 text-[13px] font-medium mb-4 transition hover:text-[#1F4D3A]"
@@ -156,6 +157,6 @@ export function AttendeeEntitlementsClient({ eventSlug, header, entitlements, ac
           onDone={() => closeAndRefresh(() => setTransferTarget(null))}
         />
       )}
-    </div>
+    </PageShell>
   );
 }

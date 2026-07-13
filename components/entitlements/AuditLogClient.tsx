@@ -7,6 +7,7 @@ import { ArrowLeft, ShieldAlert, RotateCw, ClipboardList, X, Filter } from 'luci
 import { AuditTable } from './AuditTable';
 import { AUDIT_ACTIONS, AUDIT_STATUSES, type AuditRow, type AuditFilters, type StaffOption } from './audit-model';
 import type { EntitlementType } from '@/components/tickets/EntitlementIcon';
+import { PageShell, PageHeader } from '@/components/dash';
 
 interface EntOption { id: string; name: string; type: EntitlementType }
 
@@ -68,23 +69,17 @@ export function AuditLogClient({ eventSlug, rows, loadError, entitlements, staff
   }
 
   return (
-    <div className="min-h-full" style={{ background: '#FAF6EE' }}>
-      <div className="max-w-[1000px] mx-auto px-4 sm:px-6 py-8 pb-24">
+    <PageShell width="wide">
+      <Link href={`/events/${eventSlug}/analytics/redemption`}
+        className="inline-flex items-center gap-1.5 text-[13px] font-medium mb-4 transition hover:text-[#1F4D3A]" style={{ color: '#6B7A72' }}>
+        <ArrowLeft size={15} strokeWidth={2} /> Back to redemption
+      </Link>
+      <PageHeader
+        title="Entitlement audit log"
+        subtitle="Every entitlement action — redeem, un-redeem, grant, revoke, transfer, extend — in one append-only trail. Nothing is ever deleted."
+      />
 
-        <Link href={`/events/${eventSlug}/analytics/redemption`}
-          className="inline-flex items-center gap-1.5 text-[13px] font-medium mb-4 transition hover:text-[#1F4D3A]" style={{ color: '#6B7A72' }}>
-          <ArrowLeft size={15} strokeWidth={2} /> Back to redemption
-        </Link>
-        <div className="mb-6">
-          <h1 className="font-display font-semibold text-[24px] sm:text-[28px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
-            Entitlement audit log
-          </h1>
-          <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>
-            Every entitlement action — redeem, un-redeem, grant, revoke, transfer, extend — in one append-only trail. Nothing is ever deleted.
-          </p>
-        </div>
-
-        {loadError ? (
+      {loadError ? (
           <div className="bg-white rounded-2xl border p-10 text-center" style={{ borderColor: '#E5E0D4' }}>
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl" style={{ background: 'rgba(184,66,60,0.10)', color: '#B8423C' }}>
               <ShieldAlert size={22} strokeWidth={1.9} />
@@ -181,7 +176,6 @@ export function AuditLogClient({ eventSlug, rows, loadError, entitlements, staff
             )}
           </>
         )}
-      </div>
-    </div>
+    </PageShell>
   );
 }

@@ -9,6 +9,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { RevenueView } from '@/components/events/RevenueView';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
+import { PageShell, PageHeader } from '@/components/dash';
 
 interface Props { params: Promise<{ id: string }> }
 
@@ -41,18 +42,12 @@ export default async function RevenuePage({ params }: Props) {
     .order('created_at', { ascending: false }) as any;
 
   return (
-    <div className="min-h-full" style={{ background: '#FAF6EE' }}>
-      <div className="max-w-[900px] mx-auto px-4 sm:px-6 py-8">
-        <div className="mb-6">
-          <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
-            Revenue
-          </h1>
-          <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>
-            Earnings breakdown by ticket type, promoter link, and UTM source.
-          </p>
-        </div>
-        <RevenueView eventId={id} eventSlug={event.slug} registrations={regs ?? []} />
-      </div>
-    </div>
+    <PageShell width="wide">
+      <PageHeader
+        title="Revenue"
+        subtitle="Earnings breakdown by ticket type, promoter link, and UTM source."
+      />
+      <RevenueView eventId={id} eventSlug={event.slug} registrations={regs ?? []} />
+    </PageShell>
   );
 }

@@ -6,6 +6,7 @@ export const metadata: Metadata = { title: 'Speakers' };
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
+import { PageShell } from '@/components/dash';
 import SpeakersManager from '@/components/events/SpeakersManager';
 
 interface Props { params: Promise<{ id: string }> }
@@ -28,11 +29,9 @@ export default async function SpeakersPage({ params }: Props) {
   if (!event) redirect('/dashboard');
 
   return (
-    <div className="min-h-full" style={{ background: '#FAF6EE' }}>
-      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-        <SpeakersManager eventId={id} slug={event.slug} initialSpeakers={(speakers ?? []) as any} />
-      </div>
-    </div>
+    <PageShell width="wide">
+      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+      <SpeakersManager eventId={id} slug={event.slug} initialSpeakers={(speakers ?? []) as any} />
+    </PageShell>
   );
 }

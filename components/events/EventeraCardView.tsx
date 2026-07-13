@@ -2,6 +2,7 @@
 
 import { IdCard, Share2, Sparkles, Palette, Plus, Printer, FileImage, ScanLine, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import { PageShell, PageHeader } from '@/components/dash';
 
 interface PrimaryVariant {
   id: string;
@@ -38,51 +39,47 @@ export function EventeraCardView({ eventName, eventSlug, eventStatus, totalCards
   const attendeeReady = isPublished && allVariants.length > 0 && hasDesign;
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8 py-8">
+    <PageShell width="wide">
 
       {/* ── Header ── */}
-      <div className="flex items-start justify-between gap-4 mb-6">
-        <div>
-          <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
-            Cards &amp; Badges
-          </h1>
-          <p className="text-[13px] mt-1" style={{ color: '#6B7A72' }}>
-            One design. Personalised cards for attendees, printed badges for the door.
-          </p>
-        </div>
-        <div className="flex items-center gap-2.5">
-          <Link
-            href={`/events/${eventSlug}/edit`}
-            className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-[13px] font-medium border transition hover:border-[#1F4D3A] hover:text-[#1F4D3A]"
-            style={{ borderColor: '#E5E0D4', color: '#3A4A42' }}
-          >
-            <Palette size={13} strokeWidth={2} />
-            {hasDesign ? 'Edit design' : 'Upload design'}
-          </Link>
-          {attendeeReady ? (
+      <PageHeader
+        title={<>Cards &amp; Badges</>}
+        subtitle="One design. Personalised cards for attendees, printed badges for the door."
+        actions={
+          <>
             <Link
-              href={`/c/${eventSlug}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-[13px] font-semibold transition hover:opacity-90"
-              style={{ background: '#E8C57E', color: '#0F1F18' }}
+              href={`/events/${eventSlug}/edit`}
+              className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-[13px] font-medium border transition hover:border-[#1F4D3A] hover:text-[#1F4D3A]"
+              style={{ borderColor: '#E5E0D4', color: '#3A4A42' }}
             >
-              <Sparkles size={13} strokeWidth={2} />
-              Preview as attendee
+              <Palette size={13} strokeWidth={2} />
+              {hasDesign ? 'Edit design' : 'Upload design'}
             </Link>
-          ) : (
-            <Link
-              href={`/events/${eventSlug}/publish`}
-              className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-[13px] font-semibold transition hover:opacity-90"
-              style={{ background: '#E8EFEB', color: '#1F4D3A' }}
-              title={!hasDesign ? 'Upload a design first' : !isPublished ? 'Publish the event to share the attendee link' : 'Add a card design to enable the attendee page'}
-            >
-              <Sparkles size={13} strokeWidth={2} />
-              {!hasDesign ? 'Design needed' : 'Publish to share'}
-            </Link>
-          )}
-        </div>
-      </div>
+            {attendeeReady ? (
+              <Link
+                href={`/c/${eventSlug}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-[13px] font-semibold transition hover:opacity-90"
+                style={{ background: '#E8C57E', color: '#0F1F18' }}
+              >
+                <Sparkles size={13} strokeWidth={2} />
+                Preview as attendee
+              </Link>
+            ) : (
+              <Link
+                href={`/events/${eventSlug}/publish`}
+                className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-[13px] font-semibold transition hover:opacity-90"
+                style={{ background: '#E8EFEB', color: '#1F4D3A' }}
+                title={!hasDesign ? 'Upload a design first' : !isPublished ? 'Publish the event to share the attendee link' : 'Add a card design to enable the attendee page'}
+              >
+                <Sparkles size={13} strokeWidth={2} />
+                {!hasDesign ? 'Design needed' : 'Publish to share'}
+              </Link>
+            )}
+          </>
+        }
+      />
 
       {/* ── No design state ── */}
       {!hasDesign && (
@@ -319,7 +316,7 @@ export function EventeraCardView({ eventName, eventSlug, eventStatus, totalCards
         </div>
       </div>
 
-    </div>
+    </PageShell>
   );
 }
 

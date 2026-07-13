@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Modal } from '@/components/ui/Modal';
+import { PageShell, PageHeader } from '@/components/dash';
 
 interface Order {
   id: string;
@@ -146,21 +147,20 @@ export function OrdersClient({ eventId, orders: initialOrders }: Props) {
   }
 
   return (
-    <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-8">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6 gap-4 flex-wrap">
-        <div>
-          <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>Orders</h1>
-          <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>{orders.length} orders</p>
-        </div>
-        <button onClick={() => exportCSV(orders)} className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-[13.5px] font-medium border transition-colors"
-          style={{ borderColor: '#E5E0D4', color: '#3A4A42', background: 'white' }}>
-          <svg width={15} height={15} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
-          </svg>
-          Export
-        </button>
-      </div>
+    <PageShell width="wide">
+      <PageHeader
+        title="Orders"
+        subtitle={`${orders.length} orders`}
+        actions={
+          <button onClick={() => exportCSV(orders)} className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-[13.5px] font-medium border transition-colors"
+            style={{ borderColor: '#E5E0D4', color: '#3A4A42', background: 'white' }}>
+            <svg width={15} height={15} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+            </svg>
+            Export
+          </button>
+        }
+      />
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -333,6 +333,6 @@ export function OrdersClient({ eventId, orders: initialOrders }: Props) {
           This marks the order as <strong>refunded</strong> in Eventera and updates your revenue totals. Process the actual money refund in your payment provider separately.
         </p>
       </Modal>
-    </div>
+    </PageShell>
   );
 }

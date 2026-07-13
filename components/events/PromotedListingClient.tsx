@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { TrendingUp, MousePointer, Ticket, DollarSign, RefreshCw, LayoutGrid, Check } from 'lucide-react';
+import { PageShell, PageHeader } from '@/components/dash';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Campaign = any;
@@ -86,14 +87,8 @@ export function PromotedListingClient({ eventId, eventName, campaign }: Props) {
   }
 
   return (
-    <div className="max-w-[840px] mx-auto px-6 py-8">
-      {/* Header */}
-      <div className="mb-6">
-        <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight mb-1" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
-          Promote listing
-        </h1>
-        <p className="text-[14px]" style={{ color: '#6B7A72' }}>{eventName}</p>
-      </div>
+    <PageShell width="wide">
+      <PageHeader title="Promote listing" subtitle={eventName} />
 
       {/* Stats (only if campaign exists) */}
       {hasActiveCampaign && (
@@ -245,6 +240,6 @@ export function PromotedListingClient({ eventId, eventName, campaign }: Props) {
           </div>
         </div>
       </div>
-    </div>
+    </PageShell>
   );
 }

@@ -7,6 +7,7 @@ import { Check, Copy, AlertTriangle, Trash2, X, MapPin, ArrowRight } from 'lucid
 import { PlacesAutocomplete, type PlaceResult } from '@/components/shared/PlacesAutocomplete';
 import { EventFeaturesManager } from '@/components/events/EventFeaturesManager';
 import { zonedDatetimeToISO, isoToZonedDatetimeValue } from '@/lib/events/format';
+import { PageShell, PageHeader } from '@/components/dash';
 
 interface EventData {
   id: string;
@@ -258,29 +259,27 @@ export function EventSettingsView({ event }: Props) {
   }[event.status] ?? { label: event.status, bg: '#F5F0E8', color: '#6B7A72', dot: '#6B7A72' };
 
   return (
-    <div className="max-w-[900px] mx-auto px-4 sm:px-6 py-8 pb-24">
+    <PageShell width="wide">
 
       {/* Header */}
-      <div className="flex items-start justify-between gap-4 mb-8">
-        <div>
-          <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
-            Settings
-          </h1>
-          <p className="text-[13px] mt-1" style={{ color: '#6B7A72' }}>{event.name}</p>
-        </div>
-        <button
-          onClick={handleSave}
-          disabled={isPending}
-          className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-white text-[13px] font-semibold transition hover:opacity-90 disabled:opacity-60"
-          style={{ background: '#1F4D3A' }}
-        >
-          <Check size={14} strokeWidth={2.5} />
-          {isPending ? 'Saving…' : saved ? 'Saved' : 'Save changes'}
-        </button>
-      </div>
+      <PageHeader
+        title="Settings"
+        subtitle={event.name}
+        actions={
+          <button
+            onClick={handleSave}
+            disabled={isPending}
+            className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-white text-[13px] font-semibold transition hover:opacity-90 disabled:opacity-60"
+            style={{ background: '#1F4D3A' }}
+          >
+            <Check size={14} strokeWidth={2.5} />
+            {isPending ? 'Saving…' : saved ? 'Saved' : 'Save changes'}
+          </button>
+        }
+      />
 
       {/* Tabs — sticky so they stay visible when scrolling */}
-      <div className="sticky top-0 z-10 -mx-6 px-6 py-2.5 mb-4 overflow-x-auto" style={{ background: '#FAF6EE' }}>
+      <div className="sticky top-0 z-10 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-2.5 mb-4 overflow-x-auto" style={{ background: '#FAF6EE' }}>
         <div className="flex gap-1 p-1 rounded-xl whitespace-nowrap" style={{ background: '#F5F0E8', display: 'inline-flex' }}>
           {TABS.map(t => (
             <button
@@ -597,7 +596,7 @@ export function EventSettingsView({ event }: Props) {
           </div>
         </div>
       )}
-    </div>
+    </PageShell>
   );
 }
 

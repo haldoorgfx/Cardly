@@ -6,6 +6,7 @@ import { RotateCw, Radio } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { EntitlementIcon, entitlementTypeLabel } from '@/components/tickets/EntitlementIcon';
 import type { RedemptionStatRow, RedemptionLimit } from '@/lib/entitlements/redemptionStats';
+import { PageShell, PageHeader } from '@/components/dash';
 
 const LIMIT_LABEL: Record<RedemptionLimit, string> = {
   once: 'Once',
@@ -116,18 +117,12 @@ export function RedemptionDashboard({ eventId, eventName, rows, error }: Props) 
   }, []);
 
   return (
-    <div className="min-h-full" style={{ background: '#FAF6EE' }}>
-      <div className="max-w-[900px] mx-auto px-4 sm:px-6 py-8">
-        <div className="mb-6 flex items-start justify-between gap-4">
-          <div>
-            <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
-              Live redemption
-            </h1>
-            <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>
-              Real-time entitlement redemptions for {eventName}.
-            </p>
-          </div>
-          {!error && (rows ?? []).length > 0 && (
+    <PageShell width="wide">
+      <PageHeader
+        title="Live redemption"
+        subtitle={`Real-time entitlement redemptions for ${eventName}.`}
+        actions={
+          !error && (rows ?? []).length > 0 ? (
             <div
               className="flex items-center gap-1.5 shrink-0 rounded-full px-2.5 py-1 text-[12px] font-medium"
               style={{
@@ -143,10 +138,11 @@ export function RedemptionDashboard({ eventId, eventName, rows, error }: Props) 
               />
               {connected ? 'Live' : 'Offline'}
             </div>
-          )}
-        </div>
+          ) : undefined
+        }
+      />
 
-        {error ? (
+      {error ? (
           <div className="bg-white rounded-2xl border border-[#E5E0D4] p-10 text-center">
             <p className="font-display text-[17px] font-semibold" style={{ color: '#0F1F18' }}>Couldn&apos;t load redemptions</p>
             <p className="text-[14px] mt-1.5 mb-5" style={{ color: '#6B7A72' }}>
@@ -212,7 +208,6 @@ export function RedemptionDashboard({ eventId, eventName, rows, error }: Props) 
             })}
           </div>
         )}
-      </div>
-    </div>
+    </PageShell>
   );
 }

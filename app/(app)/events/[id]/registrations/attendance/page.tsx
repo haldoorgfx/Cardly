@@ -6,6 +6,7 @@ export const metadata: Metadata = { title: 'Attendance by day' };
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
+import { PageShell, PageHeader } from '@/components/dash';
 import { AttendanceGrid } from '@/components/events/AttendanceGrid';
 import {
   computeAttendanceGrid,
@@ -134,26 +135,20 @@ export default async function AttendancePage({ params }: Props) {
   const dayCols = days.map((d) => ({ day_index: d.day_index, date: d.date, capacity: d.capacity }));
 
   return (
-    <div className="min-h-full" style={{ background: '#FAF6EE' }}>
-      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        <div className="mb-6">
-          <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
-            Attendance by day
-          </h1>
-          <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>
-            Who checked in on each day of {event.name}. Green means scanned in that day, amber means entitled but absent, grey means not entitled that day.
-          </p>
-        </div>
+    <PageShell width="wide">
+      <PageHeader
+        title="Attendance by day"
+        subtitle={`Who checked in on each day of ${event.name}. Green means scanned in that day, amber means entitled but absent, grey means not entitled that day.`}
+      />
 
-        <AttendanceGrid
-          eventSlug={event.slug}
-          days={dayCols}
-          attendees={attendees}
-          cells={grid.cells}
-          perDay={grid.perDay}
-          error={loadError}
-        />
-      </div>
-    </div>
+      <AttendanceGrid
+        eventSlug={event.slug}
+        days={dayCols}
+        attendees={attendees}
+        cells={grid.cells}
+        perDay={grid.perDay}
+        error={loadError}
+      />
+    </PageShell>
   );
 }

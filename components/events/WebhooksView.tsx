@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Plug, Plus, Key, X, Trash2, Copy, Check, AlertTriangle } from 'lucide-react';
+import { PageShell, PageHeader } from '@/components/dash';
 
 interface Props {
   eventId: string;
@@ -92,29 +93,25 @@ export function WebhooksView(_props: Props) {
   const atLimit = hooks.length >= 5;
 
   return (
-    <div className="max-w-[900px] mx-auto px-4 sm:px-6 py-8">
+    <PageShell width="wide">
 
       {/* Header */}
-      <div className="flex items-start justify-between gap-4 mb-6">
-        <div>
-          <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
-            Webhooks
-          </h1>
-          <p className="text-[13px] mt-1" style={{ color: '#3A4A42' }}>
-            Receive real-time notifications on your account&apos;s events
-          </p>
-        </div>
-        <button
-          onClick={() => setShowModal(true)}
-          disabled={atLimit}
-          title={atLimit ? 'Maximum 5 webhooks per account' : 'Add a webhook endpoint'}
-          className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-white text-[13px] font-semibold transition hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
-          style={{ background: '#1F4D3A' }}
-        >
-          <Plus size={14} strokeWidth={2.5} />
-          Add endpoint
-        </button>
-      </div>
+      <PageHeader
+        title="Webhooks"
+        subtitle="Receive real-time notifications on your account's events"
+        actions={
+          <button
+            onClick={() => setShowModal(true)}
+            disabled={atLimit}
+            title={atLimit ? 'Maximum 5 webhooks per account' : 'Add a webhook endpoint'}
+            className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-white text-[13px] font-semibold transition hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{ background: '#1F4D3A' }}
+          >
+            <Plus size={14} strokeWidth={2.5} />
+            Add endpoint
+          </button>
+        }
+      />
 
       {/* Info banner */}
       <div
@@ -239,7 +236,7 @@ export function WebhooksView(_props: Props) {
           }}
         />
       )}
-    </div>
+    </PageShell>
   );
 }
 

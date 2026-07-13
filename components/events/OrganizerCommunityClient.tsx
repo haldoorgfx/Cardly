@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { Hash, Plus, Pin, MessageSquare, ExternalLink, Trash2, Users, Bell } from 'lucide-react';
+import { PageShell, PageHeader } from '@/components/dash';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Channel = any;
@@ -41,23 +42,18 @@ export function OrganizerCommunityClient({ eventName, eventSlug, channels: dbCha
   }
 
   return (
-    <div className="flex-1 p-6 max-w-3xl">
-      {/* Header */}
-      <div className="flex items-start justify-between mb-6">
-        <div>
-          <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight mb-1" style={{ color: '#0F1F18', letterSpacing: '-0.025em' }}>
-            Community
-          </h1>
-          <p className="text-[14px]" style={{ color: '#6B7A72' }}>
-            Attendees discuss and connect before, during, and after {eventName}
-          </p>
-        </div>
-        <button onClick={() => setShowNew(true)}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-semibold transition hover:opacity-90"
-          style={{ background: '#1F4D3A', color: '#FAF6EE' }}>
-          <Plus size={14} /> New channel
-        </button>
-      </div>
+    <PageShell width="wide">
+      <PageHeader
+        title="Community"
+        subtitle={`Attendees discuss and connect before, during, and after ${eventName}`}
+        actions={
+          <button onClick={() => setShowNew(true)}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-semibold transition hover:opacity-90"
+            style={{ background: '#1F4D3A', color: '#FAF6EE' }}>
+            <Plus size={14} /> New channel
+          </button>
+        }
+      />
 
       {/* Summary stats */}
       <div className="grid grid-cols-3 gap-3 mb-6">
@@ -180,6 +176,6 @@ export function OrganizerCommunityClient({ eventName, eventSlug, channels: dbCha
           </div>
         </div>
       )}
-    </div>
+    </PageShell>
   );
 }

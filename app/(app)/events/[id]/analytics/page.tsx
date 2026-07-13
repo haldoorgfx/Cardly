@@ -8,6 +8,7 @@ import { redirect } from 'next/navigation';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { EventAnalyticsView } from '@/components/events/EventAnalyticsView';
 import { getUserPlan } from '@/lib/billing/can';
+import { PageShell, PageHeader } from '@/components/dash';
 
 interface Props { params: Promise<{ id: string }> }
 
@@ -86,28 +87,21 @@ export default async function EventAnalyticsPage({ params }: Props) {
   }
 
   return (
-    <div className="min-h-full" style={{ background: '#FAF6EE' }}>
-      <div className="max-w-[900px] mx-auto px-4 sm:px-6 py-8">
-        <div className="mb-6">
-          <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
-            Analytics
-          </h1>
-          <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>
-            Registration metrics, revenue by ticket type, check-in rate, and card download rate.
-          </p>
-        </div>
-
-        <EventAnalyticsView
-          dailyRegistrations={dailyRegistrations}
-          ticketRevenue={ticketRevenue}
-          totalRegistrations={allRegs.length}
-          totalRevenue={totalRevenue}
-          revenueCurrency={revenueCurrency}
-          checkInCount={checkInCount}
-          cardDownloadCount={cardDownloaded}
-          eraInsight={eraInsight}
-        />
-      </div>
-    </div>
+    <PageShell width="wide">
+      <PageHeader
+        title="Analytics"
+        subtitle="Registration metrics, revenue by ticket type, check-in rate, and card download rate."
+      />
+      <EventAnalyticsView
+        dailyRegistrations={dailyRegistrations}
+        ticketRevenue={ticketRevenue}
+        totalRegistrations={allRegs.length}
+        totalRevenue={totalRevenue}
+        revenueCurrency={revenueCurrency}
+        checkInCount={checkInCount}
+        cardDownloadCount={cardDownloaded}
+        eraInsight={eraInsight}
+      />
+    </PageShell>
   );
 }

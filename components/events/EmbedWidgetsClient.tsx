@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Check, Copy, Code2, ExternalLink } from 'lucide-react';
+import { PageShell, PageHeader } from '@/components/dash';
 
 interface Props {
   eventId: string;
@@ -89,19 +90,13 @@ export function EmbedWidgetsClient({ eventName, slug, status }: Props) {
   const isUnpublished = status !== 'published';
 
   return (
-    <div className="max-w-[860px] mx-auto px-5 py-10">
+    <PageShell width="wide">
       {/* Header */}
-      <div className="mb-8">
-        <p className="text-[12.5px] tracking-[0.16em] uppercase mb-2 font-medium" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
-          Configure
-        </p>
-        <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight mb-1" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
-          Embed widgets
-        </h1>
-        <p className="text-[14px] leading-relaxed" style={{ color: '#6B7A72' }}>
-          Paste these snippets into any website to show your event.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="Configure"
+        title="Embed widgets"
+        subtitle="Paste these snippets into any website to show your event."
+      />
 
       {isUnpublished && (
         <div className="flex items-start gap-3 rounded-xl px-4 py-3.5 mb-8" style={{ background: '#FEF3CD', border: '1px solid #E8C57E' }}>
@@ -189,6 +184,6 @@ export function EmbedWidgetsClient({ eventName, slug, status }: Props) {
       <p className="mt-3 text-center text-[12px]" style={{ color: '#6B7A72' }}>
         Widgets for <span className="font-medium" style={{ color: '#0F1F18' }}>{eventName}</span>
       </p>
-    </div>
+    </PageShell>
   );
 }

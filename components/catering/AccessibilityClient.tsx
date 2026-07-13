@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, RotateCw, ShieldCheck, HeartHandshake, Mail, Phone, Copy, Check } from 'lucide-react';
+import { PageShell, PageHeader } from '@/components/dash';
 
 export interface AccessTag {
   tag: string;
@@ -58,8 +59,7 @@ export function AccessibilityClient({ eventSlug, data, loadError }: Props) {
   }
 
   return (
-    <div className="min-h-full" style={{ background: '#FAF6EE' }}>
-      <div className="max-w-[760px] mx-auto px-4 sm:px-6 py-8 pb-24">
+    <PageShell width="wide">
 
         <Link
           href={`/events/${eventSlug}/catering`}
@@ -69,14 +69,10 @@ export function AccessibilityClient({ eventSlug, data, loadError }: Props) {
           <ArrowLeft size={15} strokeWidth={2} /> Back to catering
         </Link>
 
-        <div className="mb-5">
-          <h1 className="font-display font-semibold text-[24px] sm:text-[28px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
-            Accessibility
-          </h1>
-          <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>
-            What attendees told you would help them take part. Prepare for these ahead of time, and reach out if you want to confirm any details.
-          </p>
-        </div>
+        <PageHeader
+          title="Accessibility"
+          subtitle="What attendees told you would help them take part. Prepare for these ahead of time, and reach out if you want to confirm any details."
+        />
 
         {/* Private notice — this is personal data, handled with care */}
         <div className="flex items-start gap-3 rounded-xl px-4 py-3 mb-6" style={{ background: '#E8EFEB', border: '1px solid rgba(31,77,58,0.16)' }}>
@@ -208,7 +204,6 @@ export function AccessibilityClient({ eventSlug, data, loadError }: Props) {
             </div>
           </>
         )}
-      </div>
-    </div>
+    </PageShell>
   );
 }

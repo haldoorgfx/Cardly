@@ -10,6 +10,7 @@ import { hasModeratorAccess } from '@/lib/rbac/ownership';
 import Link from 'next/link';
 import React from 'react';
 import { MessageSquare, BarChart2, Users2, ArrowLeft } from 'lucide-react';
+import { PageShell, PageHeader } from '@/components/dash';
 
 interface Props { params: Promise<{ id: string }> }
 
@@ -55,7 +56,7 @@ export default async function EngagementPage({ params }: Props) {
   ];
 
   return (
-    <div className="min-h-full" style={{ background: '#FAF6EE' }}>
+    <>
       <div className="sticky top-0 z-30 border-b bg-white" style={{ borderColor: '#E5E0D4' }}>
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-3">
           <Link href={`/events/${_ev.slug}`} className="inline-flex items-center gap-1 text-[12px] text-[#6B7A72] hover:text-[#1F4D3A] transition-colors">
@@ -65,15 +66,8 @@ export default async function EngagementPage({ params }: Props) {
         </div>
       </div>
 
-      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-6">
-          <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
-            Engagement
-          </h1>
-          <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>
-            Drive audience participation — Q&A, polls, and networking.
-          </p>
-        </div>
+      <PageShell width="wide">
+        <PageHeader title="Engagement" subtitle="Drive audience participation — Q&A, polls, and networking." />
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {features.map(card => {
@@ -112,7 +106,7 @@ export default async function EngagementPage({ params }: Props) {
             );
           })}
         </div>
-      </div>
-    </div>
+      </PageShell>
+    </>
   );
 }

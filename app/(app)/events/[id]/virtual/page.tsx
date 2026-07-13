@@ -4,6 +4,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { Video, Users, BarChart2, Clock, Radio } from 'lucide-react';
+import { PageShell } from '@/components/dash';
 
 interface Props { params: Promise<{ id: string }> }
 
@@ -40,8 +41,7 @@ export default async function VirtualPage({ params }: Props) {
   ];
 
   return (
-    <div className="min-h-full" style={{ background: '#FAF6EE' }}>
-      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-8">
+    <PageShell width="wide">
 
         {/* Stream panel */}
         <div className="rounded-2xl overflow-hidden mb-8 relative"
@@ -140,7 +140,6 @@ export default async function VirtualPage({ params }: Props) {
           )}
         </div>
 
-      </div>
-    </div>
+    </PageShell>
   );
 }

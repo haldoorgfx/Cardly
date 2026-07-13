@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { PageShell, PageHeader } from '@/components/dash';
 
 interface Props { eventId: string; eventName: string; }
 
@@ -38,14 +39,8 @@ export function MeetingsClient({ eventName }: Props) {
   function dismiss(i: number) { setRequests(rs => rs.filter((_, j) => j !== i)); }
 
   return (
-    <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-8">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6 gap-4 flex-wrap">
-        <div>
-          <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>1:1 Meetings</h1>
-          <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>Attendee meeting scheduler · {eventName}</p>
-        </div>
-      </div>
+    <PageShell width="wide">
+      <PageHeader title="1:1 Meetings" subtitle={`Attendee meeting scheduler · ${eventName}`} />
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -211,6 +206,6 @@ export function MeetingsClient({ eventName }: Props) {
           </div>
         </div>
       )}
-    </div>
+    </PageShell>
   );
 }

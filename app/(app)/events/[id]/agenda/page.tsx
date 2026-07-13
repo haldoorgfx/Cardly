@@ -6,6 +6,7 @@ export const metadata: Metadata = { title: 'Agenda' };
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
+import { PageShell } from '@/components/dash';
 import { AgendaView } from '@/components/events/AgendaView';
 
 interface Props { params: Promise<{ id: string }> }
@@ -31,19 +32,17 @@ export default async function AgendaPage({ params }: Props) {
   if (!event) redirect('/dashboard');
 
   return (
-    <div className="min-h-full" style={{ background: '#FAF6EE' }}>
-      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <AgendaView
-          eventId={id}
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          initialSessions={(sessions ?? []) as any}
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          speakers={(speakers ?? []) as any}
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          initialTracks={(tracks ?? []) as any}
-          eventDates={{ starts_at: eventPage?.starts_at ?? null, ends_at: eventPage?.ends_at ?? null }}
-        />
-      </div>
-    </div>
+    <PageShell width="wide">
+      <AgendaView
+        eventId={id}
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        initialSessions={(sessions ?? []) as any}
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        speakers={(speakers ?? []) as any}
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        initialTracks={(tracks ?? []) as any}
+        eventDates={{ starts_at: eventPage?.starts_at ?? null, ends_at: eventPage?.ends_at ?? null }}
+      />
+    </PageShell>
   );
 }

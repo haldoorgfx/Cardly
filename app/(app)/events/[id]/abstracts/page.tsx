@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
+import { PageShell } from '@/components/dash';
 import AbstractReviewClient from '@/components/abstracts/AbstractReviewClient';
 
 interface Props { params: Promise<{ id: string }> }
@@ -39,13 +40,13 @@ export default async function AbstractsPage({ params }: Props) {
     .order('submitted_at', { ascending: false });
 
   return (
-    <div className="min-h-full" style={{ background: '#FAF6EE' }}>
+    <PageShell width="wide">
       <AbstractReviewClient
         eventId={id}
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         initialAbstracts={(abstracts ?? []) as any}
         sessions={(sessions ?? []) as { id: string; title: string }[]}
       />
-    </div>
+    </PageShell>
   );
 }

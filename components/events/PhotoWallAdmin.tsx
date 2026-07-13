@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Check, X, Star, Images, Heart } from 'lucide-react';
 import Image from 'next/image';
+import { PageShell, PageHeader } from '@/components/dash';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Photo = any;
@@ -59,19 +60,12 @@ export function PhotoWallAdmin({ eventId, eventName, initialPhotos }: Props) {
   }
 
   return (
-    <div className="max-w-[1000px] mx-auto px-5 py-10">
-      {/* Header */}
-      <div className="mb-8">
-        <p className="text-[12.5px] tracking-[0.16em] uppercase mb-2 font-medium" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
-          Engagement
-        </p>
-        <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight mb-1" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
-          Photo wall
-        </h1>
-        <p className="text-[14px]" style={{ color: '#6B7A72' }}>
-          Approve and feature attendee photos for <span className="font-medium" style={{ color: '#0F1F18' }}>{eventName}</span>.
-        </p>
-      </div>
+    <PageShell width="wide">
+      <PageHeader
+        eyebrow="Engagement"
+        title="Photo wall"
+        subtitle={<>Approve and feature attendee photos for <span className="font-medium" style={{ color: '#0F1F18' }}>{eventName}</span>.</>}
+      />
 
       {/* Stats row */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
@@ -207,6 +201,6 @@ export function PhotoWallAdmin({ eventId, eventName, initialPhotos }: Props) {
           })}
         </div>
       )}
-    </div>
+    </PageShell>
   );
 }
