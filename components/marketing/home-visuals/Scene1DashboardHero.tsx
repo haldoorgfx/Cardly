@@ -10,6 +10,9 @@ export function Scene1DashboardHero({ float }: { float?: boolean }) {
   return (
     <Shot width={1080} height={716} float={float}>
       <div style={{ position: 'relative', width: 1000, height: 648 }}>
+        <div className={s.liveFloat} style={{ left: -18, top: -14 }}>
+          <span className={s.liveFloatDot} />Live · 847 registrations
+        </div>
         <div className={s.win} style={{ width: 1000 }}>
           <Chrome url="events/pan-african-climate-summit" />
           <div className={s.app} style={{ height: 596 }}>

@@ -22,7 +22,7 @@
 .hv * { box-sizing: border-box; }
 
 .dm { font-family: "Plus Jakarta Sans", sans-serif; letter-spacing: -0.02em; }
-.mono { font-family: "JetBrains Mono", monospace; font-variant-numeric: tabular-nums; }
+.mono { font-family: "Inter", sans-serif; font-variant-numeric: tabular-nums; }
 .label { font-family: "Inter", sans-serif; font-size: 10px; font-weight: 600; letter-spacing: .13em; text-transform: uppercase; color: var(--muted); }
 
 /* skeleton */
@@ -42,7 +42,7 @@
 .lights i { width: 12px; height: 12px; border-radius: 50%; display: block; }
 .url { flex: 1; max-width: 460px; height: 26px; background: #FBF9F4; border: 1px solid var(--border);
   border-radius: 99px; display: flex; align-items: center; gap: 7px; padding: 0 12px;
-  font-family: "JetBrains Mono", monospace; font-size: 11.5px; color: var(--muted); }
+  font-family: "Inter", sans-serif; font-size: 11.5px; color: var(--muted); }
 .app { display: flex; background: var(--cream); }
 
 /* sidebar */
@@ -58,7 +58,7 @@
 .navtxt { font-family: "Plus Jakarta Sans", sans-serif; font-weight: 600; font-size: 13.5px; color: var(--forest); }
 .navtxtMut { color: var(--muted); font-weight: 500; }
 .nav .dotSq { background: #D8D2C4; }
-.plan { margin-top: auto; align-self: flex-start; font-family: "JetBrains Mono", monospace;
+.plan { margin-top: auto; align-self: flex-start; font-family: "Inter", sans-serif;
   font-size: 11px; font-weight: 600; letter-spacing: .04em; color: var(--forest);
   background: var(--forest-soft); border: 1px solid rgba(31,77,58,.15); border-radius: 99px; padding: 5px 12px; }
 
@@ -81,8 +81,21 @@
 .liveDot { width: 7px; height: 7px; border-radius: 50%; background: currentColor;
   animation: hvpulse 1.7s ease-in-out infinite; }
 @keyframes hvpulse { 0%,100% { opacity: 1; } 50% { opacity: .3; } }
+
+/* floating "Live · N registrations" badge — overlaps the browser top-left,
+   sits inside the composition so it shares the laptop's float. */
+.liveFloat { position: absolute; z-index: 40; display: inline-flex; align-items: center; gap: 9px;
+  background: var(--forest); color: var(--cream); font-family: "Plus Jakarta Sans", sans-serif;
+  font-weight: 600; font-size: 14px; letter-spacing: -0.01em; padding: 11px 18px; border-radius: 99px;
+  box-shadow: 0 18px 34px -14px rgba(15,31,24,.45), 0 0 0 1px rgba(255,255,255,.06) inset; white-space: nowrap; }
+.liveFloatDot { position: relative; width: 8px; height: 8px; border-radius: 50%; background: #7FE3A6; flex: none; }
+.liveFloatDot::after { content: ""; position: absolute; inset: -4px; border-radius: 50%;
+  background: rgba(127,227,166,.35); animation: hvring 1.8s ease-out infinite; }
+@keyframes hvring { 0% { transform: scale(.6); opacity: .9; } 100% { transform: scale(2.1); opacity: 0; } }
+
 @media (prefers-reduced-motion: reduce) {
   .liveDot { animation: none; }
+  .liveFloatDot::after { animation: none; }
   .float { animation: none !important; }
 }
 
@@ -106,10 +119,10 @@
 .colForest { background: var(--forest); }
 .colTint { background: rgba(31,77,58,.22); }
 .colGold { background: var(--gold); }
-.colday { font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--muted); }
+.colday { font-family: "Inter", sans-serif; font-size: 11px; color: var(--muted); }
 
 .toggle { display: flex; gap: 6px; }
-.toggle span { font-family: "JetBrains Mono", monospace; font-size: 11px; font-weight: 600;
+.toggle span { font-family: "Inter", sans-serif; font-size: 11px; font-weight: 600;
   padding: 4px 10px; border-radius: 8px; color: var(--muted); }
 .toggle .on { background: var(--forest-soft); color: var(--forest); }
 
@@ -130,7 +143,7 @@
 .tbl td { font-size: 13.5px; color: var(--forest-deep); padding: 11px 0; border-top: 1px solid #F1EEE6;
   font-family: "Plus Jakarta Sans", sans-serif; }
 .tbl td.nm { font-weight: 600; }
-.tbl td.eng { color: var(--success); font-family: "JetBrains Mono", monospace; font-weight: 600; font-size: 13px; }
+.tbl td.eng { color: var(--success); font-family: "Inter", sans-serif; font-weight: 600; font-size: 13px; }
 
 /* Eventera Card */
 .ecard { border-radius: 16px; position: relative; overflow: hidden; color: var(--cream);
@@ -138,7 +151,7 @@
 .ecard::before { content: ""; position: absolute; inset: 0; opacity: .5;
   background: repeating-linear-gradient(120deg, transparent 0 22px, rgba(232,197,126,.06) 22px 23px); }
 .ecIn { position: relative; padding: 22px 22px 24px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
-.ecWm { position: absolute; top: 16px; right: 18px; font-family: "JetBrains Mono", monospace;
+.ecWm { position: absolute; top: 16px; right: 18px; font-family: "Inter", sans-serif;
   font-size: 10px; font-weight: 600; letter-spacing: .18em; color: var(--gold); }
 .ecAva { width: 88px; height: 88px; border-radius: 50%; padding: 3px; margin-top: 14px;
   background: linear-gradient(135deg, var(--gold), var(--gold-deep)); }
@@ -148,7 +161,7 @@
 .ecName { font-family: "Plus Jakarta Sans", sans-serif; font-weight: 700; font-size: 20px; text-align: center; }
 .ecRole { font-size: 12.5px; color: rgba(250,246,238,.72); text-align: center; margin-top: -8px; }
 .ecPills { display: flex; gap: 9px; }
-.ecPill { font-family: "JetBrains Mono", monospace; font-size: 11px; font-weight: 600; letter-spacing: .06em;
+.ecPill { font-family: "Inter", sans-serif; font-size: 11px; font-weight: 600; letter-spacing: .06em;
   padding: 8px 15px; border-radius: 99px; background: rgba(255,255,255,.1);
   border: 1px solid rgba(255,255,255,.16); color: var(--cream); }
 .ecDl { margin-top: 2px; display: inline-flex; align-items: center; gap: 9px;
