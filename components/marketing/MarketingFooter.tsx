@@ -20,12 +20,12 @@ const FOOTER_COLS = [
   {
     title: 'Use Cases',
     links: [
-      { label: 'Conferences',    href: '/use-cases' },
-      { label: 'NGOs',           href: '/use-cases' },
-      { label: 'Political',      href: '/use-cases' },
-      { label: 'Corporate',      href: '/use-cases' },
-      { label: 'Religious',      href: '/use-cases' },
-      { label: 'African Events', href: '/use-cases' },
+      { label: 'Tech Conferences', href: '/use-cases#tech-conferences' },
+      { label: 'NGO Campaigns',    href: '/use-cases#ngo-campaigns' },
+      { label: 'Political Events', href: '/use-cases#political-events' },
+      { label: 'Corporate Events', href: '/use-cases#corporate-events' },
+      { label: 'Religious Orgs',   href: '/use-cases#religious-organizations' },
+      { label: 'African Summits',  href: '/use-cases#african-summits' },
     ],
   },
   {

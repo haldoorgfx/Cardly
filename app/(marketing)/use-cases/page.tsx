@@ -47,7 +47,6 @@ type UseCase = {
   title: string;
   Icon: LucideIcon;
   gradient: string;
-  glow: string;
   body: string;
   features: string[];
 };
@@ -58,7 +57,6 @@ const USE_CASES: UseCase[] = [
     title: 'Tech Conferences',
     Icon: LayoutGrid,
     gradient: 'linear-gradient(135deg, #163828 0%, #1F4D3A 60%, #2A6A50 100%)',
-    glow: 'radial-gradient(60% 80% at 90% 10%, rgba(232,197,126,0.3), transparent 60%)',
     body: 'Multi-track agendas, speaker directories, startup networking.',
     features: [
       'Multi-track agenda builder',
@@ -73,7 +71,6 @@ const USE_CASES: UseCase[] = [
     title: 'NGO Campaigns',
     Icon: Network,
     gradient: 'linear-gradient(150deg, #1F4D3A 0%, #2A6A50 60%, #3E7E5E 100%)',
-    glow: 'radial-gradient(70% 70% at 10% 90%, rgba(232,197,126,0.26), transparent 60%)',
     body: 'Supporter cards, awareness drives, fundraising registration.',
     features: [
       'Free + donation-based registration',
@@ -88,7 +85,6 @@ const USE_CASES: UseCase[] = [
     title: 'Political Events',
     Icon: Users,
     gradient: 'linear-gradient(120deg, #163828 0%, #1F4D3A 60%, #1F4D3A 100%)',
-    glow: 'radial-gradient(60% 90% at 80% 100%, rgba(201,164,94,0.3), transparent 55%)',
     body: 'Rally registration, volunteer coordination, endorsement cards.',
     features: [
       'Rally & town hall registration',
@@ -102,8 +98,7 @@ const USE_CASES: UseCase[] = [
     id: 'corporate-events',
     title: 'Corporate Events',
     Icon: Briefcase,
-    gradient: 'linear-gradient(130deg, #1F4D3A 0%, #2A6A50 55%, #C9A45E 100%)',
-    glow: 'radial-gradient(55% 80% at 95% 50%, rgba(232,197,126,0.34), transparent 55%)',
+    gradient: 'linear-gradient(130deg, #163828 0%, #1F4D3A 55%, #2A6A50 100%)',
     body: 'Brand activations, product launches, lead retrieval for sponsors.',
     features: [
       'Paid + complimentary ticket tiers',
@@ -118,7 +113,6 @@ const USE_CASES: UseCase[] = [
     title: 'Religious Organizations',
     Icon: Sun,
     gradient: 'linear-gradient(160deg, #163828 0%, #1F4D3A 55%, #2A6A50 100%)',
-    glow: 'radial-gradient(70% 70% at 30% 20%, rgba(232,197,126,0.28), transparent 60%)',
     body: 'Community conferences, Ramadan iftar events, charity drives.',
     features: [
       'Free community registration',
@@ -133,19 +127,13 @@ const USE_CASES: UseCase[] = [
 function UseCaseCard({ uc }: { uc: UseCase }) {
   const { Icon } = uc;
   return (
-    <div className="bg-white border border-[#E5E0D4] rounded-2xl overflow-hidden flex flex-col">
+    <div id={uc.id} className="scroll-mt-24 bg-white border border-[#E5E0D4] rounded-2xl overflow-hidden flex flex-col">
       {/* Cover */}
       <div
         className="relative h-[150px] overflow-hidden flex items-end p-4"
         style={{ background: uc.gradient }}
       >
         <TopoLines />
-        {/* Gold glow overlay */}
-        <div
-          aria-hidden
-          className="absolute inset-0 pointer-events-none"
-          style={{ background: uc.glow }}
-        />
         {/* Icon bottom-right */}
         <div className="absolute bottom-3 right-3 pointer-events-none opacity-[0.28]">
           <Icon size={48} strokeWidth={1} className="text-[#FAF6EE]" />
@@ -176,19 +164,10 @@ function UseCaseCard({ uc }: { uc: UseCase }) {
 function AfricanSummitsCard() {
   return (
     <div
-      className="group rounded-2xl overflow-hidden flex flex-col relative"
+      id="african-summits"
+      className="group scroll-mt-24 rounded-2xl overflow-hidden flex flex-col relative"
       style={{ background: 'linear-gradient(160deg, #163828 0%, #1F4D3A 100%)' }}
     >
-      {/* Gold radial overlay */}
-      <div
-        aria-hidden
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background:
-            'radial-gradient(65% 75% at 85% 15%, rgba(232,197,126,0.28), transparent 60%)',
-        }}
-      />
-
       {/* Cover area */}
       <div className="relative h-[150px] overflow-hidden flex items-end p-6">
         <TopoLines stroke="#E8C57E" opacity={0.14} />
@@ -254,16 +233,6 @@ export default function UseCasesPage() {
     <>
       {/* ── SECTION 1 · Hero ── */}
       <section className="relative overflow-hidden border-b border-[#E5E0D4]">
-        {/* Mesh background */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0"
-          style={{
-            background:
-              'radial-gradient(ellipse 70% 60% at 10% 50%, rgba(31,77,58,0.07) 0%, transparent 70%), radial-gradient(ellipse 55% 55% at 90% 20%, rgba(232,197,126,0.10) 0%, transparent 65%)',
-          }}
-        />
-
         <div className="relative mx-auto max-w-[1200px] px-5 lg:px-10 pt-16 lg:pt-24 pb-12 lg:pb-16">
           <div className=" text-[11px] tracking-[0.22em] uppercase text-[#1F4D3A] mb-5">
             Use cases
