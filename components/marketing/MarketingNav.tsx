@@ -70,12 +70,8 @@ function MobileOverlay({
         className="absolute inset-0"
         style={{
           background: '#FAF6EE',
-          backgroundImage: [
-            'radial-gradient(circle at 1px 1px, rgba(15,31,24,0.045) 1px, transparent 1px)',
-            'radial-gradient(60% 50% at 20% 18%, rgba(31,77,58,0.25), transparent 60%)',
-            'radial-gradient(50% 45% at 90% 85%, rgba(232,197,126,0.30), transparent 60%)',
-          ].join(', '),
-          backgroundSize: '24px 24px, 100% 100%, 100% 100%',
+          backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(15,31,24,0.04) 1px, transparent 1px)',
+          backgroundSize: '22px 22px',
         }}
       />
       <div className="relative flex flex-col min-h-screen">
@@ -241,6 +237,16 @@ export function MarketingNav() {
     return () => document.removeEventListener('click', handler);
   }, [userMenuOpen]);
 
+  // Keyboard/pointer dismissal for the desktop mega-menus so they aren't hover-only.
+  useEffect(() => {
+    if (!productOpen && !companyOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') { setProductOpen(false); setCompanyOpen(false); }
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [productOpen, companyOpen]);
+
   async function handleSignOut() {
     const supabase = createClient();
     await supabase.auth.signOut();
@@ -275,6 +281,7 @@ export function MarketingNav() {
               onMouseLeave={() => setProductOpen(false)}
             >
               <button
+                onClick={() => { setProductOpen(v => !v); setCompanyOpen(false); }}
                 className={`inline-flex items-center gap-1.5 py-5 font-semibold transition-colors ${productOpen ? 'text-primary' : 'hover:text-primary'}`}
                 aria-expanded={productOpen}
                 aria-haspopup="true"
@@ -343,6 +350,7 @@ export function MarketingNav() {
               onMouseLeave={() => setCompanyOpen(false)}
             >
               <button
+                onClick={() => { setCompanyOpen(v => !v); setProductOpen(false); }}
                 className={`inline-flex items-center gap-1.5 py-5 font-semibold transition-colors ${companyOpen ? 'text-primary' : 'hover:text-primary'}`}
                 aria-expanded={companyOpen}
                 aria-haspopup="true"
