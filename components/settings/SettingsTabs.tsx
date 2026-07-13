@@ -6,15 +6,17 @@ import { usePathname, useSearchParams } from 'next/navigation';
 // Notifications / Account) live on the /settings route and switch via ?tab=;
 // Billing / Developer / Integrations / White Label are their own routes. Having
 // a single row avoids the old two-stacked-tab-bars look.
+// Ordered by concern: personal account first (Profile → Account), then the
+// workspace/developer surfaces — so related settings sit together.
 const TABS = [
   { label: 'Profile',       href: '/settings',                    tab: null },
   { label: 'Preferences',   href: '/settings?tab=preferences',    tab: 'preferences' },
   { label: 'Notifications', href: '/settings?tab=notifications',  tab: 'notifications' },
+  { label: 'Account',       href: '/settings?tab=account',        tab: 'account' },
   { label: 'Billing',       href: '/settings/billing',            tab: undefined },
   { label: 'Developer',     href: '/settings/developer',          tab: undefined },
   { label: 'Integrations',  href: '/settings/integrations',       tab: undefined },
   { label: 'White Label',   href: '/settings/white-label',        tab: undefined },
-  { label: 'Account',       href: '/settings?tab=account',        tab: 'account' },
 ] as const;
 
 export function SettingsTabs() {

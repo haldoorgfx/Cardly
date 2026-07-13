@@ -1,8 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { deleteAccount } from '@/app/(auth)/actions';
-import { Check, ChevronDown } from 'lucide-react';
+import { Check, ChevronDown, Lock, ChevronRight } from 'lucide-react';
 
 // ── Option lists ──────────────────────────────────────────────────────────────
 
@@ -286,6 +287,27 @@ export default function SettingsClient({ profile, section }: Props) {
               </div>
             ))}
           </div>
+        </section>
+        )}
+
+        {/* ── Security ── */}
+        {show('account') && (
+        <section className="bg-white rounded-2xl border p-2" style={{ borderColor: '#E5E0D4' }}>
+          <Link
+            href="/settings/reset-password"
+            className="flex items-center justify-between gap-4 rounded-xl px-4 py-3.5 transition-colors hover:bg-[#F5F3EE]"
+          >
+            <div className="flex items-center gap-3">
+              <span className="w-9 h-9 rounded-lg grid place-items-center shrink-0" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
+                <Lock size={16} strokeWidth={1.9} />
+              </span>
+              <div>
+                <div className="text-[13.5px] font-medium text-[#0F1F18]">Change password</div>
+                <div className="text-[12.5px] mt-0.5" style={{ color: '#6B7A72' }}>Update the password you use to sign in.</div>
+              </div>
+            </div>
+            <ChevronRight size={16} strokeWidth={2} style={{ color: '#9BA8A1' }} />
+          </Link>
         </section>
         )}
 
