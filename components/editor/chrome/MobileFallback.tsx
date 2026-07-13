@@ -40,22 +40,6 @@ export default function MobileFallback({ eventId, eventName, variantSlug }: Mobi
       className="relative min-h-screen overflow-hidden"
       style={{ background: '#FAF6EE', fontFamily: 'Inter, sans-serif', color: '#0F1F18' }}
     >
-      {/* Decorative blobs */}
-      <div style={{
-        position: 'absolute', width: 280, height: 280,
-        top: -80, right: -80,
-        borderRadius: '50%',
-        background: '#E8EFEB', opacity: 0.7, filter: 'blur(40px)',
-        pointerEvents: 'none',
-      }} />
-      <div style={{
-        position: 'absolute', width: 220, height: 220,
-        bottom: -60, left: -80,
-        borderRadius: '50%',
-        background: 'rgba(232,197,126,0.35)', filter: 'blur(40px)',
-        pointerEvents: 'none',
-      }} />
-
       {/* Header */}
       <div
         className="relative flex items-center justify-between"

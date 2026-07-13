@@ -74,18 +74,6 @@ export default function ArrivalScreen({
       className="relative min-h-screen overflow-hidden"
       style={{ background: '#FAF6EE', fontFamily: 'Inter, sans-serif', color: '#0F1F18' }}
     >
-      {/* Decorative blobs */}
-      <div className="pointer-events-none absolute" style={{
-        width: 320, height: 320, top: 40, right: -80,
-        borderRadius: '50%', background: '#E8EFEB',
-        filter: 'blur(48px)', opacity: 0.9,
-      }}/>
-      <div className="pointer-events-none absolute" style={{
-        width: 260, height: 260, bottom: -60, left: -60,
-        borderRadius: '50%', background: 'rgba(232,197,126,0.32)',
-        filter: 'blur(48px)',
-      }}/>
-
       {/* ── Mobile / tablet: single column ───────────────────────────────── */}
       <div className="relative z-10 flex flex-col lg:hidden">
         {/* Top bar */}

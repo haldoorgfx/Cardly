@@ -58,9 +58,6 @@ export function HeroBlock({ content }: { content: HeroContent }) {
   // split layout (default)
   return (
     <section className="relative overflow-hidden">
-      <div aria-hidden className="absolute pointer-events-none" style={{ top: '-10%', right: '-5%', width: 700, height: 600, background: 'radial-gradient(ellipse, rgba(31,77,58,0.15) 0%, transparent 70%)', filter: 'blur(100px)' }} />
-      <div aria-hidden className="absolute pointer-events-none" style={{ bottom: '-10%', left: '-5%', width: 500, height: 500, background: 'radial-gradient(ellipse, rgba(232,197,126,0.12) 0%, transparent 70%)', filter: 'blur(80px)' }} />
-
       <div className="relative mx-auto max-w-[1200px] px-5 lg:px-10 pt-12 pb-20 lg:pt-20 lg:pb-28 grid lg:grid-cols-[1fr_1.15fr] gap-12 lg:gap-4 items-center">
         <div className="order-2 lg:order-1">
           {eyebrow && (
@@ -118,9 +115,6 @@ export function HeroBlock({ content }: { content: HeroContent }) {
 
         {imageUrl && (
           <div className="order-1 lg:order-2 relative flex items-center justify-center lg:-mr-16">
-            <div aria-hidden className="absolute inset-0 grid place-items-center pointer-events-none">
-              <div style={{ width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle, rgba(31,77,58,0.14), transparent 65%)', filter: 'blur(60px)' }} />
-            </div>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={imageUrl}

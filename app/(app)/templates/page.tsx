@@ -285,7 +285,6 @@ export default function TemplatesPage() {
 
       {/* Header */}
       <div className="relative overflow-hidden px-6 pt-7 pb-6 border-b shrink-0" style={{ background:'white', borderColor:'#E5E0D4' }}>
-        <div className="absolute pointer-events-none" style={{ top:'-50%', right:'-5%', width:260, height:260, background:'radial-gradient(ellipse,rgba(31,77,58,0.07) 0%,transparent 70%)', filter:'blur(40px)' }} />
         <div className="relative">
           <div className="flex items-end justify-between gap-4 flex-wrap">
             <div>

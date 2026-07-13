@@ -141,17 +141,6 @@ export default async function RegisterPage({ params, searchParams }: Props) {
 
   return (
     <div style={{ background: '#FAF6EE', minHeight: '100vh', position: 'relative', overflow: 'hidden' }}>
-
-      {/* Mesh gradient */}
-      <div
-        style={{
-          position: 'absolute', top: 56, left: '50%', transform: 'translateX(-50%)',
-          width: 900, height: 380, pointerEvents: 'none', zIndex: 0,
-          background: 'radial-gradient(40% 55% at 22% 28%, rgba(31,77,58,0.18), transparent 62%), radial-gradient(38% 55% at 80% 42%, rgba(232,197,126,0.22), transparent 62%)',
-          filter: 'blur(80px)',
-        }}
-      />
-
       <div style={{ position: 'relative', zIndex: 1 }}>
         <RegistrationClient
           eventSlug={params.slug}
