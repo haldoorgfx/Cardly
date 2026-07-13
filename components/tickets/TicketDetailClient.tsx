@@ -142,7 +142,7 @@ function QRFullscreen({ token, name, label, code, onClose }: {
     <div
       className="fixed inset-0 z-[60] flex flex-col items-center justify-center px-8"
       style={{
-        background: `radial-gradient(ellipse 70% 55% at 15% 8%, rgba(31,77,58,0.85) 0%, transparent 60%), radial-gradient(ellipse 60% 50% at 90% 25%, rgba(232,197,126,0.18) 0%, transparent 55%), ${FOREST_DARK}`,
+        background: FOREST_DARK,
       }}
       onClick={onClose}
     >

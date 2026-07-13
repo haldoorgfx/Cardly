@@ -155,7 +155,6 @@ export function ReportsClient({ eventId, eventName, totalRevenue, regCount, chec
         <>
           {/* Hero banner */}
           <div className="rounded-2xl p-6 mb-6 relative overflow-hidden" style={{ background: 'linear-gradient(135deg,#0D1F17,#1F4D3A 60%,#235741)' }}>
-            <div aria-hidden className="absolute inset-0" style={{ background: 'radial-gradient(60% 100% at 90% 0%, rgba(232,197,126,0.26), transparent 55%)' }} />
             <div className="relative grid sm:grid-cols-[1.4fr_1fr] gap-5 items-center">
               <div>
                 <div className=" text-[12px] tracking-[0.16em] uppercase mb-2" style={{ color: '#E8C57E' }}>Event revenue</div>

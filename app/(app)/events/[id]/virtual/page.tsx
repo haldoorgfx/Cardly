@@ -46,9 +46,6 @@ export default async function VirtualPage({ params }: Props) {
         {/* Stream panel */}
         <div className="rounded-2xl overflow-hidden mb-8 relative"
           style={{ background: '#163828', minHeight: 220 }}>
-          {/* Radial glow */}
-          <div className="absolute inset-0 pointer-events-none"
-            style={{ background: 'radial-gradient(ellipse 60% 60% at 50% 50%, rgba(232,197,126,0.12) 0%, transparent 70%)' }} />
           <div className="relative flex flex-col items-center justify-center py-14 px-6 text-center">
             <div className="w-14 h-14 rounded-2xl grid place-items-center mb-4"
               style={{ background: 'rgba(232,197,126,0.15)', border: '1px solid rgba(232,197,126,0.25)' }}>

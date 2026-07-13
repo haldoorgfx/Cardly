@@ -12,14 +12,6 @@ export default function AttendeeLoginPage() {
         className="hidden lg:flex flex-col justify-between p-12 relative overflow-hidden"
         style={{ background: '#163828' }}
       >
-        {/* Mesh overlay */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background: 'radial-gradient(ellipse 80% 60% at 30% 60%, rgba(232,197,126,0.08) 0%, transparent 70%)',
-          }}
-        />
-
         {/* Wordmark */}
         <div className="relative z-10 font-semibold text-[22px]" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: '#FFFFFF', letterSpacing: '-0.01em' }}>
           Eventer<span style={{ color: '#E8C57E' }}>a</span>

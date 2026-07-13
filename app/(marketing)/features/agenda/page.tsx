@@ -213,17 +213,6 @@ export default function AgendaFeaturePage() {
           padding: 'clamp(80px, 12vw, 140px) 24px clamp(64px, 10vw, 120px)',
         }}
       >
-        <div
-          aria-hidden
-          style={{
-            position: 'absolute',
-            inset: 0,
-            background:
-              'radial-gradient(ellipse 70% 60% at 60% -10%, rgba(31,77,58,0.07) 0%, transparent 70%), radial-gradient(ellipse 50% 40% at 10% 80%, rgba(232,197,126,0.10) 0%, transparent 60%)',
-            pointerEvents: 'none',
-          }}
-        />
-
         <div style={{ position: 'relative', maxWidth: 780, margin: '0 auto', textAlign: 'center' }}>
           <div
             style={{
@@ -504,15 +493,6 @@ export default function AgendaFeaturePage() {
           overflow: 'hidden',
         }}
       >
-        <div
-          aria-hidden
-          style={{
-            position: 'absolute',
-            inset: 0,
-            background: 'radial-gradient(ellipse 60% 50% at 50% 50%, rgba(255,255,255,0.04) 0%, transparent 70%)',
-            pointerEvents: 'none',
-          }}
-        />
         <div style={{ position: 'relative', maxWidth: 640, margin: '0 auto' }}>
           <h2
             style={{

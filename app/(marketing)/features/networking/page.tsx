@@ -111,7 +111,6 @@ const stats = [
 function NetworkingMockup() {
   return (
     <section style={{ background: '#FAF6EE', padding: 'clamp(80px, 10vw, 120px) 24px clamp(120px, 14vw, 160px)', position: 'relative' as const }}>
-      <div aria-hidden style={{ position: 'absolute' as const, inset: 0, background: 'radial-gradient(ellipse 55% 55% at 20% 50%, rgba(232,197,126,0.08) 0%, transparent 65%)', pointerEvents: 'none' }} />
       <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 56, flexWrap: 'wrap' as const, justifyContent: 'center', position: 'relative' as const }}>
 
         {/* Text column */}
@@ -256,17 +255,6 @@ export default function NetworkingPage() {
           padding: 'clamp(80px, 12vw, 140px) 24px clamp(64px, 8vw, 100px)',
         }}
       >
-        <div
-          aria-hidden
-          style={{
-            position: 'absolute',
-            inset: 0,
-            background:
-              'radial-gradient(ellipse 60% 70% at 80% 30%, rgba(232,197,126,0.14) 0%, transparent 60%), radial-gradient(ellipse 55% 55% at 15% 70%, rgba(31,77,58,0.08) 0%, transparent 65%)',
-            pointerEvents: 'none',
-          }}
-        />
-
         <div style={{ maxWidth: 760, margin: '0 auto', position: 'relative', textAlign: 'center' }}>
           <div
             style={{

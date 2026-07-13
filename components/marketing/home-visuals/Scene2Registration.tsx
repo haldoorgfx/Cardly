@@ -33,11 +33,11 @@ export function Scene2Registration({ float }: { float?: boolean }) {
             <div className={s.phStatus}>9:41</div>
             <div style={{ flex: 1, padding: '8px 22px 18px', display: 'flex', flexDirection: 'column', gap: 16, overflow: 'hidden' }}>
               <div style={{ borderRadius: 16, padding: 18, background: 'linear-gradient(150deg,#163828,#2A6A50)', border: '1px solid rgba(232,197,126,.25)' }}>
-                <div style={{ fontFamily: 'JetBrains Mono', fontSize: 9.5, letterSpacing: '.16em', color: 'rgba(232,197,126,.9)', fontWeight: 600 }}>PAN-AFRICAN CLIMATE SUMMIT</div>
+                <div style={{ fontFamily: 'Inter', fontSize: 9.5, letterSpacing: '.16em', color: 'rgba(232,197,126,.9)', fontWeight: 600 }}>PAN-AFRICAN CLIMATE SUMMIT</div>
                 <div className={s.dm} style={{ fontWeight: 700, fontSize: 19, margin: '8px 0 12px' }}>Register for this event</div>
                 <div style={{ display: 'flex', gap: 8 }}>
-                  <span style={{ fontFamily: 'JetBrains Mono', fontSize: 10.5, padding: '5px 11px', borderRadius: 99, background: 'rgba(255,255,255,.1)', border: '1px solid rgba(255,255,255,.16)' }}>Mar 15 · Nairobi</span>
-                  <span style={{ fontFamily: 'JetBrains Mono', fontSize: 10.5, padding: '5px 11px', borderRadius: 99, background: 'rgba(232,197,126,.9)', color: '#0F1F18', fontWeight: 600 }}>General · $25</span>
+                  <span style={{ fontFamily: 'Inter', fontSize: 10.5, padding: '5px 11px', borderRadius: 99, background: 'rgba(255,255,255,.1)', border: '1px solid rgba(255,255,255,.16)' }}>Mar 15 · Nairobi</span>
+                  <span style={{ fontFamily: 'Inter', fontSize: 10.5, padding: '5px 11px', borderRadius: 99, background: 'rgba(232,197,126,.9)', color: '#0F1F18', fontWeight: 600 }}>General · $25</span>
                 </div>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 13 }}>

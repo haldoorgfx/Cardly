@@ -174,16 +174,6 @@ export default function HowItWorksPage() {
     <>
       {/* ── SECTION 1 · Hero ── */}
       <section className="relative overflow-hidden border-b border-[#E5E0D4]">
-        {/* Mesh background */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0"
-          style={{
-            background:
-              'radial-gradient(ellipse 70% 60% at 15% 50%, rgba(31,77,58,0.07) 0%, transparent 70%), radial-gradient(ellipse 50% 50% at 85% 20%, rgba(232,197,126,0.10) 0%, transparent 65%)',
-          }}
-        />
-
         <div className="relative mx-auto max-w-[1200px] px-5 lg:px-10 pt-16 lg:pt-24 pb-12 lg:pb-18">
           <div className=" text-[11px] tracking-[0.22em] uppercase text-[#1F4D3A] mb-5">
             How Eventera works

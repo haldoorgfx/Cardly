@@ -66,20 +66,6 @@ export default function AboutPage() {
         style={{ background: C.cream, position: 'relative', overflow: 'hidden' }}
         className="border-b"
       >
-        {/* mesh background */}
-        <div
-          aria-hidden
-          style={{
-            position: 'absolute',
-            inset: 0,
-            background: [
-              `radial-gradient(ellipse 70% 60% at 20% -10%, rgba(31,77,58,0.10) 0%, transparent 70%)`,
-              `radial-gradient(ellipse 50% 50% at 80% 110%, rgba(232,197,126,0.13) 0%, transparent 65%)`,
-            ].join(', '),
-            pointerEvents: 'none',
-          }}
-        />
-
         <div
           style={{ maxWidth: 860, margin: '0 auto', padding: '88px 20px 96px', position: 'relative', textAlign: 'center' }}
         >
@@ -743,20 +729,6 @@ export default function AboutPage() {
           overflow: 'hidden',
         }}
       >
-        {/* mesh overlay */}
-        <div
-          aria-hidden
-          style={{
-            position: 'absolute',
-            inset: 0,
-            background: [
-              `radial-gradient(ellipse 60% 60% at 10% 120%, rgba(31,77,58,0.60) 0%, transparent 65%)`,
-              `radial-gradient(ellipse 40% 40% at 90% -20%, rgba(232,197,126,0.20) 0%, transparent 60%)`,
-            ].join(', '),
-            pointerEvents: 'none',
-          }}
-        />
-
         <div
           style={{
             maxWidth: 720,

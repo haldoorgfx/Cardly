@@ -5,7 +5,7 @@ import { hv as s, Ic, Chrome, NavItem, Stat, Col, Bar, Shot } from './primitives
 
 const HEIGHTS = [30, 38, 34, 46, 42, 54, 50, 62, 58, 72, 66, 90];
 const WEEKS = ['Wk1', 'Wk2', 'Wk3', 'Wk4', 'Wk5', 'Wk6'];
-const ENG: CSSProperties = { color: 'var(--success)', fontFamily: 'JetBrains Mono', fontWeight: 600, fontSize: 13 };
+const ENG: CSSProperties = { color: 'var(--success)', fontFamily: 'Inter', fontWeight: 600, fontSize: 13 };
 
 /** Scene 3 — Analytics dashboard (wide light browser). */
 export function Scene3Analytics() {

@@ -67,16 +67,6 @@ function PartnersHero() {
         aria-hidden
         className="absolute inset-0 pointer-events-none"
         style={{
-          backgroundImage: [
-            'radial-gradient(70% 60% at 10% 0%, rgba(31,77,58,0.10), transparent 65%)',
-            'radial-gradient(50% 50% at 90% 100%, rgba(232,197,126,0.13), transparent 65%)',
-          ].join(', '),
-        }}
-      />
-      <div
-        aria-hidden
-        className="absolute inset-0 pointer-events-none"
-        style={{
           backgroundImage: 'radial-gradient(rgba(15,31,24,0.05) 1px, transparent 1px)',
           backgroundSize: '24px 24px',
         }}
@@ -300,13 +290,6 @@ function WhyPartner() {
 function PartnerCTA() {
   return (
     <section className="relative overflow-hidden">
-      <div
-        aria-hidden
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          backgroundImage: 'radial-gradient(65% 55% at 50% 110%, rgba(31,77,58,0.08), transparent 65%)',
-        }}
-      />
       <div className="relative mx-auto max-w-[860px] px-5 lg:px-10 py-20 lg:py-24 text-center">
         <h2 className="font-title font-bold text-ink text-[36px] sm:text-[48px] lg:text-[58px] leading-[1.0]">
           Ready to partner?

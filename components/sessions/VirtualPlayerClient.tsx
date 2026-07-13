@@ -114,7 +114,7 @@ export default function VirtualPlayerClient({ event, session, speakers, initialQ
                 allowFullScreen
               />
             ) : (
-              <div className="absolute inset-0 flex items-center justify-center" style={{ background: 'radial-gradient(ellipse at 50% 40%, rgba(31,77,58,0.3) 0%, transparent 70%)' }}>
+              <div className="absolute inset-0 flex items-center justify-center">
                 {!playing && (
                   <button
                     onClick={() => setPlaying(true)}

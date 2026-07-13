@@ -37,7 +37,6 @@ function MiniCard({ accent, name = 'Your Name', role = 'Attendee', eventLabel = 
       className="rounded-2xl overflow-hidden relative shrink-0"
       style={{ width: w, height: h, background: accent.grad, boxShadow: '0 24px 56px -18px rgba(13,31,23,0.6)' }}
     >
-      <div className="absolute inset-0" style={{ background: 'radial-gradient(60% 45% at 50% 40%, rgba(232,197,126,0.22), transparent 65%)' }} />
       <div className="relative h-full flex flex-col" style={{ padding: w * 0.085 }}>
         <div className="flex items-center justify-between">
           <span className="font-display font-semibold" style={{ color: accent.ring, fontSize: w * 0.045 }}>{eventLabel}</span>
@@ -190,8 +189,6 @@ export default function OnboardingClient() {
         className="hidden lg:flex flex-col px-8 py-8 relative overflow-hidden"
         style={{ background: 'linear-gradient(165deg,#0D1F17,#1F4D3A 65%,#235741)', color: '#FAF6EE' }}
       >
-        <div className="absolute inset-0" style={{ background: 'radial-gradient(50% 40% at 80% 12%, rgba(232,197,126,0.22), transparent 60%)' }} />
-
         <div className="relative flex items-center gap-2.5 mb-12">
           <span className="w-8 h-8 rounded-lg" style={{ background: 'linear-gradient(135deg,#FAF6EE,#E8C57E)' }} />
           <span className="font-display text-[20px] font-bold tracking-tight">Eventera</span>

@@ -48,16 +48,6 @@ function ChangelogHero({ latest }: { latest?: DBEntry }) {
         aria-hidden
         className="absolute inset-0 pointer-events-none"
         style={{
-          backgroundImage: [
-            'radial-gradient(65% 55% at 10% 0%, rgba(31,77,58,0.09), transparent 65%)',
-            'radial-gradient(50% 45% at 90% 100%, rgba(232,197,126,0.11), transparent 65%)',
-          ].join(', '),
-        }}
-      />
-      <div
-        aria-hidden
-        className="absolute inset-0 pointer-events-none"
-        style={{
           backgroundImage: 'radial-gradient(rgba(15,31,24,0.045) 1px, transparent 1px)',
           backgroundSize: '24px 24px',
         }}

@@ -110,7 +110,6 @@ export function ExhibitorShell({ token, companyName, tier, boothNumber, logoUrl,
 
       {/* Hero */}
       <div className={`relative overflow-hidden${embedded ? ' rounded-2xl' : ''}`} style={{ background: 'linear-gradient(135deg,#0D1F17,#1F4D3A 60%,#235741)' }}>
-        <div aria-hidden className="absolute inset-0" style={{ background: 'radial-gradient(60% 100% at 90% 0%, rgba(232,197,126,0.26), transparent 55%)' }} />
         <div className="relative mx-auto max-w-[1080px] px-5 lg:px-8 py-8">
           <div className="flex items-start justify-between gap-6">
             <div>

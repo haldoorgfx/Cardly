@@ -441,8 +441,6 @@ export default function CheckInDashboard({
 
           {/* ── Left: scanner / search panel ── */}
           <div className="rounded-2xl overflow-hidden relative flex flex-col" style={{ background: '#163828', minHeight: 380 }}>
-            <div aria-hidden className="absolute inset-0 pointer-events-none"
-              style={{ background: 'radial-gradient(70% 50% at 50% 0%, rgba(232,197,126,0.16), transparent 60%)' }} />
             <div className="relative flex flex-col h-full flex-1">
 
               {/* Panel header */}

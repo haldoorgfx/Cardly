@@ -11,13 +11,13 @@ function Q({ top, vote }: { top?: boolean; vote: number }) {
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         {top
-          ? <span style={{ fontFamily: 'JetBrains Mono', fontSize: 9.5, fontWeight: 600, letterSpacing: '.12em', color: 'var(--forest)', background: 'var(--forest-soft)', borderRadius: 6, padding: '3px 8px' }}>TOP</span>
+          ? <span style={{ fontFamily: 'Inter', fontSize: 9.5, fontWeight: 600, letterSpacing: '.12em', color: 'var(--forest)', background: 'var(--forest-soft)', borderRadius: 6, padding: '3px 8px' }}>TOP</span>
           : <div className={s.dotSq} style={{ width: 26, height: 26, borderRadius: '50%' }} />}
         <div style={{ flex: 1 }}>
           <div className={s.bar} style={{ width: top ? '82%' : '68%' }} />
           <div className={`${s.bar} ${s.barSm}`} style={{ width: top ? '54%' : '40%', marginTop: 8 }} />
         </div>
-        <span style={{ fontFamily: 'JetBrains Mono', fontSize: 12, fontWeight: 600, color: 'var(--forest-deep)', background: '#F4F0E6', border: '1px solid var(--border)', borderRadius: 8, padding: '6px 10px' }}>▲ {vote}</span>
+        <span style={{ fontFamily: 'Inter', fontSize: 12, fontWeight: 600, color: 'var(--forest-deep)', background: '#F4F0E6', border: '1px solid var(--border)', borderRadius: 8, padding: '6px 10px' }}>▲ {vote}</span>
       </div>
     </div>
   );

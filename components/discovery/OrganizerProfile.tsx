@@ -121,9 +121,6 @@ export function OrganizerProfile({
         ) : (
           <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #163828 0%, #1F4D3A 50%, #2A6A50 85%, #C9A45E 130%)' }} />
         )}
-        <div aria-hidden className="absolute inset-0" style={{
-          background: 'radial-gradient(45% 80% at 85% 30%, rgba(232,197,126,0.22), transparent 60%)',
-        }} />
         <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(10,20,14,0.55) 0%, transparent 55%)' }} />
       </div>
 

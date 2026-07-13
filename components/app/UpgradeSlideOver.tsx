@@ -72,11 +72,6 @@ export function UpgradeSlideOver({ feature, onClose }: Props) {
                 className="relative rounded-2xl p-6 mb-6 overflow-hidden"
                 style={{ background: 'linear-gradient(140deg, #163828 0%, #1F4D3A 60%, #2A6A50 110%)' }}
               >
-                <div
-                  aria-hidden
-                  className="absolute inset-0"
-                  style={{ background: 'radial-gradient(60% 90% at 100% 0%, rgba(232,197,126,0.34), transparent 60%)' }}
-                />
                 <div className="relative">
                   <span className="inline-grid place-items-center w-11 h-11 rounded-xl mb-4"
                     style={{ background: 'rgba(250,246,238,0.1)', border: '1px solid rgba(250,246,238,0.15)', color: '#E8C57E' }}>

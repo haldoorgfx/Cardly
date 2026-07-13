@@ -355,9 +355,6 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents, ban
           maskImage: 'radial-gradient(120% 80% at 50% 0%, #000 40%, transparent 100%)',
           WebkitMaskImage: 'radial-gradient(120% 80% at 50% 0%, #000 40%, transparent 100%)',
         }} />
-        <div aria-hidden className="absolute inset-0 pointer-events-none" style={{
-          background: 'radial-gradient(45% 60% at 88% 15%, rgba(232,197,126,0.18), transparent 60%)',
-        }} />
         <div className="relative mx-auto px-5 lg:px-10 pt-12 pb-14 lg:pt-16 lg:pb-16 text-center" style={{ maxWidth: 1280 }}>
           <span className="inline-flex items-center gap-2 px-4 h-[34px] rounded-full text-[13px] font-medium mb-6"
             style={{ background: '#FFFFFF', color: '#3A4A42', border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
@@ -608,8 +605,6 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents, ban
 
       {/* ── CTA — full-width forest band ──────────────────────── */}
       <div className="relative w-full overflow-hidden" style={{ background: '#163828' }}>
-        <div aria-hidden className="absolute inset-0 pointer-events-none"
-          style={{ background: 'radial-gradient(50% 90% at 85% 50%, rgba(232,197,126,0.20), transparent 60%)' }} />
         <div className="relative mx-auto px-5 lg:px-10 py-14 lg:py-20 flex flex-col lg:flex-row lg:items-center justify-between gap-8" style={{ maxWidth: 1280 }}>
           <div className="max-w-xl">
             <h3 className="font-title font-bold text-white" style={{ fontSize: 'clamp(24px,3vw,34px)', letterSpacing: '-0.025em', lineHeight: 1.1 }}>

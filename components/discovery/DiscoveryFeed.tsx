@@ -504,9 +504,6 @@ export function DiscoveryFeed({ events }: DiscoveryFeedProps) {
       {/* ── CTA BAND ────────────────────────────────────────── */}
       <div className={`${PW} pb-16`} style={MAX}>
         <div className="relative rounded-[22px] overflow-hidden" style={{ background: '#163828' }}>
-          {/* Gold glow */}
-          <div aria-hidden className="absolute inset-0 pointer-events-none"
-            style={{ background: 'radial-gradient(50% 80% at 85% 50%, rgba(232,197,126,0.22), transparent 60%)' }} />
           <div className="relative grid lg:grid-cols-[1fr_1px_1fr] gap-8 lg:gap-12 p-10 lg:p-14 lg:items-center">
             <div>
               <p className="font-title font-medium text-white" style={{ fontSize: 'clamp(19px,2.4vw,23px)', lineHeight: 1.45, letterSpacing: '-0.01em' }}>
