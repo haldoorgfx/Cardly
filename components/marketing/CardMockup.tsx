@@ -76,7 +76,7 @@ export function CardMockup({
           <div style={{ fontSize: Math.round(width * 0.028), fontFamily: 'Inter, system-ui, sans-serif', color: 'rgba(255,255,255,0.35)', letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: Math.round(width * 0.025) }}>
             {org}
           </div>
-          <div style={{ fontSize: Math.round(width * 0.055), fontWeight: 700, color: 'white', lineHeight: 1.15, fontFamily: 'DM Sans, system-ui, sans-serif', letterSpacing: '-0.02em' }}>
+          <div style={{ fontSize: Math.round(width * 0.055), fontWeight: 700, color: 'white', lineHeight: 1.15, fontFamily: 'Plus Jakarta Sans, system-ui, sans-serif', letterSpacing: '-0.02em' }}>
             {event.split('\n').map((line, i) => (
               <span key={i}>{line}{i < event.split('\n').length - 1 && <br />}</span>
             ))}
@@ -99,7 +99,7 @@ export function CardMockup({
             background: 'linear-gradient(135deg, #E8C57E, #C9A45E)',
             display: 'grid',
             placeItems: 'center',
-            fontFamily: 'DM Sans, system-ui, sans-serif',
+            fontFamily: 'Plus Jakarta Sans, system-ui, sans-serif',
             fontWeight: 700,
             fontSize: Math.round(width * 0.04),
             color: '#1F4D3A',
@@ -109,7 +109,7 @@ export function CardMockup({
             {initials}
           </div>
           <div>
-            <div style={{ fontWeight: 600, fontSize: Math.round(width * 0.045), color: 'white', fontFamily: 'DM Sans, system-ui, sans-serif', lineHeight: 1.2 }}>
+            <div style={{ fontWeight: 600, fontSize: Math.round(width * 0.045), color: 'white', fontFamily: 'Plus Jakarta Sans, system-ui, sans-serif', lineHeight: 1.2 }}>
               {name}
             </div>
             <div style={{ fontSize: Math.round(width * 0.032), color: 'rgba(255,255,255,0.55)', fontFamily: 'Inter, system-ui, sans-serif', marginTop: 2, letterSpacing: '0.04em' }}>

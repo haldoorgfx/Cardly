@@ -18,7 +18,7 @@ function Tile({ n, title, icon, children }: { n: number; title: string; icon: Ic
 }
 
 function Pill({ children, style }: { children: ReactNode; style?: CSSProperties }) {
-  return <span style={{ alignSelf: 'flex-start', fontFamily: 'DM Sans', fontWeight: 600, fontSize: 11.5, padding: '6px 13px', borderRadius: 99, ...style }}>{children}</span>;
+  return <span style={{ alignSelf: 'flex-start', fontFamily: 'Plus Jakarta Sans', fontWeight: 600, fontSize: 11.5, padding: '6px 13px', borderRadius: 99, ...style }}>{children}</span>;
 }
 
 const ticketRow = (name: string, price: string) => (

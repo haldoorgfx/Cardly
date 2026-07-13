@@ -64,7 +64,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
     cream:       '#FAF6EE',
   },
   fonts: {
-    display: 'DM Sans',
+    display: 'Plus Jakarta Sans',
     body:    'Inter',
     mono:    'Inter',
   },

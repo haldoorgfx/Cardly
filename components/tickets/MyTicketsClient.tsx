@@ -98,7 +98,7 @@ function QROverlay({ token, name, label, onClose }: QROverlayProps) {
       </div>
 
       <div className="mt-8 font-medium text-[22px] text-white text-center px-6"
-        style={{ fontFamily: '"DM Sans", sans-serif' }}>
+        style={{ fontFamily: '"Plus Jakarta Sans", sans-serif' }}>
         {name}
       </div>
       <div className="mt-1.5 text-center px-6"
@@ -190,10 +190,10 @@ function TicketStub({ reg, isPast, onShowQR }: { reg: Registration; isPast: bool
           {start ? (
             <div className="relative z-10 text-center text-white leading-none">
               <div style={{ fontSize: 11, letterSpacing: '0.16em', fontWeight: 600, color: GOLD }}>{monthStr}</div>
-              <div className="font-display" style={{ fontFamily: '"DM Sans", sans-serif', fontSize: 32, fontWeight: 700, marginTop: 4 }}>{dayStr}</div>
+              <div className="font-display" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', fontSize: 32, fontWeight: 700, marginTop: 4 }}>{dayStr}</div>
             </div>
           ) : (
-            <div className="relative z-10 font-display font-bold text-white" style={{ fontFamily: '"DM Sans", sans-serif', fontSize: 34, opacity: 0.92 }}>
+            <div className="relative z-10 font-display font-bold text-white" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', fontSize: 34, opacity: 0.92 }}>
               {title.charAt(0).toUpperCase()}
             </div>
           )}
@@ -207,7 +207,7 @@ function TicketStub({ reg, isPast, onShowQR }: { reg: Registration; isPast: bool
           <Link href={detailHref} className="block min-w-0">
             <div
               className="font-display font-semibold leading-snug"
-              style={{ fontFamily: '"DM Sans", sans-serif', color: INK, fontSize: 16.5, letterSpacing: '-0.015em', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
+              style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: INK, fontSize: 16.5, letterSpacing: '-0.015em', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
             >
               {title}
             </div>
@@ -274,7 +274,7 @@ function NextUpHub({ reg, onShowQR }: { reg: Registration; onShowQR: () => void 
           </div>
           <div
             className="mt-1.5 font-display font-bold text-white"
-            style={{ fontFamily: '"DM Sans", sans-serif', fontSize: 22, lineHeight: 1.15, letterSpacing: '-0.02em', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
+            style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', fontSize: 22, lineHeight: 1.15, letterSpacing: '-0.02em', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
           >
             {title}
           </div>

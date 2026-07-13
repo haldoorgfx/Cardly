@@ -60,10 +60,10 @@ Eventera is a full event management platform and marketplace. Organizers create 
 
 **Hero gradient:** `linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 100%)`
 
-**Typography:**
-- Display: DM Sans (headings, `letter-spacing: -0.02em`)
-- Body/UI: Inter
-- Mono: JetBrains Mono (numbers, IDs, labels)
+**Typography (strict two-font system — updated 2026-07-13):**
+- Display: **Plus Jakarta Sans** (headings, wordmark, big numbers; weights 600/700/800; `letter-spacing: -0.02em` mid, `-0.03em` at large sizes)
+- Body/UI: **Inter** (weights 400/500/600)
+- **No third font. No monospace.** (Retired DM Sans as display + JetBrains Mono — inspired by our sister sites cre8so.com / dugsiiye.com: big bold tightly-tracked headings, calm two-font restraint.) The server-rendered Eventera Card graphic and the Card Studio editor may still use DM Sans as an embedded/selectable *design* font — that is card content, not UI chrome.
 
 **Never use:** `#6c63ff` (old purple), `#f8a4d8` (old pink), `#fafafa` (use cream), `#e5e5ea` (use warm border). No black heroes — use forest gradient.
 

@@ -22,7 +22,7 @@ const INK_SOFT = '#3A4A42';
 const MUTED = '#6B7A72';
 const SUCCESS = '#2D7A4F';
 
-const DISPLAY = '"DM Sans", sans-serif';
+const DISPLAY = '"Plus Jakarta Sans", sans-serif';
 const BODY = 'Inter, system-ui, sans-serif';
 
 // ── Option lists (mirrored from the mobile onboarding screen) ────────────────

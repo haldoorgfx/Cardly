@@ -76,7 +76,7 @@ export default function PhotoCropModal({
               Position photo
             </div>
             <div style={{
-              fontFamily: 'DM Sans, sans-serif', fontWeight: 700, fontSize: 22,
+              fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 700, fontSize: 22,
               letterSpacing: '-0.02em', color: '#FAF6EE',
             }}>
               Position your photo
@@ -196,7 +196,7 @@ export default function PhotoCropModal({
                 textTransform: 'uppercase', marginBottom: 6,
               }}>Position photo</div>
               <div style={{
-                fontFamily: 'DM Sans, sans-serif', fontWeight: 700, fontSize: 28,
+                fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 700, fontSize: 28,
                 letterSpacing: '-0.025em', color: '#0F1F18', lineHeight: 1.15,
               }}>Position your photo</div>
               <div style={{

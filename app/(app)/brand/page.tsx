@@ -218,7 +218,7 @@ export default function BrandKitPage() {
             <div className="divide-y divide-border">
               <div className="flex items-center justify-between py-4">
                 <div>
-                  <div className="font-display font-bold text-[24px] text-[#0F1F18] leading-none">DM Sans</div>
+                  <div className="font-display font-bold text-[24px] text-[#0F1F18] leading-none">Plus Jakarta Sans</div>
                   <div className="text-[12px] text-[#6B7A72] mt-1">Display · headings</div>
                 </div>
                 <span

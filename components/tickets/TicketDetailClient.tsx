@@ -156,7 +156,7 @@ function QRFullscreen({ token, name, label, code, onClose }: {
       </button>
 
       <div className="text-center mb-6">
-        <div className="font-display font-bold text-[20px] text-white" style={{ fontFamily: '"DM Sans", sans-serif' }}>{name}</div>
+        <div className="font-display font-bold text-[20px] text-white" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif' }}>{name}</div>
         <div className="text-[13px] mt-1" style={{ color: 'rgba(250,246,238,0.7)' }}>{label}</div>
       </div>
 
@@ -186,7 +186,7 @@ function ActionRow({ icon, label, danger, href, onClick }: {
   const inner = (
     <div className="flex items-center gap-3.5 py-3.5 px-2 -mx-2 rounded-xl transition-colors hover:bg-[#FAF6EE]">
       <span style={{ color: danger ? DANGER : FOREST }}>{icon}</span>
-      <span className="flex-1 font-display font-medium text-[15px]" style={{ fontFamily: '"DM Sans", sans-serif', color: danger ? DANGER : INK }}>{label}</span>
+      <span className="flex-1 font-display font-medium text-[15px]" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: danger ? DANGER : INK }}>{label}</span>
       {!danger && <ChevronRight size={18} style={{ color: MUTED }} />}
     </div>
   );
@@ -217,7 +217,7 @@ function ReceiptModal({ reg, onClose }: { reg: Registration; onClose: () => void
         onClick={e => e.stopPropagation()}
       >
         <div className="flex items-center px-5 h-14" style={{ borderBottom: `1px solid ${BORDER}` }}>
-          <span className="font-display font-semibold text-[16px]" style={{ fontFamily: '"DM Sans", sans-serif', color: INK }}>Receipt</span>
+          <span className="font-display font-semibold text-[16px]" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: INK }}>Receipt</span>
           <button className="ml-auto flex items-center justify-center w-9 h-9 rounded-full" style={{ color: MUTED }} onClick={onClose} aria-label="Close">
             <X size={18} />
           </button>
@@ -228,7 +228,7 @@ function ReceiptModal({ reg, onClose }: { reg: Registration; onClose: () => void
             <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3" style={{ background: FOREST_SOFT }}>
               <Check size={24} strokeWidth={2.4} style={{ color: FOREST }} />
             </div>
-            <div className="font-display font-semibold text-[17px]" style={{ fontFamily: '"DM Sans", sans-serif', color: INK }}>
+            <div className="font-display font-semibold text-[17px]" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: INK }}>
               {isFree ? 'Registration confirmed' : isPaid ? 'Payment successful' : 'Order pending'}
             </div>
             <div className="text-[11.5px] mt-1.5" style={{ color: MUTED, fontFamily: 'Inter, system-ui, sans-serif' }}>Order #{orderNo}</div>
@@ -243,7 +243,7 @@ function ReceiptModal({ reg, onClose }: { reg: Registration; onClose: () => void
               <span style={{ fontFamily: 'Inter, system-ui, sans-serif', color: INK }}>{isFree ? 'Free' : money(amount, currency)}</span>
             </div>
             <div className="flex justify-between items-center pt-3" style={{ borderTop: `1px solid ${BORDER}` }}>
-              <span className="font-display font-semibold text-[15px]" style={{ fontFamily: '"DM Sans", sans-serif', color: INK }}>Total {isPaid ? 'paid' : ''}</span>
+              <span className="font-display font-semibold text-[15px]" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: INK }}>Total {isPaid ? 'paid' : ''}</span>
               <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 19, color: FOREST }}>{isFree ? 'Free' : money(amount, currency)}</span>
             </div>
           </div>
@@ -251,13 +251,13 @@ function ReceiptModal({ reg, onClose }: { reg: Registration; onClose: () => void
           <div className="flex items-center py-3" style={{ borderTop: `1px solid ${BORDER}` }}>
             <div className="flex-1">
               <div className="text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: MUTED }}>Date</div>
-              <div className="font-display font-semibold text-[14px] mt-1" style={{ fontFamily: '"DM Sans", sans-serif', color: INK }}>{dateStr}</div>
+              <div className="font-display font-semibold text-[14px] mt-1" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: INK }}>{dateStr}</div>
             </div>
           </div>
           <div className="flex items-center py-3" style={{ borderTop: `1px solid ${BORDER}` }}>
             <div className="flex-1">
               <div className="text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: MUTED }}>Billed to</div>
-              <div className="font-display font-semibold text-[14px] mt-1" style={{ fontFamily: '"DM Sans", sans-serif', color: INK }}>{reg.attendee_email}</div>
+              <div className="font-display font-semibold text-[14px] mt-1" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: INK }}>{reg.attendee_email}</div>
             </div>
           </div>
         </div>
@@ -332,7 +332,7 @@ export default function TicketDetailClient({ reg, scannedByName, variant }: Prop
         <Link href="/my-tickets" className="flex items-center justify-center w-10 h-10 rounded-full" style={{ color: INK }} aria-label="Back">
           <ChevronLeft size={22} />
         </Link>
-        <span className="font-display font-semibold text-[16px]" style={{ fontFamily: '"DM Sans", sans-serif', color: INK }}>Ticket</span>
+        <span className="font-display font-semibold text-[16px]" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: INK }}>Ticket</span>
         <button
           className="ml-auto flex items-center justify-center w-10 h-10 rounded-full"
           style={{ color: INK }}
@@ -364,7 +364,7 @@ export default function TicketDetailClient({ reg, scannedByName, variant }: Prop
 
             {/* Meta */}
             <div className="absolute bottom-3.5 left-4 right-4">
-              <div className="font-display font-bold text-[19px] leading-tight text-white" style={{ fontFamily: '"DM Sans", sans-serif', letterSpacing: '-0.015em' }}>{eventName}</div>
+              <div className="font-display font-bold text-[19px] leading-tight text-white" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', letterSpacing: '-0.015em' }}>{eventName}</div>
               {venue && (
                 <div className="flex items-center gap-1.5 mt-1 text-[12.5px]" style={{ color: 'rgba(250,246,238,0.92)' }}>
                   <MapPin size={13} style={{ color: GOLD }} />
@@ -417,7 +417,7 @@ export default function TicketDetailClient({ reg, scannedByName, variant }: Prop
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div
                         className="font-display font-bold"
-                        style={{ fontFamily: '"DM Sans", sans-serif', fontSize: 20, letterSpacing: '0.06em', color: FOREST, border: `3px solid ${FOREST}`, borderRadius: 10, padding: '8px 18px', transform: 'rotate(-11deg)', background: 'rgba(255,255,255,0.7)' }}
+                        style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', fontSize: 20, letterSpacing: '0.06em', color: FOREST, border: `3px solid ${FOREST}`, borderRadius: 10, padding: '8px 18px', transform: 'rotate(-11deg)', background: 'rgba(255,255,255,0.7)' }}
                       >
                         ADMITTED
                       </div>
@@ -439,30 +439,30 @@ export default function TicketDetailClient({ reg, scannedByName, variant }: Prop
           <div className="grid grid-cols-2 gap-y-4 gap-x-4 px-5 pb-6 pt-1" style={{ borderTop: `1px solid ${BORDER}` }}>
             <div className="pt-4">
               <div className="text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: MUTED }}>Attendee</div>
-              <div className="font-display font-medium text-[14px] mt-1" style={{ fontFamily: '"DM Sans", sans-serif', color: INK }}>{reg.attendee_name}</div>
+              <div className="font-display font-medium text-[14px] mt-1" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: INK }}>{reg.attendee_name}</div>
             </div>
             <div className="pt-4">
               <div className="text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: MUTED }}>Type</div>
-              <div className="font-display font-medium text-[14px] mt-1" style={{ fontFamily: '"DM Sans", sans-serif', color: INK }}>{ticketName}</div>
+              <div className="font-display font-medium text-[14px] mt-1" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: INK }}>{ticketName}</div>
             </div>
             <div>
               <div className="text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: MUTED }}>When</div>
-              <div className="font-display font-medium text-[14px] mt-1" style={{ fontFamily: '"DM Sans", sans-serif', color: INK }}>{fmtWhen(ep?.starts_at)}</div>
+              <div className="font-display font-medium text-[14px] mt-1" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: INK }}>{fmtWhen(ep?.starts_at)}</div>
             </div>
             {isPendingPayment ? (
               <div>
                 <div className="text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: MUTED }}>Amount due</div>
-                <div className="font-display font-medium text-[14px] mt-1" style={{ fontFamily: '"DM Sans", sans-serif', color: WARNING }}>{money(amount, currency)}</div>
+                <div className="font-display font-medium text-[14px] mt-1" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: WARNING }}>{money(amount, currency)}</div>
               </div>
             ) : isCheckedIn ? (
               <div>
                 <div className="text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: MUTED }}>Scanned by</div>
-                <div className="font-display font-medium text-[14px] mt-1" style={{ fontFamily: '"DM Sans", sans-serif', color: INK }}>{scannedByName ?? 'Gate staff'}</div>
+                <div className="font-display font-medium text-[14px] mt-1" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: INK }}>{scannedByName ?? 'Gate staff'}</div>
               </div>
             ) : (
               <div>
                 <div className="text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: MUTED }}>Gate</div>
-                <div className="font-display font-medium text-[14px] mt-1" style={{ fontFamily: '"DM Sans", sans-serif', color: INK }}>{gate}</div>
+                <div className="font-display font-medium text-[14px] mt-1" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: INK }}>{gate}</div>
               </div>
             )}
           </div>
@@ -526,7 +526,7 @@ export default function TicketDetailClient({ reg, scannedByName, variant }: Prop
             <img src={cardDataUrl} alt="Your Eventera Card" className="w-full block" />
             <div className="p-4 flex items-center justify-between gap-3">
               <div className="min-w-0">
-                <div className="font-display font-semibold text-[14px]" style={{ fontFamily: '"DM Sans", sans-serif', color: INK }}>Your Eventera Card</div>
+                <div className="font-display font-semibold text-[14px]" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: INK }}>Your Eventera Card</div>
                 <div className="text-[12px] mt-0.5" style={{ color: MUTED }}>Saved — you can find it in My Cards too.</div>
               </div>
               <a
@@ -545,7 +545,7 @@ export default function TicketDetailClient({ reg, scannedByName, variant }: Prop
               <IdCard size={20} strokeWidth={1.9} style={{ color: FOREST }} />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="font-display font-semibold text-[14px]" style={{ fontFamily: '"DM Sans", sans-serif', color: INK }}>Get my Eventera Card</div>
+              <div className="font-display font-semibold text-[14px]" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: INK }}>Get my Eventera Card</div>
               <div className="text-[12px] mt-0.5" style={{ color: MUTED }}>Personalise your branded card for this event.</div>
             </div>
             <button
@@ -589,7 +589,7 @@ export default function TicketDetailClient({ reg, scannedByName, variant }: Prop
             onClick={e => e.stopPropagation()}
           >
             <div className="w-9 h-1 rounded-full mx-auto mb-4" style={{ background: BORDER }} />
-            <div className="font-display font-semibold text-[16px] mb-1" style={{ fontFamily: '"DM Sans", sans-serif', color: INK }}>Add to calendar</div>
+            <div className="font-display font-semibold text-[16px] mb-1" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: INK }}>Add to calendar</div>
             <div className="text-[13px] mb-3" style={{ color: MUTED }}>Choose where to save this event.</div>
 
             <div className="divide-y" style={{ borderColor: BORDER }}>
@@ -597,7 +597,7 @@ export default function TicketDetailClient({ reg, scannedByName, variant }: Prop
               <a href={gcalUrl} target="_blank" rel="noopener noreferrer" onClick={() => setShowCalendar(false)}>
                 <div className="flex items-center gap-3.5 py-3.5">
                   <span style={{ color: FOREST }}><CalendarPlus size={20} /></span>
-                  <span className="flex-1 font-display font-medium text-[15px]" style={{ fontFamily: '"DM Sans", sans-serif', color: INK }}>Google Calendar</span>
+                  <span className="flex-1 font-display font-medium text-[15px]" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: INK }}>Google Calendar</span>
                   <ChevronRight size={18} style={{ color: MUTED }} />
                 </div>
               </a>
@@ -605,7 +605,7 @@ export default function TicketDetailClient({ reg, scannedByName, variant }: Prop
               <a href={icsUrl} download onClick={() => setShowCalendar(false)}>
                 <div className="flex items-center gap-3.5 py-3.5">
                   <span style={{ color: FOREST }}><CalendarPlus size={20} /></span>
-                  <span className="flex-1 font-display font-medium text-[15px]" style={{ fontFamily: '"DM Sans", sans-serif', color: INK }}>Apple Calendar</span>
+                  <span className="flex-1 font-display font-medium text-[15px]" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: INK }}>Apple Calendar</span>
                   <ChevronRight size={18} style={{ color: MUTED }} />
                 </div>
               </a>
@@ -613,7 +613,7 @@ export default function TicketDetailClient({ reg, scannedByName, variant }: Prop
               <a href={icsUrl} download onClick={() => setShowCalendar(false)}>
                 <div className="flex items-center gap-3.5 py-3.5">
                   <span style={{ color: FOREST }}><Download size={20} /></span>
-                  <span className="flex-1 font-display font-medium text-[15px]" style={{ fontFamily: '"DM Sans", sans-serif', color: INK }}>Download .ics</span>
+                  <span className="flex-1 font-display font-medium text-[15px]" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: INK }}>Download .ics</span>
                   <ChevronRight size={18} style={{ color: MUTED }} />
                 </div>
               </a>
@@ -634,7 +634,7 @@ export default function TicketDetailClient({ reg, scannedByName, variant }: Prop
             onClick={e => e.stopPropagation()}
           >
             <div className="w-9 h-1 rounded-full mx-auto mb-4 sm:hidden" style={{ background: BORDER }} />
-            <div className="font-display font-semibold text-[16px] mb-1 sm:hidden" style={{ fontFamily: '"DM Sans", sans-serif', color: INK }}>Ticket options</div>
+            <div className="font-display font-semibold text-[16px] mb-1 sm:hidden" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: INK }}>Ticket options</div>
 
             <div className="divide-y sm:divide-y-0" style={{ borderColor: BORDER }}>
               {isLive && (

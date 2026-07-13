@@ -128,7 +128,7 @@ export function GetCardModal({ variant, registrationId, eventId, attendeeName, o
         onClick={e => e.stopPropagation()}
       >
         <div className="flex items-center px-5 h-14 shrink-0" style={{ background: '#fff', borderBottom: '1px solid #E5E0D4' }}>
-          <span className="font-display font-semibold text-[16px]" style={{ fontFamily: '"DM Sans", sans-serif', color: '#0F1F18' }}>
+          <span className="font-display font-semibold text-[16px]" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: '#0F1F18' }}>
             Get my Eventera Card
           </span>
           <button className="ml-auto flex items-center justify-center w-9 h-9 rounded-full" style={{ color: '#6B7A72' }} onClick={onClose} aria-label="Close">

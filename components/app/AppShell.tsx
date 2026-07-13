@@ -218,7 +218,7 @@ function NavItem({ href, icon, label, badge, active, onNavigate }: {
   return (
     <li>
       <Link href={href} onClick={onNavigate}
-        className={`flex items-center gap-3 py-[7px] rounded-lg text-[13.5px] transition-colors border-l-2 ${
+        className={`flex items-center gap-3 py-[7px] rounded-lg text-[14.5px] transition-colors border-l-2 ${
           active
             ? 'border-[#1F4D3A] font-medium pl-[8px] pr-2.5'
             : 'border-transparent px-2.5 hover:bg-[#F5F3EE]'
@@ -229,7 +229,7 @@ function NavItem({ href, icon, label, badge, active, onNavigate }: {
         <span className="shrink-0">{icon}</span>
         <span className="flex-1 leading-none">{label}</span>
         {badge && (
-          <span className="text-[9px] font-medium px-1.5 py-0.5 rounded-md tracking-wide"
+          <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-md tracking-wide"
             style={{ color: '#6B7A72', background: '#F5F3EE' }}>
             {badge}
           </span>
@@ -295,14 +295,14 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
             </Link>
           )}
           {mounted && planLabel && (
-            <span className="text-[9px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-md"
+            <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-md"
               style={{ background: '#E8EFEB', color: '#1F4D3A', border: '1px solid #C9DDD3' }}>
               {planLabel}
             </span>
           )}
         </div>
         {mounted && profile?.full_name && (
-          <p className="text-[12.5px] font-medium px-0.5" style={{ color: '#6B7A72' }}>
+          <p className="text-[13.5px] font-medium px-0.5" style={{ color: '#6B7A72' }}>
             {profile.full_name}
           </p>
         )}
@@ -351,7 +351,7 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
             <div key={group.key}>
               <button
                 onClick={() => toggleGroup(group.key)}
-                className="w-full px-2.5 mb-1.5 flex items-center justify-between text-[9.5px] font-semibold uppercase tracking-[0.08em] transition-colors hover:text-[#6B7A72]"
+                className="w-full px-2.5 mb-1.5 flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.08em] transition-colors hover:text-[#6B7A72]"
                 style={{ color: '#9BA8A1' }}>
                 <span className="flex items-center gap-1.5">
                   {group.title}
@@ -371,8 +371,8 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
       <div className="px-3 pb-2 shrink-0">
         <div className="rounded-xl p-3" style={{ background: '#F5F3EE', border: '1px solid #E5E0D4' }}>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[9.5px] font-semibold uppercase tracking-[0.08em]" style={{ color: '#9BA8A1' }}>Events</span>
-            <span suppressHydrationWarning className="text-[10px] font-medium tabular-nums" style={{ color: '#6B7A72' }}>
+            <span className="text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: '#9BA8A1' }}>Events</span>
+            <span suppressHydrationWarning className="text-[11px] font-medium tabular-nums" style={{ color: '#6B7A72' }}>
               {eventCount}&nbsp;/&nbsp;{planLimit === Infinity ? '∞' : planLimit}
             </span>
           </div>
@@ -385,11 +385,11 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
 
       {/* Operations + plan CTA */}
       <div className="px-3 pb-3 shrink-0">
-        <div className="px-2.5 mb-2 text-[9.5px] font-semibold uppercase tracking-[0.08em]" style={{ color: '#9BA8A1' }}>
+        <div className="px-2.5 mb-2 text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: '#9BA8A1' }}>
           Operations
         </div>
         <Link href="/settings/billing" onClick={onNavigate}
-          className="flex items-center justify-center gap-1.5 w-full px-3 py-2.5 rounded-xl text-[13px] font-semibold text-white transition-all hover:opacity-90"
+          className="flex items-center justify-center gap-1.5 w-full px-3 py-2.5 rounded-xl text-[14px] font-semibold text-white transition-all hover:opacity-90"
           style={{ background: '#1F4D3A' }}>
           <span suppressHydrationWarning>{ctaLabel}</span>
         </Link>
@@ -398,7 +398,7 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
       {/* Settings + Sign out */}
       <div className="px-3 py-2 shrink-0 border-t space-y-0.5" style={{ borderColor: '#E5E0D4' }}>
         <Link href="/settings" onClick={onNavigate}
-          className={`w-full flex items-center gap-3 px-2.5 py-[7px] rounded-lg text-[13.5px] transition-colors ${
+          className={`w-full flex items-center gap-3 px-2.5 py-[7px] rounded-lg text-[14.5px] transition-colors ${
             pathname === '/settings' || pathname.startsWith('/settings/') ? 'font-medium' : 'hover:bg-[#F5F3EE]'
           }`}
           style={pathname === '/settings' || pathname.startsWith('/settings/')
@@ -408,7 +408,7 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
           <span className="leading-none">Settings</span>
         </Link>
         <button onClick={handleSignOut}
-          className="w-full flex items-center gap-3 px-2.5 py-[7px] rounded-lg text-[13.5px] transition-colors text-left hover:bg-[#F5F3EE]"
+          className="w-full flex items-center gap-3 px-2.5 py-[7px] rounded-lg text-[14.5px] transition-colors text-left hover:bg-[#F5F3EE]"
           style={{ color: '#6B7A72' }}>
           <LogOut size={15} strokeWidth={1.7} className="shrink-0" />
           <span className="leading-none">Sign out</span>
@@ -502,19 +502,19 @@ function EventNavContent({ pathname, eventId, onNavigate }: {
       {/* Event context header */}
       <div className="px-3 pt-3 pb-3 shrink-0" style={{ borderBottom: '1px solid #E5E0D4' }}>
         <Link href="/dashboard" onClick={onNavigate}
-          className="inline-flex items-center gap-1.5 text-[12px] transition-colors mb-3 hover:text-[#0F1F18]"
+          className="inline-flex items-center gap-1.5 text-[13px] transition-colors mb-3 hover:text-[#0F1F18]"
           style={{ color: '#6B7A72' }}>
           <ArrowLeft size={13} strokeWidth={2} />
           All events
         </Link>
-        <div className="font-display text-[14px] font-semibold leading-snug tracking-tight line-clamp-2 px-0.5"
+        <div className="font-display text-[15px] font-semibold leading-snug tracking-tight line-clamp-2 px-0.5"
           style={{ color: '#0F1F18' }}>
           {event ? event.name : (
             <span className="inline-block w-36 h-4 rounded animate-pulse" style={{ background: '#E5E0D4' }} />
           )}
         </div>
         {badge && (
-          <span className="mt-2 inline-flex items-center gap-1.5 text-[9.5px] font-semibold tracking-[0.06em] uppercase px-2 py-0.5 rounded-full border"
+          <span className="mt-2 inline-flex items-center gap-1.5 text-[11px] font-semibold tracking-[0.06em] uppercase px-2 py-0.5 rounded-full border"
             style={event?.status === 'published'
               ? { background: '#E8EFEB', color: '#2D7A4F', borderColor: '#C9DDD3' }
               : event?.status === 'draft'
@@ -538,7 +538,7 @@ function EventNavContent({ pathname, eventId, onNavigate }: {
                 aria-expanded={open}
                 className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg transition-colors hover:bg-[#F5F3EE]"
               >
-                <span className="text-[9.5px] font-semibold uppercase tracking-[0.08em]" style={{ color: '#9BA8A1' }}>
+                <span className="text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: '#9BA8A1' }}>
                   {section.title}
                 </span>
                 <ChevronRight
@@ -638,35 +638,35 @@ function CommandPalette({ onClose }: { onClose: () => void }) {
             value={query}
             onChange={e => setQuery(e.target.value)}
             placeholder="Search events, or jump to…"
-            className="flex-1 text-[13px] placeholder-[#6B7A72] outline-none bg-transparent text-[#0F1F18]"
+            className="flex-1 text-[14px] placeholder-[#6B7A72] outline-none bg-transparent text-[#0F1F18]"
           />
           {loading && (
             <svg className="animate-spin text-[#6B7A72] shrink-0" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="M21 12a9 9 0 1 1-9-9" strokeLinecap="round" />
             </svg>
           )}
-          <button onClick={onClose} className="text-[11px] text-[#6B7A72] border px-1.5 py-0.5 rounded-md hover:text-[#0F1F18] transition leading-none" style={{ borderColor: '#E5E0D4' }}>
+          <button onClick={onClose} className="text-[12px] text-[#6B7A72] border px-1.5 py-0.5 rounded-md hover:text-[#0F1F18] transition leading-none" style={{ borderColor: '#E5E0D4' }}>
             ESC
           </button>
         </div>
 
         <div className="max-h-[360px] overflow-y-auto">
           {query.trim() && results.length === 0 && !loading && (
-            <div className="px-4 py-10 text-center text-[13px] text-[#6B7A72]">
+            <div className="px-4 py-10 text-center text-[14px] text-[#6B7A72]">
               No events found for &ldquo;{query}&rdquo;
             </div>
           )}
           {results.length > 0 && (
             <div className="p-1.5">
-              <div className="px-2.5 py-1.5 text-[10px] text-[#6B7A72]/70 uppercase tracking-widest">Events</div>
+              <div className="px-2.5 py-1.5 text-[11px] text-[#6B7A72]/70 uppercase tracking-widest">Events</div>
               {results.map((r, i) => (
                 <button key={r.id} onClick={() => navigate(r)} onMouseEnter={() => setSelected(i)}
                   className={`w-full flex items-center gap-3 px-2.5 py-2 rounded-xl text-left transition-colors ${i === selected ? 'bg-[#F5F5F4]' : 'hover:bg-[#F5F5F4]/60'}`}>
                   <div className="flex-1 min-w-0">
-                    <div className="text-[13px] font-medium text-[#0F1F18] truncate">{r.name}</div>
-                    <div className="text-[11px] text-[#6B7A72]">/{r.slug}</div>
+                    <div className="text-[14px] font-medium text-[#0F1F18] truncate">{r.name}</div>
+                    <div className="text-[12px] text-[#6B7A72]">/{r.slug}</div>
                   </div>
-                  <span className={`text-[10px] px-2 py-0.5 rounded-full border ${r.status === 'published' ? 'border-emerald-200 bg-emerald-50 text-emerald-600' : r.status === 'archived' ? 'border-rose-200 bg-rose-50 text-rose-500' : 'border-amber-200 bg-amber-50 text-amber-600'}`}>
+                  <span className={`text-[11px] px-2 py-0.5 rounded-full border ${r.status === 'published' ? 'border-emerald-200 bg-emerald-50 text-emerald-600' : r.status === 'archived' ? 'border-rose-200 bg-rose-50 text-rose-500' : 'border-amber-200 bg-amber-50 text-amber-600'}`}>
                     {r.status}
                   </span>
                 </button>
@@ -675,14 +675,14 @@ function CommandPalette({ onClose }: { onClose: () => void }) {
           )}
           {!query.trim() && (
             <div className="p-1.5">
-              <div className="px-2.5 py-1.5 text-[10px] text-[#6B7A72]/70 uppercase tracking-widest">Quick actions</div>
+              <div className="px-2.5 py-1.5 text-[11px] text-[#6B7A72]/70 uppercase tracking-widest">Quick actions</div>
               {quickActions.map((a, i) => (
                 <Link key={a.href} href={a.href} onClick={onClose}
                   className={`flex items-center gap-3 px-2.5 py-2 rounded-xl transition-colors ${i === selected ? 'bg-[#F5F5F4]' : 'hover:bg-[#F5F5F4]/60'}`}>
                   <div className="h-7 w-7 rounded-lg border grid place-items-center text-[#3A4A42] shrink-0" style={{ borderColor: '#E5E0D4', background: '#FAF6EE' }}>
                     {a.icon}
                   </div>
-                  <span className="text-[13px] text-[#3A4A42]">{a.label}</span>
+                  <span className="text-[14px] text-[#3A4A42]">{a.label}</span>
                   <ChevronRight className="ml-auto text-[#E5E0D4] shrink-0" size={12} strokeWidth={2.2} />
                 </Link>
               ))}
@@ -690,10 +690,10 @@ function CommandPalette({ onClose }: { onClose: () => void }) {
           )}
         </div>
 
-        <div className="border-t px-4 py-2.5 flex items-center gap-4 text-[11px] text-[#6B7A72]" style={{ borderColor: '#E5E0D4' }}>
-          <span><kbd className="border px-1 rounded text-[10px]" style={{ borderColor: '#E5E0D4' }}>↑↓</kbd> navigate</span>
-          <span><kbd className="border px-1 rounded text-[10px]" style={{ borderColor: '#E5E0D4' }}>↵</kbd> open</span>
-          <span><kbd className="border px-1 rounded text-[10px]" style={{ borderColor: '#E5E0D4' }}>ESC</kbd> close</span>
+        <div className="border-t px-4 py-2.5 flex items-center gap-4 text-[12px] text-[#6B7A72]" style={{ borderColor: '#E5E0D4' }}>
+          <span><kbd className="border px-1 rounded text-[11px]" style={{ borderColor: '#E5E0D4' }}>↑↓</kbd> navigate</span>
+          <span><kbd className="border px-1 rounded text-[11px]" style={{ borderColor: '#E5E0D4' }}>↵</kbd> open</span>
+          <span><kbd className="border px-1 rounded text-[11px]" style={{ borderColor: '#E5E0D4' }}>ESC</kbd> close</span>
         </div>
       </div>
     </div>
@@ -848,9 +848,9 @@ function NotifItem({ notif, onRead }: { notif: Notification; onRead: (id: string
         {NOTIF_ICONS[notif.icon] ?? NOTIF_ICONS.clock}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-[13px] leading-snug" style={{ color: '#0F1F18' }}>{notif.title}</p>
-        {notif.body && <p className="text-[11.5px] mt-0.5 truncate" style={{ color: '#6B7A72' }}>{notif.body}</p>}
-        <p className="text-[11px] mt-0.5 " style={{ color: '#9BA8A1' }}>{formatNotifTime(notif.created_at)}</p>
+        <p className="text-[14px] leading-snug" style={{ color: '#0F1F18' }}>{notif.title}</p>
+        {notif.body && <p className="text-[12.5px] mt-0.5 truncate" style={{ color: '#6B7A72' }}>{notif.body}</p>}
+        <p className="text-[12px] mt-0.5 " style={{ color: '#9BA8A1' }}>{formatNotifTime(notif.created_at)}</p>
       </div>
       {!notif.read_at && (
         <span className="h-2 w-2 rounded-full shrink-0 mt-2" style={{ background: '#E8C57E' }} />
@@ -1025,14 +1025,14 @@ export function AppShell({ children, initialSections, initialProfile, initialEve
           {impersonating && (
             <div className="w-full flex items-center justify-between gap-3 px-4 py-2.5 shrink-0 z-50"
               style={{ background: '#C97A2D', color: 'white' }}>
-              <div className="flex items-center gap-2 text-[13px] font-medium">
+              <div className="flex items-center gap-2 text-[14px] font-medium">
                 <Eye size={14} strokeWidth={2} />
                 Viewing as <strong>{impersonating.full_name ?? impersonating.email}</strong>
-                <span className="opacity-70 text-[11px]">({impersonating.email})</span>
+                <span className="opacity-70 text-[12px]">({impersonating.email})</span>
               </div>
               <button
                 onClick={exitImpersonation}
-                className="inline-flex items-center gap-1.5 h-7 px-3 text-[12px] font-semibold rounded-lg bg-white/20 hover:bg-white/30 transition"
+                className="inline-flex items-center gap-1.5 h-7 px-3 text-[13px] font-semibold rounded-lg bg-white/20 hover:bg-white/30 transition"
               >
                 <X size={11} strokeWidth={2.5} /> Exit
               </button>
@@ -1052,7 +1052,7 @@ export function AppShell({ children, initialSections, initialProfile, initialEve
               {(() => {
                 const crumbs = getPageBreadcrumbs(pathname, contextEventName);
                 return (
-                  <nav className="hidden sm:flex items-center gap-1.5 min-w-0 text-[13px]" aria-label="Breadcrumb">
+                  <nav className="hidden sm:flex items-center gap-1.5 min-w-0 text-[14px]" aria-label="Breadcrumb">
                     <Link href="/dashboard" className="font-display font-bold tracking-tight shrink-0 hover:opacity-70 transition-opacity text-sm" style={{ color: '#0F1F18' }}>
                       Eventera
                     </Link>
@@ -1084,8 +1084,8 @@ export function AppShell({ children, initialSections, initialProfile, initialEve
                 style={{ color: '#6B7A72', border: '1px solid #E5E0D4', background: '#FAF6EE', width: '200px' }}
                 aria-label="Search (⌘K)">
                 <Search size={13} strokeWidth={2} className="shrink-0" style={{ color: '#9BA8A1' }} />
-                <span className="flex-1 text-left text-[12.5px]" style={{ color: '#9BA8A1' }}>Search…</span>
-                <kbd className="flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded-md shrink-0"
+                <span className="flex-1 text-left text-[13.5px]" style={{ color: '#9BA8A1' }}>Search…</span>
+                <kbd className="flex items-center gap-0.5 text-[11px] px-1.5 py-0.5 rounded-md shrink-0"
                   style={{ background: '#F0EDE8', color: '#9BA8A1', border: '1px solid #E5E0D4' }}>⌘K</kbd>
               </button>
               {/* Mobile search icon only */}
@@ -1120,10 +1120,10 @@ export function AppShell({ children, initialSections, initialProfile, initialEve
                     <div className="absolute right-0 top-[44px] z-50 w-[min(340px,calc(100vw-16px))] bg-white border border-[#E5E0D4] rounded-2xl shadow-[0_8px_40px_rgba(15,31,24,0.14)] overflow-hidden animate-dropIn">
                       {/* Header */}
                       <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid #E5E0D4' }}>
-                        <span className="font-display text-[14px] font-semibold" style={{ color: '#0F1F18' }}>Notifications</span>
+                        <span className="font-display text-[15px] font-semibold" style={{ color: '#0F1F18' }}>Notifications</span>
                         {notifications.some(n => !n.read_at) && (
                           <button onClick={handleMarkAllRead}
-                            className="text-[10px] font-medium uppercase tracking-widest transition hover:text-[#1F4D3A]"
+                            className="text-[11px] font-medium uppercase tracking-widest transition hover:text-[#1F4D3A]"
                             style={{ color: '#9BA8A1' }}>
                             Mark all read
                           </button>
@@ -1133,11 +1133,11 @@ export function AppShell({ children, initialSections, initialProfile, initialEve
                       {/* List */}
                       <div className="max-h-[380px] overflow-y-auto">
                         {notifLoading ? (
-                          <div className="px-5 py-8 text-center text-[13px]" style={{ color: '#9BA8A1' }}>Loading…</div>
+                          <div className="px-5 py-8 text-center text-[14px]" style={{ color: '#9BA8A1' }}>Loading…</div>
                         ) : notifications.length === 0 ? (
                           <div className="px-5 py-8 text-center">
                             <Bell size={22} strokeWidth={1.5} className="mx-auto mb-2" style={{ color: '#C9C3B1' }} />
-                            <p className="text-[13px]" style={{ color: '#9BA8A1' }}>No notifications yet</p>
+                            <p className="text-[14px]" style={{ color: '#9BA8A1' }}>No notifications yet</p>
                           </div>
                         ) : (() => {
                           const todayStart = new Date(); todayStart.setHours(0,0,0,0);
@@ -1147,13 +1147,13 @@ export function AppShell({ children, initialSections, initialProfile, initialEve
                             <>
                               {today.length > 0 && (
                                 <div>
-                                  <div className="px-5 pt-3 pb-1.5 text-[9.5px] font-semibold uppercase tracking-[0.08em]" style={{ color: '#9BA8A1' }}>Today</div>
+                                  <div className="px-5 pt-3 pb-1.5 text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: '#9BA8A1' }}>Today</div>
                                   {today.map(n => <NotifItem key={n.id} notif={n} onRead={handleNotifRead} />)}
                                 </div>
                               )}
                               {earlier.length > 0 && (
                                 <div>
-                                  <div className="px-5 pt-3 pb-1.5 text-[9.5px] font-semibold uppercase tracking-[0.08em]" style={{ color: '#9BA8A1' }}>Earlier</div>
+                                  <div className="px-5 pt-3 pb-1.5 text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: '#9BA8A1' }}>Earlier</div>
                                   {earlier.map(n => <NotifItem key={n.id} notif={n} onRead={handleNotifRead} />)}
                                 </div>
                               )}
@@ -1166,7 +1166,7 @@ export function AppShell({ children, initialSections, initialProfile, initialEve
                       <div className="px-5 py-3.5 border-t text-center" style={{ borderColor: '#E5E0D4' }}>
                         <button
                           onClick={() => { setNotifOpen(false); router.push('/notifications'); }}
-                          className="text-[13px] font-medium transition hover:text-[#163828]"
+                          className="text-[14px] font-medium transition hover:text-[#163828]"
                           style={{ color: '#1F4D3A' }}>
                           View all notifications
                         </button>
@@ -1180,7 +1180,7 @@ export function AppShell({ children, initialSections, initialProfile, initialEve
               <div className="relative">
                 <button
                   onClick={() => setAccountMenuOpen(o => !o)}
-                  className="h-9 w-9 rounded-full grid place-items-center text-white text-[12px] font-semibold shrink-0 ring-2 ring-transparent hover:ring-[#1F4D3A]/30 transition-all"
+                  className="h-9 w-9 rounded-full grid place-items-center text-white text-[13px] font-semibold shrink-0 ring-2 ring-transparent hover:ring-[#1F4D3A]/30 transition-all"
                   style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 130%)' }}
                   aria-label="Account menu">
                   <span suppressHydrationWarning>{initials}</span>
@@ -1192,15 +1192,15 @@ export function AppShell({ children, initialSections, initialProfile, initialEve
                     <div className="absolute right-0 top-[44px] z-50 w-[min(260px,calc(100vw-16px))] bg-[#FAF6EE] border border-[#E5E0D4] rounded-2xl shadow-[0_8px_40px_rgba(15,31,24,0.15)] overflow-hidden animate-dropIn">
                       {/* Identity */}
                       <div className="px-4 py-3.5 flex items-center gap-3" style={{ borderBottom: '1px solid #E5E0D4' }}>
-                        <div className="h-10 w-10 rounded-full grid place-items-center text-white text-[13px] font-bold shrink-0"
+                        <div className="h-10 w-10 rounded-full grid place-items-center text-white text-[14px] font-bold shrink-0"
                           style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 130%)' }}>
                           <span suppressHydrationWarning>{initials}</span>
                         </div>
                         <div className="min-w-0">
-                          <div suppressHydrationWarning className="text-[13.5px] font-semibold text-[#0F1F18] leading-tight truncate">
+                          <div suppressHydrationWarning className="text-[14.5px] font-semibold text-[#0F1F18] leading-tight truncate">
                             {profile?.full_name ?? '—'}
                           </div>
-                          <div suppressHydrationWarning className=" text-[11px] text-[#6B7A72] truncate">{profile?.email ?? ''}</div>
+                          <div suppressHydrationWarning className=" text-[12px] text-[#6B7A72] truncate">{profile?.email ?? ''}</div>
                         </div>
                       </div>
 
@@ -1212,7 +1212,7 @@ export function AppShell({ children, initialSections, initialProfile, initialEve
                           { href: '/settings',          icon: <Settings2 size={14} strokeWidth={1.8} />,  label: 'Account settings' },
                         ].map(item => (
                           <Link key={item.label} href={item.href} onClick={() => setAccountMenuOpen(false)}
-                            className="flex items-center gap-3 px-4 py-2 text-[13px] transition-colors hover:text-[#1F4D3A]"
+                            className="flex items-center gap-3 px-4 py-2 text-[14px] transition-colors hover:text-[#1F4D3A]"
                             style={{ color: '#3A4A42' }}
                             onMouseEnter={e => (e.currentTarget.style.background = 'rgba(250,246,238,0.7)')}
                             onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
@@ -1227,7 +1227,7 @@ export function AppShell({ children, initialSections, initialProfile, initialEve
                         ].map(item => (
                           <a key={item.label} href={item.href} target="_blank" rel="noopener noreferrer"
                             onClick={() => setAccountMenuOpen(false)}
-                            className="flex items-center gap-3 px-4 py-2 text-[13px] transition-colors hover:text-[#1F4D3A]"
+                            className="flex items-center gap-3 px-4 py-2 text-[14px] transition-colors hover:text-[#1F4D3A]"
                             style={{ color: '#3A4A42' }}
                             onMouseEnter={e => (e.currentTarget.style.background = 'rgba(250,246,238,0.7)')}
                             onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
@@ -1240,10 +1240,10 @@ export function AppShell({ children, initialSections, initialProfile, initialEve
                       <div className="px-3 pb-3 pt-0">
                         <div className="rounded-xl p-3 mb-2"
                           style={{ background: 'linear-gradient(135deg, rgba(232,197,126,0.18), rgba(31,77,58,0.06))' }}>
-                          <div suppressHydrationWarning className="flex items-center gap-1.5 text-[12px] font-semibold" style={{ color: '#C9A45E' }}>
+                          <div suppressHydrationWarning className="flex items-center gap-1.5 text-[13px] font-semibold" style={{ color: '#C9A45E' }}>
                             <Zap size={12} strokeWidth={2} /> {planLabel} plan
                           </div>
-                          <div suppressHydrationWarning className="text-[11.5px] text-[#6B7A72] mt-0.5">
+                          <div suppressHydrationWarning className="text-[12.5px] text-[#6B7A72] mt-0.5">
                             {planLabel === 'Studio' ? "You're on the full platform." : 'Upgrade for more features.'}
                           </div>
                         </div>
@@ -1254,7 +1254,7 @@ export function AppShell({ children, initialSections, initialProfile, initialEve
                             await supabase.auth.signOut();
                             window.location.href = '/login';
                           }}
-                          className="w-full flex items-center gap-2.5 px-4 py-2 rounded-lg text-[13px] transition-colors text-left text-red-600 hover:bg-red-50">
+                          className="w-full flex items-center gap-2.5 px-4 py-2 rounded-lg text-[14px] transition-colors text-left text-red-600 hover:bg-red-50">
                           <LogOut size={14} strokeWidth={1.8} /> Sign out
                         </button>
                       </div>

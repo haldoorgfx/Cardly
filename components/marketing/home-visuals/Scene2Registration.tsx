@@ -48,12 +48,12 @@ export function Scene2Registration({ float }: { float?: boolean }) {
               <div style={{
                 marginTop: 2, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 9,
                 background: 'var(--forest)', border: '1px solid rgba(232,197,126,.3)', color: 'var(--cream)',
-                fontFamily: 'DM Sans', fontWeight: 600, fontSize: 14, padding: 14, borderRadius: 99,
+                fontFamily: 'Plus Jakarta Sans', fontWeight: 600, fontSize: 14, padding: 14, borderRadius: 99,
               }}>
                 {'Register & get your Eventera Card '}<Ic n="arr" c="crm" />
               </div>
               <div style={{ display: 'flex', gap: 12, alignItems: 'center', padding: 13, borderRadius: 14, background: 'rgba(232,197,126,.12)', border: '1px solid rgba(232,197,126,.3)' }}>
-                <div style={{ width: 34, height: 34, borderRadius: 8, background: 'var(--forest)', display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none', fontFamily: 'DM Sans', fontWeight: 700, color: 'var(--gold)', fontSize: 16 }}>E</div>
+                <div style={{ width: 34, height: 34, borderRadius: 8, background: 'var(--forest)', display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none', fontFamily: 'Plus Jakarta Sans', fontWeight: 700, color: 'var(--gold)', fontSize: 16 }}>E</div>
                 <div>
                   <div className={s.dm} style={{ fontWeight: 600, fontSize: 13 }}>Your Eventera Card is generated</div>
                   <div style={{ fontSize: 11.5, color: 'rgba(250,246,238,.65)', marginTop: 2 }}>Ready to share in 2 seconds</div>

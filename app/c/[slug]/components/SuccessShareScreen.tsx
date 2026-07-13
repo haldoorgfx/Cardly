@@ -179,7 +179,7 @@ function BigShareButton({
         {brandIcon}
       </div>
       <div style={{ flex: 1, minWidth: 0, padding: '0 4px 0 16px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-        <div style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 16, color: '#0F1F18', letterSpacing: '-0.01em' }}>
+        <div style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, fontSize: 16, color: '#0F1F18', letterSpacing: '-0.01em' }}>
           {label}
         </div>
         <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#6B7A72', marginTop: 2 }}>{sub}</div>
@@ -227,7 +227,7 @@ function ForwardPrompt({ pageUrl }: { pageUrl: string }) {
         <Forward size={18} strokeWidth={2}/>
       </div>
       <div style={{ position: 'relative', flex: 1, minWidth: 0 }}>
-        <div style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 14, color: '#0F1F18' }}>
+        <div style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, fontSize: 14, color: '#0F1F18' }}>
           Know someone else attending?
         </div>
         <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#3A4A42', marginTop: 2 }}>
@@ -293,7 +293,7 @@ export default function SuccessShareScreen({
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14, textAlign: 'center' }}>
             <SuccessBadge size={60}/>
             <div>
-              <h1 style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 700, fontSize: 28, lineHeight: 1.15, letterSpacing: '-0.025em', margin: 0, color: '#0F1F18' }}>
+              <h1 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 700, fontSize: 28, lineHeight: 1.15, letterSpacing: '-0.025em', margin: 0, color: '#0F1F18' }}>
                 Card saved
               </h1>
               <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, lineHeight: 1.5, color: '#3A4A42', marginTop: 6, maxWidth: 280, margin: '6px auto 0' }}>
@@ -317,7 +317,7 @@ export default function SuccessShareScreen({
 
           {/* Big share buttons */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <h2 style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 700, fontSize: 22, letterSpacing: '-0.02em', margin: 0, color: '#0F1F18' }}>
+            <h2 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 700, fontSize: 22, letterSpacing: '-0.02em', margin: 0, color: '#0F1F18' }}>
               Share where it matters
             </h2>
             <BigShareButton brandIcon={<InstagramIcon size={28}/>} brandColor="#d62976" label="Instagram Stories" sub="Open in Instagram" onClick={() => handleShare('instagram')}/>
@@ -369,7 +369,7 @@ export default function SuccessShareScreen({
         <div style={{ display: 'flex', flexDirection: 'column', gap: 24, maxWidth: 460 }}>
           <SuccessBadge size={72}/>
           <div>
-            <h1 style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 700, fontSize: 56, lineHeight: 1.0, letterSpacing: '-0.035em', margin: 0, color: '#0F1F18' }}>
+            <h1 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 700, fontSize: 56, lineHeight: 1.0, letterSpacing: '-0.035em', margin: 0, color: '#0F1F18' }}>
               Card saved.
             </h1>
             <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 18, lineHeight: 1.5, color: '#3A4A42', marginTop: 14, maxWidth: 380 }}>
@@ -391,7 +391,7 @@ export default function SuccessShareScreen({
               }}/>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10, color: '#6B7A72', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 4 }}>Saved file</div>
-                <div style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 15, color: '#0F1F18', lineHeight: 1.2 }}>
+                <div style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, fontSize: 15, color: '#0F1F18', lineHeight: 1.2 }}>
                   {eventName.toLowerCase().replace(/\s+/g, '-')}-card.png
                 </div>
                 <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#6B7A72', marginTop: 2 }}>
@@ -418,7 +418,7 @@ export default function SuccessShareScreen({
 
         {/* Right */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 22, maxWidth: 520 }}>
-          <h2 style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 700, fontSize: 28, letterSpacing: '-0.025em', margin: 0, color: '#0F1F18' }}>
+          <h2 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 700, fontSize: 28, letterSpacing: '-0.025em', margin: 0, color: '#0F1F18' }}>
             Share where it matters
           </h2>
 

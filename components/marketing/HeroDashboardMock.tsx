@@ -137,7 +137,7 @@ export default function HeroDashboardMock() {
                       padding: '0 11px', borderRadius: 7,
                       background: '#E8EFEB', color: '#1F4D3A', fontWeight: 500,
                       borderLeft: '2px solid #1F4D3A',
-                      fontFamily: 'DM Sans, sans-serif', fontSize: 13.5,
+                      fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 13.5,
                     }}>
                       <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
                         <rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/>
@@ -181,7 +181,7 @@ export default function HeroDashboardMock() {
                   {/* App header */}
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#6B7A72' }}>
-                      <span style={{ color: '#1F4D3A', fontWeight: 600, fontFamily: 'DM Sans, sans-serif' }}>Events</span>
+                      <span style={{ color: '#1F4D3A', fontWeight: 600, fontFamily: 'Plus Jakarta Sans, sans-serif' }}>Events</span>
                       {'  /  '}Pan-African Climate Summit
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
@@ -195,7 +195,7 @@ export default function HeroDashboardMock() {
                   {/* Title row */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 18 }}>
                     <h1 style={{
-                      fontFamily: 'DM Sans, sans-serif', fontWeight: 600,
+                      fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600,
                       fontSize: 22, letterSpacing: '-0.02em', color: '#1F4D3A', margin: 0,
                     }}>Pan-African Climate Summit</h1>
                     <span style={{
@@ -222,7 +222,7 @@ export default function HeroDashboardMock() {
                         boxShadow: '0 1px 2px rgba(15,31,24,0.04)',
                       }}>
                         <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#6B7A72' }}>{s.label}</div>
-                        <div style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 28, letterSpacing: '-0.02em', lineHeight: 1, marginTop: 9, color: s.color }}>{s.val}</div>
+                        <div style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, fontSize: 28, letterSpacing: '-0.02em', lineHeight: 1, marginTop: 9, color: s.color }}>{s.val}</div>
                         <div style={{ height: 8, background: '#E7E2D6', borderRadius: 999, marginTop: 12, width: '60%' }} />
                       </div>
                     ))}
@@ -264,7 +264,7 @@ export default function HeroDashboardMock() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: 13, padding: '11px 2px', borderBottom: '1px solid #E5E0D4' }}>
                       <div style={{ width: 38, height: 38, borderRadius: 7, background: 'linear-gradient(135deg,#1F4D3A,#2A6A50)', flexShrink: 0 }} />
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
-                        <div style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 500, fontSize: 14, color: '#1F4D3A', whiteSpace: 'nowrap' }}>Pan-African Climate Summit</div>
+                        <div style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 500, fontSize: 14, color: '#1F4D3A', whiteSpace: 'nowrap' }}>Pan-African Climate Summit</div>
                         <span style={{ height: 8, width: 118, borderRadius: 999, background: '#E7E2D6', display: 'inline-block' }} />
                       </div>
                       <div style={{ marginLeft: 'auto', fontFamily: 'JetBrains Mono, monospace', fontSize: 13, color: '#3A4A42' }}>847 reg.</div>
@@ -321,7 +321,7 @@ export default function HeroDashboardMock() {
                 {/* Brand */}
                 <div style={{
                   position: 'absolute', top: 18, right: 20,
-                  fontFamily: 'DM Sans, sans-serif', fontWeight: 600,
+                  fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600,
                   fontSize: 9, letterSpacing: '0.18em',
                   color: 'rgba(232,197,126,0.62)',
                 }}>EVENTERA</div>
@@ -336,7 +336,7 @@ export default function HeroDashboardMock() {
 
                 {/* Name */}
                 <div style={{
-                  fontFamily: 'DM Sans, sans-serif', fontWeight: 600,
+                  fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600,
                   fontSize: 20, color: '#FFFFFF', marginTop: 15, letterSpacing: '-0.01em',
                 }}>Amara Yusuf</div>
 
@@ -370,7 +370,7 @@ export default function HeroDashboardMock() {
                   marginTop: 10, height: 42, borderRadius: 11,
                   background: '#E8C57E', color: '#0F1F18',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
-                  fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 13,
+                  fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, fontSize: 13,
                   boxShadow: '0 6px 16px -6px rgba(201,164,94,0.55)',
                 }}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0F1F18" strokeWidth="2">

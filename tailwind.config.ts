@@ -31,7 +31,7 @@ const config: Config = {
         info:           "#3A6B8C",
       },
       fontFamily: {
-        display: ['"DM Sans"', "system-ui", "sans-serif"],
+        display: ['"Plus Jakarta Sans"', "system-ui", "sans-serif"],
         title:   ['"Plus Jakarta Sans"', "system-ui", "sans-serif"],
         sans:    ["Inter", "system-ui", "sans-serif"],
       },

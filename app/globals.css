@@ -43,7 +43,7 @@
 
 @layer components {
   .font-display {
-    font-family: var(--theme-font-display, "DM Sans"), system-ui, sans-serif;
+    font-family: var(--theme-font-display, "Plus Jakarta Sans"), system-ui, sans-serif;
     letter-spacing: -0.02em;
   }
 

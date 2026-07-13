@@ -35,7 +35,7 @@ function EventeraCardMockup() {
           <div style={{ display: 'inline-block', background: 'rgba(232,197,126,0.12)', border: '1px solid rgba(232,197,126,0.25)', color: '#E8C57E', fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase' as const, borderRadius: 999, padding: '5px 14px', fontFamily: 'Inter,sans-serif', marginBottom: 20 }}>
             The Eventera Difference
           </div>
-          <h2 style={{ fontFamily: 'DM Sans,sans-serif', fontSize: 'clamp(1.7rem,3vw,2.4rem)', fontWeight: 700, color: '#FAF6EE', letterSpacing: '-0.02em', lineHeight: 1.15, marginBottom: 16 }}>
+          <h2 style={{ fontFamily: 'Plus Jakarta Sans,sans-serif', fontSize: 'clamp(1.7rem,3vw,2.4rem)', fontWeight: 700, color: '#FAF6EE', letterSpacing: '-0.02em', lineHeight: 1.15, marginBottom: 16 }}>
             Your design. Their face. Ready to share.
           </h2>
           <p style={{ fontFamily: 'Inter,sans-serif', fontSize: 16, color: 'rgba(250,246,238,0.60)', lineHeight: 1.65, marginBottom: 24, maxWidth: 420 }}>
@@ -65,7 +65,7 @@ function EventeraCardMockup() {
           <div style={{ width: 230, background: '#163828', borderRadius: 32, padding: 8, boxShadow: '0 32px 80px rgba(0,0,0,0.5)', position: 'relative', top: 20 }}>
             <div style={{ background: '#FFFFFF', borderRadius: 26, overflow: 'hidden' }}>
               <div style={{ background: '#1F4D3A', padding: 14, textAlign: 'center' as const }}>
-                <div style={{ fontFamily: 'DM Sans,sans-serif', fontSize: 12, fontWeight: 700, color: '#FAF6EE' }}>Your Eventera Card</div>
+                <div style={{ fontFamily: 'Plus Jakarta Sans,sans-serif', fontSize: 12, fontWeight: 700, color: '#FAF6EE' }}>Your Eventera Card</div>
                 <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 10, color: 'rgba(250,246,238,0.6)', marginTop: 2 }}>Pan-African Climate Summit</div>
               </div>
               <div style={{ background: '#FAF6EE', margin: 12, border: '2px dashed #E5E0D4', borderRadius: 12, padding: 16, textAlign: 'center' as const }}>
@@ -98,9 +98,9 @@ function EventeraCardMockup() {
               <div style={{ padding: '24px 20px', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', textAlign: 'center' as const }}>
                 <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 8, fontWeight: 700, color: '#E8C57E', textTransform: 'uppercase' as const, letterSpacing: '0.2em', marginBottom: 20 }}>PAN-AFRICAN CLIMATE SUMMIT 2025</div>
                 <div style={{ width: 72, height: 72, borderRadius: '50%', background: 'linear-gradient(135deg,#E8C57E,#C9A45E)', border: '2.5px solid rgba(232,197,126,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <span style={{ fontFamily: 'DM Sans,sans-serif', fontSize: 22, fontWeight: 700, color: '#163828' }}>AY</span>
+                  <span style={{ fontFamily: 'Plus Jakarta Sans,sans-serif', fontSize: 22, fontWeight: 700, color: '#163828' }}>AY</span>
                 </div>
-                <div style={{ fontFamily: 'DM Sans,sans-serif', fontSize: 19, fontWeight: 700, color: '#FAF6EE', marginTop: 12, marginBottom: 2, letterSpacing: '-0.01em' }}>Amara Yusuf</div>
+                <div style={{ fontFamily: 'Plus Jakarta Sans,sans-serif', fontSize: 19, fontWeight: 700, color: '#FAF6EE', marginTop: 12, marginBottom: 2, letterSpacing: '-0.01em' }}>Amara Yusuf</div>
                 <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 12, color: 'rgba(250,246,238,0.75)' }}>Climate Policy Lead</div>
                 <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 11, color: 'rgba(250,246,238,0.5)', marginTop: 2 }}>COP29 · Cairo</div>
                 <div style={{ width: '70%', height: 1, background: 'rgba(232,197,126,0.2)', margin: '14px 0' }} />
@@ -135,7 +135,7 @@ export default function EventeraCardPage() {
           <span style={{ width: 7, height: 7, borderRadius: '50%', background: C.accentDark, display: 'inline-block' }} />
           <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 600, color: C.primaryDark, letterSpacing: '0.02em' }}>Eventera Card</span>
         </div>
-        <h1 style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 'clamp(36px, 6vw, 72px)', fontWeight: 700, color: C.ink, letterSpacing: '-0.02em', lineHeight: 1.1, maxWidth: 760, margin: '0 auto 24px' }}>The personalized card every attendee gets <span style={{ color: C.primary }}>— and shares.</span></h1>
+        <h1 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 'clamp(36px, 6vw, 72px)', fontWeight: 700, color: C.ink, letterSpacing: '-0.02em', lineHeight: 1.1, maxWidth: 760, margin: '0 auto 24px' }}>The personalized card every attendee gets <span style={{ color: C.primary }}>— and shares.</span></h1>
         <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 'clamp(16px, 2vw, 20px)', color: C.inkSoft, maxWidth: 600, margin: '0 auto 40px', lineHeight: 1.65 }}>Your event design. Their face and name. A shareable PNG in under 30 seconds. Organic reach that compounds long after the event ends.</p>
         <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
           <Link href="/signup" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 15, background: C.primary, color: C.surface, padding: '14px 28px', borderRadius: 10, textDecoration: 'none', display: 'inline-block' }}>Get started free</Link>
@@ -148,7 +148,7 @@ export default function EventeraCardPage() {
       {/* Features */}
       <section style={{ background: C.surface, padding: 'clamp(60px, 8vw, 100px) clamp(20px, 5vw, 80px)' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-          <h2 style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 700, color: C.ink, letterSpacing: '-0.02em', textAlign: 'center', marginBottom: 12 }}>Built for designers. Loved by attendees.</h2>
+          <h2 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 700, color: C.ink, letterSpacing: '-0.02em', textAlign: 'center', marginBottom: 12 }}>Built for designers. Loved by attendees.</h2>
           <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 16, color: C.muted, textAlign: 'center', maxWidth: 520, margin: '0 auto 56px' }}>No templates. No constraints. Your design — exactly as you made it.</p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24 }}>
 
@@ -160,7 +160,7 @@ export default function EventeraCardPage() {
                   <path d="M6 24c0-4 3.6-7 8-7s8 3 8 7" stroke="#1F4D3A" strokeWidth="1.5" strokeLinecap="round"/>
                 </svg>
               </div>
-              <h3 style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 20, fontWeight: 700, color: C.ink, marginBottom: 10 }}>Your Design. Their Face.</h3>
+              <h3 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 20, fontWeight: 700, color: C.ink, marginBottom: 10 }}>Your Design. Their Face.</h3>
               <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: C.inkSoft, lineHeight: 1.65 }}>Upload any PNG or JPG — your full event artwork. Mark the zones for name, title, and photo. Eventera composites the attendee&apos;s details onto your design server-side using sharp. Pixel-perfect every time.</p>
             </div>
 
@@ -174,7 +174,7 @@ export default function EventeraCardPage() {
                   <path d="M8 15h12M8 19h8" stroke="#1F4D3A" strokeWidth="1.5" strokeLinecap="round"/>
                 </svg>
               </div>
-              <h3 style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 20, fontWeight: 700, color: C.ink, marginBottom: 10 }}>WhatsApp &amp; Instagram Ready</h3>
+              <h3 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 20, fontWeight: 700, color: C.ink, marginBottom: 10 }}>WhatsApp &amp; Instagram Ready</h3>
               <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: C.inkSoft, lineHeight: 1.65 }}>Output is a standard PNG optimized for social sharing. Attendees tap Download and the file lands in their camera roll. Share to any platform in one more tap. No compression artifacts, no cropping surprises.</p>
             </div>
 
@@ -184,7 +184,7 @@ export default function EventeraCardPage() {
                   <path d="M14 3l2.8 7.5H25l-6.4 4.6 2.4 7.5L14 18.2l-7 4.4 2.4-7.5L3 10.5h8.2z" fill="#E8C57E" stroke="#C9A45E" strokeWidth="1.5" strokeLinejoin="round"/>
                 </svg>
               </div>
-              <h3 style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 20, fontWeight: 700, color: C.ink, marginBottom: 10 }}>Included on Every Plan</h3>
+              <h3 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 20, fontWeight: 700, color: C.ink, marginBottom: 10 }}>Included on Every Plan</h3>
               <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: C.inkSoft, lineHeight: 1.65 }}>Eventera Card is not an add-on. It is the core product. Every plan — including free — includes personalized card generation. The only difference on paid plans is watermark removal and higher event limits.</p>
             </div>
 
@@ -196,7 +196,7 @@ export default function EventeraCardPage() {
                   <path d="M14 8v6l3 3" stroke="#E8C57E" strokeWidth="1.5" strokeLinecap="round"/>
                 </svg>
               </div>
-              <h3 style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 20, fontWeight: 700, color: C.ink, marginBottom: 10 }}>Organic Reach That Compounds</h3>
+              <h3 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 20, fontWeight: 700, color: C.ink, marginBottom: 10 }}>Organic Reach That Compounds</h3>
               <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: C.inkSoft, lineHeight: 1.65 }}>Every card shared is a branded impression from a real attendee. Authentic peer endorsement — no paid media budget required. Events using Eventera Card average 14.8× their attendee count in social impressions.</p>
             </div>
 
@@ -207,12 +207,12 @@ export default function EventeraCardPage() {
       {/* How it works */}
       <section style={{ background: C.cream, padding: 'clamp(60px, 8vw, 100px) clamp(20px, 5vw, 80px)' }}>
         <div style={{ maxWidth: 860, margin: '0 auto' }}>
-          <h2 style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 700, color: C.ink, letterSpacing: '-0.02em', textAlign: 'center', marginBottom: 56 }}>How it works</h2>
+          <h2 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 700, color: C.ink, letterSpacing: '-0.02em', textAlign: 'center', marginBottom: 56 }}>How it works</h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 40 }}>
             {cardSteps.map((s) => (
               <div key={s.n} style={{ display: 'flex', gap: 24, alignItems: 'flex-start' }}>
-                <div style={{ flexShrink: 0, width: 48, height: 48, borderRadius: '50%', background: C.primary, color: C.surface, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'DM Sans, sans-serif', fontWeight: 700, fontSize: 18 }}>{s.n}</div>
-                <div><h3 style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 18, fontWeight: 700, color: C.ink, marginBottom: 8, marginTop: 10 }}>{s.title}</h3><p style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: C.inkSoft, lineHeight: 1.65 }}>{s.desc}</p></div>
+                <div style={{ flexShrink: 0, width: 48, height: 48, borderRadius: '50%', background: C.primary, color: C.surface, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 700, fontSize: 18 }}>{s.n}</div>
+                <div><h3 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 18, fontWeight: 700, color: C.ink, marginBottom: 8, marginTop: 10 }}>{s.title}</h3><p style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: C.inkSoft, lineHeight: 1.65 }}>{s.desc}</p></div>
               </div>
             ))}
           </div>
@@ -224,7 +224,7 @@ export default function EventeraCardPage() {
         <div style={{ maxWidth: 860, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 40, textAlign: 'center' }}>
           {cardStats.map((s) => (
             <div key={s.value}>
-              <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 'clamp(32px, 5vw, 52px)', fontWeight: 700, color: C.primary, letterSpacing: '-0.02em', lineHeight: 1 }}>{s.value}</div>
+              <div style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 'clamp(32px, 5vw, 52px)', fontWeight: 700, color: C.primary, letterSpacing: '-0.02em', lineHeight: 1 }}>{s.value}</div>
               <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: C.muted, marginTop: 8 }}>{s.label}</div>
             </div>
           ))}
@@ -233,7 +233,7 @@ export default function EventeraCardPage() {
 
       {/* CTA */}
       <section style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 100%)', padding: 'clamp(72px, 10vw, 120px) clamp(20px, 5vw, 80px)', textAlign: 'center' }}>
-        <h2 style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 'clamp(28px, 5vw, 52px)', fontWeight: 700, color: '#FFFFFF', letterSpacing: '-0.02em', maxWidth: 620, margin: '0 auto 20px', lineHeight: 1.15 }}>Your event design. In every attendee&apos;s feed.</h2>
+        <h2 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 'clamp(28px, 5vw, 52px)', fontWeight: 700, color: '#FFFFFF', letterSpacing: '-0.02em', maxWidth: 620, margin: '0 auto 20px', lineHeight: 1.15 }}>Your event design. In every attendee&apos;s feed.</h2>
         <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 17, color: 'rgba(255,255,255,0.8)', maxWidth: 480, margin: '0 auto 40px', lineHeight: 1.65 }}>Upload your design and publish your first card link in under 10 minutes.</p>
         <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
           <Link href="/signup" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 15, background: '#FFFFFF', color: C.primary, padding: '14px 28px', borderRadius: 10, textDecoration: 'none', display: 'inline-block' }}>Start for free</Link>

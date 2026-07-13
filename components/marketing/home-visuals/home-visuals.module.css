@@ -21,7 +21,7 @@
 }
 .hv * { box-sizing: border-box; }
 
-.dm { font-family: "DM Sans", sans-serif; letter-spacing: -0.02em; }
+.dm { font-family: "Plus Jakarta Sans", sans-serif; letter-spacing: -0.02em; }
 .mono { font-family: "JetBrains Mono", monospace; font-variant-numeric: tabular-nums; }
 .label { font-family: "Inter", sans-serif; font-size: 10px; font-weight: 600; letter-spacing: .13em; text-transform: uppercase; color: var(--muted); }
 
@@ -51,11 +51,11 @@
 .brand { display: flex; align-items: center; gap: 9px; padding: 0 4px; }
 .brandMark { width: 26px; height: 26px; border-radius: 7px; background: var(--forest);
   display: flex; align-items: center; justify-content: center; }
-.wordmark { font-family: "DM Sans", sans-serif; font-weight: 700; font-size: 16px; color: var(--forest-deep); }
+.wordmark { font-family: "Plus Jakarta Sans", sans-serif; font-weight: 700; font-size: 16px; color: var(--forest-deep); }
 .navlist { display: flex; flex-direction: column; gap: 5px; }
 .nav { display: flex; align-items: center; gap: 12px; padding: 9px 11px; border-radius: 9px; }
 .navActive { background: var(--forest-soft); border-left: 2px solid var(--forest); padding-left: 9px; }
-.navtxt { font-family: "DM Sans", sans-serif; font-weight: 600; font-size: 13.5px; color: var(--forest); }
+.navtxt { font-family: "Plus Jakarta Sans", sans-serif; font-weight: 600; font-size: 13.5px; color: var(--forest); }
 .navtxtMut { color: var(--muted); font-weight: 500; }
 .nav .dotSq { background: #D8D2C4; }
 .plan { margin-top: auto; align-self: flex-start; font-family: "JetBrains Mono", monospace;
@@ -70,10 +70,10 @@
 .crumb b { color: var(--forest); font-weight: 600; }
 .avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--forest); flex: none;
   display: flex; align-items: center; justify-content: center; color: var(--cream);
-  font-family: "DM Sans", sans-serif; font-weight: 600; font-size: 13px; }
+  font-family: "Plus Jakarta Sans", sans-serif; font-weight: 600; font-size: 13px; }
 .body { flex: 1; overflow: hidden; padding: 24px 26px; display: flex; flex-direction: column; gap: 18px; }
 .head { display: flex; align-items: center; gap: 13px; }
-.title { font-family: "DM Sans", sans-serif; font-weight: 600; letter-spacing: -0.02em;
+.title { font-family: "Plus Jakarta Sans", sans-serif; font-weight: 600; letter-spacing: -0.02em;
   font-size: 26px; color: var(--forest); }
 .live { display: inline-flex; align-items: center; gap: 7px; font-size: 11.5px; font-weight: 600;
   padding: 5px 11px; border-radius: 99px; background: rgba(45,122,79,.12); color: var(--success); }
@@ -90,7 +90,7 @@
   box-shadow: 0 1px 2px rgba(15,31,24,.03); }
 .stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
 .statsFour { grid-template-columns: repeat(4,1fr); }
-.statN { font-family: "DM Sans", sans-serif; font-weight: 600; letter-spacing: -0.03em;
+.statN { font-family: "Plus Jakarta Sans", sans-serif; font-weight: 600; letter-spacing: -0.03em;
   font-size: 32px; line-height: 1; margin: 9px 0 10px; }
 .statGold .statN { color: var(--gold-deep); }
 .statGold { border-color: rgba(201,164,94,.5); background: linear-gradient(180deg,#FEFBF3,#fff);
@@ -119,7 +119,7 @@
 .thumb { width: 38px; height: 38px; border-radius: 9px; background: var(--forest); flex: none;
   display: flex; align-items: center; justify-content: center; }
 .thumbSk { background: var(--skel); }
-.rwNm { font-family: "DM Sans", sans-serif; font-weight: 600; font-size: 14px; color: var(--forest-deep); }
+.rwNm { font-family: "Plus Jakarta Sans", sans-serif; font-weight: 600; font-size: 14px; color: var(--forest-deep); }
 .rwMt { font-size: 12px; color: var(--muted); margin-top: 2px; }
 
 /* data table */
@@ -128,7 +128,7 @@
   text-transform: uppercase; color: var(--muted); text-align: left; padding: 0 0 12px; }
 .tbl th:not(:first-child), .tbl td:not(:first-child) { text-align: right; }
 .tbl td { font-size: 13.5px; color: var(--forest-deep); padding: 11px 0; border-top: 1px solid #F1EEE6;
-  font-family: "DM Sans", sans-serif; }
+  font-family: "Plus Jakarta Sans", sans-serif; }
 .tbl td.nm { font-weight: 600; }
 .tbl td.eng { color: var(--success); font-family: "JetBrains Mono", monospace; font-weight: 600; font-size: 13px; }
 
@@ -143,16 +143,16 @@
 .ecAva { width: 88px; height: 88px; border-radius: 50%; padding: 3px; margin-top: 14px;
   background: linear-gradient(135deg, var(--gold), var(--gold-deep)); }
 .ecAvaIn { width: 100%; height: 100%; border-radius: 50%; background: rgba(255,255,255,.12);
-  display: flex; align-items: center; justify-content: center; font-family: "DM Sans", sans-serif;
+  display: flex; align-items: center; justify-content: center; font-family: "Plus Jakarta Sans", sans-serif;
   font-weight: 600; font-size: 28px; color: var(--cream); border: 2px solid rgba(12,24,19,.45); }
-.ecName { font-family: "DM Sans", sans-serif; font-weight: 700; font-size: 20px; text-align: center; }
+.ecName { font-family: "Plus Jakarta Sans", sans-serif; font-weight: 700; font-size: 20px; text-align: center; }
 .ecRole { font-size: 12.5px; color: rgba(250,246,238,.72); text-align: center; margin-top: -8px; }
 .ecPills { display: flex; gap: 9px; }
 .ecPill { font-family: "JetBrains Mono", monospace; font-size: 11px; font-weight: 600; letter-spacing: .06em;
   padding: 8px 15px; border-radius: 99px; background: rgba(255,255,255,.1);
   border: 1px solid rgba(255,255,255,.16); color: var(--cream); }
 .ecDl { margin-top: 2px; display: inline-flex; align-items: center; gap: 9px;
-  background: var(--gold); color: var(--forest-deep); font-family: "DM Sans", sans-serif;
+  background: var(--gold); color: var(--forest-deep); font-family: "Plus Jakarta Sans", sans-serif;
   font-weight: 600; font-size: 14px; padding: 11px 22px; border-radius: 12px;
   box-shadow: 0 12px 26px -8px rgba(232,197,126,.6); }
 
@@ -165,7 +165,7 @@
 .notch { position: absolute; top: 9px; left: 50%; transform: translateX(-50%); width: 88px; height: 24px;
   background: #0C1813; border-radius: 14px; z-index: 3; }
 .phStatus { height: 44px; display: flex; align-items: flex-end; padding: 0 22px 4px;
-  font-family: "DM Sans", sans-serif; font-weight: 600; font-size: 13px; }
+  font-family: "Plus Jakarta Sans", sans-serif; font-weight: 600; font-size: 13px; }
 .homeInd { height: 22px; display: flex; align-items: center; justify-content: center; }
 .homeInd::after { content: ""; width: 112px; height: 5px; border-radius: 99px; background: rgba(255,255,255,.5); }
 

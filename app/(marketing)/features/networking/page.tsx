@@ -120,7 +120,7 @@ function NetworkingMockup() {
             <div style={{ width: 24, height: 1, background: '#E8C57E' }} />
             <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 700, letterSpacing: '0.15em', color: '#1F4D3A', textTransform: 'uppercase' as const }}>Attendee Matching</span>
           </div>
-          <h2 style={{ fontFamily: '"DM Sans", sans-serif', fontSize: 'clamp(26px, 3.5vw, 40px)', fontWeight: 700, letterSpacing: '-0.02em', color: '#0F1F18', marginBottom: 16, lineHeight: 1.15 }}>
+          <h2 style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', fontSize: 'clamp(26px, 3.5vw, 40px)', fontWeight: 700, letterSpacing: '-0.02em', color: '#0F1F18', marginBottom: 16, lineHeight: 1.15 }}>
             Your best connections, before lunch.
           </h2>
           <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 17, color: '#3A4A42', lineHeight: 1.65, marginBottom: 32 }}>
@@ -133,7 +133,7 @@ function NetworkingMockup() {
               { label: '82%', desc: 'meeting confirmation rate' },
             ].map((s) => (
               <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <div style={{ background: 'rgba(31,77,58,0.08)', border: '1px solid rgba(31,77,58,0.2)', borderRadius: 8, padding: '4px 10px', fontFamily: 'DM Sans, sans-serif', fontSize: 14, fontWeight: 700, color: '#1F4D3A', flexShrink: 0 }}>{s.label}</div>
+                <div style={{ background: 'rgba(31,77,58,0.08)', border: '1px solid rgba(31,77,58,0.2)', borderRadius: 8, padding: '4px 10px', fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 14, fontWeight: 700, color: '#1F4D3A', flexShrink: 0 }}>{s.label}</div>
                 <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#6B7A72' }}>{s.desc}</span>
               </div>
             ))}
@@ -164,7 +164,7 @@ function NetworkingMockup() {
             <div style={{ background: '#FAF6EE', display: 'flex', height: 320, overflow: 'hidden' }}>
               {/* Sidebar */}
               <div style={{ width: 130, background: '#FFFFFF', borderRight: '1px solid #E5E0D4', padding: '10px 8px', flexShrink: 0 }}>
-                <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 700, color: '#1F4D3A', marginBottom: 14, padding: '0 4px' }}>Eventera</div>
+                <div style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 13, fontWeight: 700, color: '#1F4D3A', marginBottom: 14, padding: '0 4px' }}>Eventera</div>
                 <div style={{ background: '#E8EFEB', borderRadius: 6, padding: '5px 8px', marginBottom: 3, display: 'flex', alignItems: 'center', gap: 6 }}>
                   <div style={{ width: 12, height: 12, borderRadius: 2, background: '#1F4D3A', flexShrink: 0 }} />
                   <div style={{ width: 55, height: 7, background: '#1F4D3A', opacity: 0.4, borderRadius: 3 }} />
@@ -179,7 +179,7 @@ function NetworkingMockup() {
               {/* Main content */}
               <div style={{ flex: 1, padding: 12, overflow: 'hidden' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-                  <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, fontWeight: 700, color: '#1F4D3A' }}>Who to meet</div>
+                  <div style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 11, fontWeight: 700, color: '#1F4D3A' }}>Who to meet</div>
                   <div style={{ background: '#E8EFEB', borderRadius: 999, padding: '2px 8px', fontFamily: 'Inter, sans-serif', fontSize: 10, color: '#1F4D3A', fontWeight: 600 }}>12 matches</div>
                 </div>
                 {[
@@ -188,7 +188,7 @@ function NetworkingMockup() {
                   { initials: 'BB', pct: 81, w1: 70, w2: 55, bg: '#E8EFEB' },
                 ].map((m) => (
                   <div key={m.initials} style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 8, padding: '8px 10px', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <div style={{ width: 28, height: 28, borderRadius: '50%', background: m.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'DM Sans, sans-serif', fontSize: 10, fontWeight: 700, color: '#1F4D3A', flexShrink: 0 }}>{m.initials}</div>
+                    <div style={{ width: 28, height: 28, borderRadius: '50%', background: m.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 10, fontWeight: 700, color: '#1F4D3A', flexShrink: 0 }}>{m.initials}</div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ width: m.w1, height: 6, background: 'rgba(15,31,24,0.3)', borderRadius: 3, marginBottom: 3 }} />
                       <div style={{ width: m.w2, height: 5, background: '#E5E0D4', borderRadius: 3 }} />
@@ -213,12 +213,12 @@ function NetworkingMockup() {
           <div style={{ position: 'absolute' as const, bottom: -20, right: -35, width: 150, background: '#0F1F18', borderRadius: 24, padding: 6, boxShadow: '0 8px 40px rgba(0,0,0,0.45)', zIndex: 10 }}>
             <div style={{ background: '#FAF6EE', borderRadius: 20, overflow: 'hidden' }}>
               <div style={{ background: '#1F4D3A', padding: '10px 10px 8px', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 10, fontWeight: 700, color: '#FAF6EE' }}>Top match</div>
+                <div style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 10, fontWeight: 700, color: '#FAF6EE' }}>Top match</div>
                 <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 9, color: '#E8C57E', fontWeight: 700 }}>94%</div>
               </div>
               <div style={{ padding: '8px 8px 6px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
-                  <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#E8EFEB', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'DM Sans, sans-serif', fontSize: 10, fontWeight: 700, color: '#1F4D3A', flexShrink: 0 }}>KA</div>
+                  <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#E8EFEB', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 10, fontWeight: 700, color: '#1F4D3A', flexShrink: 0 }}>KA</div>
                   <div>
                     <div style={{ width: 60, height: 6, background: '#E5E0D4', borderRadius: 3, marginBottom: 3 }} />
                     <div style={{ width: 80, height: 5, background: '#E8EFEB', borderRadius: 3 }} />
@@ -305,7 +305,7 @@ export default function NetworkingPage() {
 
           <h1
             style={{
-              fontFamily: '"DM Sans", sans-serif',
+              fontFamily: '"Plus Jakarta Sans", sans-serif',
               fontSize: 'clamp(34px, 5.5vw, 64px)',
               fontWeight: 700,
               letterSpacing: '-0.02em',
@@ -390,7 +390,7 @@ export default function NetworkingPage() {
           <div style={{ textAlign: 'center', marginBottom: 56 }}>
             <h2
               style={{
-                fontFamily: '"DM Sans", sans-serif',
+                fontFamily: '"Plus Jakarta Sans", sans-serif',
                 fontSize: 'clamp(26px, 4vw, 40px)',
                 fontWeight: 700,
                 letterSpacing: '-0.02em',
@@ -450,7 +450,7 @@ export default function NetworkingPage() {
                 </div>
                 <h3
                   style={{
-                    fontFamily: '"DM Sans", sans-serif',
+                    fontFamily: '"Plus Jakarta Sans", sans-serif',
                     fontSize: 20,
                     fontWeight: 700,
                     color: C.ink,
@@ -487,7 +487,7 @@ export default function NetworkingPage() {
           <div style={{ textAlign: 'center', marginBottom: 56 }}>
             <h2
               style={{
-                fontFamily: '"DM Sans", sans-serif',
+                fontFamily: '"Plus Jakarta Sans", sans-serif',
                 fontSize: 'clamp(26px, 4vw, 40px)',
                 fontWeight: 700,
                 letterSpacing: '-0.02em',
@@ -522,7 +522,7 @@ export default function NetworkingPage() {
               <div key={s.n}>
                 <div
                   style={{
-                    fontFamily: '"DM Sans", sans-serif',
+                    fontFamily: '"Plus Jakarta Sans", sans-serif',
                     fontSize: 56,
                     fontWeight: 800,
                     color: C.primarySoft,
@@ -535,7 +535,7 @@ export default function NetworkingPage() {
                 </div>
                 <h3
                   style={{
-                    fontFamily: '"DM Sans", sans-serif',
+                    fontFamily: '"Plus Jakarta Sans", sans-serif',
                     fontSize: 18,
                     fontWeight: 700,
                     color: C.ink,
@@ -584,7 +584,7 @@ export default function NetworkingPage() {
             <div key={s.label}>
               <div
                 style={{
-                  fontFamily: '"DM Sans", sans-serif',
+                  fontFamily: '"Plus Jakarta Sans", sans-serif',
                   fontSize: 'clamp(32px, 5vw, 48px)',
                   fontWeight: 800,
                   color: C.primary,
@@ -623,7 +623,7 @@ export default function NetworkingPage() {
         <div style={{ maxWidth: 640, margin: '0 auto' }}>
           <h2
             style={{
-              fontFamily: '"DM Sans", sans-serif',
+              fontFamily: '"Plus Jakarta Sans", sans-serif',
               fontSize: 'clamp(28px, 4.5vw, 48px)',
               fontWeight: 700,
               letterSpacing: '-0.02em',

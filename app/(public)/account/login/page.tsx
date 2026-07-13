@@ -21,13 +21,13 @@ export default function AttendeeLoginPage() {
         />
 
         {/* Wordmark */}
-        <div className="relative z-10 font-semibold text-[22px]" style={{ fontFamily: '"DM Sans", sans-serif', color: '#FFFFFF', letterSpacing: '-0.01em' }}>
+        <div className="relative z-10 font-semibold text-[22px]" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: '#FFFFFF', letterSpacing: '-0.01em' }}>
           Eventer<span style={{ color: '#E8C57E' }}>a</span>
         </div>
 
         {/* Pitch */}
         <div className="relative z-10">
-          <h2 className="font-normal text-[34px] text-white max-w-[400px]" style={{ fontFamily: '"DM Sans", sans-serif', letterSpacing: '-0.025em', textWrap: 'balance' } as React.CSSProperties}>
+          <h2 className="font-normal text-[34px] text-white max-w-[400px]" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', letterSpacing: '-0.025em', textWrap: 'balance' } as React.CSSProperties}>
             Every event in your city, one account.
           </h2>
           <p className="mt-3 text-[14px] leading-relaxed max-w-[380px]" style={{ color: 'rgba(255,255,255,0.65)' }}>
@@ -44,11 +44,11 @@ export default function AttendeeLoginPage() {
             }}
           >
             <div className="absolute inset-0 p-4 flex flex-col justify-between">
-              <div className="text-[11px] font-semibold" style={{ fontFamily: '"DM Sans", sans-serif', color: '#E8C57E' }}>
+              <div className="text-[11px] font-semibold" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: '#E8C57E' }}>
                 AFRITECH SUMMIT 2026
               </div>
               <div>
-                <div className="font-semibold text-[16px] text-white" style={{ fontFamily: '"DM Sans", sans-serif' }}>
+                <div className="font-semibold text-[16px] text-white" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif' }}>
                   Amina Osman
                 </div>
                 <div style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10, color: '#E8C57E', marginTop: 2 }}>

@@ -120,7 +120,7 @@ function compositeQrMark(rawDataUrl: string): Promise<string> {
       ctx.fillStyle = '#1F4D3A';
       roundRect(ctx, cx - mark / 2, cy - mark / 2, mark, mark, mark * 0.24); ctx.fill();
       ctx.fillStyle = '#E8C57E';
-      ctx.font = `700 ${mark * 0.62}px "DM Sans", system-ui, sans-serif`;
+      ctx.font = `700 ${mark * 0.62}px "Plus Jakarta Sans", system-ui, sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText('E', cx, cy + mark * 0.04);
@@ -143,7 +143,7 @@ function injectMarkIntoSvg(svg: string): string {
   const overlay =
     `<rect x="${c - plate}" y="${c - plate}" width="${plate * 2}" height="${plate * 2}" rx="${plate * 0.42}" fill="#FFFFFF"/>` +
     `<rect x="${c - mark / 2}" y="${c - mark / 2}" width="${mark}" height="${mark}" rx="${mark * 0.24}" fill="#1F4D3A"/>` +
-    `<text x="${c}" y="${c}" font-family="DM Sans, system-ui, sans-serif" font-weight="700" font-size="${mark * 0.64}" fill="#E8C57E" text-anchor="middle" dominant-baseline="central">E</text>`;
+    `<text x="${c}" y="${c}" font-family="Plus Jakarta Sans, system-ui, sans-serif" font-weight="700" font-size="${mark * 0.64}" fill="#E8C57E" text-anchor="middle" dominant-baseline="central">E</text>`;
   return svg.replace('</svg>', `${overlay}</svg>`);
 }
 
@@ -448,7 +448,7 @@ export default function PublishClient({
           display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap',
         }}>
           <div>
-            <div style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 15, color: PT.ink }}>
+            <div style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, fontSize: 15, color: PT.ink }}>
               This event is not yet published.
             </div>
             <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: PT.muted, marginTop: 2 }}>
@@ -510,7 +510,7 @@ export default function PublishClient({
               color: PT.muted, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 8,
             }}>{isPublished ? 'Your event is live' : 'Ready when you are'}</div>
             <h1 style={{
-              fontFamily: 'DM Sans, sans-serif', fontWeight: 700,
+              fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 700,
               fontSize: 32, lineHeight: 1.1, letterSpacing: '-0.025em',
               margin: 0, color: PT.ink, maxWidth: 720,
             }}>{eventName} {isPublished ? 'is live.' : 'isn’t published yet.'}</h1>
@@ -915,11 +915,11 @@ export default function PublishClient({
                   <div style={{
                     width: 28, height: 28, borderRadius: '50%',
                     background: PT.primary, color: PT.cream,
-                    fontFamily: 'DM Sans, sans-serif', fontWeight: 700, fontSize: 13,
+                    fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 700, fontSize: 13,
                     display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
                   }}>{s.n}</div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 14, color: PT.ink, lineHeight: 1.3 }}>{s.t}</div>
+                    <div style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, fontSize: 14, color: PT.ink, lineHeight: 1.3 }}>{s.t}</div>
                     <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, lineHeight: 1.5, color: PT.inkSoft, marginTop: 2 }}>{s.d}</div>
                   </div>
                 </div>
@@ -984,7 +984,7 @@ function StatItem({ label, value, sub }: { label: string; value: string; sub: st
         letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 4,
       }}>{label}</div>
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
-        <span style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 700, fontSize: 22, color: PT.ink, letterSpacing: '-0.02em' }}>{value}</span>
+        <span style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 700, fontSize: 22, color: PT.ink, letterSpacing: '-0.02em' }}>{value}</span>
         <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10, color: PT.muted, letterSpacing: '0.04em' }}>{sub}</span>
       </div>
     </div>

@@ -1277,12 +1277,12 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
                   }} />
                 )}
 
-                {/* Snap guides — magenta alignment lines */}
+                {/* Snap guides — brand gold alignment lines */}
                 {snapGuides.x !== undefined && (
-                  <div className="absolute top-0 bottom-0 pointer-events-none" style={{ left: snapGuides.x, width: 1, background: 'rgba(255,0,204,0.85)', boxShadow: '0 0 6px rgba(255,0,204,0.5)' }} />
+                  <div className="absolute top-0 bottom-0 pointer-events-none" style={{ left: snapGuides.x, width: 1, background: '#C9A45E' }} />
                 )}
                 {snapGuides.y !== undefined && (
-                  <div className="absolute left-0 right-0 pointer-events-none" style={{ top: snapGuides.y, height: 1, background: 'rgba(255,0,204,0.85)', boxShadow: '0 0 6px rgba(255,0,204,0.5)' }} />
+                  <div className="absolute left-0 right-0 pointer-events-none" style={{ top: snapGuides.y, height: 1, background: '#C9A45E' }} />
                 )}
 
                 {/* Zones */}

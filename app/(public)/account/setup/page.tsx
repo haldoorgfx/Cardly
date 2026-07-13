@@ -33,7 +33,7 @@ export default async function AccountSetupPage() {
     <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
       {/* Minimal nav */}
       <nav className="flex items-center justify-between px-6 py-4" style={{ borderBottom: '1px solid #E5E0D4' }}>
-        <div className="font-semibold text-[19px]" style={{ fontFamily: '"DM Sans", sans-serif', color: '#0F1F18', letterSpacing: '-0.01em' }}>
+        <div className="font-semibold text-[19px]" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: '#0F1F18', letterSpacing: '-0.01em' }}>
           Eventer<span style={{ color: '#E8C57E' }}>a</span>
         </div>
         <span className="text-[13px]" style={{ color: '#3A4A42' }}>{user.email}</span>

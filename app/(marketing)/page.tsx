@@ -26,32 +26,6 @@ function Hero() {
       className="relative overflow-hidden flex flex-col"
       style={{ background: '#FAF6EE', minHeight: '100svh' }}
     >
-      {/* Atmospheric focal glow — light source behind the headline */}
-      <div
-        aria-hidden
-        className="absolute pointer-events-none"
-        style={{
-          top: 0,
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: 1100,
-          height: 640,
-          background:
-            'radial-gradient(ellipse 55% 60% at 50% 0%, rgba(31,77,58,0.13) 0%, rgba(232,197,126,0.05) 45%, transparent 70%)',
-          filter: 'blur(48px)',
-        }}
-      />
-      {/* Subtle accent warmth bottom-left */}
-      <div
-        aria-hidden
-        className="absolute pointer-events-none"
-        style={{
-          bottom: '15%', left: '-4%',
-          width: 500, height: 500,
-          background: 'radial-gradient(ellipse, rgba(232,197,126,0.07) 0%, transparent 70%)',
-          filter: 'blur(80px)',
-        }}
-      />
 
       {/* TOP — centered copy */}
       <div
@@ -357,9 +331,9 @@ function ShowcaseAnalytics() {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {[
-              { label: 'Avg. card-share rate per event', val: '71%', color: '#1F4D3A' },
-              { label: 'Avg. check-in rate on Eventera events', val: '87%', color: '#2D7A4F' },
-              { label: 'Cards shared per attendee (avg)', val: '1.42×', color: '#C9A45E' },
+              { label: 'Registration funnel & revenue', val: 'Live', color: '#1F4D3A' },
+              { label: 'Check-ins vs. registered', val: 'Real-time', color: '#1F4D3A' },
+              { label: 'Cards generated & shared', val: 'Tracked', color: '#C9A45E' },
             ].map((s) => (
               <div key={s.label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, padding: '10px 16px', background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 10 }}>
                 <span style={{ fontSize: 12, color: '#3A4A42', fontFamily: 'var(--font-sans)' }}>{s.label}</span>
@@ -1207,15 +1181,6 @@ function FinalCTA() {
         overflow: 'hidden',
       }}
     >
-      <div
-        aria-hidden
-        style={{
-          position: 'absolute', bottom: '-20%', right: '-10%',
-          width: 480, height: 480, borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(232,197,126,0.22) 0%, transparent 65%)',
-          filter: 'blur(60px)', pointerEvents: 'none',
-        }}
-      />
 
       <div className="relative mx-auto px-5 lg:px-10 text-center" style={{ maxWidth: 760 }}>
         <h2
