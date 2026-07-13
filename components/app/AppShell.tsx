@@ -78,79 +78,88 @@ function getEventIdFromPath(pathname: string): string | null {
 
 type EventInfo = { id: string; name: string; status: string; slug: string } | null;
 
+// Pinned above the groups — the one item everyone returns to.
+const EVENT_OVERVIEW_ITEM = { id: 'overview', label: 'Overview', icon: <Home size={15} strokeWidth={1.8} />, segment: '' };
+
+// Grouped by the organizer's workflow (build → sell → run → measure), so every
+// tool lives where you'd reach for it. Routes/segments are unchanged.
 const EVENT_NAV_SECTIONS = [
   {
-    title: 'Manage',
+    title: 'Build & publish',
     items: [
-      { id: 'overview',        label: 'Overview',        icon: <Home size={15} strokeWidth={1.8} />,           segment: '' },
-      { id: 'event-page',      label: 'Event Page',      icon: <Layout size={15} strokeWidth={1.8} />,         segment: 'event-page' },
-      { id: 'tickets',         label: 'Tickets',         icon: <Ticket size={15} strokeWidth={1.8} />,         segment: 'tickets' },
-      { id: 'registrations',   label: 'Registrations',   icon: <Users size={15} strokeWidth={1.8} />,          segment: 'registrations' },
-      { id: 'form',            label: 'Reg. Form',       icon: <FileText size={15} strokeWidth={1.8} />,       segment: 'form'        },
-      { id: 'promo-codes',      label: 'Promo Codes',      icon: <Tag size={15} strokeWidth={1.8} />,     segment: 'promo-codes' },
-      { id: 'promoter-links',  label: 'Promoter Links',  icon: <Link2 size={15} strokeWidth={1.8} />,   segment: 'promoter-links' },
-      { id: 'orders',          label: 'Orders',          icon: <ShoppingCart size={15} strokeWidth={1.8} />,   segment: 'orders' },
-      { id: 'waitlist',        label: 'Waitlist',        icon: <Clock size={15} strokeWidth={1.8} />,          segment: 'waitlist' },
-      { id: 'approvals',       label: 'Approvals',       icon: <ShieldCheck size={15} strokeWidth={1.8} />,    segment: 'approvals' },
-      { id: 'check-in',        label: 'Check-in',        icon: <ScanLine size={15} strokeWidth={1.8} />,       segment: 'check-in' },
-      { id: 'communications',  label: 'Communications',  icon: <Bell size={15} strokeWidth={1.8} />,           segment: 'communications' },
+      { id: 'event-page', label: 'Event Page', icon: <Layout size={15} strokeWidth={1.8} />,       segment: 'event-page' },
+      { id: 'tickets',    label: 'Tickets',    icon: <Ticket size={15} strokeWidth={1.8} />,       segment: 'tickets' },
+      { id: 'form',       label: 'Reg. Form',  icon: <FileText size={15} strokeWidth={1.8} />,     segment: 'form' },
+      { id: 'agenda',     label: 'Agenda',     icon: <CalendarDays size={15} strokeWidth={1.8} />, segment: 'agenda' },
+      { id: 'speakers',   label: 'Speakers',   icon: <User size={15} strokeWidth={1.8} />,         segment: 'speakers' },
+      { id: 'sessions',   label: 'Sessions',   icon: <LayoutGrid size={15} strokeWidth={1.8} />,   segment: 'sessions' },
     ],
   },
   {
-    title: 'Programme',
+    title: 'Attendees',
     items: [
-      { id: 'agenda',    label: 'Agenda',    icon: <CalendarDays size={15} strokeWidth={1.8} />, segment: 'agenda' },
-      { id: 'speakers',  label: 'Speakers',  icon: <User size={15} strokeWidth={1.8} />,         segment: 'speakers' },
-      { id: 'sessions',  label: 'Sessions',  icon: <LayoutGrid size={15} strokeWidth={1.8} />,   segment: 'sessions' },
+      { id: 'registrations',  label: 'Registrations',  icon: <Users size={15} strokeWidth={1.8} />,       segment: 'registrations' },
+      { id: 'approvals',      label: 'Approvals',      icon: <ShieldCheck size={15} strokeWidth={1.8} />, segment: 'approvals' },
+      { id: 'waitlist',       label: 'Waitlist',       icon: <Clock size={15} strokeWidth={1.8} />,       segment: 'waitlist' },
+      { id: 'communications', label: 'Communications', icon: <Bell size={15} strokeWidth={1.8} />,        segment: 'communications' },
     ],
   },
   {
-    title: 'Engagement',
+    title: 'Sell & promote',
     items: [
-      { id: 'engagement',   label: 'Engagement',   icon: <Network size={15} strokeWidth={1.8} />,         segment: 'engagement' },
-      { id: 'newsfeed',     label: 'Newsfeed',     icon: <ScrollText size={15} strokeWidth={1.8} />,      segment: 'newsfeed' },
-      { id: 'polls',        label: 'Q&A & Polls',  icon: <MessageSquare size={15} strokeWidth={1.8} />,   segment: 'q-and-a' },
-      { id: 'community',    label: 'Community',    icon: <MessageCircle size={15} strokeWidth={1.8} />,   segment: 'community' },
-      { id: 'photos',       label: 'Photo wall',   icon: <Images size={15} strokeWidth={1.8} />,          segment: 'photos' },
-      { id: 'live',         label: 'Live display', icon: <Monitor size={15} strokeWidth={1.8} />,         segment: 'live' },
-      { id: 'gamification', label: 'Gamification', icon: <Trophy size={15} strokeWidth={1.8} />,          segment: 'gamification' },
-      { id: 'copilot',      label: 'AI Copilot',   icon: <Bot size={15} strokeWidth={1.8} />,             segment: 'copilot' },
+      { id: 'orders',          label: 'Orders',         icon: <ShoppingCart size={15} strokeWidth={1.8} />, segment: 'orders' },
+      { id: 'promo-codes',     label: 'Promo Codes',    icon: <Tag size={15} strokeWidth={1.8} />,          segment: 'promo-codes' },
+      { id: 'promoter-links',  label: 'Promoter Links', icon: <Link2 size={15} strokeWidth={1.8} />,        segment: 'promoter-links' },
+      { id: 'promote',         label: 'Promote',        icon: <Megaphone size={15} strokeWidth={1.8} />,    segment: 'promote' },
+      { id: 'source-analytics', label: 'Sources',       icon: <Share2 size={15} strokeWidth={1.8} />,       segment: 'source-analytics' },
+    ],
+  },
+  {
+    title: 'Engage',
+    items: [
+      { id: 'engagement',   label: 'Networking',   icon: <Network size={15} strokeWidth={1.8} />,       segment: 'engagement' },
+      { id: 'meetings',     label: '1:1 Meetings', icon: <Handshake size={15} strokeWidth={1.8} />,     segment: 'meetings' },
+      { id: 'polls',        label: 'Q&A & Polls',  icon: <MessageSquare size={15} strokeWidth={1.8} />, segment: 'q-and-a' },
+      { id: 'newsfeed',     label: 'Newsfeed',     icon: <ScrollText size={15} strokeWidth={1.8} />,    segment: 'newsfeed' },
+      { id: 'community',    label: 'Community',    icon: <MessageCircle size={15} strokeWidth={1.8} />, segment: 'community' },
+      { id: 'photos',       label: 'Photo wall',   icon: <Images size={15} strokeWidth={1.8} />,        segment: 'photos' },
+      { id: 'gamification', label: 'Gamification', icon: <Trophy size={15} strokeWidth={1.8} />,        segment: 'gamification' },
+      { id: 'live',         label: 'Live display', icon: <Monitor size={15} strokeWidth={1.8} />,       segment: 'live' },
     ],
   },
   {
     title: 'On-site',
     items: [
-      { id: 'meetings',    label: '1:1 Meetings',   icon: <Handshake size={15} strokeWidth={1.8} />, segment: 'meetings'    },
-      { id: 'eventera-card',  label: 'Cards & Badges', icon: <IdCard size={15} strokeWidth={1.8} />,    segment: 'eventera-card'  },
+      { id: 'check-in',      label: 'Check-in',       icon: <ScanLine size={15} strokeWidth={1.8} />, segment: 'check-in' },
+      { id: 'eventera-card', label: 'Cards & Badges', icon: <IdCard size={15} strokeWidth={1.8} />,   segment: 'eventera-card' },
     ],
   },
   {
     title: 'Partners',
     items: [
       { id: 'sponsors', label: 'Sponsors', icon: <Briefcase size={15} strokeWidth={1.8} />, segment: 'sponsors' },
-      { id: 'virtual',  label: 'Virtual',  icon: <Video size={15} strokeWidth={1.8} />,     segment: 'virtual'  },
-      { id: 'promote',  label: 'Promote',  icon: <Megaphone size={15} strokeWidth={1.8} />, segment: 'promote'  },
-      { id: 'series',   label: 'Series',   icon: <RefreshCw size={15} strokeWidth={1.8} />, segment: 'series'   },
+      { id: 'virtual',  label: 'Virtual',  icon: <Video size={15} strokeWidth={1.8} />,     segment: 'virtual' },
     ],
   },
   {
     title: 'Insights',
     items: [
-      { id: 'analytics',         label: 'Analytics',         icon: <BarChart2 size={15} strokeWidth={1.8} />,   segment: 'analytics' },
-      { id: 'source-analytics', label: 'Sources',           icon: <Share2 size={15} strokeWidth={1.8} />,     segment: 'source-analytics' },
-      { id: 'revenue',           label: 'Revenue',           icon: <TrendingUp size={15} strokeWidth={1.8} />,  segment: 'revenue' },
-      { id: 'reports',           label: 'Reports',           icon: <FileText size={15} strokeWidth={1.8} />,   segment: 'reports' },
-      { id: 'downloads',         label: 'Downloads',         icon: <Download size={15} strokeWidth={1.8} />,   segment: 'downloads' },
+      { id: 'analytics', label: 'Analytics', icon: <BarChart2 size={15} strokeWidth={1.8} />,  segment: 'analytics' },
+      { id: 'revenue',   label: 'Revenue',   icon: <TrendingUp size={15} strokeWidth={1.8} />, segment: 'revenue' },
+      { id: 'reports',   label: 'Reports',   icon: <FileText size={15} strokeWidth={1.8} />,   segment: 'reports' },
+      { id: 'downloads', label: 'Downloads', icon: <Download size={15} strokeWidth={1.8} />,   segment: 'downloads' },
+      { id: 'copilot',   label: 'AI Copilot', icon: <Bot size={15} strokeWidth={1.8} />,       segment: 'copilot' },
     ],
   },
   {
-    title: 'Configure',
+    title: 'Settings',
     items: [
-      { id: 'settings',     label: 'Settings',     icon: <Sliders size={15} strokeWidth={1.8} />,  segment: 'settings'     },
-      { id: 'staff',        label: 'Staff roles',  icon: <UserCog size={15} strokeWidth={1.8} />, segment: 'staff'        },
-      { id: 'embed',        label: 'Embed widgets', icon: <Code2 size={15} strokeWidth={1.8} />,   segment: 'embed'        },
-      { id: 'integrations', label: 'Integrations', icon: <Plug size={15} strokeWidth={1.8} />,    segment: 'integrations' },
-      { id: 'webhooks',     label: 'Webhooks',     icon: <Globe size={15} strokeWidth={1.8} />,   segment: 'webhooks'     },
+      { id: 'settings',     label: 'Settings',      icon: <Sliders size={15} strokeWidth={1.8} />, segment: 'settings' },
+      { id: 'staff',        label: 'Staff roles',   icon: <UserCog size={15} strokeWidth={1.8} />, segment: 'staff' },
+      { id: 'series',       label: 'Series',        icon: <RefreshCw size={15} strokeWidth={1.8} />, segment: 'series' },
+      { id: 'integrations', label: 'Integrations',  icon: <Plug size={15} strokeWidth={1.8} />,    segment: 'integrations' },
+      { id: 'webhooks',     label: 'Webhooks',      icon: <Globe size={15} strokeWidth={1.8} />,   segment: 'webhooks' },
+      { id: 'embed',        label: 'Embed widgets', icon: <Code2 size={15} strokeWidth={1.8} />,   segment: 'embed' },
     ],
   },
 ];
@@ -467,9 +476,20 @@ function EventNavContent({ pathname, eventId, onNavigate }: {
     s.items.some(it => it.segment === activeSegment),
   );
 
-  // Collapsible section groups — first section ("Manage") open by default.
+  // Collapsible section groups — first section open by default.
   const [openSections, setOpenSections] = useState<Record<number, boolean>>({ 0: true });
   const toggleSection = (si: number) => setOpenSections(p => ({ ...p, [si]: !(p[si] ?? false) }));
+
+  // "Find a tool" filter — search every feature across all groups so nothing is
+  // reachable only by accident. Empty query → normal grouped view.
+  const [navQuery, setNavQuery] = useState('');
+  const q = navQuery.trim().toLowerCase();
+  const searchResults = q
+    ? [EVENT_OVERVIEW_ITEM, ...EVENT_NAV_SECTIONS.flatMap(s => s.items.map(it => ({ ...it, group: s.title })))]
+        .filter(it => it.label.toLowerCase().includes(q) || ('group' in it && String((it as { group?: string }).group).toLowerCase().includes(q)))
+    : null;
+
+  const hrefFor = (segment: string) => (segment === '' ? `/events/${eventId}` : `/events/${eventId}/${segment}`);
 
   const badge = event?.status ? (EVENT_STATUS_BADGE[event.status] ?? EVENT_STATUS_BADGE.archived) : null;
 
@@ -517,44 +537,83 @@ function EventNavContent({ pathname, eventId, onNavigate }: {
         )}
       </div>
 
-      {/* Event nav — collapsible section groups */}
+      {/* Find a tool — searches every feature across all groups */}
+      <div className="px-3 pt-3 shrink-0">
+        <div className="relative">
+          <Search size={14} strokeWidth={2} className="absolute left-2.5 top-1/2 -translate-y-1/2" style={{ color: '#9BA8A1' }} />
+          <input
+            type="text"
+            value={navQuery}
+            onChange={(e) => setNavQuery(e.target.value)}
+            placeholder="Find a tool…"
+            aria-label="Find a tool"
+            className="w-full h-9 pl-8 pr-8 rounded-lg text-[13px] outline-none transition-colors focus:border-[#1F4D3A]"
+            style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', color: '#0F1F18' }}
+          />
+          {navQuery && (
+            <button type="button" onClick={() => setNavQuery('')} aria-label="Clear search"
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 rounded transition-colors hover:bg-[#F5F3EE]" style={{ color: '#9BA8A1' }}>
+              <X size={14} strokeWidth={2} />
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Event nav */}
       <nav className="flex-1 px-3 py-3 overflow-y-auto">
-        {EVENT_NAV_SECTIONS.map((section, si) => {
-          const open = (openSections[si] ?? false) || si === activeSectionIndex;
-          return (
-            <div key={si} className="mb-1.5">
-              <button
-                type="button"
-                onClick={() => toggleSection(si)}
-                aria-expanded={open}
-                className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg transition-colors hover:bg-[#F5F3EE]"
-              >
-                <span className="text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: '#9BA8A1' }}>
-                  {section.title}
-                </span>
-                <ChevronRight
-                  size={13}
-                  strokeWidth={2.2}
-                  style={{ color: '#9BA8A1', transform: open ? 'rotate(90deg)' : 'none', transition: 'transform .15s' }}
-                />
-              </button>
-              {open && (
-                <ul className="space-y-0.5 mt-0.5 mb-2">
-                  {section.items.map(item => {
-                    const href = item.segment === ''
-                      ? `/events/${eventId}`
-                      : `/events/${eventId}/${item.segment}`;
-                    const active = activeSegment === item.segment;
-                    return (
-                      <NavItem key={item.id} href={href} icon={item.icon} label={item.label}
-                        active={active} onNavigate={onNavigate} />
-                    );
-                  })}
-                </ul>
-              )}
-            </div>
-          );
-        })}
+        {searchResults ? (
+          /* Flat filtered results */
+          searchResults.length === 0 ? (
+            <p className="px-2.5 py-6 text-[13px] text-center" style={{ color: '#9BA8A1' }}>
+              No tools match “{navQuery}”.
+            </p>
+          ) : (
+            <ul className="space-y-0.5">
+              {searchResults.map(item => (
+                <NavItem key={item.id} href={hrefFor(item.segment)} icon={item.icon} label={item.label}
+                  active={activeSegment === item.segment} onNavigate={onNavigate} />
+              ))}
+            </ul>
+          )
+        ) : (
+          <>
+            {/* Overview — pinned above the groups */}
+            <ul className="space-y-0.5 mb-2.5">
+              <NavItem href={hrefFor('')} icon={EVENT_OVERVIEW_ITEM.icon} label={EVENT_OVERVIEW_ITEM.label}
+                active={activeSegment === ''} onNavigate={onNavigate} />
+            </ul>
+            {EVENT_NAV_SECTIONS.map((section, si) => {
+              const open = (openSections[si] ?? false) || si === activeSectionIndex;
+              return (
+                <div key={si} className="mb-1.5">
+                  <button
+                    type="button"
+                    onClick={() => toggleSection(si)}
+                    aria-expanded={open}
+                    className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg transition-colors hover:bg-[#F5F3EE]"
+                  >
+                    <span className="text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: '#9BA8A1' }}>
+                      {section.title}
+                    </span>
+                    <ChevronRight
+                      size={13}
+                      strokeWidth={2.2}
+                      style={{ color: '#9BA8A1', transform: open ? 'rotate(90deg)' : 'none', transition: 'transform .15s' }}
+                    />
+                  </button>
+                  {open && (
+                    <ul className="space-y-0.5 mt-0.5 mb-2">
+                      {section.items.map(item => (
+                        <NavItem key={item.id} href={hrefFor(item.segment)} icon={item.icon} label={item.label}
+                          active={activeSegment === item.segment} onNavigate={onNavigate} />
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              );
+            })}
+          </>
+        )}
       </nav>
 
     </>
