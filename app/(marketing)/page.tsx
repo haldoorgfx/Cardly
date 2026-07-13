@@ -2,7 +2,7 @@ import Link from 'next/link';
 import {
   Sparkles, Check, Ticket, BarChart2,
   LayoutGrid, Network, Briefcase, Sun, Users,
-  ArrowRight, Quote, Globe,
+  ArrowRight, Quote, Globe, Activity, Clock,
 } from 'lucide-react';
 import { FAQAccordion, type FAQItem } from '@/components/marketing/FAQAccordion';
 import { GetTheAppSection } from '@/components/marketing/GetTheAppSection';
@@ -225,23 +225,28 @@ function PlatformOverview() {
         </div>
 
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, justifyContent: 'center' }}>
-          {ALL_FEATURES.map((f) => (
-            <div
-              key={f}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 8,
-                padding: '9px 18px',
-                background: '#FFFFFF',
-                border: '1px solid #E5E0D4',
-                borderRadius: 100,
-                fontSize: 14, color: '#0F1F18',
-                fontFamily: 'var(--font-sans)', fontWeight: 500,
-              }}
-            >
-              <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#1F4D3A', flexShrink: 0 }} />
-              {f}
-            </div>
-          ))}
+          {ALL_FEATURES.map((f, i) => {
+            const t = i % 2 === 0
+              ? { bg: '#E8EFEB', border: '#D3E2D9', dot: '#1F4D3A' }   // forest-soft
+              : { bg: '#F6EDDA', border: '#EBDDC0', dot: '#C9A45E' };  // gold-soft
+            return (
+              <div
+                key={f}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 8,
+                  padding: '9px 18px',
+                  background: t.bg,
+                  border: `1px solid ${t.border}`,
+                  borderRadius: 100,
+                  fontSize: 14, color: '#0F1F18',
+                  fontFamily: 'var(--font-sans)', fontWeight: 500,
+                }}
+              >
+                <div style={{ width: 6, height: 6, borderRadius: '50%', background: t.dot, flexShrink: 0 }} />
+                {f}
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>
@@ -332,15 +337,27 @@ function ShowcaseAnalytics() {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {[
-              { label: 'Registration funnel & revenue', val: 'Live', color: '#1F4D3A' },
-              { label: 'Check-ins vs. registered', val: 'Real-time', color: '#1F4D3A' },
-              { label: 'Cards generated & shared', val: 'Tracked', color: '#C9A45E' },
-            ].map((s) => (
-              <div key={s.label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, padding: '10px 16px', background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 10 }}>
-                <span style={{ fontSize: 12, color: '#3A4A42', fontFamily: 'var(--font-sans)' }}>{s.label}</span>
-                <span style={{ fontSize: 20, fontWeight: 700, color: s.color, fontFamily: 'var(--font-display)', letterSpacing: '-0.025em', flexShrink: 0 }}>{s.val}</span>
-              </div>
-            ))}
+              { label: 'Registration funnel & revenue', val: 'Live', icon: Activity, gold: false },
+              { label: 'Check-ins vs. registered', val: 'Real-time', icon: Clock, gold: false },
+              { label: 'Cards generated & shared', val: 'Tracked', icon: Check, gold: true },
+            ].map((s) => {
+              const Icon = s.icon;
+              return (
+                <div key={s.label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, padding: '13px 16px', background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 12 }}>
+                  <span style={{ fontSize: 14.5, color: '#0F1F18', fontFamily: 'var(--font-sans)', fontWeight: 500 }}>{s.label}</span>
+                  <span style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 5, flexShrink: 0,
+                    fontSize: 12.5, fontWeight: 600, fontFamily: 'var(--font-sans)',
+                    color: s.gold ? '#C9A45E' : '#1F4D3A',
+                    background: s.gold ? '#F6EDDA' : '#E8EFEB',
+                    border: `1px solid ${s.gold ? '#EBDDC0' : '#D3E2D9'}`,
+                    borderRadius: 100, padding: '4px 10px 4px 8px',
+                  }}>
+                    <Icon size={13} strokeWidth={2.2} /> {s.val}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </div>
 

@@ -145,33 +145,39 @@ export function Ecard({ name, role, initials, withBtn, faded }: {
 }
 
 /* ── Responsive "shot" — scales an intrinsic-size composition to fit ── */
-export function Shot({ width, height, className, float, children }: {
-  width: number; height: number; className?: string; float?: boolean; children: ReactNode;
+export function Shot({ width, height, className, float, pad = 48, children }: {
+  width: number; height: number; className?: string; float?: boolean; pad?: number; children: ReactNode;
 }) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
+  // Full art box includes uniform padding on every side so drop-shadows and any
+  // intentional bleed (a phone floating off-edge) have room and never get sliced.
+  const boxW = width + pad * 2;
+  const boxH = height + pad * 2;
   useEffect(() => {
     function fit() {
       if (!wrapRef.current) return;
-      setScale(Math.min(1, wrapRef.current.offsetWidth / width));
+      setScale(Math.min(1, wrapRef.current.offsetWidth / boxW));
     }
     fit();
     const ro = new ResizeObserver(fit);
     if (wrapRef.current) ro.observe(wrapRef.current);
     return () => ro.disconnect();
-  }, [width]);
+  }, [boxW]);
   return (
-    <div ref={wrapRef} className={`${s.hv} ${className ?? ''}`} style={{ width: '100%', height: height * scale }}>
+    <div ref={wrapRef} className={`${s.hv} ${className ?? ''}`} style={{ width: '100%', height: boxH * scale }}>
       {/* Sized to the SCALED dimensions with overflow:hidden so the inner div's
           unscaled layout footprint (transform:scale doesn't shrink the box) can't
           push the document into horizontal scroll. The float animation lives here,
           not on the scaled div, so it never clobbers the scale transform. */}
       <div
         className={float ? s.float : undefined}
-        style={{ width: width * scale, height: height * scale, overflow: 'hidden' }}
+        style={{ width: boxW * scale, height: boxH * scale, overflow: 'hidden' }}
       >
-        <div style={{ width, height, transform: `scale(${scale})`, transformOrigin: 'top left' }}>
-          {children}
+        <div style={{ position: 'relative', width: boxW, height: boxH, transform: `scale(${scale})`, transformOrigin: 'top left' }}>
+          <div style={{ position: 'absolute', left: pad, top: pad, width, height }}>
+            {children}
+          </div>
         </div>
       </div>
     </div>

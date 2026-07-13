@@ -34,7 +34,7 @@
 
 /* browser window */
 .win { border-radius: 14px; background: var(--cream); overflow: hidden;
-  box-shadow: 0 3px 8px rgba(15,31,24,.05), 0 54px 100px -34px rgba(15,31,24,.44);
+  box-shadow: 0 2px 6px rgba(15,31,24,.04), 0 28px 56px -30px rgba(15,31,24,.30);
   border: 1px solid rgba(15,31,24,.05); }
 .chrome { height: 46px; background: #F0EDE8; display: flex; align-items: center; gap: 16px;
   padding: 0 18px; border-bottom: 1px solid var(--border); }
@@ -94,7 +94,7 @@
   font-size: 32px; line-height: 1; margin: 9px 0 10px; }
 .statGold .statN { color: var(--gold-deep); }
 .statGold { border-color: rgba(201,164,94,.5); background: linear-gradient(180deg,#FEFBF3,#fff);
-  box-shadow: 0 10px 26px -14px rgba(232,197,126,.85); }
+  box-shadow: 0 1px 2px rgba(15,31,24,.03); }
 .statForest .statN { color: var(--forest); }
 .statInk .statN { color: var(--forest-deep); }
 .delta { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; color: var(--success); }
@@ -105,7 +105,7 @@
 .col { width: 100%; border-radius: 6px 6px 3px 3px; background: var(--skel); }
 .colForest { background: var(--forest); }
 .colTint { background: rgba(31,77,58,.22); }
-.colGold { background: var(--gold); box-shadow: 0 8px 18px -8px rgba(232,197,126,.85); }
+.colGold { background: var(--gold); }
 .colday { font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--muted); }
 
 .toggle { display: flex; gap: 6px; }
@@ -154,12 +154,12 @@
 .ecDl { margin-top: 2px; display: inline-flex; align-items: center; gap: 9px;
   background: var(--gold); color: var(--forest-deep); font-family: "Plus Jakarta Sans", sans-serif;
   font-weight: 600; font-size: 14px; padding: 11px 22px; border-radius: 12px;
-  box-shadow: 0 12px 26px -8px rgba(232,197,126,.6); }
+  box-shadow: 0 6px 16px -8px rgba(15,31,24,.28); }
 
 /* phone */
 .phone { border-radius: 36px; background: #0C1813; padding: 9px; flex: none;
   border: 1.5px solid rgba(232,197,126,.55);
-  box-shadow: 0 3px 8px rgba(15,31,24,.06), 0 66px 120px -42px rgba(15,31,24,.62); }
+  box-shadow: 0 2px 6px rgba(15,31,24,.05), 0 32px 64px -34px rgba(15,31,24,.42); }
 .phoneScreen { width: 100%; height: 100%; border-radius: 28px; overflow: hidden; position: relative;
   background: #0B140F; display: flex; flex-direction: column; color: var(--cream); }
 .notch { position: absolute; top: 9px; left: 50%; transform: translateX(-50%); width: 88px; height: 24px;
