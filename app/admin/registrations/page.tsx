@@ -1,6 +1,7 @@
 import { requirePermission, getSessionUser } from '@/lib/auth/guards';
 import { EVENT_VIEW_ALL } from '@/lib/auth/permissions';
 import { createAdminClient } from '@/lib/supabase/server';
+import { PageShell, PageHeader } from '@/components/dash';
 import { RegistrationsAdminClient } from './RegistrationsAdminClient';
 
 export const metadata = { title: 'Registrations — Eventera Admin' };
@@ -83,18 +84,12 @@ export default async function RegistrationsAdminPage({
   }));
 
   return (
-    <div className="p-6 lg:p-10 max-w-[1300px]">
-      <div className="mb-8">
-        <div className=" text-[12px] tracking-[0.22em] uppercase text-[#6B7A72] mb-2">
-          Admin · Registrations
-        </div>
-        <h1 className="font-display font-semibold text-[26px] sm:text-[30px] text-[#0F1F18] tracking-tight">
-          Registrations
-        </h1>
-        <p className="mt-1.5 text-[14px] text-[#6B7A72]">
-          Every registration across all events. Search, change status, delete, and export.
-        </p>
-      </div>
+    <PageShell width="wide">
+      <PageHeader
+        eyebrow="Admin · Registrations"
+        title="Registrations"
+        subtitle="Every registration across all events. Search, change status, delete, and export."
+      />
 
       <RegistrationsAdminClient
         rows={rows}
@@ -109,7 +104,7 @@ export default async function RegistrationsAdminPage({
           event_id:       searchParams.event_id       ?? '',
         }}
       />
-    </div>
+    </PageShell>
   );
 }
 

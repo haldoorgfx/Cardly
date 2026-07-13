@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Check } from 'lucide-react';
+import { PageShell, PageHeader } from '@/components/dash';
 
 const BRAND_COLORS = [
   { name: 'Forest', hex: '#1F403A' },
@@ -57,34 +58,34 @@ export default function BrandKitPage() {
 
   if (loading) {
     return (
-      <div className="px-4 sm:px-6 lg:px-8 py-8">
+      <PageShell width="wide">
         <div className="animate-pulse space-y-4">
           <div className="h-10 bg-[#F0EDE8] rounded-xl w-40" />
           <div className="h-64 bg-[#F0EDE8] rounded-2xl" />
         </div>
-      </div>
+      </PageShell>
     );
   }
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8 py-8">
+    <PageShell width="wide">
       {/* Header */}
-      <div className="flex items-start justify-between gap-4 mb-8">
-        <div>
-          <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight text-[#0F1F18]" style={{ letterSpacing: '-0.02em' }}>Brand Kit</h1>
-          <p className="text-[14px] text-[#3A4A42] mt-1">Applied to event pages and Eventera Cards</p>
-        </div>
-        {/* Logos persist the moment they upload — no separate save step. */}
-        <div
-          className="shrink-0 mt-1 h-9 inline-flex items-center gap-1.5 text-[12.5px] font-medium transition-colors"
-          style={{ color: savedFlash ? '#2D7A4F' : '#6B7A72' }}
-          role="status"
-          aria-live="polite"
-        >
-          <Check size={13} strokeWidth={2.5} style={{ opacity: savedFlash ? 1 : 0.5 }} />
-          {savedFlash ? 'Saved' : 'Changes save automatically'}
-        </div>
-      </div>
+      <PageHeader
+        title="Brand Kit"
+        subtitle="Applied to event pages and Eventera Cards"
+        actions={
+          /* Logos persist the moment they upload — no separate save step. */
+          <div
+            className="shrink-0 h-9 inline-flex items-center gap-1.5 text-[12.5px] font-medium transition-colors"
+            style={{ color: savedFlash ? '#2D7A4F' : '#6B7A72' }}
+            role="status"
+            aria-live="polite"
+          >
+            <Check size={13} strokeWidth={2.5} style={{ opacity: savedFlash ? 1 : 0.5 }} />
+            {savedFlash ? 'Saved' : 'Changes save automatically'}
+          </div>
+        }
+      />
       {uploadError && (
         <div className="mb-5 px-4 py-3 rounded-xl text-[13px]" role="alert" style={{ background: 'rgba(184,66,60,0.08)', border: '1px solid rgba(184,66,60,0.25)', color: '#B8423C' }}>
           {uploadError}
@@ -317,6 +318,6 @@ export default function BrandKitPage() {
         </div>
 
       </div>
-    </div>
+    </PageShell>
   );
 }

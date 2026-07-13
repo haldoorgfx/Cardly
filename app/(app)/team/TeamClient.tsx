@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { Settings, Search, ChevronDown, Shield, Users, Lock, Flag, Pencil, BarChart2, Phone } from 'lucide-react';
 import type { Team, TeamMember, TeamInvite } from '@/lib/teams/queries';
+import { PageShell, PageHeader } from '@/components/dash';
 
 interface Props {
   userId: string;
@@ -363,27 +364,27 @@ export function TeamClient({
 
   if (plan !== 'studio') {
     return (
-      <div className="px-8 py-8 max-w-[720px]">
-        <div className="flex items-start justify-between gap-4 mb-8">
-          <div>
-            <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight text-[#0F1F18]" style={{ letterSpacing: '-0.02em' }}>Team</h1>
-            <p className="text-[14px] text-[#6B7A72] mt-1">Manage collaborators and workspace access.</p>
-          </div>
-          <a
-            href="/settings/billing"
-            className="inline-flex items-center gap-1.5 h-9 px-5 rounded-lg text-[13.5px] font-semibold text-white shrink-0 mt-1 transition hover:opacity-90"
-            style={{ background: 'linear-gradient(135deg, #1F4D3A, #2A6A50)' }}
-          >
-            + Invite member
-          </a>
-        </div>
+      <PageShell width="wide">
+        <PageHeader
+          title="Team"
+          subtitle="Manage collaborators and workspace access."
+          actions={
+            <a
+              href="/settings/billing"
+              className="inline-flex items-center gap-1.5 h-9 px-5 rounded-lg text-[13.5px] font-semibold text-white shrink-0 transition hover:opacity-90"
+              style={{ background: 'linear-gradient(135deg, #1F4D3A, #2A6A50)' }}
+            >
+              + Invite member
+            </a>
+          }
+        />
         <UpsellCard />
-      </div>
+      </PageShell>
     );
   }
 
   return (
-    <div className="px-8 py-8 max-w-[900px] mx-auto">
+    <PageShell width="wide">
       {showInviteModal && initialTeam && (
         <InviteModal
           teamId={initialTeam.id}
@@ -411,23 +412,25 @@ export function TeamClient({
       )}
 
       {/* Header */}
-      <div className="flex items-start justify-between gap-4 mb-8">
-        <div>
-          <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight text-[#0F1F18]" style={{ letterSpacing: '-0.02em' }}>Team</h1>
-          <p className="text-[14px] text-[#6B7A72] mt-1">
+      <PageHeader
+        title="Team"
+        subtitle={
+          <>
             {totalCount} member{totalCount !== 1 ? 's' : ''}
             {pendingCount > 0 && ` · ${pendingCount} pending invite${pendingCount !== 1 ? 's' : ''}`}
-          </p>
-        </div>
-        {isOwner && (
-          <button
-            onClick={() => setShowInviteModal(true)}
-            className="inline-flex items-center gap-1.5 h-9 px-5 rounded-lg text-[13.5px] font-semibold text-white bg-primary hover:opacity-95 transition shrink-0 mt-1"
-          >
-            + Invite member
-          </button>
-        )}
-      </div>
+          </>
+        }
+        actions={
+          isOwner && (
+            <button
+              onClick={() => setShowInviteModal(true)}
+              className="inline-flex items-center gap-1.5 h-9 px-5 rounded-lg text-[13.5px] font-semibold text-white bg-primary hover:opacity-95 transition shrink-0"
+            >
+              + Invite member
+            </button>
+          )
+        }
+      />
 
       {/* Search + filter */}
       <div className="flex items-center gap-3 mb-5">
@@ -603,6 +606,6 @@ export function TeamClient({
           Owners and Admins manage everything; Editors manage assigned events; Check-in staff can only scan attendees at the door.
         </span>
       </div>
-    </div>
+    </PageShell>
   );
 }

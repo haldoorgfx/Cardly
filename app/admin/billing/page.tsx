@@ -1,6 +1,7 @@
 import { requirePermission } from '@/lib/auth/guards';
 import { BILLING_MANAGE } from '@/lib/auth/permissions';
 import { createAdminClient } from '@/lib/supabase/server';
+import { PageShell, PageHeader } from '@/components/dash';
 import { BillingAdminClient } from './BillingAdminClient';
 import type { Plan } from '@/types/database';
 
@@ -71,19 +72,12 @@ export default async function BillingAdminPage({
   };
 
   return (
-    <div className="p-6 lg:p-10 max-w-[1100px]">
-      <div className="mb-8">
-        <div className=" text-[12px] tracking-[0.22em] uppercase text-[#6B7A72] mb-2">
-          Admin · Billing
-        </div>
-        <h1 className="font-display font-semibold text-[26px] sm:text-[30px] text-[#0F1F18] tracking-tight">
-          Revenue
-        </h1>
-        <p className="mt-1.5 text-[14px] text-[#6B7A72]">
-          View subscriptions, comp plans (Stripe-bypassing), view invoices, and issue refunds.
-          All billing mutations are audited.
-        </p>
-      </div>
+    <PageShell width="wide">
+      <PageHeader
+        eyebrow="Admin · Billing"
+        title="Revenue"
+        subtitle="View subscriptions, comp plans (Stripe-bypassing), view invoices, and issue refunds. All billing mutations are audited."
+      />
 
       {/* Ticket-fee take-rate — Eventera's cut + what's owed to organizers */}
       {feeCurrencies.length > 0 && (
@@ -118,7 +112,7 @@ export default async function BillingAdminPage({
           plan: searchParams.plan ?? '',
         }}
       />
-    </div>
+    </PageShell>
   );
 }
 

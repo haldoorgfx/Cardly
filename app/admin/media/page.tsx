@@ -1,6 +1,7 @@
 import { requirePermission } from '@/lib/auth/guards';
 import { CONTENT_EDIT } from '@/lib/auth/permissions';
 import { listMedia } from '@/lib/cms/queries';
+import { PageShell, PageHeader } from '@/components/dash';
 import { MediaLibraryClient } from './MediaLibraryClient';
 
 export const metadata = { title: 'Media Library — Eventera Admin' };
@@ -23,18 +24,12 @@ export default async function MediaLibraryPage({
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
   return (
-    <div className="p-6 lg:p-10 max-w-[1200px]">
-      <div className="mb-8">
-        <div className=" text-[12px] tracking-[0.22em] uppercase text-[#6B7A72] mb-2">
-          Admin · Content
-        </div>
-        <h1 className="font-display font-semibold text-[26px] sm:text-[30px] text-[#0F1F18] tracking-tight">
-          Media Library
-        </h1>
-        <p className="mt-1.5 text-[14px] text-[#6B7A72]">
-          Upload images for CMS blocks. Supports JPEG, PNG, WebP, GIF, and SVG up to 10 MB.
-        </p>
-      </div>
+    <PageShell width="wide">
+      <PageHeader
+        eyebrow="Admin · Content"
+        title="Media Library"
+        subtitle="Upload images for CMS blocks. Supports JPEG, PNG, WebP, GIF, and SVG up to 10 MB."
+      />
 
       <MediaLibraryClient
         initialItems={items}
@@ -43,6 +38,6 @@ export default async function MediaLibraryPage({
         totalPages={totalPages}
         defaultSearch={search ?? ''}
       />
-    </div>
+    </PageShell>
   );
 }

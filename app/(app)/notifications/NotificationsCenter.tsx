@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Bell } from 'lucide-react';
+import { PageShell, PageHeader } from '@/components/dash';
 
 // ── Types ───────────────────────────────────────────────────────────────────
 
@@ -165,23 +166,19 @@ export default function NotificationsCenter({ initialNotifs, initialPrefs }: Pro
   const unreadCount = notifications.filter(n => !n.read_at).length;
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8">
+    <PageShell width="narrow">
       {/* Header */}
-      <div className="flex items-center justify-between mb-5">
-        <div>
-          <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>Notifications</h1>
-          {tab === 'inbox' && unreadCount > 0 && (
-            <p className="text-[13px] mt-0.5" style={{ color: '#3A4A42' }}>{unreadCount} unread</p>
-          )}
-        </div>
-        {tab === 'inbox' && unreadCount > 0 && (
+      <PageHeader
+        title="Notifications"
+        subtitle={tab === 'inbox' && unreadCount > 0 ? `${unreadCount} unread` : undefined}
+        actions={tab === 'inbox' && unreadCount > 0 ? (
           <button onClick={handleMarkAll} disabled={markingAll}
             className="min-h-[40px] text-[12px] uppercase tracking-widest px-3 py-1.5 rounded-lg border transition hover:bg-[#F5F3EE] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1F4D3A]/40 disabled:opacity-50"
             style={{ color: '#3A4A42', borderColor: '#E5E0D4' }}>
             {markingAll ? 'Marking…' : 'Mark all read'}
           </button>
-        )}
-      </div>
+        ) : undefined}
+      />
 
       {/* Tabs */}
       <div className="flex items-center gap-1 mb-6 p-1 rounded-xl w-fit" style={{ background: '#F0EDE7' }}>
@@ -277,6 +274,6 @@ export default function NotificationsCenter({ initialNotifs, initialPrefs }: Pro
           </div>
         </div>
       )}
-    </div>
+    </PageShell>
   );
 }

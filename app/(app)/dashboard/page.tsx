@@ -11,6 +11,7 @@ import React from 'react';
 import { CalendarDays, Ticket, Users, ScanLine, Plus, IdCard } from 'lucide-react';
 import { PLANS, type Plan } from '@/lib/billing/plans';
 import { formatRevenue } from '@/lib/events/format';
+import { PageShell, PageHeader } from '@/components/dash';
 
 export default async function DashboardPage() {
   const supabase = createClient();
@@ -137,23 +138,20 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div className="min-h-full" style={{ background: '#FAF6EE' }}>
-      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+    <PageShell width="wide">
 
         {/* ── Page header ── */}
-        <div className="flex items-start justify-between mb-6 gap-4 flex-wrap">
-          <div>
-            <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight text-[#0F1F18] tracking-[-0.02em]">Events</h1>
-            <p className="text-[#6B7A72] text-[14px] mt-0.5">Everything you&apos;re organizing, in one place.</p>
-          </div>
-          {!atLimit && (
+        <PageHeader
+          title="Events"
+          subtitle="Everything you're organizing, in one place."
+          actions={!atLimit && (
             <Link href="/events/new"
               className="shrink-0 inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-white text-[14px] font-medium transition hover:bg-[#163828]"
               style={{ background: '#1F4D3A' }}>
               <Plus size={16} strokeWidth={2.2} /> Create event
             </Link>
           )}
-        </div>
+        />
 
         {/* ── Stats strip ── */}
         <div className="bg-white border rounded-2xl px-4 sm:px-6 py-4 mb-5 flex flex-wrap items-center gap-x-5 gap-y-2"
@@ -241,7 +239,6 @@ export default async function DashboardPage() {
         <div className=" text-[12px] tracking-[0.2em] uppercase text-[#6B7A72] mb-3">Your events</div>
         <DashboardContent events={allEvents} atLimit={atLimit} regsByEvent={regsByEvent} draftCount={draftCount} activeCount={activeCount} />
 
-      </div>
-    </div>
+    </PageShell>
   );
 }

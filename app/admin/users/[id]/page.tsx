@@ -5,6 +5,7 @@ import { createAdminClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getUserEventCount, getUserCardCount } from '@/lib/admin/queries';
+import { PageShell } from '@/components/dash';
 import { ImpersonateButton } from './ImpersonateButton';
 
 export const dynamic = 'force-dynamic';
@@ -67,7 +68,7 @@ export default async function UserDetailPage({ params }: { params: { id: string 
                                       { bg: 'rgba(107,122,114,0.10)', color: '#6B7A72' };
 
   return (
-    <div className="p-6 lg:p-10 max-w-[800px]">
+    <PageShell width="wide">
       {/* Breadcrumb */}
       <div className="mb-6 flex items-center gap-2 text-[12px] text-[#6B7A72]">
         <Link href="/admin/users" className="hover:text-[#1F4D3A] transition-colors">Users</Link>
@@ -165,6 +166,6 @@ export default async function UserDetailPage({ params }: { params: { id: string 
       >
         ← Back to users
       </Link>
-    </div>
+    </PageShell>
   );
 }

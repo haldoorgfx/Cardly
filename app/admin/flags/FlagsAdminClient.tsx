@@ -25,32 +25,12 @@ export function FlagsAdminClient({ initialFlags }: Props) {
     setSaving(null);
   }
 
-  const enabled = flags.filter(f => f.enabled).length;
-
   return (
-    <div className="min-h-full flex flex-col" style={{ background: '#FAF6EE' }}>
-      {/* Header */}
-      <div className="px-6 pt-7 pb-6 border-b shrink-0" style={{ borderColor: '#E5E0D4', background: '#FAF6EE' }}>
-        <div className="flex items-center gap-1.5 text-[12px] text-[#6B7A72]/60 mb-3">
-          <span>PLATFORM</span><span>/</span><span className="text-[#6B7A72]">Feature Flags</span>
-        </div>
-        <div className="flex items-end justify-between gap-4 flex-wrap">
-          <div>
-            <h1 className="font-display font-bold text-[28px] text-[#0F1F18] leading-tight tracking-tight">Feature flags</h1>
-            <p className="text-[13px] text-[#6B7A72] mt-1">
-              {enabled} of {flags.length} flags enabled globally.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className="flex-1 px-6 py-6">
-        <div className="max-w-2xl">
-          <div
-            className="rounded-2xl overflow-hidden"
-            style={{ background: 'white', border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}
-          >
+    <div className="max-w-2xl">
+      <div
+        className="rounded-2xl overflow-hidden"
+        style={{ background: 'white', border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}
+      >
             {flags.length === 0 && (
               <div className="flex flex-col items-center py-16 gap-3">
                 <Flag size={28} strokeWidth={1.4} color="#C9C3B1" />
@@ -106,11 +86,9 @@ export function FlagsAdminClient({ initialFlags }: Props) {
             ))}
           </div>
 
-          <p className="mt-4 text-[12px] text-[#6B7A72]/60 px-1">
-            Per-user overrides can be set via the API: <code className=" text-[12.5px]">POST /api/admin/flags/[flag]/overrides</code>
-          </p>
-        </div>
-      </div>
+      <p className="mt-4 text-[12px] text-[#6B7A72]/60 px-1">
+        Per-user overrides can be set via the API: <code className=" text-[12.5px]">POST /api/admin/flags/[flag]/overrides</code>
+      </p>
     </div>
   );
 }

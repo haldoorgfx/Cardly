@@ -2,6 +2,7 @@ import { requirePermission } from '@/lib/auth/guards';
 import { AUDIT_VIEW } from '@/lib/auth/permissions';
 import { createAdminClient } from '@/lib/supabase/server';
 import { AuditLogTable, type AuditEntry } from '@/components/admin/AuditLogTable';
+import { PageShell, PageHeader } from '@/components/dash';
 import { AuditFiltersClient } from './AuditFiltersClient';
 
 export const metadata = { title: 'Activity Log — Eventera Admin' };
@@ -44,19 +45,12 @@ export default async function AuditPage({
   const totalPages = Math.ceil((count ?? 0) / PAGE_SIZE);
 
   return (
-    <div className="p-6 lg:p-10 max-w-[1100px]">
-      {/* Header */}
-      <div className="mb-8">
-        <div className=" text-[12px] tracking-[0.22em] uppercase text-[#6B7A72] mb-2">
-          Admin · Audit Log
-        </div>
-        <h1 className="font-display font-semibold text-[26px] sm:text-[30px] text-[#0F1F18] tracking-tight">
-          Activity Log
-        </h1>
-        <p className="mt-1.5 text-[14px] text-[#6B7A72]">
-          Every admin action, in order. Read-only.
-        </p>
-      </div>
+    <PageShell width="wide">
+      <PageHeader
+        eyebrow="Admin · Audit Log"
+        title="Activity Log"
+        subtitle="Every admin action, in order. Read-only."
+      />
 
       {/* Filters */}
       <AuditFiltersClient
@@ -83,7 +77,7 @@ export default async function AuditPage({
           <PaginationLink page={page + 1} disabled={page >= totalPages} label="Next →" searchParams={searchParams} />
         </div>
       )}
-    </div>
+    </PageShell>
   );
 }
 

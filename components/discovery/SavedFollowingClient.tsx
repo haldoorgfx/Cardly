@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Heart, Bell, BellOff, Calendar, MapPin, Globe, Users } from 'lucide-react';
 import { PublicNav } from '@/components/events/PublicNav';
+import { PageShell, PageHeader } from '@/components/dash';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type EventPage = any;
@@ -82,10 +83,8 @@ export function SavedFollowingClient({ saved: dbSaved, following: dbFollowing, e
   return (
     <div style={embedded ? undefined : { background: '#FAF6EE', minHeight: '100vh' }}>
       {!embedded && <PublicNav />}
-      <div className="max-w-[760px] mx-auto px-5 py-8">
-        <h1 className="font-display font-semibold text-[26px] sm:text-[30px] mb-6" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
-          Saved &amp; Following
-        </h1>
+      <PageShell width="wide">
+        <PageHeader title="Saved & Following" />
 
         {/* Tabs */}
         <div className="flex gap-1 p-1 rounded-xl mb-6 w-fit" style={{ background: '#EDE9E0' }}>
@@ -211,7 +210,7 @@ export function SavedFollowingClient({ saved: dbSaved, following: dbFollowing, e
             )}
           </div>
         )}
-      </div>
+      </PageShell>
     </div>
   );
 }

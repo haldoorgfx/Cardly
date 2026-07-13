@@ -133,7 +133,7 @@ export default async function SponsoringPage() {
   const isEmpty = cards.length === 0;
 
   return (
-    <PageShell>
+    <PageShell width="wide">
         <PageHeader title="Sponsoring" subtitle="Your booths, leads, and exhibitor portals." />
 
         {isEmpty ? (

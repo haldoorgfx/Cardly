@@ -4,6 +4,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect, notFound } from 'next/navigation';
 import { ownedSpeaker } from '@/lib/rbac/ownership';
 import { SpeakerPortalClient } from '@/components/speaker/SpeakerPortalClient';
+import { PageShell } from '@/components/dash';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = { title: 'Speaker workspace' };
@@ -87,7 +88,7 @@ export default async function SpeakerWorkspacePage({
   }
 
   return (
-    <div className="mx-auto w-full px-4 sm:px-6 lg:px-8 py-6" style={{ maxWidth: 1000 }}>
+    <PageShell width="wide">
       <SpeakerPortalClient
         embedded
         speaker={speaker}
@@ -103,6 +104,6 @@ export default async function SpeakerWorkspacePage({
         resources={resources}
         questions={questions}
       />
-    </div>
+    </PageShell>
   );
 }

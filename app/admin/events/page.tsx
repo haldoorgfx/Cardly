@@ -1,6 +1,7 @@
 import { requirePermission } from '@/lib/auth/guards';
 import { EVENT_VIEW_ALL } from '@/lib/auth/permissions';
 import { createAdminClient } from '@/lib/supabase/server';
+import { PageShell, PageHeader } from '@/components/dash';
 import { EventsOversightClient } from './EventsOversightClient';
 import type { EventStatus, ModerationStatus } from '@/types/database';
 
@@ -50,18 +51,12 @@ export default async function EventsOversightPage({
   const totalPages = Math.ceil((count ?? 0) / PAGE_SIZE);
 
   return (
-    <div className="p-6 lg:p-10 max-w-[1200px]">
-      <div className="mb-8">
-        <div className=" text-[12px] tracking-[0.22em] uppercase text-[#6B7A72] mb-2">
-          Admin · Event Oversight
-        </div>
-        <h1 className="font-display font-semibold text-[26px] sm:text-[30px] text-[#0F1F18] tracking-tight">
-          Event Oversight
-        </h1>
-        <p className="mt-1.5 text-[14px] text-[#6B7A72]">
-          View all events across users. Flag or remove abusive content — removed events are immediately inaccessible to attendees.
-        </p>
-      </div>
+    <PageShell width="wide">
+      <PageHeader
+        eyebrow="Admin · Event Oversight"
+        title="Event Oversight"
+        subtitle="View all events across users. Flag or remove abusive content — removed events are immediately inaccessible to attendees."
+      />
 
       <EventsOversightClient
         events={(events ?? []) as EventRow[]}
@@ -74,7 +69,7 @@ export default async function EventsOversightPage({
           moderation: searchParams.moderation ?? '',
         }}
       />
-    </div>
+    </PageShell>
   );
 }
 

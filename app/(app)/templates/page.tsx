@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Search, Heart, Plus, Loader2, Star } from 'lucide-react';
 import { buildSVG, TEMPLATE_CONFIGS, OVERLAY, W, H } from '@/lib/templates/svgs';
+import { PageShell, PageHeader } from '@/components/dash';
 
 /* ─────────────────────────────────────────────────────────────
    PERSON PLACEHOLDER DATA
@@ -281,36 +282,32 @@ export default function TemplatesPage() {
   });
 
   return (
-    <div className="min-h-full flex flex-col">
+    <PageShell width="wide">
 
       {/* Header */}
-      <div className="relative overflow-hidden px-6 pt-7 pb-6 border-b shrink-0" style={{ background:'white', borderColor:'#E5E0D4' }}>
-        <div className="relative">
-          <div className="flex items-end justify-between gap-4 flex-wrap">
-            <div>
-              <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight text-[#0F1F18]" style={{ letterSpacing: '-0.02em' }}>Templates</h1>
-              <p className="text-[13px] text-[#6B7A72] mt-1">30 professionally designed event cards — what you see is what you edit.</p>
-            </div>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6B7A72]/60 pointer-events-none" size={13} strokeWidth={2} />
-              <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search templates…"
-                className="w-[240px] h-8 pl-8 pr-3 rounded-lg text-[13px] focus:outline-none transition"
-                style={{ background:'#FAF6EE', border:'1px solid #E5E0D4', color:'#0F1F18' }} />
-            </div>
+      <PageHeader
+        title="Templates"
+        subtitle="30 professionally designed event cards — what you see is what you edit."
+        actions={
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6B7A72]/60 pointer-events-none" size={13} strokeWidth={2} />
+            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search templates…"
+              className="w-[240px] h-8 pl-8 pr-3 rounded-lg text-[13px] focus:outline-none transition"
+              style={{ background:'#FAF6EE', border:'1px solid #E5E0D4', color:'#0F1F18' }} />
           </div>
-        </div>
-      </div>
+        }
+      />
 
       {/* Error */}
       {error && (
-        <div className="mx-6 mt-4 px-4 py-3 rounded-xl text-[13px] flex items-center justify-between gap-3" style={{ background:'#FEF2F2', border:'1px solid #FECACA', color:'#B91C1C' }}>
+        <div className="mb-4 px-4 py-3 rounded-xl text-[13px] flex items-center justify-between gap-3" style={{ background:'#FEF2F2', border:'1px solid #FECACA', color:'#B91C1C' }}>
           <span>{error}</span>
           <button onClick={() => setError('')} className="shrink-0 text-[12.5px] underline">Dismiss</button>
         </div>
       )}
 
       {/* Category chips */}
-      <div className="px-6 pt-5 pb-4">
+      <div className="pb-4">
         <div className="flex items-center gap-2 flex-wrap">
           {CATEGORIES.map(cat => (
             <button key={cat.key} onClick={() => setActiveCategory(cat.key)}
@@ -332,7 +329,7 @@ export default function TemplatesPage() {
       </div>
 
       {/* Grid — 3 cols on lg, 4 on xl so cards are large + impactful */}
-      <div className="px-6 pb-16">
+      <div className="pb-4">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-6">
 
           {/* Start blank */}
@@ -459,6 +456,6 @@ export default function TemplatesPage() {
           </Link>
         </div>
       </div>
-    </div>
+    </PageShell>
   );
 }
