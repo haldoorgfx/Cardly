@@ -116,9 +116,23 @@ export function EventCard({
           />
         ) : (
           <div
-            className="absolute inset-0"
-            style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 100%)' }}
-          />
+            className="absolute inset-0 flex items-center justify-center"
+            style={{ background: '#1F4D3A' }}
+          >
+            <span
+              aria-hidden
+              style={{
+                fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif',
+                fontSize: 'clamp(48px, 9vw, 88px)',
+                fontWeight: 800,
+                letterSpacing: '-0.03em',
+                color: 'rgba(232,197,126,0.20)',
+                lineHeight: 1,
+              }}
+            >
+              {(page.title?.trim()?.[0] ?? 'E').toUpperCase()}
+            </span>
+          </div>
         )}
 
         {/* Bottom scrim */}
