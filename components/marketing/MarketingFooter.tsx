@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Compass } from 'lucide-react';
+import { AppStoreBadges } from './AppStoreBadges';
 
 const FOOTER_COLS = [
   {
@@ -12,6 +13,8 @@ const FOOTER_COLS = [
       { label: 'Networking',    href: '/features/networking' },
       { label: 'Analytics',     href: '/features/analytics' },
       { label: 'Eventera Card',    href: '/features/eventera-card' },
+      { label: 'All features',  href: '/features' },
+      { label: 'Mobile app',    href: '/app' },
     ],
   },
   {
@@ -40,6 +43,7 @@ const FOOTER_COLS = [
     links: [
       { label: "What's new",  href: '/whats-new' },
       { label: 'Help Center', href: '/help' },
+      { label: 'FAQ',         href: '/faq' },
       { label: 'API Docs',    href: '/developers' },
       { label: 'Status',      href: '/status' },
     ],
@@ -78,6 +82,10 @@ export function MarketingFooter() {
               <Compass size={16} strokeWidth={2.2} />
               Discover events
             </Link>
+            <div className="mt-6">
+              <div className="text-[10px] tracking-[0.22em] uppercase mb-3" style={{ color: '#E8C57E' }}>Get the app</div>
+              <AppStoreBadges onDark size="sm" />
+            </div>
             <div className="flex items-center gap-2.5 mt-6">
               {/* Social icons — simple SVG anchors */}
               {[

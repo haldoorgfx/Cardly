@@ -5,6 +5,7 @@ import {
   ArrowRight, Quote, Globe,
 } from 'lucide-react';
 import { FAQAccordion, type FAQItem } from '@/components/marketing/FAQAccordion';
+import { GetTheAppSection } from '@/components/marketing/GetTheAppSection';
 import {
   Scene1DashboardHero, Scene2Registration, Scene3Analytics,
   Scene4Card, Scene5LiveQA, Scene6HowItWorks,
@@ -1179,6 +1180,7 @@ export default function LandingPage() {
       <EventeraDifference />
       <HowItWorks />
       <UseCases />
+      <GetTheAppSection />
       <Pricing />
       <Testimonial />
       <FAQSection />

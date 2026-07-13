@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Search, MapPin, Calendar, ChevronDown, ArrowRight, Map as MapIcon, Ticket, Check, Tag, Globe, Users } from 'lucide-react';
 import { EventCard } from './EventCard';
+import { AppStoreBadges } from '@/components/marketing/AppStoreBadges';
 import { toggleSavedEvent } from '@/components/shared/saveEvent';
 import { EVENT_CATEGORIES } from '@/lib/categories';
 
@@ -489,6 +490,22 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents, ban
             </div>
           </Link>
         )}
+
+        {/* Get the app band */}
+        <div
+          className="rounded-2xl border px-5 py-5 sm:px-7 sm:py-6 mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+          style={{ background: 'linear-gradient(135deg, #163828 0%, #1F4D3A 100%)', borderColor: 'rgba(232,197,126,0.28)' }}
+        >
+          <div>
+            <div className="font-title font-bold text-[18px] sm:text-[20px]" style={{ color: '#FAF6EE', letterSpacing: '-0.02em' }}>
+              Get the app to save &amp; register faster.
+            </div>
+            <div className="text-[13.5px] mt-1" style={{ color: 'rgba(250,246,238,0.72)' }}>
+              Your tickets, cards and check-in — in your pocket, even offline.
+            </div>
+          </div>
+          <AppStoreBadges onDark size="sm" />
+        </div>
 
         {/* Results */}
         <div ref={resultsRef} className="flex items-end justify-between gap-4 mb-5 scroll-mt-24">

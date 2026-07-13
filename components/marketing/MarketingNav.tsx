@@ -8,7 +8,7 @@ import {
   ChevronDown, Ticket, LayoutGrid, User, BarChart2,
   ScanLine, Network, MessageSquare, Trophy, Briefcase,
   CreditCard, Sparkles, Compass, Building2, Newspaper,
-  Mail, Handshake,
+  Mail, Smartphone, HelpCircle,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import type { User as SupaUser } from '@supabase/supabase-js';
@@ -49,11 +49,12 @@ const PRODUCT_MENU = {
 
 /* ── Company menu data ───────────────────────────────── */
 const COMPANY_MENU = [
-  { icon: Building2,  name: 'About',       desc: 'Our story and mission',        href: '/about' },
-  { icon: Newspaper,  name: 'Blog',        desc: 'News, guides and updates',     href: '/blog' },
-  { icon: Mail,       name: 'Contact',     desc: 'Talk to our team',             href: '/contact' },
-  { icon: Handshake,  name: 'Partners',    desc: 'Become an Eventera partner',       href: '/partners' },
-  { icon: Briefcase,  name: 'Careers',     desc: 'Join the team',                href: '/careers' },
+  { icon: Smartphone, name: 'Get the app',  desc: 'iOS & Android',                href: '/app' },
+  { icon: Building2,  name: 'About',        desc: 'Our story and mission',        href: '/about' },
+  { icon: HelpCircle, name: 'FAQ',          desc: 'Common questions',             href: '/faq' },
+  { icon: Newspaper,  name: 'Blog',         desc: 'News, guides and updates',     href: '/blog' },
+  { icon: Mail,       name: 'Contact',      desc: 'Talk to our team',             href: '/contact' },
+  { icon: Briefcase,  name: 'Careers',      desc: 'Join the team',                href: '/careers' },
 ] as const;
 
 /* ── Mobile overlay ──────────────────────────────────── */
@@ -118,7 +119,7 @@ function MobileOverlay({
 
           {/* Nav links */}
           <nav className="flex flex-col">
-            {[['Discover events', '/events'], ['Use cases', '/use-cases'], ['Pricing', '/pricing']].map(([label, href]) => (
+            {[['Discover events', '/events'], ['Use cases', '/use-cases'], ['Pricing', '/pricing'], ['Get the app', '/app']].map(([label, href]) => (
               <Link
                 key={href}
                 href={href}
@@ -324,8 +325,8 @@ export function MarketingNav() {
                   </div>
                   <div className="mt-2 flex items-center justify-between bg-surface border border-border rounded-xl px-4 py-3">
                     <span className="text-[13px] text-ink-soft">Everything one organizer needs, in one place.</span>
-                    <Link href="/pricing" className="inline-flex items-center gap-1.5 text-primary font-medium text-[13px] hover:gap-2.5 transition-all">
-                      See the full platform <ArrowRight size={14} strokeWidth={2} />
+                    <Link href="/features" className="inline-flex items-center gap-1.5 text-primary font-medium text-[13px] hover:gap-2.5 transition-all">
+                      See all features <ArrowRight size={14} strokeWidth={2} />
                     </Link>
                   </div>
                 </div>
