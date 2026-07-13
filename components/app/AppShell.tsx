@@ -218,7 +218,7 @@ function NavItem({ href, icon, label, badge, active, onNavigate }: {
   return (
     <li>
       <Link href={href} onClick={onNavigate}
-        className={`flex items-center gap-3 py-[7px] rounded-lg text-[14.5px] transition-colors border-l-2 ${
+        className={`flex items-center gap-3 py-[6px] rounded-lg text-[14.5px] transition-colors border-l-2 ${
           active
             ? 'border-[#1F4D3A] font-medium pl-[8px] pr-2.5'
             : 'border-transparent px-2.5 hover:bg-[#F5F3EE]'
@@ -309,7 +309,7 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
       </div>
 
       {/* Nav — grouped, collapsible by intent */}
-      <nav className="flex-1 px-3 py-4 overflow-y-auto space-y-3">
+      <nav className="flex-1 px-3 py-3 overflow-y-auto space-y-1.5">
         {USER_NAV_GROUPS.map(group => {
           const groupVisible = group.flag === 'always'
             || (group.flag === 'admin' ? isAdmin : sections[group.flag]);
@@ -351,7 +351,7 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
             <div key={group.key}>
               <button
                 onClick={() => toggleGroup(group.key)}
-                className="w-full px-2.5 mb-1.5 flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.08em] transition-colors hover:text-[#6B7A72]"
+                className="w-full px-2.5 mb-1 flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.08em] transition-colors hover:text-[#6B7A72]"
                 style={{ color: '#9BA8A1' }}>
                 <span className="flex items-center gap-1.5">
                   {group.title}
@@ -367,38 +367,29 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
         })}
       </nav>
 
-      {/* Events usage bar */}
-      <div className="px-3 pb-2 shrink-0">
-        <div className="rounded-xl p-3" style={{ background: '#F5F3EE', border: '1px solid #E5E0D4' }}>
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: '#9BA8A1' }}>Events</span>
-            <span suppressHydrationWarning className="text-[11px] font-medium tabular-nums" style={{ color: '#6B7A72' }}>
-              {eventCount}&nbsp;/&nbsp;{planLimit === Infinity ? '∞' : planLimit}
-            </span>
-          </div>
-          <div className="h-1 rounded-full overflow-hidden" style={{ background: '#E5E0D4' }}>
-            <div suppressHydrationWarning className="h-full rounded-full transition-all duration-500"
-              style={{ width: `${planPct}%`, background: planPct >= 90 ? '#C97A2D' : '#1F4D3A' }} />
-          </div>
-        </div>
-      </div>
-
-      {/* Operations + plan CTA */}
-      <div className="px-3 pb-3 shrink-0">
-        <div className="px-2.5 mb-2 text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: '#9BA8A1' }}>
-          Operations
-        </div>
+      {/* Plan + events usage — one compact block */}
+      <div className="px-3 pt-1 pb-2.5 shrink-0">
         <Link href="/settings/billing" onClick={onNavigate}
-          className="flex items-center justify-center gap-1.5 w-full px-3 py-2.5 rounded-xl text-[14px] font-semibold text-white transition-all hover:opacity-90"
+          className="flex items-center justify-center gap-1.5 w-full px-3 py-2 rounded-xl text-[14px] font-semibold text-white transition-all hover:opacity-90"
           style={{ background: '#1F4D3A' }}>
           <span suppressHydrationWarning>{ctaLabel}</span>
         </Link>
+        <div className="flex items-center justify-between mt-2.5 mb-1 px-1">
+          <span className="text-[10.5px] font-semibold uppercase tracking-[0.08em]" style={{ color: '#9BA8A1' }}>Events</span>
+          <span suppressHydrationWarning className="text-[11px] font-medium tabular-nums" style={{ color: '#6B7A72' }}>
+            {eventCount}&nbsp;/&nbsp;{planLimit === Infinity ? '∞' : planLimit}
+          </span>
+        </div>
+        <div className="h-1 rounded-full overflow-hidden" style={{ background: '#E5E0D4' }}>
+          <div suppressHydrationWarning className="h-full rounded-full transition-all duration-500"
+            style={{ width: `${planPct}%`, background: planPct >= 90 ? '#C97A2D' : '#1F4D3A' }} />
+        </div>
       </div>
 
       {/* Settings + Sign out */}
-      <div className="px-3 py-2 shrink-0 border-t space-y-0.5" style={{ borderColor: '#E5E0D4' }}>
+      <div className="px-3 py-1.5 shrink-0 border-t space-y-0.5" style={{ borderColor: '#E5E0D4' }}>
         <Link href="/settings" onClick={onNavigate}
-          className={`w-full flex items-center gap-3 px-2.5 py-[7px] rounded-lg text-[14.5px] transition-colors ${
+          className={`w-full flex items-center gap-3 px-2.5 py-[6px] rounded-lg text-[14.5px] transition-colors ${
             pathname === '/settings' || pathname.startsWith('/settings/') ? 'font-medium' : 'hover:bg-[#F5F3EE]'
           }`}
           style={pathname === '/settings' || pathname.startsWith('/settings/')
@@ -408,7 +399,7 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
           <span className="leading-none">Settings</span>
         </Link>
         <button onClick={handleSignOut}
-          className="w-full flex items-center gap-3 px-2.5 py-[7px] rounded-lg text-[14.5px] transition-colors text-left hover:bg-[#F5F3EE]"
+          className="w-full flex items-center gap-3 px-2.5 py-[6px] rounded-lg text-[14.5px] transition-colors text-left hover:bg-[#F5F3EE]"
           style={{ color: '#6B7A72' }}>
           <LogOut size={15} strokeWidth={1.7} className="shrink-0" />
           <span className="leading-none">Sign out</span>
