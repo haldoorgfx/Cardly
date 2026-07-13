@@ -6,6 +6,8 @@ import {
 } from 'lucide-react';
 import { FAQAccordion, type FAQItem } from '@/components/marketing/FAQAccordion';
 import { GetTheAppSection } from '@/components/marketing/GetTheAppSection';
+import Pricing from '@/components/marketing/Pricing';
+import LogoStrip from '@/components/marketing/LogoStrip';
 import {
   Scene1DashboardHero, Scene2Registration, Scene3Analytics,
   Scene4Card, Scene5LiveQA, Scene6HowItWorks,
@@ -842,152 +844,9 @@ function UseCases() {
 
 /* ─────────────────────────────────────────────────────────
    SECTION 10 — PRICING
+   Self-contained, data-driven section lives in
+   components/marketing/Pricing.tsx (Pricing + PlanCard + BillingToggle).
 ───────────────────────────────────────────────────────── */
-const FREE_FEATURES = [
-  '1 active event',
-  '50 registrations',
-  'Basic event page',
-  'QR check-in',
-  'Eventera Card for every attendee',
-  'Eventera watermark on cards',
-];
-const PRO_FEATURES = [
-  'Unlimited events',
-  '500 registrations/month',
-  'Full agenda builder',
-  'Speaker directory',
-  'Attendee networking',
-  '1:1 messaging',
-  'Remove Eventera watermark',
-  'Email notifications',
-  'Basic analytics',
-];
-const STUDIO_FEATURES = [
-  'Unlimited registrations',
-  'AI matchmaking',
-  'Live Q&A & Polls',
-  'Gamification & leaderboard',
-  'Sponsor tools & lead retrieval',
-  'Multiple brand kits',
-  '3 team seats',
-  'API access',
-  'Priority support',
-];
-
-function PricingCard({
-  name, price, period, features, cta, href, popular, everythingInPro,
-}: {
-  name: string; price: string; period: string; features: string[];
-  cta: string; href: string; popular?: boolean; everythingInPro?: boolean;
-}) {
-  return (
-    <div
-      style={{
-        background: popular ? '#1F4D3A' : '#FFFFFF',
-        border: popular ? '1.5px solid #E8C57E' : '1px solid #E5E0D4',
-        borderRadius: 16,
-        padding: '32px 28px',
-        display: 'flex',
-        flexDirection: 'column',
-        marginTop: popular ? -12 : 0,
-        marginBottom: popular ? 12 : 0,
-        position: 'relative',
-      }}
-    >
-      {popular && (
-        <div
-          style={{
-            position: 'absolute', top: -12, left: '50%', transform: 'translateX(-50%)',
-            background: '#E8C57E', color: '#163828', fontSize: 10, fontFamily: 'var(--font-sans)',
-            fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase',
-            borderRadius: 100, padding: '4px 14px', whiteSpace: 'nowrap',
-          }}
-        >
-          POPULAR
-        </div>
-      )}
-
-      {popular && (
-        <div style={{ background: '#E8EFEB', borderRadius: 8, padding: '8px 12px', marginBottom: 16 }}>
-          <div style={{ fontSize: 11, color: '#1F4D3A', fontFamily: 'var(--font-sans)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-            Most organizers start here
-          </div>
-        </div>
-      )}
-
-      <div className="font-display font-semibold" style={{ fontSize: 15, color: popular ? '#E8C57E' : '#1F4D3A', marginBottom: 10 }}>
-        {name}
-      </div>
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginBottom: 20 }}>
-        <span className="font-display font-bold" style={{ fontSize: 42, color: popular ? '#FAF6EE' : '#0F1F18', letterSpacing: '-0.03em', lineHeight: 1 }}>
-          {price}
-        </span>
-        {period && (
-          <span style={{ fontSize: 14, color: popular ? 'rgba(250,246,238,0.6)' : '#6B7A72' }}>{period}</span>
-        )}
-      </div>
-
-      {everythingInPro && (
-        <div style={{ fontSize: 12, color: popular ? 'rgba(250,246,238,0.6)' : '#6B7A72', marginBottom: 12 }}>
-          Everything in Pro, plus:
-        </div>
-      )}
-
-      <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 24px', display: 'flex', flexDirection: 'column', gap: 10, flex: 1 }}>
-        {features.map((f) => (
-          <li key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 14, color: popular ? 'rgba(250,246,238,0.9)' : '#3A4A42' }}>
-            <Check size={14} strokeWidth={2.5} style={{ color: popular ? '#E8C57E' : '#1F4D3A', marginTop: 2, flexShrink: 0 }} />
-            {f}
-          </li>
-        ))}
-      </ul>
-
-      <Link
-        href={href}
-        style={{
-          display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-          borderRadius: 100, fontWeight: 600, fontSize: 14, padding: '11px 20px',
-          background: popular ? '#E8C57E' : 'transparent',
-          color: popular ? '#163828' : '#1F4D3A',
-          border: popular ? 'none' : '1.5px solid rgba(31,77,58,0.35)',
-          textDecoration: 'none',
-        }}
-      >
-        {cta}
-      </Link>
-    </div>
-  );
-}
-
-function Pricing() {
-  return (
-    <section id="pricing" style={{ background: '#FAF6EE', paddingTop: 80, paddingBottom: 96 }}>
-      <div className="mx-auto px-5 lg:px-10" style={{ maxWidth: 1200 }}>
-        <div className="text-center mb-12">
-          <div style={{ fontSize: 11, fontFamily: 'var(--font-sans)', letterSpacing: '0.22em', textTransform: 'uppercase', color: '#1F4D3A', marginBottom: 14 }}>
-            Pricing
-          </div>
-          <h2 className="font-title font-bold" style={{ fontSize: 'clamp(28px, 4vw, 48px)', color: '#0F1F18', letterSpacing: '-0.03em' }}>
-            Start free. Pay as you grow.
-          </h2>
-        </div>
-
-        <div className="grid lg:grid-cols-3 gap-5 items-start">
-          <PricingCard name="Free" price="$0" period="/mo" features={FREE_FEATURES} cta="Start free" href="/signup" />
-          <PricingCard name="Pro" price="$19" period="/mo" features={PRO_FEATURES} cta="Start Pro" href="/signup?plan=pro" popular />
-          <PricingCard name="Studio" price="$49" period="/mo" features={STUDIO_FEATURES} cta="Start Studio" href="/signup?plan=studio" everythingInPro />
-        </div>
-
-        <div className="text-center mt-10" style={{ fontSize: 14, color: '#6B7A72' }}>
-          All plans include the Eventera Card feature. It&apos;s not an add-on — it&apos;s standard.{' '}
-          <Link href="/pricing" style={{ color: '#1F4D3A', fontWeight: 600, textDecoration: 'underline', textUnderlineOffset: 3 }}>
-            Compare all features →
-          </Link>
-        </div>
-      </div>
-    </section>
-  );
-}
 
 /* ─────────────────────────────────────────────────────────
    SECTION 11 — TESTIMONIAL
@@ -1189,6 +1048,7 @@ export default function LandingPage() {
     <>
       <Hero />
       <TrustStrip />
+      <LogoStrip />
       <PlatformOverview />
       <ShowcaseRegistration />
       <ShowcaseAnalytics />
