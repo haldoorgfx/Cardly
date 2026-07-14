@@ -24,7 +24,7 @@ export default async function SavedPage() {
       .limit(50),
     adminAny
       .from('organizer_follows')
-      .select('organizer_id, profiles(id, full_name, organization, avatar_url), next_event_title, follower_count')
+      .select('id, organizer_id, notify_new_events, profiles(id, full_name, organization, avatar_url), next_event_title, follower_count')
       .eq('follower_id', user.id)
       .order('created_at', { ascending: false })
       .limit(50),

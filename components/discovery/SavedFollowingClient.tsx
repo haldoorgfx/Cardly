@@ -41,15 +41,39 @@ export function SavedFollowingClient({ saved: dbSaved, following: dbFollowing, e
   const [saved, setSaved] = useState<EventPage[]>(dbSaved);
   const [following, setFollowing] = useState<Follow[]>(dbFollowing);
   const [tab, setTab] = useState<'saved' | 'following'>('saved');
-  const [notifications, setNotifications] = useState<Set<string>>(new Set());
+  // Keyed by the follow row's id. Seed from each row's persisted notify_new_events.
+  const [notifications, setNotifications] = useState<Set<string>>(
+    () => new Set(dbFollowing.filter((f: Follow) => f.notify_new_events).map((f: Follow) => f.id)),
+  );
   const [busy, setBusy] = useState<Set<string>>(new Set());
 
-  function toggleNotif(id: string) {
+  // Persist the "notify me of new events" preference (was a dead local-only toggle).
+  async function toggleNotif(f: Follow) {
+    if (busy.has(f.id)) return;
+    const next = !notifications.has(f.id);
+    setBusy(b => new Set(b).add(f.id));
     setNotifications(prev => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
-      return next;
+      const s = new Set(prev);
+      if (next) s.add(f.id); else s.delete(f.id);
+      return s;
     });
+    try {
+      const res = await fetch(`/api/account/follows/${f.id}/notify`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notify_new_events: next }),
+      });
+      if (!res.ok) throw new Error();
+    } catch {
+      // rollback on failure
+      setNotifications(prev => {
+        const s = new Set(prev);
+        if (next) s.delete(f.id); else s.add(f.id);
+        return s;
+      });
+    } finally {
+      setBusy(b => { const n = new Set(b); n.delete(f.id); return n; });
+    }
   }
 
   // Unsave — optimistic remove + rollback on failure (was a dead no-op).
@@ -155,7 +179,7 @@ export function SavedFollowingClient({ saved: dbSaved, following: dbFollowing, e
             {following.map((f: Follow, i: number) => {
               const profile = f.profiles;
               const name = profile?.organization ?? profile?.full_name ?? 'Organizer';
-              const notifOn = notifications.has(f.organizer_id);
+              const notifOn = notifications.has(f.id);
               return (
                 <div key={f.organizer_id} className="flex items-center gap-4 px-5 py-4 transition hover:bg-[#FAFAF8]"
                   style={{ borderBottom: i < following.length - 1 ? '1px solid #F0EDE6' : 'none' }}>
@@ -183,8 +207,11 @@ export function SavedFollowingClient({ saved: dbSaved, following: dbFollowing, e
                     </div>
                   </div>
                   {/* Notifications bell */}
-                  <button onClick={() => toggleNotif(f.organizer_id)}
-                    className="w-9 h-9 rounded-xl flex items-center justify-center transition hover:opacity-80 shrink-0"
+                  <button onClick={() => toggleNotif(f)}
+                    disabled={busy.has(f.id)}
+                    aria-label={notifOn ? 'Turn off new-event alerts' : 'Notify me of new events'}
+                    title={notifOn ? 'Alerts on — new events' : 'Notify me of new events'}
+                    className="w-9 h-9 rounded-xl flex items-center justify-center transition hover:opacity-80 shrink-0 disabled:opacity-60"
                     style={{ background: notifOn ? '#E8EFEB' : '#F5F2EC' }}>
                     {notifOn
                       ? <Bell size={15} style={{ color: '#1F4D3A' }} fill="#1F4D3A" />

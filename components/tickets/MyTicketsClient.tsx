@@ -106,7 +106,7 @@ function QROverlay({ token, name, label, onClose }: QROverlayProps) {
         {label}
       </div>
       <div className="mt-5 text-[13px] text-center px-6" style={{ color: 'rgba(255,255,255,0.55)' }}>
-        Brightness raised automatically · works offline
+        Turn your brightness up for a faster scan · works offline
       </div>
     </div>
   );

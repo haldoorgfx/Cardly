@@ -66,7 +66,35 @@ export default function NewEventPage() {
       if (!res.ok) throw new Error(data.error ?? 'Failed to create event');
 
       track('event_created', { event_id: data.id });
-      router.push(`/events/${data.slug ?? data.id}/setup`);
+
+      const dest = `/events/${data.slug ?? data.id}/setup`;
+
+      // Persist the cover photo if one was chosen. Non-blocking — a cover is
+      // optional, so a failure here must never prevent reaching the new event.
+      if (coverFile) {
+        try {
+          const fd = new FormData();
+          fd.append('file', coverFile);
+          const up = await fetch(`/api/events/${data.id}/event-page/cover`, { method: 'POST', body: fd });
+          const upData = await up.json().catch(() => ({}));
+          if (!up.ok || !upData.cover_image_url) throw new Error();
+          // The cover route only uploads + returns the URL; persist it onto the
+          // event_pages row (send the title too so the upsert doesn't reset it).
+          const save = await fetch(`/api/events/${data.id}/event-page`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title: name.trim(), cover_image_url: upData.cover_image_url }),
+          });
+          if (!save.ok) throw new Error();
+        } catch {
+          // Surface a soft warning, then proceed — the event was created.
+          setError('Event created — the cover photo could not be uploaded. Add it later in the editor.');
+          setTimeout(() => router.push(dest), 1600);
+          return;
+        }
+      }
+
+      router.push(dest);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Something went wrong');
       setLoading(false);

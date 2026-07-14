@@ -21,8 +21,9 @@ export default async function CommunicationsPage({ params }: { params: Promise<{
   if (!user) redirect('/login');
 
   const admin = createAdminClient();
-  const [{ data: event }, { count: registrantCount }, plan] = await Promise.all([
+  const [{ data: event }, { data: page }, { count: registrantCount }, plan] = await Promise.all([
     admin.from('events').select('id, name, slug').eq('id', id).eq('user_id', user.id).single(),
+    admin.from('event_pages').select('starts_at, venue_name, description').eq('event_id', id).maybeSingle(),
     admin.from('registrations').select('id', { count: 'exact', head: true })
       .eq('event_id', id).in('status', ['confirmed', 'checked_in']),
     getUserPlan(user.id),
@@ -35,6 +36,9 @@ export default async function CommunicationsPage({ params }: { params: Promise<{
       eventName={event.name}
       registrantCount={registrantCount ?? 0}
       plan={plan}
+      eventDate={page?.starts_at ?? ''}
+      eventVenue={page?.venue_name ?? ''}
+      eventDescription={page?.description ?? ''}
     />
   );
 }

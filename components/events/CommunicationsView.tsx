@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Bell, BarChart2, ExternalLink, Clock, Plus, CheckCircle2, Send, Copy, Check, X, Sparkles } from 'lucide-react';
+import { Bell, BarChart2, ExternalLink, Plus, CheckCircle2, Send, Copy, Check, X, Sparkles } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { ERAButton } from '@/components/ai/ERAButton';
 import { PageShell, PageHeader } from '@/components/dash';
@@ -225,11 +225,10 @@ export function CommunicationsView({ eventId, eventName, registrantCount, plan =
       />
 
       {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
         <CommStat label="Attendees" value={registrantCount > 0 ? registrantCount.toString() : '—'} icon={<Bell size={15} strokeWidth={2} />} />
         <CommStat label="Avg. open rate" value="—" sub="no data yet" icon={<BarChart2 size={15} strokeWidth={2} />} />
         <CommStat label="Click rate" value="—" icon={<ExternalLink size={15} strokeWidth={2} />} />
-        <CommStat label="Scheduled" value="1" icon={<Clock size={15} strokeWidth={2} />} accent />
       </div>
 
       {/* Automated campaigns panel */}
@@ -256,15 +255,6 @@ export function CommunicationsView({ eventId, eventName, registrantCount, plan =
             recipients={registrantCount > 0 ? registrantCount : null}
             status="Automated"
             statusStyle={{ background: 'rgba(31,77,58,0.08)', color: '#1F4D3A' }}
-          />
-          <CampaignCard
-            subject="Your event is tomorrow"
-            type="Reminder"
-            typeStyle={{ background: '#F5F0E8', color: '#6B7A72' }}
-            recipients={null}
-            status="Scheduled"
-            statusStyle={{ background: 'rgba(201,122,45,0.1)', color: '#C97A2D' }}
-            statusSub="day before"
           />
         </div>
 
@@ -294,21 +284,6 @@ export function CommunicationsView({ eventId, eventName, registrantCount, plan =
             </span>
             <div><span className="inline-flex items-center gap-1 h-5 px-2 rounded-full text-[12.5px] font-medium whitespace-nowrap" style={{ background: 'rgba(31,77,58,0.08)', color: '#1F4D3A' }}>
               Automated
-            </span></div>
-          </div>
-
-          {/* Reminder row */}
-          <div className="grid items-center px-5 py-3.5" style={{ gridTemplateColumns: '1fr 120px 100px 155px' }}>
-            <div className="flex items-center gap-2.5 min-w-0">
-              <div className="h-7 w-7 rounded-lg flex items-center justify-center shrink-0" style={{ background: 'rgba(31,77,58,0.08)' }}>
-                <Bell size={13} strokeWidth={2} style={{ color: '#1F4D3A' }} />
-              </div>
-              <span className="text-[13px] truncate" style={{ color: '#0F1F18' }}>Your event is tomorrow</span>
-            </div>
-            <div><span className="inline-flex items-center h-5 px-2 rounded-full text-[12.5px] font-medium whitespace-nowrap" style={{ background: '#F5F0E8', color: '#6B7A72' }}>Reminder</span></div>
-            <span className="text-[12.5px]" style={{ color: '#6B7A72' }}>—</span>
-            <div><span className="inline-flex items-center gap-1 h-5 px-2 rounded-full text-[12.5px] font-medium whitespace-nowrap" style={{ background: 'rgba(201,122,45,0.1)', color: '#C97A2D' }}>
-              Scheduled · day before
             </span></div>
           </div>
         </div>

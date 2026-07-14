@@ -324,6 +324,7 @@ function ERAQandA({ page, dateStr }: { page: EventPageRow; dateStr: string }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           question: q,
+          eventId: page.event_id,
           event: {
             name: page.title,
             description: page.description ?? '',
@@ -446,9 +447,17 @@ export function PublicEventPageClient({
 
   function handleShare() {
     if (navigator.share) {
-      navigator.share({ title: page.title, url: window.location.href });
+      navigator.share({ title: page.title, url: window.location.href }).catch((err) => {
+        // Ignore the user cancelling the native share sheet.
+        if (err instanceof DOMException && err.name === 'AbortError') return;
+      });
     } else {
-      navigator.clipboard.writeText(window.location.href);
+      navigator.clipboard.writeText(window.location.href)
+        .then(() => {
+          setSaveToast('Link copied');
+          setTimeout(() => setSaveToast(null), 2000);
+        })
+        .catch(() => {});
     }
   }
 

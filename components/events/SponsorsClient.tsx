@@ -385,7 +385,7 @@ export function SponsorsClient({ eventId, sponsors: initial }: Props) {
             { label: 'Sponsors',         value: sponsors.length, accent: false },
             { label: 'Total leads',      value: totalLeads || '—', accent: false },
             { label: 'Booths assigned',  value: booths, accent: false },
-            { label: 'Portal links sent', value: sponsors.length, accent: true },
+            { label: 'Portal links generated', value: sponsors.length, accent: true },
           ].map(s => (
             <div key={s.label} className="bg-white rounded-2xl p-5" style={{ border: '1px solid #E5E0D4' }}>
               <div className="text-[12px] tracking-[0.12em] uppercase mb-2" style={{ color: '#6B7A72' }}>{s.label}</div>
@@ -506,7 +506,7 @@ export function SponsorsClient({ eventId, sponsors: initial }: Props) {
               {sponsors.map(sponsor => {
                 const ts = tierStyle(sponsor.tier);
                 return (
-                  <div key={sponsor.id} className="group flex items-center gap-4 px-5 py-4">
+                  <div key={sponsor.id} className="group flex flex-wrap items-center gap-x-4 gap-y-2 px-5 py-4">
                     <SponsorAvatar name={sponsor.company_name} logoUrl={sponsor.logo_url} />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 flex-wrap">
@@ -525,51 +525,59 @@ export function SponsorsClient({ eventId, sponsors: initial }: Props) {
                         {sponsor.website_url && <span>{sponsor.website_url}</span>}
                       </div>
                     </div>
-                    <div className="text-center shrink-0 hidden sm:block">
-                      <div className="text-[15px]" style={{ color: '#1F4D3A' }}>{sponsor.lead_count}</div>
-                      <div className="text-[11.5px] tracking-[0.1em] uppercase" style={{ color: '#6B7A72' }}>leads</div>
+                    {/* Actions — full width on mobile so nothing clips at 375px */}
+                    <div className="flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto sm:ml-auto justify-end shrink-0">
+                      <div className="text-center shrink-0 hidden sm:block">
+                        <div className="text-[15px]" style={{ color: '#1F4D3A' }}>{sponsor.lead_count}</div>
+                        <div className="text-[11.5px] tracking-[0.1em] uppercase" style={{ color: '#6B7A72' }}>leads</div>
+                      </div>
+
+                      {/* Edit button */}
+                      <button
+                        onClick={() => setEditingSponsor(sponsor)}
+                        className="w-8 h-8 grid place-items-center rounded-lg transition-colors shrink-0 sm:opacity-0 sm:group-hover:opacity-100"
+                        style={{ color: '#6B7A72' }}
+                        title="Edit sponsor"
+                      >
+                        <svg width={14} height={14} fill="none" stroke="currentColor" strokeWidth={1.6} viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 7.125L18 5.625" />
+                        </svg>
+                      </button>
+
+                      {/* Delete button */}
+                      <button
+                        onClick={() => setDeletingSponsor(sponsor)}
+                        className="w-8 h-8 grid place-items-center rounded-lg transition-colors shrink-0 sm:opacity-0 sm:group-hover:opacity-100"
+                        style={{ color: '#B8423C' }}
+                        title="Delete sponsor"
+                      >
+                        <svg width={14} height={14} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                          <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14H6L5 6" /><path d="M10 11v6M14 11v6" /><path d="M9 6V4h6v2" />
+                        </svg>
+                      </button>
+
+                      <button onClick={() => copyPortalLink(sponsor.invite_token)}
+                        className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-2 rounded-lg text-[12.5px] font-medium transition-colors border shrink-0"
+                        title="Copy portal link"
+                        style={{
+                          borderColor: copied === sponsor.invite_token ? 'rgba(45,122,79,0.4)' : '#E5E0D4',
+                          color: copied === sponsor.invite_token ? '#2D7A4F' : '#3A4A42',
+                          background: copied === sponsor.invite_token ? 'rgba(45,122,79,0.06)' : 'white',
+                        }}>
+                        <svg width={14} height={14} fill="none" stroke="currentColor" strokeWidth={1.6} viewBox="0 0 24 24" className="shrink-0">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
+                        </svg>
+                        <span className="hidden sm:inline">{copied === sponsor.invite_token ? 'Copied!' : 'Copy portal link'}</span>
+                      </button>
+                      <a href={`/exhibitor/${sponsor.invite_token}`} target="_blank" rel="noopener noreferrer"
+                        title="Open portal"
+                        className="w-8 h-8 grid place-items-center rounded-lg shrink-0" style={{ color: '#6B7A72' }}>
+                        <svg width={15} height={15} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                        </svg>
+                      </a>
                     </div>
-
-                    {/* Edit button */}
-                    <button
-                      onClick={() => setEditingSponsor(sponsor)}
-                      className="w-8 h-8 grid place-items-center rounded-lg transition-colors shrink-0 opacity-0 group-hover:opacity-100"
-                      style={{ color: '#6B7A72' }}
-                      title="Edit sponsor"
-                    >
-                      <svg width={14} height={14} fill="none" stroke="currentColor" strokeWidth={1.6} viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 7.125L18 5.625" />
-                      </svg>
-                    </button>
-
-                    {/* Delete button */}
-                    <button
-                      onClick={() => setDeletingSponsor(sponsor)}
-                      className="w-8 h-8 grid place-items-center rounded-lg transition-colors shrink-0 opacity-0 group-hover:opacity-100"
-                      style={{ color: '#B8423C' }}
-                      title="Delete sponsor"
-                    >
-                      <svg width={14} height={14} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                        <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14H6L5 6" /><path d="M10 11v6M14 11v6" /><path d="M9 6V4h6v2" />
-                      </svg>
-                    </button>
-
-                    <button onClick={() => copyPortalLink(sponsor.invite_token)}
-                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-[12.5px] font-medium transition-colors border shrink-0"
-                      style={{
-                        borderColor: copied === sponsor.invite_token ? 'rgba(45,122,79,0.4)' : '#E5E0D4',
-                        color: copied === sponsor.invite_token ? '#2D7A4F' : '#3A4A42',
-                        background: copied === sponsor.invite_token ? 'rgba(45,122,79,0.06)' : 'white',
-                      }}>
-                      {copied === sponsor.invite_token ? 'Copied!' : 'Copy portal link'}
-                    </button>
-                    <a href={`/exhibitor/${sponsor.invite_token}`} target="_blank" rel="noopener noreferrer"
-                      className="w-8 h-8 grid place-items-center rounded-lg shrink-0" style={{ color: '#6B7A72' }}>
-                      <svg width={15} height={15} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
-                      </svg>
-                    </a>
                   </div>
                 );
               })}

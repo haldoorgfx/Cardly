@@ -8,7 +8,7 @@ import { PoweredByInline } from '@/components/white-label/attendee-brand';
  */
 
 import { useState } from 'react';
-import { Check, Copy, Pencil, ChevronRight, Link, Forward, ArrowLeft } from 'lucide-react';
+import { Check, Copy, ChevronRight, Link, Forward, ArrowLeft } from 'lucide-react';
 
 interface Props {
   eventName: string;
@@ -120,9 +120,6 @@ function CaptionCard({ eventName }: { eventName: string }) {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
         <div style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10, color: '#6B7A72', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
           Suggested caption
-        </div>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#6B7A72' }}>
-          <Pencil size={12} strokeWidth={2}/> <span>Tap to edit</span>
         </div>
       </div>
       <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, lineHeight: 1.5, color: '#0F1F18', fontWeight: 500 }}>
@@ -255,12 +252,17 @@ export default function SuccessShareScreen({
 }: Props) {
   const pageUrl = typeof window !== 'undefined' ? window.location.href : '';
   const aspect  = backgroundWidth && backgroundHeight ? backgroundWidth / backgroundHeight : 4 / 5;
+  const [toast, setToast] = useState('');
+
+  const showToast = (msg: string) => {
+    setToast(msg);
+    setTimeout(() => setToast(''), 2400);
+  };
 
   const handleShare = (platform: string) => {
     const text = encodeURIComponent(`I'm attending ${eventName}! Get your personalized card:`);
     const url  = encodeURIComponent(pageUrl);
     const targets: Record<string, string> = {
-      instagram: 'https://www.instagram.com/',
       whatsapp:  `https://wa.me/?text=${text}%20${url}`,
       x:         `https://twitter.com/intent/tweet?text=${text}&url=${url}`,
       facebook:  `https://www.facebook.com/sharer/sharer.php?u=${url}`,
@@ -270,7 +272,47 @@ export default function SuccessShareScreen({
   };
 
   const handleCopyLink = async () => {
-    try { await navigator.clipboard.writeText(pageUrl); } catch { /* ignore */ }
+    try { await navigator.clipboard.writeText(pageUrl); showToast('Link copied'); }
+    catch { showToast('Could not copy link'); }
+  };
+
+  // Instagram & TikTok can't be posted to via a URL from the web. Use the native
+  // Web Share sheet with the card image when the browser supports it (mobile),
+  // and fall back to copying the link so the button is never a dead no-op.
+  const handleNativeShare = async () => {
+    const nav = typeof navigator !== 'undefined' ? navigator : undefined;
+    const shareText = `I'm attending ${eventName}! Get your personalized card:`;
+    // Best path: share the actual card image via the OS share sheet.
+    if (resultUrl && nav?.share) {
+      try {
+        const resp = await fetch(resultUrl);
+        const blob = await resp.blob();
+        const file = new File(
+          [blob],
+          `${eventName.toLowerCase().replace(/\s+/g, '-') || 'eventera'}-card.png`,
+          { type: blob.type || 'image/png' },
+        );
+        const shareData: ShareData = { files: [file], title: eventName, text: shareText, url: pageUrl };
+        if (!nav.canShare || nav.canShare(shareData)) {
+          await nav.share(shareData);
+          return;
+        }
+      } catch (e) {
+        if (e instanceof DOMException && e.name === 'AbortError') return; // user dismissed
+        // otherwise fall through to link-only share / copy
+      }
+    }
+    // Next best: share just the link via the OS sheet.
+    if (nav?.share) {
+      try {
+        await nav.share({ title: eventName, text: shareText, url: pageUrl });
+        return;
+      } catch (e) {
+        if (e instanceof DOMException && e.name === 'AbortError') return;
+      }
+    }
+    // Final fallback (desktop): copy the link.
+    await handleCopyLink();
   };
 
   const topWash = (
@@ -283,6 +325,20 @@ export default function SuccessShareScreen({
 
   return (
     <div style={{ minHeight: '100vh', background: '#FAF6EE', fontFamily: 'Inter, sans-serif', color: '#0F1F18' }}>
+
+      {/* Toast */}
+      {toast && (
+        <div style={{
+          position: 'fixed', left: '50%', bottom: 28, transform: 'translateX(-50%)',
+          zIndex: 60, whiteSpace: 'nowrap',
+          padding: '10px 16px', borderRadius: 12,
+          background: 'rgba(15,31,24,0.9)', color: '#FAF6EE',
+          fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 13,
+          boxShadow: '0 8px 28px rgba(15,31,24,0.28)', backdropFilter: 'blur(8px)',
+        }}>
+          {toast}
+        </div>
+      )}
 
       {/* ── Mobile / tablet ─────────────────────────────────────────────── */}
       <div className="relative lg:hidden">
@@ -320,7 +376,7 @@ export default function SuccessShareScreen({
             <h2 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 700, fontSize: 22, letterSpacing: '-0.02em', margin: 0, color: '#0F1F18' }}>
               Share where it matters
             </h2>
-            <BigShareButton brandIcon={<InstagramIcon size={28}/>} brandColor="#d62976" label="Instagram Stories" sub="Open in Instagram" onClick={() => handleShare('instagram')}/>
+            <BigShareButton brandIcon={<InstagramIcon size={28}/>} brandColor="#d62976" label="Instagram" sub="Share card or copy link" onClick={handleNativeShare}/>
             <BigShareButton brandIcon={<WhatsAppIcon size={28}/>} brandColor="#25D366" label="WhatsApp Status" sub="Send on WhatsApp" onClick={() => handleShare('whatsapp')}/>
             <BigShareButton brandIcon={<XIcon size={28}/>} brandColor="#000" label="Post on X" sub="Compose a post" onClick={() => handleShare('x')}/>
           </div>
@@ -331,7 +387,7 @@ export default function SuccessShareScreen({
             <div style={{ display: 'flex', gap: 8 }}>
               <SmallShare icon={<FacebookIcon size={18}/>} label="Facebook" onClick={() => handleShare('facebook')}/>
               <SmallShare icon={<LinkedInIcon size={18}/>} label="LinkedIn" onClick={() => handleShare('linkedin')}/>
-              <SmallShare icon={<TikTokIcon size={18}/>} label="TikTok"/>
+              <SmallShare icon={<TikTokIcon size={18}/>} label="TikTok" onClick={handleNativeShare}/>
               <SmallShare icon={<Link size={16} strokeWidth={1.8}/>} label="Copy link" onClick={handleCopyLink}/>
             </div>
           </div>
@@ -358,10 +414,10 @@ export default function SuccessShareScreen({
       <div
         className="hidden lg:grid"
         style={{
-          height: '100vh', overflow: 'hidden',
+          minHeight: '100vh', overflowY: 'auto',
           gridTemplateColumns: '46% 54%',
           maxWidth: 1200, margin: '0 auto',
-          padding: '0 56px',
+          padding: '40px 56px',
           alignItems: 'center', gap: 56,
         }}
       >
@@ -425,7 +481,7 @@ export default function SuccessShareScreen({
           <CaptionCard eventName={eventName}/>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <BigShareButton brandIcon={<InstagramIcon size={30}/>} brandColor="#d62976" label="Instagram Stories" sub="Open in Instagram" onClick={() => handleShare('instagram')}/>
+            <BigShareButton brandIcon={<InstagramIcon size={30}/>} brandColor="#d62976" label="Instagram" sub="Share card or copy link" onClick={handleNativeShare}/>
             <BigShareButton brandIcon={<WhatsAppIcon size={30}/>} brandColor="#25D366" label="WhatsApp Status" sub="Send on WhatsApp" onClick={() => handleShare('whatsapp')}/>
             <BigShareButton brandIcon={<XIcon size={30}/>} brandColor="#000" label="Post on X" sub="Compose a post" onClick={() => handleShare('x')}/>
           </div>
@@ -435,7 +491,7 @@ export default function SuccessShareScreen({
             <div style={{ display: 'flex', gap: 10 }}>
               <SmallShare icon={<FacebookIcon size={18}/>} label="Facebook" onClick={() => handleShare('facebook')}/>
               <SmallShare icon={<LinkedInIcon size={18}/>} label="LinkedIn" onClick={() => handleShare('linkedin')}/>
-              <SmallShare icon={<TikTokIcon size={18}/>} label="TikTok"/>
+              <SmallShare icon={<TikTokIcon size={18}/>} label="TikTok" onClick={handleNativeShare}/>
               <SmallShare icon={<Link size={16} strokeWidth={1.8}/>} label="Copy link" onClick={handleCopyLink}/>
             </div>
           </div>
