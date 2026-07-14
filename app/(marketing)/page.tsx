@@ -6,6 +6,7 @@ import LogoStrip from '@/components/marketing/LogoStrip';
 import Reveal from '@/components/marketing/Reveal';
 import MouseParallax from '@/components/marketing/MouseParallax';
 import StickyCTA from '@/components/marketing/StickyCTA';
+import { HeroFloaters } from '@/components/marketing/HeroFloaters';
 import {
   Scene1DashboardHero, Scene4Card, Scene5LiveQA,
 } from '@/components/marketing/home-visuals';
@@ -26,10 +27,12 @@ function Hero() {
       className="relative overflow-hidden flex flex-col"
       style={{ background: '#FAF6EE', minHeight: '100svh' }}
     >
+      {/* Decorative floating product chips in the side gutters (xl+ only) */}
+      <HeroFloaters />
 
       {/* TOP — centered copy */}
       <div
-        className="relative mx-auto px-5 lg:px-10 pt-12 pb-0 lg:pt-16 text-center"
+        className="relative z-10 mx-auto px-5 lg:px-10 pt-12 pb-0 lg:pt-16 text-center"
         style={{ maxWidth: 760 }}
       >
         <div

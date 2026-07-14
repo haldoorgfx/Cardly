@@ -4,6 +4,7 @@ import { Check, ArrowRight, Sparkles, LayoutGrid, CreditCard, Globe } from 'luci
 import LogoStrip from '@/components/marketing/LogoStrip';
 import Pricing from '@/components/marketing/Pricing';
 import { Scene1DashboardHero } from '@/components/marketing/home-visuals';
+import { HeroFloaters } from '@/components/marketing/HeroFloaters';
 
 /* Standalone conversion landing page (for paid ad campaigns). No site nav or
    footer mega-menu — a single path to "Start free". Kept out of the (marketing)
@@ -65,7 +66,8 @@ export default function AdLandingPage() {
 
       {/* ── Hero ───────────────────────────────────────────── */}
       <section className="relative overflow-hidden">
-        <div className="mx-auto px-5 lg:px-8 pt-14 lg:pt-20 text-center" style={{ maxWidth: 760 }}>
+        <HeroFloaters />
+        <div className="relative z-10 mx-auto px-5 lg:px-8 pt-14 lg:pt-20 text-center" style={{ maxWidth: 760 }}>
           <div
             className="inline-flex items-center gap-2 rounded-full px-3 py-1 mb-5"
             style={{ background: '#E8EFEB', border: '1px solid rgba(31,77,58,0.2)', color: '#1F4D3A', fontSize: 12, fontFamily: 'var(--font-sans)', letterSpacing: '0.04em' }}
