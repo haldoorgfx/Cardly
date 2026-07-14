@@ -13,6 +13,7 @@ import {
   Home, Layout, CalendarDays, MessageSquare, Bell,
   Ticket, ScanLine, User, Network, Trophy, Briefcase, Video, Palette,
   UserCircle, HelpCircle, Zap, ShoppingCart, Handshake, Clock, IdCard, Heart,
+  Crown, Leaf, ArrowRight,
   Tag, Plug, Globe, Download, Link2, Code2, UserCog, Share2, Images, Monitor,
   RefreshCw, Megaphone, Bot, MessageCircle,
 } from 'lucide-react';
@@ -63,6 +64,33 @@ const PLAN_LIMITS: Record<string, number> = {
   free:   PLANS.free.events   ?? Infinity,
   pro:    PLANS.pro.events    ?? Infinity,
   studio: PLANS.studio.events ?? Infinity,
+};
+
+// Plan-tier identity — icon + color per tier, shared by the sidebar badge and
+// the upgrade CTA so the two never drift. A ladder of meaning: Leaf (starter /
+// growth) → Zap (power) → Crown (top tier). Colors match the plan badges used
+// across the admin + billing surfaces: Pro reads gold, Studio reads forest.
+type PlanKey = 'free' | 'pro' | 'studio';
+const PLAN_META: Record<PlanKey, {
+  label: string;
+  Icon: typeof Leaf;
+  badgeBg: string; badgeText: string; badgeBorder: string;
+}> = {
+  free:   { label: 'Free',   Icon: Leaf,  badgeBg: '#F1EFE8',                badgeText: '#6B7A72', badgeBorder: '#E0DBCE' },
+  pro:    { label: 'Pro',    Icon: Zap,   badgeBg: 'rgba(232,197,126,0.20)', badgeText: '#B58A34', badgeBorder: 'rgba(181,138,52,0.35)' },
+  studio: { label: 'Studio', Icon: Crown, badgeBg: '#E8EFEB',                badgeText: '#1F4D3A', badgeBorder: '#C9DDD3' },
+};
+
+// The next tier to sell, and how its upgrade button looks. Free → Pro shows a
+// gold button (Pro = gold); Pro → Studio shows a forest button with a gold
+// crown (Studio = forest, premium). Studio has no upgrade — it manages instead.
+const UPGRADE_CTA: Record<PlanKey, {
+  target: PlanKey | null; label: string; Icon: typeof Leaf;
+  bg: string; text: string; iconColor: string; hoverBg: string;
+} | null> = {
+  free:   { target: 'pro',    label: 'Upgrade to Pro',    Icon: Zap,   bg: '#E8C57E', text: '#3A2A0A', iconColor: '#3A2A0A', hoverBg: '#E0B968' },
+  pro:    { target: 'studio', label: 'Upgrade to Studio', Icon: Crown, bg: '#1F4D3A', text: '#FFFFFF', iconColor: '#E8C57E', hoverBg: '#163828' },
+  studio: null,
 };
 
 // ─── UUID detection ───────────────────────────────────────────────────────────
@@ -261,7 +289,7 @@ function NavItem({ href, icon, label, badge, active, onNavigate }: {
 // ─── User sidebar content ─────────────────────────────────────────────────────
 
 function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
-  const { profile, sections, eventCount, planPct, planLabel, logoUrl } = usePlanCtx();
+  const { profile, sections, eventCount, planPct, logoUrl } = usePlanCtx();
   const planLimit = profile ? (PLAN_LIMITS[profile.plan] ?? 1) : 1;
   // Prefer the roles-API admin flag; keep profile.role as a fallback so admin
   // access never disappears if the roles fetch is slow or errors.
@@ -291,11 +319,9 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
     window.location.href = '/login';
   };
 
-  const ctaLabel = profile?.plan === 'studio'
-    ? 'Studio plan'
-    : profile?.plan === 'pro'
-    ? '+ Studio plan'
-    : '+ Pro plan';
+  const planKey: PlanKey = (profile?.plan as PlanKey) ?? 'free';
+  const planMeta = PLAN_META[planKey] ?? PLAN_META.free;
+  const upgrade  = UPGRADE_CTA[planKey];
 
   return (
     <>
@@ -311,10 +337,11 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
               <img src="/eventera-logo.png" alt="Eventera" style={{ height: '26px', objectFit: 'contain' }} />
             </Link>
           )}
-          {mounted && planLabel && (
-            <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-md"
-              style={{ background: '#E8EFEB', color: '#1F4D3A', border: '1px solid #C9DDD3' }}>
-              {planLabel}
+          {mounted && (
+            <span className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-md"
+              style={{ background: planMeta.badgeBg, color: planMeta.badgeText, border: `1px solid ${planMeta.badgeBorder}` }}>
+              <planMeta.Icon size={10} strokeWidth={2.4} />
+              {planMeta.label}
             </span>
           )}
         </div>
@@ -386,11 +413,24 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
 
       {/* Plan + events usage — one compact block */}
       <div className="px-3 pt-1 pb-2.5 shrink-0">
-        <Link href="/settings/billing" onClick={onNavigate}
-          className="flex items-center justify-center gap-1.5 w-full px-3 py-2 rounded-xl text-[14px] font-semibold text-white transition-all hover:opacity-90"
-          style={{ background: '#1F4D3A' }}>
-          <span suppressHydrationWarning>{ctaLabel}</span>
-        </Link>
+        {upgrade ? (
+          <Link href="/settings/billing" onClick={onNavigate}
+            className="group flex items-center justify-center gap-2 w-full px-3 py-2.5 rounded-xl text-[13.5px] font-semibold transition-colors"
+            style={{ background: upgrade.bg, color: upgrade.text }}
+            onMouseEnter={e => { e.currentTarget.style.background = upgrade.hoverBg; }}
+            onMouseLeave={e => { e.currentTarget.style.background = upgrade.bg; }}>
+            <upgrade.Icon size={15} strokeWidth={2.2} style={{ color: upgrade.iconColor }} />
+            <span suppressHydrationWarning>{upgrade.label}</span>
+            <ArrowRight size={14} strokeWidth={2.2} className="transition-transform group-hover:translate-x-0.5" style={{ color: upgrade.iconColor }} />
+          </Link>
+        ) : (
+          <Link href="/settings/billing" onClick={onNavigate}
+            className="flex items-center justify-center gap-2 w-full px-3 py-2.5 rounded-xl text-[13.5px] font-semibold transition-colors hover:bg-[#E8EFEB]"
+            style={{ background: 'transparent', color: '#1F4D3A', border: '1px solid #C9DDD3' }}>
+            <Crown size={15} strokeWidth={2.2} style={{ color: '#E8C57E' }} />
+            <span>Manage plan</span>
+          </Link>
+        )}
         <div className="flex items-center justify-between mt-2.5 mb-1 px-1">
           <span className="text-[10.5px] font-semibold uppercase tracking-[0.08em]" style={{ color: '#9BA8A1' }}>Events</span>
           <span suppressHydrationWarning className="text-[11px] font-medium tabular-nums" style={{ color: '#6B7A72' }}>
