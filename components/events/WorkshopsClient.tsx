@@ -120,24 +120,6 @@ export function WorkshopsClient({ eventId, eventSlug, sessions, bookedIds: initi
     }
   }
 
-  const DEMO_SESSIONS: Session[] = [
-    { id: 'd1', title: 'Design Systems at Scale', starts_at: '2026-09-20T09:00:00Z', ends_at: '2026-09-20T10:30:00Z', room: 'Studio A', capacity: 40, registrations_count: 22, tracks: { name: 'Design', color: '#3A6B8C' }, session_speakers: [{ speakers: { name: 'Amina Osei' } }] },
-    { id: 'd2', title: 'Figma to Production Pipeline', starts_at: '2026-09-20T11:00:00Z', ends_at: '2026-09-20T12:00:00Z', room: 'Studio B', capacity: 80, registrations_count: 74, tracks: { name: 'Dev', color: '#2D7A4F' }, session_speakers: [] },
-    { id: 'd3', title: 'Office Hours: UX Research', starts_at: '2026-09-20T14:00:00Z', ends_at: '2026-09-20T14:45:00Z', room: 'Room 4', capacity: 12, registrations_count: 12, tracks: { name: 'Research', color: '#7A3A8C' }, session_speakers: [] },
-    { id: 'd4', title: 'Accessibility Deep Dive', starts_at: '2026-09-21T09:30:00Z', ends_at: '2026-09-21T11:00:00Z', room: 'Main Hall', capacity: 120, registrations_count: 45, tracks: { name: 'Dev', color: '#2D7A4F' }, session_speakers: [{ speakers: { name: 'Kwame A.' } }] },
-  ];
-
-  const displaySessions = sessions.length > 0 ? sessions : DEMO_SESSIONS;
-  const displayByDay = sessions.length > 0 ? byDay : (() => {
-    const m: Record<string, Session[]> = {};
-    for (const s of DEMO_SESSIONS) {
-      const k = fmtDay(s.starts_at);
-      if (!m[k]) m[k] = [];
-      m[k].push(s);
-    }
-    return m;
-  })();
-
   return (
     <>
       <div className="max-w-[720px] mx-auto px-5 py-8">
@@ -150,7 +132,7 @@ export function WorkshopsClient({ eventId, eventSlug, sessions, bookedIds: initi
           </p>
         </div>
 
-        {Object.entries(displayByDay).map(([day, daySessions]) => (
+        {Object.entries(byDay).map(([day, daySessions]) => (
           <div key={day} className="mb-7">
             <div className="text-[12.5px] font-bold tracking-[0.12em] uppercase mb-3"
               style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
@@ -234,9 +216,10 @@ export function WorkshopsClient({ eventId, eventSlug, sessions, bookedIds: initi
           </div>
         ))}
 
-        {displaySessions.length === 0 && (
+        {sessions.length === 0 && (
           <div className="rounded-2xl py-20 text-center" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
-            <p className="text-[15px] font-medium" style={{ color: '#6B7A72' }}>No workshops with limited seating</p>
+            <p className="text-[15px] font-medium mb-1" style={{ color: '#0F1F18' }}>No workshops scheduled yet</p>
+            <p className="text-[13px]" style={{ color: '#6B7A72' }}>Check back soon — bookable sessions will appear here once the organizer adds them.</p>
           </div>
         )}
 

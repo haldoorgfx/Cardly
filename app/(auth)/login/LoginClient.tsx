@@ -100,10 +100,11 @@ export default function LoginClient() {
           )}
 
           <div>
-            <label className="block text-[13px] font-medium text-[#3A4A42] mb-1.5">
+            <label htmlFor="login-email" className="block text-[13px] font-medium text-[#3A4A42] mb-1.5">
               Email
             </label>
             <input
+              id="login-email"
               name="email"
               type="email"
               required
@@ -128,7 +129,7 @@ export default function LoginClient() {
 
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="text-[13px] font-medium text-[#3A4A42]">
+              <label htmlFor="login-password" className="text-[13px] font-medium text-[#3A4A42]">
                 Password
               </label>
               <Link
@@ -140,6 +141,7 @@ export default function LoginClient() {
             </div>
             <div className="relative">
               <input
+                id="login-password"
                 name="password"
                 type={showPassword ? "text" : "password"}
                 required

@@ -3,9 +3,10 @@
 import { useState, useRef } from 'react';
 import {
   Home, User, Calendar, CreditCard, FileText,
-  CheckCircle2, Circle, Upload, Share2, Download,
+  CheckCircle2, Circle, Upload, Share2,
   ExternalLink, Camera, MessageSquare, Mic, MapPin, Phone, ArrowBigUp, Clock,
 } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
 
 interface Speaker {
   id: string;
@@ -37,6 +38,7 @@ interface Session {
   ends_at: string;
   room: string | null;
   session_type: string;
+  slides_url?: string | null;
   tracks?: { name: string } | null;
 }
 
@@ -202,7 +204,7 @@ function HomeTab({ speaker, event, sessions, onTab }: { speaker: Speaker; event:
   const hasProfile = !!(speaker.bio && speaker.photo_url);
   const hasHeadshot = !!speaker.photo_url;
   const hasSessions = sessions.length > 0;
-  const hasSlides = false; // extend when slides_url is added to Session type
+  const hasSlides = sessions.some((s) => !!s.slides_url);
 
   // Day-number helper
   function sessionDay(s: Session): string {
@@ -360,7 +362,7 @@ function HomeTab({ speaker, event, sessions, onTab }: { speaker: Speaker; event:
                       className="shrink-0 flex items-center gap-1.5 h-8 px-3 rounded-lg text-[12px] font-medium transition-colors"
                       style={{ background: '#E8EFEB', color: '#1F4D3A', border: '1px solid #C9DDD1', marginTop: 2 }}>
                       <Upload size={11} />
-                      {hasSlides ? 'Slides ✓' : 'Upload slides'}
+                      {s.slides_url ? 'Slides ✓' : 'Upload slides'}
                     </button>
                   </div>
                 ))}
@@ -431,6 +433,9 @@ function ProfileTab({ speaker, onSaved }: { speaker: Speaker; onSaved: (s: Parti
   const [saved, setSaved] = useState(false);
   const photoRef = useRef<HTMLInputElement>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(speaker.photo_url);
+  // The persisted public URL that goes into the profile save (null = unchanged/none).
+  const [photoUrl, setPhotoUrl] = useState<string | null>(speaker.photo_url);
+  const [photoUploading, setPhotoUploading] = useState(false);
 
   function setField(k: string, v: string) { setForm(f => ({ ...f, [k]: v })); setSaved(false); }
 
@@ -440,22 +445,43 @@ function ProfileTab({ speaker, onSaved }: { speaker: Speaker; onSaved: (s: Parti
       const res = await fetch(`/api/speakers/${speaker.id}/profile`, {
         method: 'PATCH',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, photo_url: photoUrl }),
       });
       if (res.ok) {
         setSaved(true);
-        onSaved(form);
+        onSaved({ ...form, photo_url: photoUrl });
       }
     } finally {
       setSaving(false);
     }
   }
 
-  function handlePhoto(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handlePhoto(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
     if (!f) return;
-    const url = URL.createObjectURL(f);
-    setPhotoPreview(url);
+    // Instant local preview while the upload runs.
+    setPhotoPreview(URL.createObjectURL(f));
+    setPhotoUploading(true);
+    setSaved(false);
+    try {
+      const supabase = createClient();
+      const ext = (f.name.split('.').pop() ?? 'png').toLowerCase();
+      const path = `speakers/${speaker.id}/headshot.${ext}`;
+      const { error: upErr } = await supabase.storage
+        .from('avatars') // reuse existing public bucket (same as BoothTab)
+        .upload(path, f, { upsert: true, contentType: f.type });
+      if (upErr) throw upErr;
+      const { data } = supabase.storage.from('avatars').getPublicUrl(path);
+      const url = data.publicUrl + `?t=${Date.now()}`;
+      setPhotoUrl(url);
+      setPhotoPreview(url);
+    } catch {
+      // Upload failed — drop back to the previously saved photo so we never
+      // persist a dead object URL. The user can retry.
+      setPhotoPreview(speaker.photo_url);
+    } finally {
+      setPhotoUploading(false);
+    }
   }
 
   const initials = form.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
@@ -480,10 +506,11 @@ function ProfileTab({ speaker, onSaved }: { speaker: Speaker; onSaved: (s: Parti
               <div>
                 <button
                   onClick={() => photoRef.current?.click()}
+                  disabled={photoUploading}
                   className="flex items-center gap-2 h-8 px-4 rounded-lg text-[13px] font-medium transition-colors"
-                  style={{ background: '#1F4D3A', color: '#FAF6EE' }}
+                  style={{ background: '#1F4D3A', color: '#FAF6EE', opacity: photoUploading ? 0.7 : 1 }}
                 >
-                  <Camera size={13} /> Change headshot
+                  <Camera size={13} /> {photoUploading ? 'Uploading…' : 'Change headshot'}
                 </button>
                 <p className="text-[11px] mt-1.5" style={{ color: '#6B7A72' }}>JPG or PNG, at least 400×400px</p>
                 <input ref={photoRef} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handlePhoto} />
@@ -552,9 +579,9 @@ function ProfileTab({ speaker, onSaved }: { speaker: Speaker; onSaved: (s: Parti
           <div className="flex items-center gap-3">
             <button
               onClick={handleSave}
-              disabled={saving}
+              disabled={saving || photoUploading}
               className="h-10 px-6 rounded-lg text-[14px] font-medium transition-colors"
-              style={{ background: '#1F4D3A', color: '#FAF6EE', opacity: saving ? 0.7 : 1 }}
+              style={{ background: '#1F4D3A', color: '#FAF6EE', opacity: saving || photoUploading ? 0.7 : 1 }}
             >
               {saving ? 'Saving…' : 'Save profile'}
             </button>
@@ -606,14 +633,35 @@ function ProfileTab({ speaker, onSaved }: { speaker: Speaker; onSaved: (s: Parti
 /* ── Sessions Tab ──────────────────────────────────────────────────── */
 function SessionsTab({ sessions }: { sessions: Session[] }) {
   const [uploading, setUploading] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  // Track which sessions have slides, seeded from server data and updated live
+  // after a successful upload so the button reflects the new state immediately.
+  const [slidesBySession, setSlidesBySession] = useState<Record<string, string>>(
+    () => Object.fromEntries(
+      sessions.filter(s => s.slides_url).map(s => [s.id, s.slides_url as string]),
+    ),
+  );
   const fileRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   async function handleUpload(sessionId: string, file: File) {
     setUploading(sessionId);
-    const fd = new FormData();
-    fd.append('file', file);
-    await fetch(`/api/sessions/${sessionId}/slides`, { method: 'POST', body: fd });
-    setUploading(null);
+    setError(null);
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const res = await fetch(`/api/sessions/${sessionId}/slides`, { method: 'POST', body: fd });
+      if (!res.ok) {
+        const j = await res.json().catch(() => null);
+        setError(j?.error || 'Upload failed. Please try again.');
+        return;
+      }
+      const j = await res.json().catch(() => null);
+      if (j?.url) setSlidesBySession(m => ({ ...m, [sessionId]: j.url }));
+    } catch {
+      setError('Upload failed. Please try again.');
+    } finally {
+      setUploading(null);
+    }
   }
 
   if (sessions.length === 0) {
@@ -643,7 +691,17 @@ function SessionsTab({ sessions }: { sessions: Session[] }) {
         <span style={{ color: '#0F1F18' }}>Upload your slides before the event — the AV team needs them at least 24 hours in advance.</span>
       </div>
 
-      {sessions.map((s) => (
+      {/* Upload error */}
+      {error && (
+        <div className="flex items-start gap-3 px-4 py-3 rounded-xl text-[13px]" style={{ background: 'rgba(184,66,60,0.08)', border: '1px solid rgba(184,66,60,0.25)' }}>
+          <span style={{ color: '#B8423C', flexShrink: 0 }}>!</span>
+          <span style={{ color: '#B8423C' }}>{error}</span>
+        </div>
+      )}
+
+      {sessions.map((s) => {
+        const slidesUrl = slidesBySession[s.id];
+        return (
         <div key={s.id} style={{ background: '#fff', border: '1px solid #E5E0D4', borderRadius: 12, overflow: 'hidden' }}>
           <div className="flex items-start gap-4 px-5 py-5">
             <div style={{ width: 40, height: 40, borderRadius: 8, background: '#E8EFEB', display: 'grid', placeItems: 'center', flexShrink: 0 }}>
@@ -655,11 +713,18 @@ function SessionsTab({ sessions }: { sessions: Session[] }) {
                 {fmt(s.starts_at)} · {fmtTime(s.starts_at)}–{fmtTime(s.ends_at)}
                 {s.room && ` · ${s.room}`}
               </div>
-              <div className="flex gap-2 mt-2">
+              <div className="flex gap-2 mt-2 flex-wrap items-center">
                 {s.tracks?.name && (
                   <span className="text-[11px] px-2 py-0.5 rounded-full" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>{s.tracks.name}</span>
                 )}
                 <span className="text-[11px] px-2 py-0.5 rounded-full" style={{ background: '#E8EFEB', color: '#2D7A4F' }}>Confirmed</span>
+                {slidesUrl && (
+                  <a href={slidesUrl} target="_blank" rel="noopener noreferrer"
+                    className="text-[11px] px-2 py-0.5 rounded-full inline-flex items-center gap-1"
+                    style={{ background: '#E8EFEB', color: '#2D7A4F' }}>
+                    <CheckCircle2 size={11} /> Slides uploaded
+                  </a>
+                )}
               </div>
             </div>
             <button
@@ -669,7 +734,7 @@ function SessionsTab({ sessions }: { sessions: Session[] }) {
               style={{ background: uploading === s.id ? '#E8EFEB' : '#1F4D3A', color: uploading === s.id ? '#6B7A72' : '#FAF6EE' }}
             >
               <Upload size={13} />
-              {uploading === s.id ? 'Uploading…' : 'Upload slides'}
+              {uploading === s.id ? 'Uploading…' : slidesUrl ? 'Replace slides' : 'Upload slides'}
             </button>
             <input
               ref={el => { fileRefs.current[s.id] = el; }}
@@ -678,7 +743,8 @@ function SessionsTab({ sessions }: { sessions: Session[] }) {
             />
           </div>
         </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
@@ -688,7 +754,12 @@ function CardTab({ speaker, event }: { speaker: Speaker; event: EventInfo }) {
   const [copied, setCopied] = useState(false);
 
   function copyLink() {
-    navigator.clipboard.writeText(window.location.href);
+    // Copy the PUBLIC speaker profile, not the auth-gated workspace URL, so
+    // recipients don't hit a login wall.
+    const publicUrl = typeof window !== 'undefined'
+      ? `${window.location.origin}/s/${event.slug}/${speaker.id}`
+      : '';
+    navigator.clipboard.writeText(publicUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }
@@ -714,13 +785,6 @@ function CardTab({ speaker, event }: { speaker: Speaker; event: EventInfo }) {
         >
           <Share2 size={15} />
           {copied ? 'Copied!' : 'Share card'}
-        </button>
-        <button
-          className="flex items-center gap-2 h-11 px-6 rounded-xl text-[14px] font-medium transition-colors"
-          style={{ background: '#fff', border: '1px solid #E5E0D4', color: '#0F1F18' }}
-        >
-          <Download size={15} />
-          Download
         </button>
       </div>
 

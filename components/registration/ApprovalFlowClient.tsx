@@ -39,15 +39,50 @@ export function ApprovalFlowClient({ eventId, eventName, eventSlug, questions }:
   const [email, setEmail] = useState('');
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [fileNames, setFileNames] = useState<Record<string, string>>({});
+  // Per-question upload status for `file` questions (keyed by q.id).
+  const [uploadStatus, setUploadStatus] = useState<Record<string, 'uploading' | 'done' | 'error'>>({});
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   const currentStep = state === 'form' ? 0 : 1;
+  const anyUploading = Object.values(uploadStatus).some(s => s === 'uploading');
 
   function setAnswer(id: string, val: string) {
     setAnswers(prev => ({ ...prev, [id]: val }));
     if (fieldErrors[id]) setFieldErrors(p => ({ ...p, [id]: '' }));
+  }
+
+  // Upload a selected file to /api/upload and store the returned URL as the
+  // answer, so the organizer receives a real link — not just the filename.
+  async function handleFileSelect(q: Question, file: File | undefined) {
+    if (fieldErrors[q.id]) setFieldErrors(p => ({ ...p, [q.id]: '' }));
+    if (!file) {
+      setFileNames(prev => ({ ...prev, [q.id]: '' }));
+      setUploadStatus(prev => { const n = { ...prev }; delete n[q.id]; return n; });
+      setAnswer(q.id, '');
+      return;
+    }
+    setFileNames(prev => ({ ...prev, [q.id]: file.name }));
+    setUploadStatus(prev => ({ ...prev, [q.id]: 'uploading' }));
+    setAnswers(prev => ({ ...prev, [q.id]: '' }));
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      fd.append('eventId', eventId);
+      const res = await fetch('/api/upload', { method: 'POST', body: fd });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.url) {
+        setUploadStatus(prev => ({ ...prev, [q.id]: 'error' }));
+        setFieldErrors(p => ({ ...p, [q.id]: data.error ?? 'Upload failed — please try again.' }));
+        return;
+      }
+      setUploadStatus(prev => ({ ...prev, [q.id]: 'done' }));
+      setAnswer(q.id, data.url);
+    } catch {
+      setUploadStatus(prev => ({ ...prev, [q.id]: 'error' }));
+      setFieldErrors(p => ({ ...p, [q.id]: 'Upload failed — check your connection and try again.' }));
+    }
   }
 
   function validate(): boolean {
@@ -56,7 +91,10 @@ export function ApprovalFlowClient({ eventId, eventName, eventSlug, questions }:
     if (!email.trim()) errs.__email = 'Email is required';
     else if (!EMAIL_RE.test(email.trim())) errs.__email = 'Enter a valid email address';
     for (const q of questions) {
-      if (q.required && q.type !== 'file' && !answers[q.id]?.trim()) {
+      if (q.type === 'file') {
+        if (uploadStatus[q.id] === 'error') errs[q.id] = 'Please re-upload this file';
+        else if (q.required && !answers[q.id]) errs[q.id] = `${q.label} is required`;
+      } else if (q.required && !answers[q.id]?.trim()) {
         errs[q.id] = `${q.label} is required`;
       }
     }
@@ -67,6 +105,10 @@ export function ApprovalFlowClient({ eventId, eventName, eventSlug, questions }:
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError('');
+    if (anyUploading) {
+      setError('Please wait for your file upload to finish.');
+      return;
+    }
     if (!validate()) return;
     setSubmitting(true);
     try {
@@ -76,7 +118,8 @@ export function ApprovalFlowClient({ eventId, eventName, eventSlug, questions }:
         body: JSON.stringify({
           name: name.trim(),
           email: email.trim(),
-          answers: { ...answers, ...fileNames },
+          // File answers are stored as uploaded URLs in `answers` (keyed by q.id).
+          answers,
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -200,19 +243,25 @@ export function ApprovalFlowClient({ eventId, eventName, eventSlug, questions }:
                         className="flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer transition hover:bg-[#FAF6EE]"
                         style={{ borderColor: err ? '#B8423C' : '#E5E0D4', background: '#FFFFFF' }}
                       >
-                        <Upload size={15} style={{ color: '#1F4D3A' }} />
+                        {uploadStatus[q.id] === 'uploading' ? (
+                          <svg className="animate-spin shrink-0" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1F4D3A" strokeWidth="2.5">
+                            <path d="M21 12a9 9 0 1 1-9-9" strokeLinecap="round" />
+                          </svg>
+                        ) : uploadStatus[q.id] === 'done' ? (
+                          <Check size={15} strokeWidth={3} style={{ color: '#2D7A4F' }} className="shrink-0" />
+                        ) : (
+                          <Upload size={15} style={{ color: '#1F4D3A' }} className="shrink-0" />
+                        )}
                         <span className="text-[14px] truncate" style={{ color: fileNames[q.id] ? '#0F1F18' : '#6B7A72' }}>
-                          {fileNames[q.id] ?? 'Choose a file…'}
+                          {uploadStatus[q.id] === 'uploading'
+                            ? `Uploading ${fileNames[q.id] ?? ''}…`
+                            : fileNames[q.id] || 'Choose a file…'}
                         </span>
                         <input
                           id={`apply-${q.id}`}
                           type="file"
                           className="sr-only"
-                          onChange={e => {
-                            const f = e.target.files?.[0];
-                            setFileNames(prev => ({ ...prev, [q.label]: f?.name ?? '' }));
-                            if (err) setFieldErrors(p => ({ ...p, [q.id]: '' }));
-                          }}
+                          onChange={e => { void handleFileSelect(q, e.target.files?.[0]); }}
                         />
                       </label>
                     ) : (
@@ -238,7 +287,7 @@ export function ApprovalFlowClient({ eventId, eventName, eventSlug, questions }:
 
               <button
                 type="submit"
-                disabled={submitting}
+                disabled={submitting || anyUploading}
                 className="w-full h-12 rounded-xl text-[14px] font-semibold flex items-center justify-center gap-2 transition hover:opacity-90 disabled:opacity-50 mt-2"
                 style={{ background: '#1F4D3A', color: '#FAF6EE' }}
               >

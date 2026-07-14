@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Hash, Pin, Send, SmilePlus, Menu, X } from 'lucide-react';
+import { Hash, Pin, Send, Menu } from 'lucide-react';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Channel = any;
@@ -19,8 +19,6 @@ interface Props {
   /** Dashboard mode: contained rounded card instead of full-viewport panes. */
   embedded?: boolean;
 }
-
-const REACTIONS = ['👍', '❤️', '🔥', '😂', '🎉'];
 
 function fmtTime(iso: string) {
   return new Date(iso).toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit' });
@@ -46,8 +44,6 @@ export function CommunityChatClient({ eventId, eventName, channels, initialMessa
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [reactions, setReactions] = useState<Record<string, string[]>>({});
-  const [showReactionFor, setShowReactionFor] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
@@ -99,14 +95,6 @@ export function CommunityChatClient({ eventId, eventName, channels, initialMessa
     } finally {
       setSending(false);
     }
-  }
-
-  function addReaction(messageId: string, emoji: string) {
-    setReactions(prev => ({
-      ...prev,
-      [messageId]: [...(prev[messageId] ?? []), emoji],
-    }));
-    setShowReactionFor(null);
   }
 
   if (channels.length === 0) {
@@ -208,9 +196,18 @@ export function CommunityChatClient({ eventId, eventName, channels, initialMessa
             </div>
           )}
 
+          {messages.length === 0 && (
+            <div className="flex flex-col items-center justify-center text-center py-16">
+              <Hash size={26} style={{ color: '#C9C3B1' }} className="mb-2" />
+              <div className="font-medium text-[14px]" style={{ color: '#0F1F18' }}>No messages yet</div>
+              <div className="text-[12.5px] mt-0.5" style={{ color: '#6B7A72' }}>
+                Be the first to say something in #{activeChannel?.name ?? 'general'}.
+              </div>
+            </div>
+          )}
+
           {messages.map((msg: Message) => {
             const name = msg.registrations?.attendee_name ?? 'Attendee';
-            const msgReactions = reactions[msg.id] ?? [];
             return (
               <div key={msg.id} className="flex items-start gap-3 group relative">
                 <AvatarBubble name={name} />
@@ -221,42 +218,7 @@ export function CommunityChatClient({ eventId, eventName, channels, initialMessa
                     {msg.is_pinned && <Pin size={10} style={{ color: '#1F4D3A' }} />}
                   </div>
                   <p className="text-[14px]" style={{ color: '#3A4A42', lineHeight: 1.5 }}>{msg.content}</p>
-                  {/* Reactions */}
-                  {msgReactions.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-1.5">
-                      {Object.entries(
-                        msgReactions.reduce((acc: Record<string, number>, e: string) => { acc[e] = (acc[e] ?? 0) + 1; return acc; }, {})
-                      ).map(([emoji, count]) => (
-                        <button key={emoji}
-                          className="px-2 py-0.5 rounded-full text-[12px] border transition hover:opacity-80"
-                          style={{ background: '#FFFFFF', borderColor: '#E5E0D4' }}>
-                          {emoji} {String(count)}
-                        </button>
-                      ))}
-                    </div>
-                  )}
                 </div>
-                {/* Reaction picker trigger */}
-                <button
-                  onClick={() => setShowReactionFor(showReactionFor === msg.id ? null : msg.id)}
-                  className="opacity-0 group-hover:opacity-100 transition w-7 h-7 rounded-lg flex items-center justify-center"
-                  style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', color: '#6B7A72', flexShrink: 0 }}>
-                  <SmilePlus size={13} />
-                </button>
-                {showReactionFor === msg.id && (
-                  <div className="absolute right-0 top-0 z-10 flex gap-1 px-2 py-1.5 rounded-xl shadow-lg"
-                    style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
-                    {REACTIONS.map(emoji => (
-                      <button key={emoji} onClick={() => addReaction(msg.id, emoji)}
-                        className="text-[18px] hover:scale-125 transition-transform">
-                        {emoji}
-                      </button>
-                    ))}
-                    <button onClick={() => setShowReactionFor(null)} style={{ color: '#6B7A72' }}>
-                      <X size={13} />
-                    </button>
-                  </div>
-                )}
               </div>
             );
           })}

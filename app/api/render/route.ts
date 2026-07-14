@@ -377,16 +377,28 @@ export async function POST(req: NextRequest) {
   // for this event proves the caller registered. (The Studio developer API lives
   // in /api/v1/render and is gated by its own API key — this rule is for the
   // public attendee endpoint only.)
-  if (!registrationId) {
-    return NextResponse.json({ error: 'REGISTRATION_REQUIRED' }, { status: 403 });
-  }
-  const { data: registration } = await supabase
-    .from('registrations')
-    .select('id, event_id')
-    .eq('id', registrationId)
-    .maybeSingle();
-  if (!registration || registration.event_id !== event.id) {
-    return NextResponse.json({ error: 'REGISTRATION_REQUIRED' }, { status: 403 });
+  // Authenticated Studio API keys (via /api/v1/render) bypass the attendee
+  // registration gate — the developer render API (/api/v1/render) is gated by its
+  // own Studio API key, not by attendee registration, so it passes a shared-secret
+  // header to skip this gate. FAIL CLOSED: the bypass is only honored when
+  // INTERNAL_RENDER_SECRET is actually configured. If it's unset, the header is
+  // ignored entirely so a public caller can never guess a default and bypass the
+  // gate (which would re-open anonymous card generation).
+  const renderSecret = process.env.INTERNAL_RENDER_SECRET;
+  const trustedApiRender =
+    !!renderSecret && req.headers.get('x-eventera-api-render') === renderSecret;
+  if (!trustedApiRender) {
+    if (!registrationId) {
+      return NextResponse.json({ error: 'REGISTRATION_REQUIRED' }, { status: 403 });
+    }
+    const { data: registration } = await supabase
+      .from('registrations')
+      .select('id, event_id')
+      .eq('id', registrationId)
+      .maybeSingle();
+    if (!registration || registration.event_id !== event.id) {
+      return NextResponse.json({ error: 'REGISTRATION_REQUIRED' }, { status: 403 });
+    }
   }
 
   // Check card generation limit for the event owner

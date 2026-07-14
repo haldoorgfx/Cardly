@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { createNotification } from '@/lib/notifications';
 import { isNotifAllowed } from '@/lib/notifications/prefs';
+import { fireWebhooks } from '@/lib/webhooks';
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -101,6 +102,13 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         .maybeSingle();
       const slug = (ep as { custom_slug?: string | null } | null)?.custom_slug ?? data.slug ?? id;
       const eventTitle = (ep as { title?: string | null } | null)?.title ?? data.name ?? 'a new event';
+
+      // Fire the documented `event.published` webhook (fire-and-forget).
+      fireWebhooks(user.id, 'event.published', {
+        event_id: id,
+        slug,
+        title: eventTitle,
+      }).catch(() => { /* non-critical */ });
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data: followers } = await (admin as any)

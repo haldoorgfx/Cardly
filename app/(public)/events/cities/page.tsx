@@ -17,8 +17,9 @@ export default async function CitiesIndexPage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: pages } = await (admin as any)
     .from('event_pages')
-    .select('city')
+    .select('city, events!inner(status)')
     .eq('is_public', true)
+    .eq('events.status', 'published')
     .gte('ends_at', new Date().toISOString())
     .not('city', 'is', null);
 

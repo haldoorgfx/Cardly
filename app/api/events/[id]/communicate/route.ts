@@ -2,11 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { Resend } from 'resend';
 
-const FROM = process.env.RESEND_FROM_EMAIL ?? 'noreply@eventera.so';
+// RESEND_FROM_EMAIL is a BARE address; the display name comes from
+// RESEND_FROM_NAME. Build `from` here so it never double-wraps.
+const FROM = `${process.env.RESEND_FROM_NAME ?? 'Eventera'} <${process.env.RESEND_FROM_EMAIL ?? 'noreply@eventera.so'}>`;
 
-function getResend() {
+function getResend(): Resend | null {
   const key = process.env.RESEND_API_KEY;
-  if (!key) throw new Error('RESEND_API_KEY is not set');
+  if (!key) return null; // no-op if not configured — mirrors lib/email/index.ts
   return new Resend(key);
 }
 
@@ -43,6 +45,10 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   }
 
   const resend = getResend();
+  if (!resend) {
+    // Email isn't configured — don't crash; report zero sent.
+    return NextResponse.json({ error: 'Email is not configured on this server', sent: 0 }, { status: 503 });
+  }
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? '';
 
   // Resend batch API — max 100 per call

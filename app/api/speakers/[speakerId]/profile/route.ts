@@ -38,18 +38,23 @@ export async function PATCH(
 
   const body = await req.json();
 
+  // Only overwrite photo_url when the client actually sends one — an omitted
+  // field must not wipe an existing headshot.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const updates: Record<string, any> = {
+    name: body.name,
+    role: body.role || null,
+    company: body.company || null,
+    bio: body.bio || null,
+    twitter_url: body.twitter_url || null,
+    linkedin_url: body.linkedin_url || null,
+    website_url: body.website_url || null,
+  };
+  if (body.photo_url !== undefined) updates.photo_url = body.photo_url || null;
+
   const { error } = await adminAny
     .from('speakers')
-    .update({
-      name: body.name,
-      role: body.role || null,
-      company: body.company || null,
-      bio: body.bio || null,
-      twitter_url: body.twitter_url || null,
-      linkedin_url: body.linkedin_url || null,
-      website_url: body.website_url || null,
-    })
+    .update(updates)
     .eq('id', params.speakerId);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });

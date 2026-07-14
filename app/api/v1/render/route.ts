@@ -14,13 +14,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { authenticateApiKey } from '@/lib/api-keys/auth';
 
 export async function POST(req: NextRequest) {
-  // ── Auth via Bearer token (Studio plan enforced in the shared helper) ──────
-  const auth = await authenticateApiKey(req);
+  // ── Auth via Bearer token (Studio plan + full_access scope enforced) ───────
+  const auth = await authenticateApiKey(req, 'full_access');
   if (!auth.ok) return auth.response;
 
   // ── Forward to the internal render endpoint ───────────────────────────────
-  // Clone the request body and pass through with a trusted user-id header
-  // so the internal route doesn't need auth cookies.
+  // Clone the request body and pass through with a trusted internal header so
+  // the internal route skips the attendee registration gate. This header is
+  // only ever attached here (server-side, after a valid Studio API key) — the
+  // public attendee path can't reach it. Prefer a real secret in prod via
+  // INTERNAL_RENDER_SECRET; falls back to a constant for local dev.
   const body = await req.text();
   const internalUrl = new URL('/api/render', req.url);
 
@@ -28,6 +31,7 @@ export async function POST(req: NextRequest) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      'x-eventera-api-render': process.env.INTERNAL_RENDER_SECRET ?? '1',
     },
     body,
   });

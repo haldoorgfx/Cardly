@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
+import { fireWebhooks } from '@/lib/webhooks';
 
 // POST /api/view — atomically increment view_count for an event.
 // Called client-side after sessionStorage dedup, so we get one
@@ -23,6 +24,18 @@ export async function POST(req: NextRequest) {
   } catch {
     // Silently ignore — view count is best-effort, never block the response
   }
+
+  // Fire the documented `event.viewed` webhook to the event owner (fire-and-forget).
+  admin
+    .from('events')
+    .select('user_id, slug')
+    .eq('id', eventId)
+    .single()
+    .then(({ data: ev }) => {
+      if (ev?.user_id) {
+        fireWebhooks(ev.user_id, 'event.viewed', { event_id: eventId, slug: ev.slug ?? null });
+      }
+    }, () => { /* non-critical — view tracking is best-effort */ });
 
   return NextResponse.json({ ok: true });
 }

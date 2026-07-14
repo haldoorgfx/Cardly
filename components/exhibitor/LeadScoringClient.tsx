@@ -1,7 +1,7 @@
 ﻿'use client';
 
 import { useState, useMemo } from 'react';
-import { ArrowLeft, Mail, Phone, Download, Flame, Zap, Snowflake, ChevronDown } from 'lucide-react';
+import { ArrowLeft, Download, Flame, Zap, Snowflake, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -15,16 +15,24 @@ interface Props {
   leads: Lead[];
 }
 
-const DEMO_LEADS: Lead[] = [
-  { id: '1', name: 'Amina Osman', role: 'Founder & CEO', company: 'Sahel Pay', score: 92, tier: 'hot', reason: 'Senior role · 3 session overlaps · Visited booth 2×', tags: ['Fintech', 'Payments'], contacted: false },
-  { id: '2', name: 'Kwame Asante', role: 'CTO', company: 'Accra Labs', score: 87, tier: 'hot', reason: 'Technical decision-maker · High dwell time', tags: ['Dev Tools', 'API'], contacted: false },
-  { id: '3', name: 'Fatima Al-Rashid', role: 'VP Product', company: 'Mashreq Digital', score: 84, tier: 'hot', reason: 'Product leader · Scanned your materials', tags: ['SaaS', 'Fintech'], contacted: true },
-  { id: '4', name: 'Chidi Okeke', role: 'Head of Partnerships', company: 'Lagos Ventures', score: 64, tier: 'warm', reason: 'Partnership potential · Mid seniority', tags: ['BD', 'Partnerships'], contacted: false },
-  { id: '5', name: 'Sara Njoroge', role: 'Product Manager', company: 'Safaricom PLC', score: 61, tier: 'warm', reason: 'PM at key account · Attended keynote', tags: ['Mobile', 'East Africa'], contacted: false },
-  { id: '6', name: 'Moussa Diallo', role: 'Engineer', company: 'Wave Mobile', score: 58, tier: 'warm', reason: 'IC engineer · Showed technical interest', tags: ['Engineering', 'Payments'], contacted: true },
-  { id: '7', name: 'Nia Kamara', role: 'Marketing Manager', company: 'Flutterwave', score: 31, tier: 'cold', reason: 'Indirect role · Single session', tags: ['Marketing'], contacted: false },
-  { id: '8', name: 'Emeka Ihejirika', role: 'Business Analyst', company: 'UBA Group', score: 28, tier: 'cold', reason: 'Analyst role · Low intent signals', tags: ['Finance'], contacted: false },
-];
+function exportCSV(leads: Lead[]) {
+  const headers = ['Name', 'Role', 'Company', 'Score', 'Tier', 'Reason', 'Contacted'];
+  const rows = leads.map((l: Lead) => [
+    l.name ?? '',
+    l.role ?? '',
+    l.company ?? '',
+    l.score ?? '',
+    l.tier ?? '',
+    l.reason ?? '',
+    l.contacted ? 'Yes' : 'No',
+  ]);
+  const csv = [headers, ...rows].map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'leads.csv'; a.click();
+  URL.revokeObjectURL(url);
+}
 
 function ScoreRing({ score, tier }: { score: number; tier: string }) {
   const r = 20;
@@ -73,7 +81,7 @@ function TierBadge({ tier }: { tier: string }) {
 }
 
 export function LeadScoringClient({ eventSlug, eventName, leads: dbLeads }: Props) {
-  const leads = dbLeads.length > 0 ? dbLeads : DEMO_LEADS;
+  const leads = dbLeads;
   const [filter, setFilter] = useState<Tier>('all');
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
@@ -103,7 +111,10 @@ export function LeadScoringClient({ eventSlug, eventName, leads: dbLeads }: Prop
           <ArrowLeft size={15} /> Booth
         </Link>
         <span className="font-display font-semibold text-[15px]" style={{ color: '#FAF6EE' }}>Leads</span>
-        <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-medium transition hover:opacity-80"
+        <button
+          onClick={() => exportCSV(leads)}
+          disabled={leads.length === 0}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-medium transition hover:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed"
           style={{ background: 'rgba(232,197,126,0.12)', color: '#E8C57E', border: '1px solid rgba(232,197,126,0.2)' }}>
           <Download size={12} /> Export
         </button>
@@ -129,16 +140,12 @@ export function LeadScoringClient({ eventSlug, eventName, leads: dbLeads }: Prop
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-[13px] font-semibold" style={{ color: '#E8C57E' }}>
-              {hotCount} hot leads awaiting follow-up
+              {hotCount} hot {hotCount === 1 ? 'lead' : 'leads'} awaiting follow-up
             </p>
             <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.5)' }}>
-              Eventera AI drafted follow-up emails — review &amp; send
+              Your highest-intent contacts — reach out first
             </p>
           </div>
-          <button className="px-3 py-1.5 rounded-xl text-[12px] font-semibold transition hover:opacity-80 shrink-0"
-            style={{ background: '#E8C57E', color: '#0F1F18' }}>
-            Review
-          </button>
         </div>
       )}
 
@@ -214,7 +221,7 @@ export function LeadScoringClient({ eventSlug, eventName, leads: dbLeads }: Prop
                       {lead.reason}
                     </p>
                     {lead.tags && (
-                      <div className="flex flex-wrap gap-1.5 mb-4">
+                      <div className="flex flex-wrap gap-1.5">
                         {lead.tags.map((tag: string) => (
                           <span key={tag} className="px-2 py-0.5 rounded-full text-[11px]"
                             style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.5)' }}>
@@ -223,16 +230,6 @@ export function LeadScoringClient({ eventSlug, eventName, leads: dbLeads }: Prop
                         ))}
                       </div>
                     )}
-                    <div className="flex gap-2">
-                      <button className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-[13px] font-semibold transition hover:opacity-80"
-                        style={{ background: lead.tier === 'hot' ? '#B8423C' : 'rgba(255,255,255,0.08)', color: '#FAF6EE' }}>
-                        <Mail size={13} /> Send email
-                      </button>
-                      <button className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-[13px] font-semibold transition hover:opacity-80"
-                        style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.6)' }}>
-                        <Phone size={13} />
-                      </button>
-                    </div>
                   </div>
                 </div>
               )}
@@ -241,8 +238,17 @@ export function LeadScoringClient({ eventSlug, eventName, leads: dbLeads }: Prop
         })}
 
         {filtered.length === 0 && (
-          <div className="rounded-2xl py-16 text-center" style={{ background: 'rgba(255,255,255,0.03)' }}>
-            <p className="text-[15px] font-medium" style={{ color: 'rgba(255,255,255,0.4)' }}>No leads in this category</p>
+          <div className="rounded-2xl py-16 text-center px-6" style={{ background: 'rgba(255,255,255,0.03)' }}>
+            {leads.length === 0 ? (
+              <>
+                <p className="text-[15px] font-medium mb-1" style={{ color: 'rgba(255,255,255,0.55)' }}>No leads captured yet</p>
+                <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.35)' }}>
+                  Leads appear here as attendees scan your booth or share their card.
+                </p>
+              </>
+            ) : (
+              <p className="text-[15px] font-medium" style={{ color: 'rgba(255,255,255,0.4)' }}>No leads in this category</p>
+            )}
           </div>
         )}
       </div>

@@ -39,7 +39,7 @@ export default async function SpeakerWorkspacePage({
   const [{ data: sessionSpeakers }, { data: page }] = await Promise.all([
     admin
       .from('session_speakers')
-      .select('sessions(id, title, starts_at, ends_at, room, session_type, track_id, tracks(name))')
+      .select('sessions(id, title, starts_at, ends_at, room, session_type, slides_url, track_id, tracks(name))')
       .eq('speaker_id', speakerId),
     admin
       .from('event_pages')

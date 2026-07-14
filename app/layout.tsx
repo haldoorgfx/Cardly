@@ -95,6 +95,12 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased" style={{ background: '#FAF6EE' }}>
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2.5 focus:rounded-lg focus:bg-primary focus:text-cream focus:text-[14px] focus:font-medium focus:shadow-lg"
+        >
+          Skip to main content
+        </a>
         <Suspense fallback={null}>
           <PostHogProvider>
             <ThemeProvider>{children}</ThemeProvider>

@@ -14,7 +14,7 @@ export default function MarketingLayout({
       }}
     >
       <MarketingNav />
-      <main>{children}</main>
+      <main id="main-content">{children}</main>
       <MarketingFooter />
     </div>
   );

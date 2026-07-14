@@ -5,7 +5,12 @@
  * If RESEND_API_KEY is missing the functions return silently — no crash.
  */
 
-const FROM = process.env.RESEND_FROM_EMAIL ?? 'Eventera <noreply@eventera.so>';
+// RESEND_FROM_EMAIL is always a BARE address (e.g. noreply@eventera.so).
+// The display name comes from RESEND_FROM_NAME. Building `from` here keeps the
+// three email modules consistent and avoids a double-wrapped "Name <Name <…>>".
+const FROM_EMAIL = process.env.RESEND_FROM_EMAIL ?? 'noreply@eventera.so';
+const FROM_NAME = process.env.RESEND_FROM_NAME ?? 'Eventera';
+const FROM = `${FROM_NAME} <${FROM_EMAIL}>`;
 const BASE_URL = 'https://api.resend.com/emails';
 
 async function sendEmail(to: string, subject: string, html: string): Promise<void> {

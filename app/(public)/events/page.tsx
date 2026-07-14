@@ -23,6 +23,7 @@ export default async function EventDiscoveryPage() {
     db.from('event_pages')
       .select(SELECT)
       .eq('is_public', true)
+      .eq('events.status', 'published')
       .or(`ends_at.gte.${now},ends_at.is.null`)
       .order('starts_at', { ascending: true, nullsFirst: false })
       .limit(1)
@@ -30,6 +31,7 @@ export default async function EventDiscoveryPage() {
     db.from('event_pages')
       .select(SELECT)
       .eq('is_public', true)
+      .eq('events.status', 'published')
       .or(`ends_at.gte.${now},ends_at.is.null`)
       .order('starts_at', { ascending: true, nullsFirst: false })
       .limit(48),

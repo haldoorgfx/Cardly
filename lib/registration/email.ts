@@ -5,9 +5,9 @@
 import { Resend } from 'resend';
 import { getWhiteLabelByEvent } from '@/lib/white-label/server';
 
-function getResend() {
+function getResend(): Resend | null {
   const key = process.env.RESEND_API_KEY;
-  if (!key) throw new Error('RESEND_API_KEY is not set');
+  if (!key) return null; // no-op if not configured — mirrors lib/email/index.ts
   return new Resend(key);
 }
 
@@ -33,7 +33,7 @@ function escapeHtml(s: string): string {
 async function resolveBrand(eventId?: string): Promise<EmailBrand> {
   let wordmarkHtml = `Eventer<span style="color:#E8C57E;">a</span>`;
   let primary = '#1F4D3A';
-  let fromName = 'Eventera';
+  let fromName = process.env.RESEND_FROM_NAME ?? 'Eventera';
   let replyTo: string | undefined;
 
   if (eventId) {
@@ -67,6 +67,7 @@ function emailHeader(brand: EmailBrand, subtitle?: string): string {
 
 async function send(brand: EmailBrand, opts: { to: string; subject: string; html: string }) {
   const resend = getResend();
+  if (!resend) return; // gracefully no-op when RESEND_API_KEY is missing
   await resend.emails.send({
     from: brand.from,
     to: opts.to,

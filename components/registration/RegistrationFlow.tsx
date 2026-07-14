@@ -445,12 +445,13 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
                 {/* PWYW price input */}
                 {isPWYW && selectedTicket && (
                   <div className="mt-4 p-4 rounded-xl" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
-                    <label className="block text-[13px] font-medium mb-2" style={{ color: '#0F1F18' }}>
+                    <label htmlFor="reg-pwyw-amount" className="block text-[13px] font-medium mb-2" style={{ color: '#0F1F18' }}>
                       Choose your amount ({selectedTicket.currency})
                     </label>
                     <div className="flex items-center gap-2">
                       <span className="text-[15px] font-medium" style={{ color: '#6B7A72' }}>{selectedTicket.currency}</span>
                       <input
+                        id="reg-pwyw-amount"
                         type="number"
                         min={selectedTicket.min_price ?? 0}
                         step="1"
@@ -480,9 +481,10 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
                 )}
                 {accessCodeVisible && (
                   <div className="mt-4 p-4 rounded-xl" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
-                    <label className="block text-[13px] font-medium mb-2" style={{ color: '#0F1F18' }}>Access code</label>
+                    <label htmlFor="reg-access-code" className="block text-[13px] font-medium mb-2" style={{ color: '#0F1F18' }}>Access code</label>
                     <div className="flex gap-2">
                       <input
+                        id="reg-access-code"
                         type="text"
                         value={accessCodeInput}
                         onChange={e => setAccessCodeInput(e.target.value)}
@@ -761,8 +763,10 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
 function RField({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="block text-[12px] font-medium mb-1.5" style={{ color: '#3A4A42' }}>{label}</label>
-      {children}
+      <label className="block">
+        <span className="block text-[12px] font-medium mb-1.5" style={{ color: '#3A4A42' }}>{label}</span>
+        {children}
+      </label>
       {error && <p className="text-[12px] mt-1" style={{ color: '#B8423C' }}>{error}</p>}
     </div>
   );

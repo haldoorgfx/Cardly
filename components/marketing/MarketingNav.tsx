@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -62,9 +62,37 @@ function MobileOverlay({
   onClose, user, onSignOut, logoUrl,
 }: { onClose: () => void; user: SupaUser | null; onSignOut: () => void; logoUrl: string | null }) {
   const allItems = [...PRODUCT_MENU.Manage, ...PRODUCT_MENU.Engage];
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const closeBtnRef = useRef<HTMLButtonElement>(null);
+
+  // Escape to close + focus trap (mirrors the desktop mega-menu Escape handling).
+  useEffect(() => {
+    closeBtnRef.current?.focus();
+    const node = overlayRef.current;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') { e.preventDefault(); onClose(); return; }
+      if (e.key !== 'Tab' || !node) return;
+      const focusable = Array.from(
+        node.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        )
+      ).filter((el) => el.offsetParent !== null || el === document.activeElement);
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement as HTMLElement | null;
+      if (e.shiftKey) {
+        if (active === first || !node.contains(active)) { e.preventDefault(); last.focus(); }
+      } else {
+        if (active === last || !node.contains(active)) { e.preventDefault(); first.focus(); }
+      }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [onClose]);
 
   return (
-    <div className="md:hidden fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
+    <div ref={overlayRef} className="md:hidden fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
       <div
         aria-hidden
         className="absolute inset-0"
@@ -85,7 +113,7 @@ function MobileOverlay({
               : <img src="/eventera-logo.png" alt="Eventera" style={{ height: '26px', objectFit: 'contain' }} />
             }
           </Link>
-          <button onClick={onClose} className="w-10 h-10 grid place-items-center rounded-lg text-ink hover:bg-primary-soft transition" aria-label="Close menu">
+          <button ref={closeBtnRef} onClick={onClose} className="w-10 h-10 grid place-items-center rounded-lg text-ink hover:bg-primary-soft transition" aria-label="Close menu">
             <X size={22} strokeWidth={2} />
           </button>
         </div>

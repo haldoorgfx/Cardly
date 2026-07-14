@@ -196,7 +196,7 @@ export function TeamTab({ members: initial, token }: Props) {
                 <button
                   onClick={() => handleRemove(m.id)}
                   disabled={removingId === m.id}
-                  className="w-8 h-8 grid place-items-center rounded-lg transition-colors shrink-0 opacity-0 group-hover:opacity-100"
+                  className="w-8 h-8 grid place-items-center rounded-lg transition-colors shrink-0 opacity-60 sm:opacity-0 sm:group-hover:opacity-100"
                   style={{ color: '#B8423C' }}
                   title="Remove member"
                 >

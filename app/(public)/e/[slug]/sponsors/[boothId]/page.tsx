@@ -13,6 +13,19 @@ function initials(name: string) {
   return name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
 }
 
+// Safely derive a display hostname from a stored website URL. Values may be
+// stored without a scheme (e.g. "example.com"), which makes `new URL()` throw
+// and 500 the page. Prepend https:// when missing and fall back to the raw
+// string if it still can't be parsed.
+function safeHostname(url: string): string {
+  const withScheme = /^https?:\/\//i.test(url) ? url : `https://${url}`;
+  try {
+    return new URL(withScheme).hostname;
+  } catch {
+    return url;
+  }
+}
+
 export default async function BoothPage({ params }: Props) {
   const admin = createAdminClient();
 
@@ -184,13 +197,15 @@ export default async function BoothPage({ params }: Props) {
               </div>
             )}
 
-            <a
-              href={`mailto:${sponsor.contact_email ?? ''}`}
-              className="flex items-center justify-center w-full py-3 rounded-xl font-display font-medium text-[15px] text-white transition-opacity hover:opacity-90"
-              style={{ background: '#1F4D3A', marginBottom: 10 }}
-            >
-              Connect at the booth
-            </a>
+            {sponsor.contact_email && (
+              <a
+                href={`mailto:${sponsor.contact_email}`}
+                className="flex items-center justify-center w-full py-3 rounded-xl font-display font-medium text-[15px] text-white transition-opacity hover:opacity-90"
+                style={{ background: '#1F4D3A', marginBottom: 10 }}
+              >
+                Connect at the booth
+              </a>
+            )}
 
             {sponsor.meeting_url && (
               <a
@@ -212,19 +227,12 @@ export default async function BoothPage({ params }: Props) {
                 className="block text-center text-[13px] mt-4 hover:underline"
                 style={{ color: '#6B7A72' }}
               >
-                {new URL(sponsor.website_url).hostname} →
+                {safeHostname(sponsor.website_url)} →
               </a>
             )}
           </div>
         </aside>
       </div>
-
-      {/* Mobile layout override */}
-      <style>{`
-        @media (max-width: 900px) {
-          .booth-layout { grid-template-columns: 1fr !important; gap: 0 !important; padding: 28px 18px !important; }
-        }
-      `}</style>
     </div>
   );
 }

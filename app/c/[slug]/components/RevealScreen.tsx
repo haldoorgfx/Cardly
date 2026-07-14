@@ -24,6 +24,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Download, Check, ArrowRight } from 'lucide-react';
+import { PoweredByInline } from '@/components/white-label/attendee-brand';
 
 interface Props {
   eventName: string;
@@ -222,7 +223,7 @@ export default function RevealScreen({
         {/* Mono "YOUR CARD · READY" status label */}
         <div style={{
           display: 'flex', alignItems: 'center', gap: 9,
-          fontFamily: 'JetBrains Mono, ui-monospace, monospace',
+          fontFamily: 'Inter, system-ui, sans-serif',
           fontWeight: 500, fontSize: 10, letterSpacing: '0.16em', textTransform: 'uppercase',
           color: '#C9A45E', marginBottom: 26,
         }}>
@@ -325,12 +326,12 @@ export default function RevealScreen({
             Edit my info
           </button>
 
-          {/* Powered by */}
+          {/* Powered by (white-label aware) */}
           <div style={{
             textAlign: 'center', marginTop: 8,
             fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11, color: '#6B7A72', letterSpacing: '0.04em',
           }}>
-            powered by <span style={{ color: '#0F1F18', fontWeight: 500 }}>eventera</span>
+            <PoweredByInline />
           </div>
         </div>
       </div>

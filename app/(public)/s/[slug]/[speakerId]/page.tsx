@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
-import { Mic, Clock, MapPin, Link2, Globe, ArrowLeft } from 'lucide-react';
+import { Mic, Clock, MapPin, Link2, Globe, AtSign, ArrowLeft } from 'lucide-react';
 import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
 import { ownedSpeaker } from '@/lib/rbac/ownership';
 import { PublicNav } from '@/components/events/PublicNav';
@@ -110,6 +110,11 @@ export default async function PublicSpeakerPage({ params }: Props) {
                 {speaker.website_url && (
                   <a href={speaker.website_url} target="_blank" rel="noopener noreferrer" style={{ color: '#1F4D3A' }}>
                     <Globe size={16} strokeWidth={1.8} />
+                  </a>
+                )}
+                {speaker.twitter_url && (
+                  <a href={speaker.twitter_url} target="_blank" rel="noopener noreferrer" style={{ color: '#1F4D3A' }} aria-label="X / Twitter">
+                    <AtSign size={16} strokeWidth={1.8} />
                   </a>
                 )}
               </div>
