@@ -27,6 +27,23 @@ function Hero() {
       className="relative overflow-hidden flex flex-col"
       style={{ background: '#FAF6EE', minHeight: '100svh' }}
     >
+      {/* Subtle SaaS line-grid — faint forest lines, masked so they fade out
+          toward the bottom and edges (depth without noise). */}
+      <div
+        aria-hidden
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          zIndex: 0,
+          backgroundImage:
+            'linear-gradient(rgba(31,77,58,0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(31,77,58,0.045) 1px, transparent 1px)',
+          backgroundSize: '56px 56px',
+          WebkitMaskImage:
+            'radial-gradient(115% 90% at 50% 8%, #000 0%, #000 42%, transparent 82%)',
+          maskImage:
+            'radial-gradient(115% 90% at 50% 8%, #000 0%, #000 42%, transparent 82%)',
+        }}
+      />
+
       {/* Decorative floating product chips in the side gutters (xl+ only) */}
       <HeroFloaters />
 
@@ -458,6 +475,20 @@ function FinalCTA() {
         overflow: 'hidden',
       }}
     >
+      {/* Subtle light grid — bookends the hero grid, masked to fade at edges. */}
+      <div
+        aria-hidden
+        style={{
+          position: 'absolute',
+          inset: 0,
+          pointerEvents: 'none',
+          backgroundImage:
+            'linear-gradient(rgba(250,246,238,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(250,246,238,0.05) 1px, transparent 1px)',
+          backgroundSize: '56px 56px',
+          WebkitMaskImage: 'radial-gradient(110% 90% at 50% 50%, #000 20%, transparent 78%)',
+          maskImage: 'radial-gradient(110% 90% at 50% 50%, #000 20%, transparent 78%)',
+        }}
+      />
 
       <div className="relative mx-auto px-5 lg:px-10 text-center" style={{ maxWidth: 760 }}>
         <h2
