@@ -97,6 +97,7 @@
   .liveDot { animation: none; }
   .liveFloatDot::after { animation: none; }
   .float { animation: none !important; }
+  .phoneFloat { animation: none !important; transform: rotate(-2deg); }
 }
 
 .card { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 18px;
@@ -153,30 +154,34 @@
 .ecIn { position: relative; padding: 22px 22px 24px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
 .ecWm { position: absolute; top: 16px; right: 18px; font-family: "Inter", sans-serif;
   font-size: 10px; font-weight: 600; letter-spacing: .18em; color: var(--gold); }
-.ecAva { width: 88px; height: 88px; border-radius: 50%; padding: 3px; margin-top: 14px;
-  background: linear-gradient(135deg, var(--gold), var(--gold-deep)); }
+.ecAva { width: 64px; height: 64px; border-radius: 50%; padding: 2px; margin-top: 8px;
+  background: linear-gradient(135deg, var(--gold), var(--gold-deep));
+  box-shadow: 0 0 22px rgba(232,197,126,.22); }
 .ecAvaIn { width: 100%; height: 100%; border-radius: 50%; background: rgba(255,255,255,.12);
   display: flex; align-items: center; justify-content: center; font-family: "Plus Jakarta Sans", sans-serif;
-  font-weight: 600; font-size: 28px; color: var(--cream); border: 2px solid rgba(12,24,19,.45); }
-.ecName { font-family: "Plus Jakarta Sans", sans-serif; font-weight: 700; font-size: 20px; text-align: center; }
-.ecRole { font-size: 12.5px; color: rgba(250,246,238,.72); text-align: center; margin-top: -8px; }
-.ecPills { display: flex; gap: 9px; }
+  font-weight: 600; font-size: 22px; color: var(--cream); border: 1.5px solid rgba(12,24,19,.4); }
+.ecName { font-family: "Plus Jakarta Sans", sans-serif; font-weight: 700; font-size: 20px; text-align: center; letter-spacing: -0.01em; }
+.ecRole { font-size: 12.5px; color: rgba(250,246,238,.7); text-align: center; margin-top: -8px; }
+.ecPills { display: flex; gap: 8px; }
 .ecPill { font-family: "Inter", sans-serif; font-size: 11px; font-weight: 600; letter-spacing: .06em;
-  padding: 8px 15px; border-radius: 99px; background: rgba(255,255,255,.1);
+  padding: 7px 14px; border-radius: 99px; background: rgba(255,255,255,.1);
   border: 1px solid rgba(255,255,255,.16); color: var(--cream); }
-.ecDl { margin-top: 2px; display: inline-flex; align-items: center; gap: 9px;
+.ecDl { margin-top: 4px; align-self: stretch; display: flex; align-items: center; justify-content: center; gap: 8px;
   background: var(--gold); color: var(--forest-deep); font-family: "Plus Jakarta Sans", sans-serif;
-  font-weight: 600; font-size: 14px; padding: 11px 22px; border-radius: 12px;
-  box-shadow: 0 6px 16px -8px rgba(15,31,24,.28); }
+  font-weight: 600; font-size: 13.5px; height: 44px; border-radius: 12px; white-space: nowrap;
+  box-shadow: 0 8px 18px -8px rgba(201,164,94,.5); }
+.ecDl svg { flex: none; }
 
-/* phone */
-.phone { border-radius: 36px; background: #0C1813; padding: 9px; flex: none;
-  border: 1.5px solid rgba(232,197,126,.55);
-  box-shadow: 0 2px 6px rgba(15,31,24,.05), 0 32px 64px -34px rgba(15,31,24,.42); }
-.phoneScreen { width: 100%; height: 100%; border-radius: 28px; overflow: hidden; position: relative;
+/* phone — realistic hardware: near-black body, thin gold hairline, deep drop */
+.phone { border-radius: 40px; background: #0C1813; padding: 10px; flex: none;
+  border: 1.5px solid rgba(232,197,126,.32);
+  box-shadow: 0 2px 6px rgba(15,31,24,.06), 0 52px 84px -38px rgba(15,31,24,.52),
+    0 0 0 1px rgba(0,0,0,.2); }
+.phoneScreen { width: 100%; height: 100%; border-radius: 30px; overflow: hidden; position: relative;
   background: #0B140F; display: flex; flex-direction: column; color: var(--cream); }
-.notch { position: absolute; top: 9px; left: 50%; transform: translateX(-50%); width: 88px; height: 24px;
-  background: #0C1813; border-radius: 14px; z-index: 3; }
+/* subtle speaker slit, not a heavy notch — reads as a real device */
+.notch { position: absolute; top: 13px; left: 50%; transform: translateX(-50%); width: 60px; height: 6px;
+  background: rgba(255,255,255,.16); border-radius: 99px; z-index: 3; }
 .phStatus { height: 44px; display: flex; align-items: flex-end; padding: 0 22px 4px;
   font-family: "Plus Jakarta Sans", sans-serif; font-weight: 600; font-size: 13px; }
 .homeInd { height: 22px; display: flex; align-items: center; justify-content: center; }
@@ -192,3 +197,11 @@
 /* optional device float (respects reduced-motion above) */
 .float { animation: hvfloat 6.5s ease-in-out infinite; }
 @keyframes hvfloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+/* the phone bobs on its OWN slower cadence + a gentle tilt-wobble, so it reads
+   as a separate object floating in front of the dashboard (not glued to it). */
+.phoneFloat { animation: hvphone 5.5s ease-in-out infinite; will-change: transform; }
+@keyframes hvphone {
+  0%,100% { transform: translateY(0) rotate(-2deg); }
+  50%     { transform: translateY(-15px) rotate(-3.4deg); }
+}

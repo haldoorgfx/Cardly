@@ -82,8 +82,8 @@ export function Scene1DashboardHero({ float }: { float?: boolean }) {
           </div>
         </div>
         <div
-          className={s.phone}
-          style={{ position: 'absolute', right: -56, bottom: -52, width: 264, height: 534, transform: 'rotate(-2deg)', zIndex: 5 }}
+          className={`${s.phone} ${s.phoneFloat}`}
+          style={{ position: 'absolute', right: -56, bottom: -52, width: 258, height: 524, zIndex: 5 }}
         >
           <div className={s.phoneScreen} style={{ borderRadius: 28 }}>
             <div className={s.notch} />
