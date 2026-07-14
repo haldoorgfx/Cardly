@@ -146,6 +146,7 @@ export default function NewEventPage() {
               <input
                 value={name}
                 onChange={e => setName(e.target.value)}
+                data-valid={canProceed ? 'true' : undefined}
                 placeholder="e.g. Africa Fintech Forum 2026"
                 autoFocus
                 className="w-full h-12 px-4 rounded-xl text-[14.5px] outline-none transition"

@@ -370,6 +370,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing, onCom
           <Field label="Event title *" error={fe('title')}>
             <input
               value={title}
+              aria-invalid={!!fe('title')}
               onChange={e => { setTitle(e.target.value); if (fieldErrors.title) setFieldErrors(p => ({ ...p, title: '' })); }}
               placeholder="AfriTech Summit 2026"
               autoFocus

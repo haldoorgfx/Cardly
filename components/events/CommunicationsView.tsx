@@ -109,6 +109,7 @@ function ComposeModal({
                 <label className="block text-[12.5px] uppercase tracking-widest mb-1.5" style={{ color: fieldErrors.subject ? '#B8423C' : '#6B7A72' }}>Subject *</label>
                 <input
                   value={subject}
+                  aria-invalid={!!fieldErrors.subject}
                   onChange={e => { setSubject(e.target.value); if (fieldErrors.subject) setFieldErrors(p => ({ ...p, subject: '' })); }}
                   placeholder="Important update about your registration"
                   autoFocus
@@ -122,6 +123,7 @@ function ComposeModal({
                 <label className="block text-[12.5px] uppercase tracking-widest mb-1.5" style={{ color: fieldErrors.message ? '#B8423C' : '#6B7A72' }}>Message *</label>
                 <textarea
                   value={message}
+                  aria-invalid={!!fieldErrors.message}
                   onChange={e => { setMessage(e.target.value); if (fieldErrors.message) setFieldErrors(p => ({ ...p, message: '' })); }}
                   placeholder={`Hi [name],\n\nWe wanted to share an update about ${eventName}…`}
                   rows={7}

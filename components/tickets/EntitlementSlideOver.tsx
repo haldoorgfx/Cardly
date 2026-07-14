@@ -104,7 +104,7 @@ export function EntitlementSlideOver({ open, onClose, ticketTypes, initial, save
         <div className="flex-1 overflow-y-auto p-5 space-y-5">
           <Field label="Name" error={errors.name?.message}>
             <input
-              {...register('name')} autoFocus placeholder="e.g. Lunch, Day 1"
+              {...register('name')} autoFocus aria-invalid={!!errors.name} placeholder="e.g. Lunch, Day 1"
               className="w-full h-10 px-3 rounded-lg text-[14px] outline-none transition" style={inputStyle}
               onFocus={(e) => (e.target.style.borderColor = '#E8C57E')}
               onBlur={(e) => (e.target.style.borderColor = '#E5E0D4')}
@@ -136,7 +136,7 @@ export function EntitlementSlideOver({ open, onClose, ticketTypes, initial, save
           <Field label="Quantity (stock)" hint="Leave blank for unlimited stock." error={errors.quantity?.message}>
             <div className="relative">
               <input
-                {...register('quantity')} inputMode="numeric" placeholder="Unlimited"
+                {...register('quantity')} inputMode="numeric" aria-invalid={!!errors.quantity} placeholder="Unlimited"
                 className="w-full h-10 px-3 pr-9 rounded-lg text-[14px] outline-none transition" style={inputStyle}
                 onFocus={(e) => (e.target.style.borderColor = '#E8C57E')}
                 onBlur={(e) => (e.target.style.borderColor = '#E5E0D4')}
@@ -154,7 +154,7 @@ export function EntitlementSlideOver({ open, onClose, ticketTypes, initial, save
                 onFocus={(e) => (e.target.style.borderColor = '#E8C57E')} onBlur={(e) => (e.target.style.borderColor = '#E5E0D4')} />
             </Field>
             <Field label="Valid until" hint="Optional" error={errors.valid_until?.message}>
-              <input {...register('valid_until')} type="datetime-local"
+              <input {...register('valid_until')} type="datetime-local" aria-invalid={!!errors.valid_until}
                 className="w-full h-10 px-3 rounded-lg text-[13px] outline-none transition" style={inputStyle}
                 onFocus={(e) => (e.target.style.borderColor = '#E8C57E')} onBlur={(e) => (e.target.style.borderColor = '#E5E0D4')} />
             </Field>

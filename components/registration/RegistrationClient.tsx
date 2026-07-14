@@ -742,6 +742,7 @@ export default function RegistrationClient({
                       min={selectedTicket.min_price ?? 0}
                       step="any"
                       value={chosenPrice}
+                      aria-invalid={!!fieldErrors.chosenPrice}
                       onChange={e => { setChosenPrice(e.target.value); setFieldErrors(p => ({ ...p, chosenPrice: '' })); if (appliedPromo) clearPromo(); }}
                       placeholder={String(selectedTicket.min_price ?? 0)}
                       className={INPUT}
@@ -770,6 +771,7 @@ export default function RegistrationClient({
                       <input
                         type="text"
                         value={accessCodeInput}
+                        aria-invalid={!!accessCodeError}
                         onChange={e => { setAccessCodeInput(e.target.value.toUpperCase()); setAccessCodeError(''); }}
                         placeholder="Enter code"
                         className="flex-1 rounded-xl px-4 py-2.5 text-[16px] outline-none border"
@@ -814,6 +816,7 @@ export default function RegistrationClient({
                   </label>
                   <input
                     type="text" value={name}
+                    aria-invalid={!!fieldErrors.name}
                     onChange={e => {
                       const val = e.target.value;
                       setName(val);
@@ -845,6 +848,7 @@ export default function RegistrationClient({
                   </label>
                   <input
                     type="email" value={email}
+                    aria-invalid={!!fieldErrors.email}
                     onChange={e => { setEmail(e.target.value); if (fieldErrors.email) setFieldErrors(p => ({ ...p, email: '' })); }}
                     placeholder="you@example.com" className={INPUT}
                     style={{ borderColor: fieldErrors.email ? '#B8423C' : '#E5E0D4', background: 'white', color: '#0F1F18' }}
@@ -880,14 +884,14 @@ export default function RegistrationClient({
                   );
                   if (f.field_type === 'textarea') return (
                     <div key={f.id}>{labelEl}
-                      <textarea value={val} onChange={e => set(e.target.value)} rows={3}
+                      <textarea value={val} onChange={e => set(e.target.value)} rows={3} aria-invalid={!!err}
                         className={INPUT} style={{ borderColor: err ? '#B8423C' : '#E5E0D4', background: 'white', color: '#0F1F18', resize: 'vertical' }} />
                       {err && <p className="text-[12px] mt-1 font-medium" style={{ color: '#B8423C' }}>{err}</p>}
                     </div>
                   );
                   if (f.field_type === 'select' && f.options?.length) return (
                     <div key={f.id}>{labelEl}
-                      <select value={val} onChange={e => set(e.target.value)}
+                      <select value={val} onChange={e => set(e.target.value)} aria-invalid={!!err}
                         className={INPUT} style={{ borderColor: err ? '#B8423C' : '#E5E0D4', background: 'white', color: val ? '#0F1F18' : '#6B7A72' }}>
                         <option value="">Select…</option>
                         {f.options.map(o => <option key={o} value={o}>{o}</option>)}
@@ -983,6 +987,7 @@ export default function RegistrationClient({
                       <input
                         type={f.field_type === 'number' ? 'number' : f.field_type === 'date' ? 'date' : f.field_type === 'url' ? 'url' : f.field_type === 'phone' ? 'tel' : 'text'}
                         value={val} onChange={e => set(e.target.value)}
+                        aria-invalid={!!err}
                         placeholder={f.field_type === 'date' ? undefined : f.label} className={INPUT}
                         style={{ borderColor: err ? '#B8423C' : '#E5E0D4', background: 'white', color: '#0F1F18' }} />
                       {err && <p className="text-[12px] mt-1 font-medium" style={{ color: '#B8423C' }}>{err}</p>}
@@ -1020,6 +1025,7 @@ export default function RegistrationClient({
                     <div className="flex gap-2">
                       <input
                         value={promoInput}
+                        aria-invalid={!!promoError}
                         onChange={e => { setPromoInput(e.target.value.toUpperCase()); setPromoError(''); }}
                         onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); applyPromo(); } }}
                         placeholder="Promo code"

@@ -756,6 +756,7 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
               type="email"
               inputMode="email"
               autoComplete="email"
+              aria-invalid={!!emailError}
               value={newEmail}
               onChange={e => { setNewEmail(e.target.value); setEmailError(null); setEmailNotice(null); }}
               placeholder="new@email.com"

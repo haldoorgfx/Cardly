@@ -456,6 +456,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
                         min={selectedTicket.min_price ?? 0}
                         step="1"
                         value={chosenPrice}
+                        aria-invalid={!!pwywError}
                         onChange={e => setChosenPrice(e.target.value)}
                         placeholder={String(selectedTicket.min_price ?? 0)}
                         className="flex-1 h-10 px-3 rounded-lg text-[15px] outline-none transition"
@@ -487,6 +488,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
                         id="reg-access-code"
                         type="text"
                         value={accessCodeInput}
+                        aria-invalid={!!accessCodeError}
                         onChange={e => setAccessCodeInput(e.target.value)}
                         onKeyDown={e => e.key === 'Enter' && handleUnlock()}
                         placeholder="Enter code"
@@ -529,6 +531,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
                   <RField label="Full name *" error={fieldErrors['name']}>
                     <input
                       type="text" value={name} onChange={e => setName(e.target.value)}
+                      aria-invalid={!!fieldErrors['name']}
                       placeholder="Amina Osman" autoFocus
                       className="w-full h-10 px-3 rounded-lg text-[14px] outline-none transition"
                       style={{ background: 'white', border: `1px solid ${fieldErrors['name'] ? '#B8423C' : '#E5E0D4'}`, color: '#0F1F18' }}
@@ -539,6 +542,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
                   <RField label="Email *" error={fieldErrors['email']}>
                     <input
                       type="email" value={email} onChange={e => setEmail(e.target.value)}
+                      aria-invalid={!!fieldErrors['email']}
                       placeholder="amina@example.com"
                       className="w-full h-10 px-3 rounded-lg text-[14px] outline-none transition"
                       style={{ background: 'white', border: `1px solid ${fieldErrors['email'] ? '#B8423C' : '#E5E0D4'}`, color: '#0F1F18' }}
@@ -786,6 +790,7 @@ function CustomFieldInput({ field, value, error, onChange }: {
       <RField label={label} error={error}>
         <select
           value={value} onChange={e => onChange(e.target.value)}
+          aria-invalid={!!error}
           className="w-full h-10 px-3 rounded-lg text-[14px] outline-none transition"
           style={{ background: 'white', border: `1px solid ${error ? '#B8423C' : '#E5E0D4'}`, color: value ? '#0F1F18' : '#6B7A72' }}
         >
@@ -800,6 +805,7 @@ function CustomFieldInput({ field, value, error, onChange }: {
       <RField label={label} error={error}>
         <textarea
           value={value} onChange={e => onChange(e.target.value)}
+          aria-invalid={!!error}
           rows={3}
           className="w-full px-3 py-2.5 rounded-lg text-[14px] outline-none resize-none transition"
           style={{ background: 'white', border: `1px solid ${error ? '#B8423C' : '#E5E0D4'}`, color: '#0F1F18' }}
@@ -814,6 +820,7 @@ function CustomFieldInput({ field, value, error, onChange }: {
       <input
         type={field.field_type === 'phone' ? 'tel' : field.field_type === 'url' ? 'url' : 'text'}
         value={value} onChange={e => onChange(e.target.value)}
+        aria-invalid={!!error}
         className="w-full h-10 px-3 rounded-lg text-[14px] outline-none transition"
         style={{ background: 'white', border: `1px solid ${error ? '#B8423C' : '#E5E0D4'}`, color: '#0F1F18' }}
         onFocus={e => (e.target.style.borderColor = '#E8C57E')}

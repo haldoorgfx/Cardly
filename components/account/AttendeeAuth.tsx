@@ -259,6 +259,7 @@ export default function AttendeeAuth() {
               inputMode="numeric"
               maxLength={1}
               value={d}
+              aria-invalid={!!error}
               onChange={e => handleOtpChange(i, e.target.value)}
               onKeyDown={e => handleOtpKey(i, e)}
               className="text-center outline-none transition-all"
@@ -329,6 +330,7 @@ export default function AttendeeAuth() {
               required
               autoFocus
               value={newPassword}
+              aria-invalid={!!error}
               onChange={e => setNewPassword(e.target.value)}
               placeholder="At least 8 characters"
               autoComplete="new-password"

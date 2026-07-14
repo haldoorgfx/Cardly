@@ -116,7 +116,7 @@ export function EventDayCard({ day, entitlements, save, remove }: Props) {
           </div>
           <div>
             <label className="block text-[12px] font-medium mb-1.5" style={{ color: '#3A4A42' }}>Capacity</label>
-            <input {...register('capacity')} inputMode="numeric" placeholder="No cap"
+            <input {...register('capacity')} inputMode="numeric" aria-invalid={!!errors.capacity} placeholder="No cap"
               className="w-full h-10 px-3 rounded-lg text-[13.5px] outline-none transition" style={inputStyle}
               onFocus={(e) => (e.target.style.borderColor = '#E8C57E')} onBlur={(e) => (e.target.style.borderColor = '#E5E0D4')} />
             {errors.capacity?.message && (

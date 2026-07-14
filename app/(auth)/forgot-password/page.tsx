@@ -73,6 +73,7 @@ export default function ForgotPasswordPage() {
                   name="email"
                   type="email"
                   required
+                  aria-invalid={!!error}
                   placeholder="you@studio.com"
                   className="w-full h-10 px-3.5 rounded-lg border text-[14px] text-[#0F1F18] placeholder:text-[#6B7A72]/60 transition focus:outline-none"
                   style={{ borderColor: "#E5E0D4", background: "#FAF6EE" }}

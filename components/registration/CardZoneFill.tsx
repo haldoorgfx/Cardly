@@ -57,6 +57,7 @@ export function CardZoneFill({
                 <select
                   value={values[zone.id] ?? ''}
                   onChange={e => onChange(zone.id, e.target.value)}
+                  aria-invalid={!!err}
                   className="w-full h-12 px-3 rounded-lg text-[16px] outline-none transition"
                   style={{ background: '#FAF6EE', border: `1px solid ${err ? '#B8423C' : '#E5E0D4'}`, color: '#0F1F18' }}
                 >
@@ -77,6 +78,7 @@ export function CardZoneFill({
                 <textarea
                   value={values[zone.id] ?? ''}
                   onChange={e => onChange(zone.id, e.target.value)}
+                  aria-invalid={!!err}
                   placeholder={zone.placeholder ?? ''}
                   maxLength={zone.maxChars ?? 500}
                   rows={3}
@@ -90,6 +92,7 @@ export function CardZoneFill({
                   type="text"
                   value={values[zone.id] ?? ''}
                   onChange={e => onChange(zone.id, e.target.value)}
+                  aria-invalid={!!err}
                   placeholder={zone.placeholder ?? ''}
                   maxLength={zone.maxChars ?? 200}
                   className="w-full h-12 px-3 rounded-lg text-[16px] outline-none transition"

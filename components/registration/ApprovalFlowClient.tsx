@@ -183,6 +183,7 @@ export function ApprovalFlowClient({ eventId, eventName, eventSlug, questions }:
                   id="apply-name"
                   type="text"
                   value={name}
+                  aria-invalid={!!fieldErrors.__name}
                   onChange={e => { setName(e.target.value); if (fieldErrors.__name) setFieldErrors(p => ({ ...p, __name: '' })); }}
                   placeholder="Amina Osman"
                   className="w-full h-11 px-4 rounded-xl text-[16px] outline-none focus:border-[#1F4D3A] focus:ring-[3px] focus:ring-[rgba(31,77,58,0.12)]"
@@ -199,6 +200,7 @@ export function ApprovalFlowClient({ eventId, eventName, eventSlug, questions }:
                   id="apply-email"
                   type="email"
                   value={email}
+                  aria-invalid={!!fieldErrors.__email}
                   onChange={e => { setEmail(e.target.value); if (fieldErrors.__email) setFieldErrors(p => ({ ...p, __email: '' })); }}
                   placeholder="you@example.com"
                   className="w-full h-11 px-4 rounded-xl text-[16px] outline-none focus:border-[#1F4D3A] focus:ring-[3px] focus:ring-[rgba(31,77,58,0.12)]"
@@ -221,6 +223,7 @@ export function ApprovalFlowClient({ eventId, eventName, eventSlug, questions }:
                         id={`apply-${q.id}`}
                         value={answers[q.id] ?? ''}
                         onChange={e => setAnswer(q.id, e.target.value)}
+                        aria-invalid={!!err}
                         rows={4}
                         placeholder="Share your answer…"
                         className="w-full px-4 py-3 rounded-xl text-[16px] outline-none resize-y focus:border-[#1F4D3A] focus:ring-[3px] focus:ring-[rgba(31,77,58,0.12)]"
@@ -231,6 +234,7 @@ export function ApprovalFlowClient({ eventId, eventName, eventSlug, questions }:
                         id={`apply-${q.id}`}
                         value={answers[q.id] ?? ''}
                         onChange={e => setAnswer(q.id, e.target.value)}
+                        aria-invalid={!!err}
                         className="w-full h-11 px-4 rounded-xl text-[16px] outline-none focus:border-[#1F4D3A] focus:ring-[3px] focus:ring-[rgba(31,77,58,0.12)]"
                         style={{ ...INPUT_STYLE, borderColor: err ? '#B8423C' : '#E5E0D4', color: answers[q.id] ? '#0F1F18' : '#6B7A72' }}
                       >
@@ -269,6 +273,7 @@ export function ApprovalFlowClient({ eventId, eventName, eventSlug, questions }:
                         id={`apply-${q.id}`}
                         value={answers[q.id] ?? ''}
                         onChange={e => setAnswer(q.id, e.target.value)}
+                        aria-invalid={!!err}
                         placeholder="Your answer"
                         className="w-full h-11 px-4 rounded-xl text-[16px] outline-none focus:border-[#1F4D3A] focus:ring-[3px] focus:ring-[rgba(31,77,58,0.12)]"
                         style={{ ...INPUT_STYLE, borderColor: err ? '#B8423C' : '#E5E0D4' }}
