@@ -12,6 +12,8 @@ interface SearchParams {
   role?: string;
   plan?: string;
   status?: string;
+  sort?: string;
+  dir?: string;
   page?: string;
 }
 
@@ -26,12 +28,15 @@ export default async function UsersAdminPage({
   const currentUser = await getSessionUser();
 
   const page = Math.max(1, parseInt(searchParams.page ?? '1', 10));
+  const dir  = searchParams.dir === 'asc' ? 'asc' : searchParams.dir === 'desc' ? 'desc' : undefined;
 
   const { users, total } = await listUsers({
     search: searchParams.q?.trim(),
     role:   searchParams.role,
     plan:   searchParams.plan,
     status: searchParams.status as 'active' | 'suspended' | undefined,
+    sort:   searchParams.sort,
+    dir,
     page,
     pageSize: PAGE_SIZE,
   });
@@ -51,13 +56,15 @@ export default async function UsersAdminPage({
         // state re-initialises from the freshly-filtered server data (otherwise
         // useState keeps the first-mount list while the count updates → the
         // classic "1 user" count over a full, stale table).
-        key={`${searchParams.q ?? ''}|${searchParams.role ?? ''}|${searchParams.plan ?? ''}|${searchParams.status ?? ''}|${page}`}
+        key={`${searchParams.q ?? ''}|${searchParams.role ?? ''}|${searchParams.plan ?? ''}|${searchParams.status ?? ''}|${searchParams.sort ?? ''}|${dir ?? ''}|${page}`}
         users={users as UserRow[]}
         total={total}
         page={page}
         totalPages={totalPages}
         currentUserId={currentUser?.id ?? ''}
         actorRole={currentUser?.role ?? 'admin'}
+        sort={searchParams.sort ?? 'joined'}
+        dir={dir ?? (searchParams.sort && searchParams.sort !== 'joined' ? 'asc' : 'desc')}
         defaultFilters={{
           q:      searchParams.q      ?? '',
           role:   searchParams.role   ?? '',

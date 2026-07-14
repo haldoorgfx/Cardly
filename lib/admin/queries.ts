@@ -12,11 +12,25 @@ export type AdminUserRow = Database['public']['Tables']['profiles']['Row'] & {
   event_count?: number;
 };
 
+// Whitelisted sort columns → real DB columns. Anything else falls back to
+// created_at so an untrusted `?sort=` value can never inject a column name.
+export type UserSortKey = 'name' | 'email' | 'plan' | 'role' | 'status' | 'joined';
+const SORT_COLUMNS: Record<UserSortKey, string> = {
+  name:   'full_name',
+  email:  'email',
+  plan:   'plan',
+  role:   'role',
+  status: 'suspended',
+  joined: 'created_at',
+};
+
 export interface UserListOptions {
   search?: string;
   role?: string;
   plan?: string;
   status?: 'active' | 'suspended';
+  sort?: string;
+  dir?: 'asc' | 'desc';
   page?: number;
   pageSize?: number;
 }
@@ -27,12 +41,12 @@ export interface UserListResult {
 }
 
 /**
- * Paginated user list with optional search + filters.
+ * Paginated user list with optional search + filters + sort.
  * Returns profiles joined with event counts.
  */
 export async function listUsers(opts: UserListOptions = {}): Promise<UserListResult> {
   const supabase = createAdminClient();
-  const { search, role, plan, status, page = 1, pageSize = 50 } = opts;
+  const { search, role, plan, status, sort, dir, page = 1, pageSize = 50 } = opts;
   const from = (page - 1) * pageSize;
   const to = from + pageSize - 1;
 
@@ -55,7 +69,14 @@ export async function listUsers(opts: UserListOptions = {}): Promise<UserListRes
     query = query.eq('suspended', false);
   }
 
-  query = query.order('created_at', { ascending: false }).range(from, to);
+  const sortColumn = SORT_COLUMNS[sort as UserSortKey] ?? 'created_at';
+  // Default direction: newest-first for dates, A→Z otherwise.
+  const ascending = dir ? dir === 'asc' : sortColumn !== 'created_at';
+  query = query
+    .order(sortColumn, { ascending, nullsFirst: false })
+    // Stable tiebreak so equal values keep a deterministic order across pages.
+    .order('created_at', { ascending: false })
+    .range(from, to);
 
   const { data, error, count } = await query;
   if (error) throw error;
