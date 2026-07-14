@@ -284,7 +284,7 @@ export function ReportsClient({ eventId, eventName, totalRevenue, regCount, chec
                   <thead>
                     <tr className="border-b" style={{ borderColor: '#E5E0D4' }}>
                       {['Name', 'Ticket', 'Amount', 'Status', 'Date'].map(h => (
-                        <th key={h} className="text-left py-2 px-3  text-[12px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>{h}</th>
+                        <th key={h} className="text-left py-2 px-3  text-[12px] tracking-[0.12em] uppercase whitespace-nowrap" style={{ color: '#6B7A72' }}>{h}</th>
                       ))}
                     </tr>
                   </thead>
@@ -298,11 +298,11 @@ export function ReportsClient({ eventId, eventName, totalRevenue, regCount, chec
                         <td className="py-2.5 px-3  text-[12px]" style={{ color: '#1F4D3A' }}>
                           {fmtCurrency(r.amount_paid ?? 0, r.currency)}
                         </td>
-                        <td className="py-2.5 px-3" style={{ color: '#6B7A72' }}>
+                        <td className="py-2.5 px-3 whitespace-nowrap" style={{ color: '#6B7A72' }}>
                           {r.status === 'checked_in' ? 'Checked In'
                             : r.status.charAt(0).toUpperCase() + r.status.slice(1).replace(/_/g, ' ')}
                         </td>
-                        <td className="py-2.5 px-3  text-[12.5px]" style={{ color: '#6B7A72' }}>
+                        <td className="py-2.5 px-3  text-[12.5px] whitespace-nowrap" style={{ color: '#6B7A72' }}>
                           {new Date(r.created_at).toLocaleDateString()}
                         </td>
                       </tr>

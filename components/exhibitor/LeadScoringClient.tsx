@@ -72,7 +72,7 @@ function TierBadge({ tier }: { tier: string }) {
   };
   const s = styles[tier as keyof typeof styles] ?? styles.cold;
   return (
-    <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold"
+    <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap shrink-0"
       style={{ background: s.bg, color: s.color }}>
       <TierIcon tier={tier} />
       {s.label}
@@ -192,7 +192,7 @@ export function LeadScoringClient({ eventSlug, eventName, leads: dbLeads }: Prop
                     <span className="font-semibold text-[14px] truncate" style={{ color: '#FAF6EE' }}>{lead.name}</span>
                     <TierBadge tier={lead.tier} />
                     {lead.contacted && (
-                      <span className="text-[10px] px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.35)' }}>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded-full whitespace-nowrap shrink-0" style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.35)' }}>
                         Contacted
                       </span>
                     )}

@@ -73,7 +73,7 @@ function StatusBadge({ status }: { status: 'active' | 'pending' }) {
   if (status === 'active') {
     return (
       <span
-        className="inline-flex items-center gap-1.5 text-[13px] font-medium px-2.5 py-1 rounded-full"
+        className="inline-flex items-center gap-1.5 text-[13px] font-medium px-2.5 py-1 rounded-full whitespace-nowrap"
         style={{ background: '#F0FAF4', color: '#1F4D3A', border: '1px solid #A8D5B5' }}
       >
         <span className="h-1.5 w-1.5 rounded-full bg-[#2D7A4F]" />

@@ -351,7 +351,7 @@ function HomeTab({ speaker, event, sessions, onTab }: { speaker: Speaker; event:
                             {s.tracks.name}
                           </span>
                         )}
-                        <span className="text-[11px] px-2.5 py-0.5 rounded-full font-medium"
+                        <span className="text-[11px] px-2.5 py-0.5 rounded-full font-medium whitespace-nowrap"
                           style={{ background: '#E8EFEB', color: '#2D7A4F', border: '1px solid #C9DDD1' }}>
                           Confirmed
                         </span>
@@ -359,7 +359,7 @@ function HomeTab({ speaker, event, sessions, onTab }: { speaker: Speaker; event:
                     </div>
                     <button
                       onClick={() => onTab('sessions')}
-                      className="shrink-0 flex items-center gap-1.5 h-8 px-3 rounded-lg text-[12px] font-medium transition-colors"
+                      className="shrink-0 flex items-center gap-1.5 h-8 px-3 rounded-lg text-[12px] font-medium transition-colors whitespace-nowrap"
                       style={{ background: '#E8EFEB', color: '#1F4D3A', border: '1px solid #C9DDD1', marginTop: 2 }}>
                       <Upload size={11} />
                       {s.slides_url ? 'Slides ✓' : 'Upload slides'}
@@ -717,10 +717,10 @@ function SessionsTab({ sessions }: { sessions: Session[] }) {
                 {s.tracks?.name && (
                   <span className="text-[11px] px-2 py-0.5 rounded-full" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>{s.tracks.name}</span>
                 )}
-                <span className="text-[11px] px-2 py-0.5 rounded-full" style={{ background: '#E8EFEB', color: '#2D7A4F' }}>Confirmed</span>
+                <span className="text-[11px] px-2 py-0.5 rounded-full whitespace-nowrap" style={{ background: '#E8EFEB', color: '#2D7A4F' }}>Confirmed</span>
                 {slidesUrl && (
                   <a href={slidesUrl} target="_blank" rel="noopener noreferrer"
-                    className="text-[11px] px-2 py-0.5 rounded-full inline-flex items-center gap-1"
+                    className="text-[11px] px-2 py-0.5 rounded-full inline-flex items-center gap-1 whitespace-nowrap"
                     style={{ background: '#E8EFEB', color: '#2D7A4F' }}>
                     <CheckCircle2 size={11} /> Slides uploaded
                   </a>
@@ -730,7 +730,7 @@ function SessionsTab({ sessions }: { sessions: Session[] }) {
             <button
               onClick={() => fileRefs.current[s.id]?.click()}
               disabled={uploading === s.id}
-              className="flex items-center gap-2 h-9 px-4 rounded-lg text-[13px] font-medium transition-colors shrink-0"
+              className="flex items-center gap-2 h-9 px-4 rounded-lg text-[13px] font-medium transition-colors shrink-0 whitespace-nowrap"
               style={{ background: uploading === s.id ? '#E8EFEB' : '#1F4D3A', color: uploading === s.id ? '#6B7A72' : '#FAF6EE' }}
             >
               <Upload size={13} />
@@ -894,7 +894,7 @@ function QATab({ questions, sessions }: { questions: Question[]; sessions: Sessi
     <div className="max-w-[760px] mx-auto px-4 sm:px-6 py-8 space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="font-display font-normal text-[22px]" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>Audience Q&amp;A</h2>
-        <span className="inline-flex items-center gap-1.5 text-[12px] font-medium px-2.5 py-1 rounded-full"
+        <span className="inline-flex items-center gap-1.5 text-[12px] font-medium px-2.5 py-1 rounded-full whitespace-nowrap shrink-0"
           style={{ background: 'rgba(184,66,60,0.08)', color: '#B8423C', border: '1px solid rgba(184,66,60,0.2)' }}>
           <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#B8423C' }} />
           Live

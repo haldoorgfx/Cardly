@@ -218,7 +218,7 @@ export function OrdersClient({ eventId, orders: initialOrders }: Props) {
                     </div>
                     <div className="text-right shrink-0">
                       <div className=" text-[13.5px]" style={{ color: '#1F4D3A' }}>{fmtAmount(o.amount_paid, o.currency)}</div>
-                      <span className="inline-flex items-center text-[12.5px] font-medium px-2 py-0.5 rounded-full border mt-0.5"
+                      <span className="inline-flex items-center text-[12.5px] font-medium px-2 py-0.5 rounded-full border mt-0.5 whitespace-nowrap"
                         style={{ background: ss.bg, color: ss.color, borderColor: ss.border }}>
                         {statusLabel(o.status)}
                       </span>
@@ -241,7 +241,7 @@ export function OrdersClient({ eventId, orders: initialOrders }: Props) {
                     <div className="font-display text-[14px] font-semibold" style={{ color: '#0F1F18' }}>
                       Order detail
                     </div>
-                    <span className="inline-flex items-center text-[12.5px] font-medium px-2.5 py-1 rounded-full border"
+                    <span className="inline-flex items-center text-[12.5px] font-medium px-2.5 py-1 rounded-full border whitespace-nowrap"
                       style={{ background: ss.bg, color: ss.color, borderColor: ss.border }}>
                       {statusLabel(selectedOrder.status)}
                     </span>

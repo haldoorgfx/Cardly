@@ -221,7 +221,8 @@ function ApiKeysSection({ plan }: { plan: string }) {
         </div>
       ) : (
         <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid #E5E0D4' }}>
-          <div className="overflow-x-auto">
+          {/* Desktop table (md+) */}
+          <div className="hidden md:block overflow-x-auto">
           <table className="w-full" style={{ minWidth: 640 }}>
             <thead>
               <tr style={{ borderBottom: '1px solid #E5E0D4', background: '#FAF6EE' }}>
@@ -256,14 +257,14 @@ function ApiKeysSection({ plan }: { plan: string }) {
                       ))}
                     </div>
                   </td>
-                  <td className="px-4 py-3  text-[12px]" style={{ color: '#6B7A72' }}>
+                  <td className="px-4 py-3  text-[12px] whitespace-nowrap" style={{ color: '#6B7A72' }}>
                     {k.last_used_at ? relativeTime(k.last_used_at) : '—'}
                   </td>
-                  <td className="px-4 py-3  text-[12px]" style={{ color: '#6B7A72' }}>
+                  <td className="px-4 py-3  text-[12px] whitespace-nowrap" style={{ color: '#6B7A72' }}>
                     {new Date(k.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                   </td>
                   <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 whitespace-nowrap">
                       <button onClick={() => rotate(k.id)} className="text-[13px] font-medium" style={{ color: '#3A4A42' }}>
                         Rotate
                       </button>
@@ -280,6 +281,40 @@ function ApiKeysSection({ plan }: { plan: string }) {
               ))}
             </tbody>
           </table>
+          </div>
+
+          {/* Mobile cards (below md) — no sideways scrolling */}
+          <div className="md:hidden divide-y" style={{ borderColor: '#F0EBE3' }}>
+            {keys.map(k => (
+              <div key={k.id} className="p-4" style={{ background: 'white' }}>
+                <div className="flex items-start justify-between gap-3">
+                  <span className="font-display font-medium text-[14px]" style={{ color: '#1F4D3A' }}>{k.name}</span>
+                  <div className="flex items-center gap-3 shrink-0 whitespace-nowrap">
+                    <button onClick={() => rotate(k.id)} className="text-[13px] font-medium" style={{ color: '#3A4A42' }}>
+                      Rotate
+                    </button>
+                    <button onClick={() => revoke(k.id)} className="text-[13px] font-medium" style={{ color: '#B8423C' }}>
+                      Revoke
+                    </button>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5 px-2.5 py-1 mt-2.5 rounded-full text-[12px] w-fit" style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#1F4D3A' }}>
+                  {k.key_prefix}…
+                  <CopyBtn text={k.key_prefix} />
+                </div>
+                <div className="flex flex-wrap gap-1.5 mt-2.5">
+                  {(k.scopes ?? ['events:read']).map(s => (
+                    <span key={s} className="inline-flex items-center h-5 px-2 rounded-full text-[12.5px] font-medium whitespace-nowrap" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
+                      {s}
+                    </span>
+                  ))}
+                </div>
+                <div className="flex items-center gap-x-3 gap-y-1 flex-wrap mt-2.5 text-[12px]" style={{ color: '#6B7A72' }}>
+                  <span className="whitespace-nowrap">Last used {k.last_used_at ? relativeTime(k.last_used_at) : '—'}</span>
+                  <span className="whitespace-nowrap">· Created {new Date(k.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}

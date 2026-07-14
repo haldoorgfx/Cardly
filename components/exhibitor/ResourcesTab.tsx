@@ -129,7 +129,7 @@ export function ResourcesTab({ resources: initial, token }: Props) {
                 <div className="text-[13.5px] font-medium truncate" style={{ color: '#0F1F18' }}>{r.name}</div>
                 <div className=" text-[11px] mt-0.5" style={{ color: '#6B7A72' }}>{kindLabel(r.kind, r.file_size_bytes)}</div>
               </div>
-              <span className=" text-[11px] shrink-0" style={{ color: '#6B7A72' }}>{r.opens} opens</span>
+              <span className=" text-[11px] shrink-0 whitespace-nowrap" style={{ color: '#6B7A72' }}>{r.opens} opens</span>
               <button
                 onClick={() => handleDelete(r.id)}
                 className="w-8 h-8 grid place-items-center rounded-lg transition-colors shrink-0 opacity-60 sm:opacity-0 sm:group-hover:opacity-100"

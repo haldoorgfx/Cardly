@@ -185,7 +185,7 @@ export function WorkshopsClient({ eventId, eventSlug, sessions, bookedIds: initi
                       {/* Action */}
                       <div className="shrink-0">
                         {isBooked ? (
-                          <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-[12px] font-semibold"
+                          <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-[12px] font-semibold whitespace-nowrap"
                             style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
                             <CheckCircle2 size={13} />
                             {isSuccess ? 'Booked!' : 'In your agenda'}
@@ -193,7 +193,7 @@ export function WorkshopsClient({ eventId, eventSlug, sessions, bookedIds: initi
                         ) : isFull ? (
                           <button
                             onClick={() => registrationId && bookSeat(s)}
-                            className="px-3 py-2 rounded-xl text-[12px] font-semibold transition hover:opacity-80"
+                            className="px-3 py-2 rounded-xl text-[12px] font-semibold transition hover:opacity-80 whitespace-nowrap"
                             style={{ background: '#FEF9EC', color: '#C97A2D', border: '1px solid #F5D89A' }}>
                             <Users size={12} className="inline mr-1" />
                             Join waitlist
@@ -202,7 +202,7 @@ export function WorkshopsClient({ eventId, eventSlug, sessions, bookedIds: initi
                           <button
                             onClick={() => setConfirmSession(s)}
                             disabled={!registrationId}
-                            className="px-3 py-2 rounded-xl text-[12px] font-semibold transition hover:opacity-90 disabled:opacity-40"
+                            className="px-3 py-2 rounded-xl text-[12px] font-semibold transition hover:opacity-90 disabled:opacity-40 whitespace-nowrap"
                             style={{ background: '#1F4D3A', color: '#FAF6EE' }}>
                             Book seat
                           </button>

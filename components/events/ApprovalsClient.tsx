@@ -136,7 +136,7 @@ export function ApprovalsClient({ eventId, eventName, initialRegs }: Props) {
 
                   {/* Right: status + actions */}
                   <div className="flex items-center gap-2 shrink-0">
-                    <span className={`text-[12.5px] font-medium px-2 py-0.5 rounded-full ${pill.cls}`} style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
+                    <span className={`text-[12.5px] font-medium px-2 py-0.5 rounded-full whitespace-nowrap ${pill.cls}`} style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
                       {pill.label}
                     </span>
                     {isPending && (
@@ -144,7 +144,7 @@ export function ApprovalsClient({ eventId, eventName, initialRegs }: Props) {
                         <button
                           onClick={() => act(r.id, 'approve')}
                           disabled={isBusy}
-                          className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-[12px] font-medium transition hover:opacity-90 disabled:opacity-50"
+                          className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-[12px] font-medium transition hover:opacity-90 disabled:opacity-50 whitespace-nowrap shrink-0"
                           style={{ background: '#1F4D3A', color: '#FAF6EE' }}
                         >
                           <Check size={12} /> Approve
@@ -152,7 +152,7 @@ export function ApprovalsClient({ eventId, eventName, initialRegs }: Props) {
                         <button
                           onClick={() => act(r.id, 'reject')}
                           disabled={isBusy}
-                          className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-[12px] font-medium transition hover:opacity-90 disabled:opacity-50"
+                          className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-[12px] font-medium transition hover:opacity-90 disabled:opacity-50 whitespace-nowrap shrink-0"
                           style={{ background: '#FEF2F2', color: '#B8423C', border: '1px solid #FECACA' }}
                         >
                           <X size={12} /> Reject

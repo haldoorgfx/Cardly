@@ -346,12 +346,12 @@ export default async function AnalyticsPage({
               No events yet.
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="hidden md:block overflow-x-auto">
             <table className="w-full" style={{ minWidth: 640 }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid #E5E0D4', background: '#FAFAF9' }}>
                   {['Event', 'Status', 'Registrations', 'Revenue', 'Cards', 'Check-in'].map(h => (
-                    <th key={h} className="px-5 py-3 text-left  text-[12px] tracking-[0.12em] uppercase"
+                    <th key={h} className="px-5 py-3 text-left  text-[12px] tracking-[0.12em] uppercase whitespace-nowrap"
                       style={{ color: '#6B7A72' }}>
                       {h}
                     </th>
@@ -381,7 +381,7 @@ export default async function AnalyticsPage({
 
                       {/* Status */}
                       <td className="px-5 py-3.5">
-                        <span className={`inline-flex items-center gap-1.5 text-[12px] font-medium px-2.5 py-1 rounded-full border ${
+                        <span className={`inline-flex items-center gap-1.5 text-[12px] font-medium px-2.5 py-1 rounded-full border whitespace-nowrap ${
                           isLive
                             ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
                             : 'border-amber-200 bg-amber-50 text-amber-700'
@@ -416,6 +416,42 @@ export default async function AnalyticsPage({
                 })}
               </tbody>
             </table>
+            </div>
+          )}
+
+          {/* Mobile cards (below md) — no sideways scrolling */}
+          {perfEvents.length > 0 && (
+            <div className="md:hidden divide-y" style={{ borderColor: '#F0EBE3' }}>
+              {perfEvents.map(e => {
+                const checkInRate = e.regs > 0 ? Math.round((e.checkedIn / e.regs) * 100) : 0;
+                const isLive = e.status === 'published';
+                return (
+                  <div key={e.id} className="p-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <Link href={`/events/${e.slug ?? e.id}`} className="flex items-center gap-2.5 min-w-0">
+                        <div className="w-7 h-7 rounded-lg shrink-0" style={{ background: e.color }} />
+                        <span className="font-display text-[13.5px] font-semibold truncate" style={{ color: '#0F1F18' }}>
+                          {e.name}
+                        </span>
+                      </Link>
+                      <span className={`inline-flex items-center gap-1.5 text-[12px] font-medium px-2.5 py-1 rounded-full border whitespace-nowrap shrink-0 ${
+                        isLive
+                          ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                          : 'border-amber-200 bg-amber-50 text-amber-700'
+                      }`}>
+                        <span className="w-1.5 h-1.5 rounded-full" style={{ background: isLive ? '#2D7A4F' : '#C9A45E' }} />
+                        {isLive ? 'Live' : 'Draft'}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-x-4 gap-y-1 flex-wrap mt-3 text-[12px]" style={{ color: '#6B7A72' }}>
+                      <span className="whitespace-nowrap"><span style={{ color: '#0F1F18', fontWeight: 500 }}>{fmtNum(e.regs)}</span> regs</span>
+                      <span className="whitespace-nowrap"><span style={{ color: '#0F1F18', fontWeight: 500 }}>{fmtMoney(e.revenue, primaryCurrency)}</span> revenue</span>
+                      <span className="whitespace-nowrap"><span style={{ color: '#0F1F18', fontWeight: 500 }}>{e.cards}</span> cards</span>
+                      <span className="whitespace-nowrap"><span style={{ color: '#0F1F18', fontWeight: 500 }}>{checkInRate}%</span> check-in</span>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
