@@ -15,14 +15,14 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
           className="inline-grid h-16 w-16 rounded-2xl place-items-center text-white text-[28px] font-display font-bold mb-6"
           style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 100%)' }}
         >
-          K
+          E
         </div>
         <div className="text-[11px] tracking-widest mb-4" style={{ color: 'rgba(15,31,24,0.4)' }}>500</div>
         <h1 className="font-display font-bold text-[34px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.025em' }}>
           Something went wrong.
         </h1>
         <p className="text-[15px] mt-3 leading-relaxed" style={{ color: 'rgba(15,31,24,0.6)' }}>
-          An unexpected error occurred. The team has been notified. You can try again or go back to the dashboard.
+          An unexpected error occurred. The team has been notified. You can try again or go back home.
         </p>
         {error.digest && (
           <p className="text-[11px] mt-3" style={{ color: 'rgba(15,31,24,0.3)' }}>
@@ -38,11 +38,11 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
             Try again
           </button>
           <Link
-            href="/dashboard"
+            href="/"
             className="inline-flex items-center gap-2 h-11 px-6 rounded-xl border text-[14px] font-medium transition-colors hover:bg-white"
             style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}
           >
-            Dashboard
+            Go home
           </Link>
         </div>
       </div>

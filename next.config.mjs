@@ -82,6 +82,28 @@ const nextConfig = {
           { key: 'Permissions-Policy', value: 'camera=(self), microphone=(self), geolocation=(self), payment=(self)' },
           // Force HTTPS for 2 years (only applies once on HTTPS — safe on Vercel)
           { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
+          // Content-Security-Policy in REPORT-ONLY mode: it never blocks anything,
+          // it only surfaces violations in the console so the allowlist can be
+          // proven before switching to an enforcing `Content-Security-Policy`.
+          // Allowlist covers our third parties: Google Fonts, Stripe, Supabase,
+          // PostHog, Crisp, Vercel Analytics, Google Maps.
+          {
+            key: 'Content-Security-Policy-Report-Only',
+            value: [
+              "default-src 'self'",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://*.crisp.chat https://*.posthog.com https://va.vercel-scripts.com https://maps.googleapis.com",
+              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.crisp.chat",
+              "font-src 'self' data: https://fonts.gstatic.com https://*.crisp.chat",
+              "img-src 'self' data: blob: https:",
+              "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.supabase.in https://api.stripe.com https://*.posthog.com https://*.crisp.chat wss://*.crisp.chat https://vitals.vercel-insights.com https://maps.googleapis.com",
+              "frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://*.crisp.chat",
+              "worker-src 'self' blob:",
+              "object-src 'none'",
+              "base-uri 'self'",
+              "form-action 'self'",
+              "frame-ancestors 'self'",
+            ].join('; '),
+          },
         ],
       },
     ];

@@ -186,7 +186,7 @@ Core tables: `profiles`, `events`, `ticket_types`, `registrations`, `sessions`, 
 
 RLS is enforced on all tables. Users read/write their own rows. Public can read published events by slug. Public can insert registrations.
 
-Migrations live in `supabase/migrations/`. Migrations 001–043 have been applied. **Do not re-run applied migrations.**
+Migrations live in `supabase/migrations/`. On the `integrate-expansion` branch they run **001–050** on disk (the expansion feature tables were renumbered into 044–050; a few early prefixes are duplicated — e.g. `002`+`002c`, multiple `010_*`/`011_*` — but Supabase applies in filename-sort order, so it's deterministic). **Confirm which are applied in prod Supabase before running anything new, and do not re-run applied migrations.**
 
 ---
 
@@ -230,6 +230,6 @@ Abdalla is a designer, not a backend engineer. When explaining:
 - Adding libraries not in the Tech Stack
 - Using old colors (`#6c63ff`, `#f8a4d8`, `#fafafa`, `#e5e5ea`)
 - Black hero sections (use forest gradient)
-- Re-running already-applied migrations (001–043)
+- Re-running already-applied migrations (001–050 on disk; confirm applied set in Supabase first)
 - Skipping mobile-responsive design on any screen
 - Letting ERA or Copilot crash when API keys are missing
