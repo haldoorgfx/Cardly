@@ -227,7 +227,7 @@ function NavItem({ href, icon, label, badge, active, onNavigate }: {
   return (
     <li>
       <Link href={href} onClick={onNavigate}
-        className={`flex items-center gap-3 py-[6px] rounded-lg text-[14.5px] transition-colors border-l-2 ${
+        className={`flex items-center gap-3 py-[9px] rounded-lg text-[14.5px] transition-colors border-l-2 ${
           active
             ? 'border-[#1F4D3A] font-medium pl-[8px] pr-2.5'
             : 'border-transparent px-2.5 hover:bg-[#F5F3EE]'
@@ -318,7 +318,7 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
       </div>
 
       {/* Nav — grouped, collapsible by intent */}
-      <nav className="flex-1 px-3 py-3 overflow-y-auto space-y-1.5">
+      <nav className="flex-1 px-3 py-3 overflow-y-auto space-y-3">
         {USER_NAV_GROUPS.map(group => {
           const groupVisible = group.flag === 'always'
             || (group.flag === 'admin' ? isAdmin : sections[group.flag]);
@@ -331,7 +331,7 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
           if (items.length === 0) return null;
 
           const list = (
-            <ul className="space-y-0.5">
+            <ul className="space-y-1">
               {items.map(leaf => {
                 let active = false;
                 if (leaf.href === '/dashboard') {
@@ -360,7 +360,7 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
             <div key={group.key}>
               <button
                 onClick={() => toggleGroup(group.key)}
-                className="w-full px-2.5 mb-1 flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.08em] transition-colors hover:text-[#6B7A72]"
+                className="w-full px-2.5 mb-1.5 flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.08em] transition-colors hover:text-[#6B7A72]"
                 style={{ color: '#9BA8A1' }}>
                 <span className="flex items-center gap-1.5">
                   {group.title}
