@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { Search, Loader2, Flag, Trash2, RotateCcw, ExternalLink, X, Download } from 'lucide-react';
 import type { EventRow } from './page';
+import { toast } from '@/hooks/use-toast';
 
 const STATUS_STYLES: Record<string, { bg: string; color: string }> = {
   draft:     { bg: 'rgba(232,197,126,0.15)', color: '#C9A45E' },
@@ -53,12 +54,17 @@ export function EventsOversightClient({ events: initialEvents, total, page, tota
     if (!v || v === ev.name) return;
     setEvents(prev => prev.map(e => (e.id === ev.id ? { ...e, name: v } : e)));
     try {
-      await fetch(`/api/admin/events/${ev.id}`, {
+      const res = await fetch(`/api/admin/events/${ev.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: v }),
       });
-    } catch { /* optimistic */ }
+      if (!res.ok) throw new Error('Update failed');
+      toast({ title: 'Event name updated' });
+    } catch {
+      /* optimistic */
+      toast({ title: 'Something went wrong', description: 'Could not rename the event. Refresh to see the current value.', variant: 'destructive' });
+    }
   };
 
   // Bulk selection
@@ -101,11 +107,23 @@ export function EventsOversightClient({ events: initialEvents, total, page, tota
           (results[i] as PromiseFulfilledResult<Response>).value.ok,
       );
       setEvents(prev => prev.map(e => (okIds.includes(e.id) ? { ...e, moderation_status: status } : e)));
-      if (okIds.length < ids.length) {
-        setActionError(`${ids.length - okIds.length} event${ids.length - okIds.length === 1 ? '' : 's'} could not be updated.`);
+      const failed = ids.length - okIds.length;
+      if (failed > 0) {
+        setActionError(`${failed} event${failed === 1 ? '' : 's'} could not be updated.`);
+      }
+      const verb = status === 'removed' ? 'Removed' : status === 'flagged' ? 'Flagged' : 'Restored';
+      if (okIds.length > 0) {
+        toast({
+          title: `${verb} ${okIds.length} event${okIds.length === 1 ? '' : 's'}`,
+          description: failed > 0 ? `${failed} could not be updated.` : undefined,
+        });
+      } else if (ids.length > 0) {
+        toast({ title: 'Something went wrong', description: `None of the ${ids.length} events could be updated.`, variant: 'destructive' });
       }
       clearSelection();
       router.refresh();
+    } catch {
+      toast({ title: 'Something went wrong', description: 'The bulk action failed. Refresh and try again.', variant: 'destructive' });
     } finally {
       setBulkBusy(false);
     }
@@ -143,12 +161,17 @@ export function EventsOversightClient({ events: initialEvents, total, page, tota
             ? { ...e, moderation_status: updated.moderation_status, status: updated.status }
             : e
         ));
+        const verb = status === 'removed' ? 'removed from the marketplace' : status === 'flagged' ? 'flagged' : 'restored';
+        toast({ title: `Event ${verb}`, description: event.name });
       } else {
         const data = await res.json().catch(() => ({}));
-        setActionError(data.error ?? 'Could not update this event — please try again.');
+        const msg = data.error ?? 'Could not update this event — please try again.';
+        setActionError(msg);
+        toast({ title: 'Something went wrong', description: msg, variant: 'destructive' });
       }
     } catch {
       setActionError('Network error — please try again.');
+      toast({ title: 'Something went wrong', description: 'Network error — please try again.', variant: 'destructive' });
     } finally {
       setBusy(null);
     }

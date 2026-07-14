@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { Search, Download, CheckCircle2, XCircle, RotateCcw, ExternalLink, UserPlus, X, MoreHorizontal, Upload, AlertCircle, CheckCircle, ChevronDown, Pencil, Copy, Sparkles } from 'lucide-react';
 import { ERAButton } from '@/components/ai/ERAButton';
+import { toast } from '@/hooks/use-toast';
 
 type Status = 'pending' | 'confirmed' | 'checked_in' | 'cancelled' | 'refunded' | 'pending_approval';
 type PaymentStatus = 'free' | 'pending' | 'paid' | 'refunded' | 'failed';
@@ -168,6 +169,7 @@ function EditAttendeeModal({ reg, eventId, ticketTypes, onClose, onSaved }: {
         attendee_phone: phone.trim() || null,
         ticket_type_id: ticketId || null,
       });
+      toast({ title: 'Attendee updated', description: name.trim() });
       onClose();
     } catch {
       setApiError('Something went wrong.');
@@ -362,7 +364,9 @@ function RowActionsMenu({
   }
 
   function handleCopyEmail() {
-    navigator.clipboard.writeText(reg.attendee_email).catch(() => {});
+    navigator.clipboard.writeText(reg.attendee_email)
+      .then(() => toast({ title: 'Email copied' }))
+      .catch(() => toast({ title: 'Something went wrong', description: 'Could not copy the email.', variant: 'destructive' }));
     setOpen(false);
   }
 
@@ -757,6 +761,7 @@ function AddManuallyModal({
       if (!res.ok) { setApiError(data.error ?? 'Failed to add registration'); return; }
       if (!data.registration) { setApiError('Unexpected response from server'); return; }
       onAdded(data.registration);
+      toast({ title: 'Attendee added', description: name.trim() });
       onClose();
     } catch {
       setApiError('Something went wrong. Check your connection and try again.');
@@ -987,7 +992,11 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
         // Revert optimistic update for any failures — simplest is to rollback and refresh
         setRows(originalRows);
         setRefreshCounter(c => c + 1);
-        alert(`${failedCount} update${failedCount !== 1 ? 's' : ''} failed. The list has been refreshed.`);
+        toast({
+          title: 'Something went wrong',
+          description: `${failedCount} update${failedCount !== 1 ? 's' : ''} failed. The list has been refreshed.`,
+          variant: 'destructive',
+        });
       }
     } catch {
       setRows(originalRows);
@@ -1010,7 +1019,7 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
       const data = await res.json() as { registrations: Registration[] };
       exportCSV(data.registrations, eventSlug, formFields);
     } catch {
-      alert('Export failed. Please try again.');
+      toast({ title: 'Something went wrong', description: 'Export failed. Please try again.', variant: 'destructive' });
     } finally {
       setExportingAll(false);
     }

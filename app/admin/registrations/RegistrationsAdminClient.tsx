@@ -5,6 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { Search, Loader2, AlertTriangle, Trash2, X, Download, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import type { RegistrationRow } from './page';
+import { toast } from '@/hooks/use-toast';
 
 // Registration status enum (types/database.ts → RegistrationStatus)
 const STATUS_OPTIONS = ['pending', 'confirmed', 'checked_in', 'cancelled', 'refunded', 'pending_approval'] as const;
@@ -181,7 +182,12 @@ export function RegistrationsAdminClient({
       });
       if (res.ok) {
         setRows(prev => prev.map(r => r.id === id ? { ...r, status } : r));
+        toast({ title: 'Status updated', description: `Set to ${status.replace('_', ' ')}.` });
+      } else {
+        toast({ title: 'Something went wrong', description: 'Could not update the status.', variant: 'destructive' });
       }
+    } catch {
+      toast({ title: 'Something went wrong', description: 'Could not update the status.', variant: 'destructive' });
     } finally {
       setChanging(null);
     }
@@ -195,7 +201,12 @@ export function RegistrationsAdminClient({
       const res = await fetch(`/api/admin/registrations/${row.id}`, { method: 'DELETE' });
       if (res.ok) {
         setRows(prev => prev.filter(r => r.id !== row.id));
+        toast({ title: 'Registration deleted', description: row.attendee_email });
+      } else {
+        toast({ title: 'Something went wrong', description: 'Could not delete the registration.', variant: 'destructive' });
       }
+    } catch {
+      toast({ title: 'Something went wrong', description: 'Could not delete the registration.', variant: 'destructive' });
     } finally {
       setBusy(null);
     }
@@ -228,7 +239,20 @@ export function RegistrationsAdminClient({
           ? prev.filter(r => !okIds.includes(r.id))
           : prev.map(r => okIds.includes(r.id) ? { ...r, status: action } : r),
       );
+      const failed = ids.length - okIds.length;
+      const verb = action === 'delete' ? 'Deleted' : 'Updated';
+      if (okIds.length > 0) {
+        toast({
+          title: `${verb} ${okIds.length} registration${okIds.length === 1 ? '' : 's'}`,
+          description: failed > 0 ? `${failed} could not be processed.` : undefined,
+        });
+      }
+      if (okIds.length === 0 && ids.length > 0) {
+        toast({ title: 'Something went wrong', description: `None of the ${ids.length} registrations could be processed.`, variant: 'destructive' });
+      }
       clearSelection();
+    } catch {
+      toast({ title: 'Something went wrong', description: 'The bulk action failed. Refresh and try again.', variant: 'destructive' });
     } finally {
       setBulkBusy(false);
     }

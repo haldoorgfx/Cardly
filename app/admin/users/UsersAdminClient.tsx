@@ -6,6 +6,7 @@ import { Search, Loader2, AlertTriangle, Ban, Trash2, RotateCcw, ChevronRight, X
 import Link from 'next/link';
 import type { UserRow } from './page';
 import type { UserRole } from '@/lib/auth/permissions';
+import { toast } from '@/hooks/use-toast';
 
 const ROLE_STYLES: Record<string, { bg: string; color: string }> = {
   user:        { bg: 'rgba(107,122,114,0.10)', color: '#6B7A72' },
@@ -148,12 +149,17 @@ export function UsersAdminClient({
   const saveField = async (userId: string, patch: { full_name?: string; plan?: string }) => {
     setUsers(prev => prev.map(u => (u.id === userId ? { ...u, ...('full_name' in patch ? { full_name: patch.full_name || null } : {}), ...('plan' in patch ? { plan: patch.plan! } : {}) } : u)));
     try {
-      await fetch('/api/admin/users/update', {
+      const res = await fetch('/api/admin/users/update', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId, ...patch }),
       });
-    } catch { /* optimistic; a refresh reconciles on error */ }
+      if (!res.ok) throw new Error('Update failed');
+      toast({ title: 'plan' in patch ? 'Plan updated' : 'Name updated' });
+    } catch {
+      /* optimistic; a refresh reconciles on error */
+      toast({ title: 'Something went wrong', description: 'Could not save the change. Refresh to see the current value.', variant: 'destructive' });
+    }
   };
 
   const assignable = actorRole === 'super_admin' ? ASSIGNABLE_BY_SUPER : ASSIGNABLE_BY_ADMIN;
@@ -216,7 +222,20 @@ export function UsersAdminClient({
                 : u,
             ),
       );
+      const verb = action === 'delete' ? 'Deleted' : action === 'suspend' ? 'Suspended' : 'Unsuspended';
+      const failed = ids.length - okIds.length;
+      if (okIds.length > 0) {
+        toast({
+          title: `${verb} ${okIds.length} account${okIds.length === 1 ? '' : 's'}`,
+          description: failed > 0 ? `${failed} could not be processed.` : undefined,
+        });
+      }
+      if (okIds.length === 0 && ids.length > 0) {
+        toast({ title: 'Something went wrong', description: `None of the ${ids.length} accounts could be processed.`, variant: 'destructive' });
+      }
       clearSelection();
+    } catch {
+      toast({ title: 'Something went wrong', description: 'The bulk action failed. Refresh and try again.', variant: 'destructive' });
     } finally {
       setBulkBusy(false);
     }
@@ -250,7 +269,12 @@ export function UsersAdminClient({
       if (res.ok) {
         const { role } = await res.json();
         setUsers(prev => prev.map(u => u.id === userId ? { ...u, role } : u));
+        toast({ title: 'Role updated', description: `Now ${role}.` });
+      } else {
+        toast({ title: 'Something went wrong', description: 'Could not change the role.', variant: 'destructive' });
       }
+    } catch {
+      toast({ title: 'Something went wrong', description: 'Could not change the role.', variant: 'destructive' });
     } finally {
       setChanging(null);
     }
@@ -272,7 +296,12 @@ export function UsersAdminClient({
             ? { ...u, suspended: true, suspended_reason: reason ?? 'Suspended by administrator.' }
             : u
         ));
+        toast({ title: 'Account suspended', description: targetUser.email });
+      } else {
+        toast({ title: 'Something went wrong', description: 'Could not suspend the account.', variant: 'destructive' });
       }
+    } catch {
+      toast({ title: 'Something went wrong', description: 'Could not suspend the account.', variant: 'destructive' });
     } finally {
       setBusy(null);
     }
@@ -294,7 +323,12 @@ export function UsersAdminClient({
             ? { ...u, suspended: false, suspended_reason: null }
             : u
         ));
+        toast({ title: 'Account unsuspended', description: targetUser.email });
+      } else {
+        toast({ title: 'Something went wrong', description: 'Could not unsuspend the account.', variant: 'destructive' });
       }
+    } catch {
+      toast({ title: 'Something went wrong', description: 'Could not unsuspend the account.', variant: 'destructive' });
     } finally {
       setBusy(null);
     }
@@ -312,7 +346,12 @@ export function UsersAdminClient({
       });
       if (res.ok) {
         setUsers(prev => prev.filter(u => u.id !== targetUser.id));
+        toast({ title: 'Account deleted', description: targetUser.email });
+      } else {
+        toast({ title: 'Something went wrong', description: 'Could not delete the account.', variant: 'destructive' });
       }
+    } catch {
+      toast({ title: 'Something went wrong', description: 'Could not delete the account.', variant: 'destructive' });
     } finally {
       setBusy(null);
     }

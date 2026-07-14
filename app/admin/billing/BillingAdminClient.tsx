@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { Search, Loader2, Gift, FileText, RotateCcw, X } from 'lucide-react';
 import type { BillingUserRow } from './page';
+import { toast } from '@/hooks/use-toast';
 
 const PLAN_STYLES: Record<string, { bg: string; color: string }> = {
   free:   { bg: '#F5F5F4',               color: '#6B7A72' },
@@ -76,9 +77,12 @@ function CompModal({
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? 'Failed');
+      toast({ title: 'Plan comped', description: `${user.email} is now on ${plan}.` });
       onDone(plan);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Something went wrong');
+      const msg = e instanceof Error ? e.message : 'Something went wrong';
+      setError(msg);
+      toast({ title: 'Something went wrong', description: msg, variant: 'destructive' });
     } finally {
       setSaving(false);
     }
@@ -176,11 +180,18 @@ function InvoicesPanel({ user, onClose }: { user: BillingUserRow; onClose: () =>
         body: JSON.stringify({ paymentIntentId, amount: amountCents, userId: user.id }),
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) { setRefundMsg({ id: paymentIntentId, type: 'error', text: data.error ?? 'Refund failed' }); return; }
-      setRefundMsg({ id: paymentIntentId, type: 'success', text: `Refund of ${formatAmount(data.refund.amount, data.refund.currency)} issued.` });
+      if (!res.ok) {
+        setRefundMsg({ id: paymentIntentId, type: 'error', text: data.error ?? 'Refund failed' });
+        toast({ title: 'Something went wrong', description: data.error ?? 'Refund failed', variant: 'destructive' });
+        return;
+      }
+      const refundText = `Refund of ${formatAmount(data.refund.amount, data.refund.currency)} issued.`;
+      setRefundMsg({ id: paymentIntentId, type: 'success', text: refundText });
+      toast({ title: 'Refund issued', description: `${formatAmount(data.refund.amount, data.refund.currency)} to ${user.email}.` });
       setRefundAmounts(m => ({ ...m, [paymentIntentId]: '' }));
     } catch {
       setRefundMsg({ id: paymentIntentId, type: 'error', text: 'Network error — please try again.' });
+      toast({ title: 'Something went wrong', description: 'Network error — please try again.', variant: 'destructive' });
     } finally {
       setRefunding(null);
     }

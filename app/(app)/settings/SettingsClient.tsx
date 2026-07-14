@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { deleteAccount } from '@/app/(auth)/actions';
-import { Check, ChevronDown, Lock, ChevronRight } from 'lucide-react';
+import { deleteAccount, signOutAllDevices } from '@/app/(auth)/actions';
+import { Check, ChevronDown, Lock, ChevronRight, LogOut } from 'lucide-react';
 
 // ── Option lists ──────────────────────────────────────────────────────────────
 
@@ -150,6 +150,15 @@ export default function SettingsClient({ profile, section }: Props) {
   // Delete
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [deleting, setDeleting]           = useState(false);
+
+  // Log out of all devices
+  const [signingOutAll, setSigningOutAll] = useState(false);
+
+  async function handleSignOutAll() {
+    if (!confirm('Log out of all devices? You will need to sign in again everywhere, including here.')) return;
+    setSigningOutAll(true);
+    await signOutAllDevices();
+  }
 
   async function handleSave() {
     setSaving(true);
@@ -308,6 +317,24 @@ export default function SettingsClient({ profile, section }: Props) {
             </div>
             <ChevronRight size={16} strokeWidth={2} style={{ color: '#9BA8A1' }} />
           </Link>
+          <button
+            onClick={handleSignOutAll}
+            disabled={signingOutAll}
+            className="w-full flex items-center justify-between gap-4 rounded-xl px-4 py-3.5 transition-colors hover:bg-[#F5F3EE] text-left disabled:opacity-50"
+          >
+            <div className="flex items-center gap-3">
+              <span className="w-9 h-9 rounded-lg grid place-items-center shrink-0" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
+                <LogOut size={16} strokeWidth={1.9} />
+              </span>
+              <div>
+                <div className="text-[13.5px] font-medium text-[#0F1F18]">Log out of all devices</div>
+                <div className="text-[12.5px] mt-0.5" style={{ color: '#6B7A72' }}>
+                  {signingOutAll ? 'Signing out everywhere…' : 'Ends every active session, including this one.'}
+                </div>
+              </div>
+            </div>
+            <ChevronRight size={16} strokeWidth={2} style={{ color: '#9BA8A1' }} />
+          </button>
         </section>
         )}
 

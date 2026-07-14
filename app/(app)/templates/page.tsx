@@ -233,6 +233,7 @@ export default function TemplatesPage() {
   const router = useRouter();
   const [activeCategory, setActiveCategory] = useState('all');
   const [search, setSearch] = useState('');
+  const [sort, setSort] = useState<'popular' | 'newest' | 'az'>('popular');
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState<string | null>(null);
   const [error, setError] = useState('');
@@ -281,6 +282,19 @@ export default function TemplatesPage() {
     return matchesCat && matchesSearch;
   });
 
+  // Sort the filtered set. Array order is the curated "popularity" order, so
+  // POPULAR-badged cards float up for "Most popular" and NEW ones for "Newest";
+  // Array.prototype.sort is stable, so equal-rank cards keep their curated order.
+  const sorted = [...filtered].sort((a, b) => {
+    if (sort === 'az') return a.name.localeCompare(b.name);
+    if (sort === 'newest') {
+      const rank = (t: T) => (t.badge === 'NEW' ? 0 : 1);
+      return rank(a) - rank(b);
+    }
+    const rank = (t: T) => (t.badge === 'POPULAR' ? 0 : t.badge === 'NEW' ? 1 : 2);
+    return rank(a) - rank(b);
+  });
+
   return (
     <PageShell width="wide">
 
@@ -320,8 +334,15 @@ export default function TemplatesPage() {
           ))}
           <div className="flex-1" />
           <div className="relative">
-            <select className="h-9 pl-4 pr-8 rounded-full bg-white border border-[#E5E0D4] text-[12.5px] outline-none cursor-pointer hover:bg-[#FAF6EE] transition appearance-none">
-              <option>Most popular</option><option>Newest</option><option>A–Z</option>
+            <select
+              value={sort}
+              onChange={e => setSort(e.target.value as 'popular' | 'newest' | 'az')}
+              aria-label="Sort templates"
+              className="h-9 pl-4 pr-8 rounded-full bg-white border border-[#E5E0D4] text-[12.5px] outline-none cursor-pointer hover:bg-[#FAF6EE] transition appearance-none"
+            >
+              <option value="popular">Most popular</option>
+              <option value="newest">Newest</option>
+              <option value="az">A–Z</option>
             </select>
             <svg className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6B7A72" strokeWidth="2.5"><polyline points="6 9 12 15 18 9"/></svg>
           </div>
@@ -344,7 +365,7 @@ export default function TemplatesPage() {
             <div className="text-[13px] text-[#0F1F18]/50 mt-1.5 leading-snug">Upload your own design</div>
           </Link>
 
-          {filtered.map(tmpl => {
+          {sorted.map(tmpl => {
             const isLoading = loading === tmpl.id;
             return (
               <div key={tmpl.id} className="group block cursor-pointer" onClick={e => openTemplate(tmpl.id, e)}>

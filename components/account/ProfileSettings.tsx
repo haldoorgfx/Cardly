@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/client';
+import { toast } from '@/hooks/use-toast';
 
 const LANGUAGES = ['English', 'Français', 'Soomaali', 'العربية'] as const;
 
@@ -158,9 +159,11 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
       if (error) throw error;
       setEmailNotice(`Check ${parsed.data} — your sign-in email changes only after you confirm via the link we sent.`);
       setNewEmail('');
+      toast({ title: 'Confirmation sent', description: `Check ${parsed.data} to finish changing your email.` });
     } catch (err) {
       console.error('Change email failed', err);
       setEmailError('Could not update your email. Please try again.');
+      toast({ title: 'Something went wrong', description: 'Could not update your email. Please try again.', variant: 'destructive' });
     } finally {
       setEmailBusy(false);
     }
@@ -226,9 +229,12 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
         body: JSON.stringify({ avatar_url: publicUrl }),
       });
       if (!res.ok) throw new Error('Could not save your new photo. Please try again.');
+      toast({ title: 'Photo updated' });
     } catch (err) {
       console.error('Photo upload failed', err);
-      setPhotoError(err instanceof Error ? err.message : 'Upload failed. Please try again.');
+      const msg = err instanceof Error ? err.message : 'Upload failed. Please try again.';
+      setPhotoError(msg);
+      toast({ title: 'Something went wrong', description: msg, variant: 'destructive' });
     } finally {
       setPhotoUploading(false);
     }
@@ -236,30 +242,37 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
 
   async function save() {
     setSaving(true);
-    await fetch('/api/account/profile', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        full_name: fullName || null,
-        phone: phone || null,
-        bio: bio || null,
-        job_title: jobTitle || null,
-        organization: organization || null,
-        industry: industry || null,
-        role_types: roleTypes,
-        interests,
-        goals,
-        city: city || null,
-        directory_visible: directoryVisible,
-        open_to_connect: openToConnect,
-        linkedin_url: linkedinUrl || null,
-        x_url: xUrl || null,
-        language,
-      }),
-    });
-    setSaving(false);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
+    try {
+      const res = await fetch('/api/account/profile', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          full_name: fullName || null,
+          phone: phone || null,
+          bio: bio || null,
+          job_title: jobTitle || null,
+          organization: organization || null,
+          industry: industry || null,
+          role_types: roleTypes,
+          interests,
+          goals,
+          city: city || null,
+          directory_visible: directoryVisible,
+          open_to_connect: openToConnect,
+          linkedin_url: linkedinUrl || null,
+          x_url: xUrl || null,
+          language,
+        }),
+      });
+      if (!res.ok) throw new Error('Save failed');
+      setSaved(true);
+      toast({ title: 'Preferences saved' });
+      setTimeout(() => setSaved(false), 2500);
+    } catch {
+      toast({ title: 'Something went wrong', description: 'Could not save your preferences. Please try again.', variant: 'destructive' });
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
