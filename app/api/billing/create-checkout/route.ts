@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
-import { stripe } from '@/lib/billing/stripe';
+import { getStripe } from '@/lib/billing/stripe';
 import type { Plan } from '@/lib/billing/plans';
 
 const PRICE_IDS: Record<Plan, Record<'monthly' | 'annual', string | undefined>> = {
@@ -16,10 +16,15 @@ const PRICE_IDS: Record<Plan, Record<'monthly' | 'annual', string | undefined>> 
 };
 
 export async function POST(req: NextRequest) {
+  if (!process.env.STRIPE_SECRET_KEY) {
+    return NextResponse.json({ error: 'Payments are not configured.' }, { status: 503 });
+  }
+
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
+  const stripe = getStripe();
   const { plan, billingCycle } = await req.json() as { plan: Plan; billingCycle: 'monthly' | 'annual' };
 
   const priceId = PRICE_IDS[plan]?.[billingCycle];

@@ -1,8 +1,17 @@
 import { NextResponse } from 'next/server';
+import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
 import { getUserPlan } from '@/lib/billing/can';
 import { assertERA } from '@/lib/ai/gate';
 import { ERA } from '@/lib/ai/era';
+
+const profileSchema = z.object({
+  name: z.string().min(1).max(200),
+  role: z.string().max(200),
+  company: z.string().max(200),
+  interests: z.array(z.string().max(100)).max(30),
+});
+const schema = z.object({ profileA: profileSchema, profileB: profileSchema });
 
 export async function POST(request: Request) {
   const supabase = createClient();
@@ -16,11 +25,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'ERA_UPGRADE_REQUIRED' }, { status: 403 });
   }
 
-  const body = await request.json() as {
-    profileA: { name: string; role: string; company: string; interests: string[] };
-    profileB: { name: string; role: string; company: string; interests: string[] };
-  };
-  const { profileA, profileB } = body;
+  const parsed = schema.safeParse(await request.json().catch(() => null));
+  if (!parsed.success) return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
+  const { profileA, profileB } = parsed.data;
 
   try {
     const result = await ERA.matchAttendees(profileA, profileB);

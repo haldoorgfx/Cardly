@@ -8,6 +8,10 @@ import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
 // Called by the confirm page after Stripe redirect to verify payment and mark registration as paid.
 // Idempotent — safe to call multiple times (webhook may have already done the update).
 export async function POST(req: NextRequest) {
+  if (!process.env.STRIPE_SECRET_KEY) {
+    return NextResponse.json({ error: 'Payments are not configured.' }, { status: 503 });
+  }
+
   const body = await req.json().catch(() => null);
   if (!body) return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
   const { payment_intent_id, qr_code_token } = body;
@@ -15,9 +19,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'payment_intent_id and qr_code_token required' }, { status: 400 });
   }
 
-  // Verify with Stripe
+  // Verify with Stripe — a bad/unknown PI id must return a clean 4xx, not a 500.
   const stripe = getTicketStripe();
-  const pi = await stripe.paymentIntents.retrieve(payment_intent_id);
+  let pi;
+  try {
+    pi = await stripe.paymentIntents.retrieve(payment_intent_id);
+  } catch {
+    return NextResponse.json({ error: 'Could not verify this payment.' }, { status: 400 });
+  }
 
   const admin = createAdminClient();
 

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { createAdminClient, createClient } from '@/lib/supabase/server';
 import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
 
@@ -11,22 +12,28 @@ interface Seat {
   whatsapp?: string;
 }
 
+const seatSchema = z.object({
+  ticketTypeId: z.string().uuid(),
+  name: z.string().min(1).max(200).trim(),
+  email: z.string().email().max(254).transform(v => v.toLowerCase().trim()),
+  whatsapp: z.string().max(40).optional(),
+});
+const bodySchema = z.object({
+  seats: z.array(seatSchema).min(1).max(50),
+});
+
 export async function POST(req: NextRequest, { params }: Params) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const { id: eventId } = await params;
-  const body = await req.json().catch(() => null);
-  if (!body) return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
-  const { seats } = body as { seats: Seat[] };
-
-  if (!seats || seats.length === 0) {
-    return NextResponse.json({ error: 'No seats provided' }, { status: 400 });
+  const raw = await req.json().catch(() => null);
+  const parsed = bodySchema.safeParse(raw);
+  if (!parsed.success) {
+    return NextResponse.json({ error: 'Each seat needs a name, a valid email, and a ticket type. Max 50 seats.' }, { status: 400 });
   }
-  if (seats.length > 50) {
-    return NextResponse.json({ error: 'Maximum 50 seats per group registration' }, { status: 400 });
-  }
+  const seats: Seat[] = parsed.data.seats;
 
   const admin = createAdminClient();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -35,6 +42,18 @@ export async function POST(req: NextRequest, { params }: Params) {
   // Verify the caller owns the event
   const { data: event } = await admin.from('events').select('id').eq('id', eventId).eq('user_id', user.id).single();
   if (!event) return NextResponse.json({ error: 'Event not found' }, { status: 404 });
+
+  // Every seat's ticket type must belong to THIS event — otherwise a caller
+  // could point seats at another tenant's ticket type and corrupt its counter.
+  const { data: validTypes } = await admin
+    .from('ticket_types')
+    .select('id')
+    .eq('event_id', eventId);
+  const validTypeIds = new Set((validTypes ?? []).map(t => t.id));
+  const hasForeignType = seats.some(s => !validTypeIds.has(s.ticketTypeId));
+  if (hasForeignType) {
+    return NextResponse.json({ error: 'One or more ticket types do not belong to this event.' }, { status: 400 });
+  }
 
   const { data: ep } = await admin.from('event_pages').select('ends_at, max_capacity').eq('event_id', eventId).maybeSingle();
   if (ep?.ends_at && new Date(ep.ends_at) < new Date()) {

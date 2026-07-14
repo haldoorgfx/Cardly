@@ -51,29 +51,38 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   }
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? '';
 
-  // Resend batch API — max 100 per call
+  // Resend batch API — max 100 per call.
+  // Track sent vs failed per-batch so a mid-loop failure returns partial success
+  // (200 with { sent, failed }) instead of throwing a bodyless 500 that would
+  // tempt the organizer to re-send and duplicate the blast.
   const BATCH = 100;
   let sent = 0;
+  let failed = 0;
   for (let i = 0; i < regs.length; i += BATCH) {
     const chunk = regs.slice(i, i + BATCH);
-    await resend.batch.send(
-      chunk.map(r => ({
-        from: FROM,
-        to: r.attendee_email,
-        subject: subject.trim(),
-        html: buildBroadcastHtml({
-          attendeeName: r.attendee_name ?? 'Attendee',
-          eventName: event.name,
+    try {
+      const { error } = await resend.batch.send(
+        chunk.map(r => ({
+          from: FROM,
+          to: r.attendee_email,
           subject: subject.trim(),
-          message: message.trim(),
-          appUrl,
-        }),
-      }))
-    );
-    sent += chunk.length;
+          html: buildBroadcastHtml({
+            attendeeName: r.attendee_name ?? 'Attendee',
+            eventName: event.name,
+            subject: subject.trim(),
+            message: message.trim(),
+            appUrl,
+          }),
+        }))
+      );
+      if (error) failed += chunk.length;
+      else sent += chunk.length;
+    } catch {
+      failed += chunk.length;
+    }
   }
 
-  return NextResponse.json({ sent });
+  return NextResponse.json({ sent, failed });
 }
 
 function buildBroadcastHtml({

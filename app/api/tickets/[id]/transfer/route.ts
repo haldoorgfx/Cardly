@@ -65,10 +65,16 @@ export async function POST(req: Request, { params }: Params) {
   });
   if (transferError) return NextResponse.json({ error: 'Failed to record transfer.' }, { status: 500 });
 
+  // Rotate the QR token so the previous owner's saved QR can no longer scan.
+  // Matches how qr_code_token is minted elsewhere (crypto.randomUUID, hyphens stripped).
+  const newToken = crypto.randomUUID().replace(/-/g, '');
+
   // Reassign the registration and sever the previous owner's account link.
-  const { error: updateError } = await admin.from('registrations').update({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error: updateError } = await (admin as any).from('registrations').update({
     attendee_name: recipientName,
     attendee_email: recipientEmail,
+    qr_code_token: newToken,
     user_id: null,
     updated_at: new Date().toISOString(),
   }).eq('id', id);
@@ -85,7 +91,7 @@ export async function POST(req: Request, { params }: Params) {
     name: recipientName,
     eventTitle: ep?.title ?? '',
     eventSlug,
-    qrCodeUrl: `${appUrl}/api/qr/${reg.qr_code_token}`,
+    qrCodeUrl: `${appUrl}/api/qr/${newToken}`,
   }).catch(() => {});
 
   return NextResponse.json({ ok: true });
