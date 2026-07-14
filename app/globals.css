@@ -128,10 +128,52 @@
   }
 }
 
-:where(a, button, input, select, textarea, summary, [role="button"], [tabindex]):focus-visible {
+:where(a, button, summary, [role="button"], [tabindex]):focus-visible {
   outline: 2px solid #1F4D3A;
   outline-offset: 2px;
-  border-radius: 4px;
+}
+
+/* ── Form-field system (platform-wide, consistent across every state) ──────
+   Text-like fields get a FLUSH focus ring — a border tint plus a soft halo with
+   NO offset — instead of the detached offset outline, which read as a second
+   border around the field. Error/success/disabled are driven by aria-invalid /
+   data-valid / :disabled so every form on the platform looks the same without
+   each one re-styling its own states. Uses :where()/attribute selectors kept at
+   low-to-moderate specificity; components can still override deliberately. */
+:where(input, select, textarea):not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]) {
+  transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
+}
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: none;
+  border-color: #1F4D3A;
+  box-shadow: 0 0 0 3px rgba(31, 77, 58, 0.15);
+}
+/* Wrong / invalid — mark the field aria-invalid="true" */
+input[aria-invalid="true"], select[aria-invalid="true"], textarea[aria-invalid="true"] {
+  border-color: #B8423C !important;
+}
+input[aria-invalid="true"]:focus-visible,
+select[aria-invalid="true"]:focus-visible,
+textarea[aria-invalid="true"]:focus-visible {
+  box-shadow: 0 0 0 3px rgba(184, 66, 60, 0.16);
+}
+/* Success — set data-valid="true" (or class .is-valid) on the field */
+input[data-valid="true"], select[data-valid="true"], textarea[data-valid="true"],
+input.is-valid, select.is-valid, textarea.is-valid {
+  border-color: #2D7A4F !important;
+}
+input[data-valid="true"]:focus-visible, select[data-valid="true"]:focus-visible, textarea[data-valid="true"]:focus-visible,
+input.is-valid:focus-visible, select.is-valid:focus-visible, textarea.is-valid:focus-visible {
+  box-shadow: 0 0 0 3px rgba(45, 122, 79, 0.16);
+}
+/* Disabled — consistent muted, non-interactive look */
+input:disabled, select:disabled, textarea:disabled {
+  background-color: #F5F2EC;
+  color: #9BA8A1;
+  cursor: not-allowed;
+  -webkit-text-fill-color: #9BA8A1;
 }
 
 /* Screen-reader-only helper (for visually-hidden labels/skip links). */
