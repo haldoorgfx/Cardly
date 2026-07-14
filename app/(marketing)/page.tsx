@@ -5,6 +5,7 @@ import Pricing from '@/components/marketing/Pricing';
 import LogoStrip from '@/components/marketing/LogoStrip';
 import Reveal from '@/components/marketing/Reveal';
 import MouseParallax from '@/components/marketing/MouseParallax';
+import StickyCTA from '@/components/marketing/StickyCTA';
 import {
   Scene1DashboardHero, Scene4Card, Scene5LiveQA,
 } from '@/components/marketing/home-visuals';
@@ -540,6 +541,7 @@ export default function LandingPage() {
       <Reveal><Pricing /></Reveal>
       <Reveal><Testimonial /></Reveal>
       <Reveal><FinalCTA /></Reveal>
+      <StickyCTA />
     </>
   );
 }
