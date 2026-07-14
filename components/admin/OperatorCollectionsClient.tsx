@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { Plus, CheckCircle2, XCircle, Radio, Clock, LayoutGrid, List, AlertCircle, Loader2, X } from 'lucide-react';
-import { AdminNav } from './AdminNav';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Collection = any;
@@ -94,8 +93,7 @@ export function OperatorCollectionsClient({ collections, promoted: dbPromoted }:
   }
 
   return (
-    <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
-      <AdminNav />
+    <div>
       <div className="max-w-5xl mx-auto px-6 py-8">
 
         {/* Header */}

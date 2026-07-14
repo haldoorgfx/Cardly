@@ -47,6 +47,11 @@ export default async function UsersAdminPage({
       />
 
       <UsersAdminClient
+        // Remount when the filters/page change so the client's local `users`
+        // state re-initialises from the freshly-filtered server data (otherwise
+        // useState keeps the first-mount list while the count updates → the
+        // classic "1 user" count over a full, stale table).
+        key={`${searchParams.q ?? ''}|${searchParams.role ?? ''}|${searchParams.plan ?? ''}|${searchParams.status ?? ''}|${page}`}
         users={users as UserRow[]}
         total={total}
         page={page}

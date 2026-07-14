@@ -103,6 +103,7 @@ export default async function BillingAdminPage({
       )}
 
       <BillingAdminClient
+        key={`${searchParams.q ?? ''}|${searchParams.plan ?? ''}|${page}`}
         users={(users ?? []) as BillingUserRow[]}
         total={count ?? 0}
         page={page}

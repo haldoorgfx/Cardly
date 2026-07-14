@@ -210,10 +210,18 @@ const USER_NAV_GROUPS: NavGroup[] = [
     { href: '/sponsoring', label: 'Sponsoring', icon: <Briefcase size={15} strokeWidth={1.8} />, matchPrefix: true },
   ]},
   { key: 'admin', title: 'Admin', flag: 'admin', collapsible: true, badge: 'admin', items: [
-    { href: '/admin/analytics', label: 'Platform Stats', icon: <BarChart2 size={15} strokeWidth={1.8} />, matchPrefix: true },
-    { href: '/admin/users',     label: 'Accounts',       icon: <Users size={15} strokeWidth={1.8} />, matchPrefix: true },
-    { href: '/admin/billing',   label: 'Revenue',        icon: <CreditCard size={15} strokeWidth={1.8} />, matchPrefix: true, superAdminOnly: true },
-    { href: '/admin/audit',     label: 'Activity Log',   icon: <ScrollText size={15} strokeWidth={1.8} />, matchPrefix: true },
+    { href: '/admin/analytics',     label: 'Platform Stats', icon: <BarChart2 size={15} strokeWidth={1.8} />,   matchPrefix: true },
+    { href: '/admin/users',         label: 'Accounts',       icon: <Users size={15} strokeWidth={1.8} />,       matchPrefix: true },
+    { href: '/admin/events',        label: 'Events',         icon: <CalendarDays size={15} strokeWidth={1.8} />, matchPrefix: true, superAdminOnly: true },
+    { href: '/admin/registrations', label: 'Registrations',  icon: <Ticket size={15} strokeWidth={1.8} />,      matchPrefix: true, superAdminOnly: true },
+    { href: '/admin/billing',       label: 'Revenue',        icon: <CreditCard size={15} strokeWidth={1.8} />,  matchPrefix: true, superAdminOnly: true },
+    { href: '/admin/content',       label: 'Content',        icon: <FileText size={15} strokeWidth={1.8} />,    matchPrefix: true },
+    { href: '/admin/media',         label: 'Media',          icon: <Images size={15} strokeWidth={1.8} />,      matchPrefix: true },
+    { href: '/admin/templates',     label: 'Templates',      icon: <Layout size={15} strokeWidth={1.8} />,      matchPrefix: true, superAdminOnly: true },
+    { href: '/admin/theme',         label: 'Theme',          icon: <Palette size={15} strokeWidth={1.8} />,     matchPrefix: true },
+    { href: '/admin/flags',         label: 'Feature Flags',  icon: <Sliders size={15} strokeWidth={1.8} />,     matchPrefix: true, superAdminOnly: true },
+    { href: '/admin/changelog',     label: 'Changelog',      icon: <Megaphone size={15} strokeWidth={1.8} />,   matchPrefix: true },
+    { href: '/admin/audit',         label: 'Activity Log',   icon: <ScrollText size={15} strokeWidth={1.8} />,  matchPrefix: true },
   ]},
 ];
 

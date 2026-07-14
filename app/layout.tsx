@@ -5,6 +5,7 @@ import { CookieConsent } from "@/components/shared/CookieConsent";
 import { Analytics } from "@vercel/analytics/next";
 import { PostHogProvider } from "@/components/shared/PostHogProvider";
 import { CrispChat } from "@/components/shared/CrispChat";
+import { Toaster } from "@/components/ui/toaster";
 import { Suspense } from "react";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://eventera.so";
@@ -106,6 +107,7 @@ export default function RootLayout({
             <ThemeProvider>{children}</ThemeProvider>
             <CookieConsent />
             <CrispChat />
+            <Toaster />
             <Analytics />
           </PostHogProvider>
         </Suspense>

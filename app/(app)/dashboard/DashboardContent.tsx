@@ -27,6 +27,7 @@ const FILTERS: { key: Filter; label: string }[] = [
 export default function DashboardContent({ events, atLimit, regsByEvent }: Props) {
   const [filter, setFilter] = useState<Filter>('all');
   const [sort,   setSort]   = useState<SortKey>('recent');
+  const [query,  setQuery]  = useState('');
 
   const counts = {
     all:      events.length,
@@ -35,7 +36,9 @@ export default function DashboardContent({ events, atLimit, regsByEvent }: Props
     archived: events.filter(e => e.status === 'archived').length,
   };
 
+  const q = query.trim().toLowerCase();
   const filtered = events
+    .filter(e => !q || (e.name ?? '').toLowerCase().includes(q))
     .filter(e => {
       if (filter === 'all')      return true;
       if (filter === 'active')   return e.status === 'published';
@@ -78,16 +81,30 @@ export default function DashboardContent({ events, atLimit, regsByEvent }: Props
           </div>
         </div>
 
-        <select
-          value={sort}
-          onChange={e => setSort(e.target.value as SortKey)}
-          className="h-8 text-[12px] rounded-lg px-2.5 cursor-pointer outline-none self-start sm:self-auto"
-          style={{ background: 'white', border: '1px solid #E5E0D4', color: '#3A4A42' }}
-        >
-          <option value="recent">Most recent</option>
-          <option value="registrations">Most registrations</option>
-          <option value="revenue">Most revenue</option>
-        </select>
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          {/* Search events by name */}
+          <div className="flex items-center gap-2 h-8 px-2.5 rounded-lg bg-white" style={{ border: '1px solid #E5E0D4' }}>
+            <Search size={13} strokeWidth={2} className="text-[#6B7A72] shrink-0" />
+            <input
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              placeholder="Search events…"
+              aria-label="Search events"
+              className="outline-none bg-transparent text-[12.5px] w-[110px] sm:w-[150px] placeholder-[#6B7A72]/60 text-[#0F1F18]"
+            />
+          </div>
+
+          <select
+            value={sort}
+            onChange={e => setSort(e.target.value as SortKey)}
+            className="h-8 text-[12px] rounded-lg px-2.5 cursor-pointer outline-none"
+            style={{ background: 'white', border: '1px solid #E5E0D4', color: '#3A4A42' }}
+          >
+            <option value="recent">Most recent</option>
+            <option value="registrations">Most registrations</option>
+            <option value="revenue">Most revenue</option>
+          </select>
+        </div>
       </div>
 
       {/* Empty filter state */}
@@ -96,8 +113,10 @@ export default function DashboardContent({ events, atLimit, regsByEvent }: Props
           <div className="mx-auto h-10 w-10 rounded-xl grid place-items-center mb-3" style={{ background: '#E8EFEB' }}>
             <Search size={16} strokeWidth={1.8} color="#1F4D3A" />
           </div>
-          <div className="font-display font-semibold text-[14px] text-[#0F1F18]">No events match this filter</div>
-          <p className="text-[13px] text-[#6B7A72] mt-1">Switch the filter above.</p>
+          <div className="font-display font-semibold text-[14px] text-[#0F1F18]">
+            {q ? `No events match “${query.trim()}”` : 'No events match this filter'}
+          </div>
+          <p className="text-[13px] text-[#6B7A72] mt-1">{q ? 'Try a different search or clear it.' : 'Switch the filter above.'}</p>
         </div>
       ) : (
         <>

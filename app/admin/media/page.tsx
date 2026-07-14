@@ -32,6 +32,7 @@ export default async function MediaLibraryPage({
       />
 
       <MediaLibraryClient
+        key={`${search ?? ''}|${page}`}
         initialItems={items}
         total={total}
         page={page}

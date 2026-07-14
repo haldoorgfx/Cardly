@@ -59,6 +59,7 @@ export default async function EventsOversightPage({
       />
 
       <EventsOversightClient
+        key={`${searchParams.q ?? ''}|${searchParams.status ?? ''}|${searchParams.moderation ?? ''}|${page}`}
         events={(events ?? []) as EventRow[]}
         total={count ?? 0}
         page={page}

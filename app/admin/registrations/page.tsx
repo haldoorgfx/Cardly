@@ -92,6 +92,7 @@ export default async function RegistrationsAdminPage({
       />
 
       <RegistrationsAdminClient
+        key={`${searchParams.q ?? ''}|${searchParams.status ?? ''}|${searchParams.payment_status ?? ''}|${searchParams.event_id ?? ''}|${page}`}
         rows={rows}
         total={total}
         page={page}

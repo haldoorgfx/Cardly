@@ -20,8 +20,11 @@ const PLAN_STYLES: Record<string, { bg: string; color: string }> = {
   studio: { bg: 'rgba(31,77,58,0.12)',   color: '#1F4D3A' },
 };
 
-const ASSIGNABLE_BY_ADMIN: UserRole[] = ['user', 'studio'];
-const ASSIGNABLE_BY_SUPER: UserRole[] = ['user', 'studio', 'admin', 'super_admin'];
+// `studio` is a PLAN, not a role — it was previously offered as an assignable
+// role but grants no extra permissions (identical to `user`) and collides with
+// the studio plan in the UI. Roles are user / admin / super_admin only.
+const ASSIGNABLE_BY_ADMIN: UserRole[] = ['user'];
+const ASSIGNABLE_BY_SUPER: UserRole[] = ['user', 'admin', 'super_admin'];
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
@@ -339,7 +342,6 @@ export function UsersAdminClient({
         >
           <option value="">All roles</option>
           <option value="user">User</option>
-          <option value="studio">Studio</option>
           <option value="admin">Admin</option>
           <option value="super_admin">Super Admin</option>
         </select>
