@@ -8,12 +8,12 @@ import {
 
 /* ── Data ────────────────────────────────────────────────────────── */
 const CATEGORIES = [
-  { icon: <Zap size={20} strokeWidth={1.8} />, title: 'Getting started', count: 8, articles: ['Creating your first event', 'Setting up your event page', 'Inviting your team', 'Publishing and sharing your event'] },
-  { icon: <Users size={20} strokeWidth={1.8} />, title: 'Registration & tickets', count: 14, articles: ['Creating ticket types', 'Setting up promo codes', 'Managing registrations', 'Handling refunds'] },
-  { icon: <CalendarDays size={20} strokeWidth={1.8} />, title: 'Agenda & speakers', count: 9, articles: ['Building your agenda', 'Adding speakers', 'Managing sessions', 'Speaker portal access'] },
-  { icon: <ScanLine size={20} strokeWidth={1.8} />, title: 'Check-in', count: 6, articles: ['Setting up check-in', 'Using the QR scanner', 'Offline check-in', 'Check-in reports'] },
-  { icon: <CreditCard size={20} strokeWidth={1.8} />, title: 'The Eventera Card', count: 7, articles: ['What is the Eventera Card?', 'Customising your card design', 'Sharing on social media', 'Downloading your card'] },
-  { icon: <HelpCircle size={20} strokeWidth={1.8} />, title: 'Billing & plans', count: 11, articles: ['Plan comparison', 'Upgrading your plan', 'Downloading invoices', 'Cancelling a subscription'] },
+  { icon: <Zap size={20} strokeWidth={1.8} />, title: 'Getting started', articles: ['Creating your first event', 'Setting up your event page', 'Inviting your team', 'Publishing and sharing your event'] },
+  { icon: <Users size={20} strokeWidth={1.8} />, title: 'Registration & tickets', articles: ['Creating ticket types', 'Setting up promo codes', 'Managing registrations', 'Handling refunds'] },
+  { icon: <CalendarDays size={20} strokeWidth={1.8} />, title: 'Agenda & speakers', articles: ['Building your agenda', 'Adding speakers', 'Managing sessions', 'Speaker portal access'] },
+  { icon: <ScanLine size={20} strokeWidth={1.8} />, title: 'Check-in', articles: ['Setting up check-in', 'Using the QR scanner', 'Offline check-in', 'Check-in reports'] },
+  { icon: <CreditCard size={20} strokeWidth={1.8} />, title: 'The Eventera Card', articles: ['What is the Eventera Card?', 'Customising your card design', 'Sharing on social media', 'Downloading your card'] },
+  { icon: <HelpCircle size={20} strokeWidth={1.8} />, title: 'Billing & plans', articles: ['Plan comparison', 'Upgrading your plan', 'Downloading invoices', 'Cancelling a subscription'] },
 ];
 
 const POPULAR = [
@@ -22,35 +22,6 @@ const POPULAR = [
   { title: 'How do I set up promo codes?', category: 'Registration' },
   { title: 'How do I add a speaker to a session?', category: 'Agenda' },
   { title: 'What payment methods are supported?', category: 'Billing' },
-];
-
-type SvcStatus = 'operational' | 'degraded' | 'outage';
-const SERVICES: { name: string; uptime: number; status: SvcStatus }[] = [
-  { name: 'API', uptime: 99.98, status: 'operational' },
-  { name: 'Web app', uptime: 99.95, status: 'operational' },
-  { name: 'Payments', uptime: 99.97, status: 'operational' },
-  { name: 'Email & notifications', uptime: 99.89, status: 'operational' },
-  { name: 'Check-in sync', uptime: 99.92, status: 'operational' },
-  { name: 'Streaming', uptime: 99.80, status: 'operational' },
-];
-
-const RELEASES = [
-  {
-    version: 'v2.8', date: 'Jun 2026', tag: 'Latest',
-    items: ['Speaker Portal — speakers can now manage their own profile, sessions, and card from a dedicated portal', 'Exhibitor Portal — lead capture, booth analytics, and team management for sponsors', 'Abstract submission & review workflow for conference organisers', 'Networking people discovery with match suggestions'],
-  },
-  {
-    version: 'v2.7', date: 'May 2026', tag: null,
-    items: ['Live Q&A and polling during sessions', 'Personal agenda builder for attendees', 'Stripe + Flutterwave payment integration', 'Bulk email communications editor'],
-  },
-  {
-    version: 'v2.6', date: 'Apr 2026', tag: null,
-    items: ['Eventera Card customisation studio', 'Multi-track agenda support', 'Check-in via QR and badge scan', 'Attendee messaging inbox'],
-  },
-  {
-    version: 'v2.5', date: 'Mar 2026', tag: null,
-    items: ['Event page builder', 'Ticket types and promo codes', 'Speaker directory', 'Basic analytics dashboard'],
-  },
 ];
 
 /* ── Help Center Tab ─────────────────────────────────────────────── */
@@ -95,7 +66,7 @@ function HelpCenter() {
                   {cat.icon}
                 </div>
                 <div className="font-semibold text-[15px] mb-1" style={{ color: '#0F1F18' }}>{cat.title}</div>
-                <div className="text-[12px] mb-4" style={{ color: '#6B7A72' }}>{cat.count} articles</div>
+                <div className="text-[12px] mb-4" style={{ color: '#6B7A72' }}>Guides coming soon</div>
                 <ul className="space-y-1.5">
                   {cat.articles.map(a => (
                     <li key={a}>
@@ -157,48 +128,29 @@ function HelpCenter() {
 
 /* ── Status Tab ──────────────────────────────────────────────────── */
 function StatusTab() {
-  const allOk = SERVICES.every(s => s.status === 'operational');
-
   return (
     <div className="max-w-[820px] mx-auto px-4 sm:px-6 py-12 space-y-8">
       {/* Overall */}
-      <div className="flex items-center gap-4 px-6 py-5 rounded-2xl" style={{ background: allOk ? '#E8EFEB' : '#FFF0EF', border: `1px solid ${allOk ? '#C9C3B1' : '#B8423C'}` }}>
-        <CheckCircle2 size={24} style={{ color: allOk ? '#2D7A4F' : '#B8423C', flexShrink: 0 }} />
+      <div className="flex items-center gap-4 px-6 py-5 rounded-2xl" style={{ background: '#E8EFEB', border: '1px solid #C9C3B1' }}>
+        <CheckCircle2 size={24} style={{ color: '#2D7A4F', flexShrink: 0 }} />
         <div>
-          <div className="font-semibold text-[15px]" style={{ color: '#0F1F18' }}>{allOk ? 'All systems operational' : 'Some systems experiencing issues'}</div>
-          <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>Last updated {new Date().toLocaleTimeString()}</div>
+          <div className="font-semibold text-[15px]" style={{ color: '#0F1F18' }}>All systems operational</div>
+          <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>No incidents reported.</div>
         </div>
       </div>
 
-      {/* Services */}
-      <div style={{ background: '#fff', border: '1px solid #E5E0D4', borderRadius: 16, overflow: 'hidden' }}>
-        <div className="px-5 py-4" style={{ borderBottom: '1px solid #E5E0D4' }}>
-          <span className="font-semibold text-[14px]" style={{ color: '#0F1F18' }}>Service status</span>
-        </div>
-        {SERVICES.map((svc, i) => (
-          <div key={svc.name} className="flex items-center gap-4 px-5 py-4" style={{ borderBottom: i < SERVICES.length - 1 ? '1px solid #F0ECE4' : 'none' }}>
-            <div className="flex-1">
-              <div className="text-[13px] font-medium" style={{ color: '#0F1F18' }}>{svc.name}</div>
-            </div>
-            <div className="text-[12px]" style={{ color: '#6B7A72' }}>{svc.uptime}% uptime</div>
-            <div className="flex items-center gap-1.5">
-              <div style={{ width: 8, height: 8, borderRadius: '50%', background: svc.status === 'operational' ? '#2D7A4F' : svc.status === 'degraded' ? '#C97A2D' : '#B8423C' }} />
-              <span className="text-[12px] capitalize" style={{ color: svc.status === 'operational' ? '#2D7A4F' : svc.status === 'degraded' ? '#C97A2D' : '#B8423C' }}>
-                {svc.status}
-              </span>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Incident history */}
-      <div>
-        <div className=" text-[10px] uppercase tracking-widest mb-4" style={{ color: '#6B7A72' }}>Incident history</div>
-        <div className="rounded-2xl px-5 py-6 text-center" style={{ background: '#fff', border: '1px solid #E5E0D4' }}>
-          <CheckCircle2 size={32} style={{ color: '#2D7A4F', margin: '0 auto 12px' }} />
-          <p className="text-[14px] font-medium" style={{ color: '#0F1F18' }}>No incidents in the last 90 days</p>
-          <p className="text-[12px] mt-1" style={{ color: '#6B7A72' }}>99.94% average uptime across all services</p>
-        </div>
+      {/* Link to full status page */}
+      <div className="rounded-2xl px-6 py-6 text-center" style={{ background: '#fff', border: '1px solid #E5E0D4' }}>
+        <p className="text-[14px] mb-4" style={{ color: '#3A4A42' }}>
+          See the live status of every Eventera service on the full status page.
+        </p>
+        <a
+          href="/status"
+          className="inline-flex items-center gap-2 h-10 px-6 rounded-full text-[13px] font-medium"
+          style={{ background: '#1F4D3A', color: '#FAF6EE' }}
+        >
+          View system status <ArrowRight size={13} />
+        </a>
       </div>
     </div>
   );
@@ -212,29 +164,17 @@ function ChangelogTab() {
         <h2 className="font-display font-normal text-[26px]" style={{ color: '#0F1F18', letterSpacing: '-0.025em' }}>What&apos;s new</h2>
         <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>Every release, every improvement.</p>
       </div>
-      <div className="relative pl-6" style={{ borderLeft: '2px solid #E5E0D4' }}>
-        {RELEASES.map((rel) => (
-          <div key={rel.version} className="mb-10 relative">
-            <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#1F4D3A', position: 'absolute', left: -22, top: 6, border: '2px solid #FAF6EE' }} />
-            <div className="flex items-center gap-2 mb-3">
-              <span className=" font-semibold text-[15px]" style={{ color: '#1F4D3A' }}>{rel.version}</span>
-              {rel.tag && (
-                <span className="text-[10px] px-2 py-0.5 rounded-full font-medium" style={{ background: '#E8C57E', color: '#163828' }}>{rel.tag}</span>
-              )}
-              <span className="text-[12px]" style={{ color: '#6B7A72' }}>{rel.date}</span>
-            </div>
-            <div style={{ background: '#fff', border: '1px solid #E5E0D4', borderRadius: 12, padding: '16px 20px' }}>
-              <ul className="space-y-2">
-                {rel.items.map((item, i) => (
-                  <li key={i} className="flex items-start gap-2.5 text-[13px]" style={{ color: '#3A4A42' }}>
-                    <span style={{ color: '#2D7A4F', flexShrink: 0, marginTop: 2 }}>+</span>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        ))}
+      <div className="rounded-2xl px-6 py-8 text-center" style={{ background: '#fff', border: '1px solid #E5E0D4' }}>
+        <p className="text-[14px] mb-5" style={{ color: '#3A4A42' }}>
+          Our full changelog lives on the What&apos;s new page, updated with every release.
+        </p>
+        <a
+          href="/whats-new"
+          className="inline-flex items-center gap-2 h-10 px-6 rounded-full text-[13px] font-medium"
+          style={{ background: '#1F4D3A', color: '#FAF6EE' }}
+        >
+          View changelog <ArrowRight size={13} />
+        </a>
       </div>
     </div>
   );

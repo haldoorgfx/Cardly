@@ -98,7 +98,7 @@ const STEPS = [
 
 const STATS = [
   { value: '50+', label: 'speakers per event supported' },
-  { value: '3×', label: 'more event page visits from speaker profiles' },
+  { value: 'Public', label: 'shareable speaker profiles' },
   { value: '100%', label: 'of plans include shareable speaker URLs' },
 ];
 

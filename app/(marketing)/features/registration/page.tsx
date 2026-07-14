@@ -97,9 +97,9 @@ const STEPS = [
 ];
 
 const STATS = [
-  { value: '10,000+', label: 'tickets sold monthly' },
+  { value: 'Free & paid', label: 'tiered ticketing' },
   { value: '<60s', label: 'average registration time' },
-  { value: '97%', label: 'registration completion rate' },
+  { value: 'One-tap', label: 'no-account checkout' },
 ];
 
 function RegistrationMockup() {

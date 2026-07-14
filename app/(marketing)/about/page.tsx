@@ -111,9 +111,9 @@ export default function AboutPage() {
               marginRight: 'auto',
             }}
           >
-            Eventera launched with one idea: every event attendee deserves a personalized card worth
-            sharing. Three years and a few hundred thousand cards later, organizers kept asking for
-            more. So we built the platform underneath.
+            Eventera started with one idea: every event attendee deserves a personalized card worth
+            sharing. As organizers asked for more, we built the platform underneath it — the full
+            event toolkit we&apos;re launching now.
           </p>
         </div>
       </section>
@@ -148,7 +148,7 @@ export default function AboutPage() {
             </h2>
 
             {[
-              `In 2023, we built a simple tool: upload your event design, add your name and photo, download your personalized card. Organizers loved it. Attendees shared it. It worked.`,
+              `It began as a simple tool: upload your event design, add your name and photo, download your personalized card. Organizers loved the idea. Attendees wanted to share it. It worked.`,
               `Then the requests came in. "Can you add ticket sales?" "Can attendees check in with QR codes?" "We need an agenda page our speakers can share." Each ask was reasonable. Each ask was something their existing tools didn't do well together.`,
               `So we built it. Registration. Paid ticketing. A public event page. Multi-track agenda. Speaker directory. QR check-in. Attendee networking. Live Q&A. Analytics. One platform, one link.`,
             ].map((para, i) => (
@@ -428,9 +428,9 @@ export default function AboutPage() {
             </p>
 
             <p style={{ fontSize: 15, color: C.inkSoft, lineHeight: 1.65, marginBottom: 20 }}>
-              That card is organic reach. 740 cards shared at one summit meant 11,000 potential new
-              event attendees saw the brand that week. No ad budget. No influencer. Just a card worth
-              sharing.
+              That card is organic reach. Every attendee who shares theirs puts your event brand in
+              front of a network you could never buy your way into. No ad budget. No influencer. Just
+              a card worth sharing.
             </p>
 
             <Link
@@ -590,7 +590,7 @@ export default function AboutPage() {
                   marginBottom: 4,
                 }}
               >
-                Abdalla Yusuf
+                Abdalla Abdikarim
               </p>
               <p
                 style={{
@@ -670,52 +670,6 @@ export default function AboutPage() {
                   </p>
                 </div>
               </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* -- SECTION 6 — PRESS ----------------------------------------------- */}
-      <section
-        style={{
-          borderTop: `1px solid ${C.border}`,
-          background: C.cream,
-          padding: '56px 20px 40px',
-        }}
-      >
-        <div style={{ maxWidth: 800, margin: '0 auto', textAlign: 'center' }}>
-          <p
-            style={{
-              fontFamily: 'Inter, system-ui, sans-serif',
-              fontSize: 11,
-              letterSpacing: '0.22em',
-              textTransform: 'uppercase',
-              color: C.muted,
-              marginBottom: 28,
-            }}
-          >
-            As seen in
-          </p>
-          <div
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              justifyContent: 'center',
-              gap: '8px 40px',
-            }}
-          >
-            {['Disrupt Africa', 'TechCabal', 'Rest of World'].map((name) => (
-              <span
-                key={name}
-                style={{
-                  fontFamily: '"Plus Jakarta Sans", sans-serif',
-                  fontWeight: 600,
-                  fontSize: 18,
-                  color: `rgba(15,31,24,0.40)`,
-                }}
-              >
-                {name}
-              </span>
             ))}
           </div>
         </div>

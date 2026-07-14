@@ -39,10 +39,10 @@ export function AppPhone({ className = '' }: { className?: string }) {
             <div aria-hidden style={{ position: 'absolute', inset: 0, opacity: 0.5, background: 'repeating-linear-gradient(115deg, rgba(232,197,126,0.05) 0 2px, transparent 2px 9px)' }} />
             <span style={{ position: 'absolute', top: 15, right: 16, fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif', fontWeight: 600, fontSize: 8, letterSpacing: '0.16em', color: 'rgba(232,197,126,0.6)' }}>EVENTERA</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: 13, position: 'relative' }}>
-              <div style={{ width: 50, height: 50, borderRadius: 999, border: '1.5px solid #E8C57E', background: 'rgba(232,197,126,0.14)', display: 'grid', placeItems: 'center', fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif', fontWeight: 700, fontSize: 17, color: '#E8C57E', flex: 'none' }}>AY</div>
+              <div style={{ width: 50, height: 50, borderRadius: 999, border: '1.5px solid #E8C57E', background: 'rgba(232,197,126,0.14)', display: 'grid', placeItems: 'center', fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif', fontWeight: 700, fontSize: 17, color: '#E8C57E', flex: 'none' }}>TN</div>
               <div>
-                <div style={{ color: '#FAF6EE', fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif', fontWeight: 700, fontSize: 16, letterSpacing: '-0.01em' }}>Amara Yusuf</div>
-                <div style={{ color: 'rgba(250,246,238,0.66)', fontSize: 12, fontFamily: 'Inter, sans-serif', marginTop: 2 }}>Policy Lead · African Union</div>
+                <div style={{ color: '#FAF6EE', fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif', fontWeight: 700, fontSize: 16, letterSpacing: '-0.01em' }}>Thabo Nkosi</div>
+                <div style={{ color: 'rgba(250,246,238,0.66)', fontSize: 12, fontFamily: 'Inter, sans-serif', marginTop: 2 }}>Founder · Kesho Labs</div>
               </div>
             </div>
             <div style={{ position: 'relative', marginTop: 15, height: 42, borderRadius: 12, background: '#E8C57E', color: '#0F1F18', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif', fontWeight: 600, fontSize: 13.5 }}>

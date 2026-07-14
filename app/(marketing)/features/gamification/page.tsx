@@ -19,9 +19,9 @@ const steps = [
 ];
 
 const stats = [
-  { value: '4×', label: 'more sponsor booth visits'  },
-  { value: '2.3×', label: 'higher session attendance'  },
-  { value: '89%', label: 'more networking from top leaderboard position'  },
+  { value: 'Points', label: 'badges & leaderboard'  },
+  { value: 'Check-in', label: 'session rewards'  },
+  { value: 'Live', label: 'leaderboard rankings'  },
 ];
 
 function GamificationMockup() {

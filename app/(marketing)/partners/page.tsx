@@ -39,21 +39,12 @@ const PROGRAMS = [
     title: 'Co-marketing',
     desc: 'Partner on content, webinars, or campaigns targeting event organizers in Africa and the Middle East. We bring the audience; you bring the value.',
     points: [
-      'Access to our community of 1,200+ organizers',
-      'Featured in our newsletter (14K subscribers)',
+      'Introductions to our organizer community',
+      'Featured in our newsletter',
       'Cross-promotion on social channels',
       'Co-branded case studies',
     ],
   },
-];
-
-const LOGOS = [
-  'Tech events Lagos',
-  'Nairobi Summit',
-  'Gulf Media Week',
-  'EventPro Africa',
-  'Kigali Founders',
-  'Cairo Startups',
 ];
 
 /* ── Hero ────────────────────────────────────────────────── */
@@ -101,54 +92,6 @@ function PartnersHero() {
               See programs <ArrowRight size={15} strokeWidth={2} />
             </a>
           </div>
-        </div>
-
-        {/* Stats */}
-        <Reveal>
-          <div
-            className="mt-12 grid grid-cols-2 sm:grid-cols-4 rounded-2xl overflow-hidden"
-            style={{ border: '1px solid #E5E0D4', gap: '1px', background: '#E5E0D4' }}
-          >
-            {([
-              ['18', 'Agency partners'],
-              ['8', 'Countries'],
-              ['247K', 'Cards generated'],
-              ['$0', 'Setup fee'],
-            ] as [string, string][]).map(([n, l]) => (
-              <div key={l} className="bg-cream p-5 lg:p-6">
-                <div className="font-display font-bold text-primary text-[28px] lg:text-[36px] tracking-[-0.03em] leading-none">
-                  {n}
-                </div>
-                <div className="mt-2  text-[10px] tracking-[0.16em] uppercase text-muted">
-                  {l}
-                </div>
-              </div>
-            ))}
-          </div>
-        </Reveal>
-      </div>
-    </section>
-  );
-}
-
-/* ── Partner logos strip ─────────────────────────────────── */
-function PartnerLogos() {
-  return (
-    <section style={{ borderBottom: '1px solid #E5E0D4', background: 'rgba(250,246,238,0.5)' }}>
-      <div className="mx-auto max-w-[1200px] px-5 lg:px-10 py-10 lg:py-12">
-        <div className=" text-[10px] tracking-[0.22em] uppercase text-muted text-center mb-8">
-          Trusted by event teams across Africa and the Middle East
-        </div>
-        <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-5">
-          {LOGOS.map((logo) => (
-            <div
-              key={logo}
-              className="font-display font-semibold text-[15px] tracking-tight"
-              style={{ color: 'rgba(58,74,66,0.55)' }}
-            >
-              {logo}
-            </div>
-          ))}
         </div>
       </div>
     </section>
@@ -321,7 +264,6 @@ export default function PartnersPage() {
   return (
     <>
       <PartnersHero />
-      <PartnerLogos />
       <Programs />
       <WhyPartner />
       <Reveal><PartnerCTA /></Reveal>

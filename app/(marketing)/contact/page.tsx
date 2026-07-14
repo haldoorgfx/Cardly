@@ -27,7 +27,7 @@ export default function ContactPage() {
           Let&apos;s talk.
         </h1>
         <p className="text-[17px] text-[#6B7A72] max-w-[480px] leading-relaxed mb-14">
-          We&apos;re here to help. Send a message and we&apos;ll get back to you — usually within a few hours.
+          We&apos;re here to help. Send a message and we&apos;ll get back to you — usually within one business day.
         </p>
 
         {/* Form + sidebar */}

@@ -98,7 +98,7 @@ const STEPS = [
 ];
 
 const STATS = [
-  { value: '500+', label: 'sessions managed' },
+  { value: 'Multi-track', label: 'multi-day agenda' },
   { value: '12', label: 'parallel rooms supported' },
   { value: '0', label: 'app downloads required' },
 ];

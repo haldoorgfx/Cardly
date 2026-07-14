@@ -20,9 +20,9 @@ const spSteps = [
 ];
 
 const spStats = [
-  { value: '3×', label: 'higher lead quality vs badge scanning' },
-  { value: '78%', label: 'sponsor renewal rate' },
-  { value: '6 min', label: 'median time to export leads post-event' },
+  { value: 'Qualified', label: 'lead capture' },
+  { value: 'ROI reports', label: 'for every sponsor' },
+  { value: 'One-click', label: 'CSV lead export' },
 ];
 
 function SponsorsMockup() {

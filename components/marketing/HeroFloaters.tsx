@@ -50,9 +50,9 @@ export function HeroFloaters() {
         {/* Checked-in chip — overlaps the mock's lower-left */}
         <div className="floatA" style={{ ...card, top: '68%', left: -14, width: 176, animationDelay: '1.1s' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
-            <span style={{ width: 30, height: 30, borderRadius: '50%', background: '#E8EFEB', color: '#1F4D3A', display: 'grid', placeItems: 'center', flex: 'none', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 12 }}>AY</span>
+            <span style={{ width: 30, height: 30, borderRadius: '50%', background: '#E8EFEB', color: '#1F4D3A', display: 'grid', placeItems: 'center', flex: 'none', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 12 }}>FD</span>
             <div>
-              <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 12.5, color: '#0F1F18', letterSpacing: '-0.01em' }}>Amara Yusuf</div>
+              <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 12.5, color: '#0F1F18', letterSpacing: '-0.01em' }}>Fatima Diallo</div>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontFamily: 'var(--font-sans)', fontSize: 10.5, fontWeight: 600, color: '#2D7A4F' }}>
                 <Check size={11} strokeWidth={2.6} /> Checked in
               </div>

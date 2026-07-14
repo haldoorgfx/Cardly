@@ -19,7 +19,7 @@ const SIDEBAR = [
     title: 'Email',
     value: 'hello@eventera.so',
     href: 'mailto:hello@eventera.so',
-    desc: 'We reply within 24 hours.',
+    desc: 'We reply within one business day.',
   },
   {
     icon: (
@@ -37,7 +37,7 @@ const SIDEBAR = [
     title: 'Office hours',
     value: 'Mon – Fri',
     href: null,
-    desc: '9:00 AM – 6:00 PM (WAT)',
+    desc: '9:00 AM – 6:00 PM (EAT)',
   },
 ];
 
@@ -253,7 +253,7 @@ export function ContactFormClient() {
             </span>
           </div>
           <p className="text-[13px] leading-relaxed text-[#3A4A42]">
-            We aim to reply within <span className="font-semibold text-[#0F1F18]">1 business day</span>.
+            We aim to reply within <span className="font-semibold text-[#0F1F18]">one business day</span>.
             For urgent issues, include &quot;urgent&quot; in your subject line.
           </p>
         </div>

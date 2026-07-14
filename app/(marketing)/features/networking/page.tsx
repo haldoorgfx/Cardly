@@ -103,9 +103,9 @@ const steps = [
 ];
 
 const stats = [
-  { value: '68%', label: 'of attendees use networking features' },
-  { value: '4×', label: 'more connections vs. unstructured networking' },
-  { value: '82%', label: 'meeting confirmation rate' },
+  { value: 'Opt-in', label: 'attendee directory' },
+  { value: 'AI-suggested', label: 'attendee matches' },
+  { value: '1:1', label: 'meeting scheduling' },
 ];
 
 function NetworkingMockup() {

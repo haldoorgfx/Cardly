@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: 'Careers — Eventera',
-  description: 'Join the team building the future of event experiences. We are hiring designers, engineers, and growth leads.',
+  description: 'We are a small team building the future of event experiences. Meet the kinds of people we hope to work with.',
 };
 
 const C = {
@@ -21,27 +21,27 @@ const whyEventera = [
 
 const roles = [
   {
-    title: 'Product Designer',
-    type: 'Full-time · Remote',
-    desc: 'Own the end-to-end design of Eventera — from the organizer dashboard to the attendee card experience. You think in systems, ship in components, and care deeply about mobile-first interaction.',
+    title: 'Product Design',
+    type: 'Area of interest',
+    desc: 'People who can shape the end-to-end design of Eventera — from the organizer dashboard to the attendee card experience. You think in systems, ship in components, and care deeply about mobile-first interaction.',
     skills: ['Figma', 'Design systems', 'Mobile UX', 'Prototyping'],
   },
   {
-    title: 'Full-Stack Engineer',
-    type: 'Full-time · Remote',
-    desc: 'Build the features that make organizers choose Eventera and attendees love it. You are comfortable across Next.js, Supabase, and Node APIs. You ship fast and refactor thoughtfully.',
+    title: 'Full-Stack Engineering',
+    type: 'Area of interest',
+    desc: 'People who can build the features that make organizers choose Eventera and attendees love it. You are comfortable across Next.js, Supabase, and Node APIs. You ship fast and refactor thoughtfully.',
     skills: ['Next.js', 'TypeScript', 'PostgreSQL', 'Supabase'],
   },
   {
     title: 'Growth & Marketing',
-    type: 'Full-time · Remote',
-    desc: 'Own the pipeline from awareness to activation. You understand content, distribution, and conversion. You are comfortable with analytics and can write copy that does not sound like a press release.',
+    type: 'Area of interest',
+    desc: 'People who can own the pipeline from awareness to activation. You understand content, distribution, and conversion. You are comfortable with analytics and can write copy that does not sound like a press release.',
     skills: ['Content', 'SEO', 'Analytics', 'Email'],
   },
   {
     title: 'Customer Success',
-    type: 'Part-time · Remote',
-    desc: 'Be the first person organizers talk to when they need help. You translate feedback into product insights, resolve issues fast, and build the kind of relationship that turns customers into advocates.',
+    type: 'Area of interest',
+    desc: 'People who love being the first person organizers talk to when they need help. You translate feedback into product insights, resolve issues fast, and build the kind of relationship that turns customers into advocates.',
     skills: ['Communication', 'Product knowledge', 'Empathy', 'Organization'],
   },
 ];
@@ -59,11 +59,11 @@ export default function CareersPage() {
       <section style={{ background: C.cream, backgroundImage: `radial-gradient(ellipse 80% 60% at 50% -10%, ${C.primarySoft} 0%, transparent 70%)`, padding: 'clamp(80px, 12vw, 140px) clamp(20px, 5vw, 80px) clamp(60px, 8vw, 100px)', textAlign: 'center' }}>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: C.primarySoft, border: `1px solid ${C.border}`, borderRadius: 999, padding: '6px 16px', marginBottom: 28 }}>
           <span style={{ width: 7, height: 7, borderRadius: '50%', background: C.primary, display: 'inline-block' }} />
-          <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 500, color: C.primary, letterSpacing: '0.02em' }}>We are hiring</span>
+          <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 500, color: C.primary, letterSpacing: '0.02em' }}>Small team, growing</span>
         </div>
         <h1 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 'clamp(36px, 6vw, 72px)', fontWeight: 700, color: C.ink, letterSpacing: '-0.02em', lineHeight: 1.1, maxWidth: 720, margin: '0 auto 24px' }}>Help us build the future of events.</h1>
         <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 'clamp(16px, 2vw, 20px)', color: C.inkSoft, maxWidth: 600, margin: '0 auto 40px', lineHeight: 1.65 }}>Eventera is a small, focused team building the event platform we always wished existed. If you care about craft, love shipping, and want to work on something that matters to real people — keep reading.</p>
-        <a href="#roles" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 15, background: C.primary, color: C.surface, padding: '14px 28px', borderRadius: 10, textDecoration: 'none', display: 'inline-block' }}>See open roles</a>
+        <a href="#roles" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 15, background: C.primary, color: C.surface, padding: '14px 28px', borderRadius: 10, textDecoration: 'none', display: 'inline-block' }}>The people we&apos;re looking for</a>
       </section>
 
       {/* Why Eventera */}
@@ -84,8 +84,8 @@ export default function CareersPage() {
       {/* Open Roles */}
       <section id="roles" style={{ scrollMarginTop: 80, background: C.cream, padding: 'clamp(60px, 8vw, 100px) clamp(20px, 5vw, 80px)' }}>
         <div style={{ maxWidth: 860, margin: '0 auto' }}>
-          <h2 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 700, color: C.ink, letterSpacing: '-0.02em', textAlign: 'center', marginBottom: 12 }}>Open roles</h2>
-          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 16, color: C.inkSoft, textAlign: 'center', maxWidth: 480, margin: '0 auto 56px' }}>Four positions. All remote. All with real ownership from day one.</p>
+          <h2 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 700, color: C.ink, letterSpacing: '-0.02em', textAlign: 'center', marginBottom: 12 }}>The people we&apos;re looking for</h2>
+          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 16, color: C.inkSoft, textAlign: 'center', maxWidth: 480, margin: '0 auto 56px' }}>We don&apos;t have formal openings right now, but these are the areas where we&apos;ll grow. If one sounds like you, reach out.</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
             {roles.map((r) => (
               <div key={r.title} style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16, padding: '32px 28px' }}>
@@ -94,7 +94,7 @@ export default function CareersPage() {
                     <h3 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 20, fontWeight: 700, color: C.ink, marginBottom: 4 }}>{r.title}</h3>
                     <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: C.muted }}>{r.type}</span>
                   </div>
-                  <Link href="/contact" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 14, background: C.primary, color: C.surface, padding: '10px 20px', borderRadius: 8, textDecoration: 'none', display: 'inline-block', flexShrink: 0 }}>Apply</Link>
+                  <Link href="/contact" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 14, background: C.primary, color: C.surface, padding: '10px 20px', borderRadius: 8, textDecoration: 'none', display: 'inline-block', flexShrink: 0 }}>Reach out</Link>
                 </div>
                 <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: C.inkSoft, lineHeight: 1.65, marginBottom: 20 }}>{r.desc}</p>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>

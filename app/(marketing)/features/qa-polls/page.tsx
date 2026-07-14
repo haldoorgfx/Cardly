@@ -102,8 +102,8 @@ const steps = [
 ];
 
 const stats = [
-  { value: '3×', label: 'more questions vs. open mic' },
-  { value: '94%', label: 'of speakers say sessions are more engaging' },
+  { value: 'Anonymous', label: 'or named questions' },
+  { value: 'Live polls', label: '& audience upvoting' },
   { value: 'Any phone', label: 'no download required' },
 ];
 

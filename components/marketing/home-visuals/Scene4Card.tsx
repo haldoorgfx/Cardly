@@ -14,7 +14,7 @@ export function Scene4Card() {
           <Ecard initials="ZA" faded />
         </div>
         <div style={{ position: 'absolute', left: '50%', top: 20, transform: 'translateX(-50%)', width: 270, height: 420, boxShadow: '0 46px 80px -34px rgba(15,31,24,.6)', borderRadius: 16, zIndex: 3 }}>
-          <Ecard name="Amara Yusuf" role="Policy Lead · African Union" initials="AY" withBtn />
+          <Ecard name="Aisha Bello" role="Organizer · Lagos Tech Week" initials="AB" withBtn />
         </div>
       </div>
     </Shot>

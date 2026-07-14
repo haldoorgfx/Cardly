@@ -18,9 +18,9 @@ const SERVICES = [
 ];
 
 const UPTIME = [
-  { label: 'API',            value: '99.98%', period: '90 days' },
-  { label: 'Card generator', value: '99.94%', period: '90 days' },
-  { label: 'Storage',        value: '99.99%', period: '90 days' },
+  { label: 'API',            value: 'Operational', period: 'Live' },
+  { label: 'Card generator', value: 'Operational', period: 'Live' },
+  { label: 'Storage',        value: 'Operational', period: 'Live' },
 ];
 
 const INCIDENTS: { date: string; title: string; body: string; resolved: boolean }[] = [];
@@ -115,7 +115,7 @@ function StatusHero() {
           >
             {UPTIME.map(({ label, value, period }) => (
               <div key={label} className="bg-cream p-5">
-                <div className="font-display font-bold text-primary text-[26px] lg:text-[30px] tracking-[-0.03em] leading-none">
+                <div className="font-display font-bold text-primary text-[15px] lg:text-[17px] tracking-[-0.02em] leading-none">
                   {value}
                 </div>
                 <div className="mt-1.5  text-[9px] tracking-[0.16em] uppercase text-muted">
@@ -196,7 +196,7 @@ function Incidents() {
             >
               <CheckCircle2 size={32} strokeWidth={1.5} className="mx-auto mb-4 text-primary" />
               <div className="font-display font-semibold text-ink text-[18px] tracking-tight mb-2">
-                No incidents in the last 90 days
+                No incidents reported
               </div>
               <div className="text-ink-soft text-[14px]">
                 We keep a public record of every incident here, with timelines and root causes.
