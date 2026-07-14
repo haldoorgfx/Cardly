@@ -5,9 +5,12 @@ import { redirect } from 'next/navigation';
 import QAModerationClient from '@/components/qa/QAModerationClient';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { hasModeratorAccess } from '@/lib/rbac/ownership';
+import { getUserPlan } from '@/lib/billing/can';
 import { PageShell, PageHeader } from '@/components/dash';
 
 interface Props { params: { id: string } }
+
+const PLAN_RANK: Record<string, number> = { free: 0, pro: 1, studio: 2 };
 
 export default async function QAModerationPage({ params }: Props) {
   const _ev = await resolveEventRef(params.id);
@@ -18,6 +21,10 @@ export default async function QAModerationPage({ params }: Props) {
   if (!user) redirect('/login');
 
   if (!(await hasModeratorAccess(user.id, id))) redirect('/dashboard');
+
+  // Plan gate — Q&A & Polls is a Pro feature (minPlan: 'pro' in event overview ACTION_CARDS)
+  const plan = await getUserPlan(user.id);
+  if (PLAN_RANK[plan] < PLAN_RANK.pro) redirect(`/events/${_ev.slug}`);
 
   const admin = createAdminClient();
   const [{ data: event }, { data: sessions }] = await Promise.all([

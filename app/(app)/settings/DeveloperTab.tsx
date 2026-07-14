@@ -295,7 +295,7 @@ const ALL_EVENTS = [
   { value: 'event.viewed', label: 'Event viewed', desc: 'Fires on each attendee page visit' },
 ];
 
-function WebhooksSection() {
+function WebhooksSection({ plan }: { plan: string }) {
   const [hooks, setHooks] = useState<WebhookRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [url, setUrl] = useState('');
@@ -337,6 +337,18 @@ function WebhooksSection() {
     if (!confirm('Delete this webhook?')) return;
     await fetch(`/api/webhooks/${id}`, { method: 'DELETE' });
     setHooks(prev => prev.filter(h => h.id !== id));
+  }
+
+  if (plan !== 'studio') {
+    return (
+      <div className="text-center py-8">
+        <Webhook size={28} strokeWidth={1.4} color="#C9C3B1" className="mx-auto mb-3" />
+        <p className="text-[13px] text-[#6B7A72] mb-4">Webhooks are available on the Studio plan.</p>
+        <a href="/settings/billing" className="inline-flex items-center gap-1.5 h-8 px-4 text-[13px] font-semibold text-white rounded-lg" style={{ background: '#1F4D3A' }}>
+          Upgrade to Studio →
+        </a>
+      </div>
+    );
   }
 
   return (
@@ -452,8 +464,13 @@ export function DeveloperTab({ plan }: { plan: string }) {
         <div className="flex items-center gap-2 mb-4">
           <Webhook size={15} strokeWidth={2} color="#1F4D3A" />
           <div className="text-[13.5px] font-semibold text-[#0F1F18]">Webhooks</div>
+          {plan === 'studio' && (
+            <span className="ml-auto text-[12px] px-2 py-0.5 rounded-full" style={{ background: 'rgba(31,77,58,0.08)', color: '#1F4D3A' }}>
+              STUDIO
+            </span>
+          )}
         </div>
-        <WebhooksSection />
+        <WebhooksSection plan={plan} />
       </div>
     </div>
   );

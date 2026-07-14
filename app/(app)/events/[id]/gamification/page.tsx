@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
+import { getUserPlan } from '@/lib/billing/can';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { PageShell, PageHeader } from '@/components/dash';
@@ -10,6 +11,8 @@ import { PageShell, PageHeader } from '@/components/dash';
 interface Props { params: Promise<{ id: string }> }
 
 interface LeaderboardEntry { rank: number; registration_id: string; attendee_name: string; total_points: number }
+
+const PLAN_RANK: Record<string, number> = { free: 0, pro: 1, studio: 2 };
 
 function initials(name: string) {
   return name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
@@ -23,6 +26,10 @@ export default async function GamificationPage({ params }: Props) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
+
+  // Plan gate — Gamification is a Pro feature (minPlan: 'pro' in event overview ACTION_CARDS)
+  const plan = await getUserPlan(user.id);
+  if (PLAN_RANK[plan] < PLAN_RANK.pro) redirect(`/events/${_ev.slug}`);
 
   const admin = createAdminClient();
   const { data: event } = await admin.from('events').select('id, name, slug').eq('id', id).eq('user_id', user.id).single();

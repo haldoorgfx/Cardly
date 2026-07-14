@@ -36,10 +36,10 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="min-h-full flex items-center justify-center px-4 py-16" style={{ background: "#F5F5F4" }}>
+    <div className="max-w-[400px]">
       <div
-        className="w-full max-w-[400px] bg-white rounded-2xl px-8 py-10"
-        style={{ border: "1px solid #E5E0D4", boxShadow: "0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(15,31,24,0.06)" }}
+        className="w-full bg-white rounded-2xl px-8 py-10"
+        style={{ border: "1px solid #E5E0D4", boxShadow: "0 1px 2px rgba(15,31,24,0.04)" }}
       >
         <h1 className="text-[22px] font-bold text-[#0F1F18] tracking-tight mb-1">Set new password</h1>
         <p className="text-[14px] text-[#6B7A72] mb-7">Choose a strong password for your account.</p>

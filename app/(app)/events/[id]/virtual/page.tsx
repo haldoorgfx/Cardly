@@ -3,10 +3,13 @@ export const dynamic = 'force-dynamic';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
+import { getUserPlan } from '@/lib/billing/can';
 import { Video, Users, BarChart2, Clock, Radio } from 'lucide-react';
 import { PageShell } from '@/components/dash';
 
 interface Props { params: Promise<{ id: string }> }
+
+const PLAN_RANK: Record<string, number> = { free: 0, pro: 1, studio: 2 };
 
 export default async function VirtualPage({ params }: Props) {
   const { id: _ref } = await params;
@@ -16,6 +19,10 @@ export default async function VirtualPage({ params }: Props) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
+
+  // Plan gate — Virtual is a Studio feature (minPlan: 'studio' in event overview ACTION_CARDS)
+  const plan = await getUserPlan(user.id);
+  if (PLAN_RANK[plan] < PLAN_RANK.studio) redirect(`/events/${_ev.slug}`);
 
   const admin = createAdminClient();
   const [{ data: event }, { data: sessions }] = await Promise.all([

@@ -994,7 +994,7 @@ export function SpeakerPortalClient({ speaker: initialSpeaker, event, sessions, 
         <div className="max-w-[960px] mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
           <div className="flex items-center gap-2">
             <div style={{ width: 28, height: 28, borderRadius: 6, background: '#1F4D3A', display: 'grid', placeItems: 'center' }}>
-              <span className="text-[12px] font-bold" style={{ color: '#E8C57E' }}>K</span>
+              <span className="text-[12px] font-bold" style={{ color: '#E8C57E' }}>E</span>
             </div>
             <span className="text-[13px] font-medium" style={{ color: '#0F1F18' }}>Eventera</span>
             <span className="text-[13px]" style={{ color: '#C9C3B1' }}>/</span>

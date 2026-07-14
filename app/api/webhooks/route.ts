@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { getUserPlan } from '@/lib/billing/can';
 import { listWebhooks, createWebhook } from '@/lib/webhooks';
 import type { WebhookEvent } from '@/lib/webhooks';
 import { validateWebhookUrl } from '@/lib/webhooks/ssrf';
@@ -23,6 +24,11 @@ export async function POST(req: NextRequest) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  // Webhooks are a Studio-plan feature (mirrors /api/keys + /api/white-label).
+  if ((await getUserPlan(user.id)) !== 'studio') {
+    return NextResponse.json({ error: 'Webhooks require the Studio plan.' }, { status: 402 });
+  }
 
   const { url, events } = await req.json();
   if (!url?.trim()) return NextResponse.json({ error: 'url is required.' }, { status: 400 });

@@ -60,7 +60,7 @@ export default function TopBar({
 
       {/* Eventera mark */}
       <a href={`/events/${eventSlug}/eventera-card`} className="shrink-0">
-        <span className="h-7 w-7 rounded-lg grid place-items-center text-white font-display font-bold text-[13px] bg-primary">K</span>
+        <span className="h-7 w-7 rounded-lg grid place-items-center text-white font-display font-bold text-[13px] bg-primary">E</span>
       </a>
 
       {/* Breadcrumb */}
