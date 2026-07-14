@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { chargeWaafiPay, type WaafiPayResult } from '@/lib/payments/waafipay';
 import { createAdminClient } from '@/lib/supabase/server';
-import { createNotification } from '@/lib/notifications';
+import { createNotification, notifyOrganizerNewRegistration } from '@/lib/notifications';
 import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
 
 // Called by WaafiPayStep after pending registration is created.
@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
   // Load registration
   const { data: reg } = await admin
     .from('registrations')
-    .select('id, qr_code_token, amount_paid, currency, event_id, ticket_type_id, payment_status, user_id, attendee_email')
+    .select('id, qr_code_token, amount_paid, currency, event_id, ticket_type_id, payment_status, user_id, attendee_email, attendee_name')
     .eq('id', registration_id)
     .single();
 
@@ -112,6 +112,16 @@ export async function POST(req: NextRequest) {
       if (attendeeAccountId && reg.event_id) {
         await upsertEventRole({ userId: attendeeAccountId, eventId: reg.event_id, role: 'attendee' });
       }
+
+      // Notify the organizer of the new (paid) registration. Guarded by the
+      // pending→paid flip above, so it fires exactly once per ticket.
+      const { data: ev } = await admin.from('events').select('user_id').eq('id', reg.event_id).maybeSingle();
+      void notifyOrganizerNewRegistration({
+        organizerId: ev?.user_id,
+        eventId: reg.event_id,
+        eventName: eventPage?.title ?? 'your event',
+        attendeeName: reg.attendee_name,
+      });
     }
 
     return NextResponse.json({ status: 'paid', qr_code_token: reg.qr_code_token });

@@ -4,6 +4,7 @@ import { createAdminClient } from '@/lib/supabase/server';
 import { sendRegistrationConfirmEmail } from '@/lib/registration/email';
 import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
 import { onRegistrationConfirmed } from '@/lib/integrations/dispatch';
+import { notifyOrganizerNewRegistration } from '@/lib/notifications';
 
 // WaafiPay async callback — handles post-payment confirmations and reversals.
 export async function POST(req: NextRequest) {
@@ -92,6 +93,14 @@ export async function POST(req: NextRequest) {
             amountPaid: paidAmount ?? null,
             currency: paidCurrency ?? null,
             registeredAt: new Date().toISOString(),
+          });
+          // Notify the organizer of the new (paid) registration. Guarded by the
+          // pending→paid flip above, so it fires exactly once per ticket.
+          void notifyOrganizerNewRegistration({
+            organizerId: event.user_id,
+            eventId: updated.event_id,
+            eventName: eventPage.title,
+            attendeeName: updated.attendee_name,
           });
         }
         sendRegistrationConfirmEmail({

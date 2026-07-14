@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { notify } from '@/lib/notifications';
+import { sendNotificationEmail } from '@/lib/email';
 
 /**
  * Event-reminder cron. Runs on a schedule (see vercel.json `crons`) and, for
@@ -30,6 +31,7 @@ export async function GET(req: NextRequest) {
 
   let eventsChecked = 0;
   let remindersSent = 0;
+  let guestRemindersSent = 0;
 
   try {
     // 1) Events starting within the next 24h (published only).
@@ -91,6 +93,45 @@ export async function GET(req: NextRequest) {
         });
         remindersSent++;
       }
+
+      // 5) Guest (no-account) registrants — reach them by email only. notify()
+      // can't (no user_id), so we email directly and dedup via reminder_sent_at.
+      // Isolated in its own try/catch: if migration 094 hasn't been applied yet
+      // (column missing → query errors), the account-holder reminders above
+      // still succeed and the route never 500s.
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { data: guests, error: guestErr } = await (admin as any)
+          .from('registrations')
+          .select('id, attendee_email, attendee_name')
+          .eq('event_id', eventId)
+          .is('user_id', null)
+          .in('status', ['confirmed', 'checked_in'])
+          .is('reminder_sent_at', null);
+        if (guestErr) throw guestErr;
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        for (const g of (guests ?? []) as any[]) {
+          const to = g.attendee_email as string | null;
+          if (!to) continue;
+          await sendNotificationEmail({
+            to,
+            title: `${eventName} is coming up`,
+            body: `Your event starts ${when}. See you there!`,
+            actionUrl: slug ? `/e/${slug}` : undefined,
+          });
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          await (admin as any)
+            .from('registrations')
+            .update({ reminder_sent_at: new Date().toISOString() })
+            .eq('id', g.id);
+          guestRemindersSent++;
+        }
+      } catch (guestErr) {
+        // Swallow — column may not exist yet (migration 094). Account-holder
+        // reminders already succeeded; skip guests until the column is present.
+        console.warn('[reminders] guest reminder block skipped:', String(guestErr));
+      }
     }
   } catch (err) {
     return NextResponse.json(
@@ -99,7 +140,7 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  return NextResponse.json({ ok: true, eventsChecked, remindersSent });
+  return NextResponse.json({ ok: true, eventsChecked, remindersSent, guestRemindersSent });
 }
 
 function formatWhen(startsAt: string | null): string {

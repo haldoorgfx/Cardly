@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { timingSafeEqual } from 'crypto';
 import { verifyFlutterwaveTransaction } from '@/lib/payments/flutterwave';
 import { createAdminClient } from '@/lib/supabase/server';
-import { createNotification } from '@/lib/notifications';
+import { createNotification, notifyOrganizerNewRegistration } from '@/lib/notifications';
 import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
 
 export async function POST(req: NextRequest) {
@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
       .update({ payment_status: 'paid', status: 'confirmed', updated_at: new Date().toISOString() })
       .eq('qr_code_token', tx_ref)
       .eq('payment_status', 'pending') // idempotent guard
-      .select('ticket_type_id, event_id, user_id, attendee_email')
+      .select('ticket_type_id, event_id, user_id, attendee_email, attendee_name')
       .maybeSingle();
 
     if (error) console.error('[FW webhook] DB update failed:', error.message);
@@ -110,6 +110,17 @@ export async function POST(req: NextRequest) {
       if (attendeeAccountId && updated.event_id) {
         await upsertEventRole({ userId: attendeeAccountId, eventId: updated.event_id, role: 'attendee' });
       }
+
+      // Notify the organizer of the new (paid) registration. Guarded by the
+      // pending→paid flip above, so it fires exactly once per ticket.
+      const { data: ev } = await admin.from('events').select('user_id').eq('id', updated.event_id).maybeSingle();
+      const { data: page } = await admin.from('event_pages').select('title').eq('event_id', updated.event_id).maybeSingle();
+      void notifyOrganizerNewRegistration({
+        organizerId: ev?.user_id,
+        eventId: updated.event_id,
+        eventName: page?.title ?? 'your event',
+        attendeeName: updated.attendee_name,
+      });
     }
   } else if (status === 'failed') {
     await admin

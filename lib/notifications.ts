@@ -121,3 +121,46 @@ export async function notify(params: CreateNotificationParams): Promise<void> {
 export async function createNotification(params: CreateNotificationParams): Promise<void> {
   await notify(params);
 }
+
+/**
+ * Notify an event's organizer that someone new registered — in-app + email +
+ * push via notify(). Fires for every registration path (free, Stripe, WaafiPay,
+ * Flutterwave), not just manual walk-in adds.
+ *
+ * Honors the "New registrations" toggle (`profiles.notify_registrations`):
+ * only an explicit `false` opts the organizer out; a missing/true value sends.
+ *
+ * Fully non-blocking — the whole body is wrapped so it can never throw into the
+ * registration/webhook request that calls it.
+ */
+export async function notifyOrganizerNewRegistration(opts: {
+  organizerId: string | null | undefined;
+  eventId: string;
+  eventName: string;
+  attendeeName: string;
+}): Promise<void> {
+  try {
+    if (!opts.organizerId) return;
+
+    const admin = createAdminClient();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: profile } = await (admin as any)
+      .from('profiles')
+      .select('notify_registrations')
+      .eq('id', opts.organizerId)
+      .maybeSingle();
+    // Default on — only an explicit false opts out.
+    if (profile?.notify_registrations === false) return;
+
+    await notify({
+      userId: opts.organizerId,
+      eventId: opts.eventId,
+      type: 'registration',
+      title: `New registration · ${opts.eventName}`,
+      body: `${opts.attendeeName} just registered.`,
+      actionUrl: `/events/${opts.eventId}/registrations`,
+    });
+  } catch {
+    // Never throw into the calling request.
+  }
+}

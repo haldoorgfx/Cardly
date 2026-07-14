@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { constructTicketWebhookEvent } from '@/lib/payments/stripe';
 import { createAdminClient } from '@/lib/supabase/server';
 import { sendRegistrationConfirmEmail } from '@/lib/registration/email';
-import { createNotification } from '@/lib/notifications';
+import { createNotification, notifyOrganizerNewRegistration } from '@/lib/notifications';
 import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
 import { onRegistrationConfirmed } from '@/lib/integrations/dispatch';
 
@@ -59,6 +59,14 @@ export async function POST(req: NextRequest) {
             amountPaid: typeof pi.amount === 'number' ? pi.amount / 100 : null,
             currency: pi.currency ? pi.currency.toUpperCase() : null,
             registeredAt: new Date().toISOString(),
+          });
+          // Notify the organizer of the new (paid) registration. Guarded by the
+          // pending→paid flip above, so it fires exactly once per ticket.
+          void notifyOrganizerNewRegistration({
+            organizerId: updated.events.user_id,
+            eventId: updated.event_id,
+            eventName: ep?.title ?? '',
+            attendeeName: updated.attendee_name,
           });
         }
         sendRegistrationConfirmEmail({

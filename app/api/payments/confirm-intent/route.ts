@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getTicketStripe } from '@/lib/payments/stripe';
 import { createAdminClient } from '@/lib/supabase/server';
 import { sendRegistrationConfirmEmail } from '@/lib/registration/email';
-import { createNotification } from '@/lib/notifications';
+import { createNotification, notifyOrganizerNewRegistration } from '@/lib/notifications';
 import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
 
 // Called by the confirm page after Stripe redirect to verify payment and mark registration as paid.
@@ -48,7 +48,16 @@ export async function POST(req: NextRequest) {
       ]);
       if (eventPage) {
         const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? '';
-        const { data: event } = await admin.from('events').select('slug').eq('id', updated.event_id).single();
+        const { data: event } = await admin.from('events').select('slug, user_id').eq('id', updated.event_id).single();
+        // Notify the organizer of the new (paid) registration. Guarded by the
+        // pending→paid flip above (shared idempotent guard with the Stripe
+        // webhook), so it fires exactly once per ticket.
+        void notifyOrganizerNewRegistration({
+          organizerId: event?.user_id,
+          eventId: updated.event_id,
+          eventName: eventPage.title,
+          attendeeName: updated.attendee_name,
+        });
         sendRegistrationConfirmEmail({
           to: updated.attendee_email,
           attendeeName: updated.attendee_name,

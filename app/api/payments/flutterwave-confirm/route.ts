@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { verifyFlutterwaveTransaction } from '@/lib/payments/flutterwave';
 import { createAdminClient } from '@/lib/supabase/server';
 import { sendRegistrationConfirmEmail } from '@/lib/registration/email';
-import { createNotification } from '@/lib/notifications';
+import { createNotification, notifyOrganizerNewRegistration } from '@/lib/notifications';
 import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
 import { onRegistrationConfirmed } from '@/lib/integrations/dispatch';
 
@@ -74,6 +74,14 @@ export async function POST(req: NextRequest) {
               amountPaid: amount ?? null,
               currency: currency ?? null,
               registeredAt: new Date().toISOString(),
+            });
+            // Notify the organizer of the new (paid) registration. Guarded by the
+            // pending→paid flip above, so it fires exactly once per ticket.
+            void notifyOrganizerNewRegistration({
+              organizerId: event.user_id,
+              eventId: updated.event_id,
+              eventName: eventPage.title,
+              attendeeName: updated.attendee_name,
             });
           }
           sendRegistrationConfirmEmail({

@@ -7,7 +7,7 @@ import { isWaafiPayCurrency } from '@/lib/payments/waafipay';
 import { splitTicketAmount, type FeeBearer } from '@/lib/billing/fees';
 import { onRegistrationConfirmed } from '@/lib/integrations/dispatch';
 import type { Plan } from '@/lib/billing/plans';
-import { createNotification } from '@/lib/notifications';
+import { createNotification, notifyOrganizerNewRegistration } from '@/lib/notifications';
 import { allowedNeedsTags } from '@/lib/registration/needs-options';
 import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
 import { z } from 'zod';
@@ -563,6 +563,13 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
         amountPaid: 0,
         currency: ticket.currency ?? null,
         registeredAt: new Date().toISOString(),
+      });
+      // Notify the organizer of the new registration (in-app + email + push).
+      void notifyOrganizerNewRegistration({
+        organizerId: evRow.user_id,
+        eventId: params.id,
+        eventName: eventPage.title,
+        attendeeName: registration.attendee_name,
       });
     }
   }
