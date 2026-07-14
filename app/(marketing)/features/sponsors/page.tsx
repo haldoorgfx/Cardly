@@ -103,7 +103,7 @@ function SponsorsMockup() {
                 </div>
                 {/* Lead rows */}
                 {[
-                  { initials: 'AY', name: 'Amara Yusuf · Climate Lead', time: '2m ago' },
+                  { initials: 'YT', name: 'Yonas Tesfaye · Climate Lead', time: '2m ago' },
                   { initials: 'KB', name: 'Kwame Boateng · Product Dir', time: '5m ago' },
                   { initials: 'TN', name: 'Tinashe Nyathi · Founder', time: '8m ago' },
                 ].map((l) => (

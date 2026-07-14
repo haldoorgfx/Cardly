@@ -48,7 +48,7 @@ function GamificationMockup() {
             <div style={{ background: '#FFFFFF', margin: 8, borderRadius: 14, padding: 16 }}>
               <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 10, color: '#6B7A72', textTransform: 'uppercase' as const, letterSpacing: '0.05em', marginBottom: 12 }}>Top this event</div>
               {[
-                { medal: '🥇', initials: 'AO', avatarBg: 'linear-gradient(135deg,#E8C57E,#C9A45E)', initialsColor: '#163828', name: 'Dr. Amara Osei', org: 'Nairobi Tech', pts: '1,240 pts' },
+                { medal: '🥇', initials: 'NK', avatarBg: 'linear-gradient(135deg,#E8C57E,#C9A45E)', initialsColor: '#163828', name: 'Dr. Naledi Khumalo', org: 'Nairobi Tech', pts: '1,240 pts' },
                 { medal: '🥈', initials: 'KA', avatarBg: 'linear-gradient(135deg,#1F4D3A,#2A6A50)', initialsColor: '#FAF6EE', name: 'Kofi Asante', org: 'Accra Labs', pts: '980 pts' },
                 { medal: '🥉', initials: 'FH', avatarBg: 'linear-gradient(135deg,#C9A45E,#E8C57E)', initialsColor: '#163828', name: 'Fatima Hassan', org: 'Lagos Startup', pts: '820 pts' },
               ].map((r, i) => (

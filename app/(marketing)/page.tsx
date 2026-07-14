@@ -231,9 +231,9 @@ function EventeraCardBanner() {
           </div>
           <div className="hidden lg:flex" style={{ gap: 12, flexShrink: 0 }}>
             {[
-              { name: 'Amara Yusuf', role: 'Policy Lead', accent: 'rgba(232,197,126,0.55)' },
-              { name: 'Kofi Mensah', role: 'Speaker', accent: 'rgba(232,197,126,0.3)' },
-              { name: 'Zara Ahmed', role: 'Investor', accent: 'rgba(232,197,126,0.18)' },
+              { name: 'Leila Farah', role: 'Policy Lead', accent: 'rgba(232,197,126,0.55)' },
+              { name: 'Samuel Okoro', role: 'Speaker', accent: 'rgba(232,197,126,0.3)' },
+              { name: 'Nadia Hassan', role: 'Investor', accent: 'rgba(232,197,126,0.18)' },
             ].map((p) => (
               <div key={p.name} className="transition-transform duration-200 hover:-translate-y-1" style={{ background: 'rgba(250,246,238,0.05)', border: `1px solid ${p.accent}`, borderRadius: 12, padding: '14px 12px', minWidth: 100 }}>
                 <div style={{ width: 24, height: 24, borderRadius: '50%', background: 'rgba(232,197,126,0.25)', border: `1px solid ${p.accent}`, marginBottom: 8 }} />

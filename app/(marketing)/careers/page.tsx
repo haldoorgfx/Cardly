@@ -45,7 +45,7 @@ const roles = [
 ];
 
 const culture = [
-  { title: 'Taste matters', desc: 'We are building a product used by designers at some of the best events in the world. We hold our work to the same standard we hold our customers to.' },
+  { title: 'Taste matters', desc: 'We are building a product for designers and organizers who care about craft. We hold our own work to the same standard we expect from them.' },
   { title: 'Write it down', desc: 'Decisions get documented. Context is shared. No one should have to ask twice for the same piece of information. Writing is how we think clearly.' },
   { title: 'Ship, then improve', desc: 'We bias toward getting things in front of users. Perfect is the enemy of learning. We iterate in public and get smarter with every release.' },
 ];

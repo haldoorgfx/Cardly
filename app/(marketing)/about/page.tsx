@@ -495,7 +495,7 @@ export default function AboutPage() {
             },
             {
               title: 'Built for Africa',
-              body: 'We built Eventera for how events actually run in Africa — mobile-first, offline-capable, M-Pesa ready, WhatsApp-native. That said, anyone can use it anywhere.',
+              body: 'We built Eventera for how events actually run in Africa — mobile-first, offline-capable, WaafiPay & Flutterwave ready, WhatsApp-native. That said, anyone can use it anywhere.',
             },
             {
               title: 'Organizer-grade',

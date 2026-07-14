@@ -77,7 +77,7 @@ const USE_CASES: UseCase[] = [
       'Personalized supporter Eventera Cards',
       'Volunteer coordination',
       'Email notifications',
-      '40% NGO discount on Pro/Studio',
+      'NGO & nonprofit discounts available — contact us',
     ],
   },
   {
@@ -205,7 +205,7 @@ function AfricanSummitsCard() {
         </p>
         <ul className="mt-1 flex flex-col gap-1.5">
           {[
-            'Flutterwave + M-Pesa payments',
+            'Flutterwave + WaafiPay payments',
             'WhatsApp-native card sharing',
             'Offline QR check-in',
             'Swahili, French, Arabic form support',

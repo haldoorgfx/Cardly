@@ -41,7 +41,7 @@ export function Scene2Registration({ float }: { float?: boolean }) {
                 </div>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 13 }}>
-                <Field lbl="Full name" val="Amara Yusuf" />
+                <Field lbl="Full name" val="Idris Suleiman" />
                 <Field lbl="Email" val={null} />
                 <Field lbl="Job title" val="Policy Lead" />
               </div>

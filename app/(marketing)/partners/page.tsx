@@ -17,7 +17,7 @@ const PROGRAMS = [
     points: [
       'White-label attendee pages (Studio tier)',
       'Dedicated account manager',
-      '30% recurring commission',
+      'Competitive recurring revenue share',
       'Priority support queue',
     ],
   },
@@ -29,7 +29,7 @@ const PROGRAMS = [
     points: [
       'Full API access on Pro/Studio',
       'Webhook support for real-time card events',
-      'Listed in the Eventera integrations directory',
+      'Co-marketing on our channels',
       'Joint launch announcement',
     ],
   },
@@ -166,7 +166,7 @@ function WhyPartner() {
     {
       icon: <BarChart3 size={20} strokeWidth={1.8} />,
       title: 'Real commission, not referral crumbs.',
-      body: '30% recurring revenue share on every plan. Paid monthly. No caps.',
+      body: 'Competitive recurring revenue share on every plan. Paid monthly.',
     },
     {
       icon: <Zap size={20} strokeWidth={1.8} />,
@@ -238,7 +238,7 @@ function PartnerCTA() {
           Ready to partner?
         </h2>
         <p className="mt-5 text-ink-soft text-[16px] lg:text-[17px] leading-[1.55] max-w-[520px] mx-auto">
-          Email us with a brief intro — what you do, who you serve, and which program interests you. We respond within 2 business days.
+          Email us with a brief intro — what you do, who you serve, and which program interests you. We respond within one business day.
         </p>
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
           <a

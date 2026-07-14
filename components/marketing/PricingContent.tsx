@@ -42,7 +42,7 @@ const COMPARISON_GROUPS: ComparisonGroup[] = [
       ['Free & paid tickets',                    true,        true,         true],
       ['Early-bird, VIP & promo codes',          false,       true,         true],
       ['Custom registration forms',              false,       true,         true],
-      ['Stripe, Flutterwave, Paystack, M-Pesa',  true,        true,         true],
+      ['Stripe, Flutterwave, WaafiPay',          true,        true,         true],
     ],
   },
   {
@@ -71,7 +71,7 @@ const COMPARISON_GROUPS: ComparisonGroup[] = [
       ['Variants (attendee / speaker / sponsor)', true,  true,  true],
       ['Remove Eventera watermark',                  false, true,  true],
       ['Multiple brand kits',                     false, false, true],
-      ['Card download as animated video',         false, false, true],
+      ['High-resolution card download (PNG)',     false, false, true],
     ],
   },
   {
@@ -111,7 +111,7 @@ const FAQS: FAQ[] = [
   },
   {
     q: 'Do you offer discounts for nonprofits, students, or political campaigns?',
-    a: 'Yes. Registered nonprofits get 40% off Pro and Studio. Verified educational institutions get 30% off. Email us with a letterhead or domain proof and we\'ll set you up within 24 hours.',
+    a: 'Yes — we offer discounts for registered nonprofits and verified educational institutions. Email us with a letterhead or domain proof and we\'ll get you set up.',
   },
   {
     q: 'What counts as a registration?',
@@ -119,7 +119,7 @@ const FAQS: FAQ[] = [
   },
   {
     q: 'Can I pay annually by bank transfer or mobile money?',
-    a: 'Yes. Studio annual plans accept SWIFT bank transfer (USD/EUR/GBP), M-Pesa, MTN MoMo, and Paystack. Email billing@eventera.so to set it up.',
+    a: 'Yes. Studio annual plans accept Stripe for international cards, plus Flutterwave and WaafiPay for African rails. Email billing@eventera.so to set it up.',
   },
   {
     q: 'Do you have an enterprise plan?',
@@ -158,8 +158,8 @@ function CellValue({ value, isProCol }: { value: Cell; isProCol?: boolean }) {
 const TRUST_TILES: [string, string][] = [
   ['14-day refund',      'No questions. Cancel within 14 days for a full refund.'],
   ['Cards live forever', 'Even if you cancel — your attendee links never expire.'],
-  ['40% off for NGOs',   'Verified nonprofits and registered campaigns get a discount.'],
-  ['Pay how you want',   'Card, M-Pesa, MoMo, Paystack, SWIFT — we accept it.'],
+  ['Discounts for NGOs', 'Verified nonprofits and registered campaigns — contact us.'],
+  ['Pay how you want',   'Card, Flutterwave, WaafiPay — we accept it.'],
 ];
 
 function TrustStrip() {

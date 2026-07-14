@@ -80,7 +80,7 @@ function EventeraCardMockup() {
               </div>
               <div style={{ padding: '0 12px 12px', display: 'flex', flexDirection: 'column' as const, gap: 6 }}>
                 <div style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', borderRadius: 8, height: 36, display: 'flex', alignItems: 'center', padding: '0 10px' }}>
-                  <span style={{ fontFamily: 'Inter,sans-serif', fontSize: 12, color: '#0F1F18' }}>Amara Yusuf</span>
+                  <span style={{ fontFamily: 'Inter,sans-serif', fontSize: 12, color: '#0F1F18' }}>Grace Wanjiru</span>
                 </div>
                 <div style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', borderRadius: 8, height: 36, display: 'flex', alignItems: 'center', padding: '0 10px' }}>
                   <span style={{ fontFamily: 'Inter,sans-serif', fontSize: 12, color: '#0F1F18' }}>Climate Policy Lead</span>
@@ -98,9 +98,9 @@ function EventeraCardMockup() {
               <div style={{ padding: '24px 20px', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', textAlign: 'center' as const }}>
                 <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 8, fontWeight: 700, color: '#E8C57E', textTransform: 'uppercase' as const, letterSpacing: '0.2em', marginBottom: 20 }}>PAN-AFRICAN CLIMATE SUMMIT 2025</div>
                 <div style={{ width: 72, height: 72, borderRadius: '50%', background: 'linear-gradient(135deg,#E8C57E,#C9A45E)', border: '2.5px solid rgba(232,197,126,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <span style={{ fontFamily: 'Plus Jakarta Sans,sans-serif', fontSize: 22, fontWeight: 700, color: '#163828' }}>AY</span>
+                  <span style={{ fontFamily: 'Plus Jakarta Sans,sans-serif', fontSize: 22, fontWeight: 700, color: '#163828' }}>GW</span>
                 </div>
-                <div style={{ fontFamily: 'Plus Jakarta Sans,sans-serif', fontSize: 19, fontWeight: 700, color: '#FAF6EE', marginTop: 12, marginBottom: 2, letterSpacing: '-0.01em' }}>Amara Yusuf</div>
+                <div style={{ fontFamily: 'Plus Jakarta Sans,sans-serif', fontSize: 19, fontWeight: 700, color: '#FAF6EE', marginTop: 12, marginBottom: 2, letterSpacing: '-0.01em' }}>Grace Wanjiru</div>
                 <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 12, color: 'rgba(250,246,238,0.75)' }}>Climate Policy Lead</div>
                 <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 11, color: 'rgba(250,246,238,0.5)', marginTop: 2 }}>COP29 · Cairo</div>
                 <div style={{ width: '70%', height: 1, background: 'rgba(232,197,126,0.2)', margin: '14px 0' }} />
