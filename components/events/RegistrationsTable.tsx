@@ -69,7 +69,7 @@ const STATUS_PILL: Record<Status, { label: string; bg: string; color: string }> 
 function StatusPill({ status }: { status: Status }) {
   const s = STATUS_PILL[status];
   return (
-    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[12px] font-medium" style={{ background: s.bg, color: s.color }}>
+    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[12px] font-medium whitespace-nowrap" style={{ background: s.bg, color: s.color }}>
       {status === 'checked_in' && <CheckCircle2 size={10} />}
       {status === 'confirmed'  && <CheckCircle size={10} />}
       {status === 'cancelled'  && <XCircle size={10} />}
@@ -393,7 +393,7 @@ function RowActionsMenu({
         <button
           onClick={() => changeStatus('checked_in')}
           disabled={loading}
-          className="px-2.5 py-1 rounded-lg text-[12px] font-medium border transition-colors hover:bg-[#E8EFEB] disabled:opacity-50 hidden sm:inline-flex items-center gap-1"
+          className="px-2.5 py-1 rounded-lg text-[12px] font-medium border transition-colors hover:bg-[#E8EFEB] disabled:opacity-50 hidden sm:inline-flex items-center gap-1 whitespace-nowrap shrink-0"
           style={{ borderColor: '#1F4D3A', color: '#1F4D3A' }}
         >
           <CheckCircle2 size={12} strokeWidth={2} /> Check in
@@ -1289,7 +1289,8 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
           </div>
         ) : (
           <>
-            <div className="overflow-x-auto">
+            {/* Desktop table (md+) */}
+            <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-left" style={{ minWidth: 640 }}>
               <thead>
                 <tr style={{ background: '#FAF6EE', borderBottom: '1px solid #E5E0D4' }}>
@@ -1340,13 +1341,13 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
                         <span className="text-[12px]" style={{ color: '#C9C3B1' }}>—</span>
                       )}
                     </td>
-                    <td className="px-5 py-3.5  text-[12px]" style={{ color: '#6B7A72' }}>
+                    <td className="px-5 py-3.5  text-[12px] whitespace-nowrap" style={{ color: '#6B7A72' }}>
                       {new Date(reg.created_at).toLocaleDateString()}
                     </td>
-                    <td className="px-5 py-3.5  text-[12px]" style={{ color: reg.checked_in_at ? '#1F4D3A' : '#C9C3B1' }}>
+                    <td className="px-5 py-3.5  text-[12px] whitespace-nowrap" style={{ color: reg.checked_in_at ? '#1F4D3A' : '#C9C3B1' }}>
                       {reg.checked_in_at ? new Date(reg.checked_in_at).toLocaleTimeString() : '—'}
                     </td>
-                    <td className="px-5 py-3.5">
+                    <td className="px-5 py-3.5 whitespace-nowrap">
                       <RowActionsMenu
                         reg={reg}
                         eventId={eventId}
@@ -1360,6 +1361,61 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
                 ))}
               </tbody>
             </table>
+            </div>
+
+            {/* Mobile cards (below md) — no sideways scrolling */}
+            <div className="md:hidden divide-y" style={{ borderColor: '#F0EBE3' }}>
+              {rows.map((reg) => (
+                <div key={reg.id} className="p-4" style={{ background: selected.has(reg.id) ? '#F0F7F3' : 'white' }}>
+                  <div className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      checked={selected.has(reg.id)}
+                      onChange={() => toggleOne(reg.id)}
+                      aria-label={`Select ${reg.attendee_name}`}
+                      className="w-4 h-4 mt-1 rounded accent-[#1F4D3A] cursor-pointer shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <Link
+                        href={`/events/${eventSlug}/registrations/${reg.id}`}
+                        className="font-medium text-[14px] block truncate"
+                        style={{ color: '#0F1F18', textDecoration: 'none' }}
+                      >
+                        {reg.attendee_name}
+                      </Link>
+                      <div className="text-[12px] truncate" style={{ color: '#6B7A72' }}>{reg.attendee_email}</div>
+                    </div>
+                    <RowActionsMenu
+                      reg={reg}
+                      eventId={eventId}
+                      ticketTypes={ticketTypes}
+                      onStatusChange={handleStatusChange}
+                      onDeleted={handleDeleted}
+                      onEdited={handleEdited}
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-2 flex-wrap mt-3">
+                    <StatusPill status={reg.status} />
+                    <span className="text-[12px]" style={{ color: '#3A4A42' }}>{reg.ticket_types?.name ?? 'General'}</span>
+                    <span className="text-[12px] font-medium" style={{ color: '#1F4D3A' }}>· {formatCurrency(reg.amount_paid, reg.currency)}</span>
+                  </div>
+
+                  <div className="flex items-center gap-x-3 gap-y-1 flex-wrap mt-2.5 text-[12px]" style={{ color: '#6B7A72' }}>
+                    <span>Registered {new Date(reg.created_at).toLocaleDateString()}</span>
+                    {reg.checked_in_at && (
+                      <span style={{ color: '#1F4D3A' }}>· Checked in {new Date(reg.checked_in_at).toLocaleTimeString()}</span>
+                    )}
+                    {reg.eventera_card_url ? (
+                      <a href={reg.eventera_card_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1" style={{ color: '#1F4D3A' }}>
+                        <ExternalLink size={12} /> Card
+                      </a>
+                    ) : cardEmailSet.has(reg.attendee_email) ? (
+                      <span style={{ color: '#2D7A4F' }}>✓ Card downloaded</span>
+                    ) : null}
+                  </div>
+                </div>
+              ))}
             </div>
           </>
         )}
