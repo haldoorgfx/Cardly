@@ -10,7 +10,6 @@ import { usePathname, useSearchParams } from 'next/navigation';
 // workspace/developer surfaces — so related settings sit together.
 const TABS = [
   { label: 'Profile',       href: '/settings',                    tab: null },
-  { label: 'Preferences',   href: '/settings?tab=preferences',    tab: 'preferences' },
   { label: 'Notifications', href: '/settings?tab=notifications',  tab: 'notifications' },
   { label: 'Account',       href: '/settings?tab=account',        tab: 'account' },
   { label: 'Billing',       href: '/settings/billing',            tab: undefined },

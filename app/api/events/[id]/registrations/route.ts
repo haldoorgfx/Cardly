@@ -120,16 +120,28 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     await admin.rpc('increment_ticket_quantity_sold', { ticket_id: ticket_type_id, qty: 1 });
   }
 
-  // Fire-and-forget notification to the organizer
-  createNotification({
-    userId: user.id,
-    eventId: params.id,
-    type: 'registration',
-    title: `${attendee_name.trim()} registered for ${event.name}`,
-    body: attendee_email.trim().toLowerCase(),
-    actionUrl: `/events/${params.id}/registrations`,
-    icon: 'users',
-  });
+  // Fire-and-forget notification to the organizer — honoring their
+  // "New registrations" preference. Default ON: only an explicit opt-out
+  // (notify_registrations === false) suppresses it, so existing behavior holds.
+  {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: orgPrefs } = await (admin as any)
+      .from('profiles')
+      .select('notify_registrations')
+      .eq('id', user.id)
+      .maybeSingle();
+    if (orgPrefs?.notify_registrations !== false) {
+      createNotification({
+        userId: user.id,
+        eventId: params.id,
+        type: 'registration',
+        title: `${attendee_name.trim()} registered for ${event.name}`,
+        body: attendee_email.trim().toLowerCase(),
+        actionUrl: `/events/${params.id}/registrations`,
+        icon: 'users',
+      });
+    }
+  }
 
   // Roles write-path: manual (organizer-added) confirmed registration → 'attendee'
   // role for the attendee's account, if one exists. Best-effort, matched by email.

@@ -104,6 +104,49 @@ function Toggle({ on, onChange }: { on: boolean; onChange: (v: boolean) => void 
   );
 }
 
+// Collapsible group — a lightweight accordion built with the app's brand styling
+// (not native <details>) so the header + chevron match the rest of Eventera.
+function Section({
+  title,
+  defaultOpen = false,
+  children,
+}: {
+  title: string;
+  defaultOpen?: boolean;
+  children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <div
+      className="mt-4 rounded-xl overflow-hidden"
+      style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}
+    >
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        aria-expanded={open}
+        className="w-full flex items-center justify-between gap-3 px-5 py-4 text-left transition hover:bg-[#FAFAF8] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[#1F4D3A]"
+      >
+        <span className="font-medium text-[16px]" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: '#0F1F18' }}>
+          {title}
+        </span>
+        <svg
+          width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6B7A72" strokeWidth="2"
+          className="shrink-0"
+          style={{ transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s ease' }}
+        >
+          <path d="M6 9l6 6 6-6" />
+        </svg>
+      </button>
+      {open && (
+        <div className="px-5 pb-6 pt-1" style={{ borderTop: '1px solid #E5E0D4' }}>
+          {children}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function ProfileSettings({ profile, embedded = false }: Props) {
   const [interests, setInterests] = useState<string[]>(profile.interests ?? []);
   const [city, setCity] = useState(profile.city ?? '');
@@ -155,15 +198,32 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
     setEmailBusy(true);
     try {
       const supabase = createClient();
-      const { error } = await supabase.auth.updateUser({ email: parsed.data });
+      const { error } = await supabase.auth.updateUser(
+        { email: parsed.data },
+        { emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL ?? window.location.origin}/auth/callback` },
+      );
       if (error) throw error;
       setEmailNotice(`Check ${parsed.data} — your sign-in email changes only after you confirm via the link we sent.`);
       setNewEmail('');
       toast({ title: 'Confirmation sent', description: `Check ${parsed.data} to finish changing your email.` });
     } catch (err) {
       console.error('Change email failed', err);
-      setEmailError('Could not update your email. Please try again.');
-      toast({ title: 'Something went wrong', description: 'Could not update your email. Please try again.', variant: 'destructive' });
+      // Surface the real reason instead of a blanket "try again" — the most
+      // common causes are the target address already belonging to an account,
+      // rate limiting, or entering your current email.
+      const raw = (err as { message?: string })?.message?.toLowerCase() ?? '';
+      const friendly =
+        raw.includes('already') || raw.includes('registered') || raw.includes('exists') || raw.includes('in use')
+          ? 'That email is already used by another account. Try a different address.'
+        : raw.includes('rate') || raw.includes('too many')
+          ? 'Too many attempts. Wait a few minutes and try again.'
+        : raw.includes('same') || raw.includes('current')
+          ? 'That’s already your sign-in email.'
+        : raw.includes('smtp') || raw.includes('send') || raw.includes('email')
+          ? 'We couldn’t send the confirmation email right now. Please try again shortly.'
+          : 'Could not update your email. Please try again.';
+      setEmailError(friendly);
+      toast({ title: 'Email not changed', description: friendly, variant: 'destructive' });
     } finally {
       setEmailBusy(false);
     }
@@ -292,11 +352,8 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
         </div>
       )}
 
-      {/* Identity card */}
-      <div
-        className="mt-8 p-5 sm:p-6 rounded-xl"
-        style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}
-      >
+      {/* Identity — open by default */}
+      <Section title="Identity" defaultOpen>
         {/* Avatar row */}
         <div className="flex items-center gap-5 mb-5">
           <div className="relative shrink-0 w-16 h-16 rounded-full overflow-hidden" style={{ border: '2px solid #E8C57E' }}>
@@ -373,10 +430,12 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
             onBlur={e => { e.target.style.borderColor = '#E5E0D4'; e.target.style.boxShadow = 'none'; }}
           />
         </div>
-      </div>
+      </Section>
 
-      {/* Work */}
-      <div className="mt-10">
+      {/* Networking & discovery — collapsed by default */}
+      <Section title="Networking &amp; discovery">
+        {/* Work */}
+        <div className="mt-4">
         <h2 className="font-medium text-[17px]" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: '#0F1F18' }}>
           Work
         </h2>
@@ -607,10 +666,13 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
             onBlur={e => { e.target.style.borderColor = '#E5E0D4'; e.target.style.boxShadow = 'none'; }}
           />
         </div>
-      </div>
+        </div>
+      </Section>
 
-      {/* Notifications — managed in the unified notifications center */}
-      <div className="mt-10">
+      {/* Preferences & account — collapsed by default */}
+      <Section title="Preferences &amp; account">
+        {/* Notifications — managed in the unified notifications center */}
+        <div className="mt-4">
         <h2 className="font-medium text-[17px]" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: '#0F1F18' }}>
           Notifications
         </h2>
@@ -669,45 +731,8 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
         </div>
       </div>
 
-      {/* Save buttons */}
-      <div className="flex gap-3 mt-9">
-        <button
-          onClick={save}
-          disabled={saving}
-          className="h-10 px-5 rounded-lg font-medium text-[14px] text-white transition hover:opacity-90 disabled:opacity-50"
-          style={{ background: '#1F4D3A', fontFamily: '"Plus Jakarta Sans", sans-serif' }}
-        >
-          {saving ? 'Saving…' : saved ? '✓ Saved' : 'Save preferences'}
-        </button>
-        <button
-          className="h-10 px-5 rounded-lg font-medium text-[14px] transition hover:bg-[#E8EFEB]"
-          style={{ border: '1px solid #1F4D3A', color: '#1F4D3A', fontFamily: '"Plus Jakarta Sans", sans-serif' }}
-          onClick={() => {
-            setFullName(profile.full_name ?? '');
-            setPhone(profile.phone ?? '');
-            setAvatarUrl(profile.avatar_url);
-            setInterests(profile.interests ?? []);
-            setCity(profile.city ?? '');
-            setLanguage(profile.language ?? 'English');
-            setBio(profile.bio ?? '');
-            setJobTitle(profile.job_title ?? '');
-            setOrganization(profile.organization ?? '');
-            setIndustry(profile.industry ?? '');
-            setRoleTypes(profile.role_types ?? []);
-            setGoals(profile.goals ?? []);
-            setDirectoryVisible(profile.directory_visible ?? true);
-            setOpenToConnect(profile.open_to_connect ?? true);
-            setLinkedinUrl(profile.linkedin_url ?? '');
-            setXUrl(profile.x_url ?? '');
-            setSaved(false);
-          }}
-        >
-          Cancel
-        </button>
-      </div>
-
       {/* Account */}
-      <div className="mt-12">
+      <div className="mt-10">
         <h2 className="font-medium text-[17px]" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: '#0F1F18' }}>
           Account
         </h2>
@@ -786,6 +811,45 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
           </button>
         </div>
         )}
+      </div>
+      </Section>
+
+      {/* Save — always visible, outside the collapsible groups so it works
+          no matter which sections are expanded. */}
+      <div className="flex gap-3 mt-8">
+        <button
+          onClick={save}
+          disabled={saving}
+          className="h-10 px-5 rounded-lg font-medium text-[14px] text-white transition hover:opacity-90 disabled:opacity-50"
+          style={{ background: '#1F4D3A', fontFamily: '"Plus Jakarta Sans", sans-serif' }}
+        >
+          {saving ? 'Saving…' : saved ? '✓ Saved' : 'Save preferences'}
+        </button>
+        <button
+          className="h-10 px-5 rounded-lg font-medium text-[14px] transition hover:bg-[#E8EFEB]"
+          style={{ border: '1px solid #1F4D3A', color: '#1F4D3A', fontFamily: '"Plus Jakarta Sans", sans-serif' }}
+          onClick={() => {
+            setFullName(profile.full_name ?? '');
+            setPhone(profile.phone ?? '');
+            setAvatarUrl(profile.avatar_url);
+            setInterests(profile.interests ?? []);
+            setCity(profile.city ?? '');
+            setLanguage(profile.language ?? 'English');
+            setBio(profile.bio ?? '');
+            setJobTitle(profile.job_title ?? '');
+            setOrganization(profile.organization ?? '');
+            setIndustry(profile.industry ?? '');
+            setRoleTypes(profile.role_types ?? []);
+            setGoals(profile.goals ?? []);
+            setDirectoryVisible(profile.directory_visible ?? true);
+            setOpenToConnect(profile.open_to_connect ?? true);
+            setLinkedinUrl(profile.linkedin_url ?? '');
+            setXUrl(profile.x_url ?? '');
+            setSaved(false);
+          }}
+        >
+          Cancel
+        </button>
       </div>
 
       {/* Delete confirm dialog */}

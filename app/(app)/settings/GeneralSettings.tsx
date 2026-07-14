@@ -12,7 +12,7 @@ export default function GeneralSettings({
   profile,
   userId,
 }: {
-  section: 'profile' | 'preferences' | 'notifications' | 'account';
+  section: 'profile' | 'notifications' | 'account';
   /** The shared profile/identity editor, rendered on the Profile section. */
   profileTab: ReactNode;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

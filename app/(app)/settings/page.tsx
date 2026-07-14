@@ -18,9 +18,10 @@ export default async function SettingsPage({
   if (!user) redirect('/login');
 
   // Which account section to show (driven by the single tab bar's ?tab=).
+  // Unknown/retired tabs (e.g. the removed ?tab=preferences) fall back to Profile.
   const tab = searchParams?.tab;
-  const section: 'profile' | 'preferences' | 'notifications' | 'account' =
-    tab === 'preferences' || tab === 'notifications' || tab === 'account' ? tab : 'profile';
+  const section: 'profile' | 'notifications' | 'account' =
+    tab === 'notifications' || tab === 'account' ? tab : 'profile';
 
   const admin = createAdminClient();
   // Select includes columns (job_title, industry, …) added in migration 048 that
@@ -32,7 +33,8 @@ export default async function SettingsPage({
       id, full_name, email, plan, role, avatar_url, phone, city,
       interests, whatsapp_verified, notification_prefs,
       organization, timezone, language, currency, date_format,
-      notify_registrations, notify_daily_summary, notify_card_shares, notify_product_updates,
+      notify_registrations, notify_downloads,
+      notify_daily_summary, notify_card_shares, notify_product_updates,
       bio, job_title, industry, role_types, goals, directory_visible, open_to_connect, linkedin_url, x_url
     `)
     .eq('id', user.id)
