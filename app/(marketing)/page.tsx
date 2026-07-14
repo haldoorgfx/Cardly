@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Sparkles, Check, ArrowRight, Quote } from 'lucide-react';
+import { Check, ArrowRight, Quote, IdCard } from 'lucide-react';
 import { GetTheAppSection } from '@/components/marketing/GetTheAppSection';
 import Pricing from '@/components/marketing/Pricing';
 import LogoStrip from '@/components/marketing/LogoStrip';
@@ -53,18 +53,20 @@ function Hero() {
         style={{ maxWidth: 760 }}
       >
         <div
-          className="inline-flex items-center gap-2 rounded-full px-3 py-1 mb-5"
+          className="inline-flex items-center gap-2 rounded-full pl-2.5 pr-3.5 py-1.5 mb-5"
           style={{
-            background: '#E8EFEB',
-            border: '1px solid rgba(31,77,58,0.2)',
-            color: '#1F4D3A',
-            fontSize: 12,
+            background: '#FFFFFF',
+            border: '1px solid #E5E0D4',
             fontFamily: 'var(--font-sans)',
-            letterSpacing: '0.04em',
           }}
         >
-          <Sparkles size={13} strokeWidth={2} />
-          The complete event platform
+          <span className="relative flex h-2 w-2" aria-hidden="true">
+            <span className="absolute inline-flex h-full w-full rounded-full animate-ping" style={{ background: '#2D7A4F', opacity: 0.55 }} />
+            <span className="relative inline-flex h-2 w-2 rounded-full" style={{ background: '#2D7A4F' }} />
+          </span>
+          <span style={{ fontSize: 12.5, color: '#3A4A42', letterSpacing: '0.01em' }}>
+            Now live in East&nbsp;Africa &amp; the&nbsp;Gulf
+          </span>
         </div>
 
         <h1
@@ -216,7 +218,7 @@ function EventeraCardBanner() {
         }}>
           <div style={{ flex: 1, minWidth: 260 }}>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(232,197,126,0.15)', border: '1px solid rgba(232,197,126,0.35)', color: '#E8C57E', borderRadius: 100, padding: '4px 12px', fontSize: 11, fontFamily: 'var(--font-sans)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 16 }}>
-              <Sparkles size={11} strokeWidth={2} />
+              <IdCard size={12} strokeWidth={2} />
               Only on Eventera
             </span>
             <h2
