@@ -632,19 +632,19 @@ export default function PublishClient({
               }}>Share to</div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
                 <ShareButton
-                  icon={Brand.whatsapp(18)} label="WhatsApp" sub="Group chat"
+                  icon={Brand.whatsapp(38)} label="WhatsApp" sub="Group chat"
                   href={`https://wa.me/?text=${encodeURIComponent(caption)}`}
                 />
                 <ShareButton
-                  icon={Brand.x(18)} label="X" sub="Compose"
+                  icon={Brand.x(38)} label="X" sub="Compose"
                   href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`${caption} ${shareUrl}`)}`}
                 />
                 <ShareButton
-                  icon={Brand.linkedin(18)} label="LinkedIn" sub="Post"
+                  icon={Brand.linkedin(38)} label="LinkedIn" sub="Post"
                   href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`}
                 />
                 <ShareButton
-                  icon={Brand.email(18)} label="Email" sub="Compose"
+                  icon={Brand.email(38)} label="Email" sub="Compose"
                   href={`mailto:?subject=${encodeURIComponent(`You're invited: ${eventName}`)}&body=${encodeURIComponent(`${caption}\n\nRegister here: ${shareUrl}`)}`}
                 />
               </div>
@@ -964,13 +964,16 @@ export default function PublishClient({
 function ShareButton({ icon, label, sub, href }: { icon: React.ReactNode; label: string; sub: string; href: string }) {
   return (
     <a href={href} target="_blank" rel="noopener noreferrer" style={{
-      padding: '10px 8px', background: PT.surface, border: `1px solid ${PT.border}`,
-      borderRadius: 8, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
-      cursor: 'pointer', textDecoration: 'none',
-    }}>
-      <div style={{ width: 32, height: 32, borderRadius: 8, background: PT.cream, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{icon}</div>
-      <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 12, color: PT.ink }}>{label}</div>
-      <div style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 9.5, color: PT.muted, letterSpacing: '0.04em' }}>{sub}</div>
+      padding: '14px 8px', background: PT.surface, border: `1px solid ${PT.border}`,
+      borderRadius: 12, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
+      cursor: 'pointer', textDecoration: 'none', transition: 'border-color 120ms ease, background 120ms ease',
+    }}
+      onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(31,77,58,0.35)'; e.currentTarget.style.background = PT.cream; }}
+      onMouseLeave={e => { e.currentTarget.style.borderColor = PT.border; e.currentTarget.style.background = PT.surface; }}
+    >
+      <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{icon}</span>
+      <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 12.5, color: PT.ink }}>{label}</div>
+      <div style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10, color: PT.muted, letterSpacing: '0.04em' }}>{sub}</div>
     </a>
   );
 }
