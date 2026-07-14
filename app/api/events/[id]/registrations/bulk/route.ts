@@ -94,7 +94,10 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
   let imported = 0;
   if (toInsert.length > 0) {
-    const { error } = await admin.from('registrations').upsert(toInsert, { onConflict: 'event_id,attendee_email', ignoreDuplicates: true });
+    // Duplicates are already filtered above (existingEmails), so a plain insert is
+    // correct. Avoids ON CONFLICT, which failed — there is no unique index on
+    // (event_id, attendee_email) in the registrations table.
+    const { error } = await admin.from('registrations').insert(toInsert);
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     imported = toInsert.length;
 
