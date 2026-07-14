@@ -4,6 +4,7 @@ import { GetTheAppSection } from '@/components/marketing/GetTheAppSection';
 import Pricing from '@/components/marketing/Pricing';
 import LogoStrip from '@/components/marketing/LogoStrip';
 import Reveal from '@/components/marketing/Reveal';
+import MouseParallax from '@/components/marketing/MouseParallax';
 import {
   Scene1DashboardHero, Scene4Card, Scene5LiveQA,
 } from '@/components/marketing/home-visuals';
@@ -112,7 +113,9 @@ function Hero() {
         className="relative hidden sm:block flex-1 mx-auto w-full px-5 sm:px-8 lg:px-12 mt-8 overflow-hidden"
         style={{ maxWidth: 1280 }}
       >
-        <Scene1DashboardHero float />
+        <MouseParallax strength={12}>
+          <Scene1DashboardHero float />
+        </MouseParallax>
       </div>
     </section>
   );
@@ -129,7 +132,7 @@ const ALL_FEATURES = [
 
 function PlatformOverview() {
   return (
-    <section id="platform" style={{ background: '#FAF6EE', padding: 'clamp(60px,8vw,96px) clamp(20px,5vw,64px)' }}>
+    <section id="platform" style={{ background: '#FAF6EE', backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(15,31,24,0.045) 1px, transparent 1px)', backgroundSize: '22px 22px', padding: 'clamp(60px,8vw,96px) clamp(20px,5vw,64px)' }}>
       <div style={{ maxWidth: 1100, margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: 44 }}>
           <div style={{ fontSize: 11, fontFamily: 'var(--font-sans)', letterSpacing: '0.22em', textTransform: 'uppercase', color: '#1F4D3A', marginBottom: 14 }}>
@@ -300,7 +303,7 @@ const HOW_STEPS: { n: string; title: string; desc: string; mock: 'event' | 'tick
 
 function HowItWorks() {
   return (
-    <section id="how" style={{ paddingTop: 80, paddingBottom: 96, background: '#FAF6EE' }}>
+    <section id="how" style={{ paddingTop: 80, paddingBottom: 96, background: '#FFFFFF', borderTop: '1px solid #E5E0D4', borderBottom: '1px solid #E5E0D4' }}>
       <div className="mx-auto px-5 lg:px-10" style={{ maxWidth: 1200 }}>
         <div className="text-center mb-14">
           <div
@@ -344,7 +347,7 @@ function HowItWorks() {
                     width: 48, height: 48,
                     borderRadius: '50%',
                     background: '#E8C57E',
-                    border: '4px solid #FAF6EE',
+                    border: '4px solid #FFFFFF',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
