@@ -1,45 +1,47 @@
 import Link from 'next/link';
 import { IOS_APP_URL, ANDROID_APP_URL } from '@/lib/appLinks';
 
-/* Official-style store badges, recolored to the brand system.
-   onDark → light badges for dark forest surfaces; otherwise ink badges. */
+/* Authentic-style App Store / Google Play badges: black pill, white Apple mark,
+   the real 4-colour Google Play triangle, stacked caption + name. Recognisable
+   everywhere (light or dark surfaces). Swap for the official store assets when
+   the apps ship. The `onDark` prop is kept for call-site compatibility. */
 export function AppStoreBadges({
-  onDark = false,
+  onDark = false, // eslint-disable-line @typescript-eslint/no-unused-vars
   size = 'md',
 }: {
   onDark?: boolean;
   size?: 'sm' | 'md';
 }) {
-  const bg = onDark ? '#FAF6EE' : '#0F1F18';
-  const fg = onDark ? '#0F1F18' : '#FAF6EE';
-  const sub = onDark ? 'rgba(15,31,24,0.62)' : 'rgba(250,246,238,0.72)';
   const h = size === 'sm' ? 44 : 52;
   const bigSize = size === 'sm' ? 15 : 17;
   const smallSize = size === 'sm' ? 9.5 : 10.5;
 
   const base = {
     height: h,
-    background: bg,
-    color: fg,
-    borderRadius: 12,
-    padding: '0 16px 0 14px',
+    background: '#000',
+    color: '#fff',
+    border: '1px solid rgba(255,255,255,0.22)',
+    borderRadius: 13,
+    padding: '0 18px 0 15px',
   } as const;
 
+  const sub = 'rgba(255,255,255,0.85)';
+
   return (
-    <div className="flex flex-wrap items-center gap-3">
+    <div className="flex flex-wrap items-center gap-3.5">
       {/* App Store */}
       <Link
         href={IOS_APP_URL}
         aria-label="Download Eventera on the App Store"
-        className="inline-flex items-center gap-2.5 transition hover:opacity-90"
+        className="inline-flex items-center gap-3 transition-transform hover:-translate-y-0.5"
         style={base}
       >
-        <svg width={size === 'sm' ? 19 : 22} height={size === 'sm' ? 19 : 22} viewBox="0 0 24 24" fill={fg} aria-hidden>
-          <path d="M17.05 12.54c-.02-2.05 1.68-3.03 1.75-3.08-.95-1.4-2.44-1.59-2.97-1.61-1.26-.13-2.47.74-3.11.74-.64 0-1.63-.72-2.68-.7-1.38.02-2.65.8-3.36 2.03-1.43 2.49-.37 6.17 1.03 8.19.68.99 1.5 2.1 2.56 2.06 1.03-.04 1.42-.66 2.67-.66 1.24 0 1.6.66 2.68.64 1.11-.02 1.81-1 2.49-2 .78-1.15 1.11-2.26 1.13-2.32-.02-.01-2.17-.83-2.19-3.3zM15.01 6.32c.57-.69.95-1.65.85-2.6-.82.03-1.81.54-2.39 1.23-.52.61-.98 1.58-.86 2.51.91.07 1.84-.46 2.4-1.14z" />
+        <svg width={size === 'sm' ? 22 : 26} height={size === 'sm' ? 22 : 26} viewBox="0 0 24 24" fill="#fff" aria-hidden>
+          <path d="M17.05 12.53c-.02-2.02 1.65-2.99 1.72-3.04-.94-1.37-2.4-1.56-2.92-1.58-1.24-.13-2.43.73-3.06.73-.63 0-1.6-.71-2.64-.69-1.36.02-2.61.79-3.31 2-1.41 2.44-.36 6.06 1.01 8.04.67.97 1.47 2.06 2.51 2.02 1.01-.04 1.39-.65 2.61-.65 1.22 0 1.56.65 2.63.63 1.09-.02 1.78-.99 2.44-1.96.77-1.12 1.09-2.21 1.11-2.27-.02-.01-2.13-.82-2.15-3.24zM15.03 6.6c.56-.68.94-1.62.83-2.56-.81.03-1.79.54-2.37 1.21-.52.6-.97 1.56-.85 2.48.9.07 1.83-.46 2.39-1.13z" />
         </svg>
         <span className="flex flex-col leading-none text-left">
-          <span style={{ fontSize: smallSize, color: sub, fontFamily: 'Inter, sans-serif', letterSpacing: '0.02em' }}>Download on the</span>
-          <span style={{ fontSize: bigSize, fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif', fontWeight: 700, letterSpacing: '-0.02em', marginTop: 2 }}>App Store</span>
+          <span style={{ display: 'block', whiteSpace: 'nowrap', fontSize: smallSize, color: sub, fontFamily: 'Inter, sans-serif', letterSpacing: '0.01em' }}>Download on the</span>
+          <span style={{ display: 'block', whiteSpace: 'nowrap', fontSize: bigSize, fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif', fontWeight: 600, letterSpacing: '-0.01em', marginTop: 2 }}>App Store</span>
         </span>
       </Link>
 
@@ -47,18 +49,18 @@ export function AppStoreBadges({
       <Link
         href={ANDROID_APP_URL}
         aria-label="Get Eventera on Google Play"
-        className="inline-flex items-center gap-2.5 transition hover:opacity-90"
+        className="inline-flex items-center gap-3 transition-transform hover:-translate-y-0.5"
         style={base}
       >
-        <svg width={size === 'sm' ? 18 : 21} height={size === 'sm' ? 18 : 21} viewBox="0 0 24 24" fill="none" aria-hidden>
-          <path d="M3.6 2.3c-.25.26-.4.66-.4 1.18v17.04c0 .52.15.92.4 1.18l.06.05L13.2 12.1v-.2L3.66 2.25l-.06.05z" fill={fg} opacity="0.9" />
-          <path d="M16.4 15.3l-3.2-3.2v-.2l3.2-3.2.07.04 3.79 2.15c1.08.61 1.08 1.62 0 2.24l-3.79 2.15-.07.04z" fill={fg} />
-          <path d="M16.47 15.26L13.2 12 3.6 21.7c.36.37.94.42 1.6.05l11.27-6.49z" fill={fg} opacity="0.7" />
-          <path d="M16.47 8.74L5.2 2.25c-.66-.38-1.24-.32-1.6.05L13.2 12l3.27-3.26z" fill={fg} opacity="0.5" />
+        <svg width={size === 'sm' ? 22 : 26} height={size === 'sm' ? 22 : 26} viewBox="0 0 24 24" aria-hidden>
+          <path fill="#00C3FF" d="M3.5 2.3 13.4 12 3.5 21.7c-.31-.2-.5-.55-.5-.99V3.29c0-.44.19-.79.5-.99z" />
+          <path fill="#FF3D44" d="M3.5 2.3c.34-.22.77-.23 1.15-.02l11.3 6.42-3.05 3.05z" />
+          <path fill="#00E676" d="M3.5 21.7c.34.22.77.23 1.15.02l11.3-6.42-3.05-3.05z" />
+          <path fill="#FFCE00" d="M15.95 8.7l3.85 2.19c.9.51.9 1.71 0 2.22l-3.85 2.19L12.9 12z" />
         </svg>
         <span className="flex flex-col leading-none text-left">
-          <span style={{ fontSize: smallSize, color: sub, fontFamily: 'Inter, sans-serif', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Get it on</span>
-          <span style={{ fontSize: bigSize, fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif', fontWeight: 700, letterSpacing: '-0.02em', marginTop: 2 }}>Google Play</span>
+          <span style={{ display: 'block', whiteSpace: 'nowrap', fontSize: smallSize, color: sub, fontFamily: 'Inter, sans-serif', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Get it on</span>
+          <span style={{ display: 'block', whiteSpace: 'nowrap', fontSize: bigSize, fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif', fontWeight: 600, letterSpacing: '-0.01em', marginTop: 2 }}>Google Play</span>
         </span>
       </Link>
     </div>
