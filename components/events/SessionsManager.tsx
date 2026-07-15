@@ -166,7 +166,9 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
 
   function openAdd() {
     setEditingSession(null);
-    setSessionForm(EMPTY_SESSION);
+    // Default to the event's own start time (set at event creation) instead
+    // of a blank field the organizer has to fill in from scratch every time.
+    setSessionForm({ ...EMPTY_SESSION, starts_at: ev.starts_at ? toLocalInput(ev.starts_at) : '' });
     setError(null);
     setShowSessionForm(true);
   }
@@ -303,7 +305,7 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
           <span className="font-display text-[15px] font-semibold" style={{ color: '#0F1F18' }}>
             Tracks ({tracks.length})
           </span>
-          {tracksOpen ? <ChevronUp size={16} color="#6B7A72" /> : <ChevronDown size={16} color="#6B7A72" />}
+          {tracksOpen ? <ChevronUp size={16} color="#65736B" /> : <ChevronDown size={16} color="#65736B" />}
         </button>
 
         {tracksOpen && (
@@ -346,7 +348,7 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
                   Add
                 </button>
                 <button onClick={() => setShowTrackForm(false)} className="p-1.5 rounded hover:bg-gray-100">
-                  <X size={14} color="#6B7A72" />
+                  <X size={14} color="#65736B" />
                 </button>
               </div>
             ) : (
@@ -374,7 +376,7 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
                       key={dateKey}
                       onClick={() => setActiveDay(dateKey)}
                       className="h-7 px-3 rounded-lg text-[12.5px] font-medium transition whitespace-nowrap"
-                      style={isActive ? { background: '#E8EFEB', color: '#0F1F18' } : { color: '#6B7A72' }}
+                      style={isActive ? { background: '#E8EFEB', color: '#0F1F18' } : { color: '#65736B' }}
                     >
                       {label}
                     </button>
@@ -418,7 +420,7 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
           maxWidth={620}
           footer={
             <>
-              <button onClick={closeForm} className="h-10 px-4 rounded-lg text-[13.5px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>Cancel</button>
+              <button onClick={closeForm} className="h-10 px-4 rounded-lg text-[13.5px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#65736B' }}>Cancel</button>
               <button onClick={handleSaveSession} disabled={saving} className="h-10 px-5 rounded-lg text-[13.5px] font-semibold text-white disabled:opacity-60" style={{ background: '#1F4D3A' }}>
                 {saving ? 'Saving…' : editingSession ? 'Save changes' : 'Add session'}
               </button>
@@ -454,7 +456,7 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="sm:col-span-2 space-y-1">
-                <label className="text-xs font-medium" style={{ color: '#6B7A72' }}>
+                <label className="text-xs font-medium" style={{ color: '#65736B' }}>
                   Title <span style={{ color: '#B8423C' }}>*</span>
                 </label>
                 <input
@@ -467,7 +469,7 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
                 />
               </div>
               <div className="sm:col-span-2 space-y-1">
-                <label className="text-xs font-medium" style={{ color: '#6B7A72' }}>Description</label>
+                <label className="text-xs font-medium" style={{ color: '#65736B' }}>Description</label>
                 <textarea
                   className="w-full border rounded-lg px-3 py-2 text-sm resize-none outline-none"
                   style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}
@@ -479,7 +481,7 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
                 />
               </div>
               <div className="sm:col-span-2 space-y-1">
-                <label className="text-xs font-medium" style={{ color: '#6B7A72' }}>Type</label>
+                <label className="text-xs font-medium" style={{ color: '#65736B' }}>Type</label>
                 <div className="flex flex-wrap gap-1.5">
                   {SESSION_TYPES.map((t) => {
                     const active = sessionForm.session_type === t.value;
@@ -491,7 +493,7 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
                         className="px-3 py-1.5 rounded-lg text-[12.5px] font-medium transition"
                         style={active
                           ? { background: '#1F4D3A', color: 'white' }
-                          : { background: 'white', color: '#6B7A72', border: '1px solid #E5E0D4' }}
+                          : { background: 'white', color: '#65736B', border: '1px solid #E5E0D4' }}
                       >
                         {t.label}
                       </button>
@@ -500,7 +502,7 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
                 </div>
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-medium" style={{ color: '#6B7A72' }}>Track</label>
+                <label className="text-xs font-medium" style={{ color: '#65736B' }}>Track</label>
                 <select
                   className="w-full border rounded-lg px-3 py-2 text-sm"
                   style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}
@@ -512,7 +514,7 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
                 </select>
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-medium" style={{ color: '#6B7A72' }}>
+                <label className="text-xs font-medium" style={{ color: '#65736B' }}>
                   Start <span style={{ color: '#B8423C' }}>*</span>
                 </label>
                 <input
@@ -528,7 +530,7 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-medium" style={{ color: '#6B7A72' }}>
+                <label className="text-xs font-medium" style={{ color: '#65736B' }}>
                   End <span style={{ color: '#B8423C' }}>*</span>
                 </label>
                 <input
@@ -553,7 +555,7 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
               )}
 
               <div className="space-y-1">
-                <label className="text-xs font-medium" style={{ color: '#6B7A72' }}>Room</label>
+                <label className="text-xs font-medium" style={{ color: '#65736B' }}>Room</label>
                 <input
                   className="w-full border rounded-lg px-3 py-2 text-sm"
                   style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}
@@ -565,7 +567,7 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-medium" style={{ color: '#6B7A72' }}>Capacity (optional)</label>
+                <label className="text-xs font-medium" style={{ color: '#65736B' }}>Capacity (optional)</label>
                 <input
                   type="number"
                   className="w-full border rounded-lg px-3 py-2 text-sm"
@@ -582,7 +584,7 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
 
             {speakers.length > 0 && (
               <div className="space-y-2">
-                <label className="text-xs font-medium" style={{ color: '#6B7A72' }}>Speakers</label>
+                <label className="text-xs font-medium" style={{ color: '#65736B' }}>Speakers</label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {speakers.map((sp) => (
                     <label key={sp.id} className="flex items-center gap-2 cursor-pointer">
@@ -618,7 +620,7 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
             </div>
             <div>
               <div className="font-display text-[16px] font-semibold" style={{ color: '#0F1F18' }}>No sessions yet</div>
-              <p className="text-[13px] mt-1" style={{ color: '#6B7A72' }}>
+              <p className="text-[13px] mt-1" style={{ color: '#65736B' }}>
                 Add sessions to build your agenda.
                 {ev.starts_at && ev.ends_at && (
                   <span> Sessions must fall within{' '}
@@ -654,12 +656,12 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
                 >
                   <div className="text-center shrink-0 w-[42px] sm:w-[52px]">
                     {startTime && <div className=" text-[13.5px] sm:text-[15px] tracking-tight" style={{ color: '#0F1F18' }}>{startTime}</div>}
-                    {duration && <div className=" text-[11px] sm:text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>{duration}</div>}
+                    {duration && <div className=" text-[11px] sm:text-[12px] mt-0.5" style={{ color: '#65736B' }}>{duration}</div>}
                   </div>
                   <span className="w-1 self-stretch rounded-full shrink-0" style={{ background: track?.color ?? '#E5E0D4', minHeight: 32 }} />
                   <div className="min-w-0 flex-1">
                     <div className="font-display text-[14.5px] font-semibold tracking-tight leading-snug" style={{ color: '#0F1F18' }}>{session.title}</div>
-                    <div className="flex items-center gap-2.5 mt-1.5  text-[12.5px] flex-wrap" style={{ color: '#6B7A72' }}>
+                    <div className="flex items-center gap-2.5 mt-1.5  text-[12.5px] flex-wrap" style={{ color: '#65736B' }}>
                       {speakerText && <span className="inline-flex items-center gap-1"><User size={11} strokeWidth={1.8} />{speakerText}</span>}
                       {speakerText && session.room && <span style={{ color: '#E5E0D4' }}>·</span>}
                       {session.room && <span className="inline-flex items-center gap-1"><MapPin size={11} strokeWidth={1.8} />{session.room}</span>}
@@ -680,15 +682,15 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
                   </span>
                   <button
                     onClick={() => openEdit(session)}
-                    className="w-8 h-8 grid place-items-center rounded-lg transition shrink-0 hover:bg-[#E8EFEB] hover:text-[#1F4D3A]"
-                    style={{ color: '#6B7A72' }}
+                    className="w-10 h-10 grid place-items-center rounded-lg transition shrink-0 hover:bg-[#E8EFEB] hover:text-[#1F4D3A]"
+                    style={{ color: '#65736B' }}
                   >
                     <Settings size={15} strokeWidth={1.8} />
                   </button>
                   <button
                     onClick={() => handleDeleteSession(session.id)}
                     disabled={deletingId === session.id}
-                    className="w-8 h-8 grid place-items-center rounded-lg transition shrink-0 hover:bg-red-50 disabled:opacity-40"
+                    className="w-10 h-10 grid place-items-center rounded-lg transition shrink-0 hover:bg-red-50 disabled:opacity-40"
                     style={{ color: '#B8423C' }}
                   >
                     <Trash2 size={15} strokeWidth={1.8} />

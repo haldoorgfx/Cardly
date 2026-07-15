@@ -80,8 +80,9 @@ export default async function EntitlementsPage({ params }: { params: Promise<{ i
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = createAdminClient() as any;
-  const [{ data: event }, { data: ents }, { data: ticketTypes }, { data: redemptions }] = await Promise.all([
+  const [{ data: event }, { data: eventPage }, { data: ents }, { data: ticketTypes }, { data: redemptions }] = await Promise.all([
     db.from('events').select('id, name, slug').eq('id', id).eq('user_id', user.id).single(),
+    db.from('event_pages').select('starts_at, ends_at').eq('event_id', id).maybeSingle(),
     db.from('entitlements').select('*').eq('event_id', id).order('created_at', { ascending: true }),
     db.from('ticket_types').select('id, name').eq('event_id', id).order('position'),
     // Fetch redeem + un-redeem ledger rows so the badge shows NET redemptions
@@ -212,7 +213,7 @@ export default async function EntitlementsPage({ params }: { params: Promise<{ i
         <h1 className="font-display font-semibold text-[24px]" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
           Entitlements
         </h1>
-        <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>
+        <p className="text-[14px] mt-1" style={{ color: '#65736B' }}>
           Define what attendees can redeem — entry, meals, sessions, merch, transport and more. Each entitlement scans on its own, with its own validity window and redemption limit. Attach them to ticket types so the right people hold the right things.
         </p>
         <a
@@ -227,6 +228,8 @@ export default async function EntitlementsPage({ params }: { params: Promise<{ i
         <EntitlementsClient
           initialEntitlements={entitlements}
           ticketTypes={tt}
+          eventStartsAt={eventPage?.starts_at ?? null}
+          eventEndsAt={eventPage?.ends_at ?? null}
           createEntitlement={createEntitlement}
           updateEntitlement={updateEntitlement}
           deleteEntitlement={deleteEntitlement}

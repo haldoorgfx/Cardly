@@ -24,10 +24,17 @@ interface Props {
   onClose: () => void;
   ticketTypes: TicketTypeLite[];
   initial: Entitlement | null;
+  /** New entitlements default their validity window to the event's own
+   *  start/end (a pass is valid for the whole event unless narrowed) instead
+   *  of forcing the organizer to re-enter dates they already set for the
+   *  event itself. Editing an existing entitlement always uses ITS saved
+   *  values, even if that's blank — an explicit choice, not re-defaulted. */
+  eventStartsAt: string | null;
+  eventEndsAt: string | null;
   save: (values: EntitlementInput) => Promise<{ ok?: boolean; error?: string }>;
 }
 
-export function EntitlementSlideOver({ open, onClose, ticketTypes, initial, save }: Props) {
+export function EntitlementSlideOver({ open, onClose, ticketTypes, initial, eventStartsAt, eventEndsAt, save }: Props) {
   const {
     register, handleSubmit, reset, watch, setValue,
     formState: { errors, isSubmitting },
@@ -40,19 +47,23 @@ export function EntitlementSlideOver({ open, onClose, ticketTypes, initial, save
     },
   });
 
-  // Re-seed the form whenever the panel opens (new vs edit).
+  // Re-seed the form whenever the panel opens (new vs edit). A brand-new
+  // entitlement defaults its window to the event's own start/end — most
+  // entitlements (entry, meals, sessions) are meant to be valid for the
+  // whole event, so this saves re-entering dates already set at event
+  // creation. Editing an existing entitlement always uses ITS saved values.
   useEffect(() => {
     if (!open) return;
     reset({
       name: initial?.name ?? '',
       type: initial?.type ?? 'entry',
       quantity: initial?.quantity != null ? String(initial.quantity) : '',
-      valid_from: toLocalInput(initial?.valid_from ?? null),
-      valid_until: toLocalInput(initial?.valid_until ?? null),
+      valid_from: toLocalInput(initial ? initial.valid_from : eventStartsAt),
+      valid_until: toLocalInput(initial ? initial.valid_until : eventEndsAt),
       redemption_limit: initial?.redemption_limit ?? 'once',
       ticketTypeIds: initial?.ticketTypeIds ?? [],
     });
-  }, [open, initial, reset]);
+  }, [open, initial, eventStartsAt, eventEndsAt, reset]);
 
   const type = watch('type');
   const redemptionLimit = watch('redemption_limit');
@@ -95,7 +106,7 @@ export function EntitlementSlideOver({ open, onClose, ticketTypes, initial, save
           <h3 className="font-display font-semibold text-[16px]" style={{ color: '#0F1F18' }}>
             {initial ? 'Edit entitlement' : 'New entitlement'}
           </h3>
-          <button type="button" onClick={onClose} aria-label="Close" className="h-8 w-8 rounded-lg flex items-center justify-center transition hover:bg-[#F5F5F4]" style={{ color: '#6B7A72' }}>
+          <button type="button" onClick={onClose} aria-label="Close" className="h-10 w-10 rounded-lg flex items-center justify-center transition hover:bg-[#F5F5F4]" style={{ color: '#65736B' }}>
             <X size={18} strokeWidth={2} />
           </button>
         </div>
@@ -121,7 +132,7 @@ export function EntitlementSlideOver({ open, onClose, ticketTypes, initial, save
                     className="flex flex-col items-center gap-1.5 py-2.5 rounded-lg text-[11px] font-medium transition"
                     style={{
                       background: on ? '#E8EFEB' : 'white',
-                      color: on ? '#1F4D3A' : '#6B7A72',
+                      color: on ? '#1F4D3A' : '#65736B',
                       border: `1px solid ${on ? 'rgba(31,77,58,0.35)' : '#E5E0D4'}`,
                     }}
                   >
@@ -142,18 +153,18 @@ export function EntitlementSlideOver({ open, onClose, ticketTypes, initial, save
                 onBlur={(e) => (e.target.style.borderColor = '#E5E0D4')}
               />
               {watch('quantity') === '' && (
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[16px] leading-none" style={{ color: '#9BA8A1' }} aria-hidden>∞</span>
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[16px] leading-none" style={{ color: '#65736B' }} aria-hidden>∞</span>
               )}
             </div>
           </Field>
 
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Valid from" hint="Optional">
+            <Field label="Valid from" hint={eventStartsAt && !initial ? 'Defaults to event start' : 'Optional'}>
               <input {...register('valid_from')} type="datetime-local"
                 className="w-full h-10 px-3 rounded-lg text-[13px] outline-none transition" style={inputStyle}
                 onFocus={(e) => (e.target.style.borderColor = '#E8C57E')} onBlur={(e) => (e.target.style.borderColor = '#E5E0D4')} />
             </Field>
-            <Field label="Valid until" hint="Optional" error={errors.valid_until?.message}>
+            <Field label="Valid until" hint={eventEndsAt && !initial ? 'Defaults to event end' : 'Optional'} error={errors.valid_until?.message}>
               <input {...register('valid_until')} type="datetime-local" aria-invalid={!!errors.valid_until}
                 className="w-full h-10 px-3 rounded-lg text-[13px] outline-none transition" style={inputStyle}
                 onFocus={(e) => (e.target.style.borderColor = '#E8C57E')} onBlur={(e) => (e.target.style.borderColor = '#E5E0D4')} />

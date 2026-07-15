@@ -10,6 +10,11 @@ import type { Entitlement, EntitlementInput, TicketTypeLite } from './entitlemen
 interface Props {
   initialEntitlements: Entitlement[];
   ticketTypes: TicketTypeLite[];
+  /** The event's own start/end — new entitlements default to this window
+   *  (an entry pass is valid for the whole event unless narrowed) instead of
+   *  making the organizer re-enter dates they already set at event creation. */
+  eventStartsAt: string | null;
+  eventEndsAt: string | null;
   createEntitlement: (input: EntitlementInput) => Promise<{ ok?: boolean; error?: string }>;
   updateEntitlement: (id: string, input: EntitlementInput) => Promise<{ ok?: boolean; error?: string }>;
   deleteEntitlement: (id: string) => Promise<{ ok?: boolean; error?: string }>;
@@ -31,7 +36,7 @@ function validityLabel(from: string | null, until: string | null): string | null
 }
 
 export function EntitlementsClient({
-  initialEntitlements, ticketTypes,
+  initialEntitlements, ticketTypes, eventStartsAt, eventEndsAt,
   createEntitlement, updateEntitlement, deleteEntitlement,
 }: Props) {
   const router = useRouter();
@@ -85,7 +90,7 @@ export function EntitlementsClient({
           <div className="font-display font-semibold text-[17px] mb-1" style={{ color: '#0F1F18' }}>
             No entitlements yet
           </div>
-          <div className="text-[14px] mb-6 max-w-[380px]" style={{ color: '#6B7A72' }}>
+          <div className="text-[14px] mb-6 max-w-[380px]" style={{ color: '#65736B' }}>
             Entitlements are the things attendees can redeem — entry, meals, sessions, merch, transport and more. Each one scans on its own, with its own window and limit.
           </div>
           <button onClick={openNew}
@@ -116,7 +121,7 @@ export function EntitlementsClient({
                     </div>
 
                     {/* Meta row */}
-                    <div className="flex items-center gap-x-4 gap-y-1 flex-wrap mt-1.5 text-[12px]" style={{ color: '#6B7A72' }}>
+                    <div className="flex items-center gap-x-4 gap-y-1 flex-wrap mt-1.5 text-[12px]" style={{ color: '#65736B' }}>
                       <span className="inline-flex items-center gap-1">
                         <RefreshCw size={11} strokeWidth={2} /> {LIMIT_LABEL[e.redemption_limit]}
                       </span>
@@ -153,13 +158,13 @@ export function EntitlementsClient({
 
                   {/* Actions */}
                   <div className="flex items-center gap-1 shrink-0">
-                    <button onClick={() => openEdit(e)} title="Edit" className="h-8 w-8 rounded-lg flex items-center justify-center transition" style={{ color: '#6B7A72' }}
+                    <button onClick={() => openEdit(e)} title="Edit" className="h-10 w-10 rounded-lg flex items-center justify-center transition" style={{ color: '#65736B' }}
                       onMouseEnter={(ev) => (ev.currentTarget.style.background = '#F5F5F4')} onMouseLeave={(ev) => (ev.currentTarget.style.background = 'transparent')}>
                       <Pencil size={14} strokeWidth={2} />
                     </button>
-                    <button onClick={() => { setConfirmDelete(e); setDeleteError(''); }} title="Delete" className="h-8 w-8 rounded-lg flex items-center justify-center transition" style={{ color: '#6B7A72' }}
+                    <button onClick={() => { setConfirmDelete(e); setDeleteError(''); }} title="Delete" className="h-10 w-10 rounded-lg flex items-center justify-center transition" style={{ color: '#65736B' }}
                       onMouseEnter={(ev) => { ev.currentTarget.style.background = 'rgba(184,66,60,0.08)'; ev.currentTarget.style.color = '#B8423C'; }}
-                      onMouseLeave={(ev) => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.color = '#6B7A72'; }}>
+                      onMouseLeave={(ev) => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.color = '#65736B'; }}>
                       <Trash2 size={14} strokeWidth={2} />
                     </button>
                   </div>
@@ -175,6 +180,8 @@ export function EntitlementsClient({
         onClose={() => setPanelOpen(false)}
         ticketTypes={ticketTypes}
         initial={editing}
+        eventStartsAt={eventStartsAt}
+        eventEndsAt={eventEndsAt}
         save={save}
       />
 
@@ -191,7 +198,7 @@ export function EntitlementsClient({
                 This entitlement has <strong>{confirmDelete.redemptionCount}</strong> recorded redemption{confirmDelete.redemptionCount !== 1 ? 's' : ''}. Deleting it removes the definition and its history from scanning.
               </p>
             ) : (
-              <p className="text-[14px] mb-5" style={{ color: '#6B7A72' }}>
+              <p className="text-[14px] mb-5" style={{ color: '#65736B' }}>
                 It will be removed from every ticket type. This cannot be undone.
               </p>
             )}

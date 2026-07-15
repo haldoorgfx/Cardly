@@ -1,7 +1,5 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
-import { createPortal } from 'react-dom';
 import { Calendar } from 'lucide-react';
 
 interface Props {
@@ -18,7 +16,7 @@ interface Props {
   style?: React.CSSProperties;
 }
 
-/** Format ISO string → compact UTC string calendars expect: YYYYMMDDTHHmmssZ */
+/** Format ISO string → compact UTC string Google Calendar expects: YYYYMMDDTHHmmssZ */
 function toUtcStamp(iso: string): string {
   return new Date(iso)
     .toISOString()
@@ -26,65 +24,13 @@ function toUtcStamp(iso: string): string {
     .replace(/\.\d{3}/, '');
 }
 
-/** Escape text per RFC 5545 (backslash, comma, semicolon, newlines). */
-function escapeIcs(str: string): string {
-  return str
-    .replace(/\\/g, '\\\\')
-    .replace(/;/g, '\\;')
-    .replace(/,/g, '\\,')
-    .replace(/\r\n|\r|\n/g, '\\n');
-}
-
-/** Build a valid VCALENDAR/VEVENT string with UTC times. */
-function buildIcs(p: {
-  title: string;
-  description: string | null;
-  startsAt: string;
-  endIso: string;
-  location: string;
-  eventUrl: string;
-}): string {
-  const uid = `event-${toUtcStamp(p.startsAt)}-${Math.random().toString(36).slice(2, 8)}@eventera`;
-  const lines = [
-    'BEGIN:VCALENDAR',
-    'VERSION:2.0',
-    'PRODID:-//Eventera//Event Calendar//EN',
-    'CALSCALE:GREGORIAN',
-    'METHOD:PUBLISH',
-    'BEGIN:VEVENT',
-    `UID:${uid}`,
-    `DTSTAMP:${toUtcStamp(new Date().toISOString())}`,
-    `DTSTART:${toUtcStamp(p.startsAt)}`,
-    `DTEND:${toUtcStamp(p.endIso)}`,
-    `SUMMARY:${escapeIcs(p.title)}`,
-    ...(p.description ? [`DESCRIPTION:${escapeIcs(p.description.slice(0, 800))}`] : []),
-    ...(p.location ? [`LOCATION:${escapeIcs(p.location)}`] : []),
-    `URL:${escapeIcs(p.eventUrl)}`,
-    'END:VEVENT',
-    'END:VCALENDAR',
-  ];
-  return lines.join('\r\n') + '\r\n';
-}
-
+/** One click, straight to Google Calendar with the event prefilled — no
+ *  dropdown, no .ics download. This is the single shared "Add to calendar"
+ *  control used everywhere in the app. */
 export function AddToCalendarButton({
   title, description, startsAt, endsAt, timezone, location, eventUrl,
   variant = 'link', className = '', style,
 }: Props) {
-  const [open, setOpen] = useState(false);
-  const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
-  const wrapRef = useRef<HTMLDivElement>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
-  const btnRef = useRef<HTMLButtonElement>(null);
-
-  const MENU_W = 208;
-  const place = useCallback(() => {
-    const r = btnRef.current?.getBoundingClientRect();
-    if (!r) return;
-    // Right-align the menu to the button; keep it on-screen.
-    const left = Math.max(8, Math.min(r.right - MENU_W, window.innerWidth - MENU_W - 8));
-    setPos({ top: r.bottom + 8, left });
-  }, []);
-
   const endIso = endsAt ?? new Date(new Date(startsAt).getTime() + 2 * 3600_000).toISOString();
   const details = [description, eventUrl].filter(Boolean).join('\n\n');
 
@@ -95,43 +41,6 @@ export function AddToCalendarButton({
     `&details=${encodeURIComponent(details)}` +
     `&location=${encodeURIComponent(location)}` +
     (timezone ? `&ctz=${encodeURIComponent(timezone)}` : '');
-
-  useEffect(() => {
-    if (!open) return;
-    place();
-    function onDoc(e: MouseEvent) {
-      const t = e.target as Node;
-      if (wrapRef.current?.contains(t) || menuRef.current?.contains(t)) return;
-      setOpen(false);
-    }
-    function onReflow() { place(); }
-    function onEsc(e: KeyboardEvent) { if (e.key === 'Escape') setOpen(false); }
-    document.addEventListener('mousedown', onDoc);
-    window.addEventListener('resize', onReflow);
-    window.addEventListener('scroll', onReflow, true);
-    document.addEventListener('keydown', onEsc);
-    return () => {
-      document.removeEventListener('mousedown', onDoc);
-      window.removeEventListener('resize', onReflow);
-      window.removeEventListener('scroll', onReflow, true);
-      document.removeEventListener('keydown', onEsc);
-    };
-  }, [open, place]);
-
-  /** Generate the .ics and trigger a download the device opens in its calendar app. */
-  function downloadIcs() {
-    const ics = buildIcs({ title, description, startsAt, endIso, location, eventUrl });
-    const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = title.replace(/[^a-z0-9]+/gi, '-').toLowerCase().slice(0, 60) + '.ics';
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-    setOpen(false);
-  }
 
   const triggerClass =
     variant === 'solid'
@@ -147,60 +56,14 @@ export function AddToCalendarButton({
           fontSize: 13,
           textDecoration: 'none',
           boxShadow: '0 2px 10px rgba(15,31,24,0.18)',
-          cursor: 'pointer',
-          border: 'none',
           ...style,
         }
-      : { color: '#1F4D3A', textDecoration: 'none', cursor: 'pointer', background: 'none', border: 'none', padding: 0, ...style };
-
-  // Portal the menu to <body> with fixed positioning so it can never be clipped
-  // by an ancestor with overflow:hidden (e.g. the rounded event hero).
-  const menu = open && pos && typeof document !== 'undefined'
-    ? createPortal(
-        <div
-          ref={menuRef}
-          className="rounded-xl overflow-hidden"
-          style={{
-            position: 'fixed',
-            top: pos.top,
-            left: pos.left,
-            width: MENU_W,
-            zIndex: 1000,
-            background: '#FFFFFF',
-            border: '1px solid #E5E0D4',
-            boxShadow: '0 12px 32px rgba(15,31,24,0.18)',
-          }}
-        >
-          <button
-            type="button"
-            onClick={downloadIcs}
-            className="w-full text-left px-4 py-2.5 text-[13px] font-medium transition hover:bg-[#FAF6EE]"
-            style={{ color: '#0F1F18', background: 'none', border: 'none', cursor: 'pointer' }}
-          >
-            Apple / Outlook (.ics)
-          </button>
-          <a
-            href={googleUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => setOpen(false)}
-            className="block px-4 py-2.5 text-[13px] font-medium transition hover:bg-[#FAF6EE]"
-            style={{ color: '#0F1F18', textDecoration: 'none', borderTop: '1px solid #E5E0D4' }}
-          >
-            Google Calendar
-          </a>
-        </div>,
-        document.body,
-      )
-    : null;
+      : { color: '#1F4D3A', textDecoration: 'none', ...style };
 
   return (
-    <div ref={wrapRef} className="relative inline-flex">
-      <button ref={btnRef} type="button" onClick={() => setOpen(v => !v)} className={triggerClass} style={triggerStyle}>
-        <Calendar size={variant === 'solid' ? 15 : 13} strokeWidth={2} />
-        Add to calendar
-      </button>
-      {menu}
-    </div>
+    <a href={googleUrl} target="_blank" rel="noopener noreferrer" className={triggerClass} style={triggerStyle}>
+      <Calendar size={variant === 'solid' ? 15 : 13} strokeWidth={2} />
+      Add to calendar
+    </a>
   );
 }

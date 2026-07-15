@@ -1,19 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import QRCode from 'qrcode';
-
-/* ── Design tokens ─────────────────────────────────────────────── */
-const PT = {
-  primary: '#1F4D3A', primaryDark: '#163828', primarySoft: '#E8EFEB',
-  accent: '#E8C57E', accentDark: '#C9A45E',
-  ink: '#0F1F18', inkSoft: '#3A4A42', muted: '#6B7A72',
-  cream: '#FAF6EE', surface: '#FFFFFF',
-  border: '#E5E0D4', borderStrong: '#C9C3B1',
-  success: '#2D7A4F',
-};
+import { PageShell, PageHeader, Card, StatRow, PrimaryButton, SecondaryButton, dash } from '@/components/dash';
 
 /* ── Inline SVG icon helper ────────────────────────────────────── */
 function Ico({ size = 16, sw = 1.6, children }: {
@@ -48,12 +37,6 @@ const I = {
   ),
   link: (p?: { size?: number }) => (
     <Ico size={p?.size ?? 16}><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" /><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" /></Ico>
-  ),
-  qr: (p?: { size?: number }) => (
-    <Ico size={p?.size ?? 16}><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /><line x1="14" y1="14" x2="14" y2="17" /><line x1="14" y1="20" x2="17" y2="20" /><line x1="20" y1="14" x2="20" y2="17" /><line x1="17" y1="17" x2="20" y2="17" /><line x1="17" y1="20" x2="21" y2="20" /></Ico>
-  ),
-  refresh: (p?: { size?: number }) => (
-    <Ico size={p?.size ?? 16}><polyline points="23 4 23 10 17 10" /><polyline points="1 20 1 14 7 14" /><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" /></Ico>
   ),
 };
 
@@ -99,8 +82,17 @@ function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: numbe
   ctx.closePath();
 }
 
-/** Draw the Eventera mark (forest tile + gold E on a white plate) into the
- *  centre of a QR PNG data URL and return the composited PNG. */
+// The real Eventera icon mark (public/eventera-logo.png, left icon cropped
+// out — gold bar over two dark-green bars), trimmed to a tight transparent
+// PNG. Embedded inline so the SVG download is self-contained. Native size
+// 66×70 — regenerate with `sharp('public/eventera-logo.png').extract({left:0,
+// top:0, width:66, height:70}).trim()` if the source wordmark ever changes.
+const MARK_ASPECT = 66 / 70;
+const MARK_PNG_BASE64 =
+  'iVBORw0KGgoAAAANSUhEUgAAAEIAAABGCAYAAAB4xUL+AAAACXBIWXMAABYlAAAWJQFJUiTwAAABLklEQVR4nO2asQ3CMBRE/whUrjOFaxorazAKIzADkzCF13mIDpEySHeSr3gNaZ5O9v+HkprPcZ/PwWJcgfqmEgQJgpyIkasxMyNGhuXM1hhZnzM9YqRQzZPNcvs8WIzLIYjfH1gUuQAmyAUwQS6ACXIBTJALYIJcABPkApggF8AEuQAmyAUwQS6ACXIBTJALYIJcABOq7f3W9v4S8XAK4t72joiXOoAEQYKonAhyNSozggzLytYg67PSI0jFrr80S3W1xQS5ACbIBTBBLoAJcgFMkAtgglwAE+QCmCAXwAS5ACbIBTBBLoAJcgFMkAtgglwAozddW9v7dTEubq/8EHH8KD1BkCDIiei5Gi0zomdYtmyNnvXZ0iN6ClU70yzVf3YwQS6ACXIBTJALYMIbLxpjawb0N64AAAAASUVORK5CYII=';
+
+/** Draw the real Eventera icon mark (not a redrawn approximation) on a white
+ *  plate into the centre of a QR PNG data URL and return the composited PNG. */
 function compositeQrMark(rawDataUrl: string): Promise<string> {
   return new Promise((resolve) => {
     const img = new window.Image();
@@ -114,46 +106,37 @@ function compositeQrMark(rawDataUrl: string): Promise<string> {
       ctx.drawImage(img, 0, 0, size, size);
       const cx = size / 2, cy = size / 2;
       const plate = size * 0.115;   // half-size of the white plate
-      const mark = size * 0.16;     // forest tile side
       ctx.fillStyle = '#FFFFFF';
       roundRect(ctx, cx - plate, cy - plate, plate * 2, plate * 2, plate * 0.42); ctx.fill();
-      // Match the real Eventera app icon (app/apple-icon.tsx): forest→gold
-      // gradient tile with a cream "E", not a flat green tile with a gold E.
-      const g = ctx.createLinearGradient(cx - mark / 2, cy - mark / 2, cx + mark / 2, cy + mark / 2);
-      g.addColorStop(0, '#1F4D3A');
-      g.addColorStop(0.6, '#2A6A50');
-      g.addColorStop(1, '#E8C57E');
-      ctx.fillStyle = g;
-      roundRect(ctx, cx - mark / 2, cy - mark / 2, mark, mark, mark * 0.24); ctx.fill();
-      ctx.fillStyle = '#FAF6EE';
-      ctx.font = `700 ${mark * 0.62}px "Plus Jakarta Sans", system-ui, sans-serif`;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText('E', cx, cy + mark * 0.04);
-      resolve(canvas.toDataURL('image/png'));
+
+      const markImg = new window.Image();
+      markImg.onload = () => {
+        const markH = size * 0.15;
+        const markW = markH * MARK_ASPECT;
+        ctx.drawImage(markImg, cx - markW / 2, cy - markH / 2, markW, markH);
+        resolve(canvas.toDataURL('image/png'));
+      };
+      markImg.onerror = () => resolve(canvas.toDataURL('image/png'));
+      markImg.src = `data:image/png;base64,${MARK_PNG_BASE64}`;
     };
     img.onerror = () => resolve(rawDataUrl);
     img.src = rawDataUrl;
   });
 }
 
-/** Inject the same Eventera mark into the centre of a QR SVG string so the SVG
- *  download carries the logo too. */
+/** Inject the same real Eventera mark into the centre of a QR SVG string so
+ *  the SVG download carries the logo too. */
 function injectMarkIntoSvg(svg: string): string {
   const m = svg.match(/viewBox="0 0 ([\d.]+) /);
   const vb = m ? parseFloat(m[1]) : 0;
   if (!vb) return svg;
   const c = vb / 2;
   const plate = vb * 0.115;
-  const mark = vb * 0.16;
-  // Match the real Eventera app icon: forest→gold gradient tile + cream "E".
+  const markH = vb * 0.15;
+  const markW = markH * MARK_ASPECT;
   const overlay =
-    `<defs><linearGradient id="evMark" x1="0" y1="0" x2="1" y2="1">` +
-    `<stop offset="0" stop-color="#1F4D3A"/><stop offset="0.6" stop-color="#2A6A50"/><stop offset="1" stop-color="#E8C57E"/>` +
-    `</linearGradient></defs>` +
     `<rect x="${c - plate}" y="${c - plate}" width="${plate * 2}" height="${plate * 2}" rx="${plate * 0.42}" fill="#FFFFFF"/>` +
-    `<rect x="${c - mark / 2}" y="${c - mark / 2}" width="${mark}" height="${mark}" rx="${mark * 0.24}" fill="url(#evMark)"/>` +
-    `<text x="${c}" y="${c}" font-family="Plus Jakarta Sans, system-ui, sans-serif" font-weight="700" font-size="${mark * 0.64}" fill="#FAF6EE" text-anchor="middle" dominant-baseline="central">E</text>`;
+    `<image x="${c - markW / 2}" y="${c - markH / 2}" width="${markW}" height="${markH}" href="data:image/png;base64,${MARK_PNG_BASE64}"/>`;
   return svg.replace('</svg>', `${overlay}</svg>`);
 }
 
@@ -166,7 +149,7 @@ function RegistrationPreview({ eventName, dateLabel, venueLabel }: {
   return (
     <div style={{
       position: 'absolute', inset: 0,
-      background: PT.cream,
+      background: dash.cream,
       display: 'flex', flexDirection: 'column',
       fontFamily: 'Inter, sans-serif',
       overflow: 'hidden',
@@ -178,11 +161,11 @@ function RegistrationPreview({ eventName, dateLabel, venueLabel }: {
         flexShrink: 0,
       }}>
         <div style={{
-          fontSize: 7.5, fontWeight: 700, color: PT.accent,
+          fontSize: 7.5, fontWeight: 700, color: dash.gold,
           letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 4,
         }}>EVENT</div>
         <div style={{
-          fontSize: 9, fontWeight: 700, color: PT.cream,
+          fontSize: 9, fontWeight: 700, color: dash.cream,
           lineHeight: 1.2, letterSpacing: '-0.01em',
         }}>{eventName.length > 28 ? eventName.slice(0, 28) + '…' : eventName}</div>
         {dateLabel && (
@@ -192,8 +175,8 @@ function RegistrationPreview({ eventName, dateLabel, venueLabel }: {
       {/* Body */}
       <div style={{ flex: 1, padding: '10px 10px 0', display: 'flex', flexDirection: 'column', gap: 6 }}>
         {venueLabel && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 7, color: PT.inkSoft }}>
-            <div style={{ color: PT.inkSoft, flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 7, color: dash.inkSoft }}>
+            <div style={{ color: dash.inkSoft, flexShrink: 0 }}>
               <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" />
               </svg>
@@ -201,60 +184,30 @@ function RegistrationPreview({ eventName, dateLabel, venueLabel }: {
             <span>{venueLabel.length > 24 ? venueLabel.slice(0, 24) + '…' : venueLabel}</span>
           </div>
         )}
-        <div style={{ fontSize: 7, color: PT.muted, marginTop: 4, marginBottom: 2 }}>Registration details</div>
+        <div style={{ fontSize: 7, color: dash.muted, marginTop: 4, marginBottom: 2 }}>Registration details</div>
         {['Full name', 'Email address'].map(label => (
           <div key={label} style={{
             height: 20, borderRadius: 4,
-            border: `1px solid ${PT.border}`,
-            background: PT.surface,
+            border: `1px solid ${dash.border}`,
+            background: '#FFFFFF',
             padding: '0 6px',
             display: 'flex', alignItems: 'center',
-            fontSize: 7, color: PT.muted,
+            fontSize: 7, color: dash.muted,
           }}>{label}</div>
         ))}
         <div style={{
           height: 20, borderRadius: 4,
-          background: PT.primary,
+          background: dash.forest,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 7.5, fontWeight: 700, color: PT.cream,
+          fontSize: 7.5, fontWeight: 700, color: dash.cream,
           marginTop: 4,
         }}>Register →</div>
       </div>
       <div style={{
         padding: '6px 10px',
-        fontSize: 6, color: PT.muted,
+        fontSize: 6, color: dash.muted,
         textAlign: 'center', letterSpacing: '0.04em',
       }}>powered by eventera</div>
-    </div>
-  );
-}
-
-/* ── Panel shell ───────────────────────────────────────────────── */
-function SectionLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <div style={{
-      fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10,
-      color: PT.muted, letterSpacing: '0.1em', textTransform: 'uppercase',
-    }}>{children}</div>
-  );
-}
-
-function Panel({ label, action, children }: {
-  label: string;
-  action?: React.ReactNode;
-  children: React.ReactNode;
-}) {
-  return (
-    <div style={{
-      background: PT.surface, border: `1px solid ${PT.border}`,
-      borderRadius: 10, padding: 18,
-      display: 'flex', flexDirection: 'column', gap: 14,
-    }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-        <SectionLabel>{label}</SectionLabel>
-        {action}
-      </div>
-      {children}
     </div>
   );
 }
@@ -296,7 +249,6 @@ export default function PublishClient({
   viewCount, registrationCount, ticketCount,
   startsAt, endsAt, timezone, venueName, isOnline,
 }: Props) {
-  const router = useRouter();
   const [copied, setCopied] = useState(false);
   const [publishing, setPublishing] = useState(false);
   const [publishError, setPublishError] = useState('');
@@ -306,6 +258,7 @@ export default function PublishClient({
   const [qrDataUrl, setQrDataUrl] = useState('');
   const [qrSvgString, setQrSvgString] = useState('');
   const [activeSize, setActiveSize] = useState<'mobile' | 'tablet' | 'custom'>('mobile');
+  const [published, setPublished] = useState(isPublished);
 
   const EMBED_SIZES = { mobile: { w: 375, h: 812 }, tablet: { w: 768, h: 1024 }, custom: { w: '100%', h: '100%' } };
   const activeSz = EMBED_SIZES[activeSize];
@@ -337,24 +290,14 @@ export default function PublishClient({
     : dateLabel;
   const venueLabel = isOnline ? 'Online event' : (venueName ?? '');
 
-  // Generate dynamic hashtags from event name
-  const hashtagBase = eventName
-    .normalize('NFD').replace(/[̀-ͯ]/g, '')
-    .replace(/[^a-zA-Z0-9\s]/g, '')
-    .split(/\s+/).filter(w => w.length > 2)
-    .map(w => `#${w.charAt(0).toUpperCase()}${w.slice(1).toLowerCase()}`)
-    .slice(0, 3)
-    .join(' ');
-  const locationTag = venueName ? `#${venueName.split(/[\s,]+/)[0].replace(/[^a-zA-Z]/g, '')}` : '';
-  const hashtags = [hashtagBase, locationTag, '#Eventera'].filter(Boolean).join(' ');
-
-  // Captions – pick the best based on available data
+  // Three caption variants an organizer might actually want to post — short,
+  // specific, no auto-generated hashtag stuffing (every word of the event
+  // title capitalized into a #tag reads as filler, not something a person
+  // would post).
   const captions = [
-    dateRange && venueLabel
-      ? `📅 ${dateRange}${venueLabel && !isOnline ? ` · ${venueLabel}` : ' · Online'}\n\nWe're hosting ${eventName} and we'd love to see you there. Reserve your spot now — limited seats available.\n\n👇 Register here:\n${shareUrl}\n\n${hashtags}`
-      : `We're hosting ${eventName} and we'd love to see you there. Reserve your spot now — limited seats available.\n\n👇 Register here:\n${shareUrl}\n\n${hashtags}`,
-    `🎉 ${eventName}${dateRange ? ` is happening on ${dateRange}` : ' is coming up'}${venueLabel && !isOnline ? ` at ${venueLabel}` : isOnline ? ' — join us online' : ''}.\n\nSecure your free spot before it fills up.\n\n🔗 ${shareUrl}\n\n${hashtags}`,
-    `Save the date! ${eventName}${dateRange ? ` · ${dateRange}` : ''}${venueLabel && !isOnline ? ` · ${venueLabel}` : ''}.\n\nClick the link to register:\n${shareUrl}\n\n${hashtags}`,
+    `${eventName}\n${[dateRange, venueLabel].filter(Boolean).join(' · ')}\n\nWe're hosting this and would love to have you there. Reserve your spot — seats are limited.\n\nRegister: ${shareUrl}`,
+    `${dateRange ? `Happening ${dateRange}` : 'Coming up'}${venueLabel && !isOnline ? ` at ${venueLabel}` : isOnline ? ' — online' : ''}: ${eventName}.\n\nSpots are filling up — register free.\n\n${shareUrl}`,
+    `Save the date: ${eventName}${[dateRange, venueLabel].filter(Boolean).length ? ` · ${[dateRange, venueLabel].filter(Boolean).join(' · ')}` : ''}.\n\n${shareUrl}`,
   ];
   const caption = captions[captionIndex];
   const handlePublish = useCallback(async () => {
@@ -367,12 +310,13 @@ export default function PublishClient({
         body: JSON.stringify({ status: 'published' }),
       });
       if (!res.ok) throw new Error('Failed to publish');
-      router.refresh();
+      setPublished(true);
     } catch {
       setPublishError('Failed to publish. Please try again.');
+    } finally {
       setPublishing(false);
     }
-  }, [eventId, router]);
+  }, [eventId]);
 
   const handleCopy = useCallback(async () => {
     try {
@@ -448,558 +392,298 @@ export default function PublishClient({
   const sz = activeSz;
 
   return (
-    <div style={{ background: PT.cream, fontFamily: 'Inter, sans-serif', color: PT.ink }}>
-
+    <PageShell width="wide">
       {/* ── Draft banner ────────────────────────────────────────────── */}
-      {!isPublished && (
-        <div style={{
-          background: PT.surface, borderBottom: `1px solid ${PT.border}`,
-          padding: '14px 24px',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap',
-        }}>
+      {!published && (
+        <div
+          className="mb-6 rounded-2xl border px-5 py-4 flex items-center justify-between gap-3 flex-wrap"
+          style={{ background: '#FFFFFF', borderColor: dash.border }}
+        >
           <div>
-            <div style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, fontSize: 15, color: PT.ink }}>
-              This event is not yet published.
+            <div className="font-display font-semibold text-[15px]" style={{ color: dash.ink }}>
+              This event isn&apos;t published yet.
             </div>
-            <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: PT.muted, marginTop: 2 }}>
+            <div className="text-[13px] mt-0.5" style={{ color: dash.muted }}>
               Publish it to make the link live and start accepting registrations.
             </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div className="flex items-center gap-3">
             {publishError && (
-              <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#B8423C' }}>{publishError}</span>
+              <span className="text-[13px]" style={{ color: '#B8423C' }}>{publishError}</span>
             )}
-            <button
-              onClick={handlePublish}
-              disabled={publishing}
-              style={{
-                height: 40, padding: '0 20px',
-                background: PT.primary, color: PT.cream,
-                border: 'none', borderRadius: 8,
-                fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 13.5,
-                cursor: publishing ? 'not-allowed' : 'pointer',
-                opacity: publishing ? 0.7 : 1,
-                display: 'inline-flex', alignItems: 'center', gap: 6,
-                transition: 'opacity 0.15s',
-              }}
-            >
+            <PrimaryButton onClick={handlePublish} disabled={publishing}>
               {publishing ? 'Publishing…' : 'Publish now'}
-            </button>
+            </PrimaryButton>
           </div>
         </div>
       )}
 
-      <div className="px-4 sm:px-8" style={{
-        maxWidth: 1100, width: '100%', margin: '0 auto',
-        paddingTop: 8, paddingBottom: 48,
-        display: 'flex', flexDirection: 'column', gap: 20,
-      }}>
+      <PageHeader
+        eyebrow="Publish & share"
+        title={eventName}
+        subtitle={
+          <span className="inline-flex items-center gap-2 flex-wrap">
+            <span className="inline-flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full" style={{ background: published ? '#2D7A4F' : dash.muted }} />
+              {published ? 'Open for registration' : 'Not open for registration yet'}
+            </span>
+            {dateRange && <span style={{ color: '#C9C3B1' }}>· {dateRange}</span>}
+          </span>
+        }
+        actions={
+          <SecondaryButton href={shareUrl}>
+            {I.external({ size: 14 })}
+            View public page
+          </SecondaryButton>
+        }
+      />
 
-        {/* ── Hero ─────────────────────────────────────────────────── */}
-        <div style={{
-          padding: '40px 32px 24px',
-          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 18,
-          textAlign: 'center',
-        }}>
-          <div style={{ position: 'relative', width: 60, height: 60, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ position: 'absolute', inset: -6, borderRadius: '50%', border: `2px solid ${PT.accent}`, opacity: 0.55 }} />
-            <div style={{ position: 'absolute', inset: -12, borderRadius: '50%', border: `1px solid ${PT.accent}`, opacity: 0.25 }} />
-            <div style={{
-              width: 60, height: 60, borderRadius: '50%',
-              background: PT.primary, color: PT.accent,
-              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: '0 6px 20px rgba(31,77,58,0.35)',
-            }}>
-              {I.check({ size: 28, sw: 2.6 })}
-            </div>
-          </div>
+      <StatRow
+        stats={[
+          { label: 'Page views', value: viewCount, hint: 'all-time' },
+          { label: 'Registrations', value: registrationCount, hint: 'confirmed' },
+          { label: 'Ticket types', value: ticketCount, hint: 'active' },
+        ]}
+      />
 
-          <div>
-            <div style={{
-              fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11,
-              color: PT.muted, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 8,
-            }}>{isPublished ? 'Your event is live' : 'Ready when you are'}</div>
-            <h1 style={{
-              fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 700,
-              fontSize: 32, lineHeight: 1.1, letterSpacing: '-0.025em',
-              margin: 0, color: PT.ink, maxWidth: 720,
-            }}>{eventName} {isPublished ? 'is live.' : 'isn’t published yet.'}</h1>
-            <div style={{
-              display: 'inline-flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', rowGap: 6,
-              marginTop: 10, fontFamily: 'Inter, sans-serif', fontSize: 14, color: PT.inkSoft,
-            }}>
-              {ticketCount > 0 && (
-                <>
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-                    <span style={{ width: 6, height: 6, borderRadius: '50%', background: PT.muted, display: 'block' }} />
-                    <span>{ticketCount} ticket type{ticketCount !== 1 ? 's' : ''}</span>
-                  </span>
-                  <span style={{ color: PT.borderStrong }}>·</span>
-                </>
-              )}
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-                <span style={{ width: 6, height: 6, borderRadius: '50%', background: isPublished ? PT.success : PT.muted, display: 'block' }} />
-                <span>{isPublished ? 'Open for registration' : 'Not open for registration yet'}</span>
-              </span>
-              {dateRange && (
-                <>
-                  <span style={{ color: PT.borderStrong }}>·</span>
-                  <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 12, color: PT.muted }}>{dateRange}</span>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
+      {/* ── Share + QR row ───────────────────────────────────────── */}
+      <div className="grid gap-5 mb-5" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
 
-        {/* ── Stats strip ──────────────────────────────────────────── */}
-        <div style={{
-          background: PT.surface, border: `1px solid ${PT.border}`,
-          borderRadius: 10, padding: '14px 18px',
-          display: 'flex', alignItems: 'center', gap: 24, flexWrap: 'wrap', rowGap: 12,
-        }}>
-          <StatItem label="Page views" value={String(viewCount)} sub="all-time" />
-          <div className="hidden sm:block" style={{ width: 1, height: 32, background: PT.border, flexShrink: 0 }} />
-          <StatItem label="Registrations" value={String(registrationCount)} sub="confirmed" />
-          <div className="hidden sm:block" style={{ width: 1, height: 32, background: PT.border, flexShrink: 0 }} />
-          <StatItem label="Ticket types" value={String(ticketCount)} sub="active" />
-          <div style={{ flex: 1 }} />
-          <div style={{
-            display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 10px',
-            background: PT.cream, border: `1px solid ${PT.border}`, borderRadius: 999,
-            fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10, color: PT.muted, letterSpacing: '0.04em',
-          }}>
-            {I.refresh({ size: 11 })}
-            <span>as of page load</span>
-          </div>
-        </div>
-
-        {/* ── Share + QR row ───────────────────────────────────────── */}
-        <div className="grid gap-5" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
-
-          {/* Share link panel */}
-          <Panel label="Share link" action={
-            <span style={{
-              display: 'inline-flex', alignItems: 'center', gap: 5,
-              fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10, color: PT.muted, letterSpacing: '0.04em',
-            }}>
+        {/* Share link card */}
+        <Card>
+          <div className="flex items-center justify-between gap-2 mb-3.5">
+            <div className="text-[11px] font-medium uppercase tracking-[0.08em]" style={{ color: dash.muted }}>Share link</div>
+            <span className="inline-flex items-center gap-1.5 text-[11px]" style={{ color: dash.muted }}>
               {I.link({ size: 11 })}
-              <span>public · no login required</span>
+              public · no login required
             </span>
-          }>
-            <div style={{ display: 'flex', gap: 8 }}>
-              <div style={{
-                flex: 1, minWidth: 0,
-                display: 'flex', alignItems: 'stretch',
-                border: `1px solid ${PT.border}`, borderRadius: 6, overflow: 'hidden',
-              }}>
-                <div style={{
-                  flex: 1, minWidth: 0, padding: '0 12px',
-                  display: 'flex', alignItems: 'center',
-                  background: PT.cream, borderRight: `1px solid ${PT.border}`,
-                }}>
-                  <span style={{
-                    fontFamily: 'Inter, system-ui, sans-serif', fontSize: 12.5,
-                    color: PT.ink, fontWeight: 500,
-                    whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flex: 1,
-                  }}>{shareUrl}</span>
-                </div>
-                <button
-                  onClick={handleCopy}
-                  style={{
-                    padding: '0 16px', height: 44,
-                    background: copied ? PT.primarySoft : PT.surface,
-                    color: copied ? PT.primary : PT.ink,
-                    border: 'none', cursor: 'pointer',
-                    fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 13,
-                    display: 'inline-flex', alignItems: 'center', gap: 6,
-                    flexShrink: 0, transition: 'background 0.15s',
-                  }}
-                >
-                  {copied ? I.check({ size: 14 }) : I.copy({ size: 14 })}
-                  <span>{copied ? 'Copied!' : 'Copy'}</span>
-                </button>
+          </div>
+
+          <div className="flex gap-2 mb-4">
+            <div className="flex-1 min-w-0 flex items-stretch rounded-lg overflow-hidden border" style={{ borderColor: dash.border }}>
+              <div className="flex-1 min-w-0 px-3 flex items-center" style={{ background: dash.cream, borderRight: `1px solid ${dash.border}` }}>
+                <span className="text-[12.5px] font-medium whitespace-nowrap overflow-hidden text-ellipsis flex-1" style={{ color: dash.ink }}>{shareUrl}</span>
               </div>
-              <a
-                href={shareUrl} target="_blank" rel="noopener noreferrer"
-                style={{
-                  height: 44, padding: '0 16px',
-                  background: PT.primary, color: PT.cream,
-                  border: 'none', borderRadius: 6,
-                  fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 13,
-                  display: 'inline-flex', alignItems: 'center', gap: 6,
-                  flexShrink: 0, textDecoration: 'none', transition: 'background 0.15s',
-                }}
+              <button
+                onClick={handleCopy}
+                className="px-4 h-11 inline-flex items-center gap-1.5 text-[13px] font-semibold shrink-0 transition"
+                style={{ background: copied ? dash.soft : '#FFFFFF', color: copied ? dash.forest : dash.ink }}
               >
-                {I.external({ size: 14 })}
-                <span>Visit</span>
-              </a>
+                {copied ? I.check({ size: 14 }) : I.copy({ size: 14 })}
+                {copied ? 'Copied!' : 'Copy'}
+              </button>
             </div>
+            <PrimaryButton href={shareUrl}>
+              {I.external({ size: 14 })}
+              Visit
+            </PrimaryButton>
+          </div>
 
-            <div>
-              <div style={{
-                fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10,
-                color: PT.muted, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 8,
-              }}>Share to</div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
-                <ShareButton
-                  icon={Brand.whatsapp(38)} label="WhatsApp" sub="Group chat"
-                  href={`https://wa.me/?text=${encodeURIComponent(caption)}`}
-                />
-                <ShareButton
-                  icon={Brand.x(38)} label="X" sub="Compose"
-                  href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`${caption} ${shareUrl}`)}`}
-                />
-                <ShareButton
-                  icon={Brand.linkedin(38)} label="LinkedIn" sub="Post"
-                  href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`}
-                />
-                <ShareButton
-                  icon={Brand.email(38)} label="Email" sub="Compose"
-                  href={`mailto:?subject=${encodeURIComponent(`You're invited: ${eventName}`)}&body=${encodeURIComponent(`${caption}\n\nRegister here: ${shareUrl}`)}`}
-                />
-              </div>
-            </div>
+          <div className="text-[11px] font-medium uppercase tracking-[0.08em] mb-2" style={{ color: dash.muted }}>Share to</div>
+          <div className="grid grid-cols-4 gap-2 mb-4">
+            <ShareButton icon={Brand.whatsapp(34)} label="WhatsApp" sub="Group chat" href={`https://wa.me/?text=${encodeURIComponent(caption)}`} />
+            <ShareButton icon={Brand.x(34)} label="X" sub="Compose" href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`${caption} ${shareUrl}`)}`} />
+            <ShareButton icon={Brand.linkedin(34)} label="LinkedIn" sub="Post" href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`} />
+            <ShareButton icon={Brand.email(34)} label="Email" sub="Compose" href={`mailto:?subject=${encodeURIComponent(`You're invited: ${eventName}`)}&body=${encodeURIComponent(`${caption}\n\nRegister here: ${shareUrl}`)}`} />
+          </div>
 
-            <div style={{
-              background: PT.cream, border: `1px solid ${PT.border}`,
-              borderRadius: 8, padding: '12px 14px',
-            }}>
-              <div style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 8,
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <div style={{
-                    fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10,
-                    color: PT.muted, letterSpacing: '0.08em', textTransform: 'uppercase',
-                  }}>Caption</div>
-                  <div style={{ display: 'flex', gap: 4 }}>
-                    {captions.map((_, i) => (
-                      <button key={i} onClick={() => setCaptionIndex(i)} style={{
-                        width: 22, height: 22, borderRadius: 4,
-                        background: captionIndex === i ? PT.primary : PT.surface,
-                        color: captionIndex === i ? PT.cream : PT.muted,
-                        border: `1px solid ${captionIndex === i ? PT.primary : PT.border}`,
-                        cursor: 'pointer', fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 600,
-                        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+          <div className="rounded-xl p-3.5" style={{ background: dash.cream, border: `1px solid ${dash.border}` }}>
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <div className="flex items-center gap-2">
+                <div className="text-[11px] font-medium uppercase tracking-[0.08em]" style={{ color: dash.muted }}>Caption</div>
+                <div className="flex gap-1">
+                  {captions.map((_, i) => (
+                    <button key={i} onClick={() => setCaptionIndex(i)}
+                      className="w-[22px] h-[22px] rounded text-[11px] font-semibold inline-flex items-center justify-center border transition"
+                      style={{
+                        background: captionIndex === i ? dash.forest : '#FFFFFF',
+                        color: captionIndex === i ? dash.cream : dash.muted,
+                        borderColor: captionIndex === i ? dash.forest : dash.border,
                       }}>{i + 1}</button>
-                    ))}
-                  </div>
+                  ))}
                 </div>
-                <button
-                  onClick={handleCaptionCopy}
-                  style={{
-                    background: 'transparent', border: 'none', cursor: 'pointer', color: PT.primary,
-                    fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: 600,
-                    display: 'inline-flex', alignItems: 'center', gap: 4, padding: 0,
-                  }}
-                >
-                  {captionCopied ? I.check({ size: 12 }) : I.copy({ size: 12 })}
-                  <span>{captionCopied ? 'Copied!' : 'Copy'}</span>
-                </button>
               </div>
-              <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, lineHeight: 1.6, color: PT.ink, whiteSpace: 'pre-line' }}>
-                {caption}
-              </div>
-            </div>
-          </Panel>
-
-          {/* QR code panel */}
-          <Panel label="QR code" action={
-            <span style={{
-              display: 'inline-flex', alignItems: 'center', gap: 5,
-              fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10, color: PT.muted, letterSpacing: '0.04em',
-            }}>
-              {I.qr({ size: 11 })}
-              <span>1024 × 1024</span>
-            </span>
-          }>
-            <div style={{ display: 'flex', justifyContent: 'center', padding: '6px 0 10px' }}>
-              <div style={{
-                padding: 14, background: PT.surface,
-                border: `1px solid ${PT.border}`, borderRadius: 12,
-                position: 'relative', display: 'inline-flex',
-              }}>
-                {qrDataUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={qrDataUrl} alt="QR code" width={192} height={192} style={{ display: 'block', borderRadius: 4 }} />
-                ) : (
-                  <div style={{
-                    width: 192, height: 192, borderRadius: 4,
-                    background: '#F0EDE8', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  }}>
-                    <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11, color: PT.muted }}>generating…</span>
-                  </div>
-                )}
-              </div>
-            </div>
-            <div style={{ display: 'flex', gap: 8 }}>
-              <button
-                onClick={handleDownloadQR}
-                disabled={!qrDataUrl}
-                style={{
-                  flex: 1, height: 40, padding: '0 14px',
-                  background: PT.primary, color: PT.cream,
-                  border: 'none', borderRadius: 6,
-                  fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 13,
-                  display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                  cursor: qrDataUrl ? 'pointer' : 'not-allowed', opacity: qrDataUrl ? 1 : 0.5,
-                }}
-              >
-                {I.download({ size: 14 })}
-                <span>Download PNG</span>
-              </button>
-              <button
-                onClick={handleDownloadSVG}
-                disabled={!qrSvgString}
-                style={{
-                  height: 40, padding: '0 14px',
-                  background: PT.surface, color: PT.ink,
-                  border: `1px solid ${PT.border}`, borderRadius: 6,
-                  fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 13,
-                  display: 'inline-flex', alignItems: 'center', gap: 6,
-                  cursor: qrSvgString ? 'pointer' : 'not-allowed', opacity: qrSvgString ? 1 : 0.5,
-                }}
-              >
-                <span>SVG</span>
+              <button onClick={handleCaptionCopy} className="inline-flex items-center gap-1 text-[12px] font-semibold" style={{ color: dash.forest }}>
+                {captionCopied ? I.check({ size: 12 }) : I.copy({ size: 12 })}
+                {captionCopied ? 'Copied!' : 'Copy'}
               </button>
             </div>
-            <div style={{
-              fontFamily: 'Inter, sans-serif', fontSize: 12, lineHeight: 1.5,
-              color: PT.muted, textAlign: 'center',
-            }}>Print on posters, flyers, or badges. Scanning opens the registration page.</div>
-          </Panel>
-        </div>
+            <div className="text-[13px] leading-[1.6] whitespace-pre-line" style={{ color: dash.ink }}>{caption}</div>
+          </div>
+        </Card>
 
-        {/* ── Embed block ───────────────────────────────────────────── */}
-        <Panel label="Embed in your site" action={
-          <button
-            onClick={handleEmbedCopy}
-            style={{
-              background: 'transparent', border: 'none', cursor: 'pointer', color: PT.primary,
-              fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: 600,
-              display: 'inline-flex', alignItems: 'center', gap: 4, padding: 0,
-            }}
-          >
+        {/* QR code card */}
+        <Card>
+          <div className="flex items-center justify-between gap-2 mb-3.5">
+            <div className="text-[11px] font-medium uppercase tracking-[0.08em]" style={{ color: dash.muted }}>QR code</div>
+            <span className="text-[11px]" style={{ color: dash.muted }}>1024 × 1024</span>
+          </div>
+          <div className="flex justify-center py-1.5 pb-2.5">
+            <div className="p-3.5 rounded-2xl border inline-flex" style={{ background: '#FFFFFF', borderColor: dash.border }}>
+              {qrDataUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={qrDataUrl} alt="QR code" width={192} height={192} className="block rounded" />
+              ) : (
+                <div className="w-[192px] h-[192px] rounded flex items-center justify-center" style={{ background: '#F0EDE8' }}>
+                  <span className="text-[11px]" style={{ color: dash.muted }}>generating…</span>
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="flex gap-2 mb-3.5">
+            <PrimaryButton onClick={handleDownloadQR} disabled={!qrDataUrl}>
+              {I.download({ size: 14 })}
+              Download PNG
+            </PrimaryButton>
+            <SecondaryButton onClick={handleDownloadSVG} disabled={!qrSvgString}>
+              SVG
+            </SecondaryButton>
+          </div>
+          <div className="text-[12px] leading-[1.5] text-center" style={{ color: dash.muted }}>
+            Print on posters, flyers, or badges. Scanning opens the registration page.
+          </div>
+        </Card>
+      </div>
+
+      {/* ── Embed block ───────────────────────────────────────────── */}
+      <Card className="mb-5">
+        <div className="flex items-center justify-between gap-2 mb-3.5">
+          <div className="text-[11px] font-medium uppercase tracking-[0.08em]" style={{ color: dash.muted }}>Embed in your site</div>
+          <button onClick={handleEmbedCopy} className="inline-flex items-center gap-1 text-[12px] font-semibold" style={{ color: dash.forest }}>
             {embedCopied ? I.check({ size: 12 }) : I.copy({ size: 12 })}
-            <span>{embedCopied ? 'Copied!' : 'Copy snippet'}</span>
+            {embedCopied ? 'Copied!' : 'Copy snippet'}
           </button>
-        }>
-          <div style={{ background: PT.ink, borderRadius: 8, overflow: 'hidden' }}>
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: 6, padding: '8px 12px',
-              borderBottom: '1px solid rgba(250,246,238,0.08)',
-            }}>
-              <span style={{ width: 9, height: 9, borderRadius: '50%', background: '#FF5F57', display: 'block' }} />
-              <span style={{ width: 9, height: 9, borderRadius: '50%', background: '#FEBC2E', display: 'block' }} />
-              <span style={{ width: 9, height: 9, borderRadius: '50%', background: '#28C840', display: 'block' }} />
-              <span style={{
-                marginLeft: 8, fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10,
-                color: 'rgba(250,246,238,0.55)', letterSpacing: '0.04em',
-              }}>embed.html · html</span>
-            </div>
-            <pre style={{
-              margin: 0, padding: '14px 16px',
-              fontFamily: 'Inter, sans-serif', fontSize: 12, lineHeight: 1.65,
-              color: PT.cream, whiteSpace: 'pre-wrap', wordBreak: 'break-all',
-            }}>
-              <span style={{ color: '#9EC6B2' }}>{'<iframe'}</span>{' '}
-              <span style={{ color: '#E8C57E' }}>src</span><span style={{ color: 'rgba(250,246,238,0.45)' }}>=</span><span style={{ color: '#F0E0BB' }}>&quot;{shareUrl}&quot;</span>{'\n        '}
-              <span style={{ color: '#E8C57E' }}>width</span><span style={{ color: 'rgba(250,246,238,0.45)' }}>=</span><span style={{ color: '#F0E0BB' }}>&quot;{sz.w}&quot;</span>{' '}
-              <span style={{ color: '#E8C57E' }}>height</span><span style={{ color: 'rgba(250,246,238,0.45)' }}>=</span><span style={{ color: '#F0E0BB' }}>&quot;{sz.h}&quot;</span>{'\n        '}
-              <span style={{ color: '#E8C57E' }}>frameborder</span><span style={{ color: 'rgba(250,246,238,0.45)' }}>=</span><span style={{ color: '#F0E0BB' }}>&quot;0&quot;</span>
-              <span style={{ color: '#9EC6B2' }}>{'></iframe>'}</span>
-            </pre>
+        </div>
+        <div className="rounded-lg overflow-hidden mb-3" style={{ background: dash.ink }}>
+          <div className="flex items-center gap-1.5 px-3 py-2" style={{ borderBottom: '1px solid rgba(250,246,238,0.08)' }}>
+            <span className="w-[9px] h-[9px] rounded-full" style={{ background: '#FF5F57' }} />
+            <span className="w-[9px] h-[9px] rounded-full" style={{ background: '#FEBC2E' }} />
+            <span className="w-[9px] h-[9px] rounded-full" style={{ background: '#28C840' }} />
+            <span className="ml-2 text-[10px] tracking-[0.04em]" style={{ color: 'rgba(250,246,238,0.55)' }}>embed.html · html</span>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
-            {([
-              { id: 'mobile' as const, label: 'Mobile', size: '375 × 812' },
-              { id: 'tablet' as const, label: 'Tablet', size: '768 × 1024' },
-              { id: 'custom' as const, label: 'Custom', size: 'responsive' },
-            ]).map(chip => (
-              <button
-                key={chip.id}
-                onClick={() => setActiveSize(chip.id)}
-                style={{
-                  padding: '8px 10px',
-                  background: activeSize === chip.id ? PT.primarySoft : PT.surface,
-                  border: `1px solid ${activeSize === chip.id ? 'rgba(31,77,58,0.2)' : PT.border}`,
-                  borderRadius: 6, cursor: 'pointer',
-                  display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 2,
-                }}
-              >
-                <div style={{
-                  fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: 600,
-                  color: activeSize === chip.id ? PT.primary : PT.ink,
-                }}>{chip.label}</div>
-                <div style={{
-                  fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10,
-                  color: PT.muted, letterSpacing: '0.04em',
-                }}>{chip.size}</div>
-              </button>
-            ))}
-          </div>
-        </Panel>
-
-        {/* ── Preview + Next steps row ──────────────────────────────── */}
-        <div className="grid gap-5" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
-
-          {/* Attendee preview panel */}
-          <Panel label="What attendees see" action={
-            <a
-              href={shareUrl} target="_blank" rel="noopener noreferrer"
+          <pre className="m-0 px-4 py-3.5 text-[12px] leading-[1.65] whitespace-pre-wrap" style={{ color: dash.cream, wordBreak: 'break-all' }}>
+            <span style={{ color: '#9EC6B2' }}>{'<iframe'}</span>{' '}
+            <span style={{ color: '#E8C57E' }}>src</span><span style={{ color: 'rgba(250,246,238,0.45)' }}>=</span><span style={{ color: '#F0E0BB' }}>&quot;{shareUrl}&quot;</span>{'\n        '}
+            <span style={{ color: '#E8C57E' }}>width</span><span style={{ color: 'rgba(250,246,238,0.45)' }}>=</span><span style={{ color: '#F0E0BB' }}>&quot;{sz.w}&quot;</span>{' '}
+            <span style={{ color: '#E8C57E' }}>height</span><span style={{ color: 'rgba(250,246,238,0.45)' }}>=</span><span style={{ color: '#F0E0BB' }}>&quot;{sz.h}&quot;</span>{'\n        '}
+            <span style={{ color: '#E8C57E' }}>frameborder</span><span style={{ color: 'rgba(250,246,238,0.45)' }}>=</span><span style={{ color: '#F0E0BB' }}>&quot;0&quot;</span>
+            <span style={{ color: '#9EC6B2' }}>{'></iframe>'}</span>
+          </pre>
+        </div>
+        <div className="grid grid-cols-3 gap-2">
+          {([
+            { id: 'mobile' as const, label: 'Mobile', size: '375 × 812' },
+            { id: 'tablet' as const, label: 'Tablet', size: '768 × 1024' },
+            { id: 'custom' as const, label: 'Custom', size: 'responsive' },
+          ]).map(chip => (
+            <button
+              key={chip.id}
+              onClick={() => setActiveSize(chip.id)}
+              className="px-2.5 py-2 rounded-lg border text-left transition"
               style={{
-                color: PT.primary, fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: 600,
-                display: 'inline-flex', alignItems: 'center', gap: 4, textDecoration: 'none',
+                background: activeSize === chip.id ? dash.soft : '#FFFFFF',
+                borderColor: activeSize === chip.id ? 'rgba(31,77,58,0.2)' : dash.border,
               }}
             >
+              <div className="text-[12px] font-semibold" style={{ color: activeSize === chip.id ? dash.forest : dash.ink }}>{chip.label}</div>
+              <div className="text-[10px] tracking-[0.04em]" style={{ color: dash.muted }}>{chip.size}</div>
+            </button>
+          ))}
+        </div>
+      </Card>
+
+      {/* ── Preview + Next steps row ──────────────────────────────── */}
+      <div className="grid gap-5" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
+
+        {/* Attendee preview card */}
+        <Card>
+          <div className="flex items-center justify-between gap-2 mb-3.5">
+            <div className="text-[11px] font-medium uppercase tracking-[0.08em]" style={{ color: dash.muted }}>What attendees see</div>
+            <a href={shareUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[12px] font-semibold" style={{ color: dash.forest, textDecoration: 'none' }}>
               {I.external({ size: 12 })}
-              <span>Open page</span>
+              Open page
             </a>
-          }>
+          </div>
+          <div className="rounded-xl border py-5 px-4 flex justify-center items-start mb-3" style={{ background: dash.cream, borderColor: dash.border }}>
             <div style={{
-              background: PT.cream, border: `1px solid ${PT.border}`,
-              borderRadius: 10, padding: '20px 16px',
-              display: 'flex', justifyContent: 'center', alignItems: 'flex-start',
+              width: 158,
+              background: '#0F1218',
+              borderRadius: 24, padding: '0 5px',
+              boxShadow: '0 16px 48px rgba(15,31,24,0.28), inset 0 0 0 1px rgba(255,255,255,0.06)',
+              display: 'flex', flexDirection: 'column',
             }}>
-              <div style={{
-                width: 158,
-                background: '#0F1218',
-                borderRadius: 24, padding: '0 5px',
-                boxShadow: '0 16px 48px rgba(15,31,24,0.28), inset 0 0 0 1px rgba(255,255,255,0.06)',
-                display: 'flex', flexDirection: 'column',
-              }}>
-                <div style={{
-                  height: 28, display: 'flex', alignItems: 'center',
-                  justifyContent: 'space-between', padding: '0 14px',
-                }}>
-                  <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.8)' }}>9:41</span>
-                  <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-                    {[3, 4, 5, 6].map((h, i) => (
-                      <div key={i} style={{ width: 2.5, height: h, borderRadius: 1, background: i < 3 ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.3)' }} />
-                    ))}
-                    <svg width="12" height="9" viewBox="0 0 12 9" fill="none" style={{ marginLeft: 2 }}>
-                      <path d="M6 7.5a1 1 0 1 0 0 2 1 1 0 0 0 0-2z" fill="rgba(255,255,255,0.85)" />
-                      <path d="M2.5 5C3.8 3.8 5 3.2 6 3.2c1 0 2.2.6 3.5 1.8" stroke="rgba(255,255,255,0.75)" strokeWidth="1.2" strokeLinecap="round" fill="none" />
-                      <path d="M.5 2.8C2.2 1.1 4 .2 6 .2s3.8.9 5.5 2.6" stroke="rgba(255,255,255,0.45)" strokeWidth="1.2" strokeLinecap="round" fill="none" />
-                    </svg>
-                    <div style={{ display: 'flex', alignItems: 'center', marginLeft: 2 }}>
-                      <div style={{ width: 18, height: 9, borderRadius: 2.5, border: '1.5px solid rgba(255,255,255,0.6)', position: 'relative', overflow: 'hidden' }}>
-                        <div style={{ position: 'absolute', left: 1.5, top: 1.5, bottom: 1.5, width: '80%', background: 'rgba(255,255,255,0.85)', borderRadius: 1 }} />
-                      </div>
+              <div style={{ height: 28, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 14px' }}>
+                <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.8)' }}>9:41</span>
+                <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+                  {[3, 4, 5, 6].map((h, i) => (
+                    <div key={i} style={{ width: 2.5, height: h, borderRadius: 1, background: i < 3 ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.3)' }} />
+                  ))}
+                  <svg width="12" height="9" viewBox="0 0 12 9" fill="none" style={{ marginLeft: 2 }}>
+                    <path d="M6 7.5a1 1 0 1 0 0 2 1 1 0 0 0 0-2z" fill="rgba(255,255,255,0.85)" />
+                    <path d="M2.5 5C3.8 3.8 5 3.2 6 3.2c1 0 2.2.6 3.5 1.8" stroke="rgba(255,255,255,0.75)" strokeWidth="1.2" strokeLinecap="round" fill="none" />
+                    <path d="M.5 2.8C2.2 1.1 4 .2 6 .2s3.8.9 5.5 2.6" stroke="rgba(255,255,255,0.45)" strokeWidth="1.2" strokeLinecap="round" fill="none" />
+                  </svg>
+                  <div style={{ display: 'flex', alignItems: 'center', marginLeft: 2 }}>
+                    <div style={{ width: 18, height: 9, borderRadius: 2.5, border: '1.5px solid rgba(255,255,255,0.6)', position: 'relative', overflow: 'hidden' }}>
+                      <div style={{ position: 'absolute', left: 1.5, top: 1.5, bottom: 1.5, width: '80%', background: 'rgba(255,255,255,0.85)', borderRadius: 1 }} />
                     </div>
                   </div>
                 </div>
-
-                <div style={{
-                  width: '100%', height: 260,
-                  borderRadius: 6, overflow: 'hidden',
-                  position: 'relative', background: PT.cream,
-                }}>
-                  <RegistrationPreview
-                    eventName={eventName}
-                    dateLabel={dateRange}
-                    venueLabel={venueLabel}
-                  />
-                </div>
-
-                <div style={{ height: 18, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <div style={{ width: 44, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.25)' }} />
-                </div>
+              </div>
+              <div style={{ width: '100%', height: 260, borderRadius: 6, overflow: 'hidden', position: 'relative', background: dash.cream }}>
+                <RegistrationPreview eventName={eventName} dateLabel={dateRange} venueLabel={venueLabel} />
+              </div>
+              <div style={{ height: 18, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: 44, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.25)' }} />
               </div>
             </div>
-            <div style={{
-              fontFamily: 'Inter, sans-serif', fontSize: 12, color: PT.muted,
-              textAlign: 'center', lineHeight: 1.5,
-            }}>Attendees open the link, fill in their details, and register in seconds.</div>
-          </Panel>
+          </div>
+          <div className="text-[12px] text-center leading-[1.5]" style={{ color: dash.muted }}>
+            Attendees open the link, fill in their details, and register in seconds.
+          </div>
+        </Card>
 
-          {/* Next steps panel */}
-          <Panel label="What happens next">
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              {[
-                { n: 1, t: 'Share the link', d: 'Send via WhatsApp, post to your channels, print the QR on flyers — attendees open it on any device.' },
-                { n: 2, t: 'Attendees register', d: 'They fill in their name, email, and any custom fields you set up. No account needed.' },
-                { n: 3, t: 'You see it live', d: 'Every registration appears in your dashboard instantly. Check in attendees at the door with the QR scanner.' },
-              ].map(s => (
-                <div key={s.n} style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-                  <div style={{
-                    width: 28, height: 28, borderRadius: '50%',
-                    background: PT.ink, color: PT.cream,
-                    fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 700, fontSize: 13,
-                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                  }}>{s.n}</div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, fontSize: 14, color: PT.ink, lineHeight: 1.3 }}>{s.t}</div>
-                    <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, lineHeight: 1.5, color: PT.inkSoft, marginTop: 2 }}>{s.d}</div>
-                  </div>
+        {/* Next steps card */}
+        <Card>
+          <div className="text-[11px] font-medium uppercase tracking-[0.08em] mb-3.5" style={{ color: dash.muted }}>What happens next</div>
+          <div className="flex flex-col gap-3.5">
+            {[
+              { n: 1, t: 'Share the link', d: 'Send via WhatsApp, post to your channels, print the QR on flyers — attendees open it on any device.' },
+              { n: 2, t: 'Attendees register', d: 'They fill in their name, email, and any custom fields you set up. No account needed.' },
+              { n: 3, t: 'You see it live', d: 'Every registration appears in your dashboard instantly. Check in attendees at the door with the QR scanner.' },
+            ].map(s => (
+              <div key={s.n} className="flex items-start gap-3">
+                <div className="w-7 h-7 rounded-full font-display font-bold text-[13px] inline-flex items-center justify-center shrink-0" style={{ background: dash.ink, color: dash.cream }}>{s.n}</div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-display font-semibold text-[14px] leading-tight" style={{ color: dash.ink }}>{s.t}</div>
+                  <div className="text-[13px] leading-[1.5] mt-0.5" style={{ color: dash.inkSoft }}>{s.d}</div>
                 </div>
-              ))}
-            </div>
-            <div style={{ marginTop: 8, paddingTop: 14, borderTop: `1px solid ${PT.border}` }}>
-              <Link
-                href={`/events/${slug}`}
-                style={{
-                  display: 'flex', width: '100%', height: 44,
-                  background: PT.cream, color: PT.primary,
-                  border: `1px solid rgba(31,77,58,0.25)`, borderRadius: 6,
-                  fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 13.5,
-                  alignItems: 'center', justifyContent: 'center', gap: 8,
-                  cursor: 'pointer', textDecoration: 'none',
-                }}
-              >
-                {I.chart({ size: 15, sw: 2 })}
-                <span>View event dashboard</span>
-                {I.arrowRight({ size: 14 })}
-              </Link>
-            </div>
-          </Panel>
-        </div>
-
-        {/* ── Footer microcopy ─────────────────────────────────────── */}
-        <div style={{
-          marginTop: 8, padding: '14px 0',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10, color: PT.muted, letterSpacing: '0.04em',
-        }}>
-          <span>powered by <span style={{ color: PT.ink, fontWeight: 500 }}>eventera</span></span>
-          <span>event id · {slug}</span>
-        </div>
-
+              </div>
+            ))}
+          </div>
+          <div className="mt-3.5 pt-3.5 border-t" style={{ borderColor: dash.border }}>
+            <SecondaryButton href={`/events/${slug}`}>
+              {I.chart({ size: 15, sw: 2 })}
+              View event dashboard
+              {I.arrowRight({ size: 14 })}
+            </SecondaryButton>
+          </div>
+        </Card>
       </div>
-    </div>
+    </PageShell>
   );
 }
 
 /* ── Share button ──────────────────────────────────────────────── */
 function ShareButton({ icon, label, sub, href }: { icon: React.ReactNode; label: string; sub: string; href: string }) {
   return (
-    <a href={href} target="_blank" rel="noopener noreferrer" style={{
-      padding: '14px 8px', background: PT.surface, border: `1px solid ${PT.border}`,
-      borderRadius: 12, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
-      cursor: 'pointer', textDecoration: 'none', transition: 'border-color 120ms ease, background 120ms ease',
-    }}
-      onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(31,77,58,0.35)'; e.currentTarget.style.background = PT.cream; }}
-      onMouseLeave={e => { e.currentTarget.style.borderColor = PT.border; e.currentTarget.style.background = PT.surface; }}
+    <a href={href} target="_blank" rel="noopener noreferrer"
+      className="py-3.5 px-2 rounded-xl border flex flex-col items-center gap-2 transition hover:bg-[#FAF6EE]"
+      style={{ background: '#FFFFFF', borderColor: dash.border, textDecoration: 'none' }}
     >
-      <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{icon}</span>
-      <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 12.5, color: PT.ink }}>{label}</div>
-      <div style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10, color: PT.muted, letterSpacing: '0.04em' }}>{sub}</div>
+      <span className="inline-flex items-center justify-center">{icon}</span>
+      <div className="font-semibold text-[12.5px]" style={{ color: dash.ink }}>{label}</div>
+      <div className="text-[10px] tracking-[0.04em]" style={{ color: dash.muted }}>{sub}</div>
     </a>
-  );
-}
-
-/* ── Stat item ─────────────────────────────────────────────────── */
-function StatItem({ label, value, sub }: { label: string; value: string; sub: string }) {
-  return (
-    <div>
-      <div style={{
-        fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10, color: PT.muted,
-        letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 4,
-      }}>{label}</div>
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
-        <span style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 700, fontSize: 22, color: PT.ink, letterSpacing: '-0.02em' }}>{value}</span>
-        <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10, color: PT.muted, letterSpacing: '0.04em' }}>{sub}</span>
-      </div>
-    </div>
   );
 }
