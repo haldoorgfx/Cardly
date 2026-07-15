@@ -8,9 +8,9 @@ description: >
   job is to FRAME the organizer's own event design, never to compete with it —
   so the chrome is quiet, the surfaces are warm-neutral, and decoration is almost
   absent. Depth comes from hairline borders and one restrained shadow, not from
-  gradients or glows. Type is DM Sans for display with tight negative tracking,
-  Inter for everything else. The result is calm, confident, and unmistakably
-  not-generic-SaaS.
+  gradients or glows. Type is Plus Jakarta Sans for display with tight negative
+  tracking, Inter for everything else. The result is calm, confident, and
+  unmistakably not-generic-SaaS.
 
 colors:
   primary: "#1F4D3A"
@@ -34,31 +34,31 @@ colors:
 
 typography:
   display-xl:
-    fontFamily: "DM Sans"
+    fontFamily: "Plus Jakarta Sans"
     fontSize: 64px
     fontWeight: 600
     lineHeight: 1.05
     letterSpacing: -0.02em
   display-lg:
-    fontFamily: "DM Sans"
+    fontFamily: "Plus Jakarta Sans"
     fontSize: 48px
     fontWeight: 600
     lineHeight: 1.1
     letterSpacing: -0.02em
   display-md:
-    fontFamily: "DM Sans"
+    fontFamily: "Plus Jakarta Sans"
     fontSize: 36px
     fontWeight: 600
     lineHeight: 1.15
     letterSpacing: -0.02em
   h1:
-    fontFamily: "DM Sans"
+    fontFamily: "Plus Jakarta Sans"
     fontSize: 32px
     fontWeight: 600
     lineHeight: 1.2
     letterSpacing: -0.02em
   h2:
-    fontFamily: "DM Sans"
+    fontFamily: "Plus Jakarta Sans"
     fontSize: 24px
     fontWeight: 600
     lineHeight: 1.3
@@ -196,10 +196,12 @@ components:
 
 ## Overview
 
-Eventera is the back-of-house for event organizers — they upload a design, define
-the editable zones, publish a link, and attendees personalize and share a card.
-The platform's entire visual job is to **frame the organizer's own design without
-competing with it.** Everything in this system is built around that restraint.
+Eventera is a full event management platform and marketplace — organizers build
+an event page, sell tickets, manage an agenda and speakers, take registrations,
+run check-in, and review analytics; attendees discover events, register, and
+receive a personalized Eventera Card. The visual system frames all of that —
+the organizer's own branding, cover images, and card designs — without
+competing with it. Everything in this system is built around that restraint.
 
 The reference is a **well-set print magazine** — generous margins, a confident
 masthead, warm paper stock, one ink color plus a single gold accent reserved for
@@ -213,7 +215,7 @@ generic SaaS template with a purple hero and three glowing feature cards.
   all emphasis. The cream-gold accent (`{colors.accent}`) is scarce by design.
 - Depth comes from **hairline borders + one soft shadow**, not from gradients,
   glows, or stacked drop shadows.
-- DM Sans display with tight negative tracking (-0.02em); Inter for body and UI.
+- Plus Jakarta Sans display with tight negative tracking (-0.02em); Inter for body and UI.
 - No second chromatic accent. No glow. No gradient on any body surface.
 
 ## Colors
@@ -246,13 +248,17 @@ inputs, and any in-app surface.
 
 ## Typography
 
-Two families, one voice.
+Two families, one voice — a strict two-font system, no third font, no monospace.
 
-- **DM Sans** — display and headings, weight 600, letter-spacing -0.02em. The
-  negative tracking is the typographic signature; it reads as editorial confidence.
-- **Plus Jakarta Sans** — `h3` / card titles only, where a slightly humanist cut
-  helps mid-level headings.
+- **Plus Jakarta Sans** — display and headings, weight 600/700/800,
+  letter-spacing -0.02em (-0.03em at large sizes). The negative tracking is the
+  typographic signature; it reads as editorial confidence.
 - **Inter** — everything else: body, UI, labels, eyebrows, numerals.
+
+The server-rendered Eventera Card graphic and the Card Studio editor may still
+use DM Sans as an embedded/selectable *design* font for card content — that's
+attendee-facing card content, not platform UI chrome, and is unrelated to this
+system.
 
 Numbers that carry meaning (stats, counts, money, percentages) use Inter with
 `font-feature-settings: "tnum"` so columns align — a quiet competence signal.
@@ -340,7 +346,7 @@ Quick and mechanical. Nothing bounces, overshoots, or lingers.
 - Carry depth with the cream→white lift and a hairline border first; add
   `shadow-soft` only when an element genuinely floats.
 - Use tabular Inter for any number that sits in a column or stat.
-- Trust modest type-size steps and tight negative tracking on DM Sans display.
+- Trust modest type-size steps and tight negative tracking on Plus Jakarta Sans display.
 - Let the warm cream canvas be the negative space.
 
 ### Don't

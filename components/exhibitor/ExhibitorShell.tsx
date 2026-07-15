@@ -77,7 +77,7 @@ export function ExhibitorShell({ token, companyName, tier, boothNumber, logoUrl,
       {!embedded && (
       <header className="sticky top-0 z-20 backdrop-blur border-b" style={{ background: 'rgba(250,246,238,0.85)', borderColor: '#E5E0D4' }}>
         <div className="mx-auto max-w-[1080px] px-5 lg:px-8 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2">
             <span className="w-7 h-7 rounded-lg shrink-0" style={{ background: 'linear-gradient(135deg,#1F4D3A,#2A6A50 60%,#E8C57E)' }} />
             <div className="leading-none">
               <div className="font-display text-[15px] font-bold" style={{ color: '#1F4D3A' }}>Eventera</div>
@@ -109,7 +109,7 @@ export function ExhibitorShell({ token, companyName, tier, boothNumber, logoUrl,
       )}
 
       {/* Hero */}
-      <div className={`relative overflow-hidden${embedded ? ' rounded-2xl' : ''}`} style={{ background: 'linear-gradient(135deg,#0D1F17,#1F4D3A 60%,#235741)' }}>
+      <div className={`relative overflow-hidden${embedded ? ' rounded-2xl' : ''}`} style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 100%)' }}>
         <div className="relative mx-auto max-w-[1080px] px-5 lg:px-8 py-8">
           <div className="flex items-start justify-between gap-6">
             <div>

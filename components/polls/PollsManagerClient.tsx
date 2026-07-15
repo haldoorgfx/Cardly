@@ -142,7 +142,7 @@ export default function PollsManagerClient({ eventId, initialPolls }: Props) {
                         onClick={() => toggle(poll.id, 'is_active', !poll.is_active)}
                         disabled={acting === poll.id}
                         className="px-3 py-1.5 rounded-lg text-[12px] font-medium"
-                        style={{ background: poll.is_active ? '#FEF3C7' : '#E8EFEB', color: poll.is_active ? '#92400E' : '#1F4D3A' }}
+                        style={{ background: poll.is_active ? 'rgba(201,122,45,0.12)' : '#E8EFEB', color: poll.is_active ? '#C97A2D' : '#1F4D3A' }}
                       >
                         <Radio size={12} className="inline mr-1" />{poll.is_active ? 'Pause' : 'Launch'}
                       </button>
@@ -152,7 +152,7 @@ export default function PollsManagerClient({ eventId, initialPolls }: Props) {
                         onClick={() => toggle(poll.id, 'is_closed', true)}
                         disabled={acting === poll.id}
                         className="px-3 py-1.5 rounded-lg text-[12px] font-medium"
-                        style={{ background: '#FEE2E2', color: '#B8423C' }}
+                        style={{ background: 'rgba(184,66,60,0.10)', color: '#B8423C' }}
                       >
                         <X size={12} className="inline mr-1" />Close
                       </button>

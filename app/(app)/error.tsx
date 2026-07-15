@@ -19,7 +19,7 @@ export default function AppError({ error, reset }: { error: Error & { digest?: s
         <div className="mt-7 flex items-center justify-center gap-3">
           <button
             onClick={reset}
-            className="inline-flex items-center gap-2 h-10 px-5 rounded-lg grad-bg text-white font-medium text-[13.5px] hover:opacity-95 transition shadow-soft"
+            className="inline-flex items-center gap-2 h-10 px-5 rounded-lg bg-primary text-white font-medium text-[13.5px] hover:bg-primary-dark transition shadow-soft"
           >
             Try again
           </button>

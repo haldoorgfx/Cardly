@@ -91,7 +91,7 @@ function CompModal({
   return (
     <div className="fixed inset-0 z-[300] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative bg-white rounded-2xl shadow-xl border border-[#E5E0D4] p-6 max-w-sm w-full">
+      <div className="relative bg-white rounded-2xl shadow-lift border border-[#E5E0D4] p-6 max-w-sm w-full">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-semibold text-[15px] text-[#0F1F18]">Comp plan</h3>
           <button onClick={onClose} className="h-7 w-7 grid place-items-center rounded-lg hover:bg-[#F5F5F4] transition-colors">
@@ -200,7 +200,7 @@ function InvoicesPanel({ user, onClose }: { user: BillingUserRow; onClose: () =>
   return (
     <div className="fixed inset-0 z-[300] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative bg-white rounded-2xl shadow-xl border border-[#E5E0D4] w-full max-w-[640px] max-h-[80vh] flex flex-col">
+      <div className="relative bg-white rounded-2xl shadow-lift border border-[#E5E0D4] w-full max-w-[640px] max-h-[80vh] flex flex-col">
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#E5E0D4]">
           <div>
             <h3 className="font-semibold text-[15px] text-[#0F1F18]">Invoices</h3>

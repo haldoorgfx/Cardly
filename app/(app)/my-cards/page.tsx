@@ -57,7 +57,7 @@ export default async function MyCardsPage() {
         <div className="grid sm:grid-cols-2 gap-4">
           {cards.map((c) => (
             <div key={c.id} className="rounded-2xl overflow-hidden bg-white" style={{ border: '1px solid #E5E0D4' }}>
-              <div className="relative" style={{ aspectRatio: '16 / 9', background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 100%)' }}>
+              <div className="relative" style={{ aspectRatio: '16 / 9', background: '#E8EFEB' }}>
                 {c.eventera_card_url && (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={c.eventera_card_url} alt={`Eventera Card — ${c.events?.name ?? ''}`} className="absolute inset-0 w-full h-full object-contain" />

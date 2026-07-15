@@ -579,7 +579,7 @@ export default function OnboardingClient() {
                 <button
                   onClick={next}
                   className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors hover:bg-[#163828]"
-                  style={{ background: '#1F4D3A', color: '#FAF6EE', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.15), 0 4px 12px rgba(31,77,58,0.2)' }}
+                  style={{ background: '#1F4D3A', color: '#FAF6EE', boxShadow: '0 4px 12px rgba(31,77,58,0.2)' }}
                 >
                   {step === 0 ? 'Get started' : 'Continue'}
                   <ArrowRight size={16} />
@@ -591,7 +591,7 @@ export default function OnboardingClient() {
                   onClick={handleFinish}
                   disabled={submitting}
                   className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors hover:bg-[#163828] disabled:opacity-60"
-                  style={{ background: '#1F4D3A', color: '#FAF6EE', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.15), 0 4px 12px rgba(31,77,58,0.2)' }}
+                  style={{ background: '#1F4D3A', color: '#FAF6EE', boxShadow: '0 4px 12px rgba(31,77,58,0.2)' }}
                 >
                   {submitting ? 'Setting up…' : 'Enter your dashboard'}
                   <ArrowRight size={16} />

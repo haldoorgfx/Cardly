@@ -121,7 +121,7 @@ export function WebhooksView(_props: Props) {
         <Key size={14} strokeWidth={2} style={{ color: '#6B7A72', flexShrink: 0, marginTop: 1 }} />
         <span style={{ color: '#3A4A42' }}>
           Each endpoint gets a signing secret. Verify the{' '}
-          <code className="px-1 py-0.5 rounded text-[12.5px]" style={{ background: '#EDE9E0' }}>
+          <code className="px-1 py-0.5 rounded-lg text-[12.5px]" style={{ background: '#EDE9E0', fontFamily: 'Inter, system-ui, sans-serif' }}>
             X-Eventera-Signature
           </code>{' '}
           header (HMAC-SHA256) on every request. Webhooks apply account-wide, across all your events.
@@ -307,10 +307,10 @@ function AddEndpointModal({ onClose, onCreated }: { onClose: () => void; onCreat
           <div className="px-6 py-5 space-y-4">
             <p className="text-[13px]" style={{ color: '#3A4A42' }}>
               Save this signing secret now — it won&apos;t be shown in full again. Use it to verify the
-              {' '}<code className="px-1 py-0.5 rounded text-[12.5px]" style={{ background: '#EDE9E0' }}>X-Eventera-Signature</code> header.
+              {' '}<code className="px-1 py-0.5 rounded-lg text-[12.5px]" style={{ background: '#EDE9E0', fontFamily: 'Inter, system-ui, sans-serif' }}>X-Eventera-Signature</code> header.
             </p>
             <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl" style={{ background: '#0F1F18' }}>
-              <code className="flex-1 text-[12px] break-all" style={{ color: '#E8C57E' }}>{created.secret}</code>
+              <code className="flex-1 text-[12px] break-all" style={{ color: '#E8C57E', fontFamily: 'Inter, system-ui, sans-serif' }}>{created.secret}</code>
               <button onClick={copySecret} className="shrink-0 flex items-center gap-1 text-[12px] px-2.5 py-1 rounded-lg" style={{ background: 'rgba(255,255,255,0.1)', color: copied ? '#7BD6A0' : 'rgba(255,255,255,0.7)' }}>
                 {copied ? <Check size={11} /> : <Copy size={11} />}{copied ? 'Copied' : 'Copy'}
               </button>
@@ -363,7 +363,7 @@ function AddEndpointModal({ onClose, onCreated }: { onClose: () => void; onCreat
                           )}
                         </div>
                         <span className="text-[12.5px] font-medium" style={{ color: on ? '#1F4D3A' : '#0F1F18' }}>{EVENT_LABEL[ev]}</span>
-                        <code className="ml-auto text-[12.5px]" style={{ color: '#6B7A72' }}>{ev}</code>
+                        <code className="ml-auto text-[12.5px]" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>{ev}</code>
                       </label>
                     );
                   })}

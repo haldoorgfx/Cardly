@@ -93,7 +93,7 @@ function ConfirmDialog({
   return (
     <div className="fixed inset-0 z-[300] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/40" onClick={onCancel} />
-      <div className="relative bg-white rounded-2xl shadow-xl border border-[#E5E0D4] p-6 max-w-sm w-full">
+      <div className="relative bg-white rounded-2xl shadow-lift border border-[#E5E0D4] p-6 max-w-sm w-full">
         <div className="flex items-start gap-3 mb-4">
           <div className="w-9 h-9 rounded-full bg-red-50 flex items-center justify-center shrink-0">
             <AlertTriangle size={16} strokeWidth={1.8} className="text-[#B8423C]" />
@@ -464,7 +464,7 @@ export function UsersAdminClient({
         {open && (
           <>
             <div className="fixed inset-0 z-[190]" onClick={() => setOpenMenu(null)} />
-            <div className="absolute right-0 top-9 z-[200] w-52 rounded-xl border border-[#E5E0D4] bg-white shadow-lg py-1.5 text-[13px]">
+            <div className="absolute right-0 top-9 z-[200] w-52 rounded-xl border border-[#E5E0D4] bg-white shadow-lift py-1.5 text-[13px]">
               <Link
                 href={`/admin/users/${u.id}`}
                 className="flex items-center gap-2.5 px-3.5 py-2 text-[#3A4A42] hover:bg-[#FAF6EE] transition-colors"

@@ -28,7 +28,7 @@ function getCode(widget: WidgetId, slug: string): string {
     case 'button':
       return `<!-- Eventera Register Button -->
 <a href="${url}/register"
-   style="display:inline-block;background:#1F4D3A;color:#FAF6EE;font-family:Inter,sans-serif;font-size:15px;font-weight:600;padding:12px 24px;border-radius:10px;text-decoration:none;"
+   style="display:inline-block;background:#1F4D3A;color:#FAF6EE;font-family:Inter,sans-serif;font-size:15px;font-weight:600;padding:12px 24px;border-radius:12px;text-decoration:none;"
    target="_blank" rel="noopener">
   Register now
 </a>`;
@@ -99,8 +99,8 @@ export function EmbedWidgetsClient({ eventName, slug, status }: Props) {
       />
 
       {isUnpublished && (
-        <div className="flex items-start gap-3 rounded-xl px-4 py-3.5 mb-8" style={{ background: '#FEF3CD', border: '1px solid #E8C57E' }}>
-          <span className="text-[13px] font-medium" style={{ color: '#7A5C00' }}>
+        <div className="flex items-start gap-3 rounded-xl px-4 py-3.5 mb-8" style={{ background: '#FEF3C7', border: '1px solid #FDE68A' }}>
+          <span className="text-[13px] font-medium" style={{ color: '#92400E' }}>
             Your event is not published yet. Widgets will show a placeholder until the event goes live.
           </span>
         </div>
@@ -135,7 +135,7 @@ export function EmbedWidgetsClient({ eventName, slug, status }: Props) {
             href={`${publicUrl}/register`}
             target="_blank"
             rel="noopener noreferrer"
-            style={{ display: 'inline-block', background: '#1F4D3A', color: '#FAF6EE', fontFamily: 'Inter, sans-serif', fontSize: 15, fontWeight: 600, padding: '12px 24px', borderRadius: 10, textDecoration: 'none' }}
+            style={{ display: 'inline-block', background: '#1F4D3A', color: '#FAF6EE', fontFamily: 'Inter, sans-serif', fontSize: 15, fontWeight: 600, padding: '12px 24px', borderRadius: 12, textDecoration: 'none' }}
           >
             Register now
           </a>

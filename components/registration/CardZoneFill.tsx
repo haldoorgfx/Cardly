@@ -55,7 +55,7 @@ export function CardZoneFill({
                   value={values[zone.id] ?? ''}
                   onChange={e => onChange(zone.id, e.target.value)}
                   aria-invalid={!!err}
-                  className="w-full h-12 px-3 rounded-lg text-[16px] outline-none transition"
+                  className="w-full h-12 px-3 rounded-xl text-[16px] outline-none transition"
                   style={{ background: '#FAF6EE', border: `1px solid ${err ? '#B8423C' : '#E5E0D4'}`, color: '#0F1F18' }}
                 >
                   <option value="">Select…</option>
@@ -79,7 +79,7 @@ export function CardZoneFill({
                   placeholder={zone.placeholder ?? ''}
                   maxLength={zone.maxChars ?? 500}
                   rows={3}
-                  className="w-full px-3 py-2.5 rounded-lg text-[16px] outline-none resize-none transition"
+                  className="w-full px-3 py-2.5 rounded-xl text-[16px] outline-none resize-none transition"
                   style={{ background: '#FAF6EE', border: `1px solid ${err ? '#B8423C' : '#E5E0D4'}`, color: '#0F1F18' }}
                   onFocus={e => (e.target.style.borderColor = '#E8C57E')}
                   onBlur={e => (e.target.style.borderColor = err ? '#B8423C' : '#E5E0D4')}
@@ -92,7 +92,7 @@ export function CardZoneFill({
                   aria-invalid={!!err}
                   placeholder={zone.placeholder ?? ''}
                   maxLength={zone.maxChars ?? 200}
-                  className="w-full h-12 px-3 rounded-lg text-[16px] outline-none transition"
+                  className="w-full h-12 px-3 rounded-xl text-[16px] outline-none transition"
                   style={{ background: '#FAF6EE', border: `1px solid ${err ? '#B8423C' : '#E5E0D4'}`, color: '#0F1F18' }}
                   onFocus={e => (e.target.style.borderColor = '#E8C57E')}
                   onBlur={e => (e.target.style.borderColor = err ? '#B8423C' : '#E5E0D4')}

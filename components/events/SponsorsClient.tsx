@@ -57,8 +57,8 @@ function SponsorAvatar({ name, logoUrl }: { name: string; logoUrl: string | null
   }
   const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
   return (
-    <span className="w-10 h-10 rounded-xl grid place-items-center text-cream font-display font-semibold text-[13px] shrink-0"
-      style={{ background: 'linear-gradient(135deg,#1F4D3A,#2A6A50)' }}>
+    <span className="w-10 h-10 rounded-xl grid place-items-center font-display font-semibold text-[13px] shrink-0"
+      style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
       {initials}
     </span>
   );

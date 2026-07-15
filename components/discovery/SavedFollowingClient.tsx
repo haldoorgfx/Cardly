@@ -135,7 +135,8 @@ export function SavedFollowingClient({ saved: dbSaved, following: dbFollowing, e
               <Link key={ep.id} href={`/e/${getSlug(ep)}`} className="block rounded-2xl overflow-hidden transition hover:shadow-md"
                 style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', textDecoration: 'none' }}>
                 {/* Cover */}
-                <div className="h-32 relative" style={{ background: 'linear-gradient(135deg, #1F4D3A, #2A6A50)' }}>
+                <div className="h-32 relative flex items-center justify-center font-display font-semibold text-[22px]" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
+                  {!ep.cover_image_url && (ep.title?.[0]?.toUpperCase() ?? '')}
                   {ep.cover_image_url && (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={ep.cover_image_url} alt="" className="absolute inset-0 w-full h-full object-cover" />

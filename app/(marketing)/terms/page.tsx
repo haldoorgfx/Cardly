@@ -9,19 +9,19 @@ export default function TermsPage() {
   return (
     <>
       <section className="max-w-[820px] mx-auto px-6 pt-20 pb-28">
-        <div className="text-[11px] tracking-[0.18em] text-brand-primary mb-4">
+        <div className="text-[11px] tracking-[0.18em] text-primary mb-4">
           LEGAL
         </div>
         <h1 className="font-title font-bold text-[40px] sm:text-[48px] leading-[1.05] mb-3">
           Terms of Service
         </h1>
-        <p className="text-[13px] text-brand-ink/45 mb-10">
+        <p className="text-[13px] text-ink/45 mb-10">
           Last updated: July 2026
         </p>
 
-        <div className="space-y-10 text-[16px] text-brand-ink/75 leading-[1.8]">
+        <div className="space-y-10 text-[16px] text-ink/75 leading-[1.8]">
           <section>
-            <h2 className="font-display font-bold text-[22px] text-brand-ink mb-3">
+            <h2 className="font-display font-bold text-[22px] text-ink mb-3">
               Acceptance
             </h2>
             <p>
@@ -34,7 +34,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="font-display font-bold text-[22px] text-brand-ink mb-3">
+            <h2 className="font-display font-bold text-[22px] text-ink mb-3">
               What Eventera is
             </h2>
             <p>
@@ -55,7 +55,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="font-display font-bold text-[22px] text-brand-ink mb-3">
+            <h2 className="font-display font-bold text-[22px] text-ink mb-3">
               Your account
             </h2>
             <ul className="list-disc pl-5 space-y-1.5 text-[15px]">
@@ -76,7 +76,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="font-display font-bold text-[22px] text-brand-ink mb-3">
+            <h2 className="font-display font-bold text-[22px] text-ink mb-3">
               Events, tickets, and registrations
             </h2>
             <p>
@@ -107,7 +107,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="font-display font-bold text-[22px] text-brand-ink mb-3">
+            <h2 className="font-display font-bold text-[22px] text-ink mb-3">
               Payments and payouts
             </h2>
             <p>
@@ -136,7 +136,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="font-display font-bold text-[22px] text-brand-ink mb-3">
+            <h2 className="font-display font-bold text-[22px] text-ink mb-3">
               Acceptable use
             </h2>
             <p className="mb-3">You may not use Eventera to:</p>
@@ -176,7 +176,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="font-display font-bold text-[22px] text-brand-ink mb-3">
+            <h2 className="font-display font-bold text-[22px] text-ink mb-3">
               Intellectual property
             </h2>
             <p>
@@ -213,7 +213,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="font-display font-bold text-[22px] text-brand-ink mb-3">
+            <h2 className="font-display font-bold text-[22px] text-ink mb-3">
               AI features
             </h2>
             <p>
@@ -229,7 +229,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="font-display font-bold text-[22px] text-brand-ink mb-3">
+            <h2 className="font-display font-bold text-[22px] text-ink mb-3">
               Plans and payment
             </h2>
             <p>
@@ -247,7 +247,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="font-display font-bold text-[22px] text-brand-ink mb-3">
+            <h2 className="font-display font-bold text-[22px] text-ink mb-3">
               Cancellation and deletion
             </h2>
             <p>
@@ -261,7 +261,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="font-display font-bold text-[22px] text-brand-ink mb-3">
+            <h2 className="font-display font-bold text-[22px] text-ink mb-3">
               Warranty and liability
             </h2>
             <p>
@@ -279,7 +279,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="font-display font-bold text-[22px] text-brand-ink mb-3">
+            <h2 className="font-display font-bold text-[22px] text-ink mb-3">
               Changes to these terms
             </h2>
             <p>
@@ -290,14 +290,14 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="font-display font-bold text-[22px] text-brand-ink mb-3">
+            <h2 className="font-display font-bold text-[22px] text-ink mb-3">
               Contact
             </h2>
             <p>
               Questions about these terms:{" "}
               <a
                 href="mailto:hello@eventera.so"
-                className="text-brand-primary hover:underline"
+                className="text-primary hover:underline"
               >
                 hello@eventera.so
               </a>

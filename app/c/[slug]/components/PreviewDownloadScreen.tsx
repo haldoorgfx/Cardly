@@ -175,7 +175,7 @@ export default function PreviewDownloadScreen({
   };
 
   const shareRow = (
-    <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
+    <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
       <PlatformBtn icon={<WhatsAppIcon/>}   label="Share on WhatsApp" onClick={() => handleShare('whatsapp')}/>
       <PlatformBtn icon={<InstagramIcon/>}  label="Open Instagram"    onClick={() => handleShare('instagram')}/>
       <PlatformBtn icon={<XIcon/>}          label="Post on X"         onClick={() => handleShare('x')}/>
@@ -203,7 +203,7 @@ export default function PreviewDownloadScreen({
         position: 'relative',
         minHeight: '100vh',
         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-        padding: '56px 24px',
+        padding: '48px 24px',
         overflow: 'hidden',
         fontFamily: 'Inter, system-ui, sans-serif',
         color: '#0F1F18',
@@ -226,9 +226,9 @@ export default function PreviewDownloadScreen({
 
         {/* Kicker badge */}
         <div style={{
-          display: 'flex', alignItems: 'center', gap: 9,
+          display: 'flex', alignItems: 'center', gap: 8,
           fontWeight: 500, fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase',
-          color: '#C9A45E', marginBottom: 28,
+          color: '#C9A45E', marginBottom: 32,
         }}>
           <span style={{
             width: 6, height: 6, borderRadius: '50%', background: '#E8C57E',
@@ -241,7 +241,7 @@ export default function PreviewDownloadScreen({
 
         {/* Card shell — breathe animation */}
         <div style={{ animation: 'breathe 3.4s ease-in-out infinite', animationDelay: '0.4s' }}>
-          <div style={{ position: 'relative', borderRadius: 14, overflow: 'hidden', animation: 'cardIn 500ms ease-out both' }}>
+          <div style={{ position: 'relative', borderRadius: 16, overflow: 'hidden', animation: 'cardIn 500ms ease-out both' }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={resultUrl}
@@ -251,13 +251,13 @@ export default function PreviewDownloadScreen({
                 width: 300,
                 aspectRatio: `${aspect}`,
                 objectFit: 'cover',
-                borderRadius: 14,
+                borderRadius: 16,
                 ...cardGlow,
               }}
             />
             {/* Guilloche texture overlay */}
             <div style={{
-              position: 'absolute', inset: 0, borderRadius: 14, pointerEvents: 'none',
+              position: 'absolute', inset: 0, borderRadius: 16, pointerEvents: 'none',
               backgroundImage: 'repeating-linear-gradient(115deg, rgba(232,197,126,0.05) 0 2px, transparent 2px 9px)',
               opacity: 0.5,
             }}/>
@@ -271,9 +271,9 @@ export default function PreviewDownloadScreen({
             style={{
               width: '100%', height: 52,
               background: '#1F4D3A', color: '#FAF6EE',
-              border: 'none', borderRadius: 14,
+              border: 'none', borderRadius: 12,
               fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 16,
-              display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
               cursor: 'pointer',
               boxShadow: '0 1px 2px rgba(15,31,24,0.04), 0 12px 32px rgba(31,77,58,0.22)',
               transition: 'background .15s',
@@ -297,7 +297,7 @@ export default function PreviewDownloadScreen({
                 background: 'transparent', border: 'none', cursor: 'pointer',
                 fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 500,
                 color: '#6B7A72', padding: '4px 0',
-                display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
               }}
             >
               Share to apps…
@@ -312,7 +312,7 @@ export default function PreviewDownloadScreen({
                 background: 'transparent', border: 'none', cursor: 'pointer',
                 fontFamily: 'Inter, sans-serif', fontSize: 14, fontWeight: 500,
                 color: '#C9A45E', padding: 0,
-                display: 'inline-flex', alignItems: 'center', gap: 6,
+                display: 'inline-flex', alignItems: 'center', gap: 8,
                 transition: 'color .15s',
               }}
               onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#E8C57E'; }}
@@ -340,17 +340,17 @@ export default function PreviewDownloadScreen({
           {/* Ticket QR for door check-in */}
           {qrToken && (
             <div style={{
-              marginTop: 8, padding: '16px', borderRadius: 14, textAlign: 'center',
+              marginTop: 8, padding: '16px', borderRadius: 12, textAlign: 'center',
               background: 'rgba(255,255,255,0.6)', border: '1px solid #E5E0D4',
             }}>
-              <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#6B7A72', marginBottom: 10 }}>
+              <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#6B7A72', marginBottom: 12 }}>
                 Show at door
               </p>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={`/api/qr/${qrToken}`}
                 alt="Check-in QR code"
-                style={{ width: 120, height: 120, borderRadius: 8, background: 'white', padding: 6, display: 'block', margin: '0 auto 8px' }}
+                style={{ width: 120, height: 120, borderRadius: 8, background: 'white', padding: 8, display: 'block', margin: '0 auto 8px' }}
               />
               {attendeeName && (
                 <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 12, color: '#3A4A42', fontWeight: 500 }}>{attendeeName}</p>

@@ -30,15 +30,6 @@ const TYPE_LABELS: Record<SpeakerType, string> = {
   mc: 'MC',
 };
 
-const AVATAR_GRADS = [
-  'linear-gradient(135deg,#1F4D3A,#2A6A50)',
-  'linear-gradient(135deg,#163828,#3E7E5E)',
-  'linear-gradient(135deg,#2A6A50,#C9A45E)',
-  'linear-gradient(135deg,#C9A45E,#1F4D3A)',
-  'linear-gradient(135deg,#3E7E5E,#C9A45E)',
-  'linear-gradient(135deg,#1F4D3A,#163828)',
-];
-
 function getInitials(name: string) {
   return name
     .split(' ')
@@ -431,9 +422,8 @@ export default function SpeakersManager({ eventId, slug, initialSpeakers }: Prop
         </div>
       ) : speakers.length > 0 ? (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {speakers.map((speaker, i) => {
+          {speakers.map((speaker) => {
             const initials = getInitials(speaker.name);
-            const grad = AVATAR_GRADS[i % AVATAR_GRADS.length];
             return (
               <div
                 key={speaker.id}
@@ -451,8 +441,8 @@ export default function SpeakersManager({ eventId, slug, initialSpeakers }: Prop
                     />
                   ) : (
                     <div
-                      className="w-[52px] h-[52px] rounded-full shrink-0 grid place-items-center font-display text-[15px] font-bold text-white"
-                      style={{ background: grad }}
+                      className="w-[52px] h-[52px] rounded-full shrink-0 grid place-items-center font-display text-[15px] font-bold"
+                      style={{ background: '#E8EFEB', color: '#1F4D3A' }}
                     >
                       {initials}
                     </div>

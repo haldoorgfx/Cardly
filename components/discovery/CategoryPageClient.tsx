@@ -41,7 +41,7 @@ function EventCard({ ep }: { ep: EventPage }) {
   return (
     <Link href={`/e/${getSlug(ep)}`} className="block rounded-2xl overflow-hidden transition hover:shadow-lg"
       style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', textDecoration: 'none' }}>
-      <div className="h-36 relative" style={{ background: 'linear-gradient(135deg, #1F4D3A, #2A6A50)' }}>
+      <div className="h-36 relative" style={{ background: '#E8EFEB' }}>
         {ep.cover_image_url && (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={ep.cover_image_url} alt="" className="absolute inset-0 w-full h-full object-cover" />

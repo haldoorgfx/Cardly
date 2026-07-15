@@ -661,7 +661,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
               <div className="flex items-start gap-3 pb-4" style={{ borderBottom: '1px solid #E5E0D4' }}>
                 <div
                   className="w-12 h-12 rounded-lg shrink-0 overflow-hidden"
-                  style={{ background: 'linear-gradient(135deg, #1F4D3A, #2A6A50)' }}
+                  style={{ background: '#E8EFEB' }}
                 >
                   {page.cover_image_url && (
                     // eslint-disable-next-line @next/next/no-img-element

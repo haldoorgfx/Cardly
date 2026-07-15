@@ -119,7 +119,7 @@ export function CityPage({ city, events, savedIds, eventCount }: CityPageProps) 
           <button
             key={chip}
             onClick={() => setDateChip(chip)}
-            className="inline-flex items-center justify-center flex-none h-[30px] px-3.5 rounded-full text-[12px] font-medium transition whitespace-nowrap"
+            className="inline-flex items-center justify-center flex-none h-8 px-3.5 rounded-full text-[12px] font-medium transition whitespace-nowrap"
             style={{
               background: dateChip === chip ? '#1F4D3A' : '#FFFFFF',
               color: dateChip === chip ? '#FFFFFF' : '#3A4A42',
@@ -134,7 +134,7 @@ export function CityPage({ city, events, savedIds, eventCount }: CityPageProps) 
           <button
             key={chip}
             onClick={() => setCatChip(catChip === chip ? null : chip)}
-            className="inline-flex items-center justify-center flex-none h-[30px] px-3.5 rounded-full text-[12px] font-medium transition whitespace-nowrap"
+            className="inline-flex items-center justify-center flex-none h-8 px-3.5 rounded-full text-[12px] font-medium transition whitespace-nowrap"
             style={{
               background: catChip === chip ? '#1F4D3A' : '#FFFFFF',
               color: catChip === chip ? '#FFFFFF' : '#3A4A42',
@@ -147,7 +147,7 @@ export function CityPage({ city, events, savedIds, eventCount }: CityPageProps) 
         <div className="ml-auto shrink-0">
           <Link
             href={`/events/search?city=${encodeURIComponent(city)}`}
-            className="flex items-center gap-1.5 h-[30px] px-3.5 rounded-full text-[12px] font-medium whitespace-nowrap"
+            className="flex items-center gap-1.5 h-8 px-3.5 rounded-full text-[12px] font-medium whitespace-nowrap"
             style={{ background: '#FFFFFF', color: '#1F4D3A', border: '1px solid #1F4D3A' }}
           >
             <Map size={12} /> Map view

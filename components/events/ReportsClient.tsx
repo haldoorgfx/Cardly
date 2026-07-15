@@ -154,7 +154,7 @@ export function ReportsClient({ eventId, eventName, totalRevenue, regCount, chec
       {tab === 'roi' && (
         <>
           {/* Hero banner */}
-          <div className="rounded-2xl p-6 mb-6 relative overflow-hidden" style={{ background: 'linear-gradient(135deg,#0D1F17,#1F4D3A 60%,#235741)' }}>
+          <div className="rounded-2xl p-6 mb-6 relative overflow-hidden" style={{ background: '#163828' }}>
             <div className="relative grid sm:grid-cols-[1.4fr_1fr] gap-5 items-center">
               <div>
                 <div className=" text-[12px] tracking-[0.16em] uppercase mb-2" style={{ color: '#E8C57E' }}>Event revenue</div>

@@ -61,7 +61,7 @@ export function SearchPageClient({ initialQuery, initialCity, events: serverEven
         <div className="max-w-5xl mx-auto px-5 py-4">
           <div className="flex items-center gap-2">
             {/* Search input */}
-            <div className="flex-1 flex items-center gap-2 px-4 py-2.5 rounded-2xl"
+            <div className="flex-1 flex items-center gap-2 px-4 py-2.5 rounded-xl"
               style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
               <Search size={16} style={{ color: '#6B7A72', flexShrink: 0 }} />
               <input
@@ -86,7 +86,7 @@ export function SearchPageClient({ initialQuery, initialCity, events: serverEven
             <div className="relative">
               <button
                 onClick={() => setShowCityDropdown(!showCityDropdown)}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-2xl text-[13px] font-medium transition hover:opacity-80"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-medium transition hover:opacity-80"
                 style={{ background: cityFilter ? '#E8EFEB' : '#FFFFFF', color: cityFilter ? '#1F4D3A' : '#6B7A72', border: `1px solid ${cityFilter ? '#1F4D3A' : '#E5E0D4'}` }}>
                 <MapPin size={14} />
                 {cityFilter || 'Any city'}
@@ -112,7 +112,7 @@ export function SearchPageClient({ initialQuery, initialCity, events: serverEven
             </div>
 
             <button onClick={() => doSearch(query, cityFilter)}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-2xl text-[13px] font-semibold transition hover:opacity-90"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-[13px] font-semibold transition hover:opacity-90"
               style={{ background: '#1F4D3A', color: '#FAF6EE' }}>
               <Search size={14} /> Search
             </button>
@@ -159,7 +159,7 @@ export function SearchPageClient({ initialQuery, initialCity, events: serverEven
           {events.map((ep: EventPage) => (
             <Link key={ep.id} href={`/e/${getSlug(ep)}`} className="block rounded-2xl overflow-hidden transition hover:shadow-lg"
               style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', textDecoration: 'none' }}>
-              <div className="h-36 relative" style={{ background: 'linear-gradient(135deg, #1F4D3A, #2A6A50)' }}>
+              <div className="h-36 relative" style={{ background: '#E8EFEB' }}>
                 {ep.cover_image_url && (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={ep.cover_image_url} alt="" className="absolute inset-0 w-full h-full object-cover" />

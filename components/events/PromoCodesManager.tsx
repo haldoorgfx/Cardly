@@ -32,7 +32,7 @@ function toDatetimeLocal(iso: string) {
   return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-const INPUT = 'w-full rounded-lg px-3 py-2.5 text-[14px] outline-none';
+const INPUT = 'w-full rounded-xl px-3 py-2.5 text-[14px] outline-none';
 const INPUT_STYLE = { background: 'white', border: '1px solid #E5E0D4', color: '#0F1F18' };
 
 function CopyCode({ code }: { code: string }) {
@@ -44,7 +44,7 @@ function CopyCode({ code }: { code: string }) {
         setCopied(true);
         setTimeout(() => setCopied(false), 1500);
       }}
-      className="flex items-center gap-1.5  text-[13px] font-semibold tracking-wider px-2.5 py-1 rounded-md transition-colors"
+      className="flex items-center gap-1.5  text-[13px] font-semibold tracking-wider px-2.5 py-1 rounded-lg transition-colors"
       style={{ background: '#E8EFEB', color: '#1F4D3A' }}
       title="Copy code"
     >
@@ -62,6 +62,7 @@ export function PromoCodesManager({ eventId, initialCodes, eventDates }: Props) 
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [error, setError] = useState('');
+  const [deleteError, setDeleteError] = useState('');
   const [showImport, setShowImport] = useState(false);
 
   async function reloadCodes() {
@@ -164,9 +165,17 @@ export function PromoCodesManager({ eventId, initialCodes, eventDates }: Props) 
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this promo code?')) return;
     setDeleting(id);
+    setDeleteError('');
     try {
-      await fetch(`/api/events/${eventId}/promo?codeId=${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/events/${eventId}/promo?codeId=${id}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setDeleteError(data.error ?? 'Could not delete this code. Please try again.');
+        return;
+      }
       setCodes(c => c.filter(x => x.id !== id));
+    } catch {
+      setDeleteError('Network error — please try again.');
     } finally {
       setDeleting(null);
     }
@@ -185,8 +194,8 @@ export function PromoCodesManager({ eventId, initialCodes, eventDates }: Props) 
         subtitle={editingCode?.code}
         footer={
           <>
-            <button onClick={() => setEditingCode(null)} className="h-10 px-4 rounded-lg text-[13px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>Cancel</button>
-            <button onClick={handleEdit} disabled={saving} className="h-10 px-5 rounded-lg text-[13px] font-semibold text-white disabled:opacity-60" style={{ background: '#1F4D3A' }}>
+            <button onClick={() => setEditingCode(null)} className="h-10 px-4 rounded-xl text-[13px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>Cancel</button>
+            <button onClick={handleEdit} disabled={saving} className="h-10 px-5 rounded-xl text-[13px] font-semibold text-white disabled:opacity-60" style={{ background: '#1F4D3A' }}>
               {saving ? 'Saving…' : 'Save changes'}
             </button>
           </>
@@ -275,8 +284,8 @@ export function PromoCodesManager({ eventId, initialCodes, eventDates }: Props) 
         title="New promo code"
         footer={
           <>
-            <button onClick={resetForm} className="h-10 px-4 rounded-lg text-[13px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>Cancel</button>
-            <button onClick={handleCreate} disabled={saving} className="h-10 px-5 rounded-lg text-[13px] font-semibold text-white disabled:opacity-60" style={{ background: '#1F4D3A' }}>
+            <button onClick={resetForm} className="h-10 px-4 rounded-xl text-[13px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>Cancel</button>
+            <button onClick={handleCreate} disabled={saving} className="h-10 px-5 rounded-xl text-[13px] font-semibold text-white disabled:opacity-60" style={{ background: '#1F4D3A' }}>
               {saving ? 'Creating…' : 'Create code'}
             </button>
           </>
@@ -367,6 +376,10 @@ export function PromoCodesManager({ eventId, initialCodes, eventDates }: Props) 
           {error && <p className="text-[13px] mt-3" style={{ color: '#B8423C' }}>{error}</p>}
         </div>
       </Modal>
+
+      {deleteError && (
+        <p className="text-[13px] mb-4 px-3 py-2 rounded-xl" style={{ background: '#FEF2F2', color: '#B8423C' }}>{deleteError}</p>
+      )}
 
       {/* Codes list */}
       {codes.length === 0 ? (

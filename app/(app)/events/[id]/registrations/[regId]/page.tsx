@@ -38,7 +38,7 @@ const STATUS_STYLE: Record<string, { bg: string; color: string }> = {
   checked_in: { bg: '#D1FAE5', color: '#065F46' },
   pending:    { bg: '#FEF3C7', color: '#92400E' },
   cancelled:  { bg: '#FEE2E2', color: '#991B1B' },
-  refunded:   { bg: '#E0E7FF', color: '#3730A3' },
+  refunded:   { bg: 'rgba(58,107,140,0.10)', color: '#3A6B8C' },
 };
 
 export default async function AttendeeDetailPage({ params }: Props) {

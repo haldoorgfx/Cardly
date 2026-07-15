@@ -196,7 +196,7 @@ function AdminPromoBanner({ banner, onCta }: { banner: PromoBanner; onCta: () =>
     <button
       type="button"
       onClick={onCta}
-      className="relative block w-full text-left overflow-hidden rounded-[22px] group"
+      className="relative block w-full text-left overflow-hidden rounded-3xl group"
       style={{
         minHeight: 200,
         background: hasImage ? '#163828' : `linear-gradient(135deg, ${bgStart} 0%, ${bgEnd} 100%)`,
@@ -379,7 +379,7 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents, ban
           </p>
 
           {/* Search card */}
-          <div className="mt-9 mx-auto rounded-[20px] text-left"
+          <div className="mt-9 mx-auto rounded-3xl text-left"
             style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', boxShadow: '0 12px 40px rgba(15,31,24,0.10)', padding: 16, maxWidth: 920 }}>
             {/* Search input row */}
             <div className="flex items-center gap-3 px-4" style={{ height: 56, borderBottom: '1px solid #E5E0D4' }}>
@@ -460,7 +460,7 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents, ban
         {/* Featured (only with no active filter, and no admin promo banner hero) */}
         {featured && !hasFilter && !promoBanner && (
           <Link href={`/e/${getSlug(featured)}`}
-            className="relative block h-72 sm:h-80 rounded-[22px] overflow-hidden mb-10 group"
+            className="relative block h-72 sm:h-80 rounded-3xl overflow-hidden mb-10 group"
             style={{ background: 'linear-gradient(140deg, #143024, #1F4D3A 55%, #2A6A50)', textDecoration: 'none' }}>
             {featured.cover_image_url && (
               // eslint-disable-next-line @next/next/no-img-element
@@ -492,7 +492,7 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents, ban
         {/* Get the app band */}
         <div
           className="rounded-2xl border px-5 py-5 sm:px-7 sm:py-6 mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-          style={{ background: 'linear-gradient(135deg, #163828 0%, #1F4D3A 100%)', borderColor: 'rgba(232,197,126,0.28)' }}
+          style={{ background: '#163828', borderColor: 'rgba(232,197,126,0.28)' }}
         >
           <div>
             <div className="font-title font-bold text-[18px] sm:text-[20px]" style={{ color: '#FAF6EE', letterSpacing: '-0.02em' }}>
@@ -581,9 +581,9 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents, ban
                 style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', textDecoration: 'none' }}>
                 {h.avatar ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={h.avatar} alt={h.name} className="w-12 h-12 rounded-[14px] object-cover shrink-0" style={{ border: '2px solid #E8EFEB' }} />
+                  <img src={h.avatar} alt={h.name} className="w-12 h-12 rounded-2xl object-cover shrink-0" style={{ border: '2px solid #E8EFEB' }} />
                 ) : (
-                  <div className="w-12 h-12 rounded-[14px] shrink-0 flex items-center justify-center text-white font-display font-semibold text-[15px]"
+                  <div className="w-12 h-12 rounded-2xl shrink-0 flex items-center justify-center text-white font-display font-semibold text-[15px]"
                     style={{ background: HOST_BG[i % HOST_BG.length] }}>
                     {initials(h.name)}
                   </div>

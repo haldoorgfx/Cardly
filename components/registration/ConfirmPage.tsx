@@ -362,7 +362,7 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
               onClick={handleGenerateCard}
               disabled={generatingCard}
               className="flex items-center gap-2 h-12 px-7 rounded-xl text-white font-semibold text-[15px] transition hover:opacity-90 disabled:opacity-50"
-              style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 100%)', boxShadow: '0 4px 12px rgba(31,77,58,0.25)' }}
+              style={{ background: '#1F4D3A', boxShadow: '0 4px 12px rgba(31,77,58,0.25)' }}
             >
               {generatingCard ? (
                 <>
@@ -409,12 +409,12 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
   const TicketPanel = () => (
     <div className="rounded-2xl overflow-hidden" style={{ background: 'white', border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(15,31,24,0.06)' }}>
       {/* Green top strip */}
-      <div className="h-1.5" style={{ background: 'linear-gradient(90deg, #1F4D3A 0%, #2D7A4F 100%)' }} />
+      <div className="h-1.5" style={{ background: '#1F4D3A' }} />
 
       <div className="p-6">
         {/* QR code */}
         <div className="flex flex-col items-center mb-5">
-          <div className="rounded-xl overflow-hidden mb-2.5" style={{ padding: 12, background: '#F9F9F9', border: '1px solid #EFEFEF' }}>
+          <div className="rounded-xl overflow-hidden mb-2.5" style={{ padding: 12, background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={`/api/qr/${registration.qr_code_token}`}

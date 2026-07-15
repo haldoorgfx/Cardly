@@ -13,13 +13,6 @@ function initials(name: string) {
   return name.split(' ').map(p => p[0]).join('').toUpperCase().slice(0, 2);
 }
 
-const AVATAR_GRADS = [
-  'linear-gradient(135deg,#1F4D3A,#2A6A50)',
-  'linear-gradient(135deg,#3E7E5E,#C9A45E)',
-  'linear-gradient(135deg,#163828,#3E7E5E)',
-  'linear-gradient(135deg,#2A6A50,#E8C57E)',
-];
-
 function InfoRow({ label, children, last }: { label: string; children: React.ReactNode; last?: boolean }) {
   return (
     <div className={`flex items-center justify-between gap-4 py-2.5 ${last ? '' : 'border-b'}`} style={{ borderColor: '#E5E0D4' }}>
@@ -152,7 +145,6 @@ export default async function SessionDetailPage({ params }: Props) {
                 <div className="grid sm:grid-cols-2 gap-2.5">
                   {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                   {speakers.map((sp: any) => {
-                    const gradIdx = sp.name.charCodeAt(0) % AVATAR_GRADS.length;
                     return (
                       <Link key={sp.id} href={`/events/${_ev.slug}/speakers/${sp.id}`}
                         className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 hover:opacity-80 transition-opacity"
@@ -162,8 +154,8 @@ export default async function SessionDetailPage({ params }: Props) {
                           <img src={sp.photo_url} alt={sp.name}
                             className="w-8 h-8 rounded-lg object-cover shrink-0" />
                         ) : (
-                          <div className="w-8 h-8 rounded-lg grid place-items-center shrink-0 text-white text-[12.5px] font-semibold"
-                            style={{ background: AVATAR_GRADS[gradIdx] }}>
+                          <div className="w-8 h-8 rounded-lg grid place-items-center shrink-0 text-[12.5px] font-semibold"
+                            style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
                             {initials(sp.name)}
                           </div>
                         )}

@@ -22,7 +22,7 @@ export default async function ChangelogAdminPage() {
       <PageHeader
         eyebrow="Admin · Changelog"
         title="Changelog"
-        subtitle={<>Manage entries that appear on the public <code className=" text-[12px]">/whats-new</code> page.</>}
+        subtitle={<>Manage entries that appear on the public <code className="font-sans text-[12px]">/whats-new</code> page.</>}
       />
 
       <ChangelogAdminClient initialEntries={(data ?? []) as ChangelogEntry[]} />

@@ -74,7 +74,7 @@ export default async function RevenuePrintPage({ params }: Props) {
         </div>
 
         {/* Hero total */}
-        <div style={{ background: '#1F4D3A', borderRadius: 14, padding: '28px 32px', marginBottom: 28, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+        <div style={{ background: '#1F4D3A', borderRadius: 16, padding: '28px 32px', marginBottom: 28, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
           <div>
             <div style={{ color: 'rgba(250,246,238,0.65)', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 600, marginBottom: 6 }}>
               Total Revenue
@@ -139,7 +139,7 @@ export default async function RevenuePrintPage({ params }: Props) {
             { label: 'Pending',     value: allRegs.filter(r => r.status === 'pending').length,                 color: '#6B7A72' },
             { label: 'Cancelled',   value: allRegs.filter(r => r.status === 'cancelled').length,               color: '#B8423C' },
           ].filter(s => s.value > 0).map(s => (
-            <div key={s.label} style={{ border: '1px solid #E5E0D4', borderRadius: 10, padding: '10px 16px', minWidth: 100 }}>
+            <div key={s.label} style={{ border: '1px solid #E5E0D4', borderRadius: 12, padding: '10px 16px', minWidth: 100 }}>
               <div style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 24, fontWeight: 700, color: s.color, lineHeight: 1 }}>{s.value}</div>
               <div style={{ fontSize: 11, color: '#6B7A72', marginTop: 3 }}>{s.label}</div>
             </div>

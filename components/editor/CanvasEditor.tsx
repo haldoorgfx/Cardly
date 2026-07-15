@@ -1875,7 +1875,7 @@ function RightRail({
               {typeLabel}
             </div>
             <div style={{
-              fontFamily: 'DM Sans, sans-serif', fontWeight: 700, fontSize: 15,
+              fontFamily: '"Plus Jakarta Sans", sans-serif', fontWeight: 700, fontSize: 15,
               color: '#0F1F18', letterSpacing: '-0.01em',
               whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
             }}>

@@ -358,7 +358,7 @@ export default function TemplatesPage() {
             className="group rounded-2xl border-2 border-dashed border-[#1F4D3A]/25 hover:border-[#1F4D3A] bg-white transition-all flex flex-col items-center justify-center text-center p-8"
             style={{ aspectRatio:`${W}/${H}` }}>
             <div className="h-14 w-14 rounded-2xl grid place-items-center text-white mb-4 group-hover:scale-110 transition-transform duration-200"
-              style={{ background:'linear-gradient(135deg,#1F4D3A,#E8C57E)', boxShadow:'0 8px 24px rgba(31,77,58,0.25)' }}>
+              style={{ background:'#1F4D3A', boxShadow:'0 8px 20px rgba(15,31,24,0.18)' }}>
               <Plus size={26} strokeWidth={2.4} />
             </div>
             <div className="font-display font-bold text-[17px]">Start blank</div>
@@ -389,7 +389,7 @@ export default function TemplatesPage() {
                     isLoading ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
                   }`} style={{ background:'linear-gradient(to top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.08) 45%, transparent 100%)' }}>
                     <div className="w-full text-white text-center py-3 rounded-xl font-display font-bold text-[14px] flex items-center justify-center gap-2"
-                      style={{ background:'linear-gradient(135deg,#1F4D3A 0%,#2A6A50 100%)', boxShadow:'0 8px 28px rgba(31,77,58,0.60)' }}>
+                      style={{ background:'#1F4D3A', boxShadow:'0 8px 20px rgba(15,31,24,0.3)' }}>
                       {isLoading
                         ? <><Loader2 size={14} strokeWidth={2} className="animate-spin" />Opening editor…</>
                         : 'Use this template →'}
@@ -467,12 +467,12 @@ export default function TemplatesPage() {
         )}
 
         {/* Coming soon */}
-        <div className="mt-12 rounded-2xl border border-dashed border-[#1F4D3A]/20 bg-gradient-to-br from-[#1F4D3A]/[0.03] to-[#E8C57E]/[0.03] px-8 py-8 text-center">
+        <div className="mt-12 rounded-2xl border border-dashed border-[#1F4D3A]/20 bg-[#1F4D3A]/[0.03] px-8 py-8 text-center">
           <div className="text-[12px] tracking-widest text-[#6B7A72]/60 mb-2 uppercase">Coming soon</div>
           <div className="font-display font-bold text-[22px]">Submit your own template</div>
           <p className="text-[13.5px] text-[#0F1F18]/55 mt-2 max-w-[420px] mx-auto">Save any event design as a reusable template and share it with the community.</p>
-          <Link href="/pricing" className="mt-5 inline-flex items-center gap-2 text-[13px] font-semibold text-white px-6 py-3 rounded-lg hover:opacity-95 transition"
-            style={{ background:'linear-gradient(135deg,#1F4D3A,#E8C57E)' }}>
+          <Link href="/pricing" className="mt-5 inline-flex items-center gap-2 text-[13px] font-semibold text-white px-6 py-3 rounded-lg hover:bg-[#163828] transition"
+            style={{ background:'#1F4D3A' }}>
             See Studio plan →
           </Link>
         </div>

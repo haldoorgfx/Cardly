@@ -155,7 +155,7 @@ export default async function HomePage() {
                     <div className="space-y-0.5">
                       {org.attention.map((item) => (
                         <Link key={item.id} href={item.href} className="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors hover:bg-[#FEFBF3]">
-                          <div className="w-8 h-8 rounded-lg shrink-0" style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 130%)' }} />
+                          <div className="w-8 h-8 rounded-lg shrink-0" style={{ background: '#E8EFEB' }} />
                           <div className="min-w-0 flex-1">
                             <div className="text-[13px] font-medium truncate" style={{ color: '#0F1F18' }}>{item.name}</div>
                             <div className="text-[13px]" style={{ color: '#B45309' }}>{item.reason}</div>
@@ -178,7 +178,7 @@ export default async function HomePage() {
                     <div className="space-y-0.5">
                       {attending.map((a) => (
                         <Link key={a.id} href="/my-tickets" className="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors hover:bg-[#F5F3EE]">
-                          <div className="w-8 h-8 rounded-lg shrink-0" style={{ background: 'linear-gradient(135deg,#1F4D3A,#2A6A50)' }} />
+                          <div className="w-8 h-8 rounded-lg shrink-0" style={{ background: '#E8EFEB' }} />
                           <div className="min-w-0 flex-1">
                             <div className="text-[13px] font-medium truncate" style={{ color: '#0F1F18' }}>{a.name}</div>
                             <div className="text-[13px]" style={{ color: '#3A4A42' }}>{a.when ? new Date(a.when).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : 'Date TBA'}</div>

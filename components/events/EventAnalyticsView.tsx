@@ -87,7 +87,7 @@ function HorizontalBar({ label, value, max, currency }: { label: string; value: 
       <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: '#E5E0D4' }}>
         <div className="h-full rounded-full" style={{ width: `${pct}%`, background: '#1F4D3A' }} />
       </div>
-      <div className="font-title font-semibold text-[13px] min-w-[60px] text-right" style={{ color: value === 0 ? '#2D7A4F' : '#0F1F18' }}>
+      <div className="font-title font-semibold text-[13px] min-w-[60px] text-right tabular-nums" style={{ color: value === 0 ? '#2D7A4F' : '#0F1F18' }}>
         {value === 0 ? 'Free' : formatCurrency(value, currency)}
       </div>
     </div>
@@ -114,7 +114,7 @@ export function EventAnalyticsView({
       {/* ── ERA insight ───────────────────────────────────────── */}
       {eraInsight && (
         <div className="rounded-2xl overflow-hidden mb-6" style={{ border: '1px solid rgba(31,77,58,0.18)', boxShadow: '0 2px 16px rgba(31,77,58,0.07)' }}>
-          <div className="flex items-center gap-2.5 px-5 py-3" style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 100%)' }}>
+          <div className="flex items-center gap-2.5 px-5 py-3" style={{ background: '#1F4D3A' }}>
             <Sparkles size={13} strokeWidth={2} color="white" style={{ opacity: 0.88 }} />
             <span className="text-[12.5px] font-bold tracking-[0.1em] uppercase" style={{ color: 'rgba(255,255,255,0.85)' }}>ERA · Analytics Insight</span>
           </div>
@@ -170,7 +170,7 @@ export function EventAnalyticsView({
           </div>
           <div className="mt-4 pt-4 flex justify-between" style={{ borderTop: '1px solid #E5E0D4' }}>
             <span className="text-[13px]" style={{ color: '#6B7A72' }}>Total revenue</span>
-            <span className="font-title font-semibold text-[15px]" style={{ color: '#0F1F18' }}>
+            <span className="font-title font-semibold text-[15px] tabular-nums" style={{ color: '#0F1F18' }}>
               {formatCurrency(totalRevenue, revenueCurrency)}
             </span>
           </div>

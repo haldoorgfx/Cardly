@@ -51,7 +51,7 @@ export default async function QAModerationPage({ params }: Props) {
 
   return (
     <PageShell width="wide">
-      <PageHeader title="Q&amp;A Moderation" subtitle="Feature, answer, or hide questions in real time." />
+      <PageHeader title="Q&A Moderation" subtitle="Feature, answer, or hide questions in real time." />
       <QAModerationClient
         eventId={id}
         eventSlug={event.slug}

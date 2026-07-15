@@ -50,7 +50,7 @@ function FieldLabel({ children, required }: { children: React.ReactNode; require
 function FieldError({ children }: { children: React.ReactNode }) {
   return (
     <div role="alert" aria-live="polite" style={{
-      display: 'flex', alignItems: 'center', gap: 6, marginTop: 6,
+      display: 'flex', alignItems: 'center', gap: 8, marginTop: 8,
       fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#B8423C',
     }}>
       <AlertCircle size={14} strokeWidth={2}/>
@@ -76,7 +76,7 @@ function TextInput({
           padding: '0 16px',
           background: '#FFFFFF',
           border: `1.5px solid ${error ? '#B8423C' : '#E5E0D4'}`,
-          borderRadius: 14,
+          borderRadius: 12,
           fontFamily: 'Inter, sans-serif', fontSize: 16, fontWeight: 500,
           color: '#0F1F18',
           outline: 'none',
@@ -108,7 +108,7 @@ function TextAreaInput({
           padding: '14px 16px',
           background: '#FFFFFF',
           border: `1.5px solid ${error ? '#B8423C' : '#E5E0D4'}`,
-          borderRadius: 14,
+          borderRadius: 12,
           fontFamily: 'Inter, sans-serif', fontSize: 16, fontWeight: 500,
           color: '#0F1F18', lineHeight: 1.5,
           outline: 'none', resize: 'vertical',
@@ -159,11 +159,11 @@ function PhotoInput({
       {photoFile ? (
         /* Filled state */
         <div style={{
-          height: 72, padding: '12px 14px',
+          height: 72, padding: '12px 16px',
           background: '#FFFFFF',
           border: '1.5px solid #E5E0D4',
-          borderRadius: 14,
-          display: 'flex', alignItems: 'center', gap: 14,
+          borderRadius: 12,
+          display: 'flex', alignItems: 'center', gap: 16,
         }}>
           {photoUrl ? (
             /* eslint-disable-next-line @next/next/no-img-element */
@@ -195,7 +195,7 @@ function PhotoInput({
             style={{
               background: 'transparent', border: 'none', cursor: 'pointer',
               fontFamily: 'Inter, sans-serif', fontSize: 14, fontWeight: 600,
-              color: '#1F4D3A', padding: '6px 10px',
+              color: '#1F4D3A', padding: '8px 12px',
             }}
           >Change</button>
         </div>
@@ -210,7 +210,7 @@ function PhotoInput({
             width: '100%', height: 120,
             background: '#FFFFFF',
             border: `1.5px dashed ${error ? '#B8423C' : '#C9C3B1'}`,
-            borderRadius: 14, cursor: 'pointer',
+            borderRadius: 12, cursor: 'pointer',
             transition: 'border-color .2s, background .2s',
           }}
           onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = '#E8EFEB'; }}
@@ -256,7 +256,7 @@ function SelectInput({
             padding: '0 40px 0 16px',
             background: '#FFFFFF',
             border: `1.5px solid ${error ? '#B8423C' : '#E5E0D4'}`,
-            borderRadius: 14,
+            borderRadius: 12,
             fontFamily: 'Inter, sans-serif', fontSize: 16, fontWeight: 500,
             color: value ? '#0F1F18' : '#6B7A72',
             outline: 'none', appearance: 'none',
@@ -282,8 +282,8 @@ function SelectInput({
 /* ── Group header ────────────────────────────────────────────────────────── */
 function GroupHeader({ index, title, subtitle }: { index: number; title: string; subtitle?: string }) {
   return (
-    <div style={{ marginBottom: 14 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+    <div style={{ marginBottom: 16 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <div style={{
           width: 22, height: 22, borderRadius: '50%',
           background: '#1F4D3A', color: '#FAF6EE',
@@ -353,7 +353,7 @@ function FormBody({
 
   let groupIndex = 0;
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
       {textZones.length > 0 && (
         <div>
           <GroupHeader
@@ -361,7 +361,7 @@ function FormBody({
             title="About you"
             subtitle="This is what shows on your card."
           />
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {textZones.map(z => (
               <ZoneField
                 key={z.id} zone={z}
@@ -382,7 +382,7 @@ function FormBody({
             title="Your photo"
             subtitle="Square photo crops best — we'll help you align it."
           />
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {photoZones.map(z => (
               <ZoneField
                 key={z.id} zone={z}
@@ -418,7 +418,7 @@ export default function DetailsFormScreen({
         height: 56, padding: '0 28px',
         background: disabled ? '#E8EFEB' : '#1F4D3A',
         color: disabled ? '#6B7A72' : '#FAF6EE',
-        border: 'none', borderRadius: 14,
+        border: 'none', borderRadius: 12,
         fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 16,
         display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 10,
         cursor: disabled ? 'not-allowed' : 'pointer',
@@ -444,17 +444,17 @@ export default function DetailsFormScreen({
 
           {/* Live preview card */}
           <div style={{
-            marginTop: 14,
+            marginTop: 16,
             background: '#FFFFFF',
             border: '1px solid #E5E0D4',
-            borderRadius: 20,
-            padding: '14px 14px 18px',
+            borderRadius: 16,
+            padding: '16px',
             display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
           }}>
             <div style={{
               alignSelf: 'flex-start',
-              display: 'inline-flex', alignItems: 'center', gap: 6,
-              padding: '4px 10px',
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              padding: '4px 12px',
               background: '#E8EFEB', borderRadius: 999,
               fontFamily: 'Inter, system-ui, sans-serif',
               fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase',
@@ -475,7 +475,7 @@ export default function DetailsFormScreen({
           </div>
 
           {/* Form */}
-          <div style={{ marginTop: 20 }}>
+          <div style={{ marginTop: 24 }}>
             <FormBody
               editableZones={editableZones}
               values={values}
@@ -490,7 +490,7 @@ export default function DetailsFormScreen({
           {generateError && (
             <div style={{
               marginTop: 16,
-              padding: '12px 14px',
+              padding: '12px 16px',
               background: '#F6E3E1',
               border: '1px solid #B8423C',
               borderRadius: 12,
@@ -504,7 +504,7 @@ export default function DetailsFormScreen({
         {/* Sticky bottom CTA */}
         <div style={{
           position: 'fixed', left: 0, right: 0, bottom: 0, zIndex: 20,
-          padding: '14px 20px 20px',
+          padding: '16px 20px 20px',
           background: 'rgba(250,246,238,0.92)',
           backdropFilter: 'blur(14px)',
           WebkitBackdropFilter: 'blur(14px)',
@@ -539,8 +539,8 @@ export default function DetailsFormScreen({
             alignItems: 'center', justifyContent: 'center', gap: 16,
           }}>
             <div style={{
-              display: 'inline-flex', alignItems: 'center', gap: 6,
-              padding: '4px 10px',
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              padding: '4px 12px',
               background: '#E8EFEB', borderRadius: 999,
               fontFamily: 'Inter, system-ui, sans-serif',
               fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase',
@@ -564,7 +564,7 @@ export default function DetailsFormScreen({
             </div>
             <div style={{
               fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#6B7A72',
-              display: 'flex', alignItems: 'center', gap: 6,
+              display: 'flex', alignItems: 'center', gap: 8,
             }}>
               <Pencil size={13} strokeWidth={2}/> Updates as you type
             </div>
@@ -579,12 +579,12 @@ export default function DetailsFormScreen({
           height: '100vh', overflow: 'hidden',
         }}>
           {/* Header */}
-          <div style={{ padding: '36px 40px 24px', flexShrink: 0 }}>
+          <div style={{ padding: '32px 40px 24px', flexShrink: 0 }}>
             <button
               onClick={onBack}
               style={{
                 background: 'transparent', border: 'none', cursor: 'pointer',
-                display: 'inline-flex', alignItems: 'center', gap: 6,
+                display: 'inline-flex', alignItems: 'center', gap: 8,
                 fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#6B7A72',
                 padding: 0, marginBottom: 16,
               }}

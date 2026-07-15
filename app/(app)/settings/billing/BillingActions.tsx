@@ -71,7 +71,7 @@ export default function BillingActions() {
 
       {/* Trial callout */}
       <div className="rounded-2xl p-5 flex items-start gap-4"
-        style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 100%)', color: '#FAF6EE' }}>
+        style={{ background: '#1F4D3A', color: '#FAF6EE' }}>
         <div className="h-9 w-9 rounded-xl grid place-items-center shrink-0"
           style={{ background: 'rgba(250,246,238,0.15)' }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E8C57E" strokeWidth="2" strokeLinecap="round">
@@ -123,8 +123,8 @@ export default function BillingActions() {
             <button
               onClick={() => checkout(p.plan, 'annual')}
               disabled={isPending}
-              className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold transition-opacity disabled:opacity-50 hover:opacity-90"
-              style={{ background: 'linear-gradient(135deg, #1F4D3A, #2D7A4F)', color: '#FAF6EE' }}
+              className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold transition-colors disabled:opacity-50 hover:bg-[#163828]"
+              style={{ background: '#1F4D3A', color: '#FAF6EE' }}
             >
               Try free — save 20%
             </button>

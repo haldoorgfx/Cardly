@@ -14,11 +14,19 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data } = await (admin as any)
     .from('qa_questions')
-    .select('id, question, votes, asker_name, asker_affiliation, is_answered')
+    .select('id, question, upvotes_count, is_anonymous, status, registrations!qa_questions_registration_id_fkey(attendee_name)')
     .eq('event_id', id)
-    .eq('is_hidden', false)
-    .order('votes', { ascending: false })
+    .neq('status', 'hidden')
+    .order('upvotes_count', { ascending: false })
     .limit(6);
 
-  return NextResponse.json(data ?? []);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const questions = (data ?? []).map((q: any) => ({
+    id: q.id,
+    question: q.question,
+    votes: q.upvotes_count,
+    asker_name: q.is_anonymous ? null : (q.registrations?.attendee_name ?? null),
+  }));
+
+  return NextResponse.json(questions);
 }

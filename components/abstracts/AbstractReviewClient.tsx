@@ -138,7 +138,7 @@ export default function AbstractReviewClient({
               className="px-4 py-2.5 text-[13px] font-medium transition-colors border-b-2 -mb-px"
               style={{
                 color: tab === t.key ? '#1F4D3A' : '#6B7A72',
-                borderBottomColor: tab === t.key ? '#E8C57E' : 'transparent',
+                borderBottomColor: tab === t.key ? '#1F4D3A' : 'transparent',
               }}
             >
               {t.label}

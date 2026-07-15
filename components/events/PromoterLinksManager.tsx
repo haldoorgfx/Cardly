@@ -20,7 +20,7 @@ interface Props {
   appUrl: string;
 }
 
-const INPUT = 'w-full rounded-lg px-3 py-2.5 text-[14px] outline-none';
+const INPUT = 'w-full rounded-xl px-3 py-2.5 text-[14px] outline-none';
 const INPUT_STYLE = { background: 'white', border: '1px solid #E5E0D4', color: '#0F1F18' };
 
 function fmt(n: number) {
@@ -40,7 +40,7 @@ function CopyButton({ text, label }: { text: string; label: string }) {
         setCopied(true);
         setTimeout(() => setCopied(false), 1800);
       }}
-      className="flex items-center gap-1.5 text-[12px] px-2.5 py-1 rounded-md transition-colors"
+      className="flex items-center gap-1.5 text-[12px] px-2.5 py-1 rounded-lg transition-colors"
       style={{ background: copied ? '#E8EFEB' : '#F4F1EB', color: copied ? '#1F4D3A' : '#6B7A72' }}
       title={`Copy ${label}`}
     >
@@ -107,7 +107,7 @@ export function PromoterLinksManager({ eventId, eventSlug, initialCodes, appUrl 
         </p>
         <button
           onClick={() => { setShowForm(true); setError(''); }}
-          className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-[13px] font-medium transition-colors whitespace-nowrap"
+          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-[13px] font-medium transition-colors whitespace-nowrap"
           style={{ background: '#1F4D3A', color: '#FAF6EE' }}
         >
           <Plus size={14} />
@@ -122,8 +122,8 @@ export function PromoterLinksManager({ eventId, eventSlug, initialCodes, appUrl 
         title="New promoter link"
         footer={
           <>
-            <button onClick={() => { setShowForm(false); setError(''); setForm({ code: '', label: '' }); }} className="h-10 px-4 rounded-lg text-[13px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>Cancel</button>
-            <button onClick={handleCreate} disabled={saving} className="h-10 px-5 rounded-lg text-[13px] font-semibold text-white disabled:opacity-60" style={{ background: '#1F4D3A' }}>
+            <button onClick={() => { setShowForm(false); setError(''); setForm({ code: '', label: '' }); }} className="h-10 px-4 rounded-xl text-[13px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>Cancel</button>
+            <button onClick={handleCreate} disabled={saving} className="h-10 px-5 rounded-xl text-[13px] font-semibold text-white disabled:opacity-60" style={{ background: '#1F4D3A' }}>
               {saving ? 'Creating…' : 'Create link'}
             </button>
           </>
@@ -262,7 +262,7 @@ export function PromoterLinksManager({ eventId, eventSlug, initialCodes, appUrl 
             <button
               onClick={() => { setConfirmDelete(null); setError(''); }}
               disabled={!!deleting}
-              className="h-10 px-4 rounded-lg text-[13px] font-medium border disabled:opacity-60"
+              className="h-10 px-4 rounded-xl text-[13px] font-medium border disabled:opacity-60"
               style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}
             >
               Cancel
@@ -270,7 +270,7 @@ export function PromoterLinksManager({ eventId, eventSlug, initialCodes, appUrl 
             <button
               onClick={() => confirmDelete && handleDelete(confirmDelete.id)}
               disabled={!!deleting}
-              className="h-10 px-5 rounded-lg text-[13px] font-semibold text-white disabled:opacity-60"
+              className="h-10 px-5 rounded-xl text-[13px] font-semibold text-white disabled:opacity-60"
               style={{ background: '#B8423C' }}
             >
               {deleting ? 'Deleting…' : 'Delete link'}

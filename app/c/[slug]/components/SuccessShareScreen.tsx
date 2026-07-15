@@ -114,8 +114,8 @@ function CaptionCard({ eventName }: { eventName: string }) {
 
   return (
     <div style={{
-      background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 18, padding: 16,
-      display: 'flex', flexDirection: 'column', gap: 10,
+      background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 16, padding: 16,
+      display: 'flex', flexDirection: 'column', gap: 12,
     }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
         <div style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10, color: '#6B7A72', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
@@ -129,12 +129,12 @@ function CaptionCard({ eventName }: { eventName: string }) {
         <button
           onClick={handleCopy}
           style={{
-            height: 36, padding: '0 14px',
+            height: 36, padding: '0 16px',
             background: copied ? '#2D7A4F' : '#E8EFEB',
             color: copied ? '#FAF6EE' : '#1F4D3A',
-            border: 'none', borderRadius: 10,
+            border: 'none', borderRadius: 12,
             fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 13,
-            display: 'inline-flex', alignItems: 'center', gap: 6, cursor: 'pointer',
+            display: 'inline-flex', alignItems: 'center', gap: 8, cursor: 'pointer',
             transition: 'background .2s, color .2s',
           }}
         >
@@ -156,7 +156,7 @@ function BigShareButton({
       style={{
         width: '100%', height: 68,
         background: '#FFFFFF', border: '1.5px solid #E5E0D4', borderRadius: 16,
-        padding: '0 14px 0 0',
+        padding: '0 16px 0 0',
         display: 'flex', alignItems: 'stretch',
         cursor: 'pointer',
         boxShadow: '0 1px 2px rgba(15,31,24,0.03), 0 4px 12px rgba(15,31,24,0.04)',
@@ -210,7 +210,7 @@ function ForwardPrompt({ pageUrl }: { pageUrl: string }) {
 
   return (
     <div style={{
-      background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 16, padding: 14,
+      background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 16, padding: 16,
       display: 'flex', alignItems: 'center', gap: 12,
       position: 'relative', overflow: 'hidden',
     }}>
@@ -237,7 +237,7 @@ function ForwardPrompt({ pageUrl }: { pageUrl: string }) {
           position: 'relative',
           height: 36, padding: '0 12px',
           background: '#1F4D3A', color: '#FAF6EE',
-          border: 'none', borderRadius: 10,
+          border: 'none', borderRadius: 12,
           fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 13,
           cursor: 'pointer', flexShrink: 0,
         }}
@@ -331,7 +331,7 @@ export default function SuccessShareScreen({
         <div style={{
           position: 'fixed', left: '50%', bottom: 28, transform: 'translateX(-50%)',
           zIndex: 60, whiteSpace: 'nowrap',
-          padding: '10px 16px', borderRadius: 12,
+          padding: '12px 16px', borderRadius: 12,
           background: 'rgba(15,31,24,0.9)', color: '#FAF6EE',
           fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 13,
           boxShadow: '0 8px 28px rgba(15,31,24,0.28)', backdropFilter: 'blur(8px)',
@@ -382,7 +382,7 @@ export default function SuccessShareScreen({
           </div>
 
           {/* Secondary row */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', justifyContent: 'space-between' }}>
             <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#6B7A72' }}>More options</div>
             <div style={{ display: 'flex', gap: 8 }}>
               <SmallShare icon={<FacebookIcon size={18}/>} label="Facebook" onClick={() => handleShare('facebook')}/>
@@ -398,7 +398,7 @@ export default function SuccessShareScreen({
           {/* Back link */}
           <button onClick={onBack} style={{
             background: 'transparent', border: 'none', cursor: 'pointer',
-            display: 'inline-flex', alignItems: 'center', gap: 6,
+            display: 'inline-flex', alignItems: 'center', gap: 8,
             fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#6B7A72', padding: 0,
           }}>
             <ArrowLeft size={14} strokeWidth={2}/> Back to preview
@@ -428,7 +428,7 @@ export default function SuccessShareScreen({
             <h1 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 700, fontSize: 56, lineHeight: 1.0, letterSpacing: '-0.035em', margin: 0, color: '#0F1F18' }}>
               Card saved.
             </h1>
-            <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 18, lineHeight: 1.5, color: '#3A4A42', marginTop: 14, maxWidth: 380 }}>
+            <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 18, lineHeight: 1.5, color: '#3A4A42', marginTop: 16, maxWidth: 380 }}>
               Now share it where your audience hangs out.
             </div>
           </div>
@@ -436,8 +436,8 @@ export default function SuccessShareScreen({
           {/* Mini card + file meta */}
           {resultUrl && (
             <div style={{
-              display: 'flex', alignItems: 'center', gap: 18,
-              background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 18, padding: 16,
+              display: 'flex', alignItems: 'center', gap: 16,
+              background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 16, padding: 16,
             }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={resultUrl} alt="Your card" style={{
@@ -473,7 +473,7 @@ export default function SuccessShareScreen({
         </div>
 
         {/* Right */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 22, maxWidth: 520 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 24, maxWidth: 520 }}>
           <h2 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 700, fontSize: 28, letterSpacing: '-0.025em', margin: 0, color: '#0F1F18' }}>
             Share where it matters
           </h2>
@@ -488,7 +488,7 @@ export default function SuccessShareScreen({
 
           <div style={{ paddingTop: 16, borderTop: '1px solid #E5E0D4', display: 'flex', alignItems: 'center', gap: 12, justifyContent: 'space-between' }}>
             <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#6B7A72' }}>More options</div>
-            <div style={{ display: 'flex', gap: 10 }}>
+            <div style={{ display: 'flex', gap: 8 }}>
               <SmallShare icon={<FacebookIcon size={18}/>} label="Facebook" onClick={() => handleShare('facebook')}/>
               <SmallShare icon={<LinkedInIcon size={18}/>} label="LinkedIn" onClick={() => handleShare('linkedin')}/>
               <SmallShare icon={<TikTokIcon size={18}/>} label="TikTok" onClick={handleNativeShare}/>
@@ -498,7 +498,7 @@ export default function SuccessShareScreen({
 
           <button onClick={onBack} style={{
             background: 'transparent', border: 'none', cursor: 'pointer',
-            display: 'inline-flex', alignItems: 'center', gap: 6,
+            display: 'inline-flex', alignItems: 'center', gap: 8,
             fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#6B7A72', padding: 0,
           }}>
             <ArrowLeft size={14} strokeWidth={2}/> Back to preview

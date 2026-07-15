@@ -102,7 +102,7 @@ export function CategoryPage({ category, events, savedIds, cityCounts }: Categor
               <Link
                 key={cat}
                 href={`/events/category/${categorySlug(cat)}`}
-                className="inline-flex items-center justify-center flex-none h-[30px] px-4 rounded-full text-[12px] font-medium whitespace-nowrap transition"
+                className="inline-flex items-center justify-center flex-none h-8 px-4 rounded-full text-[12px] font-medium whitespace-nowrap transition"
                 style={{
                   background: cat === category ? '#1F4D3A' : '#FFFFFF',
                   color: cat === category ? '#FFFFFF' : '#3A4A42',

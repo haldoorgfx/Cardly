@@ -107,7 +107,7 @@ export function WaafiPayStep({ registrationId, qrToken, amount, currency, eventT
           Mobile money number
         </label>
         <div
-          className="flex items-center rounded-lg overflow-hidden"
+          className="flex items-center rounded-xl overflow-hidden"
           style={{ border: '1px solid #E5E0D4', background: 'white' }}
         >
           {/* Country code selector */}
@@ -201,8 +201,8 @@ export function WaafiPayStep({ registrationId, qrToken, amount, currency, eventT
           {['EVC Plus', 'eDahab', 'Somtel', 'e-Maal', 'D-Money'].map(op => (
             <span
               key={op}
-              className="px-2.5 py-1 rounded-lg text-[11px] font-medium"
-              style={{ background: '#F5F5F4', color: '#3A4A42', border: '1px solid #E5E0D4' }}
+              className="px-2.5 py-1 rounded-full text-[11px] font-medium"
+              style={{ background: '#FAF6EE', color: '#3A4A42', border: '1px solid #E5E0D4' }}
             >
               {op}
             </span>

@@ -119,9 +119,9 @@ export default function AppPage() {
       {/* Scan to download */}
       <section className="border-t" style={{ borderColor: C.border }}>
         <div className="mx-auto px-5 lg:px-10 py-20" style={{ maxWidth: 1200 }}>
-          <div className="rounded-[28px] px-6 py-12 sm:px-12" style={{ background: 'linear-gradient(150deg, #163828 0%, #1F4D3A 60%, #235741 100%)' }}>
+          <div className="rounded-[24px] px-6 py-12 sm:px-12" style={{ background: 'linear-gradient(150deg, #163828 0%, #1F4D3A 60%, #235741 100%)' }}>
             <div className="grid sm:grid-cols-[auto_1fr] gap-8 items-center">
-              <div className="grid place-items-center mx-auto sm:mx-0" style={{ width: 132, height: 132, borderRadius: 20, background: C.cream, color: C.primary }}>
+              <div className="grid place-items-center mx-auto sm:mx-0" style={{ width: 132, height: 132, borderRadius: 24, background: C.cream, color: C.primary }}>
                 <QrCode size={92} strokeWidth={1.4} />
               </div>
               <div className="text-center sm:text-left">

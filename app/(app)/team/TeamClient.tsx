@@ -35,7 +35,7 @@ function Avatar({ name, email }: { name: string | null; email: string | null }) 
   return (
     <div
       className="h-9 w-9 rounded-full grid place-items-center text-white text-[12px] font-bold shrink-0"
-      style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 130%)' }}
+      style={{ background: '#1F4D3A' }}
     >
       {initials}
     </div>
@@ -100,7 +100,7 @@ function UpsellCard() {
         <div className="flex items-start gap-4 mb-6">
           <div
             className="h-11 w-11 rounded-xl grid place-items-center shrink-0 text-white"
-            style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 130%)', boxShadow: '0 4px 12px rgba(31,77,58,0.25)' }}
+            style={{ background: '#1F4D3A' }}
           >
             <Users size={20} strokeWidth={1.8} />
           </div>
@@ -132,8 +132,8 @@ function UpsellCard() {
         <div className="flex items-center gap-4">
           <Link
             href="/settings/billing"
-            className="inline-flex items-center gap-2 h-9 px-5 text-[13px] font-semibold text-white rounded-lg hover:opacity-90 transition"
-            style={{ background: 'linear-gradient(135deg, #1F4D3A, #2A6A50)' }}
+            className="inline-flex items-center gap-2 h-9 px-5 text-[13px] font-semibold text-white rounded-lg hover:bg-[#163828] transition"
+            style={{ background: '#1F4D3A' }}
           >
             Start Studio trial →
           </Link>
@@ -371,8 +371,8 @@ export function TeamClient({
           actions={
             <a
               href="/settings/billing"
-              className="inline-flex items-center gap-1.5 h-9 px-5 rounded-lg text-[13.5px] font-semibold text-white shrink-0 transition hover:opacity-90"
-              style={{ background: 'linear-gradient(135deg, #1F4D3A, #2A6A50)' }}
+              className="inline-flex items-center gap-1.5 h-9 px-5 rounded-lg text-[13.5px] font-semibold text-white shrink-0 transition hover:bg-[#163828]"
+              style={{ background: '#1F4D3A' }}
             >
               + Invite member
             </a>

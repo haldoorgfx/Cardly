@@ -182,7 +182,7 @@ function TicketStub({ reg, isPast, onShowQR }: { reg: Registration; isPast: bool
           {ep?.cover_image_url ? (
             <Image src={ep.cover_image_url} alt="" fill sizes="118px" className="object-cover" />
           ) : (
-            <div className="absolute inset-0" style={{ background: 'linear-gradient(150deg, #163828 0%, #1F4D3A 45%, #2A6A50 80%, #E8C57E 150%)' }} />
+            <div className="absolute inset-0" style={{ background: FOREST }} />
           )}
           {/* legibility wash for the date/monogram */}
           <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, rgba(15,31,24,0.42) 0%, rgba(15,31,24,0.08) 60%)' }} />
@@ -264,7 +264,7 @@ function NextUpHub({ reg, onShowQR }: { reg: Registration; onShowQR: () => void 
         {ep?.cover_image_url ? (
           <Image src={ep.cover_image_url} alt="" fill sizes="(max-width:1200px) 100vw, 1200px" className="object-cover" />
         ) : (
-          <div className="absolute inset-0" style={{ background: 'linear-gradient(120deg, #163828 0%, #1F4D3A 55%, #2A6A50 100%)' }} />
+          <div className="absolute inset-0" style={{ background: FOREST }} />
         )}
         <div className="absolute inset-0" style={{ background: 'linear-gradient(115deg, rgba(15,31,24,0.88) 0%, rgba(15,31,24,0.52) 58%, rgba(15,31,24,0.30) 100%)' }} />
 

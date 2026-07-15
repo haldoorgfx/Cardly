@@ -47,7 +47,7 @@ export function AcceptInviteClient({ token, teamName, inviteEmail, role, userEma
           {/* Icon */}
           <div
             className="h-14 w-14 rounded-2xl grid place-items-center text-white mx-auto mb-6"
-            style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 130%)', boxShadow: '0 4px 12px rgba(31,77,58,0.25)' }}
+            style={{ background: '#1F4D3A' }}
           >
             <Users size={24} strokeWidth={1.8} />
           </div>
@@ -86,8 +86,8 @@ export function AcceptInviteClient({ token, teamName, inviteEmail, role, userEma
           <button
             onClick={accept}
             disabled={loading}
-            className="w-full h-11 text-[14px] font-semibold text-white rounded-xl transition disabled:opacity-60"
-            style={{ background: 'linear-gradient(135deg, #1F4D3A, #2A6A50)' }}
+            className="w-full h-11 text-[14px] font-semibold text-white rounded-xl transition disabled:opacity-60 hover:bg-[#163828]"
+            style={{ background: '#1F4D3A' }}
           >
             {loading ? 'Joining…' : 'Accept & join team'}
           </button>

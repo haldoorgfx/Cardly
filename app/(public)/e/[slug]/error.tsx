@@ -40,7 +40,7 @@ export default function PublicEventError({
       <div className="flex flex-col sm:flex-row gap-3 w-full max-w-[280px]">
         <button
           onClick={reset}
-          className="flex-1 inline-flex items-center justify-center gap-2 h-11 rounded-2xl font-medium text-[14px] text-white transition-opacity hover:opacity-90"
+          className="flex-1 inline-flex items-center justify-center gap-2 h-11 rounded-xl font-medium text-[14px] text-white transition-opacity hover:opacity-90"
           style={{ background: '#1F4D3A' }}
         >
           <RefreshCw size={15} />
@@ -48,7 +48,7 @@ export default function PublicEventError({
         </button>
         <a
           href="/"
-          className="flex-1 inline-flex items-center justify-center gap-2 h-11 rounded-2xl font-medium text-[14px] transition-colors hover:bg-white"
+          className="flex-1 inline-flex items-center justify-center gap-2 h-11 rounded-xl font-medium text-[14px] transition-colors hover:bg-white"
           style={{ border: '1px solid #E5E0D4', color: '#3A4A42' }}
         >
           <Home size={15} />

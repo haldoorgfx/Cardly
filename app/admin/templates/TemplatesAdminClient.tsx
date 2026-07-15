@@ -54,7 +54,7 @@ function TemplateModal({
   return (
     <div className="fixed inset-0 z-[300] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative bg-white rounded-2xl shadow-xl border border-[#E5E0D4] w-full max-w-[520px] max-h-[90vh] overflow-y-auto">
+      <div className="relative bg-white rounded-2xl shadow-lift border border-[#E5E0D4] w-full max-w-[520px] max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#E5E0D4] sticky top-0 bg-white z-10">
           <h2 className="font-display font-semibold text-[17px] text-[#0F1F18]">
             {initial.name ? 'Edit template' : 'New template'}
@@ -501,7 +501,7 @@ export function TemplatesAdminClient({ initialTemplates }: { initialTemplates: T
       {confirmDelete && (
         <div className="fixed inset-0 z-[300] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/40" onClick={() => setConfirmDelete(null)} />
-          <div className="relative bg-white rounded-2xl shadow-xl border border-[#E5E0D4] p-6 max-w-sm w-full">
+          <div className="relative bg-white rounded-2xl shadow-lift border border-[#E5E0D4] p-6 max-w-sm w-full">
             <div className="flex items-start gap-3 mb-5">
               <div className="w-9 h-9 rounded-full bg-red-50 flex items-center justify-center shrink-0">
                 <AlertTriangle size={16} strokeWidth={1.8} className="text-[#B8423C]" />
@@ -525,7 +525,7 @@ export function TemplatesAdminClient({ initialTemplates }: { initialTemplates: T
       {bulkConfirm === 'delete' && (
         <div className="fixed inset-0 z-[300] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/40" onClick={() => setBulkConfirm(null)} />
-          <div className="relative bg-white rounded-2xl shadow-xl border border-[#E5E0D4] p-6 max-w-sm w-full">
+          <div className="relative bg-white rounded-2xl shadow-lift border border-[#E5E0D4] p-6 max-w-sm w-full">
             <div className="flex items-start gap-3 mb-5">
               <div className="w-9 h-9 rounded-full bg-red-50 flex items-center justify-center shrink-0">
                 <AlertTriangle size={16} strokeWidth={1.8} className="text-[#B8423C]" />
@@ -551,7 +551,7 @@ export function TemplatesAdminClient({ initialTemplates }: { initialTemplates: T
       {(bulkConfirm === 'publish' || bulkConfirm === 'unpublish') && (
         <div className="fixed inset-0 z-[300] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/40" onClick={() => setBulkConfirm(null)} />
-          <div className="relative bg-white rounded-2xl shadow-xl border border-[#E5E0D4] p-6 max-w-sm w-full">
+          <div className="relative bg-white rounded-2xl shadow-lift border border-[#E5E0D4] p-6 max-w-sm w-full">
             <h3 className="font-semibold text-[15px] text-[#0F1F18]">
               {bulkConfirm === 'publish' ? 'Publish' : 'Unpublish'} {selected.size} template{selected.size === 1 ? '' : 's'}?
             </h3>

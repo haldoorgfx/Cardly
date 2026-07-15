@@ -82,7 +82,7 @@ export function ChangelogForm({ entry, onSave, onCancel }: Props) {
       style={{ background: 'rgba(15,31,24,0.5)' }}
       onClick={e => e.target === e.currentTarget && onCancel()}
     >
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-[560px] overflow-hidden" style={{ border: '1px solid #E5E0D4' }}>
+      <div className="bg-white rounded-2xl shadow-lift w-full max-w-[560px] overflow-hidden" style={{ border: '1px solid #E5E0D4' }}>
         <div className="flex items-center justify-between px-6 py-4 border-b" style={{ borderColor: '#E5E0D4' }}>
           <h2 className="font-display font-semibold text-[16px] text-[#0F1F18]">
             {isEdit ? 'Edit entry' : 'New changelog entry'}

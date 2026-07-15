@@ -13,13 +13,6 @@ function initials(name: string) {
   return name.split(' ').map(p => p[0]).join('').toUpperCase().slice(0, 2);
 }
 
-const AVATAR_GRADS = [
-  'linear-gradient(135deg,#1F4D3A,#2A6A50)',
-  'linear-gradient(135deg,#3E7E5E,#C9A45E)',
-  'linear-gradient(135deg,#163828,#3E7E5E)',
-  'linear-gradient(135deg,#2A6A50,#E8C57E)',
-];
-
 function InfoRow({ label, children, last }: { label: string; children: React.ReactNode; last?: boolean }) {
   return (
     <div className={`flex items-center justify-between gap-4 py-2.5 ${last ? '' : 'border-b'}`} style={{ borderColor: '#E5E0D4' }}>
@@ -60,9 +53,6 @@ export default async function SpeakerDetailPage({ params }: Props) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const sessions = (sessionSpeakers ?? []).map((ss: any) => ss.sessions).filter(Boolean);
 
-  const gradIdx = speaker.name.charCodeAt(0) % AVATAR_GRADS.length;
-  const avatarGrad = AVATAR_GRADS[gradIdx];
-
   const links = [
     speaker.twitter_url && { label: 'Twitter / X', url: speaker.twitter_url },
     speaker.linkedin_url && { label: 'LinkedIn', url: speaker.linkedin_url },
@@ -86,8 +76,8 @@ export default async function SpeakerDetailPage({ params }: Props) {
             <img src={speaker.photo_url} alt={speaker.name}
               className="w-16 h-16 rounded-2xl object-cover shrink-0" style={{ border: '1px solid #E5E0D4' }} />
           ) : (
-            <div className="w-16 h-16 rounded-2xl grid place-items-center shrink-0 text-white font-display text-[20px] font-semibold"
-              style={{ background: avatarGrad }}>
+            <div className="w-16 h-16 rounded-2xl grid place-items-center shrink-0 font-display text-[20px] font-semibold"
+              style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
               {initials(speaker.name)}
             </div>
           )}

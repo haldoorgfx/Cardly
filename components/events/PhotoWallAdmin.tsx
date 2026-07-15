@@ -16,11 +16,11 @@ interface Props {
 
 type Filter = 'all' | 'pending' | 'approved' | 'featured' | 'rejected';
 
-const STATUS_PILL: Record<string, { label: string; cls: string }> = {
-  pending:  { label: 'Pending',  cls: 'bg-amber-50 text-amber-700 border border-amber-200' },
-  approved: { label: 'Approved', cls: 'bg-emerald-50 text-emerald-700 border border-emerald-200' },
-  featured: { label: 'Featured', cls: 'bg-yellow-50 text-yellow-700 border border-yellow-200' },
-  rejected: { label: 'Rejected', cls: 'bg-red-50 text-red-600 border border-red-200' },
+const STATUS_PILL: Record<string, { label: string; bg: string; color: string; border: string }> = {
+  pending:  { label: 'Pending',  bg: 'rgba(201,122,45,0.12)', color: '#C97A2D', border: 'rgba(201,122,45,0.3)' },
+  approved: { label: 'Approved', bg: 'rgba(45,122,79,0.12)',  color: '#2D7A4F', border: 'rgba(45,122,79,0.3)' },
+  featured: { label: 'Featured', bg: 'rgba(232,197,126,0.12)', color: '#C9A45E', border: 'rgba(201,164,94,0.4)' },
+  rejected: { label: 'Rejected', bg: 'rgba(184,66,60,0.10)',  color: '#B8423C', border: 'rgba(184,66,60,0.3)' },
 };
 
 const FILTERS: { id: Filter; label: string }[] = [
@@ -151,7 +151,7 @@ export function PhotoWallAdmin({ eventId, eventName, initialPhotos }: Props) {
                         <div className="text-[12.5px] truncate" style={{ color: '#6B7A72' }}>{photo.caption}</div>
                       )}
                     </div>
-                    <span className={`text-[12px] font-medium px-1.5 py-0.5 rounded-full shrink-0 ${pill.cls}`} style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
+                    <span className="text-[12px] font-medium px-1.5 py-0.5 rounded-full shrink-0 border" style={{ fontFamily: 'Inter, system-ui, sans-serif', background: pill.bg, color: pill.color, borderColor: pill.border }}>
                       {pill.label}
                     </span>
                   </div>
@@ -172,14 +172,14 @@ export function PhotoWallAdmin({ eventId, eventName, initialPhotos }: Props) {
                             onClick={() => moderate(photo.id, 'featured')}
                             disabled={busy === photo.id + 'featured'}
                             className="flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-[12.5px] font-medium transition hover:opacity-90 disabled:opacity-40"
-                            style={{ background: '#FEF3C7', color: '#92400E', border: '1px solid #FDE68A' }}>
+                            style={{ background: 'rgba(232,197,126,0.12)', color: '#C9A45E', border: '1px solid rgba(201,164,94,0.4)' }}>
                             <Star size={10} />
                           </button>
                           <button
                             onClick={() => moderate(photo.id, 'rejected')}
                             disabled={busy === photo.id + 'rejected'}
                             className="flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-[12.5px] font-medium transition hover:opacity-90 disabled:opacity-40"
-                            style={{ background: '#FEF2F2', color: '#B8423C', border: '1px solid #FECACA' }}>
+                            style={{ background: 'rgba(184,66,60,0.10)', color: '#B8423C', border: '1px solid rgba(184,66,60,0.3)' }}>
                             <X size={10} />
                           </button>
                         </>

@@ -8,7 +8,7 @@ function Tile({ n, title, icon, children }: { n: number; title: string; icon: Ic
   return (
     <div className={s.card} style={{ width: 220, flex: 'none', padding: 18, display: 'flex', flexDirection: 'column', gap: 12, minHeight: 230 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-        <span style={{ width: 26, height: 26, borderRadius: 8, background: 'var(--forest)', color: 'var(--cream)', fontFamily: 'JetBrains Mono', fontWeight: 600, fontSize: 12, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{n}</span>
+        <span className={s.mono} style={{ width: 26, height: 26, borderRadius: 8, background: 'var(--forest)', color: 'var(--cream)', fontWeight: 600, fontSize: 12, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{n}</span>
         <Ic n={icon} />
       </div>
       <div className={s.dm} style={{ fontWeight: 600, fontSize: 15, color: 'var(--forest-deep)' }}>{title}</div>

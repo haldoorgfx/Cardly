@@ -20,14 +20,6 @@ interface Props {
   capacity: number;
 }
 
-const GRADS = [
-  'linear-gradient(135deg,#1F4D3A,#2A6A50)',
-  'linear-gradient(135deg,#2A6A50,#C9A45E)',
-  'linear-gradient(135deg,#163828,#3E7E5E)',
-  'linear-gradient(135deg,#3E7E5E,#C9A45E)',
-  'linear-gradient(135deg,#C9A45E,#1F4D3A)',
-];
-
 function initials(name: string | null) {
   if (!name) return '?';
   return name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
@@ -174,7 +166,7 @@ export function WaitlistClient({ eventId, eventName, waitlist, totalRegs, capaci
                     #{i + 1}
                   </div>
                   <span className="w-8 h-8 rounded-full grid place-items-center text-cream font-display text-[12px] font-semibold shrink-0"
-                    style={{ background: GRADS[i % GRADS.length] }}>
+                    style={{ background: '#1F4D3A' }}>
                     {initials(entry.attendee_name)}
                   </span>
                   <div className="min-w-0 flex-1">

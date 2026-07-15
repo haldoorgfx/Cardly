@@ -70,7 +70,7 @@ export default function CardRedownload({ eventName, attendeeName, outputUrl, cre
       style={{
         position: 'relative', minHeight: '100vh',
         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-        padding: '56px 24px', overflow: 'hidden',
+        padding: '48px 24px', overflow: 'hidden',
         fontFamily: 'Inter, system-ui, sans-serif', color: '#0F1F18', background: '#FAF6EE',
       }}
     >
@@ -89,9 +89,9 @@ export default function CardRedownload({ eventName, attendeeName, outputUrl, cre
 
         {/* Kicker */}
         <div style={{
-          display: 'flex', alignItems: 'center', gap: 9,
+          display: 'flex', alignItems: 'center', gap: 8,
           fontWeight: 500, fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase',
-          color: '#C9A45E', marginBottom: 28,
+          color: '#C9A45E', marginBottom: 32,
         }}>
           <span style={{
             width: 6, height: 6, borderRadius: '50%', background: '#E8C57E',
@@ -104,7 +104,7 @@ export default function CardRedownload({ eventName, attendeeName, outputUrl, cre
 
         {/* Card with breathe + glow */}
         <div style={{ animation: 'breathe 3.4s ease-in-out infinite', animationDelay: '0.4s' }}>
-          <div style={{ position: 'relative', borderRadius: 14, overflow: 'hidden', animation: 'cardIn 500ms ease-out both' }}>
+          <div style={{ position: 'relative', borderRadius: 16, overflow: 'hidden', animation: 'cardIn 500ms ease-out both' }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={outputUrl}
@@ -113,13 +113,13 @@ export default function CardRedownload({ eventName, attendeeName, outputUrl, cre
                 display: 'block',
                 width: 'min(300px, calc(100vw - 80px))',
                 objectFit: 'cover',
-                borderRadius: 14,
+                borderRadius: 16,
                 boxShadow: '0 18px 50px rgba(13,31,23,0.35)',
               }}
             />
             {/* Guilloche */}
             <div style={{
-              position: 'absolute', inset: 0, borderRadius: 14, pointerEvents: 'none', opacity: 0.5,
+              position: 'absolute', inset: 0, borderRadius: 16, pointerEvents: 'none', opacity: 0.5,
               backgroundImage: 'repeating-linear-gradient(115deg, rgba(232,197,126,0.05) 0 2px, transparent 2px 9px)',
             }}/>
           </div>
@@ -127,7 +127,7 @@ export default function CardRedownload({ eventName, attendeeName, outputUrl, cre
 
         {/* Event + date */}
         <p style={{
-          margin: '20px 0 0', fontSize: 12, color: '#6B7A72', textAlign: 'center', lineHeight: 1.5,
+          margin: '24px 0 0', fontSize: 12, color: '#6B7A72', textAlign: 'center', lineHeight: 1.5,
         }}>
           {eventName} · {date}
         </p>
@@ -138,7 +138,7 @@ export default function CardRedownload({ eventName, attendeeName, outputUrl, cre
           style={{
             marginTop: 32, width: '100%', height: 52,
             background: '#1F4D3A', color: '#FAF6EE',
-            border: 'none', borderRadius: 14,
+            border: 'none', borderRadius: 12,
             fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 16,
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 10,
             cursor: 'pointer',

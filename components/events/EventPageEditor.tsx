@@ -305,7 +305,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing, onCom
             className="relative rounded-xl overflow-hidden cursor-pointer group transition"
             style={{
               height: 220,
-              background: coverUrl ? 'transparent' : 'linear-gradient(160deg, #0D2018 0%, #1F4D3A 50%, #2A6A50 100%)',
+              background: coverUrl ? 'transparent' : '#1F4D3A',
               border: '1px solid #E5E0D4',
             }}
             onClick={() => fileInputRef.current?.click()}

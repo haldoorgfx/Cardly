@@ -66,7 +66,7 @@ export default function PhotoCropModal({
         }}
       >
         {/* Header */}
-        <div style={{ padding: '18px 20px 12px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
+        <div style={{ padding: '16px 20px 12px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
           <div>
             <div style={{
               fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10,
@@ -119,12 +119,12 @@ export default function PhotoCropModal({
           {/* Hint chips */}
           <div style={{
             position: 'absolute', left: 0, right: 0, bottom: 12,
-            display: 'flex', justifyContent: 'center', gap: 6,
+            display: 'flex', justifyContent: 'center', gap: 8,
             pointerEvents: 'none', zIndex: 2,
           }}>
             {['Drag to reposition', 'Pinch to zoom'].map(hint => (
               <div key={hint} style={{
-                padding: '6px 10px',
+                padding: '8px 12px',
                 background: 'rgba(250,246,238,0.10)',
                 color: '#FAF6EE', borderRadius: 999,
                 fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: 500,
@@ -148,14 +148,14 @@ export default function PhotoCropModal({
         </div>
 
         {/* Buttons */}
-        <div style={{ padding: '16px 20px 22px', background: 'rgba(0,0,0,0.2)', display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div style={{ padding: '16px 20px 24px', background: 'rgba(0,0,0,0.2)', display: 'flex', flexDirection: 'column', gap: 8 }}>
           <button
             onClick={onConfirm}
             style={{
               height: 56, background: '#1F4D3A', color: '#FAF6EE',
-              border: 'none', borderRadius: 14,
+              border: 'none', borderRadius: 12,
               fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 16,
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
               cursor: 'pointer',
             }}
           >
@@ -165,7 +165,7 @@ export default function PhotoCropModal({
             onClick={onReupload}
             style={{
               height: 48, background: 'transparent', color: '#FAF6EE',
-              border: '1.5px solid rgba(250,246,238,0.25)', borderRadius: 14,
+              border: '1.5px solid rgba(250,246,238,0.25)', borderRadius: 12,
               fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 15,
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
               cursor: 'pointer',
@@ -182,9 +182,9 @@ export default function PhotoCropModal({
         style={{ position: 'absolute', inset: 0, zIndex: 10 }}
       >
         <div style={{
-          width: 600, borderRadius: 24,
+          width: 600, borderRadius: 16,
           background: '#FFFFFF', color: '#0F1F18',
-          boxShadow: '0 24px 80px rgba(0,0,0,0.4), 0 4px 12px rgba(0,0,0,0.2)',
+          boxShadow: '0 4px 12px rgba(15,31,24,0.08), 0 24px 60px rgba(31,77,58,0.12)',
           overflow: 'hidden',
         }}>
           {/* Header */}
@@ -193,14 +193,14 @@ export default function PhotoCropModal({
               <div style={{
                 fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11,
                 color: '#6B7A72', letterSpacing: '0.1em',
-                textTransform: 'uppercase', marginBottom: 6,
+                textTransform: 'uppercase', marginBottom: 8,
               }}>Position photo</div>
               <div style={{
                 fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 700, fontSize: 28,
                 letterSpacing: '-0.025em', color: '#0F1F18', lineHeight: 1.15,
               }}>Position your photo</div>
               <div style={{
-                fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#6B7A72', marginTop: 6,
+                fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#6B7A72', marginTop: 8,
               }}>Drag to reposition. Scroll or use the slider to zoom.</div>
             </div>
             <button
@@ -221,7 +221,7 @@ export default function PhotoCropModal({
           <div style={{
             position: 'relative', height: 400,
             background: '#0F1F18', overflow: 'hidden',
-            margin: '0 28px', borderRadius: 18,
+            margin: '0 28px', borderRadius: 16,
           }}>
             <Cropper
               image={cropTarget.srcUrl}
@@ -243,9 +243,9 @@ export default function PhotoCropModal({
 
             {/* Shape label chip */}
             <div style={{
-              position: 'absolute', top: 14, left: 14, zIndex: 3,
+              position: 'absolute', top: 16, left: 16, zIndex: 3,
               display: 'inline-flex', alignItems: 'center', gap: 8,
-              padding: '6px 12px',
+              padding: '8px 12px',
               background: 'rgba(15,31,24,0.7)',
               backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
               border: '1px solid rgba(250,246,238,0.12)',
@@ -282,9 +282,9 @@ export default function PhotoCropModal({
             <button
               onClick={onReupload}
               style={{
-                height: 52, padding: '0 22px',
+                height: 52, padding: '0 24px',
                 background: '#FFFFFF', color: '#0F1F18',
-                border: '1.5px solid #E5E0D4', borderRadius: 14,
+                border: '1.5px solid #E5E0D4', borderRadius: 12,
                 fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 15,
                 display: 'inline-flex', alignItems: 'center', gap: 8, cursor: 'pointer',
               }}
@@ -296,7 +296,7 @@ export default function PhotoCropModal({
               style={{
                 height: 52, padding: '0 28px',
                 background: '#1F4D3A', color: '#FAF6EE',
-                border: 'none', borderRadius: 14,
+                border: 'none', borderRadius: 12,
                 fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 15,
                 display: 'inline-flex', alignItems: 'center', gap: 10, cursor: 'pointer',
                 boxShadow: '0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(31,77,58,0.18)',

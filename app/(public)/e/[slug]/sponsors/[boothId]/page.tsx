@@ -164,7 +164,7 @@ export default async function BoothPage({ params }: Props) {
                     ) : (
                       <div
                         className="w-10 h-10 rounded-full flex items-center justify-center font-display font-semibold text-white text-[13px] shrink-0"
-                        style={{ background: 'linear-gradient(135deg, #1F4D3A, #2A6A50)' }}
+                        style={{ background: '#1F4D3A' }}
                       >
                         {initials(member.name)}
                       </div>
@@ -201,7 +201,7 @@ export default async function BoothPage({ params }: Props) {
               <a
                 href={`mailto:${sponsor.contact_email}`}
                 className="flex items-center justify-center w-full py-3 rounded-xl font-display font-medium text-[15px] text-white transition-opacity hover:opacity-90"
-                style={{ background: '#1F4D3A', marginBottom: 10 }}
+                style={{ background: '#1F4D3A', marginBottom: 12 }}
               >
                 Connect at the booth
               </a>
@@ -212,7 +212,7 @@ export default async function BoothPage({ params }: Props) {
                 href={sponsor.meeting_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center w-full py-2.5 rounded-xl font-medium text-[14px] transition-colors hover:bg-[#F0EBE3]"
+                className="flex items-center justify-center w-full py-3 rounded-xl font-medium text-[14px] transition-colors hover:bg-[#F0EBE3]"
                 style={{ background: 'transparent', border: '1px solid #E5E0D4', color: '#0F1F18' }}
               >
                 Book a meeting

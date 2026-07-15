@@ -469,7 +469,7 @@ function WebhooksSection({ plan }: { plan: string }) {
       )}
 
       <p className="mt-3 text-[12px] text-[#6B7A72]">
-        Each request includes an <code className=" text-[12.5px] bg-[#FAF6EE] px-1 py-0.5 rounded-md">X-Eventera-Signature</code> header (HMAC-SHA256) for verification.
+        Each request includes an <code className="font-sans text-[12.5px] bg-[#FAF6EE] px-1 py-0.5 rounded-md">X-Eventera-Signature</code> header (HMAC-SHA256) for verification.
       </p>
     </div>
   );

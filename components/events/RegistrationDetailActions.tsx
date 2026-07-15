@@ -47,6 +47,8 @@ function EditAttendeeModal({
       });
       if (!res.ok) { const d = await res.json(); setError(d.error ?? 'Failed to save'); return; }
       onSaved();
+    } catch {
+      setError('Something went wrong. Try again.');
     } finally {
       setSaving(false);
     }
@@ -120,6 +122,8 @@ export function RegistrationDetailActions({
         const data = await res.json() as { error?: string };
         setStatusError(data.error ?? 'Action failed. Please try again.');
       }
+    } catch {
+      setStatusError('Something went wrong. Try again.');
     } finally {
       setLoading(false);
     }

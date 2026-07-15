@@ -52,7 +52,7 @@ function LeadModal({ token, onClose, onAdded }: { token: string; onClose: () => 
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4" style={{ background: 'rgba(15,31,24,0.55)' }}>
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl" style={{ boxShadow: '0 24px 80px rgba(15,31,24,0.3)' }}>
+      <div className="w-full max-w-md bg-white rounded-2xl" style={{ boxShadow: '0 4px 12px rgba(15,31,24,0.08), 0 24px 60px rgba(31,77,58,0.12)' }}>
         {/* Modal header */}
         <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: '#E5E0D4' }}>
           <div className="font-display text-[15px] font-semibold" style={{ color: '#0F1F18' }}>Capture lead</div>
@@ -170,7 +170,7 @@ function Stat({ label, value, sub, accent }: { label: string; value: string | nu
       className="rounded-2xl border p-5"
       style={
         accent
-          ? { background: 'linear-gradient(135deg, rgba(232,197,126,0.14), rgba(31,77,58,0.05))', borderColor: 'rgba(232,197,126,0.5)' }
+          ? { background: 'rgba(232,197,126,0.12)', borderColor: 'rgba(232,197,126,0.5)' }
           : { background: '#FFFFFF', borderColor: '#E5E0D4' }
       }
     >
@@ -229,7 +229,7 @@ export function OverviewTab({ stats: initialStats, token }: Props) {
       {/* Scan CTA */}
       <div
         className="rounded-2xl p-5 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-        style={{ background: 'linear-gradient(135deg, rgba(232,197,126,0.18), rgba(31,77,58,0.06))' }}
+        style={{ background: 'rgba(232,197,126,0.14)', border: '1px solid rgba(232,197,126,0.4)' }}
       >
         <div className="flex items-center gap-3">
           <span

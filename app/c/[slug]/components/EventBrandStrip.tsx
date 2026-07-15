@@ -19,8 +19,8 @@ export default function EventBrandStrip({ eventName, compact = false }: Props) {
   return (
     <div style={{
       display: 'flex', alignItems: 'center',
-      gap: compact ? 10 : 14,
-      padding: compact ? '10px 14px' : '14px 18px',
+      gap: compact ? 8 : 12,
+      padding: compact ? '8px 12px' : '12px 16px',
       background: '#FFFFFF',
       border: '1px solid #E5E0D4',
       borderRadius: compact ? 12 : 16,

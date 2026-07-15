@@ -103,7 +103,7 @@ export function SourceAnalyticsClient({ eventName, publicSlug, sources, total }:
           <button
             onClick={exportCsv}
             disabled={sources.length === 0}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg text-[13px] font-medium border transition hover:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-medium border transition hover:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed"
             style={{ borderColor: '#E5E0D4', color: exported ? '#2D7A4F' : '#3A4A42' }}>
             {exported ? <Check size={14} /> : <Download size={14} />} {exported ? 'Exported' : 'Export CSV'}
           </button>
@@ -113,7 +113,7 @@ export function SourceAnalyticsClient({ eventName, publicSlug, sources, total }:
       {/* Hero card (Eventera Card metric) */}
       {cardRegs && cardRegs.count > 0 && (
         <div className="rounded-2xl p-6 mb-6 relative overflow-hidden"
-          style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 100%)' }}>
+          style={{ background: '#1F4D3A' }}>
           <div className="relative z-10">
             <p className="text-[12px] font-medium mb-1 opacity-75" style={{ color: '#FAF6EE', fontFamily: 'Inter, system-ui, sans-serif', letterSpacing: '0.1em' }}>
               FROM SHARED EVENTERA CARDS
@@ -122,7 +122,7 @@ export function SourceAnalyticsClient({ eventName, publicSlug, sources, total }:
               {cardRegs.count} regs · {cardRegs.pct}%
             </p>
             <p className="text-[14px] mt-2 max-w-lg" style={{ color: 'rgba(250,246,238,0.85)' }}>
-              Every shared card carries <code className="px-1 rounded text-[12px]" style={{ background: 'rgba(232,197,126,0.2)', color: '#E8C57E' }}>?src=card</code> — when someone registers through a friend&#39;s card, it&#39;s counted here. <strong style={{ color: '#FAF6EE' }}>The card is your top organic channel.</strong>
+              Every shared card carries <code className="px-1 rounded text-[12px]" style={{ background: 'rgba(232,197,126,0.2)', color: '#E8C57E', fontFamily: 'Inter, system-ui, sans-serif' }}>?src=card</code> — when someone registers through a friend&#39;s card, it&#39;s counted here. <strong style={{ color: '#FAF6EE' }}>The card is your top organic channel.</strong>
             </p>
           </div>
         </div>

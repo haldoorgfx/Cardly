@@ -146,7 +146,7 @@ export function EventSeriesClient({ eventId, eventName, eventSlug, series }: Pro
               Save your recurrence settings above, then duplicate this event for each date to build out the series. Each copy keeps the venue, tickets, and branding.
             </p>
             <Link
-              href={`/events/${eventSlug}/settings`}
+              href={`/events/${eventSlug}`}
               className="inline-flex items-center gap-1.5 mt-4 px-4 py-2 rounded-lg text-[13px] font-semibold text-white transition hover:opacity-90"
               style={{ background: '#1F4D3A' }}
             >

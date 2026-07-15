@@ -24,13 +24,6 @@ interface Props {
   currency?: string | null;
 }
 
-const GRADS = [
-  'linear-gradient(135deg, #163828 0%, #1F4D3A 55%, #2A6A50 100%)',
-  'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 45%, #C9A45E 120%)',
-  'linear-gradient(150deg, #122e21 0%, #1F4D3A 70%, #2A6A50 100%)',
-  'linear-gradient(160deg, #1F4D3A 0%, #3E7E5E 100%)',
-];
-
 const STATUS_STYLE = {
   published: { label: 'Live',     dot: '#2D7A4F', cls: 'text-emerald-700', pulse: true },
   draft:     { label: 'Draft',    dot: '#C9A45E', cls: 'text-amber-700',   pulse: false },
@@ -91,7 +84,7 @@ function MenuItemLink({ children, href, color, external }: {
   );
 }
 
-export default function EventRow({ event, index, regCount, revenue, currency }: Props) {
+export default function EventRow({ event, regCount, revenue, currency }: Props) {
   const router = useRouter();
   const [renaming,      setRenaming]      = useState(false);
   const [nameVal,       setNameVal]       = useState(event.name);
@@ -113,7 +106,7 @@ export default function EventRow({ event, index, regCount, revenue, currency }: 
   const isArchived = event.status === 'archived';
   const st       = STATUS_STYLE[event.status as keyof typeof STATUS_STYLE] ?? STATUS_STYLE.draft;
   const coverImg  = (event.event_variants ?? []).sort((a, b) => a.position - b.position)[0]?.background_url;
-  const coverGrad = GRADS[index % GRADS.length];
+  const initial   = (event.name?.trim()?.[0] ?? '?').toUpperCase();
   const dateInfo  = formatDate(event.event_pages?.[0]?.starts_at);
   const venue     = event.event_pages?.[0]?.venue_name;
 
@@ -179,10 +172,15 @@ export default function EventRow({ event, index, regCount, revenue, currency }: 
       {/* NAME */}
       <td className="px-5 py-3.5">
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-lg shrink-0 overflow-hidden"
+          <div className="h-10 w-10 rounded-lg shrink-0 overflow-hidden grid place-items-center"
             style={coverImg
               ? { backgroundImage: `url(${coverImg})`, backgroundSize: 'cover', backgroundPosition: 'center' }
-              : { background: coverGrad }}>
+              : { background: '#E8EFEB' }}>
+            {!coverImg && (
+              <span className="font-display font-semibold text-[13px] leading-none" style={{ color: '#1F4D3A' }}>
+                {initial}
+              </span>
+            )}
           </div>
           <div className="min-w-0">
             {renaming ? (

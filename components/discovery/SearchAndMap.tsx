@@ -164,8 +164,8 @@ export function SearchAndMap({ events, savedIds, query: initialQuery, totalCount
             onClick={() => setMobileView(view)}
             className="h-11 px-6 text-[14px] font-medium capitalize transition-colors"
             style={{
-              background: mobileView === view ? '#E8C57E' : '#FFFFFF',
-              color: mobileView === view ? '#0F1F18' : '#3A4A42',
+              background: mobileView === view ? '#1F4D3A' : '#FFFFFF',
+              color: mobileView === view ? '#FFFFFF' : '#3A4A42',
             }}
           >
             {view}
@@ -219,7 +219,7 @@ function ResultCard({
           // eslint-disable-next-line @next/next/no-img-element
           <img src={event.cover_image_url} alt={event.title} className="w-full h-full object-cover" />
         ) : (
-          <div className="w-full h-full" style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 100%)' }} />
+          <div className="w-full h-full" style={{ background: '#E8EFEB' }} />
         )}
       </div>
 

@@ -799,7 +799,7 @@ export default function PublishClient({
             </div>
             <pre style={{
               margin: 0, padding: '14px 16px',
-              fontFamily: 'JetBrains Mono, Menlo, monospace', fontSize: 12, lineHeight: 1.65,
+              fontFamily: 'Inter, sans-serif', fontSize: 12, lineHeight: 1.65,
               color: PT.cream, whiteSpace: 'pre-wrap', wordBreak: 'break-all',
             }}>
               <span style={{ color: '#9EC6B2' }}>{'<iframe'}</span>{' '}

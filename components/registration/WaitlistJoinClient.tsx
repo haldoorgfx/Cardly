@@ -59,7 +59,7 @@ export default function WaitlistJoinClient({ slug, title, coverUrl, startsAt, ci
           // eslint-disable-next-line @next/next/no-img-element
           <img src={coverUrl} alt={title} className="w-full h-32 object-cover" />
         ) : (
-          <div className="w-full h-32" style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 100%)' }} />
+          <div className="w-full h-32" style={{ background: '#E8EFEB' }} />
         )}
         <div className="px-5 py-4" style={{ background: '#FFFFFF' }}>
           <div className="font-display font-semibold text-[18px] mb-2" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>

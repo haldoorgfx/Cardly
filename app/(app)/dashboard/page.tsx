@@ -223,7 +223,7 @@ export default async function DashboardPage() {
                 <Link key={item.id} href={item.href}
                   className="flex items-center gap-3 text-left rounded-xl px-4 py-3 transition-colors hover:border-amber-300"
                   style={{ background: 'rgba(254,243,199,0.6)', border: '1px solid rgba(253,230,138,0.7)' }}>
-                  <div className="w-9 h-9 rounded-lg shrink-0" style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 130%)' }} />
+                  <div className="w-9 h-9 rounded-lg shrink-0" style={{ background: '#E8EFEB' }} />
                   <div className="min-w-0 flex-1">
                     <div className="text-[13.5px] font-medium text-[#0F1F18] truncate">{item.name}</div>
                     <div className="text-[12px] text-amber-700 mt-0.5">{item.reason}</div>

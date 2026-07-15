@@ -154,7 +154,7 @@ export function GoogleMapView({ events, hoveredId, onHover, onBoundsChange }: Pr
                 onClick={() => setSelectedId(selectedId === ev.id ? null : ev.id)}
               >
                 <div style={{
-                  padding: '3px 9px',
+                  padding: '4px 8px',
                   borderRadius: 999,
                   fontSize: 11,
                   fontWeight: 600,
@@ -197,7 +197,7 @@ export function GoogleMapView({ events, hoveredId, onHover, onBoundsChange }: Pr
                 <img
                   src={selectedEvent.cover_image_url}
                   alt={selectedEvent.title}
-                  style={{ width: '100%', height: 80, objectFit: 'cover', borderRadius: 6, marginBottom: 8 }}
+                  style={{ width: '100%', height: 80, objectFit: 'cover', borderRadius: 8, marginBottom: 8 }}
                 />
               )}
               <div style={{ fontSize: 13, fontWeight: 600, color: '#0F1F18', marginBottom: 2, lineHeight: 1.3 }}>
@@ -209,7 +209,7 @@ export function GoogleMapView({ events, hoveredId, onHover, onBoundsChange }: Pr
               </div>
               <a
                 href={`/e/${selectedEvent.custom_slug ?? selectedEvent.events?.slug ?? selectedEvent.event_id}`}
-                style={{ display: 'inline-block', fontSize: 12, color: '#FFFFFF', fontWeight: 600, background: '#1F4D3A', padding: '4px 10px', borderRadius: 6, textDecoration: 'none' }}
+                style={{ display: 'inline-block', fontSize: 12, color: '#FFFFFF', fontWeight: 600, background: '#1F4D3A', padding: '4px 8px', borderRadius: 8, textDecoration: 'none' }}
               >
                 View event →
               </a>

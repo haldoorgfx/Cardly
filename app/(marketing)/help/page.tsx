@@ -48,7 +48,7 @@ function HelpCenter() {
             value={query}
             onChange={e => setQuery(e.target.value)}
             placeholder="Search help articles…"
-            className="w-full h-12 pl-10 pr-4 rounded-full text-[14px] outline-none"
+            className="w-full h-12 pl-10 pr-4 rounded-2xl text-[14px] outline-none"
             style={{ background: '#fff', border: '1px solid #E5E0D4', color: '#0F1F18', boxShadow: '0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(15,31,24,0.06)' }}
             onFocus={e => (e.target.style.borderColor = '#E8C57E')}
             onBlur={e => (e.target.style.borderColor = '#E5E0D4')}

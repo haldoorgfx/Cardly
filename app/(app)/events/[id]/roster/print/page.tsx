@@ -65,10 +65,10 @@ export default async function RosterPrintPage({ params }: Props) {
         }
       ` }} />
 
-      <div style={{ maxWidth: 900, margin: '0 auto', padding: '32px 24px 64px' }}>
+      <div style={{ maxWidth: 900, margin: '0 auto', padding: '32px 24px 48px' }}>
 
         {/* Header */}
-        <div style={{ marginBottom: 28, borderBottom: '3px solid #0F1F18', paddingBottom: 16 }}>
+        <div style={{ marginBottom: 24, borderBottom: '3px solid #0F1F18', paddingBottom: 16 }}>
           <h1 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 30, fontWeight: 700, letterSpacing: '-0.02em', color: '#0F1F18' }}>
             {event.name}
           </h1>
@@ -76,13 +76,13 @@ export default async function RosterPrintPage({ params }: Props) {
         </div>
 
         {/* Summary row */}
-        <div style={{ display: 'flex', gap: 24, marginBottom: 28 }}>
+        <div style={{ display: 'flex', gap: 24, marginBottom: 24 }}>
           {[
             { label: 'Total Registrations', value: total },
             { label: 'Confirmed',           value: confirmed },
             { label: 'Checked In',          value: checkedIn },
           ].map(s => (
-            <div key={s.label} style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', borderRadius: 10, padding: '12px 20px', minWidth: 130 }}>
+            <div key={s.label} style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', borderRadius: 12, padding: '12px 20px', minWidth: 130 }}>
               <div style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 26, fontWeight: 700, color: '#0F1F18', lineHeight: 1 }}>{s.value}</div>
               <div style={{ fontSize: 11, color: '#6B7A72', marginTop: 4 }}>{s.label}</div>
             </div>
@@ -97,7 +97,7 @@ export default async function RosterPrintPage({ params }: Props) {
             <thead>
               <tr style={{ borderBottom: '2px solid #0F1F18' }}>
                 {['#', 'Name', 'Ticket', 'Amount', 'Status', 'Registered'].map(h => (
-                  <th key={h} style={{ textAlign: 'left', padding: '8px 10px', fontSize: 10, fontFamily: 'Inter, sans-serif', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#6B7A72', fontWeight: 600 }}>
+                  <th key={h} style={{ textAlign: 'left', padding: '8px 12px', fontSize: 10, fontFamily: 'Inter, sans-serif', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#6B7A72', fontWeight: 600 }}>
                     {h}
                   </th>
                 ))}
@@ -109,19 +109,19 @@ export default async function RosterPrintPage({ params }: Props) {
                 const isCancelled = r.status === 'cancelled';
                 return (
                   <tr key={r.id} style={{ borderBottom: '1px solid rgba(229,224,212,0.6)', background: i % 2 === 0 ? 'transparent' : 'rgba(250,246,238,0.4)' }}>
-                    <td style={{ padding: '9px 10px', color: '#9BA8A1', fontSize: 11, width: 36 }}>{i + 1}</td>
-                    <td style={{ padding: '9px 10px', fontWeight: 600, color: '#0F1F18' }}>
+                    <td style={{ padding: '8px 12px', color: '#9BA8A1', fontSize: 11, width: 36 }}>{i + 1}</td>
+                    <td style={{ padding: '8px 12px', fontWeight: 600, color: '#0F1F18' }}>
                       {r.attendee_name || <span style={{ color: '#9BA8A1', fontWeight: 400 }}>—</span>}
                     </td>
-                    <td style={{ padding: '9px 10px', color: '#3A4A42' }}>
+                    <td style={{ padding: '8px 12px', color: '#3A4A42' }}>
                       {r.ticket_type_id ? (ttMap.get(r.ticket_type_id) ?? '—') : '—'}
                     </td>
-                    <td style={{ padding: '9px 10px', color: '#3A4A42' }}>
+                    <td style={{ padding: '8px 12px', color: '#3A4A42' }}>
                       {r.amount_paid != null && r.amount_paid > 0
                         ? `${r.currency ?? ''} ${r.amount_paid}`
                         : 'Free'}
                     </td>
-                    <td style={{ padding: '9px 10px' }}>
+                    <td style={{ padding: '8px 12px' }}>
                       <span style={{
                         display: 'inline-block', padding: '2px 8px', borderRadius: 99, fontSize: 10, fontWeight: 600,
                         color: isCheckedIn ? '#2D7A4F' : isCancelled ? '#B8423C' : '#C97A2D',
@@ -130,7 +130,7 @@ export default async function RosterPrintPage({ params }: Props) {
                         {STATUS_LABELS[r.status] ?? r.status}
                       </span>
                     </td>
-                    <td style={{ padding: '9px 10px', color: '#6B7A72', fontSize: 11 }}>
+                    <td style={{ padding: '8px 12px', color: '#6B7A72', fontSize: 11 }}>
                       {fmtDate(r.created_at)}
                     </td>
                   </tr>
@@ -141,7 +141,7 @@ export default async function RosterPrintPage({ params }: Props) {
         )}
 
         {/* Footer */}
-        <div style={{ marginTop: 40, paddingTop: 14, borderTop: '1px solid #E5E0D4', display: 'flex', justifyContent: 'space-between', fontSize: 10, color: '#9BA8A1' }}>
+        <div style={{ marginTop: 32, paddingTop: 16, borderTop: '1px solid #E5E0D4', display: 'flex', justifyContent: 'space-between', fontSize: 10, color: '#9BA8A1' }}>
           <span>Generated with Eventera · {(process.env.NEXT_PUBLIC_APP_URL ?? '').replace(/^https?:\/\//, '')}</span>
           <span>{today}</span>
         </div>

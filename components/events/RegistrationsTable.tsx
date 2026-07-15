@@ -62,7 +62,7 @@ const STATUS_PILL: Record<Status, { label: string; bg: string; color: string }> 
   checked_in:        { label: 'Checked in',       bg: '#D1FAE5', color: '#065F46' },
   pending:           { label: 'Pending',          bg: '#FEF3C7', color: '#92400E' },
   cancelled:         { label: 'Cancelled',        bg: '#FEE2E2', color: '#991B1B' },
-  refunded:          { label: 'Refunded',         bg: '#E0E7FF', color: '#3730A3' },
+  refunded:          { label: 'Refunded',         bg: 'rgba(58,107,140,0.10)', color: '#3A6B8C' },
   pending_approval:  { label: 'Awaiting approval', bg: '#FEF3C7', color: '#7C4B00' },
 };
 
@@ -345,7 +345,11 @@ function RowActionsMenu({
       if (res.ok) {
         const data = await res.json() as { registration?: Registration };
         onStatusChange(reg.id, status, data.registration?.checked_in_at);
+      } else {
+        toast({ title: 'Something went wrong', description: 'Could not update status. Try again.', variant: 'destructive' });
       }
+    } catch {
+      toast({ title: 'Something went wrong', description: 'Could not update status. Try again.', variant: 'destructive' });
     } finally {
       setLoading(false);
     }
@@ -357,7 +361,13 @@ function RowActionsMenu({
     setLoading(true);
     try {
       const res = await fetch(`/api/events/${eventId}/registrations?regId=${reg.id}`, { method: 'DELETE' });
-      if (res.ok) onDeleted(reg.id);
+      if (res.ok) {
+        onDeleted(reg.id);
+      } else {
+        toast({ title: 'Something went wrong', description: 'Could not delete this registration. Try again.', variant: 'destructive' });
+      }
+    } catch {
+      toast({ title: 'Something went wrong', description: 'Could not delete this registration. Try again.', variant: 'destructive' });
     } finally {
       setLoading(false);
     }
@@ -1162,7 +1172,7 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
           <button
             onClick={exportAllCSV}
             disabled={exportingAll}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-medium shrink-0 disabled:opacity-60"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[13px] font-medium shrink-0 disabled:opacity-60"
             style={{ background: 'white', border: '1px solid #E5E0D4', color: '#0F1F18' }}
             title="Export all registrations as CSV"
           >
@@ -1171,7 +1181,7 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
           </button>
           <button
             onClick={() => setImportOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-medium shrink-0"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[13px] font-medium shrink-0"
             style={{ background: 'white', border: '1px solid #E5E0D4', color: '#0F1F18' }}
             title="Import CSV"
           >

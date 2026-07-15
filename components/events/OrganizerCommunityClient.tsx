@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Hash, Plus, Pin, MessageSquare, ExternalLink, Trash2, Users, Bell } from 'lucide-react';
 import { PageShell, PageHeader } from '@/components/dash';
+import { Modal } from '@/components/ui/Modal';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Channel = any;
@@ -97,7 +98,7 @@ export function OrganizerCommunityClient({ eventName, eventSlug, channels: dbCha
                 <span className="font-semibold text-[14px]" style={{ color: '#0F1F18' }}>#{ch.name}</span>
                 {ch.is_pinned && (
                   <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[12px] font-semibold"
-                    style={{ background: '#E8C57E20', color: '#8B6914' }}>
+                    style={{ background: 'rgba(232,197,126,0.12)', color: '#C9A45E' }}>
                     <Pin size={9} /> Pinned
                   </span>
                 )}
@@ -139,43 +140,38 @@ export function OrganizerCommunityClient({ eventName, eventSlug, channels: dbCha
       </div>
 
       {/* New channel modal */}
-      {showNew && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ background: 'rgba(15,31,24,0.45)' }}
-          onClick={e => e.target === e.currentTarget && setShowNew(false)}>
-          <div className="w-full max-w-sm rounded-2xl p-6" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
-            <h2 className="font-display font-bold text-[18px] mb-4" style={{ color: '#0F1F18' }}>
-              New channel
-            </h2>
-            <div className="mb-3">
-              <label className="block text-[12px] font-semibold mb-1.5" style={{ color: '#6B7A72' }}>Channel name</label>
-              <input value={newName} onChange={e => setNewName(e.target.value.toLowerCase().replace(/\s+/g, '-'))}
-                placeholder="e.g. networking"
-                className="w-full px-3 py-2.5 rounded-xl text-[14px] outline-none"
-                style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#0F1F18' }} />
-            </div>
-            <div className="mb-5">
-              <label className="block text-[12px] font-semibold mb-1.5" style={{ color: '#6B7A72' }}>Description (optional)</label>
-              <input value={newDesc} onChange={e => setNewDesc(e.target.value)}
-                placeholder="What this channel is for"
-                className="w-full px-3 py-2.5 rounded-xl text-[14px] outline-none"
-                style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#0F1F18' }} />
-            </div>
-            <div className="flex gap-2">
-              <button onClick={() => setShowNew(false)}
-                className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold"
-                style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#6B7A72' }}>
-                Cancel
-              </button>
-              <button onClick={handleCreate} disabled={!newName.trim()}
-                className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold transition hover:opacity-90 disabled:opacity-40"
-                style={{ background: '#1F4D3A', color: '#FAF6EE' }}>
-                Create channel
-              </button>
-            </div>
-          </div>
+      <Modal
+        open={showNew}
+        onClose={() => setShowNew(false)}
+        title="New channel"
+        footer={
+          <>
+            <button onClick={() => setShowNew(false)}
+              className="h-10 px-4 rounded-xl text-[13px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>
+              Cancel
+            </button>
+            <button onClick={handleCreate} disabled={!newName.trim()}
+              className="h-10 px-5 rounded-xl text-[13px] font-semibold text-white disabled:opacity-40" style={{ background: '#1F4D3A' }}>
+              Create channel
+            </button>
+          </>
+        }
+      >
+        <div className="mb-3">
+          <label className="block text-[12px] font-semibold mb-1.5" style={{ color: '#6B7A72' }}>Channel name</label>
+          <input value={newName} onChange={e => setNewName(e.target.value.toLowerCase().replace(/\s+/g, '-'))}
+            placeholder="e.g. networking"
+            className="w-full px-3 py-2.5 rounded-xl text-[14px] outline-none"
+            style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#0F1F18' }} />
         </div>
-      )}
+        <div>
+          <label className="block text-[12px] font-semibold mb-1.5" style={{ color: '#6B7A72' }}>Description (optional)</label>
+          <input value={newDesc} onChange={e => setNewDesc(e.target.value)}
+            placeholder="What this channel is for"
+            className="w-full px-3 py-2.5 rounded-xl text-[14px] outline-none"
+            style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#0F1F18' }} />
+        </div>
+      </Modal>
     </PageShell>
   );
 }

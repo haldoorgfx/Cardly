@@ -203,7 +203,7 @@ export default function RevealScreen({
         position: 'relative',
         minHeight: '100vh',
         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-        padding: '56px 24px',
+        padding: '48px 24px',
         overflow: 'hidden',
         fontFamily: 'Inter, system-ui, sans-serif',
         color: '#0F1F18',
@@ -222,10 +222,10 @@ export default function RevealScreen({
 
         {/* Mono "YOUR CARD · READY" status label */}
         <div style={{
-          display: 'flex', alignItems: 'center', gap: 9,
+          display: 'flex', alignItems: 'center', gap: 8,
           fontFamily: 'Inter, system-ui, sans-serif',
           fontWeight: 500, fontSize: 10, letterSpacing: '0.16em', textTransform: 'uppercase',
-          color: '#C9A45E', marginBottom: 26,
+          color: '#C9A45E', marginBottom: 24,
         }}>
           <span style={{
             width: 6, height: 6, borderRadius: '50%', background: '#E8C57E',
@@ -239,7 +239,7 @@ export default function RevealScreen({
         {/* Card — the REAL rendered PNG, breathing + gold glow */}
         <div style={{ animation: reduceMotion ? 'none' : 'revealBreathe 3.4s ease-in-out infinite', animationDelay: reduceMotion ? undefined : '0.4s' }}>
           <div style={{
-            position: 'relative', borderRadius: 14, overflow: 'hidden',
+            position: 'relative', borderRadius: 16, overflow: 'hidden',
             animation: reduceMotion ? 'none' : 'revealCardIn 520ms ease-out both',
           }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -251,13 +251,13 @@ export default function RevealScreen({
                 width: 272,
                 aspectRatio: `${aspect}`,
                 objectFit: 'cover',
-                borderRadius: 14,
+                borderRadius: 16,
                 ...cardGlow,
               }}
             />
             {/* Guilloche texture overlay (matches KartaCard) */}
             <div style={{
-              position: 'absolute', inset: 0, borderRadius: 14, pointerEvents: 'none',
+              position: 'absolute', inset: 0, borderRadius: 16, pointerEvents: 'none',
               backgroundImage: 'repeating-linear-gradient(115deg, rgba(232,197,126,0.05) 0 2px, transparent 2px 9px)',
               opacity: 0.5,
             }}/>
@@ -265,15 +265,15 @@ export default function RevealScreen({
         </div>
 
         {/* Actions */}
-        <div style={{ width: '100%', marginTop: 34, display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div style={{ width: '100%', marginTop: 32, display: 'flex', flexDirection: 'column', gap: 16 }}>
           <button
             onClick={handleDownload}
             style={{
               width: '100%', height: 52,
               background: '#1F4D3A', color: '#FAF6EE',
-              border: 'none', borderRadius: 14,
+              border: 'none', borderRadius: 12,
               fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 16,
-              display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
               cursor: 'pointer',
               boxShadow: '0 1px 2px rgba(15,31,24,0.04), 0 12px 32px rgba(31,77,58,0.22)',
               transition: 'background .15s',
@@ -301,8 +301,8 @@ export default function RevealScreen({
               width: '100%',
               background: 'transparent', border: 'none', cursor: 'pointer',
               fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 15,
-              color: '#1F4D3A', padding: '6px 0', marginTop: 2,
-              display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+              color: '#1F4D3A', padding: '8px 0', marginTop: 2,
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
               transition: 'color .15s',
             }}
             onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#163828'; }}

@@ -87,7 +87,7 @@ export function FlagsAdminClient({ initialFlags }: Props) {
           </div>
 
       <p className="mt-4 text-[12px] text-[#6B7A72]/60 px-1">
-        Per-user overrides can be set via the API: <code className=" text-[12.5px]">POST /api/admin/flags/[flag]/overrides</code>
+        Per-user overrides can be set via the API: <code className="font-sans text-[12.5px]">POST /api/admin/flags/[flag]/overrides</code>
       </p>
     </div>
   );

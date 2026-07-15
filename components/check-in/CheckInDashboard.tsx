@@ -36,14 +36,6 @@ interface Props {
   recentCheckins:     RecentCheckin[];
 }
 
-const AVATAR_GRADS = [
-  'linear-gradient(135deg,#1F4D3A,#2A6A50)',
-  'linear-gradient(135deg,#2A6A50,#C9A45E)',
-  'linear-gradient(135deg,#163828,#3E7E5E)',
-  'linear-gradient(135deg,#1F4D3A,#2A6A50)',
-  'linear-gradient(135deg,#2A6A50,#1F4D3A)',
-];
-
 function timeAgo(iso: string | null): string {
   if (!iso) return '';
   const diff = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
@@ -214,8 +206,8 @@ function AttendeeModal({ reg, eventId, onClose, onCheckedIn }: {
         <div className="px-4 sm:px-6 py-5">
           {/* Avatar + name */}
           <div className="flex items-center gap-4 mb-5">
-            <div className="w-12 h-12 rounded-full grid place-items-center text-[15px] font-bold text-white shrink-0"
-              style={{ background: 'linear-gradient(135deg,#1F4D3A,#2A6A50)' }}>
+            <div className="w-12 h-12 rounded-full grid place-items-center text-[15px] font-bold shrink-0"
+              style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
               {getInitials(reg.attendee_name)}
             </div>
             <div>
@@ -632,10 +624,10 @@ export default function CheckInDashboard({
                 </div>
               ) : (
                 <div className="max-h-[320px] overflow-y-auto divide-y" style={{ borderColor: 'rgba(229,224,212,0.6)' }}>
-                  {feed.map((entry, i) => (
+                  {feed.map((entry) => (
                     <div key={entry.id} className="flex items-center gap-3 px-5 py-3">
-                      <div className="w-8 h-8 rounded-full grid place-items-center text-[12.5px] font-bold text-white shrink-0"
-                        style={{ background: AVATAR_GRADS[i % AVATAR_GRADS.length] }}>
+                      <div className="w-8 h-8 rounded-full grid place-items-center text-[12.5px] font-bold shrink-0"
+                        style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
                         {getInitials(entry.attendee_name)}
                       </div>
                       <div className="min-w-0 flex-1">

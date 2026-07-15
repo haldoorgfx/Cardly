@@ -318,7 +318,7 @@ function ConnectModal({ meta, state, onClose, onChanged }: {
         </p>
 
         {meta.snippet && (
-          <pre className="text-[12px] rounded-lg p-3 mb-4 overflow-x-auto font-mono" style={{ background: C.cream, color: C.ink, border: `1px solid ${C.border}` }}>{meta.snippet}</pre>
+          <pre className="text-[12px] rounded-lg p-3 mb-4 overflow-x-auto font-sans" style={{ background: C.cream, color: C.ink, border: `1px solid ${C.border}` }}>{meta.snippet}</pre>
         )}
 
         {meta.fields.map(f => (

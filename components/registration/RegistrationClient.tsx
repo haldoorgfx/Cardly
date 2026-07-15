@@ -1249,7 +1249,7 @@ export default function RegistrationClient({
                   {coverUrl ? (
                     <Image src={coverUrl} alt={eventName} width={48} height={48} className="w-12 h-12 rounded-xl object-cover shrink-0" unoptimized />
                   ) : (
-                    <div className="w-12 h-12 rounded-xl shrink-0" style={{ background: 'linear-gradient(135deg, #1F4D3A, #2A6A50)' }} />
+                    <div className="w-12 h-12 rounded-xl shrink-0" style={{ background: '#E8EFEB' }} />
                   )}
                   <div>
                     <div className="font-display font-medium text-[15px]" style={{ color: '#0F1F18' }}>{eventName}</div>
@@ -1299,7 +1299,7 @@ export default function RegistrationClient({
                 {coverUrl ? (
                   <Image src={coverUrl} alt={eventName} width={48} height={48} className="w-12 h-12 rounded-xl object-cover shrink-0" unoptimized />
                 ) : (
-                  <div className="w-12 h-12 rounded-xl shrink-0" style={{ background: 'linear-gradient(135deg, #1F4D3A, #2A6A50)' }} />
+                  <div className="w-12 h-12 rounded-xl shrink-0" style={{ background: '#E8EFEB' }} />
                 )}
                 <div>
                   <div className="font-display font-medium text-[15px]" style={{ color: '#0F1F18' }}>{eventName}</div>

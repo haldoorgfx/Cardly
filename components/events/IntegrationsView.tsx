@@ -125,7 +125,7 @@ export function IntegrationsView({ eventId }: Props) {
       {/* Promo banner */}
       <div
         className="flex items-start gap-3 px-4 py-3.5 rounded-xl mb-8"
-        style={{ background: 'linear-gradient(135deg, rgba(232,197,126,0.16), rgba(31,77,58,0.06))', border: '1px solid rgba(232,197,126,0.3)' }}
+        style={{ background: 'rgba(232,197,126,0.12)', border: '1px solid rgba(232,197,126,0.3)' }}
       >
         <div
           className="h-7 w-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5"

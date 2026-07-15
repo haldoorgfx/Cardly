@@ -41,7 +41,7 @@ const TooltipStyle = {
   contentStyle: {
     background: '#fff',
     border: '1px solid #E5E0D4',
-    borderRadius: '10px',
+    borderRadius: '8px',
     fontSize: '12px',
     fontFamily: 'Inter, system-ui, sans-serif',
     color: '#0F1F18',

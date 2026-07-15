@@ -162,7 +162,7 @@ export function OrganizerCalendarClient({ userId, name, avatarUrl, bio, follower
       {/* Subscribe modal */}
       {showSubscribeModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(15,31,24,0.45)' }} onClick={() => setShowSubscribeModal(false)}>
-          <div className="w-full max-w-sm rounded-2xl p-6" style={{ background: '#FFFFFF' }} onClick={e => e.stopPropagation()}>
+          <div className="w-full max-w-sm rounded-2xl p-6 shadow-lift" style={{ background: '#FFFFFF' }} onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-display font-semibold text-[18px]" style={{ color: '#0F1F18' }}>Subscribe to {name}</h3>
               <button onClick={() => setShowSubscribeModal(false)} style={{ color: '#6B7A72' }}><X size={18} /></button>
@@ -197,7 +197,7 @@ export function OrganizerCalendarClient({ userId, name, avatarUrl, bio, follower
             )}
             <button
               onClick={() => setShowSubscribeModal(false)}
-              className="w-full py-3 rounded-2xl text-[14px] font-semibold transition hover:opacity-90"
+              className="w-full py-3 rounded-xl text-[14px] font-semibold transition hover:opacity-90"
               style={{ background: '#1F4D3A', color: '#FAF6EE' }}>
               Subscribe
             </button>

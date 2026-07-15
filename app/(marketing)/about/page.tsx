@@ -296,7 +296,7 @@ export default function AboutPage() {
                 flex: 1,
                 background: C.surface,
                 border: `1px solid ${C.border}`,
-                borderRadius: 14,
+                borderRadius: 16,
                 padding: '20px 16px',
               }}
             >
@@ -334,7 +334,7 @@ export default function AboutPage() {
                 flex: 1,
                 background: 'linear-gradient(135deg, #1F4D3A 0%, #163828 100%)',
                 border: `1.5px solid ${C.accentDark}`,
-                borderRadius: 14,
+                borderRadius: 16,
                 padding: '20px 16px',
               }}
             >
@@ -551,7 +551,7 @@ export default function AboutPage() {
               style={{
                 background: C.surface,
                 border: `1px solid ${C.border}`,
-                borderRadius: 14,
+                borderRadius: 16,
                 padding: 24,
                 textAlign: 'center',
               }}
@@ -613,7 +613,7 @@ export default function AboutPage() {
                   style={{
                     background: C.surface,
                     border: `1.5px dashed ${C.border}`,
-                    borderRadius: 14,
+                    borderRadius: 16,
                     padding: 24,
                     textAlign: 'center',
                     cursor: 'pointer',

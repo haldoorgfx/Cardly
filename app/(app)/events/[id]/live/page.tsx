@@ -27,13 +27,22 @@ export default async function LiveDisplayPage({ params }: { params: Promise<{ id
 
   // Fetch top Q&A questions by votes
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: questions } = await (admin as any)
+  const { data: qaRows } = await (admin as any)
     .from('qa_questions')
-    .select('id, question, votes, asker_name, asker_affiliation, is_answered, created_at')
+    .select('id, question, upvotes_count, is_anonymous, status, created_at, registrations!qa_questions_registration_id_fkey(attendee_name)')
     .eq('event_id', id)
-    .eq('is_hidden', false)
-    .order('votes', { ascending: false })
+    .neq('status', 'hidden')
+    .order('upvotes_count', { ascending: false })
     .limit(6);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const questions = (qaRows ?? []).map((q: any) => ({
+    id: q.id,
+    question: q.question,
+    votes: q.upvotes_count,
+    asker_name: q.is_anonymous ? null : (q.registrations?.attendee_name ?? null),
+    created_at: q.created_at,
+  }));
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: polls } = await (admin as any)

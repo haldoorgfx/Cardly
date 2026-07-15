@@ -29,9 +29,6 @@ export default async function SearchPage({ searchParams }: Props) {
 
   const q = searchParams.q?.trim() ?? '';
   const cityParam = searchParams.city ?? '';
-  // catParam and freeOnly require pending DB migration (category/price_from columns)
-  // const catParam = searchParams.category ?? '';
-  // const freeOnly = searchParams.free === 'true';
 
   const now = new Date();
   const weekEnd = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);

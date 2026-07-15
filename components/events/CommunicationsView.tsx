@@ -158,7 +158,7 @@ function CampaignDraftModal({ draft, onClose }: { draft: string; onClose: () => 
         <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: '1px solid #E5E0D4' }}>
           <div>
             <div className="flex items-center gap-2 mb-0.5">
-              <span className="inline-flex items-center gap-[3px] text-[12px] font-bold tracking-[0.07em] px-1.5 py-0.5 rounded-[5px] text-white" style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 100%)', boxShadow: '0 1px 4px rgba(31,77,58,0.3)' }}>
+              <span className="inline-flex items-center gap-[3px] text-[12px] font-bold tracking-[0.07em] px-1.5 py-0.5 rounded-full text-white" style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 100%)', boxShadow: '0 1px 4px rgba(31,77,58,0.3)' }}>
                 <Sparkles size={8} strokeWidth={2.5} />ERA
               </span>
               <h3 className="font-display text-[15px] font-semibold" style={{ color: '#0F1F18' }}>Campaign draft</h3>
@@ -317,7 +317,7 @@ export function CommunicationsView({ eventId, eventName, registrantCount, plan =
               <button
                 key={t}
                 onClick={() => setCampaignType(t)}
-                className="h-7 px-3 rounded-md text-[12px] font-medium transition"
+                className="h-7 px-3 rounded-lg text-[12px] font-medium transition"
                 style={{
                   background: campaignType === t ? 'white' : 'transparent',
                   color: campaignType === t ? '#1F4D3A' : '#6B7A72',

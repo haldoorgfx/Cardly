@@ -278,7 +278,6 @@ export function ThemeEditorClient({ settings }: Props) {
           {([
             { key: 'display' as const, label: 'Display font',  desc: 'Headings and UI labels' },
             { key: 'body'    as const, label: 'Body font',     desc: 'Body text and UI elements' },
-            { key: 'mono'    as const, label: 'Mono font',     desc: 'Code, IDs, badges' },
           ] as const).map(({ key, label, desc }) => (
             <div key={key}>
               <label className="block text-[13px] font-medium text-[#0F1F18] mb-1">{label}</label>
@@ -319,7 +318,7 @@ export function ThemeEditorClient({ settings }: Props) {
 
       {/* Save bar */}
       <div
-        className="sticky bottom-6 flex items-center justify-between gap-4 px-5 py-3.5 rounded-2xl shadow-lg"
+        className="sticky bottom-6 flex items-center justify-between gap-4 px-5 py-3.5 rounded-2xl shadow-lift"
         style={{ background: '#0F1F18', border: '1px solid rgba(255,255,255,0.08)' }}
       >
         <div className="text-[13px] text-white/60">

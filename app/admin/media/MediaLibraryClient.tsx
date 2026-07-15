@@ -607,18 +607,18 @@ function MediaTile({
               onChange={(e) => onAltChange(e.target.value)}
               autoFocus
               placeholder="Alt text"
-              className="flex-1 h-7 px-2 rounded text-[12.5px] bg-white text-[#0F1F18] border border-[#1F4D3A] focus:outline-none min-w-0"
+              className="flex-1 h-7 px-2 rounded-lg text-[12.5px] bg-white text-[#0F1F18] border border-[#1F4D3A] focus:outline-none min-w-0"
             />
             <button
               onClick={onSaveAlt}
               disabled={savingAlt}
-              className="h-7 w-7 rounded bg-[#1F4D3A] text-white flex items-center justify-center shrink-0"
+              className="h-7 w-7 rounded-lg bg-[#1F4D3A] text-white flex items-center justify-center shrink-0"
             >
               {savingAlt ? <Loader2 size={11} className="animate-spin" /> : <Check size={11} />}
             </button>
             <button
               onClick={onCancelEdit}
-              className="h-7 w-7 rounded bg-white/80 text-[#3A4A42] flex items-center justify-center shrink-0"
+              className="h-7 w-7 rounded-lg bg-white/80 text-[#3A4A42] flex items-center justify-center shrink-0"
             >
               <X size={11} />
             </button>
@@ -627,14 +627,14 @@ function MediaTile({
           <div className="flex items-center gap-1 pointer-events-auto">
             <button
               onClick={(e) => { e.stopPropagation(); onStartEdit(); }}
-              className="h-7 w-7 rounded bg-white/90 text-[#3A4A42] flex items-center justify-center hover:bg-white"
+              className="h-7 w-7 rounded-lg bg-white/90 text-[#3A4A42] flex items-center justify-center hover:bg-white"
               title="Edit alt text"
             >
               <Pencil size={11} />
             </button>
             <button
               onClick={(e) => { e.stopPropagation(); onDeleteRequest(); }}
-              className="h-7 w-7 rounded bg-white/90 text-[#B8423C] flex items-center justify-center hover:bg-white"
+              className="h-7 w-7 rounded-lg bg-white/90 text-[#B8423C] flex items-center justify-center hover:bg-white"
               title="Delete"
             >
               <Trash2 size={11} />

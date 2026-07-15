@@ -351,7 +351,7 @@ export function WhiteLabelTab({ plan }: { plan: string }) {
               {/* Cover image placeholder */}
               <div
                 className="h-24"
-                style={{ background: 'linear-gradient(135deg, #E8EFEB 0%, #E5E0D4 100%)' }}
+                style={{ background: '#E8EFEB' }}
               />
 
               {/* Content */}

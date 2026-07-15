@@ -119,7 +119,7 @@ export function OrganizerProfile({
           // eslint-disable-next-line @next/next/no-img-element
           <img src={coverUrl} alt="" className="absolute inset-0 w-full h-full object-cover" style={{ opacity: 0.45 }} />
         ) : (
-          <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #163828 0%, #1F4D3A 50%, #2A6A50 85%, #C9A45E 130%)' }} />
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 100%)' }} />
         )}
         <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(10,20,14,0.55) 0%, transparent 55%)' }} />
       </div>
@@ -249,7 +249,9 @@ function PastEventRow({ ev, first }: { ev: PastEvent; first: boolean }) {
           // eslint-disable-next-line @next/next/no-img-element
           <img src={ev.cover_image_url} alt={ev.title} className="w-full h-full object-cover" />
         ) : (
-          <div className="w-full h-full" style={{ background: 'linear-gradient(135deg, #1F4D3A, #2A6A50)' }} />
+          <div className="w-full h-full flex items-center justify-center font-display font-semibold text-[13px]" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
+            {ev.title?.[0]?.toUpperCase() ?? ''}
+          </div>
         )}
       </div>
       <div className="min-w-0 flex-1">

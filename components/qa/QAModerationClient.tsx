@@ -215,8 +215,8 @@ export default function QAModerationClient({ eventId, eventSlug, initialQuestion
                           title={q.status === 'hidden' ? 'Restore' : 'Hide'}
                           className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
                           style={{
-                            background: q.status === 'hidden' ? '#FEE2E2' : 'white',
-                            border: `1px solid ${q.status === 'hidden' ? '#FCA5A5' : '#E5E0D4'}`,
+                            background: q.status === 'hidden' ? 'rgba(184,66,60,0.10)' : 'white',
+                            border: `1px solid ${q.status === 'hidden' ? 'rgba(184,66,60,0.3)' : '#E5E0D4'}`,
                             color: q.status === 'hidden' ? '#B8423C' : '#6B7A72',
                           }}
                         >

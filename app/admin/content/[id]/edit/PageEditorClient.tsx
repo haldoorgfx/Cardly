@@ -500,7 +500,7 @@ export function PageEditorClient({ page }: { page: CmsPageWithBlocks }) {
           </button>
 
           {showAddBlock && (
-            <div className="absolute top-12 left-0 right-0 z-50 bg-white border border-[#E5E0D4] rounded-2xl shadow-[0_8px_32px_rgba(15,31,24,0.12)] p-3 grid grid-cols-3 gap-1.5">
+            <div className="absolute top-12 left-0 right-0 z-50 bg-white border border-[#E5E0D4] rounded-2xl shadow-lift p-3 grid grid-cols-3 gap-1.5">
               {BLOCK_TYPES.map(type => (
                 <button
                   key={type}

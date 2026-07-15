@@ -56,7 +56,7 @@ const USE_CASES: UseCase[] = [
     id: 'tech-conferences',
     title: 'Tech Conferences',
     Icon: LayoutGrid,
-    gradient: 'linear-gradient(135deg, #163828 0%, #1F4D3A 60%, #2A6A50 100%)',
+    gradient: '#1F4D3A',
     body: 'Multi-track agendas, speaker directories, startup networking.',
     features: [
       'Multi-track agenda builder',
@@ -70,7 +70,7 @@ const USE_CASES: UseCase[] = [
     id: 'ngo-campaigns',
     title: 'NGO Campaigns',
     Icon: Network,
-    gradient: 'linear-gradient(150deg, #1F4D3A 0%, #2A6A50 60%, #3E7E5E 100%)',
+    gradient: '#1F4D3A',
     body: 'Supporter cards, awareness drives, fundraising registration.',
     features: [
       'Free + donation-based registration',
@@ -84,7 +84,7 @@ const USE_CASES: UseCase[] = [
     id: 'political-events',
     title: 'Political Events',
     Icon: Users,
-    gradient: 'linear-gradient(120deg, #163828 0%, #1F4D3A 60%, #1F4D3A 100%)',
+    gradient: '#1F4D3A',
     body: 'Rally registration, volunteer coordination, endorsement cards.',
     features: [
       'Rally & town hall registration',
@@ -98,7 +98,7 @@ const USE_CASES: UseCase[] = [
     id: 'corporate-events',
     title: 'Corporate Events',
     Icon: Briefcase,
-    gradient: 'linear-gradient(130deg, #163828 0%, #1F4D3A 55%, #2A6A50 100%)',
+    gradient: '#1F4D3A',
     body: 'Brand activations, product launches, lead retrieval for sponsors.',
     features: [
       'Paid + complimentary ticket tiers',
@@ -112,7 +112,7 @@ const USE_CASES: UseCase[] = [
     id: 'religious-organizations',
     title: 'Religious Organizations',
     Icon: Sun,
-    gradient: 'linear-gradient(160deg, #163828 0%, #1F4D3A 55%, #2A6A50 100%)',
+    gradient: '#1F4D3A',
     body: 'Community conferences, Ramadan iftar events, charity drives.',
     features: [
       'Free community registration',
@@ -166,7 +166,7 @@ function AfricanSummitsCard() {
     <div
       id="african-summits"
       className="group scroll-mt-24 rounded-2xl overflow-hidden flex flex-col relative"
-      style={{ background: 'linear-gradient(160deg, #163828 0%, #1F4D3A 100%)' }}
+      style={{ background: '#163828' }}
     >
       {/* Cover area */}
       <div className="relative h-[150px] overflow-hidden flex items-end p-6">

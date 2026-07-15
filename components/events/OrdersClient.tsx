@@ -54,12 +54,11 @@ function fmtDate(d: string) {
   return new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 }
 
-function Avatar({ name, idx }: { name: string; idx: number }) {
+function Avatar({ name }: { name: string }) {
   const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
-  const grads = ['linear-gradient(135deg,#1F4D3A,#2A6A50)', 'linear-gradient(135deg,#2A6A50,#C9A45E)', 'linear-gradient(135deg,#163828,#3E7E5E)'];
   return (
     <span className="rounded-full grid place-items-center text-cream font-display font-semibold shrink-0 text-[12px]"
-      style={{ width: 36, height: 36, background: grads[idx % grads.length] }}>
+      style={{ width: 36, height: 36, background: '#1F4D3A' }}>
       {initials}
     </span>
   );
@@ -203,13 +202,13 @@ export function OrdersClient({ eventId, orders: initialOrders }: Props) {
           {/* List */}
           <div className="bg-white rounded-2xl overflow-hidden" style={{ border: '1px solid #E5E0D4' }}>
             <div className="divide-y" style={{ borderColor: 'rgba(229,224,212,0.6)' }}>
-              {filtered.map((o, i) => {
+              {filtered.map((o) => {
                 const ss = STATUS_STYLE[o.status] ?? STATUS_STYLE.pending;
                 return (
                   <button key={o.id} onClick={() => setSel(o.id)}
                     className="w-full text-left flex items-center gap-3 px-4 py-3.5 transition-colors"
                     style={{ background: sel === o.id ? 'rgba(232,239,235,0.5)' : 'transparent' }}>
-                    <Avatar name={o.attendee_name ?? '?'} idx={i} />
+                    <Avatar name={o.attendee_name ?? '?'} />
                     <div className="min-w-0 flex-1">
                       <div className="text-[13.5px] font-medium truncate" style={{ color: '#0F1F18' }}>{o.attendee_name ?? '—'}</div>
                       <div className=" text-[12.5px] mt-0.5 truncate" style={{ color: '#6B7A72' }}>
@@ -247,7 +246,7 @@ export function OrdersClient({ eventId, orders: initialOrders }: Props) {
                     </span>
                   </div>
                   <div className="flex items-center gap-3 mb-4">
-                    <Avatar name={selectedOrder.attendee_name ?? '?'} idx={0} />
+                    <Avatar name={selectedOrder.attendee_name ?? '?'} />
                     <div className="min-w-0">
                       <div className="text-[14px] font-medium truncate" style={{ color: '#0F1F18' }}>{selectedOrder.attendee_name ?? '—'}</div>
                       {selectedOrder.attendee_email && (

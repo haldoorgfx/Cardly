@@ -46,7 +46,7 @@ export function NewsletterForm() {
         value={email}
         onChange={e => { setEmail(e.target.value); if (status === 'error') setStatus('idle'); }}
         placeholder="your@email.com"
-        className="flex-1 px-4 py-3 rounded-full text-[14px] text-ink placeholder:text-muted outline-none"
+        className="flex-1 px-4 py-3 rounded-xl text-[14px] text-ink placeholder:text-muted outline-none"
         style={{
           background: '#FFFFFF',
           border: '1px solid #E5E0D4',

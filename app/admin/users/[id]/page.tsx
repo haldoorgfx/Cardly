@@ -78,8 +78,8 @@ export default async function UserDetailPage({ params }: { params: { id: string 
 
       <div className="mb-8 flex items-start gap-5">
         {/* Avatar */}
-        <div className="w-14 h-14 rounded-2xl grid place-items-center text-white font-bold text-xl shrink-0"
-          style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 130%)' }}>
+        <div className="w-14 h-14 rounded-2xl grid place-items-center font-bold text-xl shrink-0"
+          style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
           {profile.full_name?.[0]?.toUpperCase() ?? profile.email?.[0]?.toUpperCase() ?? '?'}
         </div>
         <div className="flex-1">

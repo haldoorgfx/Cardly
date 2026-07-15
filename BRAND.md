@@ -81,9 +81,9 @@ Never use on:
 
 ## Typography
 
-- **Display:** DM Sans, weight 600–700, letter-spacing -0.02em. Used for h1, h2.
+- **Display:** Plus Jakarta Sans, weight 600–800, letter-spacing -0.02em (-0.03em at large sizes). Used for h1, h2, wordmark, big numbers.
 - **Sans:** Inter, weight 400–600. Body, UI, labels.
-- **Mono:** JetBrains Mono. Slugs, IDs, code blocks, technical labels.
+- **No third font. No monospace.** DM Sans and JetBrains Mono are retired from platform UI. (The server-rendered Eventera Card graphic and Card Studio editor may still offer DM Sans as an embedded/selectable *design* font for card content — that's card content, not UI chrome.)
 
 Type scale:
 - Display XL: 64px / 1.05

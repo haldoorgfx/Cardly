@@ -791,9 +791,9 @@ function CommandPalette({ onClose }: { onClose: () => void }) {
         </div>
 
         <div className="border-t px-4 py-2.5 flex items-center gap-4 text-[12px] text-[#6B7A72]" style={{ borderColor: '#E5E0D4' }}>
-          <span><kbd className="border px-1 rounded text-[11px]" style={{ borderColor: '#E5E0D4' }}>↑↓</kbd> navigate</span>
-          <span><kbd className="border px-1 rounded text-[11px]" style={{ borderColor: '#E5E0D4' }}>↵</kbd> open</span>
-          <span><kbd className="border px-1 rounded text-[11px]" style={{ borderColor: '#E5E0D4' }}>ESC</kbd> close</span>
+          <span><kbd className="font-sans border px-1 rounded text-[11px]" style={{ borderColor: '#E5E0D4' }}>↑↓</kbd> navigate</span>
+          <span><kbd className="font-sans border px-1 rounded text-[11px]" style={{ borderColor: '#E5E0D4' }}>↵</kbd> open</span>
+          <span><kbd className="font-sans border px-1 rounded text-[11px]" style={{ borderColor: '#E5E0D4' }}>ESC</kbd> close</span>
         </div>
       </div>
     </div>
@@ -1185,7 +1185,7 @@ export function AppShell({ children, initialSections, initialProfile, initialEve
                 aria-label="Search (⌘K)">
                 <Search size={13} strokeWidth={2} className="shrink-0" style={{ color: '#9BA8A1' }} />
                 <span className="flex-1 text-left text-[13.5px]" style={{ color: '#9BA8A1' }}>Search…</span>
-                <kbd className="flex items-center gap-0.5 text-[11px] px-1.5 py-0.5 rounded-md shrink-0"
+                <kbd className="font-sans flex items-center gap-0.5 text-[11px] px-1.5 py-0.5 rounded-md shrink-0"
                   style={{ background: '#F0EDE8', color: '#9BA8A1', border: '1px solid #E5E0D4' }}>⌘K</kbd>
               </button>
               {/* Mobile search icon only */}
@@ -1281,7 +1281,7 @@ export function AppShell({ children, initialSections, initialProfile, initialEve
                 <button
                   onClick={() => setAccountMenuOpen(o => !o)}
                   className="h-9 w-9 rounded-full grid place-items-center text-white text-[13px] font-semibold shrink-0 ring-2 ring-transparent hover:ring-[#1F4D3A]/30 transition-all"
-                  style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 130%)' }}
+                  style={{ background: '#1F4D3A' }}
                   aria-label="Account menu">
                   <span suppressHydrationWarning>{initials}</span>
                 </button>
@@ -1293,7 +1293,7 @@ export function AppShell({ children, initialSections, initialProfile, initialEve
                       {/* Identity */}
                       <div className="px-4 py-3.5 flex items-center gap-3" style={{ borderBottom: '1px solid #E5E0D4' }}>
                         <div className="h-10 w-10 rounded-full grid place-items-center text-white text-[14px] font-bold shrink-0"
-                          style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 130%)' }}>
+                          style={{ background: '#1F4D3A' }}>
                           <span suppressHydrationWarning>{initials}</span>
                         </div>
                         <div className="min-w-0">

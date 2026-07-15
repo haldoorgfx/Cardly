@@ -132,7 +132,7 @@ export function FaqClient() {
       {/* Still need help */}
       <section className="border-t" style={{ borderColor: '#E5E0D4' }}>
         <div className="mx-auto px-5 lg:px-10 py-16 text-center" style={{ maxWidth: 760 }}>
-          <div className="inline-grid place-items-center mb-5" style={{ width: 52, height: 52, borderRadius: 14, background: '#E8EFEB', color: '#1F4D3A' }}>
+          <div className="inline-grid place-items-center mb-5" style={{ width: 52, height: 52, borderRadius: 16, background: '#E8EFEB', color: '#1F4D3A' }}>
             <LifeBuoy size={24} strokeWidth={1.8} />
           </div>
           <h2 className="font-title font-bold" style={{ fontSize: 'clamp(24px, 3vw, 32px)', color: '#0F1F18', letterSpacing: '-0.025em' }}>

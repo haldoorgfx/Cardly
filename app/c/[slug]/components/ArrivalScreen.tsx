@@ -95,7 +95,7 @@ export default function ArrivalScreen({
               values={demoValues}
               photoUrls={{}}
               style={{
-                borderRadius: 18,
+                borderRadius: 16,
                 boxShadow: '0 4px 12px rgba(15,31,24,0.08), 0 24px 60px rgba(31,77,58,0.12)',
               }}
             />
@@ -127,11 +127,11 @@ export default function ArrivalScreen({
         <div className="px-5 pb-8 pt-4 flex flex-col gap-3 mt-auto">
           <button
             onClick={onStart}
-            className="w-full flex items-center justify-center gap-2.5 transition-transform active:scale-[0.98]"
+            className="w-full flex items-center justify-center gap-2 transition-transform active:scale-[0.98]"
             style={{
               height: 56, padding: '0 24px',
               background: '#1F4D3A', color: '#FAF6EE',
-              border: 'none', borderRadius: 14,
+              border: 'none', borderRadius: 12,
               fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 16,
               boxShadow: '0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(31,77,58,0.18)',
               cursor: 'pointer',
@@ -142,7 +142,7 @@ export default function ArrivalScreen({
           </button>
 
           {/* Trust line */}
-          <div className="flex items-center justify-center gap-3.5" style={{
+          <div className="flex items-center justify-center gap-4" style={{
             fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#6B7A72',
           }}>
             <span className="inline-flex items-center gap-1.5">
@@ -188,7 +188,7 @@ export default function ArrivalScreen({
             maxWidth: 1200,
             padding: '0 40px',
             gridTemplateColumns: '60% 40%',
-            gap: 56,
+            gap: 48,
           }}
         >
           {/* Left: card hero */}
@@ -207,7 +207,7 @@ export default function ArrivalScreen({
                 values={{}}
                 photoUrls={{}}
                 style={{
-                  borderRadius: 20,
+                  borderRadius: 16,
                   boxShadow: '0 4px 12px rgba(15,31,24,0.08), 0 24px 60px rgba(31,77,58,0.12)',
                 }}
               />
@@ -245,11 +245,11 @@ export default function ArrivalScreen({
             <div className="flex items-center gap-4 flex-wrap">
               <button
                 onClick={onStart}
-                className="inline-flex items-center gap-2.5 transition-transform active:scale-[0.98]"
+                className="inline-flex items-center gap-2 transition-transform active:scale-[0.98]"
                 style={{
                   height: 56, padding: '0 24px',
                   background: '#1F4D3A', color: '#FAF6EE',
-                  border: 'none', borderRadius: 14,
+                  border: 'none', borderRadius: 12,
                   fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 16,
                   boxShadow: '0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(31,77,58,0.18)',
                   cursor: 'pointer',
@@ -273,12 +273,12 @@ export default function ArrivalScreen({
                 { icon: <Clock size={16} strokeWidth={2}/>, title: 'Fast', sub: 'Done in under a minute' },
               ].map((card) => (
                 <div key={card.title} style={{
-                  padding: '12px 12px 14px',
+                  padding: '12px 12px 16px',
                   background: '#FFFFFF',
                   border: '1px solid #E5E0D4',
                   borderRadius: 12,
                 }}>
-                  <div style={{ color: '#6B7A72', marginBottom: 6 }}>{card.icon}</div>
+                  <div style={{ color: '#6B7A72', marginBottom: 8 }}>{card.icon}</div>
                   <div style={{
                     fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, fontSize: 13,
                     color: '#0F1F18', marginBottom: 2,

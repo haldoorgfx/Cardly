@@ -119,7 +119,7 @@ export default async function AttendeePage({
         {/* Don't count views in preview mode */}
         {!isPreview && <ViewTracker eventId={event.id} />}
         {isPreview && (
-          <div className="fixed top-0 left-0 right-0 z-50 bg-amber-500/90 text-white text-center text-[12px] py-1.5 px-4">
+          <div className="fixed top-0 left-0 right-0 z-50 text-white text-center text-[12px] py-1.5 px-4" style={{ background: '#C97A2D' }}>
             🔍 Preview mode — this is how attendees will see your card. Not publicly visible until published.
           </div>
         )}
@@ -141,7 +141,7 @@ export default async function AttendeePage({
     <AttendeeBrandProvider value={brand}>
       {!isPreview && <ViewTracker eventId={event.id} />}
       {isPreview && (
-        <div className="fixed top-0 left-0 right-0 z-50 bg-amber-500/90 text-white text-center text-[12px] py-1.5 px-4">
+        <div className="fixed top-0 left-0 right-0 z-50 text-white text-center text-[12px] py-1.5 px-4" style={{ background: '#C97A2D' }}>
           🔍 Preview mode — this is how attendees will see your card. Not publicly visible until published.
         </div>
       )}

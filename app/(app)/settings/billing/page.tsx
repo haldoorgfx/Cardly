@@ -199,7 +199,7 @@ export default async function BillingPage({
         {/* Plan card — dark green */}
         <div
           className="rounded-2xl p-6 flex flex-col gap-5"
-          style={{ background: 'linear-gradient(135deg, #163828 0%, #1F4D3A 100%)' }}
+          style={{ background: '#163828' }}
         >
           {/* Plan header */}
           <div className="flex items-start justify-between">
