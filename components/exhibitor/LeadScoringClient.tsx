@@ -40,12 +40,12 @@ function ScoreRing({ score, tier }: { score: number; tier: string }) {
   const offset = circ - (score / 100) * circ;
   // Rating semantics (align with the rest of the design system):
   // hot = danger, warm = warning, cold = info/muted.
-  const color = tier === 'hot' ? '#D96A63' : tier === 'warm' ? '#D99A4E' : 'rgba(255,255,255,0.35)';
+  const color = tier === 'hot' ? '#B8423C' : tier === 'warm' ? '#C97A2D' : '#9BA8A1';
 
   return (
     <div className="relative shrink-0" style={{ width: 52, height: 52 }}>
       <svg width={52} height={52} style={{ transform: 'rotate(-90deg)' }}>
-        <circle cx={26} cy={26} r={r} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth={3} />
+        <circle cx={26} cy={26} r={r} fill="none" stroke="#E5E0D4" strokeWidth={3} />
         <circle cx={26} cy={26} r={r} fill="none" stroke={color} strokeWidth={3}
           strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round"
           style={{ transition: 'stroke-dashoffset 0.6s ease' }} />
@@ -59,16 +59,16 @@ function ScoreRing({ score, tier }: { score: number; tier: string }) {
 }
 
 function TierIcon({ tier }: { tier: string }) {
-  if (tier === 'hot') return <Flame size={12} style={{ color: '#D96A63' }} />;
-  if (tier === 'warm') return <Zap size={12} style={{ color: '#D99A4E' }} />;
-  return <Snowflake size={12} style={{ color: 'rgba(255,255,255,0.4)' }} />;
+  if (tier === 'hot') return <Flame size={12} style={{ color: '#B8423C' }} />;
+  if (tier === 'warm') return <Zap size={12} style={{ color: '#C97A2D' }} />;
+  return <Snowflake size={12} style={{ color: '#9BA8A1' }} />;
 }
 
 function TierBadge({ tier }: { tier: string }) {
   const styles = {
-    hot: { bg: 'rgba(184,66,60,0.18)', color: '#D96A63', label: 'Hot' },
-    warm: { bg: 'rgba(201,122,45,0.18)', color: '#D99A4E', label: 'Warm' },
-    cold: { bg: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.45)', label: 'Cold' },
+    hot: { bg: 'rgba(184,66,60,0.1)', color: '#B8423C', label: 'Hot' },
+    warm: { bg: 'rgba(201,122,45,0.1)', color: '#C97A2D', label: 'Warm' },
+    cold: { bg: '#F5F3EE', color: '#6B7A72', label: 'Cold' },
   };
   const s = styles[tier as keyof typeof styles] ?? styles.cold;
   return (
@@ -102,30 +102,30 @@ export function LeadScoringClient({ eventSlug, eventName, leads: dbLeads }: Prop
   const hotCount = counts.hot;
 
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(160deg, #0A1812 0%, #0F2518 100%)' }}>
+    <div className="min-h-screen" style={{ background: '#FAF6EE' }}>
       {/* Header */}
       <div className="sticky top-0 z-10 flex items-center justify-between px-5 h-14 border-b"
-        style={{ background: 'rgba(10,24,18,0.92)', backdropFilter: 'blur(12px)', borderColor: 'rgba(255,255,255,0.06)' }}>
+        style={{ background: 'rgba(250,246,238,0.92)', backdropFilter: 'blur(12px)', borderColor: '#E5E0D4' }}>
         <Link href={`/e/${eventSlug}/booth`} className="flex items-center gap-2 text-[13px] transition hover:opacity-70"
-          style={{ color: 'rgba(255,255,255,0.5)' }}>
+          style={{ color: '#6B7A72' }}>
           <ArrowLeft size={15} /> Booth
         </Link>
-        <span className="font-display font-semibold text-[15px]" style={{ color: '#FAF6EE' }}>Leads</span>
+        <span className="font-display font-semibold text-[15px]" style={{ color: '#0F1F18' }}>Leads</span>
         <button
           onClick={() => exportCSV(leads)}
           disabled={leads.length === 0}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-medium transition hover:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed"
-          style={{ background: 'rgba(232,197,126,0.12)', color: '#E8C57E', border: '1px solid rgba(232,197,126,0.2)' }}>
+          style={{ background: 'rgba(232,197,126,0.12)', color: '#8B6914', border: '1px solid rgba(232,197,126,0.3)' }}>
           <Download size={12} /> Export
         </button>
       </div>
 
       {/* Title block */}
       <div className="px-5 pt-6 pb-4">
-        <h1 className="font-display font-bold text-[22px] mb-1" style={{ color: '#FAF6EE', letterSpacing: '-0.02em' }}>
+        <h1 className="font-display font-bold text-[22px] mb-1" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
           Leads — scored by Eventera AI
         </h1>
-        <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.45)' }}>
+        <p className="text-[13px]" style={{ color: '#6B7A72' }}>
           {leads.length} captured · ranked by role seniority, intent signals, dwell time & session overlap
         </p>
       </div>
@@ -133,16 +133,16 @@ export function LeadScoringClient({ eventSlug, eventName, leads: dbLeads }: Prop
       {/* AI assistant bar */}
       {hotCount > 0 && (
         <div className="mx-5 mb-4 rounded-2xl p-4 flex items-center gap-3"
-          style={{ background: 'linear-gradient(135deg, rgba(232,197,126,0.12) 0%, rgba(31,77,58,0.2) 100%)', border: '1px solid rgba(232,197,126,0.2)' }}>
+          style={{ background: 'rgba(232,197,126,0.12)', border: '1px solid rgba(232,197,126,0.3)' }}>
           <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
-            style={{ background: 'rgba(232,197,126,0.2)' }}>
-            <Flame size={16} style={{ color: '#E8C57E' }} />
+            style={{ background: 'rgba(232,197,126,0.25)' }}>
+            <Flame size={16} style={{ color: '#8B6914' }} />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-[13px] font-semibold" style={{ color: '#E8C57E' }}>
+            <p className="text-[13px] font-semibold" style={{ color: '#8B6914' }}>
               {hotCount} hot {hotCount === 1 ? 'lead' : 'leads'} awaiting follow-up
             </p>
-            <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.5)' }}>
+            <p className="text-[12px]" style={{ color: '#6B7A72' }}>
               Your highest-intent contacts — reach out first
             </p>
           </div>
@@ -161,9 +161,9 @@ export function LeadScoringClient({ eventSlug, eventName, leads: dbLeads }: Prop
           <button key={f.key} onClick={() => setFilter(f.key)}
             className="px-3.5 py-1.5 rounded-full text-[12px] font-semibold whitespace-nowrap transition shrink-0"
             style={{
-              background: filter === f.key ? '#E8C57E' : 'rgba(255,255,255,0.06)',
-              color: filter === f.key ? '#0F1F18' : 'rgba(255,255,255,0.55)',
-              border: `1px solid ${filter === f.key ? '#E8C57E' : 'rgba(255,255,255,0.08)'}`,
+              background: filter === f.key ? '#E8EFEB' : 'white',
+              color: filter === f.key ? '#1F4D3A' : '#6B7A72',
+              border: `1px solid ${filter === f.key ? '#C9DDD3' : '#E5E0D4'}`,
             }}>
             {f.label}
           </button>
@@ -176,55 +176,55 @@ export function LeadScoringClient({ eventSlug, eventName, leads: dbLeads }: Prop
           const expanded = expandedId === lead.id;
           return (
             <div key={lead.id} className="rounded-2xl overflow-hidden transition cursor-pointer"
-              style={{ background: 'rgba(255,255,255,0.04)', border: `1px solid ${lead.tier === 'hot' ? 'rgba(184,66,60,0.22)' : 'rgba(255,255,255,0.06)'}` }}
+              style={{ background: 'white', border: `1px solid ${lead.tier === 'hot' ? 'rgba(184,66,60,0.3)' : '#E5E0D4'}` }}
               onClick={() => setExpandedId(expanded ? null : lead.id)}>
 
               <div className="flex items-center gap-3 p-4">
                 {/* Avatar */}
                 <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-[14px] shrink-0"
-                  style={{ background: 'linear-gradient(135deg, #1F4D3A, #2A6A50)', color: '#FAF6EE' }}>
+                  style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
                   {lead.name.split(' ').map((w: string) => w[0]).slice(0, 2).join('').toUpperCase()}
                 </div>
 
                 {/* Info */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
-                    <span className="font-semibold text-[14px] truncate" style={{ color: '#FAF6EE' }}>{lead.name}</span>
+                    <span className="font-semibold text-[14px] truncate" style={{ color: '#0F1F18' }}>{lead.name}</span>
                     <TierBadge tier={lead.tier} />
                     {lead.contacted && (
-                      <span className="text-[10px] px-1.5 py-0.5 rounded-full whitespace-nowrap shrink-0" style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.35)' }}>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded-full whitespace-nowrap shrink-0" style={{ background: '#F5F3EE', color: '#6B7A72' }}>
                         Contacted
                       </span>
                     )}
                   </div>
-                  <div className="text-[12px] truncate" style={{ color: 'rgba(255,255,255,0.45)' }}>
+                  <div className="text-[12px] truncate" style={{ color: '#6B7A72' }}>
                     {lead.role} · {lead.company}
                   </div>
                   {!expanded && (
-                    <div className="text-[11px] mt-0.5 truncate" style={{ color: 'rgba(255,255,255,0.3)' }}>{lead.reason}</div>
+                    <div className="text-[11px] mt-0.5 truncate" style={{ color: '#9BA8A1' }}>{lead.reason}</div>
                   )}
                 </div>
 
                 {/* Score ring */}
                 <div className="flex items-center gap-2">
                   <ScoreRing score={lead.score} tier={lead.tier} />
-                  <ChevronDown size={14} style={{ color: 'rgba(255,255,255,0.3)', transform: expanded ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+                  <ChevronDown size={14} style={{ color: '#9BA8A1', transform: expanded ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
                 </div>
               </div>
 
               {/* Expanded */}
               {expanded && (
                 <div className="px-4 pb-4 pt-0" onClick={e => e.stopPropagation()}>
-                  <div className="pt-3 border-t" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
-                    <p className="text-[12px] mb-3" style={{ color: 'rgba(255,255,255,0.55)' }}>
-                      <span className="font-semibold" style={{ color: 'rgba(255,255,255,0.75)' }}>Why this score: </span>
+                  <div className="pt-3 border-t" style={{ borderColor: '#E5E0D4' }}>
+                    <p className="text-[12px] mb-3" style={{ color: '#3A4A42' }}>
+                      <span className="font-semibold" style={{ color: '#0F1F18' }}>Why this score: </span>
                       {lead.reason}
                     </p>
                     {lead.tags && (
                       <div className="flex flex-wrap gap-1.5">
                         {lead.tags.map((tag: string) => (
                           <span key={tag} className="px-2 py-0.5 rounded-full text-[11px]"
-                            style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.5)' }}>
+                            style={{ background: '#F5F3EE', color: '#6B7A72' }}>
                             {tag}
                           </span>
                         ))}
@@ -238,16 +238,16 @@ export function LeadScoringClient({ eventSlug, eventName, leads: dbLeads }: Prop
         })}
 
         {filtered.length === 0 && (
-          <div className="rounded-2xl py-16 text-center px-6" style={{ background: 'rgba(255,255,255,0.03)' }}>
+          <div className="rounded-2xl py-16 text-center px-6 border border-dashed" style={{ background: 'white', borderColor: '#E5E0D4' }}>
             {leads.length === 0 ? (
               <>
-                <p className="text-[15px] font-medium mb-1" style={{ color: 'rgba(255,255,255,0.55)' }}>No leads captured yet</p>
-                <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.35)' }}>
+                <p className="text-[15px] font-medium mb-1" style={{ color: '#3A4A42' }}>No leads captured yet</p>
+                <p className="text-[13px]" style={{ color: '#6B7A72' }}>
                   Leads appear here as attendees scan your booth or share their card.
                 </p>
               </>
             ) : (
-              <p className="text-[15px] font-medium" style={{ color: 'rgba(255,255,255,0.4)' }}>No leads in this category</p>
+              <p className="text-[15px] font-medium" style={{ color: '#3A4A42' }}>No leads in this category</p>
             )}
           </div>
         )}
@@ -255,7 +255,7 @@ export function LeadScoringClient({ eventSlug, eventName, leads: dbLeads }: Prop
 
       {/* Event label */}
       <div className="fixed bottom-6 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full text-[11px] font-semibold tracking-widest uppercase"
-        style={{ background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.25)', fontFamily: 'Inter, system-ui, sans-serif', backdropFilter: 'blur(8px)' }}>
+        style={{ background: 'rgba(250,246,238,0.9)', color: '#9BA8A1', border: '1px solid #E5E0D4', fontFamily: 'Inter, system-ui, sans-serif', backdropFilter: 'blur(8px)' }}>
         {eventName}
       </div>
     </div>
