@@ -47,7 +47,7 @@ function StatCard({
         : { background: 'white', border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
       <div className="flex items-center justify-between mb-3">
         <span className="text-[12.5px] uppercase tracking-widest"
-          style={{ color: gold ? '#C9A45E' : '#6B7A72' }}>{label}</span>
+          style={{ color: gold ? '#C9A45E' : '#65736B' }}>{label}</span>
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
           stroke={gold ? '#C9A45E' : '#C9C3B1'} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
           {paths[icon]}
@@ -61,7 +61,7 @@ function StatCard({
 function MoMBadge({ value }: { value: number }) {
   return (
     <div className="mt-2 text-[12px] font-medium flex items-center gap-1"
-      style={{ color: value > 0 ? '#2D7A4F' : value < 0 ? '#B8423C' : '#6B7A72' }}>
+      style={{ color: value > 0 ? '#2D7A4F' : value < 0 ? '#B8423C' : '#65736B' }}>
       {value > 0 ? '↗' : value < 0 ? '↘' : '→'} {Math.abs(value)}% mo
     </div>
   );
@@ -244,7 +244,7 @@ export default async function AnalyticsPage({
             </div>
             {chartEvents.length === 0 ? (
               <div className="h-[160px] flex items-center justify-center text-[13px]"
-                style={{ color: '#6B7A72' }}>
+                style={{ color: '#65736B' }}>
                 No events yet
               </div>
             ) : (
@@ -258,7 +258,7 @@ export default async function AnalyticsPage({
                     : ev.name.slice(0, 10);
                   return (
                     <div key={ev.id} className="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
-                      <span className="text-[12px]" style={{ color: '#6B7A72' }}>
+                      <span className="text-[12px]" style={{ color: '#65736B' }}>
                         {ev.regs > 0 ? fmtNum(ev.regs) : ''}
                       </span>
                       <div className="w-full rounded-t-md"
@@ -269,7 +269,7 @@ export default async function AnalyticsPage({
                           transition: 'height 0.3s ease',
                         }} />
                       <span className="text-[12px] text-center leading-tight"
-                        style={{ color: '#6B7A72', maxWidth: '68px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', display: 'block' }}>
+                        style={{ color: '#65736B', maxWidth: '68px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', display: 'block' }}>
                         {short}
                       </span>
                     </div>
@@ -323,7 +323,7 @@ export default async function AnalyticsPage({
               <div className="flex justify-between mt-3 px-0.5">
                 {[revMonths[0], revMonths[Math.floor(revMonths.length / 2)], revMonths[revMonths.length - 1]]
                   .map((m, i) => (
-                    <span key={i} className="text-[12px]" style={{ color: '#6B7A72' }}>
+                    <span key={i} className="text-[12px]" style={{ color: '#65736B' }}>
                       {m.label}
                     </span>
                   ))}
@@ -342,7 +342,7 @@ export default async function AnalyticsPage({
           </div>
 
           {perfEvents.length === 0 ? (
-            <div className="px-6 py-12 text-center text-[13px]" style={{ color: '#6B7A72' }}>
+            <div className="px-6 py-12 text-center text-[13px]" style={{ color: '#65736B' }}>
               No events yet.
             </div>
           ) : (
@@ -352,7 +352,7 @@ export default async function AnalyticsPage({
                 <tr style={{ borderBottom: '1px solid #E5E0D4', background: '#FAFAF9' }}>
                   {['Event', 'Status', 'Registrations', 'Revenue', 'Cards', 'Check-in'].map(h => (
                     <th key={h} className="px-5 py-3 text-left  text-[12px] tracking-[0.12em] uppercase whitespace-nowrap"
-                      style={{ color: '#6B7A72' }}>
+                      style={{ color: '#65736B' }}>
                       {h}
                     </th>
                   ))}
@@ -443,7 +443,7 @@ export default async function AnalyticsPage({
                         {isLive ? 'Live' : 'Draft'}
                       </span>
                     </div>
-                    <div className="flex items-center gap-x-4 gap-y-1 flex-wrap mt-3 text-[12px]" style={{ color: '#6B7A72' }}>
+                    <div className="flex items-center gap-x-4 gap-y-1 flex-wrap mt-3 text-[12px]" style={{ color: '#65736B' }}>
                       <span className="whitespace-nowrap"><span style={{ color: '#0F1F18', fontWeight: 500 }}>{fmtNum(e.regs)}</span> regs</span>
                       <span className="whitespace-nowrap"><span style={{ color: '#0F1F18', fontWeight: 500 }}>{fmtMoney(e.revenue, primaryCurrency)}</span> revenue</span>
                       <span className="whitespace-nowrap"><span style={{ color: '#0F1F18', fontWeight: 500 }}>{e.cards}</span> cards</span>
@@ -487,7 +487,7 @@ export default async function AnalyticsPage({
                   </div>
                 ))}
               </div>
-              <p className="text-[13px] mt-5 leading-relaxed" style={{ color: '#6B7A72' }}>
+              <p className="text-[13px] mt-5 leading-relaxed" style={{ color: '#65736B' }}>
                 Attendees who receive their Eventera Card share it at higher rates when the event design feels premium.
                 The more polished your card design, the more organic reach you get.
               </p>

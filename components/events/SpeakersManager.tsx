@@ -192,7 +192,7 @@ export default function SpeakersManager({ eventId, slug, initialSpeakers }: Prop
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
           <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight" style={{ color: '#0F1F18' }}>Speakers</h1>
-          <p className="text-[14px] mt-0.5" style={{ color: '#6B7A72' }}>
+          <p className="text-[14px] mt-0.5" style={{ color: '#65736B' }}>
             {speakers.length > 0 ? `${speakers.length} speaker${speakers.length !== 1 ? 's' : ''}` : 'Add speakers to your event'}
           </p>
         </div>
@@ -233,7 +233,7 @@ export default function SpeakersManager({ eventId, slug, initialSpeakers }: Prop
         maxWidth={640}
         footer={
           <>
-            <button onClick={closeForm} className="h-10 px-4 rounded-lg text-[13.5px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>Cancel</button>
+            <button onClick={closeForm} className="h-10 px-4 rounded-lg text-[13.5px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#65736B' }}>Cancel</button>
             <button onClick={handleSave} disabled={saving} className="h-10 px-5 rounded-lg text-[13.5px] font-semibold text-white disabled:opacity-60" style={{ background: '#1F4D3A' }}>
               {saving ? 'Saving…' : 'Save'}
             </button>
@@ -249,7 +249,7 @@ export default function SpeakersManager({ eventId, slug, initialSpeakers }: Prop
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1">
-              <label className=" text-[12px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>
+              <label className=" text-[12px] tracking-[0.12em] uppercase" style={{ color: '#65736B' }}>
                 Name <span style={{ color: '#B8423C' }}>*</span>
               </label>
               <input
@@ -261,7 +261,7 @@ export default function SpeakersManager({ eventId, slug, initialSpeakers }: Prop
               />
             </div>
             <div className="space-y-1">
-              <label className=" text-[12px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>Headline</label>
+              <label className=" text-[12px] tracking-[0.12em] uppercase" style={{ color: '#65736B' }}>Headline</label>
               <input
                 className="w-full border rounded-lg px-3 py-2 text-sm"
                 style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}
@@ -271,7 +271,7 @@ export default function SpeakersManager({ eventId, slug, initialSpeakers }: Prop
               />
             </div>
             <div className="space-y-1">
-              <label className=" text-[12px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>Role</label>
+              <label className=" text-[12px] tracking-[0.12em] uppercase" style={{ color: '#65736B' }}>Role</label>
               <input
                 className="w-full border rounded-lg px-3 py-2 text-sm"
                 style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}
@@ -281,7 +281,7 @@ export default function SpeakersManager({ eventId, slug, initialSpeakers }: Prop
               />
             </div>
             <div className="space-y-1">
-              <label className=" text-[12px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>Company</label>
+              <label className=" text-[12px] tracking-[0.12em] uppercase" style={{ color: '#65736B' }}>Company</label>
               <input
                 className="w-full border rounded-lg px-3 py-2 text-sm"
                 style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}
@@ -291,7 +291,7 @@ export default function SpeakersManager({ eventId, slug, initialSpeakers }: Prop
               />
             </div>
             <div className="space-y-1 sm:col-span-2">
-              <label className=" text-[12px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>Bio</label>
+              <label className=" text-[12px] tracking-[0.12em] uppercase" style={{ color: '#65736B' }}>Bio</label>
               <textarea
                 className="w-full border rounded-lg px-3 py-2 text-sm resize-none"
                 style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}
@@ -302,7 +302,7 @@ export default function SpeakersManager({ eventId, slug, initialSpeakers }: Prop
               />
             </div>
             <div className="space-y-1">
-              <label className=" text-[12px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>Photo URL</label>
+              <label className=" text-[12px] tracking-[0.12em] uppercase" style={{ color: '#65736B' }}>Photo URL</label>
               <input
                 className="w-full border rounded-lg px-3 py-2 text-sm"
                 style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}
@@ -312,7 +312,7 @@ export default function SpeakersManager({ eventId, slug, initialSpeakers }: Prop
               />
             </div>
             <div className="space-y-1">
-              <label className=" text-[12px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>Speaker type</label>
+              <label className=" text-[12px] tracking-[0.12em] uppercase" style={{ color: '#65736B' }}>Speaker type</label>
               <select
                 className="w-full border rounded-lg px-3 py-2 text-sm"
                 style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}
@@ -338,7 +338,7 @@ export default function SpeakersManager({ eventId, slug, initialSpeakers }: Prop
 
           {/* Progressive disclosure: social / contact links */}
           <div className="space-y-1">
-            <label className="text-[12px] tracking-[0.12em] uppercase flex items-center gap-1" style={{ color: '#6B7A72' }}>
+            <label className="text-[12px] tracking-[0.12em] uppercase flex items-center gap-1" style={{ color: '#65736B' }}>
               <AtSign size={11} /> Email <span className="normal-case tracking-normal text-[12.5px]" style={{ color: '#9AA39C' }}>— optional</span>
             </label>
             <input
@@ -366,7 +366,7 @@ export default function SpeakersManager({ eventId, slug, initialSpeakers }: Prop
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
               <div className="space-y-1">
-                <label className=" text-[12px] tracking-[0.12em] uppercase flex items-center gap-1" style={{ color: '#6B7A72' }}>
+                <label className=" text-[12px] tracking-[0.12em] uppercase flex items-center gap-1" style={{ color: '#65736B' }}>
                   <Link2 size={11} /> LinkedIn
                 </label>
                 <input
@@ -378,7 +378,7 @@ export default function SpeakersManager({ eventId, slug, initialSpeakers }: Prop
                 />
               </div>
               <div className="space-y-1">
-                <label className=" text-[12px] tracking-[0.12em] uppercase flex items-center gap-1" style={{ color: '#6B7A72' }}>
+                <label className=" text-[12px] tracking-[0.12em] uppercase flex items-center gap-1" style={{ color: '#65736B' }}>
                   <AtSign size={11} /> Twitter / X
                 </label>
                 <input
@@ -390,7 +390,7 @@ export default function SpeakersManager({ eventId, slug, initialSpeakers }: Prop
                 />
               </div>
               <div className="space-y-1">
-                <label className=" text-[12px] tracking-[0.12em] uppercase flex items-center gap-1" style={{ color: '#6B7A72' }}>
+                <label className=" text-[12px] tracking-[0.12em] uppercase flex items-center gap-1" style={{ color: '#65736B' }}>
                   <Globe size={11} /> Website
                 </label>
                 <input
@@ -414,7 +414,7 @@ export default function SpeakersManager({ eventId, slug, initialSpeakers }: Prop
           </div>
           <div>
             <div className="font-display text-[16px] font-semibold" style={{ color: '#0F1F18' }}>No speakers yet</div>
-            <p className="text-[13px] mt-1" style={{ color: '#6B7A72' }}>Add your first speaker — they&apos;ll appear on the event page.</p>
+            <p className="text-[13px] mt-1" style={{ color: '#65736B' }}>Add your first speaker — they&apos;ll appear on the event page.</p>
           </div>
           <button onClick={openAdd} className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-[13.5px] font-medium text-white" style={{ background: '#1F4D3A' }}>
             <Plus size={15} strokeWidth={2} /> Add first speaker
@@ -460,7 +460,7 @@ export default function SpeakersManager({ eventId, slug, initialSpeakers }: Prop
                   <div className="text-[12.5px] mt-0.5" style={{ color: '#3A4A42' }}>{speaker.role || speaker.headline}</div>
                 )}
                 {speaker.company && (
-                  <div className=" text-[12.5px] mt-0.5" style={{ color: '#6B7A72' }}>{speaker.company}</div>
+                  <div className=" text-[12.5px] mt-0.5" style={{ color: '#65736B' }}>{speaker.company}</div>
                 )}
 
                 {/* Footer */}
@@ -469,16 +469,16 @@ export default function SpeakersManager({ eventId, slug, initialSpeakers }: Prop
                     {TYPE_LABELS[speaker.speaker_type]}
                   </span>
                   <div className="flex items-center gap-1">
-                    <button onClick={() => copyPortalLink(speaker.id)} className="w-7 h-7 grid place-items-center rounded-lg transition hover:bg-[#F5F3EE]" style={{ color: copiedId === speaker.id ? '#2D7A4F' : '#6B7A72' }} title={copiedId === speaker.id ? 'Portal link copied!' : 'Copy speaker portal link'}>
+                    <button onClick={() => copyPortalLink(speaker.id)} className="w-10 h-10 grid place-items-center rounded-lg transition hover:bg-[#F5F3EE]" style={{ color: copiedId === speaker.id ? '#2D7A4F' : '#65736B' }} title={copiedId === speaker.id ? 'Portal link copied!' : 'Copy speaker portal link'}>
                       <Link2 size={13} strokeWidth={1.8} />
                     </button>
-                    <Link href={`/events/${slug}/speakers/${speaker.id}`} className="w-7 h-7 grid place-items-center rounded-lg transition hover:bg-[#F5F3EE]" style={{ color: '#6B7A72' }} title="View detail">
+                    <Link href={`/events/${slug}/speakers/${speaker.id}`} className="w-10 h-10 grid place-items-center rounded-lg transition hover:bg-[#F5F3EE]" style={{ color: '#65736B' }} title="View detail">
                       <ExternalLink size={13} strokeWidth={1.8} />
                     </Link>
-                    <button onClick={() => openEdit(speaker)} className="w-7 h-7 grid place-items-center rounded-lg transition hover:bg-[#F5F3EE]" style={{ color: '#6B7A72' }} title="Edit">
+                    <button onClick={() => openEdit(speaker)} className="w-10 h-10 grid place-items-center rounded-lg transition hover:bg-[#F5F3EE]" style={{ color: '#65736B' }} title="Edit">
                       <Pencil size={13} strokeWidth={1.8} />
                     </button>
-                    <button onClick={() => handleDelete(speaker.id)} disabled={deletingId === speaker.id} className="w-7 h-7 grid place-items-center rounded-lg transition hover:bg-red-50 disabled:opacity-40" title="Delete">
+                    <button onClick={() => handleDelete(speaker.id)} disabled={deletingId === speaker.id} className="w-10 h-10 grid place-items-center rounded-lg transition hover:bg-red-50 disabled:opacity-40" title="Delete">
                       <Trash2 size={13} strokeWidth={1.8} style={{ color: '#B8423C' }} />
                     </button>
                   </div>

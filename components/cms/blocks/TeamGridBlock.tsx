@@ -46,7 +46,7 @@ export function TeamGridBlock({ content }: { content: TeamGridContent }) {
               <div className="mt-4 font-display font-semibold text-[#0F1F18] text-[16px] tracking-tight">{m.name}</div>
               <div className=" text-[10px] tracking-[0.14em] uppercase text-[#1F4D3A] mt-1.5">{m.role}</div>
               {m.location && (
-                <div className="mt-1 text-[12px] text-[#6B7A72]">{m.location}</div>
+                <div className="mt-1 text-[12px] text-[#65736B]">{m.location}</div>
               )}
               {m.is_open_role && m.apply_href && (
                 <a href={m.apply_href} className="mt-4 inline-flex items-center gap-1.5 text-[12px] font-medium text-[#1F4D3A]">

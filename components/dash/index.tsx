@@ -17,7 +17,7 @@ import type { ReactNode, CSSProperties } from 'react';
 export const dash = {
   ink: '#0F1F18',
   inkSoft: '#3A4A42',
-  muted: '#6B7A72',
+  muted: '#65736B',
   forest: '#1F4D3A',
   forestDark: '#163828',
   soft: '#E8EFEB',

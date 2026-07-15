@@ -51,7 +51,7 @@ export function EventCompletionCard({ items, status, publishHref }: Props) {
             <div className="font-display text-[15px] font-semibold" style={{ color: '#0F1F18' }}>
               {isLive && allDone ? 'Your event is live' : allDone ? 'Ready to publish' : 'Finish setting up'}
             </div>
-            <p className="text-[12.5px] mt-0.5" style={{ color: '#6B7A72' }}>
+            <p className="text-[12.5px] mt-0.5" style={{ color: '#65736B' }}>
               {isLive && allDone
                 ? 'Everything is in place — registrations are open.'
                 : `${doneCount} of ${required.length} steps done`}
@@ -69,7 +69,7 @@ export function EventCompletionCard({ items, status, publishHref }: Props) {
                   : { background: 'white', border: '1.5px solid #C9C3B1' }}>
                 {item.done && <Check size={12} strokeWidth={3} color="white" />}
               </span>
-              <span className="flex-1 text-[13.5px]" style={{ color: item.done ? '#6B7A72' : '#0F1F18', textDecoration: item.done ? 'line-through' : 'none' }}>
+              <span className="flex-1 text-[13.5px]" style={{ color: item.done ? '#65736B' : '#0F1F18', textDecoration: item.done ? 'line-through' : 'none' }}>
                 {item.label}
                 {item.optional && <span className="ml-1.5 text-[12.5px]" style={{ color: '#9BA8A1' }}>optional</span>}
               </span>
@@ -88,7 +88,7 @@ export function EventCompletionCard({ items, status, publishHref }: Props) {
       {/* Footer CTA */}
       {!isLive && (
         <div className="flex items-center justify-between gap-3 px-5 py-3 border-t" style={{ borderColor: '#E5E0D4', background: '#FAF6EE' }}>
-          <span className="inline-flex items-center gap-1.5 text-[12.5px]" style={{ color: '#6B7A72' }}>
+          <span className="inline-flex items-center gap-1.5 text-[12.5px]" style={{ color: '#65736B' }}>
             <Rocket size={13} strokeWidth={2} style={{ color: '#C9A45E' }} />
             {allDone ? 'All set — open registration when you are ready.' : 'Publish anytime — you can keep editing after.'}
           </span>

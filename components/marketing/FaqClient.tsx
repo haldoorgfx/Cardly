@@ -98,7 +98,7 @@ export function FaqClient() {
             Everything about events, the Eventera Card, tickets, check-in and the app.
           </p>
           <div className="relative mt-8">
-            <Search size={19} strokeWidth={2} style={{ position: 'absolute', left: 18, top: '50%', transform: 'translateY(-50%)', color: '#6B7A72' }} />
+            <Search size={19} strokeWidth={2} style={{ position: 'absolute', left: 18, top: '50%', transform: 'translateY(-50%)', color: '#65736B' }} />
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -115,7 +115,7 @@ export function FaqClient() {
       <section>
         <div className="mx-auto px-5 lg:px-10 pb-16" style={{ maxWidth: 820 }}>
           {filtered.length === 0 ? (
-            <div className="text-center py-16" style={{ color: '#6B7A72', fontFamily: 'var(--font-sans)' }}>
+            <div className="text-center py-16" style={{ color: '#65736B', fontFamily: 'var(--font-sans)' }}>
               No questions match “{query}”. Try another word, or <Link href="/contact" className="underline" style={{ color: '#1F4D3A' }}>contact us</Link>.
             </div>
           ) : (

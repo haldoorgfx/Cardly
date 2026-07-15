@@ -38,7 +38,7 @@ const SESSION_TYPE_COLORS: Record<string, string> = {
   workshop: '#3A6B8C',
   panel: '#C97A2D',
   fireside: '#C97A2D',
-  lightning: '#6B7A72',
+  lightning: '#65736B',
   break: '#9BA8A1',
 };
 
@@ -87,13 +87,13 @@ export default async function AgendaPrintPage({ params }: Props) {
           <h1 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 32, fontWeight: 700, letterSpacing: '-0.02em', color: '#0F1F18' }}>
             {event.name}
           </h1>
-          <p style={{ marginTop: 4, color: '#6B7A72', fontSize: 12 }}>Agenda</p>
+          <p style={{ marginTop: 4, color: '#65736B', fontSize: 12 }}>Agenda</p>
         </div>
 
         {/* Days */}
         {grouped.map(([dateStr, daySessions]) => (
           <div key={dateStr} style={{ marginBottom: 40 }}>
-            <h2 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, color: '#6B7A72', marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.06em', fontSize: 11 }}>
+            <h2 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, color: '#65736B', marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.06em', fontSize: 11 }}>
               {fmtDay(daySessions[0].starts_at)}
             </h2>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -114,7 +114,7 @@ export default async function AgendaPrintPage({ params }: Props) {
                     .map((ss: any) => ss.speakers?.name ?? '')
                     .filter(Boolean)
                     .join(', ');
-                  const typeColor = SESSION_TYPE_COLORS[s.session_type] ?? '#6B7A72';
+                  const typeColor = SESSION_TYPE_COLORS[s.session_type] ?? '#65736B';
                   return (
                     <tr key={s.id} style={{ borderBottom: '1px solid rgba(229,224,212,0.5)', background: i % 2 === 0 ? 'transparent' : 'rgba(250,246,238,0.4)' }}>
                       <td style={{ padding: '8px 8px', fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11, color: '#3A4A42', whiteSpace: 'nowrap' }}>
@@ -129,8 +129,8 @@ export default async function AgendaPrintPage({ params }: Props) {
                           {s.session_type}
                         </span>
                       </td>
-                      <td style={{ padding: '8px 8px', fontSize: 11, color: '#6B7A72' }}>{speakerNames || '—'}</td>
-                      <td style={{ padding: '8px 8px', fontSize: 11, color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>{s.room || '—'}</td>
+                      <td style={{ padding: '8px 8px', fontSize: 11, color: '#65736B' }}>{speakerNames || '—'}</td>
+                      <td style={{ padding: '8px 8px', fontSize: 11, color: '#65736B', fontFamily: 'Inter, system-ui, sans-serif' }}>{s.room || '—'}</td>
                     </tr>
                   );
                 })}

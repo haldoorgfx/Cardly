@@ -101,11 +101,11 @@ export function CommunityChatClient({ eventId, eventName, channels, initialMessa
     return (
       <div className="flex items-center justify-center text-center px-6" style={{ height: embedded ? 480 : 'calc(100vh - 56px)' }}>
         <div>
-          <Hash size={30} style={{ color: '#6B7A72' }} className="mx-auto mb-3" />
+          <Hash size={30} style={{ color: '#65736B' }} className="mx-auto mb-3" />
           <div className="font-display font-semibold text-[17px] mb-1" style={{ color: '#0F1F18' }}>
             No community channels yet
           </div>
-          <div className="text-[13px]" style={{ color: '#6B7A72' }}>
+          <div className="text-[13px]" style={{ color: '#65736B' }}>
             The organizer hasn’t opened any channels for this event.
           </div>
         </div>
@@ -170,21 +170,21 @@ export function CommunityChatClient({ eventId, eventName, channels, initialMessa
             className="lg:hidden -ml-1 w-10 h-10 flex items-center justify-center shrink-0"
             onClick={() => setSidebarOpen(true)}
             aria-label="Open channel list"
-            style={{ color: '#6B7A72' }}
+            style={{ color: '#65736B' }}
           >
             <Menu size={18} />
           </button>
-          <Hash size={16} style={{ color: '#6B7A72' }} />
+          <Hash size={16} style={{ color: '#65736B' }} />
           <span className="font-semibold text-[15px]" style={{ color: '#0F1F18' }}>
             {activeChannel?.name ?? 'general'}
           </span>
           {activeChannel?.description && (
-            <span className="text-[12px] border-l pl-3 hidden sm:block" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>
+            <span className="text-[12px] border-l pl-3 hidden sm:block" style={{ borderColor: '#E5E0D4', color: '#65736B' }}>
               {activeChannel.description}
             </span>
           )}
           {pinned.length > 0 && (
-            <span className="ml-auto flex items-center gap-1 text-[12.5px]" style={{ color: '#6B7A72' }}>
+            <span className="ml-auto flex items-center gap-1 text-[12.5px]" style={{ color: '#65736B' }}>
               <Pin size={11} /> {pinned.length} pinned
             </span>
           )}
@@ -198,7 +198,7 @@ export function CommunityChatClient({ eventId, eventName, channels, initialMessa
               style={{ background: '#E8EFEB', border: '1px solid #E5E0D4' }}>
               <Pin size={13} style={{ color: '#1F4D3A', marginTop: 2 }} />
               <div>
-                <div className="text-[12.5px] font-semibold mb-0.5" style={{ color: '#6B7A72' }}>Pinned message</div>
+                <div className="text-[12.5px] font-semibold mb-0.5" style={{ color: '#65736B' }}>Pinned message</div>
                 <div className="text-[13px]" style={{ color: '#0F1F18' }}>{pinned[0].content}</div>
               </div>
             </div>
@@ -206,9 +206,9 @@ export function CommunityChatClient({ eventId, eventName, channels, initialMessa
 
           {messages.length === 0 && (
             <div className="flex flex-col items-center justify-center text-center py-16">
-              <Hash size={26} style={{ color: '#6B7A72' }} className="mb-2" />
+              <Hash size={26} style={{ color: '#65736B' }} className="mb-2" />
               <div className="font-medium text-[14px]" style={{ color: '#0F1F18' }}>No messages yet</div>
-              <div className="text-[12.5px] mt-0.5" style={{ color: '#6B7A72' }}>
+              <div className="text-[12.5px] mt-0.5" style={{ color: '#65736B' }}>
                 Be the first to say something in #{activeChannel?.name ?? 'general'}.
               </div>
             </div>
@@ -222,7 +222,7 @@ export function CommunityChatClient({ eventId, eventName, channels, initialMessa
                 <div className="flex-1 min-w-0">
                   <div className="flex items-baseline gap-2 mb-0.5">
                     <span className="font-semibold text-[13px]" style={{ color: '#0F1F18' }}>{name}</span>
-                    <span className="text-[12.5px]" style={{ color: '#6B7A72' }}>{fmtTime(msg.created_at)}</span>
+                    <span className="text-[12.5px]" style={{ color: '#65736B' }}>{fmtTime(msg.created_at)}</span>
                     {msg.is_pinned && <Pin size={10} style={{ color: '#1F4D3A' }} />}
                   </div>
                   <p className="text-[14px]" style={{ color: '#3A4A42', lineHeight: 1.5 }}>{msg.content}</p>
@@ -255,7 +255,7 @@ export function CommunityChatClient({ eventId, eventName, channels, initialMessa
             </button>
           </div>
           {!registrationId && (
-            <p className="text-[12.5px] text-center mt-2" style={{ color: '#6B7A72' }}>
+            <p className="text-[12.5px] text-center mt-2" style={{ color: '#65736B' }}>
               Register for the event to post messages
             </p>
           )}

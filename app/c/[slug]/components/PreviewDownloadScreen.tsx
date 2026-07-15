@@ -296,7 +296,7 @@ export default function PreviewDownloadScreen({
               style={{
                 background: 'transparent', border: 'none', cursor: 'pointer',
                 fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 500,
-                color: '#6B7A72', padding: '4px 0',
+                color: '#65736B', padding: '4px 0',
                 display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
               }}
             >
@@ -326,11 +326,11 @@ export default function PreviewDownloadScreen({
                 onClick={handleCopyLink}
                 style={{
                   background: 'transparent', border: 'none', cursor: 'pointer',
-                  fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#6B7A72', padding: 0,
+                  fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#65736B', padding: 0,
                   transition: 'color .15s',
                 }}
                 onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#3A4A42'; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#6B7A72'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#65736B'; }}
               >
                 Copy link
               </button>
@@ -343,7 +343,7 @@ export default function PreviewDownloadScreen({
               marginTop: 8, padding: '16px', borderRadius: 12, textAlign: 'center',
               background: 'rgba(255,255,255,0.6)', border: '1px solid #E5E0D4',
             }}>
-              <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#6B7A72', marginBottom: 12 }}>
+              <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#65736B', marginBottom: 12 }}>
                 Show at door
               </p>
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -361,7 +361,7 @@ export default function PreviewDownloadScreen({
           {/* "Powered by" */}
           <div style={{
             textAlign: 'center', marginTop: 16,
-            fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11, color: '#6B7A72', letterSpacing: '0.04em',
+            fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11, color: '#65736B', letterSpacing: '0.04em',
           }}>
             <PoweredByInline />
           </div>

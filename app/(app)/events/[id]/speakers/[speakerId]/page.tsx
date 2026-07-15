@@ -16,7 +16,7 @@ function initials(name: string) {
 function InfoRow({ label, children, last }: { label: string; children: React.ReactNode; last?: boolean }) {
   return (
     <div className={`flex items-center justify-between gap-4 py-2.5 ${last ? '' : 'border-b'}`} style={{ borderColor: '#E5E0D4' }}>
-      <span className=" text-[12px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>{label}</span>
+      <span className=" text-[12px] tracking-[0.12em] uppercase" style={{ color: '#65736B' }}>{label}</span>
       <span className="text-[13.5px] text-right" style={{ color: '#0F1F18' }}>{children}</span>
     </div>
   );
@@ -65,7 +65,7 @@ export default async function SpeakerDetailPage({ params }: Props) {
         {/* Back */}
         <Link href={`/events/${_ev.slug}/speakers`}
           className="inline-flex items-center gap-1.5 text-[13px] mb-5 hover:opacity-80 transition-opacity"
-          style={{ color: '#6B7A72' }}>
+          style={{ color: '#65736B' }}>
           <ChevronLeft size={15} /> Speakers
         </Link>
 
@@ -128,7 +128,7 @@ export default async function SpeakerDetailPage({ params }: Props) {
                 Assigned sessions
               </div>
               {sessions.length === 0 ? (
-                <div className="text-[13px] py-3" style={{ color: '#6B7A72' }}>No sessions assigned yet.</div>
+                <div className="text-[13px] py-3" style={{ color: '#65736B' }}>No sessions assigned yet.</div>
               ) : (
                 <div className="grid gap-2.5">
                   {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
@@ -142,7 +142,7 @@ export default async function SpeakerDetailPage({ params }: Props) {
                       </span>
                       <div className="flex-1 min-w-0">
                         <div className="text-[13.5px] font-medium truncate" style={{ color: '#0F1F18' }}>{s.title}</div>
-                        <div className=" text-[12.5px] mt-0.5" style={{ color: '#6B7A72' }}>
+                        <div className=" text-[12.5px] mt-0.5" style={{ color: '#65736B' }}>
                           {s.starts_at ? new Date(s.starts_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—'}
                           {s.room ? ` · ${s.room}` : ''}
                         </div>

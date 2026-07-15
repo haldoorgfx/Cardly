@@ -45,7 +45,7 @@ export function CityPageClient({ city, events }: Props) {
 
       {/* Hero */}
       <div className="px-5 pt-10 pb-6 max-w-6xl mx-auto">
-        <div className="flex items-center gap-2 text-[13px] mb-3" style={{ color: '#6B7A72' }}>
+        <div className="flex items-center gap-2 text-[13px] mb-3" style={{ color: '#65736B' }}>
           <Link href="/events" style={{ color: '#1F4D3A' }}>Discover</Link>
           <span>›</span>
           <span>Cities</span>
@@ -53,12 +53,12 @@ export function CityPageClient({ city, events }: Props) {
           <span style={{ color: '#0F1F18' }}>{city}</span>
         </div>
         <div className="flex items-center gap-3 mb-2">
-          <MapPin size={22} style={{ color: '#6B7A72' }} />
+          <MapPin size={22} style={{ color: '#65736B' }} />
           <h1 className="font-title font-bold text-[32px]" style={{ color: '#0F1F18' }}>
             Events in {city}
           </h1>
         </div>
-        <p className="text-[14px]" style={{ color: '#6B7A72' }}>
+        <p className="text-[14px]" style={{ color: '#65736B' }}>
           {filtered.length} upcoming event{filtered.length !== 1 ? 's' : ''}
         </p>
       </div>
@@ -66,7 +66,7 @@ export function CityPageClient({ city, events }: Props) {
       {/* Sticky filter bar */}
       <div className="sticky top-0 z-10 border-b px-5 py-3" style={{ background: 'rgba(250,246,238,0.97)', backdropFilter: 'blur(8px)', borderColor: '#E5E0D4' }}>
         <div className="max-w-6xl mx-auto flex items-center gap-3">
-          <Filter size={14} style={{ color: '#6B7A72' }} />
+          <Filter size={14} style={{ color: '#65736B' }} />
           <div className="flex gap-1.5 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
             {CATEGORIES.map(cat => (
               <button key={cat} onClick={() => setCatFilter(cat)}
@@ -104,7 +104,7 @@ export function CityPageClient({ city, events }: Props) {
         {Object.entries(byDay).map(([day, dayEvents]) => (
           <div key={day} className="mb-8">
             <div className="text-[11px] font-bold tracking-[0.12em] uppercase mb-3"
-              style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
+              style={{ color: '#65736B', fontFamily: 'Inter, system-ui, sans-serif' }}>
               {day}
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -125,11 +125,11 @@ export function CityPageClient({ city, events }: Props) {
                   </div>
                   <div className="p-3">
                     <h3 className="font-semibold text-[13px] mb-1.5 line-clamp-2" style={{ color: '#0F1F18' }}>{ep.title}</h3>
-                    <div className="flex items-center gap-1 text-[11px] mb-1" style={{ color: '#6B7A72' }}>
+                    <div className="flex items-center gap-1 text-[11px] mb-1" style={{ color: '#65736B' }}>
                       <Calendar size={10} /> {fmtDate(ep.starts_at)}
                     </div>
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1 text-[11px]" style={{ color: '#6B7A72' }}>
+                      <div className="flex items-center gap-1 text-[11px]" style={{ color: '#65736B' }}>
                         {ep.is_online ? <Globe size={10} /> : <MapPin size={10} />}
                         <span className="truncate">{ep.is_online ? 'Online' : ep.venue_name ?? ep.city}</span>
                       </div>
@@ -146,7 +146,7 @@ export function CityPageClient({ city, events }: Props) {
           <div className="rounded-2xl py-20 text-center" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
             <MapPin size={28} style={{ color: '#C9C3B1' }} className="mx-auto mb-3" />
             <p className="font-medium text-[15px]" style={{ color: '#0F1F18' }}>No events found in {city}</p>
-            <p className="text-[13px] mt-1" style={{ color: '#6B7A72' }}>Try clearing the filters or check back soon</p>
+            <p className="text-[13px] mt-1" style={{ color: '#65736B' }}>Try clearing the filters or check back soon</p>
           </div>
         )}
 

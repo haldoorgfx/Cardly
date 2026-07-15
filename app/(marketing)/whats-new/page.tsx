@@ -16,7 +16,7 @@ const TYPE_STYLES: Record<EntryType, { bg: string; color: string; label: string 
   added:    { bg: 'rgba(31,77,58,0.10)',    color: '#1F4D3A', label: 'New'      },
   improved: { bg: 'rgba(58,107,140,0.10)',  color: '#3A6B8C', label: 'Improved' },
   fixed:    { bg: 'rgba(201,122,45,0.10)',  color: '#C97A2D', label: 'Fix'      },
-  removed:  { bg: 'rgba(107,122,114,0.10)', color: '#6B7A72', label: 'Removed'  },
+  removed:  { bg: 'rgba(107,122,114,0.10)', color: '#65736B', label: 'Removed'  },
   security: { bg: 'rgba(184,66,60,0.10)',   color: '#B8423C', label: 'Security' },
 };
 
@@ -106,7 +106,7 @@ function ChangelogEntries({ entries }: { entries: DBEntry[] }) {
                 key={entry.id}
                 href={`#${anchor}`}
                 className="block py-1 border-l-2 pl-3 transition-colors hover:text-primary"
-                style={{ borderColor: 'rgba(229,224,212,0.7)', color: '#6B7A72', fontSize: '13px' }}
+                style={{ borderColor: 'rgba(229,224,212,0.7)', color: '#65736B', fontSize: '13px' }}
               >
                 <span className=" font-medium">{entry.version ?? '—'}</span>
                 <div className=" text-[10px] tracking-[0.10em] mt-0.5" style={{ color: 'rgba(107,122,114,0.6)' }}>

@@ -24,8 +24,8 @@ const PRESETS = [
 
 type Accent = { id: string; label: string; grad: string; ring: string };
 
-const INPUT = 'w-full bg-white border border-[#E5E0D4] rounded-xl px-3.5 py-3 text-[14.5px] text-[#0F1F18] placeholder:text-[#6B7A72]/60 focus:border-[#1F4D3A] focus:shadow-[0_0_0_3px_rgba(31,77,58,0.15)] outline-none transition-colors';
-const LABEL = 'block  text-[11.5px] tracking-[0.14em] uppercase text-[#6B7A72] mb-1.5';
+const INPUT = 'w-full bg-white border border-[#E5E0D4] rounded-xl px-3.5 py-3 text-[14.5px] text-[#0F1F18] placeholder:text-[#65736B]/60 focus:border-[#1F4D3A] focus:shadow-[0_0_0_3px_rgba(31,77,58,0.15)] outline-none transition-colors';
+const LABEL = 'block  text-[11.5px] tracking-[0.14em] uppercase text-[#65736B] mb-1.5';
 
 function MiniCard({ accent, name = 'Your Name', role = 'Attendee', eventLabel = 'Africa Tech Fest' }: {
   accent: Accent; name?: string; role?: string; eventLabel?: string;
@@ -319,7 +319,7 @@ export default function OnboardingClient() {
                     </label>
                     <div className="flex-1">
                       <div className="text-[13.5px] font-medium" style={{ color: '#0F1F18' }}>Organization logo</div>
-                      <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>PNG, JPG or SVG · max 5 MB</div>
+                      <div className="text-[12px] mt-0.5" style={{ color: '#65736B' }}>PNG, JPG or SVG · max 5 MB</div>
                       {logoPreview && (
                         <button
                           onClick={() => { setLogoFile(null); setLogoPreview(null); if (logoInputRef.current) logoInputRef.current.value = ''; }}
@@ -400,7 +400,7 @@ export default function OnboardingClient() {
                                     className="flex-1 py-1.5 rounded-md text-[12.5px] font-medium capitalize transition-all"
                                     style={customMode === m
                                       ? { background: '#1F4D3A', color: 'white' }
-                                      : { color: '#6B7A72' }}
+                                      : { color: '#65736B' }}
                                   >
                                     {m}
                                   </button>
@@ -564,7 +564,7 @@ export default function OnboardingClient() {
               <button
                 onClick={back}
                 className="inline-flex items-center gap-1.5 text-[13.5px] transition-colors"
-                style={{ color: '#6B7A72' }}
+                style={{ color: '#65736B' }}
               >
                 <ChevronLeft size={15} /> Back
               </button>
@@ -573,7 +573,7 @@ export default function OnboardingClient() {
             {!DONE ? (
               <div className="flex items-center gap-3">
                 {step === 4 && (
-                  <button onClick={next} className="text-[13.5px]" style={{ color: '#6B7A72' }}>
+                  <button onClick={next} className="text-[13.5px]" style={{ color: '#65736B' }}>
                     Skip
                   </button>
                 )}

@@ -240,7 +240,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing, onCom
       {/* -- Step header ----------------------------------------------- */}
       <div className="flex items-start justify-between gap-4 mb-8">
         <div>
-          <p className="text-[12.5px] font-medium mb-1" style={{ color: '#6B7A72', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+          <p className="text-[12.5px] font-medium mb-1" style={{ color: '#65736B', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
             Step {step} of {STEPS.length}
           </p>
           <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
@@ -280,12 +280,12 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing, onCom
               >
                 {s.id < step
                   ? <Check size={12} strokeWidth={3} color="white" />
-                  : <span className="text-[12.5px] font-semibold" style={{ color: s.id === step ? 'white' : '#6B7A72' }}>{s.id}</span>
+                  : <span className="text-[12.5px] font-semibold" style={{ color: s.id === step ? 'white' : '#65736B' }}>{s.id}</span>
                 }
               </div>
               <span
                 className="text-[12px] font-medium hidden sm:block"
-                style={{ color: s.id === step ? '#0F1F18' : s.id < step ? '#1F4D3A' : '#6B7A72' }}
+                style={{ color: s.id === step ? '#0F1F18' : s.id < step ? '#1F4D3A' : '#65736B' }}
               >
                 {s.short}
               </span>
@@ -410,7 +410,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing, onCom
               value={category}
               onChange={e => setCategory(e.target.value)}
               className="w-full h-10 px-3 rounded-lg text-[14px] outline-none"
-              style={{ background: 'white', border: '1px solid #E5E0D4', color: category ? '#0F1F18' : '#6B7A72' }}
+              style={{ background: 'white', border: '1px solid #E5E0D4', color: category ? '#0F1F18' : '#65736B' }}
             >
               <option value="">Select a category</option>
               {CATEGORY_OPTIONS.map(c => (
@@ -424,7 +424,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing, onCom
       {/* -- Step 2: Description ---------------------------------------- */}
       {step === 2 && (
         <div className="space-y-3">
-          <p className="text-[13px]" style={{ color: '#6B7A72' }}>
+          <p className="text-[13px]" style={{ color: '#65736B' }}>
             Tell attendees what makes this event worth attending.
           </p>
           <textarea
@@ -443,7 +443,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing, onCom
             onFocus={e => (e.target.style.borderColor = '#E8C57E')}
             onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
           />
-          <p className="text-[12px]" style={{ color: '#6B7A72' }}>
+          <p className="text-[12px]" style={{ color: '#65736B' }}>
             {description.length} characters
           </p>
           <ERAButton
@@ -515,7 +515,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing, onCom
               onFocus={e => (e.target.style.borderColor = fe('deadline') ? '#B8423C' : '#E8C57E')}
               onBlur={e => (e.target.style.borderColor = fe('deadline') ? '#B8423C' : '#E5E0D4')}
             />
-            {!fe('deadline') && <p className="text-[12px] mt-1" style={{ color: '#6B7A72' }}>Leave blank to allow registration until the event starts.</p>}
+            {!fe('deadline') && <p className="text-[12px] mt-1" style={{ color: '#65736B' }}>Leave blank to allow registration until the event starts.</p>}
           </Field>
 
           <div style={{ borderTop: '1px solid #E5E0D4', paddingTop: 24 }}>
@@ -539,7 +539,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing, onCom
                 onFocus={e => (e.target.style.borderColor = '#E8C57E')}
                 onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
               />
-              <p className="text-[12px] mt-1" style={{ color: '#6B7A72' }}>Only shared with registered attendees.</p>
+              <p className="text-[12px] mt-1" style={{ color: '#65736B' }}>Only shared with registered attendees.</p>
             </Field>
           ) : (
             <>
@@ -637,7 +637,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing, onCom
           {/* Payment methods */}
           <div>
             <SectionLabel>Payment methods</SectionLabel>
-            <p className="text-[13px] mb-3" style={{ color: '#6B7A72' }}>
+            <p className="text-[13px] mb-3" style={{ color: '#65736B' }}>
               Enable all the ways your attendees can pay. They&apos;ll pick their preferred method at checkout.
             </p>
             <div className="space-y-2">
@@ -676,7 +676,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing, onCom
                     </span>
                     <div>
                       <div className="text-[14px] font-medium" style={{ color: '#0F1F18' }}>{opt.label}</div>
-                      <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}
+                      <div className="text-[12px] mt-0.5" style={{ color: '#65736B' }}
                         dangerouslySetInnerHTML={{ __html: opt.desc }} />
                     </div>
                   </button>
@@ -696,7 +696,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing, onCom
                 <div className="flex items-center rounded-lg overflow-hidden" style={{ border: '1px solid #E5E0D4' }}>
                   <span
                     className="px-3 h-10 flex items-center text-[13px] shrink-0"
-                    style={{ background: '#F5F5F4', borderRight: '1px solid #E5E0D4', color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}
+                    style={{ background: '#F5F5F4', borderRight: '1px solid #E5E0D4', color: '#65736B', fontFamily: 'Inter, system-ui, sans-serif' }}
                   >
                     {(process.env.NEXT_PUBLIC_APP_URL ?? '').replace(/^https?:\/\//, '')}/e/
                   </span>
@@ -708,7 +708,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing, onCom
                     style={{ background: 'white', color: '#0F1F18', fontFamily: 'Inter, system-ui, sans-serif' }}
                   />
                 </div>
-                <p className="text-[12px] mt-1" style={{ color: '#6B7A72' }}>
+                <p className="text-[12px] mt-1" style={{ color: '#65736B' }}>
                   Leave blank to use the default: <code style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>{eventSlug}</code>
                 </p>
               </Field>
@@ -850,10 +850,10 @@ function Toggle({
       className="w-full flex items-center gap-3 p-4 rounded-xl transition text-left"
       style={{ border: '1px solid #E5E0D4', background: value ? 'rgba(31,77,58,0.04)' : 'white' }}
     >
-      {icon && <span style={{ color: value ? '#1F4D3A' : '#6B7A72' }}>{icon}</span>}
+      {icon && <span style={{ color: value ? '#1F4D3A' : '#65736B' }}>{icon}</span>}
       <div className="flex-1 min-w-0">
         <div className="text-[14px] font-medium" style={{ color: '#0F1F18' }}>{label}</div>
-        <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>{description}</div>
+        <div className="text-[12px] mt-0.5" style={{ color: '#65736B' }}>{description}</div>
       </div>
       <div
         className="shrink-0 rounded-full transition-all"

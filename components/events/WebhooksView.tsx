@@ -118,7 +118,7 @@ export function WebhooksView(_props: Props) {
         className="flex items-start gap-2.5 px-4 py-3 rounded-xl mb-7 text-[12.5px]"
         style={{ background: '#F5F7F5', border: '1px solid #E5E0D4' }}
       >
-        <Key size={14} strokeWidth={2} style={{ color: '#6B7A72', flexShrink: 0, marginTop: 1 }} />
+        <Key size={14} strokeWidth={2} style={{ color: '#65736B', flexShrink: 0, marginTop: 1 }} />
         <span style={{ color: '#3A4A42' }}>
           Each endpoint gets a signing secret. Verify the{' '}
           <code className="px-1 py-0.5 rounded-lg text-[12.5px]" style={{ background: '#EDE9E0', fontFamily: 'Inter, system-ui, sans-serif' }}>
@@ -215,8 +215,8 @@ export function WebhooksView(_props: Props) {
                   <button
                     onClick={() => setConfirmDelete(ep.id)}
                     aria-label="Delete webhook"
-                    className="h-8 w-8 rounded-lg flex items-center justify-center shrink-0 transition hover:bg-[#FEF2F2]"
-                    style={{ color: '#6B7A72' }}
+                    className="h-10 w-10 rounded-lg flex items-center justify-center shrink-0 transition hover:bg-[#FEF2F2]"
+                    style={{ color: '#65736B' }}
                   >
                     <Trash2 size={14} strokeWidth={1.8} />
                   </button>
@@ -297,7 +297,7 @@ function AddEndpointModal({ onClose, onCreated }: { onClose: () => void; onCreat
           <h2 className="font-display font-semibold text-[17px]" style={{ color: '#0F1F18', letterSpacing: '-0.01em' }}>
             {created ? 'Endpoint created' : 'Add webhook endpoint'}
           </h2>
-          <button onClick={onClose} aria-label="Close" className="h-7 w-7 rounded-lg flex items-center justify-center transition hover:bg-[#FAF6EE]" style={{ color: '#6B7A72' }}>
+          <button onClick={onClose} aria-label="Close" className="h-10 w-10 rounded-lg flex items-center justify-center transition hover:bg-[#FAF6EE]" style={{ color: '#65736B' }}>
             <X size={15} strokeWidth={2} />
           </button>
         </div>
@@ -343,7 +343,7 @@ function AddEndpointModal({ onClose, onCreated }: { onClose: () => void; onCreat
                   onFocus={e => { if (!error) e.currentTarget.style.borderColor = '#1F4D3A'; }}
                   onBlur={e => { if (!error) e.currentTarget.style.borderColor = '#E5E0D4'; }}
                 />
-                <p className="text-[13px] mt-1.5" style={{ color: '#6B7A72' }}>Must be HTTPS and publicly reachable.</p>
+                <p className="text-[13px] mt-1.5" style={{ color: '#65736B' }}>Must be HTTPS and publicly reachable.</p>
               </div>
 
               {/* Event types */}
@@ -363,7 +363,7 @@ function AddEndpointModal({ onClose, onCreated }: { onClose: () => void; onCreat
                           )}
                         </div>
                         <span className="text-[12.5px] font-medium" style={{ color: on ? '#1F4D3A' : '#0F1F18' }}>{EVENT_LABEL[ev]}</span>
-                        <code className="ml-auto text-[12.5px]" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>{ev}</code>
+                        <code className="ml-auto text-[12.5px]" style={{ color: '#65736B', fontFamily: 'Inter, system-ui, sans-serif' }}>{ev}</code>
                       </label>
                     );
                   })}

@@ -25,7 +25,7 @@ interface RowResult {
 
 const C = {
   forest: '#1F4D3A', forestDark: '#163828', soft: '#E8EFEB',
-  ink: '#0F1F18', muted: '#6B7A72', border: '#E5E0D4', cream: '#FAF6EE',
+  ink: '#0F1F18', muted: '#65736B', border: '#E5E0D4', cream: '#FAF6EE',
   danger: '#B8423C', success: '#2D7A4F',
 };
 

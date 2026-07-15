@@ -4,7 +4,7 @@ import { useState } from 'react';
 
 // ── Brand tokens ─────────────────────────────────────────────────────────────
 const C = {
-  ink: '#0F1F18', muted: '#6B7A72', border: '#E5E0D4', primary: '#1F4D3A',
+  ink: '#0F1F18', muted: '#65736B', border: '#E5E0D4', primary: '#1F4D3A',
   primaryDark: '#163828', soft: '#E8EFEB', cream: '#FAF6EE', accent: '#E8C57E',
   codeBg: '#0F1F18', codeFg: '#E8EFEB', codeMuted: '#8FA89B',
 };

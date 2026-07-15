@@ -52,7 +52,7 @@ Eventera is a full event management platform and marketplace. Organizers create 
 - Accent: `#E8C57E` (warm cream-gold — use sparingly)
 - Ink: `#0F1F18` (text)
 - Ink soft: `#3A4A42`
-- Muted: `#6B7A72`
+- Muted: `#65736B` (darkened from `#6B7A72` 2026-07-16 for WCAG AA text contrast on cream)
 - Cream: `#FAF6EE` (app background)
 - Surface: `#FFFFFF` (cards, modals, inputs)
 - Border: `#E5E0D4` (warm beige)

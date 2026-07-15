@@ -38,7 +38,7 @@ export default async function MyAgendaPage({ params, searchParams }: Props) {
           <h1 className="font-display font-normal text-[28px]" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
             My Agenda
           </h1>
-          <p className="text-[15px] mt-1" style={{ color: '#6B7A72' }}>
+          <p className="text-[15px] mt-1" style={{ color: '#65736B' }}>
             {sessions.length} session{sessions.length !== 1 ? 's' : ''} saved · {eventPage.title}
           </p>
         </div>

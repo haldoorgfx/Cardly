@@ -48,7 +48,7 @@ function PollCard({ poll, eventId, registrationId, initialVote }: { poll: Poll; 
         <div className="text-[10px] font-semibold tracking-widest uppercase mb-3" style={{ color: '#E8C57E' }}>LIVE POLL</div>
       )}
       {poll.is_closed && (
-        <div className="text-[10px] font-semibold tracking-widest uppercase mb-3" style={{ color: '#6B7A72' }}>CLOSED</div>
+        <div className="text-[10px] font-semibold tracking-widest uppercase mb-3" style={{ color: '#65736B' }}>CLOSED</div>
       )}
       <h2 className="font-display font-normal text-[20px] mb-4" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>{poll.question}</h2>
 
@@ -78,7 +78,7 @@ function PollCard({ poll, eventId, registrationId, initialVote }: { poll: Poll; 
                       {voted === opt.id && <Check size={14} strokeWidth={2.5} />}
                       {opt.text}
                     </span>
-                    <span className="text-[14px] font-semibold" style={{ color: voted === opt.id ? '#FFFFFF' : (isWinner ? '#1F4D3A' : '#6B7A72') }}>{pct}%</span>
+                    <span className="text-[14px] font-semibold" style={{ color: voted === opt.id ? '#FFFFFF' : (isWinner ? '#1F4D3A' : '#65736B') }}>{pct}%</span>
                   </div>
                 </div>
               )}
@@ -86,7 +86,7 @@ function PollCard({ poll, eventId, registrationId, initialVote }: { poll: Poll; 
           );
         })}
       </div>
-      <p className="text-[12px] mt-3" style={{ color: '#6B7A72' }}>{totalVotes} response{totalVotes !== 1 ? 's' : ''}</p>
+      <p className="text-[12px] mt-3" style={{ color: '#65736B' }}>{totalVotes} response{totalVotes !== 1 ? 's' : ''}</p>
     </div>
   );
 }
@@ -117,7 +117,7 @@ export default function PollsClient({ eventId, registrationId, initialPolls, myV
   if (visible.length === 0) {
     return (
       <div className="rounded-2xl py-16 text-center" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
-        <p className="text-[14px]" style={{ color: '#6B7A72' }}>No live polls right now.</p>
+        <p className="text-[14px]" style={{ color: '#65736B' }}>No live polls right now.</p>
       </div>
     );
   }
@@ -128,7 +128,7 @@ export default function PollsClient({ eventId, registrationId, initialPolls, myV
         <PollCard key={poll.id} poll={poll} eventId={eventId} registrationId={registrationId} initialVote={myVotes[poll.id] ?? null} />
       ))}
       {closed.length > 0 && active.length > 0 && (
-        <div className="text-[12px] font-semibold uppercase tracking-wider pt-4 pb-1" style={{ color: '#6B7A72' }}>Past polls</div>
+        <div className="text-[12px] font-semibold uppercase tracking-wider pt-4 pb-1" style={{ color: '#65736B' }}>Past polls</div>
       )}
       {closed.map(poll => (
         <PollCard key={poll.id} poll={poll} eventId={eventId} registrationId={registrationId} initialVote={myVotes[poll.id] ?? null} />

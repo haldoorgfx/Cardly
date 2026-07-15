@@ -9,7 +9,7 @@ export default function DmcaPage() {
       <h1 className="font-title font-bold text-[40px] leading-tight text-[#0F1F18] mb-4">
         DMCA Takedown Policy
       </h1>
-      <p className="text-[#6B7A72] text-[15px] mb-12">Last updated: June 2026</p>
+      <p className="text-[#65736B] text-[15px] mb-12">Last updated: June 2026</p>
 
       <div className="prose prose-neutral max-w-none space-y-8 text-[15px] leading-relaxed text-[#3A4A42]">
 
@@ -47,7 +47,7 @@ export default function DmcaPage() {
               dmca@eventera.so
             </a>
           </p>
-          <p className="mt-2 text-[#6B7A72] text-[13px]">
+          <p className="mt-2 text-[#65736B] text-[13px]">
             Misrepresentation of copyright infringement may result in liability under Section 512(f) of the DMCA.
           </p>
         </section>

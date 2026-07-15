@@ -92,7 +92,7 @@ export default async function VirtualPage({ params }: Props) {
                 <s.icon size={16} strokeWidth={1.8} />
               </div>
               <div className=" text-[24px] font-medium leading-none" style={{ color: '#0F1F18' }}>{s.value}</div>
-              <div className="text-[12.5px] mt-1.5" style={{ color: '#6B7A72' }}>{s.label}</div>
+              <div className="text-[12.5px] mt-1.5" style={{ color: '#65736B' }}>{s.label}</div>
             </div>
           ))}
         </div>
@@ -101,10 +101,10 @@ export default async function VirtualPage({ params }: Props) {
         <div className="bg-white rounded-2xl overflow-hidden" style={{ border: '1px solid #E5E0D4' }}>
           <div className="px-5 py-4 border-b flex items-center justify-between" style={{ borderColor: '#E5E0D4' }}>
             <div className="font-display text-[14.5px] font-semibold" style={{ color: '#0F1F18', letterSpacing: '-0.01em' }}>Sessions</div>
-            <BarChart2 size={15} strokeWidth={1.8} style={{ color: '#6B7A72' }} />
+            <BarChart2 size={15} strokeWidth={1.8} style={{ color: '#65736B' }} />
           </div>
           {allSessions.length === 0 ? (
-            <div className="px-6 py-12 text-center text-[13px]" style={{ color: '#6B7A72' }}>
+            <div className="px-6 py-12 text-center text-[13px]" style={{ color: '#65736B' }}>
               No sessions yet. Add sessions in the Agenda tab.
             </div>
           ) : (
@@ -119,7 +119,7 @@ export default async function VirtualPage({ params }: Props) {
                   ? { bg: 'rgba(45,122,79,0.15)', color: '#2D7A4F' }
                   : isUpcoming
                   ? { bg: '#E8EFEB', color: '#3A4A42' }
-                  : { bg: '#F0F0EC', color: '#6B7A72' };
+                  : { bg: '#F0F0EC', color: '#65736B' };
                 return (
                   <div key={ss.id} className="flex items-center gap-4 px-5 py-3.5">
                     <div className="w-8 h-8 rounded-lg grid place-items-center shrink-0"
@@ -128,7 +128,7 @@ export default async function VirtualPage({ params }: Props) {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="text-[13.5px] font-medium truncate" style={{ color: '#0F1F18' }}>{ss.title}</div>
-                      <div className=" text-[12.5px] mt-0.5" style={{ color: '#6B7A72' }}>
+                      <div className=" text-[12.5px] mt-0.5" style={{ color: '#65736B' }}>
                         {start.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} · {start.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false })}
                       </div>
                     </div>

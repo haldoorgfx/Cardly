@@ -76,7 +76,7 @@ export function DirectoryPreviewTab({ sponsor, products }: Props) {
           {/* Category / offering chips */}
           {offerings.length > 0 && (
             <div>
-              <div className=" text-[10px] tracking-[0.14em] uppercase mb-2.5" style={{ color: '#6B7A72' }}>What we&apos;re offering</div>
+              <div className=" text-[10px] tracking-[0.14em] uppercase mb-2.5" style={{ color: '#65736B' }}>What we&apos;re offering</div>
               <div className="flex flex-wrap gap-2">
                 {offerings.map((item, i) => (
                   <span
@@ -95,7 +95,7 @@ export function DirectoryPreviewTab({ sponsor, products }: Props) {
           {/* About */}
           {sponsor.description && (
             <div>
-              <div className=" text-[10px] tracking-[0.14em] uppercase mb-2" style={{ color: '#6B7A72' }}>About</div>
+              <div className=" text-[10px] tracking-[0.14em] uppercase mb-2" style={{ color: '#65736B' }}>About</div>
               <p className="text-[14px] leading-relaxed" style={{ color: '#3A4A42' }}>{sponsor.description}</p>
             </div>
           )}
@@ -103,7 +103,7 @@ export function DirectoryPreviewTab({ sponsor, products }: Props) {
           {/* Products */}
           {products.length > 0 && (
             <div>
-              <div className=" text-[10px] tracking-[0.14em] uppercase mb-3" style={{ color: '#6B7A72' }}>Products on show</div>
+              <div className=" text-[10px] tracking-[0.14em] uppercase mb-3" style={{ color: '#65736B' }}>Products on show</div>
               <div className="grid sm:grid-cols-2 gap-3">
                 {products.map((p) => (
                   <div key={p.id} className="flex items-start gap-3 p-3 rounded-xl" style={{ background: '#FAF6EE', border: '1px solid #E5E0D4' }}>
@@ -126,7 +126,7 @@ export function DirectoryPreviewTab({ sponsor, products }: Props) {
                           </span>
                         )}
                       </div>
-                      {p.description && <div className="text-[11.5px] mt-0.5 line-clamp-2" style={{ color: '#6B7A72' }}>{p.description}</div>}
+                      {p.description && <div className="text-[11.5px] mt-0.5 line-clamp-2" style={{ color: '#65736B' }}>{p.description}</div>}
                     </div>
                   </div>
                 ))}
@@ -142,7 +142,7 @@ export function DirectoryPreviewTab({ sponsor, products }: Props) {
                   <div className="text-[15px] font-medium" style={{ color: '#0F1F18' }}>{sponsor.booth_location}</div>
                 )}
                 {sponsor.booth_hours && (
-                  <div className="text-[12.5px] mt-0.5" style={{ color: '#6B7A72' }}>Open: {sponsor.booth_hours}</div>
+                  <div className="text-[12.5px] mt-0.5" style={{ color: '#65736B' }}>Open: {sponsor.booth_hours}</div>
                 )}
               </div>
             )}

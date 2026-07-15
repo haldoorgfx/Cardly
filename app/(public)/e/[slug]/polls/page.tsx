@@ -46,7 +46,7 @@ export default async function PollsPage({ params, searchParams }: Props) {
           <h1 className="font-display font-normal text-[32px]" style={{ color: '#0F1F18', letterSpacing: '-0.025em' }}>
             Polls
           </h1>
-          <p className="text-[16px] mt-2" style={{ color: '#6B7A72' }}>{eventPage.title}</p>
+          <p className="text-[16px] mt-2" style={{ color: '#65736B' }}>{eventPage.title}</p>
         </div>
         <PollsClient
           eventId={event.id}

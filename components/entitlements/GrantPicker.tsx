@@ -42,7 +42,7 @@ export function GrantPicker({ candidates, grant, onChanged, onError }: Props) {
       {open && (
         <Modal open onClose={() => setOpen(false)} title="Grant an entitlement" subtitle="Only entitlements this attendee doesn't already hold" maxWidth={460}>
           {candidates.length === 0 ? (
-            <p className="text-[13.5px] py-6 text-center" style={{ color: '#6B7A72' }}>
+            <p className="text-[13.5px] py-6 text-center" style={{ color: '#65736B' }}>
               This attendee already holds every entitlement for this event.
             </p>
           ) : (
@@ -56,11 +56,11 @@ export function GrantPicker({ candidates, grant, onChanged, onError }: Props) {
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-[14px] font-medium truncate" style={{ color: '#0F1F18' }}>{c.name}</p>
-                    <p className="text-[12px]" style={{ color: '#6B7A72' }}>{entitlementTypeLabel(c.type)}</p>
+                    <p className="text-[12px]" style={{ color: '#65736B' }}>{entitlementTypeLabel(c.type)}</p>
                   </div>
                   {pendingId === c.id
                     ? <span className="text-[12.5px]" style={{ color: '#1F4D3A' }}>Granting…</span>
-                    : <Check size={15} strokeWidth={2} style={{ color: '#6B7A72' }} />}
+                    : <Check size={15} strokeWidth={2} style={{ color: '#65736B' }} />}
                 </button>
               ))}
             </div>

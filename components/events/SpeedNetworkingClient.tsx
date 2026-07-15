@@ -109,7 +109,7 @@ export function SpeedNetworkingClient({ eventId, eventName, eventSlug, registrat
         <Link
           href={`/e/${eventSlug}`}
           className="flex items-center gap-1.5 text-[13px] transition hover:opacity-70"
-          style={{ color: '#6B7A72', textDecoration: 'none' }}
+          style={{ color: '#65736B', textDecoration: 'none' }}
         >
           <ArrowLeft size={15} /> {eventName}
         </Link>
@@ -124,7 +124,7 @@ export function SpeedNetworkingClient({ eventId, eventName, eventSlug, registrat
           >
             Meet people
           </h1>
-          <p className="text-[13px] mt-1.5" style={{ color: '#6B7A72' }}>
+          <p className="text-[13px] mt-1.5" style={{ color: '#65736B' }}>
             Skip or connect. Connected{' '}
             <strong style={{ color: '#0F1F18' }}>{connectedCount}</strong> so far.
           </p>
@@ -136,7 +136,7 @@ export function SpeedNetworkingClient({ eventId, eventName, eventSlug, registrat
             className="rounded-2xl p-8 text-center w-full"
             style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}
           >
-            <p className="text-[14px]" style={{ color: '#6B7A72', lineHeight: 1.6 }}>
+            <p className="text-[14px]" style={{ color: '#65736B', lineHeight: 1.6 }}>
               Register for this event to meet other attendees.
             </p>
             <Link
@@ -182,7 +182,7 @@ export function SpeedNetworkingClient({ eventId, eventName, eventSlug, registrat
             className="rounded-2xl p-8 text-center w-full"
             style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}
           >
-            <p className="text-[14px]" style={{ color: '#6B7A72', lineHeight: 1.6 }}>
+            <p className="text-[14px]" style={{ color: '#65736B', lineHeight: 1.6 }}>
               No one new to meet yet. Check back once more attendees have joined.
             </p>
           </div>
@@ -206,7 +206,7 @@ export function SpeedNetworkingClient({ eventId, eventName, eventSlug, registrat
             >
               That&rsquo;s everyone
             </h2>
-            <p className="text-[13px]" style={{ color: '#6B7A72', lineHeight: 1.6 }}>
+            <p className="text-[13px]" style={{ color: '#65736B', lineHeight: 1.6 }}>
               You sent {connectedCount} connection{connectedCount === 1 ? '' : 's'}. They&rsquo;ll get an
               email and can accept from their own dashboard.
             </p>
@@ -284,8 +284,8 @@ export function SpeedNetworkingClient({ eventId, eventName, eventSlug, registrat
                 <div
                   className="absolute top-6 right-5 px-4 py-1.5 rounded-lg font-display font-semibold text-[20px] tracking-wider"
                   style={{
-                    color: '#6B7A72',
-                    border: '3px solid #6B7A72',
+                    color: '#65736B',
+                    border: '3px solid #65736B',
                     transform: 'rotate(12deg)',
                     opacity: fly === 'left' ? 1 : 0,
                     transition: 'opacity 0.15s',
@@ -322,7 +322,7 @@ export function SpeedNetworkingClient({ eventId, eventName, eventSlug, registrat
                   >
                     {current.attendee_name}
                   </div>
-                  <div className="text-[13px] mt-1" style={{ color: '#6B7A72' }}>
+                  <div className="text-[13px] mt-1" style={{ color: '#65736B' }}>
                     Attendee at {eventName}
                   </div>
                 </div>
@@ -338,7 +338,7 @@ export function SpeedNetworkingClient({ eventId, eventName, eventSlug, registrat
                 className="w-16 h-16 rounded-full flex items-center justify-center transition hover:scale-105 disabled:opacity-50"
                 style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', boxShadow: '0 2px 8px rgba(15,31,24,0.06)' }}
               >
-                <X size={26} strokeWidth={2.2} color="#6B7A72" />
+                <X size={26} strokeWidth={2.2} color="#65736B" />
               </button>
               <button
                 onClick={connect}
@@ -351,7 +351,7 @@ export function SpeedNetworkingClient({ eventId, eventName, eventSlug, registrat
               </button>
             </div>
 
-            <p className="text-[12px] mt-4" style={{ color: '#6B7A72' }}>
+            <p className="text-[12px] mt-4" style={{ color: '#65736B' }}>
               Skip stays private — they never know.
             </p>
           </>

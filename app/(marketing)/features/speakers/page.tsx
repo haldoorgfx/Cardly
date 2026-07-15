@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 const C = {
   primary: '#1F4D3A', primaryDark: '#163828', primarySoft: '#E8EFEB',
   accent: '#E8C57E', accentDark: '#C9A45E',
-  ink: '#0F1F18', inkSoft: '#3A4A42', muted: '#6B7A72',
+  ink: '#0F1F18', inkSoft: '#3A4A42', muted: '#65736B',
   cream: '#FAF6EE', surface: '#FFFFFF', border: '#E5E0D4',
 } as const;
 
@@ -127,7 +127,7 @@ function SpeakersMockup() {
             ].map((s) => (
               <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <div style={{ background: 'rgba(31,77,58,0.08)', border: '1px solid rgba(31,77,58,0.2)', borderRadius: 8, padding: '4px 10px', fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif', fontSize: 14, fontWeight: 700, color: '#1F4D3A', flexShrink: 0 }}>{s.label}</div>
-                <span style={{ fontFamily: 'var(--font-sans)', fontSize: 14, color: '#6B7A72' }}>{s.desc}</span>
+                <span style={{ fontFamily: 'var(--font-sans)', fontSize: 14, color: '#65736B' }}>{s.desc}</span>
               </div>
             ))}
           </div>
@@ -150,7 +150,7 @@ function SpeakersMockup() {
                 <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#FEBC2E' }} />
                 <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#28C840' }} />
               </div>
-              <div style={{ background: '#FFFFFF', borderRadius: 5, padding: '3px 10px', fontFamily: 'var(--font-sans)', fontSize: 11, color: '#6B7A72', border: '1px solid #E5E0D4' }}>
+              <div style={{ background: '#FFFFFF', borderRadius: 5, padding: '3px 10px', fontFamily: 'var(--font-sans)', fontSize: 11, color: '#65736B', border: '1px solid #E5E0D4' }}>
                 eventera.so/e/summit/speakers
               </div>
             </div>

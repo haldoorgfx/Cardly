@@ -67,12 +67,12 @@ function LineChart({ points }: { points: DailyPoint[] }) {
       )}
       {/* X-axis labels */}
       {points.map((p, i) => i % labelEvery === 0 && (
-        <text key={i} x={toX(i)} y={H - 4} textAnchor="middle" fontSize="10" fill="#6B7A72" fontFamily="Inter, system-ui, sans-serif">
+        <text key={i} x={toX(i)} y={H - 4} textAnchor="middle" fontSize="10" fill="#65736B" fontFamily="Inter, system-ui, sans-serif">
           {new Date(p.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
         </text>
       ))}
       {/* Y-axis max label */}
-      <text x={PAD.left - 6} y={PAD.top + 4} textAnchor="end" fontSize="10" fill="#6B7A72" fontFamily="Inter, system-ui, sans-serif">
+      <text x={PAD.left - 6} y={PAD.top + 4} textAnchor="end" fontSize="10" fill="#65736B" fontFamily="Inter, system-ui, sans-serif">
         {max}
       </text>
     </svg>
@@ -138,7 +138,7 @@ export function EventAnalyticsView({
           ].map((s, i) => (
             <span key={i}>
               <span className="font-title font-bold text-[20px]" style={{ color: '#0F1F18' }}>{s.value}</span>
-              <span className="text-[13px] ml-1.5" style={{ color: '#6B7A72' }}>{s.label}</span>
+              <span className="text-[13px] ml-1.5" style={{ color: '#65736B' }}>{s.label}</span>
               {i < 3 && <span className="mx-3 text-[13px]" style={{ color: '#E5E0D4' }}>·</span>}
             </span>
           ))}
@@ -151,7 +151,7 @@ export function EventAnalyticsView({
           Registrations over time
         </h2>
         {dailyRegistrations.length < 2 ? (
-          <div className="py-8 text-center text-[13px]" style={{ color: '#6B7A72' }}>
+          <div className="py-8 text-center text-[13px]" style={{ color: '#65736B' }}>
             Not enough data yet
           </div>
         ) : (
@@ -169,7 +169,7 @@ export function EventAnalyticsView({
             ))}
           </div>
           <div className="mt-4 pt-4 flex justify-between" style={{ borderTop: '1px solid #E5E0D4' }}>
-            <span className="text-[13px]" style={{ color: '#6B7A72' }}>Total revenue</span>
+            <span className="text-[13px]" style={{ color: '#65736B' }}>Total revenue</span>
             <span className="font-title font-semibold text-[15px] tabular-nums" style={{ color: '#0F1F18' }}>
               {formatCurrency(totalRevenue, revenueCurrency)}
             </span>
@@ -189,7 +189,7 @@ export function EventAnalyticsView({
             <div className="w-full h-2 rounded-full overflow-hidden mt-3 mb-2" style={{ background: '#E5E0D4' }}>
               <div className="h-full rounded-full" style={{ width: `${s.pct}%`, background: '#1F4D3A' }} />
             </div>
-            <div className="text-[12px]" style={{ color: '#6B7A72' }}>{s.note}</div>
+            <div className="text-[12px]" style={{ color: '#65736B' }}>{s.note}</div>
           </div>
         ))}
       </div>

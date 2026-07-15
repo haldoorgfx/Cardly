@@ -56,7 +56,7 @@ export function AcceptInviteClient({ token, teamName, inviteEmail, role, userEma
           <h1 className="font-display font-bold text-[22px] text-[#0F1F18] text-center mb-1">
             You&apos;re invited!
           </h1>
-          <p className="text-[14px] text-[#6B7A72] text-center mb-6">
+          <p className="text-[14px] text-[#65736B] text-center mb-6">
             Join <span className="font-semibold text-[#0F1F18]">{teamName}</span> as a{' '}
             <span className="font-medium text-[#0F1F18]">{role}</span>.
           </p>
@@ -94,7 +94,7 @@ export function AcceptInviteClient({ token, teamName, inviteEmail, role, userEma
 
           <a
             href="/dashboard"
-            className="block text-center mt-4 text-[12.5px] text-[#6B7A72] hover:text-[#3A4A42] transition"
+            className="block text-center mt-4 text-[12.5px] text-[#65736B] hover:text-[#3A4A42] transition"
           >
             Decline
           </a>

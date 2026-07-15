@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 const C = {
   primary: '#1F4D3A', primaryDark: '#163828', primarySoft: '#E8EFEB',
   accent: '#E8C57E', accentDark: '#C9A45E',
-  ink: '#0F1F18', inkSoft: '#3A4A42', muted: '#6B7A72',
+  ink: '#0F1F18', inkSoft: '#3A4A42', muted: '#65736B',
   cream: '#FAF6EE', surface: '#FFFFFF', border: '#E5E0D4',
 } as const;
 
@@ -71,12 +71,12 @@ function EventeraCardMockup() {
               <div style={{ background: '#FAF6EE', margin: 12, border: '2px dashed #E5E0D4', borderRadius: 12, padding: 16, textAlign: 'center' as const }}>
                 <div style={{ width: 52, height: 52, background: '#E8EFEB', borderRadius: '50%', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                    <rect x="3" y="7" width="18" height="13" rx="2" stroke="#6B7A72" strokeWidth="1.5" fill="none"/>
-                    <circle cx="12" cy="13" r="3.5" stroke="#6B7A72" strokeWidth="1.5" fill="none"/>
-                    <path d="M9 7V6a3 3 0 0 1 6 0v1" stroke="#6B7A72" strokeWidth="1.5" strokeLinecap="round"/>
+                    <rect x="3" y="7" width="18" height="13" rx="2" stroke="#65736B" strokeWidth="1.5" fill="none"/>
+                    <circle cx="12" cy="13" r="3.5" stroke="#65736B" strokeWidth="1.5" fill="none"/>
+                    <path d="M9 7V6a3 3 0 0 1 6 0v1" stroke="#65736B" strokeWidth="1.5" strokeLinecap="round"/>
                   </svg>
                 </div>
-                <div style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: '#6B7A72', marginTop: 8 }}>Tap to add your photo</div>
+                <div style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: '#65736B', marginTop: 8 }}>Tap to add your photo</div>
               </div>
               <div style={{ padding: '0 12px 12px', display: 'flex', flexDirection: 'column' as const, gap: 6 }}>
                 <div style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', borderRadius: 8, height: 36, display: 'flex', alignItems: 'center', padding: '0 10px' }}>

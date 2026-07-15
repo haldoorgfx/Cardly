@@ -68,11 +68,11 @@ export default function DashboardContent({ events, atLimit, regsByEvent }: Props
                 className="h-7 px-3 rounded-lg text-[12.5px] font-medium transition whitespace-nowrap"
                 style={filter === f.key
                   ? { background: '#E8EFEB', color: '#0F1F18' }
-                  : { color: '#6B7A72' }}
+                  : { color: '#65736B' }}
               >
                 {f.label}
                 <span className="ml-1.5  text-[12.5px]"
-                  style={{ color: filter === f.key ? '#3A4A42' : '#6B7A72' }}>
+                  style={{ color: filter === f.key ? '#3A4A42' : '#65736B' }}>
                   {counts[f.key]}
                 </span>
               </button>
@@ -83,13 +83,13 @@ export default function DashboardContent({ events, atLimit, regsByEvent }: Props
         <div className="flex items-center gap-2 self-start sm:self-auto">
           {/* Search events by name */}
           <div className="flex items-center gap-2 h-8 px-2.5 rounded-lg bg-white focus-within:ring-2 focus-within:ring-[#1F4D3A] focus-within:ring-offset-1" style={{ border: '1px solid #E5E0D4' }}>
-            <Search size={13} strokeWidth={2} className="text-[#6B7A72] shrink-0" />
+            <Search size={13} strokeWidth={2} className="text-[#65736B] shrink-0" />
             <input
               value={query}
               onChange={e => setQuery(e.target.value)}
               placeholder="Search events…"
               aria-label="Search events"
-              className="outline-none bg-transparent text-[12.5px] w-[110px] sm:w-[150px] placeholder-[#6B7A72]/60 text-[#0F1F18]"
+              className="outline-none bg-transparent text-[12.5px] w-[110px] sm:w-[150px] placeholder-[#65736B]/60 text-[#0F1F18]"
             />
           </div>
 
@@ -116,7 +116,7 @@ export default function DashboardContent({ events, atLimit, regsByEvent }: Props
           <div className="font-display font-semibold text-[14px] text-[#0F1F18]">
             {q ? `No events match “${query.trim()}”` : 'No events match this filter'}
           </div>
-          <p className="text-[13px] text-[#6B7A72] mt-1">{q ? 'Try a different search or clear it.' : 'Switch the filter above.'}</p>
+          <p className="text-[13px] text-[#65736B] mt-1">{q ? 'Try a different search or clear it.' : 'Switch the filter above.'}</p>
         </div>
       ) : (
         <>

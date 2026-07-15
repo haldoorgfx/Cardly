@@ -76,7 +76,7 @@ export function DiscoveryGrid({ pages }: { pages: PageWithSlug[] }) {
         >
           <div>
             <div className="text-[16px] font-medium mb-2" style={{ color: '#0F1F18' }}>No events yet</div>
-            <div className="text-[14px]" style={{ color: '#6B7A72' }}>
+            <div className="text-[14px]" style={{ color: '#65736B' }}>
               Check back soon, or{' '}
               <Link href="/events/new" className="underline" style={{ color: '#1F4D3A' }}>host your own</Link>.
             </div>
@@ -160,11 +160,11 @@ function EventCard({ page, slug }: { page: PageWithSlug; slug: string }) {
           {page.title}
         </div>
         {page.organizer_name && (
-          <div className="text-[12px] mb-2 truncate" style={{ color: '#6B7A72' }}>
+          <div className="text-[12px] mb-2 truncate" style={{ color: '#65736B' }}>
             {page.organizer_name}
           </div>
         )}
-        <div className="flex items-center gap-1.5 text-[12px]" style={{ color: '#6B7A72' }}>
+        <div className="flex items-center gap-1.5 text-[12px]" style={{ color: '#65736B' }}>
           {page.is_online
             ? <Globe size={12} strokeWidth={2} />
             : <MapPin size={12} strokeWidth={2} />

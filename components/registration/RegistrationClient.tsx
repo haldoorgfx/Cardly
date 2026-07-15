@@ -634,7 +634,7 @@ export default function RegistrationClient({
           <h1 className="font-display font-semibold text-[22px] mb-1.5" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
             Registrations closed
           </h1>
-          <p className="text-[14px] mb-6" style={{ color: '#6B7A72' }}>
+          <p className="text-[14px] mb-6" style={{ color: '#65736B' }}>
             Registration for {eventName} is no longer available.
           </p>
           <Link href={`/e/${eventSlug}`} className="inline-flex items-center justify-center h-11 rounded-xl text-[14px] font-medium border transition hover:border-[#1F4D3A]/40" style={{ borderColor: '#E5E0D4', color: '#3A4A42' }}>
@@ -658,7 +658,7 @@ export default function RegistrationClient({
           <h1 className="font-display font-semibold text-[22px] mb-1.5" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
             You&apos;re already registered
           </h1>
-          <p className="text-[14px] mb-6" style={{ color: '#6B7A72' }}>
+          <p className="text-[14px] mb-6" style={{ color: '#65736B' }}>
             You already have a ticket for {eventName}. Your Eventera Card and door QR are in My tickets.
           </p>
           <div className="flex flex-col gap-2.5">
@@ -713,12 +713,12 @@ export default function RegistrationClient({
                     style={{
                       background: i < step ? '#E8EFEB' : i === step ? '#1F4D3A' : 'transparent',
                       border: `1.5px solid ${i <= step ? '#1F4D3A' : '#E5E0D4'}`,
-                      color: i === step ? 'white' : i < step ? '#1F4D3A' : '#6B7A72',
+                      color: i === step ? 'white' : i < step ? '#1F4D3A' : '#65736B',
                     }}
                   >
                     {i < step ? <Check size={10} strokeWidth={2.8} /> : i + 1}
                   </div>
-                  <span className="text-[13px] font-medium hidden sm:block" style={{ color: i <= step ? '#1F4D3A' : '#6B7A72' }}>
+                  <span className="text-[13px] font-medium hidden sm:block" style={{ color: i <= step ? '#1F4D3A' : '#65736B' }}>
                     {label}
                   </span>
                 </div>
@@ -733,10 +733,10 @@ export default function RegistrationClient({
               <h2 ref={stepHeadingRef} tabIndex={-1} className="font-display font-normal text-[28px] mb-1.5 outline-none" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
                 Choose your ticket
               </h2>
-              <p className="text-[14px] mb-6" style={{ color: '#6B7A72' }}>{eventSubtitle}</p>
+              <p className="text-[14px] mb-6" style={{ color: '#65736B' }}>{eventSubtitle}</p>
 
               {allTickets.length === 0 ? (
-                <div className="rounded-2xl py-12 text-center text-[14px]" style={{ background: 'white', border: '1px solid #E5E0D4', color: '#6B7A72' }}>
+                <div className="rounded-2xl py-12 text-center text-[14px]" style={{ background: 'white', border: '1px solid #E5E0D4', color: '#65736B' }}>
                   No tickets available yet.
                 </div>
               ) : (
@@ -767,7 +767,7 @@ export default function RegistrationClient({
                               </span>
                             )}
                           </div>
-                          {t.description && <div className="text-[13px] mt-0.5" style={{ color: '#6B7A72' }}>{t.description}</div>}
+                          {t.description && <div className="text-[13px] mt-0.5" style={{ color: '#65736B' }}>{t.description}</div>}
                           {sold && <div className="text-[12px] mt-1 font-medium" style={{ color: '#B8423C' }}>Sold out</div>}
                         </div>
                         <div className="font-title font-bold text-[18px] shrink-0" style={{ color: t.price === 0 && !t.min_price ? '#C9A45E' : '#1F4D3A' }}>
@@ -783,10 +783,10 @@ export default function RegistrationClient({
               {isPWYW && selectedTicket && (
                 <div className="mt-4 rounded-2xl p-5" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
                   <label htmlFor="reg-pwyw-amount" className="block text-[13px] font-medium mb-2" style={{ color: '#3A4A42' }}>
-                    Choose your amount <span className="font-normal" style={{ color: '#6B7A72' }}>(minimum {selectedTicket.currency} {selectedTicket.min_price})</span>
+                    Choose your amount <span className="font-normal" style={{ color: '#65736B' }}>(minimum {selectedTicket.currency} {selectedTicket.min_price})</span>
                   </label>
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2  text-[15px]" style={{ color: '#6B7A72' }}>
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2  text-[15px]" style={{ color: '#65736B' }}>
                       {selectedTicket.currency}
                     </span>
                     <input
@@ -813,7 +813,7 @@ export default function RegistrationClient({
                   <button
                     onClick={() => setShowAccessCode(true)}
                     className="flex items-center gap-1.5 text-[13px] transition-colors"
-                    style={{ color: '#6B7A72' }}
+                    style={{ color: '#65736B' }}
                   >
                     <Lock size={13} /> Have an access code?
                     <ChevronDown size={13} />
@@ -860,13 +860,13 @@ export default function RegistrationClient({
               <h2 ref={stepHeadingRef} tabIndex={-1} className="font-display font-normal text-[28px] mb-1.5 outline-none" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
                 Your details
               </h2>
-              <p className="text-[14px] mb-6" style={{ color: '#6B7A72' }}>
+              <p className="text-[14px] mb-6" style={{ color: '#65736B' }}>
                 This is how you&apos;ll appear on the attendee list and your Eventera Card.
               </p>
               <div className="space-y-4">
                 {/* Full name — always required */}
                 <div>
-                  <label htmlFor="reg-name" className="block text-[12px] mb-1.5" style={{ color: fieldErrors.name ? '#B8423C' : '#6B7A72' }}>
+                  <label htmlFor="reg-name" className="block text-[12px] mb-1.5" style={{ color: fieldErrors.name ? '#B8423C' : '#65736B' }}>
                     Full name <span style={{ color: '#B8423C' }}>*</span>
                   </label>
                   <input
@@ -900,7 +900,7 @@ export default function RegistrationClient({
 
                 {/* Email */}
                 <div>
-                  <label htmlFor="reg-email" className="block text-[12px] mb-1.5" style={{ color: fieldErrors.email ? '#B8423C' : '#6B7A72' }}>
+                  <label htmlFor="reg-email" className="block text-[12px] mb-1.5" style={{ color: fieldErrors.email ? '#B8423C' : '#65736B' }}>
                     Email <span style={{ color: '#B8423C' }}>*</span>
                   </label>
                   <input
@@ -917,8 +917,8 @@ export default function RegistrationClient({
 
                 {/* Phone — optional */}
                 <div>
-                  <label htmlFor="reg-phone" className="block text-[12px] mb-1.5" style={{ color: '#6B7A72' }}>
-                    Phone number <span style={{ color: '#6B7A72', fontWeight: 400 }}>(optional)</span>
+                  <label htmlFor="reg-phone" className="block text-[12px] mb-1.5" style={{ color: '#65736B' }}>
+                    Phone number <span style={{ color: '#65736B', fontWeight: 400 }}>(optional)</span>
                   </label>
                   <input
                     id="reg-phone"
@@ -939,7 +939,7 @@ export default function RegistrationClient({
                   };
                   const fieldId = `reg-cf-${f.id}`;
                   const labelEl = (
-                    <label htmlFor={fieldId} className="block text-[12px] mb-1.5" style={{ color: err ? '#B8423C' : '#6B7A72' }}>
+                    <label htmlFor={fieldId} className="block text-[12px] mb-1.5" style={{ color: err ? '#B8423C' : '#65736B' }}>
                       {f.label}{f.is_required && <span style={{ color: '#B8423C' }}> *</span>}
                     </label>
                   );
@@ -953,7 +953,7 @@ export default function RegistrationClient({
                   if (f.field_type === 'select' && f.options?.length) return (
                     <div key={f.id}>{labelEl}
                       <select id={fieldId} value={val} onChange={e => set(e.target.value)} aria-invalid={!!err}
-                        className={INPUT} style={{ borderColor: err ? '#B8423C' : '#E5E0D4', background: 'white', color: val ? '#0F1F18' : '#6B7A72' }}>
+                        className={INPUT} style={{ borderColor: err ? '#B8423C' : '#E5E0D4', background: 'white', color: val ? '#0F1F18' : '#65736B' }}>
                         <option value="">Select…</option>
                         {f.options.map(o => <option key={o} value={o}>{o}</option>)}
                       </select>
@@ -991,7 +991,7 @@ export default function RegistrationClient({
                     return (
                       <div key={f.id}>
                         {labelEl}
-                        <p className="text-[12px] mb-2.5" style={{ color: '#6B7A72' }}>
+                        <p className="text-[12px] mb-2.5" style={{ color: '#65736B' }}>
                           {isDietary
                             ? 'Select anything that applies — we’ll share it with catering so there’s something for you.'
                             : 'Tell us what will help you take part. We’ll prepare ahead of time.'}
@@ -1067,7 +1067,7 @@ export default function RegistrationClient({
               <h2 ref={stepHeadingRef} tabIndex={-1} className="font-display font-normal text-[28px] mb-1.5 outline-none" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
                 {effectivePrice === 0 ? 'Confirm registration' : 'Review & pay'}
               </h2>
-              <p className="text-[14px] mb-5" style={{ color: '#6B7A72' }}>
+              <p className="text-[14px] mb-5" style={{ color: '#65736B' }}>
                 {effectivePrice === 0
                   ? 'No payment required. Confirm to complete your registration.'
                   : eventName}
@@ -1075,7 +1075,7 @@ export default function RegistrationClient({
 
               {/* Order summary */}
               <div className="rounded-2xl p-5 mb-4" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
-                <div className="text-[11px] font-semibold uppercase tracking-widest mb-3" style={{ color: '#6B7A72' }}>Order summary</div>
+                <div className="text-[11px] font-semibold uppercase tracking-widest mb-3" style={{ color: '#65736B' }}>Order summary</div>
 
                 <div className="flex items-center justify-between py-1.5 text-[14px]" style={{ color: '#3A4A42' }}>
                   <span>{selectedTicket?.name}</span>
@@ -1114,14 +1114,14 @@ export default function RegistrationClient({
                     <span className="inline-flex items-center gap-1.5">
                       <Check size={14} strokeWidth={2.5} />
                       Promo &ldquo;{appliedPromo.code}&rdquo;
-                      <button type="button" onClick={clearPromo} className="ml-1 text-[12px] underline" style={{ color: '#6B7A72' }}>remove</button>
+                      <button type="button" onClick={clearPromo} className="ml-1 text-[12px] underline" style={{ color: '#65736B' }}>remove</button>
                     </span>
                     <span className="font-semibold">−{fmt(promoDiscount, ccy)}</span>
                   </div>
                 )}
 
                 {fee > 0 && (
-                  <div className="flex items-center justify-between py-1.5 text-[13px]" style={{ color: '#6B7A72', borderTop: '1px solid #F0EDE6', marginTop: '4px' }}>
+                  <div className="flex items-center justify-between py-1.5 text-[13px]" style={{ color: '#65736B', borderTop: '1px solid #F0EDE6', marginTop: '4px' }}>
                     <span>Service fee</span>
                     <span>{fmt(fee, ccy)}</span>
                   </div>
@@ -1136,7 +1136,7 @@ export default function RegistrationClient({
               {/* Payment method — only shown for paid tickets */}
               {effectivePrice > 0 && (
                 <div className="mb-4">
-                  <div className="text-[11px] font-semibold uppercase tracking-widest mb-3" style={{ color: '#6B7A72' }}>
+                  <div className="text-[11px] font-semibold uppercase tracking-widest mb-3" style={{ color: '#65736B' }}>
                     Payment method
                   </div>
 
@@ -1166,7 +1166,7 @@ export default function RegistrationClient({
                                 <span className="text-[13px] font-medium" style={{ color: '#0F1F18' }}>{method.label}</span>
                                 <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>{method.badge}</span>
                               </div>
-                              <div className="text-[11px] mt-0.5 truncate" style={{ color: '#6B7A72' }}>{method.desc}</div>
+                              <div className="text-[11px] mt-0.5 truncate" style={{ color: '#65736B' }}>{method.desc}</div>
                             </div>
                             <div className="shrink-0 w-4 h-4 rounded-full border-2 flex items-center justify-center"
                               style={{ borderColor: selected ? '#1F4D3A' : '#C9C3B1' }}>
@@ -1179,7 +1179,7 @@ export default function RegistrationClient({
                   ) : s2SingleMethod?.value === 'stripe' ? (
                     /* Stripe: show accepted card brands */
                     <div className="flex items-center gap-3 px-4 py-3 rounded-xl" style={{ background: 'white', border: '1.5px solid #E5E0D4' }}>
-                      <CreditCard size={16} style={{ color: '#6B7A72' }} />
+                      <CreditCard size={16} style={{ color: '#65736B' }} />
                       <span className="text-[13px] flex-1" style={{ color: '#3A4A42' }}>Credit / Debit card</span>
                       <div className="flex items-center gap-1.5">
                         <span className="text-[9px] font-bold px-1.5 py-[3px] rounded" style={{ background: '#1A1F71', color: 'white', letterSpacing: '0.04em' }}>VISA</span>
@@ -1195,13 +1195,13 @@ export default function RegistrationClient({
                       </div>
                       <div>
                         <div className="text-[13px] font-medium" style={{ color: '#0F1F18' }}>{s2SingleMethod.label}</div>
-                        <div className="text-[11px]" style={{ color: '#6B7A72' }}>{s2SingleMethod.desc}</div>
+                        <div className="text-[11px]" style={{ color: '#65736B' }}>{s2SingleMethod.desc}</div>
                       </div>
                     </div>
                   ) : null}
 
                   {/* Secure payment badge */}
-                  <div className="flex items-center justify-center gap-1.5 mt-4 text-[11px]" style={{ color: '#6B7A72' }}>
+                  <div className="flex items-center justify-center gap-1.5 mt-4 text-[11px]" style={{ color: '#65736B' }}>
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                       <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
                     </svg>
@@ -1218,7 +1218,7 @@ export default function RegistrationClient({
               <h2 ref={stepHeadingRef} tabIndex={-1} className="font-display font-normal text-[28px] mb-1.5 outline-none" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
                 Design your Eventera Card
               </h2>
-              <p className="text-[14px] mb-6" style={{ color: '#6B7A72' }}>
+              <p className="text-[14px] mb-6" style={{ color: '#65736B' }}>
                 Personalise your card — it&apos;ll be sent to you with your ticket confirmation.
               </p>
               <CardZoneFill
@@ -1247,7 +1247,7 @@ export default function RegistrationClient({
           <aside className="sticky hidden lg:block" style={{ top: 88 }}>
             {/* Card preview — shown while choosing ticket / filling details. */}
             <div className="mb-4">
-              <div className="text-[11px] font-semibold uppercase tracking-wider mb-3" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
+              <div className="text-[11px] font-semibold uppercase tracking-wider mb-3" style={{ color: '#65736B', fontFamily: 'Inter, system-ui, sans-serif' }}>
                 Your Eventera Card
               </div>
               <EventCardPreview
@@ -1260,7 +1260,7 @@ export default function RegistrationClient({
                 style={{ borderRadius: 16, boxShadow: '0 4px 12px rgba(15,31,24,0.08), 0 16px 40px rgba(31,77,58,0.10)' }}
               />
               {(step === 1) && (
-                <p className="text-[11px] mt-2 text-center" style={{ color: '#6B7A72' }}>Preview updates as you type</p>
+                <p className="text-[11px] mt-2 text-center" style={{ color: '#65736B' }}>Preview updates as you type</p>
               )}
             </div>
             {/* Order summary — hidden on step 3 (card personalisation step) */}
@@ -1275,7 +1275,7 @@ export default function RegistrationClient({
                   <div>
                     <div className="font-display font-medium text-[15px]" style={{ color: '#0F1F18' }}>{eventName}</div>
                     {(startsAt || city) && (
-                      <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>
+                      <div className="text-[12px] mt-0.5" style={{ color: '#65736B' }}>
                         {startsAt ? dateStr(startsAt, timezone) : ''}{city ? ` · ${city}` : ''}
                       </div>
                     )}
@@ -1325,7 +1325,7 @@ export default function RegistrationClient({
                 <div>
                   <div className="font-display font-medium text-[15px]" style={{ color: '#0F1F18' }}>{eventName}</div>
                   {(startsAt || city) && (
-                    <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>
+                    <div className="text-[12px] mt-0.5" style={{ color: '#65736B' }}>
                       {startsAt ? dateStr(startsAt, timezone) : ''}{city ? ` · ${city}` : ''}
                     </div>
                   )}
@@ -1398,7 +1398,7 @@ export default function RegistrationClient({
           {step === 0 && selectedTicket && (
             <div className="hidden sm:flex flex-col items-end min-w-0">
               <span className="text-[13px] font-medium truncate" style={{ color: '#0F1F18' }}>{selectedTicket.name}</span>
-              <span className="text-[12px]" style={{ color: '#6B7A72' }}>{fmt(total, selectedTicket.currency)}</span>
+              <span className="text-[12px]" style={{ color: '#65736B' }}>{fmt(total, selectedTicket.currency)}</span>
             </div>
           )}
 

@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 const C = {
   primary: '#1F4D3A', primaryDark: '#163828', primarySoft: '#E8EFEB',
   accent: '#E8C57E', accentDark: '#C9A45E',
-  ink: '#0F1F18', inkSoft: '#3A4A42', muted: '#6B7A72',
+  ink: '#0F1F18', inkSoft: '#3A4A42', muted: '#65736B',
   cream: '#FAF6EE', surface: '#FFFFFF', border: '#E5E0D4',
 } as const;
 
@@ -150,10 +150,10 @@ function AgendaMockup() {
             {/* Day tabs */}
             <div style={{ background: '#FFFFFF', borderBottom: '1px solid #E5E0D4', padding: '0 16px', display: 'flex', gap: 4, alignItems: 'center', height: 44 }}>
               {['Day 1 · Mar 15','Day 2 · Mar 16','Day 3 · Mar 17'].map((d, i) => (
-                <div key={d} style={{ padding: '6px 12px', borderRadius: 6, fontSize: 12, fontFamily: 'var(--font-sans)', background: i === 0 ? '#1F4D3A' : 'transparent', color: i === 0 ? '#FAF6EE' : '#6B7A72', fontWeight: i === 0 ? 600 : 400 }}>{d}</div>
+                <div key={d} style={{ padding: '6px 12px', borderRadius: 6, fontSize: 12, fontFamily: 'var(--font-sans)', background: i === 0 ? '#1F4D3A' : 'transparent', color: i === 0 ? '#FAF6EE' : '#65736B', fontWeight: i === 0 ? 600 : 400 }}>{d}</div>
               ))}
               <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
-                <div style={{ fontSize: 11, color: '#6B7A72', fontFamily: 'var(--font-sans)', padding: '4px 8px', border: '1px solid #E5E0D4', borderRadius: 6 }}>All tracks</div>
+                <div style={{ fontSize: 11, color: '#65736B', fontFamily: 'var(--font-sans)', padding: '4px 8px', border: '1px solid #E5E0D4', borderRadius: 6 }}>All tracks</div>
               </div>
             </div>
             {/* Schedule grid */}
@@ -167,29 +167,29 @@ function AgendaMockup() {
               ))}
 
               {/* Time label col */}
-              <div style={{ fontSize: 11, color: '#6B7A72', fontFamily: 'var(--font-sans)', paddingTop: 8 }}>9:00</div>
+              <div style={{ fontSize: 11, color: '#65736B', fontFamily: 'var(--font-sans)', paddingTop: 8 }}>9:00</div>
               {/* Keynote spanning 3 cols */}
               <div style={{ gridColumn: '2 / 5', background: '#FFFFFF', border: '1px solid #E5E0D4', borderLeft: '3px solid #1F4D3A', borderRadius: 8, padding: '10px 12px', marginBottom: 8 }}>
                 <div style={{ fontSize: 11, fontFamily: 'var(--font-sans)', fontWeight: 700, color: '#0F1F18' }}>Opening Keynote: The Future of African Innovation</div>
-                <div style={{ fontSize: 10, color: '#6B7A72', marginTop: 3 }}>Dr. Amara Osei · Main Stage · All tracks</div>
+                <div style={{ fontSize: 10, color: '#65736B', marginTop: 3 }}>Dr. Amara Osei · Main Stage · All tracks</div>
               </div>
 
-              <div style={{ fontSize: 11, color: '#6B7A72', fontFamily: 'var(--font-sans)', paddingTop: 4 }}>10:30</div>
+              <div style={{ fontSize: 11, color: '#65736B', fontFamily: 'var(--font-sans)', paddingTop: 4 }}>10:30</div>
               <div style={{ background: 'rgba(59,130,246,0.07)', border: '1px solid rgba(59,130,246,0.2)', borderRadius: 8, padding: '8px 10px', fontSize: 11, fontFamily: 'var(--font-sans)' }}>
                 <div style={{ fontWeight: 600, color: '#0F1F18' }}>Designing for Low Bandwidth</div>
-                <div style={{ color: '#6B7A72', fontSize: 10, marginTop: 2 }}>Aisha Mwangi · Studio A</div>
+                <div style={{ color: '#65736B', fontSize: 10, marginTop: 2 }}>Aisha Mwangi · Studio A</div>
               </div>
               <div style={{ background: 'rgba(31,77,58,0.07)', border: '1px solid rgba(31,77,58,0.2)', borderRadius: 8, padding: '8px 10px', fontSize: 11, fontFamily: 'var(--font-sans)' }}>
                 <div style={{ fontWeight: 600, color: '#0F1F18' }}>Building for M-Pesa</div>
-                <div style={{ color: '#6B7A72', fontSize: 10, marginTop: 2 }}>Kofi Asante · Tech Lab</div>
+                <div style={{ color: '#65736B', fontSize: 10, marginTop: 2 }}>Kofi Asante · Tech Lab</div>
               </div>
               <div style={{ background: 'rgba(201,164,94,0.07)', border: '1px solid rgba(201,164,94,0.2)', borderRadius: 8, padding: '8px 10px', fontSize: 11, fontFamily: 'var(--font-sans)' }}>
                 <div style={{ fontWeight: 600, color: '#0F1F18' }}>Investor Q&amp;A Panel</div>
-                <div style={{ color: '#6B7A72', fontSize: 10, marginTop: 2 }}>4 speakers · Boardroom</div>
+                <div style={{ color: '#65736B', fontSize: 10, marginTop: 2 }}>4 speakers · Boardroom</div>
               </div>
 
-              <div style={{ fontSize: 11, color: '#6B7A72', fontFamily: 'var(--font-sans)', paddingTop: 4 }}>12:00</div>
-              <div style={{ gridColumn: '2/5', background: 'transparent', border: '1.5px dashed #E5E0D4', borderRadius: 8, padding: '8px 12px', fontSize: 11, color: '#6B7A72', fontFamily: 'var(--font-sans)' }}>
+              <div style={{ fontSize: 11, color: '#65736B', fontFamily: 'var(--font-sans)', paddingTop: 4 }}>12:00</div>
+              <div style={{ gridColumn: '2/5', background: 'transparent', border: '1.5px dashed #E5E0D4', borderRadius: 8, padding: '8px 12px', fontSize: 11, color: '#65736B', fontFamily: 'var(--font-sans)' }}>
                 Networking Lunch · Rooftop Terrace
               </div>
             </div>

@@ -16,7 +16,7 @@ function initials(name: string) {
 function InfoRow({ label, children, last }: { label: string; children: React.ReactNode; last?: boolean }) {
   return (
     <div className={`flex items-center justify-between gap-4 py-2.5 ${last ? '' : 'border-b'}`} style={{ borderColor: '#E5E0D4' }}>
-      <span className=" text-[12px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>{label}</span>
+      <span className=" text-[12px] tracking-[0.12em] uppercase" style={{ color: '#65736B' }}>{label}</span>
       <span className="text-[13.5px] text-right" style={{ color: '#0F1F18' }}>{children}</span>
     </div>
   );
@@ -80,7 +80,7 @@ export default async function SessionDetailPage({ params }: Props) {
         {/* Back */}
         <Link href={`/events/${_ev.slug}/agenda`}
           className="inline-flex items-center gap-1.5 text-[13px] mb-5 hover:opacity-80 transition-opacity"
-          style={{ color: '#6B7A72' }}>
+          style={{ color: '#65736B' }}>
           <ChevronLeft size={15} /> Agenda
         </Link>
 
@@ -102,7 +102,7 @@ export default async function SessionDetailPage({ params }: Props) {
             <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
               {session.title}
             </h1>
-            <div className="flex items-center gap-4 mt-2  text-[12.5px] flex-wrap" style={{ color: '#6B7A72' }}>
+            <div className="flex items-center gap-4 mt-2  text-[12.5px] flex-wrap" style={{ color: '#65736B' }}>
               {startsAt && (
                 <span className="inline-flex items-center gap-1.5">
                   <Clock size={13} /> {timeStr}{durationMin ? ` · ${durationMin}m` : ''}
@@ -140,7 +140,7 @@ export default async function SessionDetailPage({ params }: Props) {
             <div className="bg-white rounded-2xl p-5" style={{ border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
               <div className="font-display text-[14.5px] font-semibold mb-4" style={{ color: '#0F1F18', letterSpacing: '-0.01em' }}>Speakers</div>
               {speakers.length === 0 ? (
-                <div className="text-[13px]" style={{ color: '#6B7A72' }}>No speakers assigned.</div>
+                <div className="text-[13px]" style={{ color: '#65736B' }}>No speakers assigned.</div>
               ) : (
                 <div className="grid sm:grid-cols-2 gap-2.5">
                   {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
@@ -161,7 +161,7 @@ export default async function SessionDetailPage({ params }: Props) {
                         )}
                         <div className="min-w-0">
                           <div className="text-[13px] font-medium truncate" style={{ color: '#0F1F18' }}>{sp.name}</div>
-                          {sp.company && <div className=" text-[12px]" style={{ color: '#6B7A72' }}>{sp.company}</div>}
+                          {sp.company && <div className=" text-[12px]" style={{ color: '#65736B' }}>{sp.company}</div>}
                         </div>
                       </Link>
                     );
@@ -181,7 +181,7 @@ export default async function SessionDetailPage({ params }: Props) {
                   <div className=" text-[30px] font-medium leading-none tracking-tight" style={{ color: '#0F1F18' }}>
                     {session.registrations_count}
                   </div>
-                  <div className=" text-[12px] tracking-[0.12em] uppercase mt-1.5" style={{ color: '#6B7A72' }}>
+                  <div className=" text-[12px] tracking-[0.12em] uppercase mt-1.5" style={{ color: '#65736B' }}>
                     registered · cap {session.capacity}
                   </div>
                   <div className="mt-3 h-2 rounded-full overflow-hidden" style={{ background: '#E5E0D4' }}>

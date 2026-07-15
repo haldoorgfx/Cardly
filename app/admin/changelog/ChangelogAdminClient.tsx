@@ -8,7 +8,7 @@ const TYPE_STYLES: Record<ChangelogType, { bg: string; color: string }> = {
   added:    { bg: 'rgba(31,77,58,0.10)',    color: '#1F4D3A' },
   improved: { bg: 'rgba(58,107,140,0.10)',  color: '#3A6B8C' },
   fixed:    { bg: 'rgba(201,122,45,0.10)',  color: '#C97A2D' },
-  removed:  { bg: 'rgba(107,122,114,0.10)', color: '#6B7A72' },
+  removed:  { bg: 'rgba(107,122,114,0.10)', color: '#65736B' },
   security: { bg: 'rgba(184,66,60,0.10)',   color: '#B8423C' },
 };
 
@@ -126,7 +126,7 @@ export function ChangelogAdminClient({ initialEntries }: { initialEntries: Chang
       <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-3">
           {entries.length > 0 && (
-            <label className="flex items-center gap-2 cursor-pointer text-[12px] text-[#6B7A72]">
+            <label className="flex items-center gap-2 cursor-pointer text-[12px] text-[#65736B]">
               <input
                 type="checkbox"
                 aria-label="Select all entries"
@@ -137,7 +137,7 @@ export function ChangelogAdminClient({ initialEntries }: { initialEntries: Chang
               Select all
             </label>
           )}
-          <div className="text-[12px] text-[#6B7A72]">
+          <div className="text-[12px] text-[#65736B]">
             {entries.length} {entries.length === 1 ? 'entry' : 'entries'} ·{' '}
             {entries.filter(e => e.published).length} published
           </div>
@@ -170,7 +170,7 @@ export function ChangelogAdminClient({ initialEntries }: { initialEntries: Chang
           <button
             disabled={bulkBusy}
             onClick={() => runBulk('unpublish')}
-            className="h-8 px-3 rounded-lg text-[12px] font-medium border border-[#E5E0D4] bg-white text-[#6B7A72] hover:bg-[#FAF6EE] transition-colors disabled:opacity-50"
+            className="h-8 px-3 rounded-lg text-[12px] font-medium border border-[#E5E0D4] bg-white text-[#65736B] hover:bg-[#FAF6EE] transition-colors disabled:opacity-50"
           >
             Unpublish
           </button>
@@ -186,7 +186,7 @@ export function ChangelogAdminClient({ initialEntries }: { initialEntries: Chang
             disabled={bulkBusy}
             onClick={clearSelection}
             title="Clear selection"
-            className="h-8 w-8 grid place-items-center rounded-lg border border-[#E5E0D4] bg-white text-[#6B7A72] hover:bg-[#FAF6EE] transition-colors disabled:opacity-50"
+            className="h-10 w-10 grid place-items-center rounded-lg border border-[#E5E0D4] bg-white text-[#65736B] hover:bg-[#FAF6EE] transition-colors disabled:opacity-50"
           >
             <X size={13} strokeWidth={2} />
           </button>
@@ -195,7 +195,7 @@ export function ChangelogAdminClient({ initialEntries }: { initialEntries: Chang
 
       {/* List */}
       {entries.length === 0 ? (
-        <div className="py-16 text-center text-[14px] text-[#6B7A72]">
+        <div className="py-16 text-center text-[14px] text-[#65736B]">
           No entries yet. Create the first one.
         </div>
       ) : (
@@ -233,10 +233,10 @@ export function ChangelogAdminClient({ initialEntries }: { initialEntries: Chang
                     {entry.title}
                   </span>
                 </div>
-                <p className="mt-1 text-[12px] text-[#6B7A72] leading-relaxed line-clamp-2">
+                <p className="mt-1 text-[12px] text-[#65736B] leading-relaxed line-clamp-2">
                   {entry.description}
                 </p>
-                <div className="mt-1.5 flex items-center gap-3 text-[12.5px] text-[#6B7A72]/70">
+                <div className="mt-1.5 flex items-center gap-3 text-[12.5px] text-[#65736B]/70">
                   <span>{formatDate(entry.created_at)}</span>
                   {entry.published && entry.published_at && (
                     <span className="text-[#2D7A4F]">Published {formatDate(entry.published_at)}</span>
@@ -251,8 +251,8 @@ export function ChangelogAdminClient({ initialEntries }: { initialEntries: Chang
                   onClick={() => togglePublish(entry)}
                   disabled={toggling === entry.id}
                   title={entry.published ? 'Unpublish' : 'Publish'}
-                  className="h-8 w-8 rounded-lg grid place-items-center transition border hover:bg-[#FAF6EE]"
-                  style={{ borderColor: '#E5E0D4', color: entry.published ? '#2D7A4F' : '#6B7A72' }}
+                  className="h-10 w-10 rounded-lg grid place-items-center transition border hover:bg-[#FAF6EE]"
+                  style={{ borderColor: '#E5E0D4', color: entry.published ? '#2D7A4F' : '#65736B' }}
                 >
                   {toggling === entry.id
                     ? <Loader2 size={13} strokeWidth={2} className="animate-spin" />
@@ -266,7 +266,7 @@ export function ChangelogAdminClient({ initialEntries }: { initialEntries: Chang
                 <button
                   onClick={() => { setEditEntry(entry); setShowForm(true); }}
                   title="Edit"
-                  className="h-8 w-8 rounded-lg grid place-items-center transition border hover:bg-[#FAF6EE] text-[#6B7A72] hover:text-[#0F1F18]"
+                  className="h-10 w-10 rounded-lg grid place-items-center transition border hover:bg-[#FAF6EE] text-[#65736B] hover:text-[#0F1F18]"
                   style={{ borderColor: '#E5E0D4' }}
                 >
                   <Pencil size={13} strokeWidth={1.8} />
@@ -277,7 +277,7 @@ export function ChangelogAdminClient({ initialEntries }: { initialEntries: Chang
                   onClick={() => deleteEntry(entry.id)}
                   disabled={deleting === entry.id}
                   title="Delete"
-                  className="h-8 w-8 rounded-lg grid place-items-center transition border hover:bg-[rgba(184,66,60,0.08)] text-[#6B7A72] hover:text-[#B8423C] hover:border-[#B8423C]/30"
+                  className="h-10 w-10 rounded-lg grid place-items-center transition border hover:bg-[rgba(184,66,60,0.08)] text-[#65736B] hover:text-[#B8423C] hover:border-[#B8423C]/30"
                   style={{ borderColor: '#E5E0D4' }}
                 >
                   {deleting === entry.id

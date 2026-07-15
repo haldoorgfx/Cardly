@@ -129,7 +129,7 @@ export function WhiteLabelTab({ plan }: { plan: string }) {
           Studio plan feature
         </div>
         <p className="font-display font-normal text-[20px] mb-2" style={{ color: '#0F1F18' }}>White Label</p>
-        <p className="text-[14px] mb-6 max-w-[340px] mx-auto" style={{ color: '#6B7A72' }}>
+        <p className="text-[14px] mb-6 max-w-[340px] mx-auto" style={{ color: '#65736B' }}>
           Replace Eventera branding with your own — custom domain, brand name, logo, and colors.
         </p>
         <a
@@ -146,7 +146,7 @@ export function WhiteLabelTab({ plan }: { plan: string }) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 size={20} className="animate-spin" color="#6B7A72" />
+        <Loader2 size={20} className="animate-spin" color="#65736B" />
       </div>
     );
   }
@@ -165,7 +165,7 @@ export function WhiteLabelTab({ plan }: { plan: string }) {
 
             <div className="space-y-4">
               <div>
-                <label className="block text-[12px] mb-1.5" style={{ color: '#6B7A72' }}>
+                <label className="block text-[12px] mb-1.5" style={{ color: '#65736B' }}>
                   Brand name — replaces &ldquo;Eventera&rdquo; everywhere
                 </label>
                 <input
@@ -180,7 +180,7 @@ export function WhiteLabelTab({ plan }: { plan: string }) {
               </div>
 
               <div>
-                <label className="block text-[12px] mb-2" style={{ color: '#6B7A72' }}>Primary color</label>
+                <label className="block text-[12px] mb-2" style={{ color: '#65736B' }}>Primary color</label>
                 <div className="flex items-center gap-3">
                   <div
                     className="w-8 h-8 rounded-lg border shrink-0 transition-colors"
@@ -212,7 +212,7 @@ export function WhiteLabelTab({ plan }: { plan: string }) {
             <h3 className="font-display font-medium text-[17px] mb-5" style={{ color: '#0F1F18' }}>Custom Domain</h3>
 
             <div>
-              <label className="block text-[12px] mb-1.5" style={{ color: '#6B7A72' }}>Domain</label>
+              <label className="block text-[12px] mb-1.5" style={{ color: '#65736B' }}>Domain</label>
               <input
                 type="text"
                 value={settings.custom_domain}
@@ -225,7 +225,7 @@ export function WhiteLabelTab({ plan }: { plan: string }) {
 
             {settings.custom_domain && (
               <div className="mt-4">
-                <p className="text-[13px] mb-3" style={{ color: '#6B7A72' }}>
+                <p className="text-[13px] mb-3" style={{ color: '#65736B' }}>
                   Add this CNAME record to your DNS provider:
                 </p>
                 <div
@@ -258,11 +258,11 @@ export function WhiteLabelTab({ plan }: { plan: string }) {
                 </div>
 
                 {verifyMsg && (
-                  <p className="text-[12px] mt-2" style={{ color: settings.domain_verified ? '#2D7A4F' : '#6B7A72' }}>
+                  <p className="text-[12px] mt-2" style={{ color: settings.domain_verified ? '#2D7A4F' : '#65736B' }}>
                     {verifyMsg}
                   </p>
                 )}
-                <p className="text-[12px] mt-2" style={{ color: '#6B7A72' }}>
+                <p className="text-[12px] mt-2" style={{ color: '#65736B' }}>
                   Save your changes first, then verify. Serving the domain also requires our team to add it to the platform — contact support once DNS is verified.
                 </p>
               </div>
@@ -275,7 +275,7 @@ export function WhiteLabelTab({ plan }: { plan: string }) {
 
             <div className="space-y-4">
               <div>
-                <label className="block text-[12px] mb-1.5" style={{ color: '#6B7A72' }}>From name</label>
+                <label className="block text-[12px] mb-1.5" style={{ color: '#65736B' }}>From name</label>
                 <input
                   type="text"
                   value={settings.from_name}
@@ -286,7 +286,7 @@ export function WhiteLabelTab({ plan }: { plan: string }) {
                 />
               </div>
               <div>
-                <label className="block text-[12px] mb-1.5" style={{ color: '#6B7A72' }}>Reply-to email</label>
+                <label className="block text-[12px] mb-1.5" style={{ color: '#65736B' }}>Reply-to email</label>
                 <input
                   type="email"
                   value={settings.reply_to_email}
@@ -300,7 +300,7 @@ export function WhiteLabelTab({ plan }: { plan: string }) {
               <div className="flex items-center justify-between pt-1">
                 <div>
                   <div className="text-[14px] font-medium" style={{ color: '#0F1F18' }}>Hide &ldquo;Powered by Eventera&rdquo;</div>
-                  <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>
+                  <div className="text-[12px] mt-0.5" style={{ color: '#65736B' }}>
                     Removes Eventera branding from all attendee emails
                   </div>
                 </div>
@@ -359,7 +359,7 @@ export function WhiteLabelTab({ plan }: { plan: string }) {
                 <div className="font-display font-medium text-[14px] mb-1" style={{ color: '#0F1F18' }}>
                   Annual Developer Summit
                 </div>
-                <div className=" text-[12.5px] mb-3" style={{ color: '#6B7A72' }}>
+                <div className=" text-[12.5px] mb-3" style={{ color: '#65736B' }}>
                   12 Mar · 09:00 · Lagos
                 </div>
                 <div

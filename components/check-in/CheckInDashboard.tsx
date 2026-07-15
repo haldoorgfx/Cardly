@@ -88,11 +88,11 @@ function PhoneScannerModal({ eventId, onClose }: { eventId: string; onClose: () 
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: '1px solid #E5E0D4' }}>
           <div className="flex items-center gap-2">
-            <Smartphone size={16} strokeWidth={1.8} style={{ color: '#6B7A72' }} />
+            <Smartphone size={16} strokeWidth={1.8} style={{ color: '#65736B' }} />
             <span className="font-display text-[15px] font-semibold" style={{ color: '#0F1F18' }}>Scan with phone</span>
           </div>
           <button onClick={onClose} className="h-7 w-7 rounded-lg grid place-items-center hover:bg-[#F5F3EE]"
-            style={{ color: '#6B7A72' }}>
+            style={{ color: '#65736B' }}>
             <X size={14} />
           </button>
         </div>
@@ -131,7 +131,7 @@ function PhoneScannerModal({ eventId, onClose }: { eventId: string; onClose: () 
             )}
             <div className="flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#2D7A4F' }} />
-              <span className=" text-[12px] tracking-[0.1em] uppercase" style={{ color: '#6B7A72' }}>Updates live</span>
+              <span className=" text-[12px] tracking-[0.1em] uppercase" style={{ color: '#65736B' }}>Updates live</span>
             </div>
           </div>
 
@@ -198,7 +198,7 @@ function AttendeeModal({ reg, eventId, onClose, onCheckedIn }: {
             {status === 'done' ? '✓ Checked in!' : isAlreadyIn ? 'Already checked in' : 'Confirm check-in'}
           </span>
           <button onClick={onClose} className="h-7 w-7 rounded-lg grid place-items-center hover:bg-[#F5F3EE]"
-            style={{ color: '#6B7A72' }}>
+            style={{ color: '#65736B' }}>
             <X size={14} />
           </button>
         </div>
@@ -214,7 +214,7 @@ function AttendeeModal({ reg, eventId, onClose, onCheckedIn }: {
               <div className="font-display text-[19px] font-semibold leading-snug" style={{ color: '#0F1F18' }}>
                 {reg.attendee_name ?? 'Unknown attendee'}
               </div>
-              <div className="text-[13px] mt-0.5" style={{ color: '#6B7A72' }}>{reg.attendee_email}</div>
+              <div className="text-[13px] mt-0.5" style={{ color: '#65736B' }}>{reg.attendee_email}</div>
             </div>
           </div>
 
@@ -231,7 +231,7 @@ function AttendeeModal({ reg, eventId, onClose, onCheckedIn }: {
             )}
             <Row label="Badge ID" value={reg.qr_code_token.slice(0, 8).toUpperCase()} mono muted />
             <div className="flex items-center justify-between">
-              <span className="text-[13px]" style={{ color: '#6B7A72' }}>Status</span>
+              <span className="text-[13px]" style={{ color: '#65736B' }}>Status</span>
               <span className={`text-[12.5px] uppercase px-2 py-0.5 rounded-full ${
                 isAlreadyIn ? 'bg-emerald-50 text-emerald-700' :
                 reg.status === 'pending' ? 'bg-amber-50 text-amber-700' : 'bg-[#E8EFEB] text-[#3A4A42]'
@@ -278,7 +278,7 @@ function AttendeeModal({ reg, eventId, onClose, onCheckedIn }: {
 function Row({ label, value, mono, muted }: { label: string; value: string; mono?: boolean; muted?: boolean }) {
   return (
     <div className="flex items-center justify-between">
-      <span className="text-[13px]" style={{ color: '#6B7A72' }}>{label}</span>
+      <span className="text-[13px]" style={{ color: '#65736B' }}>{label}</span>
       <span className={mono ? ' text-[12px]' : 'text-[13px] font-medium'}
         style={{ color: muted ? '#9BA8A1' : '#0F1F18' }}>
         {value}
@@ -396,7 +396,7 @@ export default function CheckInDashboard({
         <div className="flex items-start justify-between mb-6 gap-4 flex-wrap">
           <div>
             <h1 className="font-display text-[24px] font-semibold tracking-[-0.015em]" style={{ color: '#0F1F18' }}>Check-in</h1>
-            <p className="text-[14px] mt-0.5 flex items-center gap-1.5" style={{ color: '#6B7A72' }}>
+            <p className="text-[14px] mt-0.5 flex items-center gap-1.5" style={{ color: '#65736B' }}>
               {isLive && <span className="w-1.5 h-1.5 rounded-full animate-pulse inline-block" style={{ background: '#2D7A4F' }} />}
               {isLive ? 'Live · ' : ''}{eventName}
             </p>
@@ -407,19 +407,19 @@ export default function CheckInDashboard({
             <button
               onClick={() => setPhoneModalOpen(true)}
               className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-[13.5px] font-medium border transition hover:border-[#1F4D3A]/40 hover:text-[#1F4D3A]"
-              style={{ borderColor: '#E5E0D4', color: '#6B7A72', background: 'white' }}>
+              style={{ borderColor: '#E5E0D4', color: '#65736B', background: 'white' }}>
               <Smartphone size={14} strokeWidth={1.8} /> Scan with phone
             </button>
             <Link
               href={`/events/${eventSlug}/check-in/walk-in`}
               className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-[13.5px] font-medium border transition hover:border-[#1F4D3A]/40 hover:text-[#1F4D3A]"
-              style={{ borderColor: '#E5E0D4', color: '#6B7A72', background: 'white' }}>
+              style={{ borderColor: '#E5E0D4', color: '#65736B', background: 'white' }}>
               <DoorOpen size={14} strokeWidth={1.8} /> Walk-in
             </Link>
             <Link
               href={`/events/${eventSlug}/check-in/kiosk`}
               className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-[13.5px] font-medium border transition hover:border-[#1F4D3A]/40 hover:text-[#1F4D3A]"
-              style={{ borderColor: '#E5E0D4', color: '#6B7A72', background: 'white' }}>
+              style={{ borderColor: '#E5E0D4', color: '#65736B', background: 'white' }}>
               <Monitor size={14} strokeWidth={1.8} /> Kiosk mode
             </Link>
             <button
@@ -594,7 +594,7 @@ export default function CheckInDashboard({
                     {s.icon}
                   </div>
                   <div className=" text-[22px] tracking-tight leading-none" style={{ color: '#0F1F18' }}>{s.value}</div>
-                  <div className=" text-[12px] tracking-[0.1em] uppercase mt-1.5" style={{ color: '#6B7A72' }}>{s.label}</div>
+                  <div className=" text-[12px] tracking-[0.1em] uppercase mt-1.5" style={{ color: '#65736B' }}>{s.label}</div>
                 </div>
               ))}
             </div>
@@ -622,7 +622,7 @@ export default function CheckInDashboard({
 
               {feed.length === 0 ? (
                 <div className="px-5 py-8 text-center">
-                  <p className="text-[13px]" style={{ color: '#6B7A72' }}>No check-ins yet. Open the scanner to start.</p>
+                  <p className="text-[13px]" style={{ color: '#65736B' }}>No check-ins yet. Open the scanner to start.</p>
                 </div>
               ) : (
                 <div className="max-h-[320px] overflow-y-auto divide-y" style={{ borderColor: 'rgba(229,224,212,0.6)' }}>
@@ -637,7 +637,7 @@ export default function CheckInDashboard({
                           {entry.attendee_name ?? 'Unknown attendee'}
                         </div>
                         {entry.ticket_type && (
-                          <div className=" text-[12.5px]" style={{ color: '#6B7A72' }}>{entry.ticket_type}</div>
+                          <div className=" text-[12.5px]" style={{ color: '#65736B' }}>{entry.ticket_type}</div>
                         )}
                       </div>
                       <Check size={14} strokeWidth={2.5} style={{ color: '#2D7A4F' }} className="shrink-0" />

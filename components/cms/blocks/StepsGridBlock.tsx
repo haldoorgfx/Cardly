@@ -20,12 +20,12 @@ export function StepsGridBlock({ content }: { content: StepsGridContent }) {
               <div key={step.step} className={`grid lg:grid-cols-2 gap-10 lg:gap-16 items-center ${i % 2 === 1 ? 'lg:[direction:rtl]' : ''}`}>
                 <div style={{ direction: 'ltr' }}>
                   <div className="flex items-center gap-3 mb-4">
-                    <span className="h-8 w-8 rounded-full border border-[#E5E0D4] grid place-items-center  text-[12px] text-[#6B7A72]"
+                    <span className="h-8 w-8 rounded-full border border-[#E5E0D4] grid place-items-center  text-[12px] text-[#65736B]"
                       style={{ background: '#FAF6EE' }}>
                       {String(step.step).padStart(2, '0')}
                     </span>
                     {step.duration && (
-                      <span className=" text-[10px] tracking-[0.16em] uppercase text-[#6B7A72]">
+                      <span className=" text-[10px] tracking-[0.16em] uppercase text-[#65736B]">
                         {step.duration}
                       </span>
                     )}
@@ -80,7 +80,7 @@ export function StepsGridBlock({ content }: { content: StepsGridContent }) {
             >
               <div className="p-6">
                 <div className="flex items-center justify-between mb-5">
-                  <span className="h-8 w-8 rounded-full border border-[#E5E0D4] grid place-items-center  text-[12px] text-[#6B7A72]"
+                  <span className="h-8 w-8 rounded-full border border-[#E5E0D4] grid place-items-center  text-[12px] text-[#65736B]"
                     style={{ background: '#FAF6EE' }}>
                     {String(step.step).padStart(2, '0')}
                   </span>
@@ -93,8 +93,8 @@ export function StepsGridBlock({ content }: { content: StepsGridContent }) {
                 </h3>
                 <p className="mt-2 text-[#3A4A42] text-[14px] leading-[1.6]">{step.body}</p>
                 {step.duration && (
-                  <div className="mt-4 flex items-center gap-2  text-[10px] tracking-[0.16em] uppercase text-[#6B7A72]">
-                    <span className="w-5 h-px bg-[#6B7A72]/40" />
+                  <div className="mt-4 flex items-center gap-2  text-[10px] tracking-[0.16em] uppercase text-[#65736B]">
+                    <span className="w-5 h-px bg-[#65736B]/40" />
                     {step.duration}
                   </div>
                 )}

@@ -107,7 +107,7 @@ export function IntegrationsView({ eventId }: Props) {
         }
         actions={
           <div className="relative sm:w-[240px] shrink-0">
-            <Search size={14} strokeWidth={2} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: '#6B7A72' }} />
+            <Search size={14} strokeWidth={2} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: '#65736B' }} />
             <input
               value={query}
               onChange={e => setQuery(e.target.value)}
@@ -135,7 +135,7 @@ export function IntegrationsView({ eventId }: Props) {
         </div>
         <div>
           <p className="text-[13px] font-semibold" style={{ color: '#0F1F18' }}>Connect your account, don&apos;t rebuild.</p>
-          <p className="text-[12.5px] mt-0.5" style={{ color: '#6B7A72' }}>
+          <p className="text-[12.5px] mt-0.5" style={{ color: '#65736B' }}>
             Plug in the tools you already use — payments, CRM, comms and automation — and Eventera keeps them in sync.
           </p>
         </div>
@@ -145,7 +145,7 @@ export function IntegrationsView({ eventId }: Props) {
       {filteredCategories.length === 0 && (
         <div className="rounded-2xl border border-dashed py-14 px-6 text-center" style={{ borderColor: '#E5E0D4' }}>
           <p className="text-[14px] font-medium" style={{ color: '#0F1F18' }}>No integrations match &ldquo;{query}&rdquo;</p>
-          <p className="text-[13px] mt-1" style={{ color: '#6B7A72' }}>Try a different name — like Stripe, Slack, or Zapier.</p>
+          <p className="text-[13px] mt-1" style={{ color: '#65736B' }}>Try a different name — like Stripe, Slack, or Zapier.</p>
         </div>
       )}
 
@@ -155,7 +155,7 @@ export function IntegrationsView({ eventId }: Props) {
           <div key={cat.label}>
             <h2
               className="text-[12.5px] font-semibold mb-4"
-              style={{ color: '#6B7A72', letterSpacing: '0.06em', textTransform: 'uppercase', fontFamily: 'Inter, system-ui, sans-serif' }}
+              style={{ color: '#65736B', letterSpacing: '0.06em', textTransform: 'uppercase', fontFamily: 'Inter, system-ui, sans-serif' }}
             >
               {cat.label}
             </h2>
@@ -206,7 +206,7 @@ function AppCard({ app, onConfigure }: { app: Integration; onConfigure?: () => v
       <p className="text-[14.5px] font-semibold font-display leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.01em' }}>
         {app.name}
       </p>
-      <p className="text-[12.5px] mt-1 flex-1" style={{ color: '#6B7A72', lineHeight: 1.5 }}>
+      <p className="text-[12.5px] mt-1 flex-1" style={{ color: '#65736B', lineHeight: 1.5 }}>
         {app.desc}
       </p>
       {isBuiltin ? (

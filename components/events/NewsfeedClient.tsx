@@ -90,15 +90,15 @@ export function NewsfeedClient({ eventId, eventName, initialPosts }: Props) {
             />
             <div className="flex items-center gap-1 px-4 pb-3 pt-2 border-t" style={{ borderColor: '#E5E0D4' }}>
               <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-medium transition hover:bg-[#FAF6EE]"
-                style={{ color: '#6B7A72' }}>
+                style={{ color: '#65736B' }}>
                 <ImageIcon size={13} /> Photo
               </button>
               <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-medium transition hover:bg-[#FAF6EE]"
-                style={{ color: '#6B7A72' }}>
+                style={{ color: '#65736B' }}>
                 <Gift size={13} /> GIF
               </button>
               <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-medium transition hover:bg-[#FAF6EE]"
-                style={{ color: '#6B7A72' }}>
+                style={{ color: '#65736B' }}>
                 <Clock size={13} /> Schedule
               </button>
               <div className="flex-1" />
@@ -127,7 +127,7 @@ export function NewsfeedClient({ eventId, eventName, initialPosts }: Props) {
                   <div key={p.id} className="flex items-start gap-4 px-5 py-4"
                     style={{ background: '#FFFFFF', borderBottom: i < scheduled.length - 1 ? '1px solid #E5E0D4' : 'none' }}>
                     <div className="shrink-0 mt-0.5">
-                      <div className="text-[12.5px] font-semibold" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
+                      <div className="text-[12.5px] font-semibold" style={{ color: '#65736B', fontFamily: 'Inter, system-ui, sans-serif' }}>
                         {p.scheduled_at ? fmtDateTime(p.scheduled_at) : '—'}
                       </div>
                     </div>
@@ -182,7 +182,7 @@ export function NewsfeedClient({ eventId, eventName, initialPosts }: Props) {
         {/* Right: Live preview */}
         <div className="w-full lg:w-72 lg:shrink-0">
           <div className="lg:sticky lg:top-4">
-            <p className="text-[12.5px] font-semibold mb-2" style={{ color: '#6B7A72', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+            <p className="text-[12.5px] font-semibold mb-2" style={{ color: '#65736B', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
               Live preview — what attendees see
             </p>
             <div className="rounded-2xl overflow-hidden" style={{ background: '#0F1F18', border: '1px solid #163828' }}>

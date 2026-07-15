@@ -27,7 +27,7 @@ interface Props {
 const STATUS_STYLE = {
   published: { label: 'Live',     dot: '#2D7A4F', cls: 'text-emerald-700', pulse: true },
   draft:     { label: 'Draft',    dot: '#C9A45E', cls: 'text-amber-700',   pulse: false },
-  archived:  { label: 'Archived', dot: '#6B7A72', cls: 'text-[#6B7A72]',   pulse: false },
+  archived:  { label: 'Archived', dot: '#65736B', cls: 'text-[#65736B]',   pulse: false },
 };
 
 function formatDate(iso: string | null | undefined) {
@@ -200,7 +200,7 @@ export default function EventRow({ event, regCount, revenue, currency }: Props) 
               </Link>
             )}
             {venue && (
-              <div className="text-[12px] text-[#6B7A72] truncate mt-0.5" style={{ maxWidth: '240px' }}>
+              <div className="text-[12px] text-[#65736B] truncate mt-0.5" style={{ maxWidth: '240px' }}>
                 {venue}
               </div>
             )}
@@ -213,10 +213,10 @@ export default function EventRow({ event, regCount, revenue, currency }: Props) 
         {dateInfo ? (
           <div className=" text-[12px] leading-tight">
             <div className="text-[#0F1F18]">{dateInfo.day} {dateInfo.mon}</div>
-            <div className="text-[#6B7A72]">{dateInfo.year}</div>
+            <div className="text-[#65736B]">{dateInfo.year}</div>
           </div>
         ) : (
-          <span className="text-[12px] text-[#6B7A72]">—</span>
+          <span className="text-[12px] text-[#65736B]">—</span>
         )}
       </td>
 
@@ -233,7 +233,7 @@ export default function EventRow({ event, regCount, revenue, currency }: Props) 
           {revenue > 0 && currency ? (() => {
             try { return new Intl.NumberFormat(undefined, { style: 'currency', currency, minimumFractionDigits: 0 }).format(revenue); }
             catch { return `${currency} ${revenue.toLocaleString()}`; }
-          })() : <span className="text-[#6B7A72]">—</span>}
+          })() : <span className="text-[#65736B]">—</span>}
         </span>
       </td>
 
@@ -257,8 +257,8 @@ export default function EventRow({ event, regCount, revenue, currency }: Props) 
         <DropdownMenu.Root>
           <DropdownMenu.Trigger asChild>
             <button
-              className="h-7 w-7 rounded-lg border flex items-center justify-center transition opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
-              style={{ borderColor: '#E5E0D4', background: 'white', color: '#6B7A72' }}
+              className="h-10 w-10 rounded-lg border flex items-center justify-center transition opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
+              style={{ borderColor: '#E5E0D4', background: 'white', color: '#65736B' }}
               disabled={busy}
               aria-label="Event actions"
             >

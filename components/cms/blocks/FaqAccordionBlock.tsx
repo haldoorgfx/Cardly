@@ -32,7 +32,7 @@ export function FaqAccordionBlock({ content }: { content: FaqAccordionContent })
                   <ChevronDown
                     size={18}
                     strokeWidth={2}
-                    className={`shrink-0 text-[#6B7A72] transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+                    className={`shrink-0 text-[#65736B] transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
                   />
                 </button>
                 {isOpen && (

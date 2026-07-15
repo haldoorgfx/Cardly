@@ -159,7 +159,7 @@ export function GroupRegistrationClient({ eventId, eventName, eventSlug, tickets
           <h2 className="font-display font-bold text-[26px] mb-2" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
             Seats confirmed!
           </h2>
-          <p className="text-[14px]" style={{ color: '#6B7A72' }}>
+          <p className="text-[14px]" style={{ color: '#65736B' }}>
             {confirmedAttendees.length} ticket{confirmedAttendees.length !== 1 ? 's' : ''} registered for {eventName}.
             <br />Check your emails for the ticket links.
           </p>
@@ -186,7 +186,7 @@ export function GroupRegistrationClient({ eventId, eventName, eventSlug, tickets
       {/* Header */}
       <div className="sticky top-0 z-10 px-5 h-14 flex items-center gap-3 border-b"
         style={{ background: 'rgba(250,246,238,0.95)', backdropFilter: 'blur(12px)', borderColor: '#E5E0D4' }}>
-        <Link href={`/e/${eventSlug}`} style={{ color: '#6B7A72' }}><ArrowLeft size={18} /></Link>
+        <Link href={`/e/${eventSlug}`} style={{ color: '#65736B' }}><ArrowLeft size={18} /></Link>
         <span className="font-display font-semibold text-[16px]" style={{ color: '#0F1F18' }}>Group Registration</span>
         <div className="ml-auto flex items-center gap-2">
           {remaining !== null && (
@@ -248,7 +248,7 @@ export function GroupRegistrationClient({ eventId, eventName, eventSlug, tickets
                   <div className="flex items-center gap-4 px-5 py-4">
                     <div className="flex-1 min-w-0">
                       <div className="font-semibold text-[15px]" style={{ color: '#0F1F18' }}>{t.name}</div>
-                      {t.description && <div className="text-[12px] mt-0.5 truncate" style={{ color: '#6B7A72' }}>{t.description}</div>}
+                      {t.description && <div className="text-[12px] mt-0.5 truncate" style={{ color: '#65736B' }}>{t.description}</div>}
                     </div>
                     <div className="text-[14px] font-semibold mr-2" style={{ color: '#0F1F18' }}>
                       {fmt(t.price, t.currency)}
@@ -293,7 +293,7 @@ export function GroupRegistrationClient({ eventId, eventName, eventSlug, tickets
                           <div key={i} className="px-5 py-4" style={{ borderBottom: i < qty - 1 ? '1px solid #F0EDE6' : 'none' }}>
                             <div className="flex items-center gap-2 mb-3">
                               <div className="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0"
-                                style={{ background: done ? '#2D7A4F' : '#E5E0D4', color: done ? '#FAF6EE' : '#6B7A72' }}>
+                                style={{ background: done ? '#2D7A4F' : '#E5E0D4', color: done ? '#FAF6EE' : '#65736B' }}>
                                 {done ? '✓' : i + 1}
                               </div>
                               <span className="font-semibold text-[13px]" style={{ color: '#0F1F18' }}>

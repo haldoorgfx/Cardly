@@ -68,7 +68,7 @@ function TierBadge({ tier }: { tier: string }) {
   const styles = {
     hot: { bg: 'rgba(184,66,60,0.1)', color: '#B8423C', label: 'Hot' },
     warm: { bg: 'rgba(201,122,45,0.1)', color: '#C97A2D', label: 'Warm' },
-    cold: { bg: '#F5F3EE', color: '#6B7A72', label: 'Cold' },
+    cold: { bg: '#F5F3EE', color: '#65736B', label: 'Cold' },
   };
   const s = styles[tier as keyof typeof styles] ?? styles.cold;
   return (
@@ -107,7 +107,7 @@ export function LeadScoringClient({ eventSlug, eventName, leads: dbLeads }: Prop
       <div className="sticky top-0 z-10 flex items-center justify-between px-5 h-14 border-b"
         style={{ background: 'rgba(250,246,238,0.92)', backdropFilter: 'blur(12px)', borderColor: '#E5E0D4' }}>
         <Link href={`/e/${eventSlug}/booth`} className="flex items-center gap-2 text-[13px] transition hover:opacity-70"
-          style={{ color: '#6B7A72' }}>
+          style={{ color: '#65736B' }}>
           <ArrowLeft size={15} /> Booth
         </Link>
         <span className="font-display font-semibold text-[15px]" style={{ color: '#0F1F18' }}>Leads</span>
@@ -125,7 +125,7 @@ export function LeadScoringClient({ eventSlug, eventName, leads: dbLeads }: Prop
         <h1 className="font-display font-bold text-[22px] mb-1" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
           Leads — scored by Eventera AI
         </h1>
-        <p className="text-[13px]" style={{ color: '#6B7A72' }}>
+        <p className="text-[13px]" style={{ color: '#65736B' }}>
           {leads.length} captured · ranked by role seniority, intent signals, dwell time & session overlap
         </p>
       </div>
@@ -142,7 +142,7 @@ export function LeadScoringClient({ eventSlug, eventName, leads: dbLeads }: Prop
             <p className="text-[13px] font-semibold" style={{ color: '#8B6914' }}>
               {hotCount} hot {hotCount === 1 ? 'lead' : 'leads'} awaiting follow-up
             </p>
-            <p className="text-[12px]" style={{ color: '#6B7A72' }}>
+            <p className="text-[12px]" style={{ color: '#65736B' }}>
               Your highest-intent contacts — reach out first
             </p>
           </div>
@@ -162,7 +162,7 @@ export function LeadScoringClient({ eventSlug, eventName, leads: dbLeads }: Prop
             className="px-3.5 py-1.5 rounded-full text-[12px] font-semibold whitespace-nowrap transition shrink-0"
             style={{
               background: filter === f.key ? '#E8EFEB' : 'white',
-              color: filter === f.key ? '#1F4D3A' : '#6B7A72',
+              color: filter === f.key ? '#1F4D3A' : '#65736B',
               border: `1px solid ${filter === f.key ? '#C9DDD3' : '#E5E0D4'}`,
             }}>
             {f.label}
@@ -192,12 +192,12 @@ export function LeadScoringClient({ eventSlug, eventName, leads: dbLeads }: Prop
                     <span className="font-semibold text-[14px] truncate" style={{ color: '#0F1F18' }}>{lead.name}</span>
                     <TierBadge tier={lead.tier} />
                     {lead.contacted && (
-                      <span className="text-[10px] px-1.5 py-0.5 rounded-full whitespace-nowrap shrink-0" style={{ background: '#F5F3EE', color: '#6B7A72' }}>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded-full whitespace-nowrap shrink-0" style={{ background: '#F5F3EE', color: '#65736B' }}>
                         Contacted
                       </span>
                     )}
                   </div>
-                  <div className="text-[12px] truncate" style={{ color: '#6B7A72' }}>
+                  <div className="text-[12px] truncate" style={{ color: '#65736B' }}>
                     {lead.role} · {lead.company}
                   </div>
                   {!expanded && (
@@ -224,7 +224,7 @@ export function LeadScoringClient({ eventSlug, eventName, leads: dbLeads }: Prop
                       <div className="flex flex-wrap gap-1.5">
                         {lead.tags.map((tag: string) => (
                           <span key={tag} className="px-2 py-0.5 rounded-full text-[11px]"
-                            style={{ background: '#F5F3EE', color: '#6B7A72' }}>
+                            style={{ background: '#F5F3EE', color: '#65736B' }}>
                             {tag}
                           </span>
                         ))}
@@ -242,7 +242,7 @@ export function LeadScoringClient({ eventSlug, eventName, leads: dbLeads }: Prop
             {leads.length === 0 ? (
               <>
                 <p className="text-[15px] font-medium mb-1" style={{ color: '#3A4A42' }}>No leads captured yet</p>
-                <p className="text-[13px]" style={{ color: '#6B7A72' }}>
+                <p className="text-[13px]" style={{ color: '#65736B' }}>
                   Leads appear here as attendees scan your booth or share their card.
                 </p>
               </>

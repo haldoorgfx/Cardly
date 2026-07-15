@@ -150,7 +150,7 @@ export function AgendaView({ eventId, initialSessions, speakers, initialTracks, 
           <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight" style={{ color: '#0F1F18' }}>
             Agenda
           </h1>
-          <p className="text-[13.5px] mt-0.5" style={{ color: '#6B7A72' }}>{subtitle}</p>
+          <p className="text-[13.5px] mt-0.5" style={{ color: '#65736B' }}>{subtitle}</p>
         </div>
         <button
           onClick={() => setAddOpen(true)}
@@ -188,7 +188,7 @@ export function AgendaView({ eventId, initialSessions, speakers, initialTracks, 
       {/* ── Timeline grid ─────────────────────────────────────────────────── */}
       {totalSessions === 0 ? (
         <div className="bg-white border rounded-2xl p-12 text-center" style={{ borderColor: '#E5E0D4' }}>
-          <p className="text-[14px] mb-4" style={{ color: '#6B7A72' }}>
+          <p className="text-[14px] mb-4" style={{ color: '#65736B' }}>
             No sessions yet. Add sessions with start/end times to see the timeline.
           </p>
           <button
@@ -217,7 +217,7 @@ export function AgendaView({ eventId, initialSessions, speakers, initialTracks, 
           <div className="relative bg-white rounded-2xl shadow-[0_8px_40px_rgba(15,31,24,0.18)] border border-[#E5E0D4] w-full max-w-sm p-5">
             <div className="flex items-center justify-between mb-4">
               <span className="font-display text-[15px] font-semibold" style={{ color: '#0F1F18' }}>Quick add session</span>
-              <button onClick={() => setQuickAdd(null)} className="h-7 w-7 rounded-lg grid place-items-center transition hover:bg-[#F5F3EE]" style={{ color: '#6B7A72' }}>
+              <button onClick={() => setQuickAdd(null)} className="h-10 w-10 rounded-lg grid place-items-center transition hover:bg-[#F5F3EE]" style={{ color: '#65736B' }}>
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
               </button>
             </div>
@@ -322,7 +322,7 @@ export function AgendaView({ eventId, initialSessions, speakers, initialTracks, 
               <button
                 onClick={() => { setQuickAdd(null); setAddOpen(true); }}
                 className="underline transition hover:text-[#1F4D3A]"
-                style={{ color: '#6B7A72' }}>
+                style={{ color: '#65736B' }}>
                 Full session form
               </button>
             </p>
@@ -337,7 +337,7 @@ export function AgendaView({ eventId, initialSessions, speakers, initialTracks, 
           <div className="relative bg-white rounded-2xl shadow-[0_8px_40px_rgba(15,31,24,0.18)] border border-[#E5E0D4] w-full max-w-[700px] max-h-[85vh] overflow-y-auto">
             <div className="flex items-center justify-between px-6 py-4 border-b sticky top-0 bg-white z-10" style={{ borderColor: '#E5E0D4' }}>
               <span className="font-display text-[16px] font-semibold" style={{ color: '#0F1F18' }}>{editSessionId ? 'Edit session' : 'Sessions'}</span>
-              <button onClick={() => { setAddOpen(false); setEditSessionId(null); }} className="h-8 w-8 rounded-lg grid place-items-center transition hover:bg-[#F5F3EE]" style={{ color: '#6B7A72' }}>
+              <button onClick={() => { setAddOpen(false); setEditSessionId(null); }} className="h-10 w-10 rounded-lg grid place-items-center transition hover:bg-[#F5F3EE]" style={{ color: '#65736B' }}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
               </button>
             </div>

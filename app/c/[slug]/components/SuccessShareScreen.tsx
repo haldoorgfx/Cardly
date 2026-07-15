@@ -118,7 +118,7 @@ function CaptionCard({ eventName }: { eventName: string }) {
       display: 'flex', flexDirection: 'column', gap: 12,
     }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-        <div style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10, color: '#6B7A72', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+        <div style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10, color: '#65736B', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
           Suggested caption
         </div>
       </div>
@@ -179,9 +179,9 @@ function BigShareButton({
         <div style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, fontSize: 16, color: '#0F1F18', letterSpacing: '-0.01em' }}>
           {label}
         </div>
-        <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#6B7A72', marginTop: 2 }}>{sub}</div>
+        <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#65736B', marginTop: 2 }}>{sub}</div>
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', color: '#6B7A72' }}>
+      <div style={{ display: 'flex', alignItems: 'center', color: '#65736B' }}>
         <ChevronRight size={18} strokeWidth={2}/>
       </div>
     </button>
@@ -383,7 +383,7 @@ export default function SuccessShareScreen({
 
           {/* Secondary row */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', justifyContent: 'space-between' }}>
-            <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#6B7A72' }}>More options</div>
+            <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#65736B' }}>More options</div>
             <div style={{ display: 'flex', gap: 8 }}>
               <SmallShare icon={<FacebookIcon size={18}/>} label="Facebook" onClick={() => handleShare('facebook')}/>
               <SmallShare icon={<LinkedInIcon size={18}/>} label="LinkedIn" onClick={() => handleShare('linkedin')}/>
@@ -399,12 +399,12 @@ export default function SuccessShareScreen({
           <button onClick={onBack} style={{
             background: 'transparent', border: 'none', cursor: 'pointer',
             display: 'inline-flex', alignItems: 'center', gap: 8,
-            fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#6B7A72', padding: 0,
+            fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#65736B', padding: 0,
           }}>
             <ArrowLeft size={14} strokeWidth={2}/> Back to preview
           </button>
 
-          <div style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11, color: '#6B7A72', letterSpacing: '0.04em', textAlign: 'center' }}>
+          <div style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11, color: '#65736B', letterSpacing: '0.04em', textAlign: 'center' }}>
             <PoweredByInline />
           </div>
         </div>
@@ -446,11 +446,11 @@ export default function SuccessShareScreen({
                 flexShrink: 0,
               }}/>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10, color: '#6B7A72', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 4 }}>Saved file</div>
+                <div style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10, color: '#65736B', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 4 }}>Saved file</div>
                 <div style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, fontSize: 15, color: '#0F1F18', lineHeight: 1.2 }}>
                   {eventName.toLowerCase().replace(/\s+/g, '-')}-card.png
                 </div>
-                <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#6B7A72', marginTop: 2 }}>
+                <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#65736B', marginTop: 2 }}>
                   Your personalized card
                 </div>
                 <button onClick={handleCopyLink} style={{
@@ -467,7 +467,7 @@ export default function SuccessShareScreen({
 
           <ForwardPrompt pageUrl={pageUrl}/>
 
-          <div style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11, color: '#6B7A72', letterSpacing: '0.04em' }}>
+          <div style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11, color: '#65736B', letterSpacing: '0.04em' }}>
             <PoweredByInline />
           </div>
         </div>
@@ -487,7 +487,7 @@ export default function SuccessShareScreen({
           </div>
 
           <div style={{ paddingTop: 16, borderTop: '1px solid #E5E0D4', display: 'flex', alignItems: 'center', gap: 12, justifyContent: 'space-between' }}>
-            <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#6B7A72' }}>More options</div>
+            <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#65736B' }}>More options</div>
             <div style={{ display: 'flex', gap: 8 }}>
               <SmallShare icon={<FacebookIcon size={18}/>} label="Facebook" onClick={() => handleShare('facebook')}/>
               <SmallShare icon={<LinkedInIcon size={18}/>} label="LinkedIn" onClick={() => handleShare('linkedin')}/>
@@ -499,7 +499,7 @@ export default function SuccessShareScreen({
           <button onClick={onBack} style={{
             background: 'transparent', border: 'none', cursor: 'pointer',
             display: 'inline-flex', alignItems: 'center', gap: 8,
-            fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#6B7A72', padding: 0,
+            fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#65736B', padding: 0,
           }}>
             <ArrowLeft size={14} strokeWidth={2}/> Back to preview
           </button>

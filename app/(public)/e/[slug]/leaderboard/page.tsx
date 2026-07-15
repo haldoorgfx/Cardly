@@ -23,7 +23,7 @@ export default async function LeaderboardPage({ params, searchParams }: Props) {
     <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
       <div className="max-w-[700px] mx-auto px-5 py-10">
         <h1 className="font-display font-normal text-[32px] mb-2" style={{ color: '#0F1F18', letterSpacing: '-0.025em' }}>Leaderboard</h1>
-        <p className="text-[15px] mb-8" style={{ color: '#6B7A72' }}>{eventPageTitle ?? event.name}</p>
+        <p className="text-[15px] mb-8" style={{ color: '#65736B' }}>{eventPageTitle ?? event.name}</p>
         <LeaderboardView leaderboard={leaderboard} myRegistrationId={myReg} myEntry={myEntry} />
       </div>
     </div>

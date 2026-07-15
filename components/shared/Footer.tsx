@@ -34,19 +34,19 @@ export function Footer() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/eventera-logo.png" alt="Eventera" style={{ height: '28px', objectFit: 'contain' }} />
             </Link>
-            <p className="mt-3 text-[13px] text-[#6B7A72] leading-relaxed max-w-[200px]">
+            <p className="mt-3 text-[13px] text-[#65736B] leading-relaxed max-w-[200px]">
               Personalized event cards for every attendee, at any scale.
             </p>
             <div className="mt-5 flex items-center gap-2">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-              <span className="text-[12px] text-[#6B7A72]">All systems operational</span>
+              <span className="text-[12px] text-[#65736B]">All systems operational</span>
             </div>
           </div>
 
           {/* Link columns */}
           {Object.entries(FOOTER_LINKS).map(([section, links]) => (
             <div key={section}>
-              <div className="text-[11px] font-medium text-[#6B7A72] tracking-widest uppercase mb-4">
+              <div className="text-[11px] font-medium text-[#65736B] tracking-widest uppercase mb-4">
                 {section}
               </div>
               <ul className="space-y-3">
@@ -67,7 +67,7 @@ export function Footer() {
 
         {/* Bottom row */}
         <div className="mt-7 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <span className="text-[12px] text-[#6B7A72]">© 2026 Eventera · Made with care in Lagos</span>
+          <span className="text-[12px] text-[#65736B]">© 2026 Eventera · Made with care in Lagos</span>
           <a href="mailto:hello@eventera.so" className="text-[12px] text-[#3A4A42] hover:text-[#0F1F18] transition">
             hello@eventera.so
           </a>

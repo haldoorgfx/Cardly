@@ -42,9 +42,9 @@ export function Modal({ open, onClose, title, subtitle, children, footer, maxWid
         <div className="flex items-start justify-between px-6 py-4 shrink-0" style={{ borderBottom: '1px solid #E5E0D4' }}>
           <div className="min-w-0">
             <h3 className="font-display text-[16px] font-semibold" style={{ color: '#0F1F18' }}>{title}</h3>
-            {subtitle && <p className="text-[12.5px] mt-0.5" style={{ color: '#6B7A72' }}>{subtitle}</p>}
+            {subtitle && <p className="text-[12.5px] mt-0.5" style={{ color: '#65736B' }}>{subtitle}</p>}
           </div>
-          <button onClick={onClose} aria-label="Close" className="h-8 w-8 rounded-lg grid place-items-center transition hover:bg-[#F5F3EE] shrink-0" style={{ color: '#6B7A72' }}>
+          <button onClick={onClose} aria-label="Close" className="h-8 w-8 rounded-lg grid place-items-center transition hover:bg-[#F5F3EE] shrink-0" style={{ color: '#65736B' }}>
             <X size={18} strokeWidth={2} />
           </button>
         </div>

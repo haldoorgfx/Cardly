@@ -82,7 +82,7 @@ export default function PollsManagerClient({ eventId, initialPolls }: Props) {
         title="New poll"
         footer={
           <>
-            <button onClick={() => setShowForm(false)} className="h-10 px-4 rounded-xl text-[13px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>Cancel</button>
+            <button onClick={() => setShowForm(false)} className="h-10 px-4 rounded-xl text-[13px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#65736B' }}>Cancel</button>
             <button onClick={handleCreate} disabled={saving} className="h-10 px-5 rounded-xl text-[13px] font-semibold text-white disabled:opacity-60" style={{ background: '#1F4D3A' }}>
               {saving ? 'Creating…' : 'Create poll'}
             </button>
@@ -90,11 +90,11 @@ export default function PollsManagerClient({ eventId, initialPolls }: Props) {
         }
       >
         <div className="mb-4">
-          <label className="block text-[12px] mb-1.5" style={{ color: '#6B7A72' }}>Question *</label>
+          <label className="block text-[12px] mb-1.5" style={{ color: '#65736B' }}>Question *</label>
           <input className={INPUT} style={INPUT_STYLE} placeholder="What topic resonates most?" value={question} onChange={e => setQuestion(e.target.value)} />
         </div>
         <div className="mb-4 space-y-2">
-          <label className="block text-[12px] mb-1.5" style={{ color: '#6B7A72' }}>Options (2–6)</label>
+          <label className="block text-[12px] mb-1.5" style={{ color: '#65736B' }}>Options (2–6)</label>
           {options.map((opt, i) => (
             <div key={i} className="flex gap-2">
               <input className={`${INPUT} flex-1`} style={INPUT_STYLE} placeholder={`Option ${i + 1}`} value={opt} onChange={e => setOption(i, e.target.value)} />
@@ -113,13 +113,13 @@ export default function PollsManagerClient({ eventId, initialPolls }: Props) {
           <div className="w-9 h-5 rounded-full transition-colors" style={{ background: launchNow ? '#1F4D3A' : '#E5E0D4' }} onClick={() => setLaunchNow(v => !v)}>
             <div className="w-4 h-4 rounded-full bg-white m-0.5 transition-transform" style={{ transform: launchNow ? 'translateX(16px)' : 'none' }} />
           </div>
-          <span className="text-[13px]" style={{ color: '#6B7A72' }}>Launch immediately</span>
+          <span className="text-[13px]" style={{ color: '#65736B' }}>Launch immediately</span>
         </label>
       </Modal>
 
       {polls.length === 0 ? (
         <div className="rounded-2xl py-16 text-center" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
-          <p className="text-[14px]" style={{ color: '#6B7A72' }}>No polls yet.</p>
+          <p className="text-[14px]" style={{ color: '#65736B' }}>No polls yet.</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -131,10 +131,10 @@ export default function PollsManagerClient({ eventId, initialPolls }: Props) {
                   <div>
                     <div className="flex items-center gap-2 mb-1">
                       {poll.is_active && !poll.is_closed && <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#E8C57E' }}>LIVE</span>}
-                      {poll.is_closed && <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#6B7A72' }}>CLOSED</span>}
+                      {poll.is_closed && <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#65736B' }}>CLOSED</span>}
                     </div>
                     <p className="font-display font-medium text-[15px]" style={{ color: '#0F1F18' }}>{poll.question}</p>
-                    <p className=" text-[12px] mt-1" style={{ color: '#6B7A72' }}>{totalVotes} vote{totalVotes !== 1 ? 's' : ''}</p>
+                    <p className=" text-[12px] mt-1" style={{ color: '#65736B' }}>{totalVotes} vote{totalVotes !== 1 ? 's' : ''}</p>
                   </div>
                   <div className="flex gap-2 shrink-0">
                     {!poll.is_closed && (
@@ -167,7 +167,7 @@ export default function PollsManagerClient({ eventId, initialPolls }: Props) {
                       <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: '#E5E0D4' }}>
                         <div className="h-full rounded-full" style={{ width: `${pct}%`, background: '#1F4D3A' }} />
                       </div>
-                      <span className=" text-[12px] w-10 text-right" style={{ color: '#6B7A72' }}>{pct}%</span>
+                      <span className=" text-[12px] w-10 text-right" style={{ color: '#65736B' }}>{pct}%</span>
                     </div>
                   );
                 })}

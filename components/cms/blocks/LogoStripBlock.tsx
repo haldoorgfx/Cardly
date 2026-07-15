@@ -21,7 +21,7 @@ export function LogoStripBlock({ content }: LogoStripBlockProps) {
         {content.label && (
           <p
             className="text-center  text-[11px] tracking-[0.22em] uppercase mb-8"
-            style={{ color: '#6B7A72' }}
+            style={{ color: '#65736B' }}
           >
             {content.label}
           </p>
@@ -43,7 +43,7 @@ export function LogoStripBlock({ content }: LogoStripBlockProps) {
                 className="flex items-center justify-center w-12 h-12 rounded-full border  text-[12px] font-semibold tracking-wider"
                 style={{
                   borderColor: '#E5E0D4',
-                  color: '#6B7A72',
+                  color: '#65736B',
                   background: '#FFFFFF',
                 }}
                 title={logo.name}

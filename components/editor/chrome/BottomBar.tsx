@@ -150,7 +150,7 @@ export default function BottomBar({
       <div className="flex-1" />
       <span
         className="hidden sm:flex items-center gap-1.5"
-        style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10, color: '#6B7A72', letterSpacing: '0.04em' }}
+        style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10, color: '#65736B', letterSpacing: '0.04em' }}
       >
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
           <path d="M18 11V6a2 2 0 0 0-4 0v5"/>

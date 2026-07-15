@@ -63,7 +63,7 @@ export default function SpeakerDirectoryClient({ speakers, eventSlug }: Props) {
   if (speakers.length === 0) {
     return (
       <div className="flex flex-col items-center py-20 gap-3">
-        <p className="text-base" style={{ color: '#6B7A72' }}>No speakers announced yet.</p>
+        <p className="text-base" style={{ color: '#65736B' }}>No speakers announced yet.</p>
       </div>
     );
   }
@@ -101,7 +101,7 @@ export default function SpeakerDirectoryClient({ speakers, eventSlug }: Props) {
       </div>
 
       {filtered.length === 0 && (
-        <p className="text-sm py-10 text-center" style={{ color: '#6B7A72' }}>
+        <p className="text-sm py-10 text-center" style={{ color: '#65736B' }}>
           No speakers match your search.
         </p>
       )}
@@ -157,7 +157,7 @@ export default function SpeakerDirectoryClient({ speakers, eventSlug }: Props) {
                 </p>
               )}
               {featuredSpeaker.bio && (
-                <p className="text-[14px] mt-2.5 leading-relaxed line-clamp-2" style={{ color: '#6B7A72' }}>
+                <p className="text-[14px] mt-2.5 leading-relaxed line-clamp-2" style={{ color: '#65736B' }}>
                   {featuredSpeaker.bio}
                 </p>
               )}
@@ -213,7 +213,7 @@ export default function SpeakerDirectoryClient({ speakers, eventSlug }: Props) {
                 {speaker.name}
               </p>
               {(speaker.role || speaker.company) && (
-                <p className="text-[12px] mt-0.5 truncate" style={{ color: '#6B7A72' }}>
+                <p className="text-[12px] mt-0.5 truncate" style={{ color: '#65736B' }}>
                   {[speaker.role, speaker.company].filter(Boolean).join(' · ')}
                 </p>
               )}

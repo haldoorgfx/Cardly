@@ -90,7 +90,7 @@ export default function AdLandingPage() {
               Start free <ArrowRight size={16} strokeWidth={2} />
             </Link>
           </div>
-          <div className="mt-4 flex flex-wrap justify-center items-center gap-x-4 gap-y-2" style={{ fontSize: 12.5, color: '#6B7A72' }}>
+          <div className="mt-4 flex flex-wrap justify-center items-center gap-x-4 gap-y-2" style={{ fontSize: 12.5, color: '#65736B' }}>
             {['Free for 1 event', 'No credit card', 'Setup in 10 minutes'].map((t) => (
               <span key={t} className="inline-flex items-center gap-1.5">
                 <Check size={13} strokeWidth={2.5} style={{ color: '#1F4D3A' }} />

@@ -120,7 +120,7 @@ export default function QAModerationClient({ eventId, eventSlug, initialQuestion
         {/* Queue header */}
         <div className="px-6 pt-5 pb-3 shrink-0">
           <div className="font-display font-medium text-[18px]" style={{ color: '#0F1F18' }}>Q&amp;A Moderation</div>
-          <div className=" text-[12px] mt-1" style={{ color: '#6B7A72' }}>
+          <div className=" text-[12px] mt-1" style={{ color: '#65736B' }}>
             {questions.length} question{questions.length !== 1 ? 's' : ''} · sorted by votes
           </div>
         </div>
@@ -134,7 +134,7 @@ export default function QAModerationClient({ eventId, eventSlug, initialQuestion
               className="px-3 py-1.5 rounded-lg text-[12px] font-medium transition-colors"
               style={{
                 background: tab === t.key ? '#E8EFEB' : 'transparent',
-                color: tab === t.key ? '#1F4D3A' : '#6B7A72',
+                color: tab === t.key ? '#1F4D3A' : '#65736B',
               }}
             >
               {t.label}
@@ -149,7 +149,7 @@ export default function QAModerationClient({ eventId, eventSlug, initialQuestion
         <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3">
           {filtered.length === 0 ? (
             <div className="py-10 text-center">
-              <p className="text-[13px]" style={{ color: '#6B7A72' }}>No questions in this filter.</p>
+              <p className="text-[13px]" style={{ color: '#65736B' }}>No questions in this filter.</p>
             </div>
           ) : (
             filtered.map(q => {
@@ -182,7 +182,7 @@ export default function QAModerationClient({ eventId, eventSlug, initialQuestion
 
                     <div className="flex-1 min-w-0">
                       <p className="text-[14px] leading-snug" style={{ color: '#0F1F18' }}>{q.question}</p>
-                      <p className="text-[12px] mt-1.5" style={{ color: '#6B7A72' }}>
+                      <p className="text-[12px] mt-1.5" style={{ color: '#65736B' }}>
                         {asker} · {timeAgo}
                       </p>
 
@@ -197,7 +197,7 @@ export default function QAModerationClient({ eventId, eventSlug, initialQuestion
                           style={{
                             background: q.is_featured ? '#E8C57E' : 'white',
                             border: `1px solid ${q.is_featured ? '#E8C57E' : '#E5E0D4'}`,
-                            color: q.is_featured ? '#0F1F18' : '#6B7A72',
+                            color: q.is_featured ? '#0F1F18' : '#65736B',
                           }}
                         >
                           <Star size={13} fill={q.is_featured ? 'currentColor' : 'none'} />
@@ -212,7 +212,7 @@ export default function QAModerationClient({ eventId, eventSlug, initialQuestion
                           style={{
                             background: q.status === 'answered' ? '#1F4D3A' : 'white',
                             border: `1px solid ${q.status === 'answered' ? '#1F4D3A' : '#E5E0D4'}`,
-                            color: q.status === 'answered' ? 'white' : '#6B7A72',
+                            color: q.status === 'answered' ? 'white' : '#65736B',
                           }}
                         >
                           <Check size={13} />
@@ -227,7 +227,7 @@ export default function QAModerationClient({ eventId, eventSlug, initialQuestion
                           style={{
                             background: q.status === 'hidden' ? 'rgba(184,66,60,0.10)' : 'white',
                             border: `1px solid ${q.status === 'hidden' ? 'rgba(184,66,60,0.3)' : '#E5E0D4'}`,
-                            color: q.status === 'hidden' ? '#B8423C' : '#6B7A72',
+                            color: q.status === 'hidden' ? '#B8423C' : '#65736B',
                           }}
                         >
                           <X size={13} />
@@ -267,7 +267,7 @@ export default function QAModerationClient({ eventId, eventSlug, initialQuestion
             Session live
           </span>
         </div>
-        <div className=" text-[13px] mb-6" style={{ color: '#6B7A72' }}>
+        <div className=" text-[13px] mb-6" style={{ color: '#65736B' }}>
           {questions.length} questions · {pendingCount} pending
         </div>
 
@@ -284,7 +284,7 @@ export default function QAModerationClient({ eventId, eventSlug, initialQuestion
               style={{ background: 'white', border: '1px solid #E5E0D4' }}
             >
               <div className=" font-semibold text-[24px]" style={{ color: '#0F1F18' }}>{s.value}</div>
-              <div className="text-[12px] mt-1" style={{ color: '#6B7A72' }}>{s.label}</div>
+              <div className="text-[12px] mt-1" style={{ color: '#65736B' }}>{s.label}</div>
             </div>
           ))}
         </div>

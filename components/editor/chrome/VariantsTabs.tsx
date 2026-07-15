@@ -44,7 +44,7 @@ export default function VariantsTabs({
       {/* "Variants" label */}
       <span
         className="text-[10px] uppercase tracking-[0.1em] mr-1 shrink-0"
-        style={{ fontFamily: 'Inter, system-ui, sans-serif', color: '#6B7A72' }}
+        style={{ fontFamily: 'Inter, system-ui, sans-serif', color: '#65736B' }}
       >
         Variants
       </span>
@@ -117,7 +117,7 @@ export default function VariantsTabs({
                   </span>
                   <span
                     className="text-[10px]"
-                    style={{ fontFamily: 'Inter, system-ui, sans-serif', color: '#6B7A72' }}
+                    style={{ fontFamily: 'Inter, system-ui, sans-serif', color: '#65736B' }}
                   >
                     {zoneCount}
                   </span>
@@ -135,7 +135,7 @@ export default function VariantsTabs({
                     border: isActive ? '1px solid #E5E0D4' : '1px solid transparent',
                     borderLeft: isActive ? '1px solid #E5E0D4' : '1px solid transparent',
                     borderRadius: '0 6px 6px 0',
-                    color: isActive ? '#6B7A72' : '#6B7A72',
+                    color: isActive ? '#65736B' : '#65736B',
                     boxShadow: isActive ? '0 1px 2px rgba(15,31,24,0.04)' : 'none',
                   }}
                 >
@@ -196,7 +196,7 @@ export default function VariantsTabs({
           fontFamily: 'Inter, sans-serif',
           fontSize: 12,
           fontWeight: 500,
-          color: '#6B7A72',
+          color: '#65736B',
         }}
       >
         <Plus size={12} strokeWidth={2.5} />Add variant

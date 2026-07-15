@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   },
 };
 
-const C = { primary: '#1F4D3A', primarySoft: '#E8EFEB', accent: '#E8C57E', accentDark: '#C9A45E', accentSoft: '#F6EDDA', ink: '#0F1F18', inkSoft: '#3A4A42', muted: '#6B7A72', cream: '#FAF6EE', border: '#E5E0D4' } as const;
+const C = { primary: '#1F4D3A', primarySoft: '#E8EFEB', accent: '#E8C57E', accentDark: '#C9A45E', accentSoft: '#F6EDDA', ink: '#0F1F18', inkSoft: '#3A4A42', muted: '#65736B', cream: '#FAF6EE', border: '#E5E0D4' } as const;
 
 const FEATURES = [
   { icon: CreditCard, title: 'The Eventera Card', body: 'A personalized, branded card auto-generated for every attendee — made to be shared.', href: '/features/eventera-card', gold: true },

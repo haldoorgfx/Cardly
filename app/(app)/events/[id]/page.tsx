@@ -32,7 +32,7 @@ const AVATAR_COLORS = ['#1F4D3A', '#2A6A50', '#163828', '#3A6B8C', '#0F1F18'];
 const STATUS_STYLE = {
   published: { label: 'Live',     cls: 'bg-emerald-50 text-emerald-700 border-emerald-200', dot: '#2D7A4F', pulse: true  },
   draft:     { label: 'Draft',    cls: 'bg-amber-50 text-amber-700 border-amber-200',       dot: '#C9A45E', pulse: false },
-  archived:  { label: 'Archived', cls: 'bg-[#FAF6EE] text-[#6B7A72] border-[#E5E0D4]',     dot: '#6B7A72', pulse: false },
+  archived:  { label: 'Archived', cls: 'bg-[#FAF6EE] text-[#65736B] border-[#E5E0D4]',     dot: '#65736B', pulse: false },
 };
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<import('next').Metadata> {
@@ -211,7 +211,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
             ].map((s, i) => (
               <div key={i} className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-2">
                 <span className=" text-[18px] sm:text-[20px] text-[#0F1F18] tracking-tight leading-none font-bold">{s.value}</span>
-                <span className="text-[12.5px] sm:text-[13px] text-[#6B7A72]">{s.label}</span>
+                <span className="text-[12.5px] sm:text-[13px] text-[#65736B]">{s.label}</span>
                 {i < 3 && <span className="text-[#E5E0D4] hidden sm:inline ml-3">·</span>}
               </div>
             ))}
@@ -233,7 +233,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
         {(recentRegs ?? []).length > 0 && (
           <div className="bg-white rounded-2xl border overflow-hidden" style={{ borderColor: '#E5E0D4' }}>
             <div className="px-5 py-4 border-b flex items-center justify-between" style={{ borderColor: '#E5E0D4' }}>
-              <span className=" text-[12px] tracking-[0.2em] uppercase" style={{ color: '#6B7A72' }}>Recent registrations</span>
+              <span className=" text-[12px] tracking-[0.2em] uppercase" style={{ color: '#65736B' }}>Recent registrations</span>
               <div className="flex items-center gap-3">
                 <span className="flex items-center gap-1.5 text-[12.5px] text-emerald-600">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -261,7 +261,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
                     {reg.status === 'checked_in' && (
                       <span className="text-[12px] px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(45,122,79,0.1)', color: '#2D7A4F' }}>Checked in</span>
                     )}
-                    <span className="text-[12.5px]" style={{ color: '#6B7A72' }}>{timeAgo(reg.created_at)}</span>
+                    <span className="text-[12.5px]" style={{ color: '#65736B' }}>{timeAgo(reg.created_at)}</span>
                   </div>
                 </div>
               ))}

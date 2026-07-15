@@ -72,7 +72,7 @@ export default async function RosterPrintPage({ params }: Props) {
           <h1 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 30, fontWeight: 700, letterSpacing: '-0.02em', color: '#0F1F18' }}>
             {event.name}
           </h1>
-          <p style={{ marginTop: 4, color: '#6B7A72', fontSize: 13 }}>Attendee Roster</p>
+          <p style={{ marginTop: 4, color: '#65736B', fontSize: 13 }}>Attendee Roster</p>
         </div>
 
         {/* Summary row */}
@@ -84,7 +84,7 @@ export default async function RosterPrintPage({ params }: Props) {
           ].map(s => (
             <div key={s.label} style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', borderRadius: 12, padding: '12px 20px', minWidth: 130 }}>
               <div style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 26, fontWeight: 700, color: '#0F1F18', lineHeight: 1 }}>{s.value}</div>
-              <div style={{ fontSize: 11, color: '#6B7A72', marginTop: 4 }}>{s.label}</div>
+              <div style={{ fontSize: 11, color: '#65736B', marginTop: 4 }}>{s.label}</div>
             </div>
           ))}
         </div>
@@ -97,7 +97,7 @@ export default async function RosterPrintPage({ params }: Props) {
             <thead>
               <tr style={{ borderBottom: '2px solid #0F1F18' }}>
                 {['#', 'Name', 'Ticket', 'Amount', 'Status', 'Registered'].map(h => (
-                  <th key={h} style={{ textAlign: 'left', padding: '8px 12px', fontSize: 10, fontFamily: 'Inter, sans-serif', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#6B7A72', fontWeight: 600 }}>
+                  <th key={h} style={{ textAlign: 'left', padding: '8px 12px', fontSize: 10, fontFamily: 'Inter, sans-serif', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#65736B', fontWeight: 600 }}>
                     {h}
                   </th>
                 ))}
@@ -130,7 +130,7 @@ export default async function RosterPrintPage({ params }: Props) {
                         {STATUS_LABELS[r.status] ?? r.status}
                       </span>
                     </td>
-                    <td style={{ padding: '8px 12px', color: '#6B7A72', fontSize: 11 }}>
+                    <td style={{ padding: '8px 12px', color: '#65736B', fontSize: 11 }}>
                       {fmtDate(r.created_at)}
                     </td>
                   </tr>

@@ -77,7 +77,7 @@ export default function BrandKitPage() {
           /* Logos persist the moment they upload — no separate save step. */
           <div
             className="shrink-0 h-9 inline-flex items-center gap-1.5 text-[12.5px] font-medium transition-colors"
-            style={{ color: savedFlash ? '#2D7A4F' : '#6B7A72' }}
+            style={{ color: savedFlash ? '#2D7A4F' : '#65736B' }}
             role="status"
             aria-live="polite"
           >
@@ -139,7 +139,7 @@ export default function BrandKitPage() {
                           <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>
                         </svg>
                       </div>
-                      <span className="text-[12px] text-[#6B7A72]">Primary logo</span>
+                      <span className="text-[12px] text-[#65736B]">Primary logo</span>
                     </>
                   )}
                 </button>
@@ -206,7 +206,7 @@ export default function BrandKitPage() {
                   />
                   <div className="min-w-0">
                     <div className="text-[12.5px] font-medium text-[#0F1F18] leading-tight">{color.name}</div>
-                    <div className="text-[12px] text-[#6B7A72] truncate">{color.hex}</div>
+                    <div className="text-[12px] text-[#65736B] truncate">{color.hex}</div>
                   </div>
                 </div>
               ))}
@@ -220,7 +220,7 @@ export default function BrandKitPage() {
               <div className="flex items-center justify-between py-4">
                 <div>
                   <div className="font-display font-bold text-[24px] text-[#0F1F18] leading-none">Plus Jakarta Sans</div>
-                  <div className="text-[12px] text-[#6B7A72] mt-1">Display · headings</div>
+                  <div className="text-[12px] text-[#65736B] mt-1">Display · headings</div>
                 </div>
                 <span
                   className="h-7 px-3 rounded-full text-[12px] font-medium grid place-items-center"
@@ -232,7 +232,7 @@ export default function BrandKitPage() {
               <div className="flex items-center justify-between py-4">
                 <div>
                   <div className="font-sans text-[20px] text-[#0F1F18] leading-none">Inter</div>
-                  <div className="text-[12px] text-[#6B7A72] mt-1">Body · UI</div>
+                  <div className="text-[12px] text-[#65736B] mt-1">Body · UI</div>
                 </div>
                 <span
                   className="h-7 px-3 rounded-full text-[12px] font-medium grid place-items-center"
@@ -311,7 +311,7 @@ export default function BrandKitPage() {
               </div>
             </div>
 
-            <p className="text-[12px] text-[#6B7A72] text-center mt-5 leading-relaxed">
+            <p className="text-[12px] text-[#65736B] text-center mt-5 leading-relaxed">
               Your brand kit is automatically applied to every attendee&apos;s Eventera Card.
             </p>
           </div>

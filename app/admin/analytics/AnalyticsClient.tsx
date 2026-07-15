@@ -15,7 +15,7 @@ interface Props {
 }
 
 const PLAN_COLORS: Record<string, string> = {
-  free:   '#6B7A72',
+  free:   '#65736B',
   pro:    '#C9A45E',
   studio: '#1F4D3A',
 };
@@ -23,11 +23,11 @@ const PLAN_COLORS: Record<string, string> = {
 function StatCard({ label, value, sub }: { label: string; value: number | string; sub?: string }) {
   return (
     <div className="bg-white border border-[#E5E0D4] rounded-2xl p-5">
-      <div className="text-[12.5px] text-[#6B7A72] uppercase tracking-[0.14em] mb-2">{label}</div>
+      <div className="text-[12.5px] text-[#65736B] uppercase tracking-[0.14em] mb-2">{label}</div>
       <div className="text-[32px] font-display font-bold text-[#0F1F18] tracking-tight leading-none">
         {typeof value === 'number' ? value.toLocaleString() : value}
       </div>
-      {sub && <div className="text-[12.5px] text-[#6B7A72] mt-1.5">{sub}</div>}
+      {sub && <div className="text-[12.5px] text-[#65736B] mt-1.5">{sub}</div>}
     </div>
   );
 }
@@ -47,7 +47,7 @@ const TooltipStyle = {
     color: '#0F1F18',
     boxShadow: '0 4px 16px rgba(15,31,24,0.08)',
   },
-  labelStyle: { color: '#6B7A72', marginBottom: 4 },
+  labelStyle: { color: '#65736B', marginBottom: 4 },
   cursor: { stroke: '#E5E0D4', strokeWidth: 1 },
 };
 
@@ -76,7 +76,7 @@ export function AnalyticsClient({ stats, userGrowth, cardGrowth, planDist }: Pro
       {/* -- User growth chart -------------------------- */}
       <div className="bg-white border border-[#E5E0D4] rounded-2xl p-6">
         <h2 className="font-display font-semibold text-[16px] text-[#0F1F18] mb-1">User growth</h2>
-        <p className="text-[12px] text-[#6B7A72] mb-5">New signups per day — last 30 days</p>
+        <p className="text-[12px] text-[#65736B] mb-5">New signups per day — last 30 days</p>
         <ResponsiveContainer width="100%" height={200}>
           <AreaChart data={userGrowth} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
             <defs>
@@ -89,13 +89,13 @@ export function AnalyticsClient({ stats, userGrowth, cardGrowth, planDist }: Pro
             <XAxis
               dataKey="date"
               tickFormatter={formatDateShort}
-              tick={{ fontSize: 10, fontFamily: 'Inter, system-ui, sans-serif', fill: '#6B7A72' }}
+              tick={{ fontSize: 10, fontFamily: 'Inter, system-ui, sans-serif', fill: '#65736B' }}
               tickLine={false}
               axisLine={false}
               interval={6}
             />
             <YAxis
-              tick={{ fontSize: 10, fontFamily: 'Inter, system-ui, sans-serif', fill: '#6B7A72' }}
+              tick={{ fontSize: 10, fontFamily: 'Inter, system-ui, sans-serif', fill: '#65736B' }}
               tickLine={false}
               axisLine={false}
               allowDecimals={false}
@@ -123,20 +123,20 @@ export function AnalyticsClient({ stats, userGrowth, cardGrowth, planDist }: Pro
       {/* -- Cards generated chart ------------------- */}
       <div className="bg-white border border-[#E5E0D4] rounded-2xl p-6">
         <h2 className="font-display font-semibold text-[16px] text-[#0F1F18] mb-1">Cards generated</h2>
-        <p className="text-[12px] text-[#6B7A72] mb-5">Attendee card downloads per day — last 30 days</p>
+        <p className="text-[12px] text-[#65736B] mb-5">Attendee card downloads per day — last 30 days</p>
         <ResponsiveContainer width="100%" height={200}>
           <BarChart data={cardGrowth} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#E5E0D4" vertical={false} />
             <XAxis
               dataKey="date"
               tickFormatter={formatDateShort}
-              tick={{ fontSize: 10, fontFamily: 'Inter, system-ui, sans-serif', fill: '#6B7A72' }}
+              tick={{ fontSize: 10, fontFamily: 'Inter, system-ui, sans-serif', fill: '#65736B' }}
               tickLine={false}
               axisLine={false}
               interval={6}
             />
             <YAxis
-              tick={{ fontSize: 10, fontFamily: 'Inter, system-ui, sans-serif', fill: '#6B7A72' }}
+              tick={{ fontSize: 10, fontFamily: 'Inter, system-ui, sans-serif', fill: '#65736B' }}
               tickLine={false}
               axisLine={false}
               allowDecimals={false}
@@ -157,9 +157,9 @@ export function AnalyticsClient({ stats, userGrowth, cardGrowth, planDist }: Pro
       <div className="grid md:grid-cols-2 gap-6">
         <div className="bg-white border border-[#E5E0D4] rounded-2xl p-6">
           <h2 className="font-display font-semibold text-[16px] text-[#0F1F18] mb-1">Plan distribution</h2>
-          <p className="text-[12px] text-[#6B7A72] mb-5">Current users by plan tier</p>
+          <p className="text-[12px] text-[#65736B] mb-5">Current users by plan tier</p>
           {planDist.every(p => p.count === 0) ? (
-            <div className="h-[180px] grid place-items-center text-[13px] text-[#6B7A72]">No users yet.</div>
+            <div className="h-[180px] grid place-items-center text-[13px] text-[#65736B]">No users yet.</div>
           ) : (
             <ResponsiveContainer width="100%" height={180}>
               <PieChart>
@@ -174,7 +174,7 @@ export function AnalyticsClient({ stats, userGrowth, cardGrowth, planDist }: Pro
                   paddingAngle={3}
                 >
                   {planDist.map((entry) => (
-                    <Cell key={entry.plan} fill={PLAN_COLORS[entry.plan] ?? '#6B7A72'} />
+                    <Cell key={entry.plan} fill={PLAN_COLORS[entry.plan] ?? '#65736B'} />
                   ))}
                 </Pie>
                 <Legend
@@ -196,14 +196,14 @@ export function AnalyticsClient({ stats, userGrowth, cardGrowth, planDist }: Pro
         {/* Additional numbers not already shown as stat cards above */}
         <div className="bg-white border border-[#E5E0D4] rounded-2xl p-6">
           <h2 className="font-display font-semibold text-[16px] text-[#0F1F18] mb-1">Platform summary</h2>
-          <p className="text-[12px] text-[#6B7A72] mb-5">Key numbers at a glance</p>
+          <p className="text-[12px] text-[#65736B] mb-5">Key numbers at a glance</p>
           <div className="space-y-3">
             {[
               { label: 'Conversion rate',     value: `${conversionRate}%` },
               { label: 'Published events',    value: stats.publishedEvents },
             ].map(row => (
               <div key={row.label} className="flex items-center justify-between py-2 border-b border-[#E5E0D4] last:border-0">
-                <span className="text-[12px] text-[#6B7A72]">{row.label}</span>
+                <span className="text-[12px] text-[#65736B]">{row.label}</span>
                 <span className="text-[13px] font-semibold text-[#0F1F18]">
                   {typeof row.value === 'number' ? row.value.toLocaleString() : row.value}
                 </span>

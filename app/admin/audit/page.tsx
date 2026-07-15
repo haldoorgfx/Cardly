@@ -59,7 +59,7 @@ export default async function AuditPage({
       />
 
       {/* Count */}
-      <div className="mb-4 text-[12px] text-[#6B7A72]">
+      <div className="mb-4 text-[12px] text-[#65736B]">
         {count ?? 0} {count === 1 ? 'entry' : 'entries'}
         {page > 1 && ` — page ${page} of ${totalPages}`}
       </div>
@@ -71,7 +71,7 @@ export default async function AuditPage({
       {totalPages > 1 && (
         <div className="mt-6 flex items-center justify-between">
           <PaginationLink page={page - 1} disabled={page <= 1} label="← Previous" searchParams={searchParams} />
-          <span className="text-[13px] text-[#6B7A72]">
+          <span className="text-[13px] text-[#65736B]">
             {page} / {totalPages}
           </span>
           <PaginationLink page={page + 1} disabled={page >= totalPages} label="Next →" searchParams={searchParams} />
@@ -96,7 +96,7 @@ function PaginationLink({
 
   if (disabled) {
     return (
-      <span className="text-[13px] text-[#6B7A72]/40  px-3 py-1.5">{label}</span>
+      <span className="text-[13px] text-[#65736B]/40  px-3 py-1.5">{label}</span>
     );
   }
   return (

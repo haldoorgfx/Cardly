@@ -358,7 +358,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
                   className="h-7 w-7 rounded-full flex items-center justify-center text-[12px] font-semibold transition"
                   style={{
                     background: i < step ? '#1F4D3A' : i === step ? '#1F4D3A' : 'white',
-                    color: i <= step ? 'white' : '#6B7A72',
+                    color: i <= step ? 'white' : '#65736B',
                     border: i > step ? '1.5px solid #E5E0D4' : 'none',
                   }}
                 >
@@ -366,7 +366,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
                 </div>
                 <div
                   className="text-[11px] font-medium mt-1 hidden sm:block"
-                  style={{ color: i === step ? '#1F4D3A' : '#6B7A72' }}
+                  style={{ color: i === step ? '#1F4D3A' : '#65736B' }}
                 >
                   {s.label}
                 </div>
@@ -391,7 +391,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
                 <h2 className="font-display font-semibold text-[22px] mb-2" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
                   Choose your ticket
                 </h2>
-                <p className="text-[14px] mb-6" style={{ color: '#6B7A72' }}>{page.title}</p>
+                <p className="text-[14px] mb-6" style={{ color: '#65736B' }}>{page.title}</p>
                 <div className="space-y-3">
                   {visibleTickets.map(t => {
                     const sold = isSoldOut(t);
@@ -422,7 +422,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between gap-2">
-                            <span className="text-[15px] font-medium" style={{ color: sold ? '#6B7A72' : '#0F1F18' }}>
+                            <span className="text-[15px] font-medium" style={{ color: sold ? '#65736B' : '#0F1F18' }}>
                               {t.name}
                             </span>
                             <span
@@ -432,7 +432,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
                               {sold ? 'Sold out' : t.min_price ? `${t.currency} ${t.min_price}+` : t.price === 0 ? 'Free' : `${t.currency} ${t.price}`}
                             </span>
                           </div>
-                          {t.description && <div className="text-[13px] mt-1" style={{ color: '#6B7A72' }}>{t.description}</div>}
+                          {t.description && <div className="text-[13px] mt-1" style={{ color: '#65736B' }}>{t.description}</div>}
                           {remaining !== null && !sold && remaining <= 20 && (
                             <div className="text-[12px] mt-1" style={{ color: '#C97A2D' }}>{remaining} left</div>
                           )}
@@ -449,7 +449,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
                       Choose your amount ({selectedTicket.currency})
                     </label>
                     <div className="flex items-center gap-2">
-                      <span className="text-[15px] font-medium" style={{ color: '#6B7A72' }}>{selectedTicket.currency}</span>
+                      <span className="text-[15px] font-medium" style={{ color: '#65736B' }}>{selectedTicket.currency}</span>
                       <input
                         id="reg-pwyw-amount"
                         type="number"
@@ -465,7 +465,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
                         onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
                       />
                     </div>
-                    <p className="text-[12px] mt-1" style={{ color: '#6B7A72' }}>Minimum: {selectedTicket.currency} {selectedTicket.min_price}</p>
+                    <p className="text-[12px] mt-1" style={{ color: '#65736B' }}>Minimum: {selectedTicket.currency} {selectedTicket.min_price}</p>
                     {pwywError && <p className="text-[12px] mt-1 font-medium" style={{ color: '#B8423C' }}>{pwywError}</p>}
                   </div>
                 )}
@@ -475,7 +475,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
                   <button
                     onClick={() => setAccessCodeVisible(true)}
                     className="mt-4 text-[13px]"
-                    style={{ color: '#6B7A72', textDecoration: 'underline', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                    style={{ color: '#65736B', textDecoration: 'underline', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
                   >
                     Have an access code?
                   </button>
@@ -524,7 +524,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
                 <h2 className="font-display font-semibold text-[22px] mb-2" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
                   Your details
                 </h2>
-                <p className="text-[14px] mb-6" style={{ color: '#6B7A72' }}>
+                <p className="text-[14px] mb-6" style={{ color: '#65736B' }}>
                   These will appear on your ticket and Eventera Card.
                 </p>
                 <div className="space-y-4">
@@ -602,7 +602,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
                     <svg className="animate-spin mx-auto mb-3" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1F4D3A" strokeWidth="2.5">
                       <path d="M21 12a9 9 0 1 1-9-9" strokeLinecap="round" />
                     </svg>
-                    <p className="text-[14px]" style={{ color: '#6B7A72' }}>Redirecting to Flutterwave…</p>
+                    <p className="text-[14px]" style={{ color: '#65736B' }}>Redirecting to Flutterwave…</p>
                   </div>
                 )}
               </>
@@ -613,7 +613,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
                 <h2 className="font-display font-semibold text-[22px] mb-2" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
                   Personalise your card
                 </h2>
-                <p className="text-[14px] mb-6" style={{ color: '#6B7A72' }}>
+                <p className="text-[14px] mb-6" style={{ color: '#65736B' }}>
                   Your Eventera Card is generated after you confirm. Share it anywhere.
                 </p>
                 {variant ? (
@@ -634,7 +634,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
                     className="rounded-xl p-6 text-center"
                     style={{ background: 'white', border: '1px solid #E5E0D4' }}
                   >
-                    <div className="text-[14px]" style={{ color: '#6B7A72' }}>
+                    <div className="text-[14px]" style={{ color: '#65736B' }}>
                       The organiser hasn&apos;t set up a card design yet. You&apos;ll still get a QR code for check-in.
                     </div>
                   </div>
@@ -670,7 +670,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="font-medium text-[14px] leading-snug" style={{ color: '#0F1F18' }}>{page.title}</div>
-                  <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
+                  <div className="text-[12px] mt-0.5" style={{ color: '#65736B', fontFamily: 'Inter, system-ui, sans-serif' }}>
                     {new Date(page.starts_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                   </div>
                 </div>
@@ -792,7 +792,7 @@ function CustomFieldInput({ field, value, error, onChange }: {
           value={value} onChange={e => onChange(e.target.value)}
           aria-invalid={!!error}
           className="w-full h-10 px-3 rounded-lg text-[14px] outline-none transition"
-          style={{ background: 'white', border: `1px solid ${error ? '#B8423C' : '#E5E0D4'}`, color: value ? '#0F1F18' : '#6B7A72' }}
+          style={{ background: 'white', border: `1px solid ${error ? '#B8423C' : '#E5E0D4'}`, color: value ? '#0F1F18' : '#65736B' }}
         >
           <option value="">Select…</option>
           {opts.map(o => <option key={o} value={o}>{o}</option>)}
@@ -833,7 +833,7 @@ function CustomFieldInput({ field, value, error, onChange }: {
 function SumRow({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
   return (
     <div className="flex items-center justify-between gap-2 text-[13px]">
-      <span style={{ color: '#6B7A72' }}>{label}</span>
+      <span style={{ color: '#65736B' }}>{label}</span>
       <span
         style={{ color: '#0F1F18', fontFamily: mono ? 'Inter, system-ui, sans-serif' : undefined, fontWeight: mono ? 500 : 400 }}
       >

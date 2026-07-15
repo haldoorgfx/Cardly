@@ -42,7 +42,7 @@ const SIDEBAR = [
 ];
 
 const INPUT_CLASS = `
-  w-full px-4 py-3 rounded-xl text-[14px] text-[#0F1F18] placeholder:text-[#6B7A72]
+  w-full px-4 py-3 rounded-xl text-[14px] text-[#0F1F18] placeholder:text-[#65736B]
   outline-none transition-all duration-150
   focus:ring-2 focus:ring-[#1F4D3A]/15 focus:border-[#1F4D3A]/40
 `.trim();
@@ -118,7 +118,7 @@ export function ContactFormClient() {
             {/* Name + Email */}
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-[11px] tracking-[0.16em] uppercase text-[#6B7A72] mb-2">
+                <label className="block text-[11px] tracking-[0.16em] uppercase text-[#65736B] mb-2">
                   Full name
                 </label>
                 <input
@@ -132,7 +132,7 @@ export function ContactFormClient() {
                 />
               </div>
               <div>
-                <label className="block text-[11px] tracking-[0.16em] uppercase text-[#6B7A72] mb-2">
+                <label className="block text-[11px] tracking-[0.16em] uppercase text-[#65736B] mb-2">
                   Work email
                 </label>
                 <input
@@ -149,14 +149,14 @@ export function ContactFormClient() {
 
             {/* Topic */}
             <div>
-              <label className="block text-[11px] tracking-[0.16em] uppercase text-[#6B7A72] mb-2">
+              <label className="block text-[11px] tracking-[0.16em] uppercase text-[#65736B] mb-2">
                 Topic
               </label>
               <select
                 value={form.topic}
                 onChange={set('topic')}
                 className={INPUT_CLASS + ' appearance-none'}
-                style={{ ...INPUT_STYLE, color: form.topic ? '#0F1F18' : '#6B7A72' }}
+                style={{ ...INPUT_STYLE, color: form.topic ? '#0F1F18' : '#65736B' }}
               >
                 <option value="">How can we help?</option>
                 {TOPICS.map(t => (
@@ -167,7 +167,7 @@ export function ContactFormClient() {
 
             {/* Message */}
             <div>
-              <label className="block text-[11px] tracking-[0.16em] uppercase text-[#6B7A72] mb-2">
+              <label className="block text-[11px] tracking-[0.16em] uppercase text-[#65736B] mb-2">
                 Message
               </label>
               <textarea
@@ -220,7 +220,7 @@ export function ContactFormClient() {
                 {item.icon}
               </div>
               <div className="min-w-0">
-                <div className="text-[11px] tracking-[0.14em] uppercase text-[#6B7A72] mb-0.5">
+                <div className="text-[11px] tracking-[0.14em] uppercase text-[#65736B] mb-0.5">
                   {item.title}
                 </div>
                 <div className="text-[14px] font-semibold text-[#0F1F18] truncate">

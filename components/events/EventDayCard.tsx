@@ -93,14 +93,14 @@ export function EventDayCard({ day, entitlements, save, remove }: Props) {
           </span>
           <div className="min-w-0">
             <div className="font-display font-semibold text-[15px]" style={{ color: '#0F1F18' }}>Day {day.day_index + 1}</div>
-            <div className="text-[12.5px] truncate" style={{ color: '#6B7A72' }}>{dayDateLabel(dateVal ? dateVal : null)}</div>
+            <div className="text-[12.5px] truncate" style={{ color: '#65736B' }}>{dayDateLabel(dateVal ? dateVal : null)}</div>
           </div>
         </div>
         <button
           type="button" onClick={() => setConfirmRemove(true)} title="Remove day"
-          className="h-8 w-8 rounded-lg flex items-center justify-center transition shrink-0" style={{ color: '#6B7A72' }}
+          className="h-10 w-10 rounded-lg flex items-center justify-center transition shrink-0" style={{ color: '#65736B' }}
           onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(184,66,60,0.08)'; e.currentTarget.style.color = '#B8423C'; }}
-          onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#6B7A72'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#65736B'; }}
         >
           <Trash2 size={15} strokeWidth={2} />
         </button>
@@ -131,7 +131,7 @@ export function EventDayCard({ day, entitlements, save, remove }: Props) {
         <div className="flex items-center justify-between rounded-lg px-3.5 py-3" style={{ background: '#FAF6EE', border: '1px solid #E5E0D4' }}>
           <div>
             <div className="text-[13.5px] font-medium" style={{ color: '#0F1F18' }}>Check-in enabled</div>
-            <div className="text-[13px]" style={{ color: '#6B7A72' }}>Allow scanning attendees in on this day.</div>
+            <div className="text-[13px]" style={{ color: '#65736B' }}>Allow scanning attendees in on this day.</div>
           </div>
           <button
             type="button" role="switch" aria-checked={checkinEnabled} aria-label="Check-in enabled"
@@ -202,7 +202,7 @@ export function EventDayCard({ day, entitlements, save, remove }: Props) {
           <div className="absolute inset-0 bg-black/30" onClick={() => setConfirmRemove(false)} />
           <div className="relative w-full max-w-[400px] rounded-2xl p-6" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
             <h3 className="font-display font-semibold text-[18px] mb-2" style={{ color: '#0F1F18' }}>Remove Day {day.day_index + 1}?</h3>
-            <p className="text-[14px] mb-5" style={{ color: '#6B7A72' }}>
+            <p className="text-[14px] mb-5" style={{ color: '#65736B' }}>
               This removes the day and its per-day entitlement settings. Redemption history is kept. This cannot be undone.
             </p>
             <div className="flex gap-3">

@@ -171,7 +171,7 @@ export default async function EventDaysPage({ params }: Props) {
         <h1 className="font-display font-semibold text-[24px]" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
           Event days
         </h1>
-        <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>
+        <p className="text-[14px] mt-1" style={{ color: '#65736B' }}>
           Turn {event.name} into a multi-day event. Give each day its own date, check-in toggle and capacity, and choose which entitlements are valid that day. Leave it empty for a single-day event.
         </p>
         {initialDays.length > 0 && (

@@ -82,7 +82,7 @@ export function WaafiPayStep({ registrationId, qrToken, amount, currency, eventT
         <h2 className="font-display font-semibold text-[22px] mb-1" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
           Pay with mobile money
         </h2>
-        <p className="text-[14px]" style={{ color: '#6B7A72' }}>
+        <p className="text-[14px]" style={{ color: '#65736B' }}>
           {ticketName} · {eventTitle}
         </p>
       </div>
@@ -126,7 +126,7 @@ export function WaafiPayStep({ registrationId, qrToken, amount, currency, eventT
           </select>
 
           {/* Phone icon */}
-          <div className="px-2.5 shrink-0" style={{ color: '#6B7A72' }}>
+          <div className="px-2.5 shrink-0" style={{ color: '#65736B' }}>
             <Phone size={15} strokeWidth={2} />
           </div>
 
@@ -191,14 +191,14 @@ export function WaafiPayStep({ registrationId, qrToken, amount, currency, eventT
       </button>
 
       {/* Security */}
-      <div className="flex items-center justify-center gap-1.5 mt-3 text-[12px]" style={{ color: '#6B7A72' }}>
+      <div className="flex items-center justify-center gap-1.5 mt-3 text-[12px]" style={{ color: '#65736B' }}>
         <ShieldCheck size={13} strokeWidth={2} />
         Secured by WaafiPay · No card details needed
       </div>
 
       {/* Supported networks */}
       <div className="mt-5 pt-4" style={{ borderTop: '1px solid #E5E0D4' }}>
-        <div className="text-[11px] uppercase tracking-widest mb-2 text-center" style={{ color: '#6B7A72' }}>
+        <div className="text-[11px] uppercase tracking-widest mb-2 text-center" style={{ color: '#65736B' }}>
           Supported networks
         </div>
         <div className="flex flex-wrap justify-center gap-2">

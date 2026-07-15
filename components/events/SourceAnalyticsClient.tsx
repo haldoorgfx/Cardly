@@ -18,7 +18,7 @@ const SOURCE_COLORS: Record<string, string> = {
   feed:        '#1F4D3A',
   instagram:   '#2A6A50',
   whatsapp:    '#8FC3A0',
-  direct:      '#6B7A72',
+  direct:      '#65736B',
   embed:       '#C9C3B1',
   newsletter:  '#3A6B8C',
   twitter:     '#3A6B8C',
@@ -136,7 +136,7 @@ export function SourceAnalyticsClient({ eventName, publicSlug, sources, total }:
           </h2>
 
           {sources.length === 0 ? (
-            <div className="py-10 text-center" style={{ color: '#6B7A72' }}>
+            <div className="py-10 text-center" style={{ color: '#65736B' }}>
               <p className="text-[14px]">No registrations yet. Share your event to start tracking sources.</p>
             </div>
           ) : (
@@ -151,14 +151,14 @@ export function SourceAnalyticsClient({ eventName, publicSlug, sources, total }:
                     <div className="h-full rounded-full transition-all" style={{ width: `${s.pct}%`, background: sourceColor(s.name) }} />
                   </div>
                   <span className="text-[13px] font-semibold w-8 text-right shrink-0" style={{ color: '#0F1F18' }}>{s.count}</span>
-                  <span className="text-[12px] w-9 text-right shrink-0" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>{s.pct}%</span>
+                  <span className="text-[12px] w-9 text-right shrink-0" style={{ color: '#65736B', fontFamily: 'Inter, system-ui, sans-serif' }}>{s.pct}%</span>
                 </div>
               ))}
             </div>
           )}
 
           {/* Auto-tagged sources note */}
-          <div className="mt-5 pt-4 text-[12px]" style={{ borderTop: '1px solid #F0EDE6', color: '#6B7A72' }}>
+          <div className="mt-5 pt-4 text-[12px]" style={{ borderTop: '1px solid #F0EDE6', color: '#65736B' }}>
             <span className="font-medium" style={{ color: '#3A4A42' }}>Auto-tagged:</span> <code style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>src=card</code> on every shared Eventera Card · <code style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>src=embed</code> on widgets · <code style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>src=feed</code> from the marketplace.
           </div>
         </div>
@@ -168,7 +168,7 @@ export function SourceAnalyticsClient({ eventName, publicSlug, sources, total }:
           <h2 className="font-display font-semibold text-[16px] mb-4" style={{ color: '#0F1F18' }}>
             Build a tracked link
           </h2>
-          <p className="text-[13px] mb-5" style={{ color: '#6B7A72' }}>
+          <p className="text-[13px] mb-5" style={{ color: '#65736B' }}>
             Share these links to see exactly where your registrations come from.
           </p>
           <div className="space-y-4">

@@ -19,7 +19,7 @@ const SURFACE = '#FFFFFF';
 const BORDER = '#E5E0D4';
 const INK = '#0F1F18';
 const INK_SOFT = '#3A4A42';
-const MUTED = '#6B7A72';
+const MUTED = '#65736B';
 const SUCCESS = '#2D7A4F';
 
 const DISPLAY = '"Plus Jakarta Sans", sans-serif';

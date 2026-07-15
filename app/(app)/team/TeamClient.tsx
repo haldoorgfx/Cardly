@@ -114,7 +114,7 @@ function UpsellCard() {
                 STUDIO
               </span>
             </div>
-            <p className="text-[13px] text-[#6B7A72] leading-relaxed">
+            <p className="text-[13px] text-[#65736B] leading-relaxed">
               Invite team members to collaborate on events, share designs, and manage your workspace together.
             </p>
           </div>
@@ -137,7 +137,7 @@ function UpsellCard() {
           >
             Start Studio trial →
           </Link>
-          <span className="text-[12px] text-[#6B7A72]">14 days free · $49/mo after</span>
+          <span className="text-[12px] text-[#65736B]">14 days free · $49/mo after</span>
         </div>
       </div>
     </div>
@@ -175,10 +175,10 @@ function InviteModal({ teamId, onClose, onInvited }: { teamId: string; onClose: 
     <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={onClose}>
       <div className="bg-white rounded-2xl shadow-lift w-full max-w-md p-6" onClick={e => e.stopPropagation()}>
         <h2 className="font-display font-bold text-[18px] text-[#0F1F18] mb-1">Invite member</h2>
-        <p className="text-[13px] text-[#6B7A72] mb-5">They&apos;ll receive a link to join your team.</p>
+        <p className="text-[13px] text-[#65736B] mb-5">They&apos;ll receive a link to join your team.</p>
         <form onSubmit={submit} className="space-y-3">
           <div>
-            <label className="block text-[12.5px] tracking-widest text-[#6B7A72] uppercase mb-1.5">Email</label>
+            <label className="block text-[12.5px] tracking-widest text-[#65736B] uppercase mb-1.5">Email</label>
             <input
               type="email"
               value={email}
@@ -189,7 +189,7 @@ function InviteModal({ teamId, onClose, onInvited }: { teamId: string; onClose: 
             />
           </div>
           <div>
-            <label className="block text-[12.5px] tracking-widest text-[#6B7A72] uppercase mb-1.5">Role</label>
+            <label className="block text-[12.5px] tracking-widest text-[#65736B] uppercase mb-1.5">Role</label>
             <select
               value={role}
               onChange={e => setRole(e.target.value as 'admin' | 'member')}
@@ -270,9 +270,9 @@ function MemberSettingsModal({
     <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={onClose}>
       <div className="bg-white rounded-2xl shadow-lift w-full max-w-md p-6" onClick={e => e.stopPropagation()}>
         <h2 className="font-display font-bold text-[18px] text-[#0F1F18] mb-1">Member settings</h2>
-        <p className="text-[13px] text-[#6B7A72] mb-5">{name}</p>
+        <p className="text-[13px] text-[#65736B] mb-5">{name}</p>
 
-        <label className="block text-[12.5px] tracking-widest text-[#6B7A72] uppercase mb-1.5">Role</label>
+        <label className="block text-[12.5px] tracking-widest text-[#65736B] uppercase mb-1.5">Role</label>
         <select
           value={role}
           onChange={e => setRole(e.target.value as 'admin' | 'member')}
@@ -321,7 +321,7 @@ function MemberSettingsModal({
           )}
         </div>
 
-        <button onClick={onClose} className="mt-4 w-full text-[13px] text-[#6B7A72] hover:text-[#0F1F18] transition">
+        <button onClick={onClose} className="mt-4 w-full text-[13px] text-[#65736B] hover:text-[#0F1F18] transition">
           Close
         </button>
       </div>
@@ -435,13 +435,13 @@ export function TeamClient({
       {/* Search + filter */}
       <div className="flex items-center gap-3 mb-5">
         <div className="relative flex-1 max-w-xs">
-          <Search size={14} strokeWidth={2} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6B7A72]" />
+          <Search size={14} strokeWidth={2} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#65736B]" />
           <input
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search members..."
-            className="w-full h-9 pl-9 pr-3 rounded-lg border border-border bg-white text-[13px] text-[#0F1F18] placeholder:text-[#6B7A72]/60 focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition"
+            className="w-full h-9 pl-9 pr-3 rounded-lg border border-border bg-white text-[13px] text-[#0F1F18] placeholder:text-[#65736B]/60 focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition"
           />
         </div>
         <div className="relative">
@@ -481,7 +481,7 @@ export function TeamClient({
           style={{ gridTemplateColumns: '1fr 110px 120px 100px 36px' }}
         >
           {['MEMBER', 'ROLE', 'EVENT ACCESS', 'STATUS', ''].map(col => (
-            <div key={col} className="text-[12px] tracking-widest text-[#6B7A72]">
+            <div key={col} className="text-[12px] tracking-widest text-[#65736B]">
               {col}
             </div>
           ))}
@@ -505,10 +505,10 @@ export function TeamClient({
                 <div className="min-w-0">
                   <div className="text-[13.5px] font-medium text-[#0F1F18] truncate">
                     {m.profile.full_name ?? m.profile.email}
-                    {isMe && <span className="ml-1.5 text-[12.5px] text-[#6B7A72] font-normal">(you)</span>}
+                    {isMe && <span className="ml-1.5 text-[12.5px] text-[#65736B] font-normal">(you)</span>}
                   </div>
                   {m.profile.full_name && (
-                    <div className="text-[12px] text-[#6B7A72] truncate">{m.profile.email}</div>
+                    <div className="text-[12px] text-[#65736B] truncate">{m.profile.email}</div>
                   )}
                 </div>
               </div>
@@ -528,7 +528,7 @@ export function TeamClient({
               <div className="flex justify-center">
                 {isOwner && !isTeamOwner && (
                   <button
-                    className="h-7 w-7 rounded-lg grid place-items-center text-[#6B7A72] hover:bg-[#E8EFEB] hover:text-[#0F1F18] transition"
+                    className="h-7 w-7 rounded-lg grid place-items-center text-[#65736B] hover:bg-[#E8EFEB] hover:text-[#0F1F18] transition"
                     title="Member settings"
                     onClick={() => setManagingMember(m)}
                   >
@@ -553,11 +553,11 @@ export function TeamClient({
                 className="h-9 w-9 rounded-full grid place-items-center shrink-0"
                 style={{ background: '#FAF6EE', border: '1px dashed #C9C3B1' }}
               >
-                <span className="text-[14px] text-[#6B7A72]">?</span>
+                <span className="text-[14px] text-[#65736B]">?</span>
               </div>
               <div className="min-w-0">
                 <div className="text-[13.5px] font-medium text-[#0F1F18] truncate">{inv.email}</div>
-                <div className="text-[12px] text-[#6B7A72]">Pending invite</div>
+                <div className="text-[12px] text-[#65736B]">Pending invite</div>
               </div>
             </div>
 
@@ -565,7 +565,7 @@ export function TeamClient({
             <div><RoleBadge role={inv.role === 'admin' ? 'admin' : 'editor'} /></div>
 
             {/* Event access */}
-            <div className="text-[13px] text-[#6B7A72]">1 event</div>
+            <div className="text-[13px] text-[#65736B]">1 event</div>
 
             {/* Status */}
             <div><StatusBadge status="pending" /></div>
@@ -573,7 +573,7 @@ export function TeamClient({
             {/* Settings gear */}
             <div className="flex justify-center">
               <button
-                className="h-7 w-7 rounded-lg grid place-items-center text-[#6B7A72] hover:bg-[#E8EFEB] transition"
+                className="h-7 w-7 rounded-lg grid place-items-center text-[#65736B] hover:bg-[#E8EFEB] transition"
                 title="Revoke invite"
                 onClick={async () => {
                   if (!initialTeam) return;
@@ -588,7 +588,7 @@ export function TeamClient({
         ))}
 
         {filteredMembers.length === 0 && invites.length === 0 && (
-          <div className="px-5 py-10 text-center text-[13px] text-[#6B7A72]">
+          <div className="px-5 py-10 text-center text-[13px] text-[#65736B]">
             No members found.
           </div>
         )}
@@ -600,7 +600,7 @@ export function TeamClient({
         className="mt-4 flex items-start gap-3 px-4 py-3 rounded-xl text-[12.5px] text-[#3A4A42]"
         style={{ background: '#F5F2EC', border: '1px solid #E5E0D4' }}
       >
-        <Shield size={14} strokeWidth={1.8} className="shrink-0 mt-0.5 text-[#6B7A72]" />
+        <Shield size={14} strokeWidth={1.8} className="shrink-0 mt-0.5 text-[#65736B]" />
         <span>
           <strong>Roles control access.</strong>{' '}
           Owners and Admins manage everything; Editors manage assigned events; Check-in staff can only scan attendees at the door.

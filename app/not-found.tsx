@@ -43,7 +43,7 @@ export default function NotFound() {
             fontWeight: 600,
             letterSpacing: '0.16em',
             textTransform: 'uppercase',
-            color: '#6B7A72',
+            color: '#65736B',
           }}
         >
           Error 404
@@ -123,7 +123,7 @@ export default function NotFound() {
               fontWeight: 600,
               letterSpacing: '0.14em',
               textTransform: 'uppercase',
-              color: '#6B7A72',
+              color: '#65736B',
               marginBottom: 14,
             }}
           >

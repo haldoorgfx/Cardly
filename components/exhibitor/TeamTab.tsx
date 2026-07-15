@@ -136,7 +136,7 @@ export function TeamTab({ members: initial, token }: Props) {
             >
               {isPending ? 'Sending…' : 'Send invite'}
             </button>
-            <button onClick={() => setShowInvite(false)} className="px-4 py-2 rounded-xl text-[13.5px] border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>
+            <button onClick={() => setShowInvite(false)} className="px-4 py-2 rounded-xl text-[13.5px] border" style={{ borderColor: '#E5E0D4', color: '#65736B' }}>
               Cancel
             </button>
           </div>
@@ -145,7 +145,7 @@ export function TeamTab({ members: initial, token }: Props) {
 
       {/* List */}
       {members.length === 0 ? (
-        <div className="px-5 py-10 text-center text-[13.5px]" style={{ color: '#6B7A72' }}>
+        <div className="px-5 py-10 text-center text-[13.5px]" style={{ color: '#65736B' }}>
           No team members yet. Invite a colleague to manage the booth together.
         </div>
       ) : (
@@ -158,7 +158,7 @@ export function TeamTab({ members: initial, token }: Props) {
                 <Avatar name={displayName} idx={i} />
                 <div className="min-w-0 flex-1">
                   <div className="text-[13.5px] font-medium truncate" style={{ color: '#0F1F18' }}>{displayName}</div>
-                  <div className=" text-[11px] mt-0.5" style={{ color: '#6B7A72' }}>{displayRole}</div>
+                  <div className=" text-[11px] mt-0.5" style={{ color: '#65736B' }}>{displayRole}</div>
                 </div>
                 {/* SPO07 · scan-access toggle — who may scan attendee QR codes for leads */}
                 {(() => {
@@ -196,7 +196,7 @@ export function TeamTab({ members: initial, token }: Props) {
                 <button
                   onClick={() => handleRemove(m.id)}
                   disabled={removingId === m.id}
-                  className="w-8 h-8 grid place-items-center rounded-lg transition-colors shrink-0 opacity-60 sm:opacity-0 sm:group-hover:opacity-100"
+                  className="w-10 h-10 grid place-items-center rounded-lg transition-colors shrink-0 opacity-60 sm:opacity-0 sm:group-hover:opacity-100"
                   style={{ color: '#B8423C' }}
                   title="Remove member"
                 >

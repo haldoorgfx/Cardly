@@ -75,7 +75,7 @@ export default function ForgotPasswordPage() {
                   required
                   aria-invalid={!!error}
                   placeholder="you@studio.com"
-                  className="w-full h-10 px-3.5 rounded-lg border text-[14px] text-[#0F1F18] placeholder:text-[#6B7A72]/60 transition focus:outline-none"
+                  className="w-full h-10 px-3.5 rounded-lg border text-[14px] text-[#0F1F18] placeholder:text-[#65736B]/60 transition focus:outline-none"
                   style={{ borderColor: "#E5E0D4", background: "#FAF6EE" }}
                   onFocus={e => { e.currentTarget.style.borderColor = "rgba(31,77,58,0.4)"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(31,77,58,0.1)"; }}
                   onBlur={e => { e.currentTarget.style.borderColor = "#E5E0D4"; e.currentTarget.style.boxShadow = "none"; }}

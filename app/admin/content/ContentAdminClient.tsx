@@ -77,7 +77,7 @@ export function ContentAdminClient({ initialPages, blockCounts = {} }: { initial
     return (
       <div className="border-2 border-dashed border-[#E5E0D4] rounded-2xl p-16 text-center">
         <FileText size={36} className="mx-auto text-[#C9C3B1] mb-3" />
-        <p className="text-[14px] text-[#6B7A72]">
+        <p className="text-[14px] text-[#65736B]">
           No pages seeded yet. Run the seed script to populate the CMS.
         </p>
         <code className="font-sans mt-4 block text-[12px] bg-[#FAF6EE] border border-[#E5E0D4] rounded-lg px-4 py-2 text-[#3A4A42] max-w-sm mx-auto">
@@ -107,7 +107,7 @@ export function ContentAdminClient({ initialPages, blockCounts = {} }: { initial
           <button
             disabled={bulkBusy}
             onClick={() => runBulk('unpublish')}
-            className="h-8 px-3 rounded-lg text-[12px] font-medium border border-[#E5E0D4] bg-white text-[#6B7A72] hover:bg-[#FAF6EE] transition-colors disabled:opacity-50"
+            className="h-8 px-3 rounded-lg text-[12px] font-medium border border-[#E5E0D4] bg-white text-[#65736B] hover:bg-[#FAF6EE] transition-colors disabled:opacity-50"
           >
             Unpublish
           </button>
@@ -123,7 +123,7 @@ export function ContentAdminClient({ initialPages, blockCounts = {} }: { initial
             disabled={bulkBusy}
             onClick={clearSelection}
             title="Clear selection"
-            className="h-8 w-8 grid place-items-center rounded-lg border border-[#E5E0D4] bg-white text-[#6B7A72] hover:bg-[#FAF6EE] transition-colors disabled:opacity-50"
+            className="h-10 w-10 grid place-items-center rounded-lg border border-[#E5E0D4] bg-white text-[#65736B] hover:bg-[#FAF6EE] transition-colors disabled:opacity-50"
           >
             <X size={13} strokeWidth={2} />
           </button>
@@ -139,10 +139,10 @@ export function ContentAdminClient({ initialPages, blockCounts = {} }: { initial
             onChange={toggleAll}
             className="h-4 w-4 rounded border-[#E5E0D4] accent-[#1F4D3A] cursor-pointer"
           />
-          <span className="text-[12.5px] uppercase tracking-[0.14em] text-[#6B7A72]">Page</span>
-          <span className="text-[12.5px] uppercase tracking-[0.14em] text-[#6B7A72] text-right">Blocks</span>
-          <span className="text-[12.5px] uppercase tracking-[0.14em] text-[#6B7A72] text-right px-6">Status</span>
-          <span className="text-[12.5px] uppercase tracking-[0.14em] text-[#6B7A72] text-right">Actions</span>
+          <span className="text-[12.5px] uppercase tracking-[0.14em] text-[#65736B]">Page</span>
+          <span className="text-[12.5px] uppercase tracking-[0.14em] text-[#65736B] text-right">Blocks</span>
+          <span className="text-[12.5px] uppercase tracking-[0.14em] text-[#65736B] text-right px-6">Status</span>
+          <span className="text-[12.5px] uppercase tracking-[0.14em] text-[#65736B] text-right">Actions</span>
         </div>
         {pages.map((page) => (
           <div
@@ -158,9 +158,9 @@ export function ContentAdminClient({ initialPages, blockCounts = {} }: { initial
             />
             <div className="min-w-0">
               <div className="font-medium text-[14px] text-[#0F1F18]">{page.title}</div>
-              <div className=" text-[12.5px] text-[#6B7A72] mt-0.5">/{page.slug}</div>
+              <div className=" text-[12.5px] text-[#65736B] mt-0.5">/{page.slug}</div>
             </div>
-            <div className="text-[13px] text-[#6B7A72] text-right px-6">
+            <div className="text-[13px] text-[#65736B] text-right px-6">
               {blockCounts[page.id] ?? 0}
             </div>
             <div className="px-6">
@@ -204,14 +204,14 @@ export function ContentAdminClient({ initialPages, blockCounts = {} }: { initial
                 <h3 className="font-semibold text-[15px] text-[#0F1F18]">
                   Delete {selected.size} page{selected.size === 1 ? '' : 's'}?
                 </h3>
-                <p className="text-[13px] text-[#6B7A72] mt-1">
+                <p className="text-[13px] text-[#65736B] mt-1">
                   This cannot be undone. The selected page{selected.size === 1 ? '' : 's'} and
                   {selected.size === 1 ? ' its' : ' their'} content blocks will be permanently removed.
                 </p>
               </div>
             </div>
             <div className="flex gap-2 justify-end">
-              <button onClick={() => setBulkConfirmDelete(false)} className="px-4 py-2 rounded-lg text-[13px] text-[#6B7A72] border border-[#E5E0D4] hover:bg-[#FAF6EE] transition-colors">Cancel</button>
+              <button onClick={() => setBulkConfirmDelete(false)} className="px-4 py-2 rounded-lg text-[13px] text-[#65736B] border border-[#E5E0D4] hover:bg-[#FAF6EE] transition-colors">Cancel</button>
               <button onClick={() => runBulk('delete')} className="px-4 py-2 rounded-lg text-[13px] font-medium text-white bg-[#B8423C] hover:opacity-90 transition">Delete {selected.size}</button>
             </div>
           </div>

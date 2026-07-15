@@ -65,15 +65,15 @@ export default function WaitlistJoinClient({ slug, title, coverUrl, startsAt, ci
           <div className="font-display font-semibold text-[18px] mb-2" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
             {title}
           </div>
-          <div className="flex flex-wrap gap-x-4 gap-y-1 text-[13px]" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
+          <div className="flex flex-wrap gap-x-4 gap-y-1 text-[13px]" style={{ color: '#65736B', fontFamily: 'Inter, system-ui, sans-serif' }}>
             {dateStr && (
               <span className="flex items-center gap-1.5">
-                <Calendar size={11} style={{ color: '#6B7A72' }} /> {dateStr}
+                <Calendar size={11} style={{ color: '#65736B' }} /> {dateStr}
               </span>
             )}
             {city && (
               <span className="flex items-center gap-1.5">
-                <MapPin size={11} style={{ color: '#6B7A72' }} /> {city}
+                <MapPin size={11} style={{ color: '#65736B' }} /> {city}
               </span>
             )}
           </div>
@@ -98,7 +98,7 @@ export default function WaitlistJoinClient({ slug, title, coverUrl, startsAt, ci
           >
             You&rsquo;re on the list
           </h1>
-          <p className="text-[14px] mb-1" style={{ color: '#6B7A72' }}>
+          <p className="text-[14px] mb-1" style={{ color: '#65736B' }}>
             Your position
           </p>
           <div
@@ -107,7 +107,7 @@ export default function WaitlistJoinClient({ slug, title, coverUrl, startsAt, ci
           >
             #{position}
           </div>
-          <p className="text-[13px] mb-6 leading-relaxed" style={{ color: '#6B7A72' }}>
+          <p className="text-[13px] mb-6 leading-relaxed" style={{ color: '#65736B' }}>
             We&rsquo;ll email you if a spot opens up. No action needed.
           </p>
           <Link
@@ -128,9 +128,9 @@ export default function WaitlistJoinClient({ slug, title, coverUrl, startsAt, ci
           {currentCount > 0 && (
             <div
               className="flex items-center gap-2.5 rounded-xl px-4 py-3 mb-6 text-[13px]"
-              style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#6B7A72' }}
+              style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#65736B' }}
             >
-              <Users size={14} style={{ color: '#6B7A72' }} />
+              <Users size={14} style={{ color: '#65736B' }} />
               <span>
                 <span className="font-medium" style={{ color: '#0F1F18', fontFamily: 'Inter, system-ui, sans-serif' }}>
                   {currentCount}
@@ -146,7 +146,7 @@ export default function WaitlistJoinClient({ slug, title, coverUrl, startsAt, ci
           >
             Join the waitlist
           </h1>
-          <p className="text-[14px] mb-6" style={{ color: '#6B7A72' }}>
+          <p className="text-[14px] mb-6" style={{ color: '#65736B' }}>
             This event is sold out. Join the queue and we&rsquo;ll notify you if a spot opens.
           </p>
 
@@ -196,7 +196,7 @@ export default function WaitlistJoinClient({ slug, title, coverUrl, startsAt, ci
             </button>
           </form>
 
-          <div className="mt-5 text-center text-[12px]" style={{ color: '#6B7A72' }}>
+          <div className="mt-5 text-center text-[12px]" style={{ color: '#65736B' }}>
             Already registered?{' '}
             <Link href="/my-tickets" className="font-medium hover:underline" style={{ color: '#1F4D3A' }}>
               View my tickets →

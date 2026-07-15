@@ -53,7 +53,7 @@ export default async function PublicSponsorPage({ params }: Props) {
       <div className="max-w-[680px] mx-auto px-5 py-10">
         <Link href={`/e/${params.slug}?tab=sponsors`}
           className="inline-flex items-center gap-1.5 text-[13px] font-medium mb-6"
-          style={{ color: '#6B7A72' }}>
+          style={{ color: '#65736B' }}>
           <ArrowLeft size={14} strokeWidth={2} /> {event.name}
         </Link>
 
@@ -65,7 +65,7 @@ export default async function PublicSponsorPage({ params }: Props) {
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={sponsor.logo_url} alt={sponsor.company_name} className="w-full h-full object-contain p-2" />
               ) : (
-                <Store size={26} strokeWidth={1.6} style={{ color: '#6B7A72' }} />
+                <Store size={26} strokeWidth={1.6} style={{ color: '#65736B' }} />
               )}
             </div>
             <div className="min-w-0">
@@ -84,7 +84,7 @@ export default async function PublicSponsorPage({ params }: Props) {
                 <p className="text-[14px] mt-1" style={{ color: '#3A4A42' }}>{sponsor.tagline}</p>
               )}
               {sponsor.booth_location && (
-                <p className="text-[13px] mt-1" style={{ color: '#6B7A72' }}>Booth {sponsor.booth_location}</p>
+                <p className="text-[13px] mt-1" style={{ color: '#65736B' }}>Booth {sponsor.booth_location}</p>
               )}
               {sponsor.website_url && (
                 <a href={sponsor.website_url} target="_blank" rel="noopener noreferrer"
@@ -115,7 +115,7 @@ export default async function PublicSponsorPage({ params }: Props) {
                   style={{ borderTop: i > 0 ? '1px solid #F0EDE6' : 'none' }}>
                   <div className="min-w-0 flex-1">
                     <div className="text-[14px] font-medium" style={{ color: '#0F1F18' }}>{o.title}</div>
-                    {o.type && <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>{o.type}</div>}
+                    {o.type && <div className="text-[12px] mt-0.5" style={{ color: '#65736B' }}>{o.type}</div>}
                   </div>
                   {o.url && (
                     <a href={o.url} target="_blank" rel="noopener noreferrer"

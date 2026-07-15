@@ -16,7 +16,7 @@ const VARIANTS = [
   { id: 'attendee', label: 'Attendee',  strip: '#1F4D3A' },
   { id: 'speaker',  label: 'Speaker',   strip: '#E8C57E' },
   { id: 'vip',      label: 'VIP',       strip: '#3A6B8C' },
-  { id: 'staff',    label: 'Staff',     strip: '#6B7A72' },
+  { id: 'staff',    label: 'Staff',     strip: '#65736B' },
 ];
 
 const TOGGLE_OPTIONS = [
@@ -72,7 +72,7 @@ export function BadgesClient({ eventName, ticketTypes, regCount }: Props) {
           { label: 'Printed', value: '—' },
         ].map(s => (
           <div key={s.label} className="bg-white rounded-2xl p-5" style={{ border: '1px solid #E5E0D4' }}>
-            <div className=" text-[11.5px] tracking-[0.14em] uppercase mb-2" style={{ color: '#6B7A72' }}>{s.label}</div>
+            <div className=" text-[11.5px] tracking-[0.14em] uppercase mb-2" style={{ color: '#65736B' }}>{s.label}</div>
             <div className=" text-[24px] leading-none" style={{ color: '#0F1F18' }}>{s.value}</div>
           </div>
         ))}
@@ -83,7 +83,7 @@ export function BadgesClient({ eventName, ticketTypes, regCount }: Props) {
         <div className="grid gap-5 content-start">
           {/* Variant */}
           <div className="bg-white rounded-2xl p-5" style={{ border: '1px solid #E5E0D4' }}>
-            <div className=" text-[11.5px] tracking-[0.14em] uppercase mb-3" style={{ color: '#6B7A72' }}>Badge variant</div>
+            <div className=" text-[11.5px] tracking-[0.14em] uppercase mb-3" style={{ color: '#65736B' }}>Badge variant</div>
             <div className="grid grid-cols-2 gap-2">
               {VARIANTS.map(v => (
                 <button key={v.id} onClick={() => setVariant(v.id)}
@@ -102,7 +102,7 @@ export function BadgesClient({ eventName, ticketTypes, regCount }: Props) {
 
           {/* Elements */}
           <div className="bg-white rounded-2xl p-5" style={{ border: '1px solid #E5E0D4' }}>
-            <div className=" text-[11.5px] tracking-[0.14em] uppercase mb-3" style={{ color: '#6B7A72' }}>Elements</div>
+            <div className=" text-[11.5px] tracking-[0.14em] uppercase mb-3" style={{ color: '#65736B' }}>Elements</div>
             <div className="grid gap-3">
               {TOGGLE_OPTIONS.map(opt => (
                 <div key={opt.id} className="flex items-center justify-between">
@@ -121,7 +121,7 @@ export function BadgesClient({ eventName, ticketTypes, regCount }: Props) {
 
           {/* Paper / printer */}
           <div className="bg-white rounded-2xl p-5" style={{ border: '1px solid #E5E0D4' }}>
-            <div className=" text-[11.5px] tracking-[0.14em] uppercase mb-3" style={{ color: '#6B7A72' }}>Paper size</div>
+            <div className=" text-[11.5px] tracking-[0.14em] uppercase mb-3" style={{ color: '#65736B' }}>Paper size</div>
             <div className="grid grid-cols-2 gap-2">
               {SIZES.map(s => (
                 <button key={s} onClick={() => setSize(s)}
@@ -141,7 +141,7 @@ export function BadgesClient({ eventName, ticketTypes, regCount }: Props) {
         {/* Preview */}
         <div className="bg-white rounded-2xl p-6 flex flex-col items-center justify-center min-h-[500px]"
           style={{ border: '1px solid #E5E0D4', background: '#FAF6EE' }}>
-          <div className=" text-[11.5px] tracking-[0.14em] uppercase mb-6" style={{ color: '#6B7A72' }}>Live preview</div>
+          <div className=" text-[11.5px] tracking-[0.14em] uppercase mb-6" style={{ color: '#65736B' }}>Live preview</div>
 
           {/* Badge card */}
           <div className="relative bg-white rounded-2xl shadow-lg overflow-hidden" style={{ width: 240, minHeight: 320 }}>
@@ -166,7 +166,7 @@ export function BadgesClient({ eventName, ticketTypes, regCount }: Props) {
 
               {/* Company */}
               {elements.company && (
-                <div className="text-[12px] mt-1 text-center" style={{ color: '#6B7A72' }}>Organization</div>
+                <div className="text-[12px] mt-1 text-center" style={{ color: '#65736B' }}>Organization</div>
               )}
 
               {/* Badge type label */}

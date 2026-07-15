@@ -67,7 +67,7 @@ export function AppPhone({ className = '' }: { className?: string }) {
             {QR}
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif', fontWeight: 700, fontSize: 14, color: '#0F1F18', lineHeight: 1.25 }}>Nairobi Founders Summit</div>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, marginTop: 7, fontSize: 12, fontWeight: 600, color: '#6B7A72' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, marginTop: 7, fontSize: 12, fontWeight: 600, color: '#65736B' }}>
                 <CalendarDays size={13} strokeWidth={2} /> Apr 3 · Upcoming
               </div>
             </div>

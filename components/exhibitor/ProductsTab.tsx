@@ -77,7 +77,7 @@ function ProductModal({
           <div className="font-display text-[15px] font-semibold" style={{ color: '#0F1F18' }}>
             {product ? 'Edit product' : 'Add product'}
           </div>
-          <button onClick={onClose} aria-label="Close" className="w-7 h-7 rounded-lg grid place-items-center hover:bg-[#F5F3EE]" style={{ color: '#6B7A72' }}>
+          <button onClick={onClose} aria-label="Close" className="w-10 h-10 rounded-lg grid place-items-center hover:bg-[#F5F3EE]" style={{ color: '#65736B' }}>
             <svg width={14} height={14} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -86,7 +86,7 @@ function ProductModal({
 
         <div className="px-5 py-4 space-y-3.5">
           <div>
-            <div className=" text-[10px] tracking-[0.12em] uppercase mb-2" style={{ color: '#6B7A72' }}>Name</div>
+            <div className=" text-[10px] tracking-[0.12em] uppercase mb-2" style={{ color: '#65736B' }}>Name</div>
             <input
               value={name}
               onChange={e => setName(e.target.value)}
@@ -99,7 +99,7 @@ function ProductModal({
             />
           </div>
           <div>
-            <div className=" text-[10px] tracking-[0.12em] uppercase mb-2" style={{ color: '#6B7A72' }}>Description</div>
+            <div className=" text-[10px] tracking-[0.12em] uppercase mb-2" style={{ color: '#65736B' }}>Description</div>
             <textarea
               value={description}
               onChange={e => setDescription(e.target.value)}
@@ -113,7 +113,7 @@ function ProductModal({
             />
           </div>
           <div>
-            <div className=" text-[10px] tracking-[0.12em] uppercase mb-2" style={{ color: '#6B7A72' }}>Image URL <span style={{ textTransform: 'none', letterSpacing: 0 }}>(optional)</span></div>
+            <div className=" text-[10px] tracking-[0.12em] uppercase mb-2" style={{ color: '#65736B' }}>Image URL <span style={{ textTransform: 'none', letterSpacing: 0 }}>(optional)</span></div>
             <input
               value={imageUrl}
               onChange={e => setImageUrl(e.target.value)}
@@ -133,7 +133,7 @@ function ProductModal({
           >
             <div className="text-left">
               <div className="text-[13px] font-medium" style={{ color: '#0F1F18' }}>Featured</div>
-              <div className="text-[11.5px] mt-0.5" style={{ color: '#6B7A72' }}>Highlight this in your directory listing</div>
+              <div className="text-[11.5px] mt-0.5" style={{ color: '#65736B' }}>Highlight this in your directory listing</div>
             </div>
             <span
               className="relative inline-flex h-6 w-10 rounded-full transition-colors shrink-0"
@@ -163,7 +163,7 @@ function ProductModal({
           <button
             onClick={onClose}
             className="px-4 py-2.5 rounded-xl text-[13.5px] font-medium border"
-            style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}
+            style={{ borderColor: '#E5E0D4', color: '#65736B' }}
           >
             Cancel
           </button>
@@ -252,7 +252,7 @@ export function ProductsTab({ products: initial, token }: Props) {
             </svg>
           </div>
           <div className="font-display text-[15px] font-semibold" style={{ color: '#0F1F18' }}>No products yet</div>
-          <p className="text-[13px] mt-1.5 max-w-[320px] mx-auto" style={{ color: '#6B7A72' }}>
+          <p className="text-[13px] mt-1.5 max-w-[320px] mx-auto" style={{ color: '#65736B' }}>
             Add the products you&apos;re showcasing at your booth — they sync to your directory listing.
           </p>
         </div>
@@ -277,7 +277,7 @@ export function ProductsTab({ products: initial, token }: Props) {
                 <div className="min-w-0 flex-1">
                   <div className="text-[13.5px] font-medium truncate" style={{ color: '#0F1F18' }}>{p.name}</div>
                   {p.description && (
-                    <div className="text-[11.5px] truncate mt-0.5" style={{ color: '#6B7A72' }}>{p.description}</div>
+                    <div className="text-[11.5px] truncate mt-0.5" style={{ color: '#65736B' }}>{p.description}</div>
                   )}
                 </div>
               </button>
@@ -286,7 +286,7 @@ export function ProductsTab({ products: initial, token }: Props) {
                 className="inline-flex items-center gap-1.5 text-[11px] font-medium px-2.5 py-1 rounded-full border transition-colors shrink-0"
                 style={p.is_featured
                   ? { background: 'rgba(232,197,126,0.2)', color: '#C9A45E', borderColor: 'rgba(232,197,126,0.4)' }
-                  : { background: '#FFFFFF', color: '#6B7A72', borderColor: '#E5E0D4' }}
+                  : { background: '#FFFFFF', color: '#65736B', borderColor: '#E5E0D4' }}
               >
                 <svg width={11} height={11} fill={p.is_featured ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.5l2.37 4.8 5.3.77-3.83 3.74.9 5.28L11.48 15.6l-4.74 2.49.9-5.28L3.8 9.07l5.3-.77z" />
@@ -300,7 +300,7 @@ export function ProductsTab({ products: initial, token }: Props) {
 
       {/* Sync note */}
       <div className="mx-5 mb-5 mt-4 flex items-start gap-2.5 px-3.5 py-3 rounded-xl" style={{ background: '#FAF6EE', border: '1px solid #E5E0D4' }}>
-        <svg width={16} height={16} fill="none" stroke="#6B7A72" strokeWidth={1.6} viewBox="0 0 24 24" className="shrink-0 mt-0.5">
+        <svg width={16} height={16} fill="none" stroke="#65736B" strokeWidth={1.6} viewBox="0 0 24 24" className="shrink-0 mt-0.5">
           <circle cx="12" cy="12" r="9" /><path strokeLinecap="round" d="M12 8v5M12 16v.01" />
         </svg>
         <div className="text-[12px] leading-relaxed" style={{ color: '#3A4A42' }}>

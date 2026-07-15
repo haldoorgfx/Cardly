@@ -108,7 +108,7 @@ export function TransferModal({ ent, fromName, searchTargets, lookupByEmail, tra
         <>
           <button type="button" onClick={onClose} disabled={pending}
             className="rounded-lg px-4 py-2 text-[13px] font-medium border transition disabled:opacity-60"
-            style={{ borderColor: '#E5E0D4', color: '#6B7A72', background: '#FFFFFF' }}>
+            style={{ borderColor: '#E5E0D4', color: '#65736B', background: '#FFFFFF' }}>
             Cancel
           </button>
           <button type="button" onClick={doTransfer} disabled={!selected || pending}
@@ -138,7 +138,7 @@ export function TransferModal({ ent, fromName, searchTargets, lookupByEmail, tra
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-[14px] font-medium truncate" style={{ color: '#0F1F18' }}>{selected.name}</p>
-              <p className="text-[12px] truncate" style={{ color: '#6B7A72' }}>{selected.email ?? selected.ticketName ?? '—'}</p>
+              <p className="text-[12px] truncate" style={{ color: '#65736B' }}>{selected.email ?? selected.ticketName ?? '—'}</p>
             </div>
             <button type="button" onClick={() => { setSelected(null); setError(''); setBlocked(false); }}
               className="text-[12.5px] font-medium" style={{ color: '#1F4D3A' }}>Change</button>
@@ -147,7 +147,7 @@ export function TransferModal({ ent, fromName, searchTargets, lookupByEmail, tra
       ) : (
         <>
           <div className="relative mb-3">
-            <Search size={15} strokeWidth={2} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: '#6B7A72' }} />
+            <Search size={15} strokeWidth={2} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: '#65736B' }} />
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -159,9 +159,9 @@ export function TransferModal({ ent, fromName, searchTargets, lookupByEmail, tra
 
           <div className="space-y-1.5 max-h-[220px] overflow-y-auto">
             {searching ? (
-              <p className="text-[13px] px-1 py-2" style={{ color: '#6B7A72' }}>Searching…</p>
+              <p className="text-[13px] px-1 py-2" style={{ color: '#65736B' }}>Searching…</p>
             ) : results.length === 0 ? (
-              <p className="text-[13px] px-1 py-2" style={{ color: '#6B7A72' }}>No matching attendees.</p>
+              <p className="text-[13px] px-1 py-2" style={{ color: '#65736B' }}>No matching attendees.</p>
             ) : (
               results.map((t) => (
                 <button key={t.registrationId} type="button" onClick={() => setSelected(t)}
@@ -172,9 +172,9 @@ export function TransferModal({ ent, fromName, searchTargets, lookupByEmail, tra
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-[14px] font-medium truncate" style={{ color: '#0F1F18' }}>{t.name}</p>
-                    <p className="text-[12px] truncate" style={{ color: '#6B7A72' }}>{t.email ?? t.ticketName ?? '—'}</p>
+                    <p className="text-[12px] truncate" style={{ color: '#65736B' }}>{t.email ?? t.ticketName ?? '—'}</p>
                   </div>
-                  <Check size={15} strokeWidth={2} style={{ color: '#6B7A72' }} />
+                  <Check size={15} strokeWidth={2} style={{ color: '#65736B' }} />
                 </button>
               ))
             )}
@@ -182,7 +182,7 @@ export function TransferModal({ ent, fromName, searchTargets, lookupByEmail, tra
 
           {/* Invite-by-email — honestly disabled for non-attendees. */}
           <div className="mt-4 pt-4" style={{ borderTop: '1px solid #E5E0D4' }}>
-            <p className="text-[11px] uppercase tracking-[0.1em] mb-2" style={{ color: '#6B7A72' }}>Not in the list?</p>
+            <p className="text-[11px] uppercase tracking-[0.1em] mb-2" style={{ color: '#65736B' }}>Not in the list?</p>
             <div className="flex items-center gap-2">
               <input
                 type="email"

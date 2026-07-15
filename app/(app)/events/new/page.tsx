@@ -113,7 +113,7 @@ export default function NewEventPage() {
         <Link
           href="/dashboard"
           className="flex items-center gap-1.5 text-[13px] font-medium transition hover:text-[#1F4D3A]"
-          style={{ color: '#6B7A72' }}>
+          style={{ color: '#65736B' }}>
           <ArrowLeft size={14} strokeWidth={2} />
           Back to events
         </Link>
@@ -132,7 +132,7 @@ export default function NewEventPage() {
           <h1 className="font-display font-semibold text-[32px] mb-1 tracking-[-0.02em]" style={{ color: '#0F1F18' }}>
             Let&apos;s set up your event
           </h1>
-          <p className="text-[14px] mb-9" style={{ color: '#6B7A72' }}>
+          <p className="text-[14px] mb-9" style={{ color: '#65736B' }}>
             The essentials — you can change all of this later.
           </p>
 
@@ -140,7 +140,7 @@ export default function NewEventPage() {
             {/* Event name */}
             <div>
               <label className="block text-[12.5px] font-semibold uppercase tracking-widest mb-2"
-                style={{ color: '#6B7A72' }}>
+                style={{ color: '#65736B' }}>
                 Event Name
               </label>
               <input
@@ -163,7 +163,7 @@ export default function NewEventPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-[12.5px] font-semibold uppercase tracking-widest mb-2"
-                  style={{ color: '#6B7A72' }}>
+                  style={{ color: '#65736B' }}>
                   <span className="inline-flex items-center gap-1.5"><CalendarDays size={10} strokeWidth={2} /> Starts</span>
                 </label>
                 <input
@@ -176,7 +176,7 @@ export default function NewEventPage() {
               </div>
               <div>
                 <label className="block text-[12.5px] font-semibold uppercase tracking-widest mb-2"
-                  style={{ color: '#6B7A72' }}>
+                  style={{ color: '#65736B' }}>
                   Ends
                 </label>
                 <input
@@ -193,7 +193,7 @@ export default function NewEventPage() {
             <div>
               <div className="flex items-center justify-between mb-2">
                 <label className="text-[12.5px] font-semibold uppercase tracking-widest flex items-center gap-1.5"
-                  style={{ color: '#6B7A72' }}>
+                  style={{ color: '#65736B' }}>
                   Venue
                 </label>
                 <button
@@ -219,7 +219,7 @@ export default function NewEventPage() {
                 />
               )}
               {placeData && (
-                <p className="mt-1.5 text-[12px] pl-1" style={{ color: '#6B7A72' }}>
+                <p className="mt-1.5 text-[12px] pl-1" style={{ color: '#65736B' }}>
                   <span className="inline-flex items-center gap-1"><MapPin size={11} />{placeData.venue_address}</span>
                 </p>
               )}

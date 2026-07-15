@@ -29,7 +29,7 @@ export function AgendaPrintTrigger({ backHref }: Props) {
         style={{
           display: 'inline-flex', alignItems: 'center', gap: 6,
           padding: '8px 16px', borderRadius: 10, fontSize: 13,
-          color: '#6B7A72', textDecoration: 'none',
+          color: '#65736B', textDecoration: 'none',
           background: 'white', border: '1px solid #E5E0D4',
         }}
       >

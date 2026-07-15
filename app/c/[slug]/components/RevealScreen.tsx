@@ -322,11 +322,11 @@ export default function RevealScreen({
             style={{
               background: 'transparent', border: 'none', cursor: 'pointer',
               fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 500,
-              color: '#6B7A72', padding: 0, alignSelf: 'center',
+              color: '#65736B', padding: 0, alignSelf: 'center',
               transition: 'color .15s',
             }}
             onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#3A4A42'; }}
-            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#6B7A72'; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#65736B'; }}
           >
             Edit my info
           </button>
@@ -334,7 +334,7 @@ export default function RevealScreen({
           {/* Powered by (white-label aware) */}
           <div style={{
             textAlign: 'center', marginTop: 8,
-            fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11, color: '#6B7A72', letterSpacing: '0.04em',
+            fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11, color: '#65736B', letterSpacing: '0.04em',
           }}>
             <PoweredByInline />
           </div>

@@ -238,7 +238,7 @@ export default function PhotoCropModal({
             <div>
               <div style={{
                 fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11,
-                color: '#6B7A72', letterSpacing: '0.1em',
+                color: '#65736B', letterSpacing: '0.1em',
                 textTransform: 'uppercase', marginBottom: 8,
               }}>Position photo</div>
               <div style={{
@@ -246,7 +246,7 @@ export default function PhotoCropModal({
                 letterSpacing: '-0.025em', color: '#0F1F18', lineHeight: 1.15,
               }}>Position your photo</div>
               <div style={{
-                fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#6B7A72', marginTop: 8,
+                fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#65736B', marginTop: 8,
               }}>Drag to reposition. Scroll or use the slider to zoom.</div>
             </div>
             <button

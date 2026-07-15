@@ -35,7 +35,7 @@ const TIERS = [
 const TIER_STYLE: Record<string, { bg: string; color: string; border: string }> = {
   platinum: { bg: 'rgba(232,197,126,0.15)', color: '#C9A45E',  border: 'rgba(201,164,94,0.4)' },
   gold:     { bg: 'rgba(201,122,45,0.10)',  color: '#C97A2D',  border: 'rgba(201,122,45,0.3)' },
-  silver:   { bg: 'rgba(107,122,114,0.10)', color: '#6B7A72',  border: 'rgba(107,122,114,0.3)' },
+  silver:   { bg: 'rgba(107,122,114,0.10)', color: '#65736B',  border: 'rgba(107,122,114,0.3)' },
   standard: { bg: '#E8EFEB',                color: '#1F4D3A',  border: 'rgba(31,77,58,0.2)' },
 };
 
@@ -97,21 +97,21 @@ function LogoUpload({
 
   return (
     <div>
-      <div className="text-[12px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Logo</div>
+      <div className="text-[12px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#65736B' }}>Logo</div>
       <input ref={inputRef} type="file" accept="image/*" className="hidden"
         onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f); }} />
       <button type="button" onClick={() => inputRef.current?.click()}
         className="w-full h-[72px] rounded-xl border-2 border-dashed flex items-center justify-center gap-3 transition-colors hover:border-[#1F4D3A] hover:bg-[#E8EFEB]"
         style={{ borderColor: '#E5E0D4', background: preview ? 'white' : '#FAF6EE' }}>
         {uploading ? (
-          <span className="text-[12px]" style={{ color: '#6B7A72' }}>Uploading…</span>
+          <span className="text-[12px]" style={{ color: '#65736B' }}>Uploading…</span>
         ) : preview ? (
           <>
             <Image src={preview} alt="Logo" width={40} height={40} className="h-10 w-10 object-contain rounded-lg" style={{ border: '1px solid #E5E0D4' }} />
-            <span className="text-[12px]" style={{ color: '#6B7A72' }}>Replace logo</span>
+            <span className="text-[12px]" style={{ color: '#65736B' }}>Replace logo</span>
           </>
         ) : (
-          <span className="text-[12px]" style={{ color: '#6B7A72' }}>Upload logo (PNG, JPG, SVG)</span>
+          <span className="text-[12px]" style={{ color: '#65736B' }}>Upload logo (PNG, JPG, SVG)</span>
         )}
       </button>
     </div>
@@ -163,7 +163,7 @@ function EditSponsorModal({
       <div className="relative bg-white rounded-2xl overflow-hidden w-full max-w-[460px]" style={{ border: '1px solid #E5E0D4', boxShadow: '0 8px 40px rgba(15,31,24,0.18)' }}>
         <div className="flex items-center justify-between px-6 py-5" style={{ borderBottom: '1px solid #E5E0D4' }}>
           <div className="font-display text-[16px] font-semibold" style={{ color: '#0F1F18' }}>Edit sponsor</div>
-          <button onClick={onClose} className="w-7 h-7 rounded-lg grid place-items-center hover:bg-[#F5F3EE]" style={{ color: '#6B7A72' }}>
+          <button onClick={onClose} className="w-10 h-10 rounded-lg grid place-items-center hover:bg-[#F5F3EE]" style={{ color: '#65736B' }}>
             <svg width={14} height={14} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -173,31 +173,31 @@ function EditSponsorModal({
         <div className="px-4 sm:px-6 py-5 grid sm:grid-cols-2 gap-4">
           {error && <p className="sm:col-span-2 text-[13px] px-3 py-2 rounded-lg" style={{ background: '#FEF2F2', color: '#B8423C' }}>{error}</p>}
           <div className="sm:col-span-2">
-            <label className="block text-[12px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Company name *</label>
+            <label className="block text-[12px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#65736B' }}>Company name *</label>
             <input type="text" value={form.company_name} onChange={e => setForm(f => ({ ...f, company_name: e.target.value }))}
               className="w-full border rounded-lg px-3 py-2.5 text-[13.5px] outline-none" style={{ borderColor: '#E5E0D4', color: '#0F1F18' }} />
           </div>
           <div>
-            <label className="block text-[12px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Tier</label>
+            <label className="block text-[12px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#65736B' }}>Tier</label>
             <select value={form.tier} onChange={e => setForm(f => ({ ...f, tier: e.target.value }))}
               className="w-full border rounded-lg px-3 py-2.5 text-[13.5px] outline-none bg-white" style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}>
               {TIERS.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
             </select>
           </div>
           <div>
-            <label className="block text-[12px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Booth location</label>
+            <label className="block text-[12px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#65736B' }}>Booth location</label>
             <input type="text" value={form.booth_location} onChange={e => setForm(f => ({ ...f, booth_location: e.target.value }))}
               placeholder="Hall B · Booth 14"
               className="w-full border rounded-lg px-3 py-2.5 text-[13.5px] outline-none" style={{ borderColor: '#E5E0D4', color: '#0F1F18' }} />
           </div>
           <div className="sm:col-span-2">
-            <label className="block text-[12px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Website</label>
+            <label className="block text-[12px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#65736B' }}>Website</label>
             <input type="url" value={form.website_url} onChange={e => setForm(f => ({ ...f, website_url: e.target.value }))}
               placeholder="https://company.com"
               className="w-full border rounded-lg px-3 py-2.5 text-[13.5px] outline-none" style={{ borderColor: '#E5E0D4', color: '#0F1F18' }} />
           </div>
           <div className="sm:col-span-2">
-            <label className="block text-[12px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Contact email</label>
+            <label className="block text-[12px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#65736B' }}>Contact email</label>
             <input type="email" value={form.contact_email} onChange={e => setForm(f => ({ ...f, contact_email: e.target.value }))}
               placeholder="sponsor@company.com"
               className="w-full border rounded-lg px-3 py-2.5 text-[13.5px] outline-none" style={{ borderColor: '#E5E0D4', color: '#0F1F18' }} />
@@ -215,7 +215,7 @@ function EditSponsorModal({
         </div>
 
         <div className="px-4 sm:px-6 pb-6 flex gap-3">
-          <button onClick={onClose} className="flex-1 h-10 rounded-lg text-[13px] border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>Cancel</button>
+          <button onClick={onClose} className="flex-1 h-10 rounded-lg text-[13px] border" style={{ borderColor: '#E5E0D4', color: '#65736B' }}>Cancel</button>
           <button onClick={handleSave} disabled={saving}
             className="flex-1 h-10 rounded-xl text-[13px] font-semibold text-white transition disabled:opacity-60"
             style={{ background: '#1F4D3A' }}>
@@ -263,12 +263,12 @@ function DeleteSponsorModal({
           </svg>
         </div>
         <h3 className="font-display text-[17px] font-semibold text-center mb-1" style={{ color: '#0F1F18' }}>Remove {sponsor.company_name}?</h3>
-        <p className="text-[13.5px] text-center mb-5" style={{ color: '#6B7A72' }}>
+        <p className="text-[13.5px] text-center mb-5" style={{ color: '#65736B' }}>
           This will also delete all their leads, resources, and team members. This cannot be undone.
         </p>
         {error && <p className="text-[13px] mb-3 text-center" style={{ color: '#B8423C' }}>{error}</p>}
         <div className="flex gap-3">
-          <button onClick={onClose} className="flex-1 h-10 rounded-lg text-[13px] border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>Cancel</button>
+          <button onClick={onClose} className="flex-1 h-10 rounded-lg text-[13px] border" style={{ borderColor: '#E5E0D4', color: '#65736B' }}>Cancel</button>
           <button onClick={handleDelete} disabled={deleting}
             className="flex-1 h-10 rounded-xl text-[13px] font-semibold text-white transition disabled:opacity-60"
             style={{ background: '#B8423C' }}>
@@ -387,7 +387,7 @@ export function SponsorsClient({ eventId, sponsors: initial }: Props) {
             { label: 'Booths assigned',  value: booths, accent: false },
           ].map(s => (
             <div key={s.label} className="bg-white rounded-2xl p-5" style={{ border: '1px solid #E5E0D4' }}>
-              <div className="text-[12px] tracking-[0.12em] uppercase mb-2" style={{ color: '#6B7A72' }}>{s.label}</div>
+              <div className="text-[12px] tracking-[0.12em] uppercase mb-2" style={{ color: '#65736B' }}>{s.label}</div>
               <div className="text-[26px] leading-none tracking-tight" style={{ color: s.accent ? '#C9A45E' : '#0F1F18' }}>{s.value}</div>
             </div>
           ))}
@@ -401,7 +401,7 @@ export function SponsorsClient({ eventId, sponsors: initial }: Props) {
           footer={
             <>
               <button onClick={() => { setShowAdd(false); setPendingLogoFile(null); setLogoPreview(null); }}
-                className="h-10 px-4 rounded-xl text-[13.5px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>Cancel</button>
+                className="h-10 px-4 rounded-xl text-[13.5px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#65736B' }}>Cancel</button>
               <button onClick={handleAdd} disabled={isPending || !form.company_name}
                 className="h-10 px-5 rounded-xl text-[13.5px] font-semibold text-cream disabled:opacity-60"
                 style={{ background: '#1F4D3A' }}>
@@ -412,14 +412,14 @@ export function SponsorsClient({ eventId, sponsors: initial }: Props) {
         >
           <div className="grid sm:grid-cols-2 gap-3">
             <div>
-              <div className="text-[11.5px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Company name *</div>
+              <div className="text-[11.5px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#65736B' }}>Company name *</div>
               <input type="text" value={form.company_name} onChange={e => setForm(f => ({ ...f, company_name: e.target.value }))}
                 placeholder="Paystack"
                 className="w-full border rounded-lg px-3 py-2.5 text-[13.5px] outline-none"
                 style={{ borderColor: '#E5E0D4', color: '#0F1F18' }} />
             </div>
             <div>
-              <div className="text-[11.5px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Tier</div>
+              <div className="text-[11.5px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#65736B' }}>Tier</div>
               <select value={form.tier} onChange={e => setForm(f => ({ ...f, tier: e.target.value }))}
                 className="w-full border rounded-lg px-3 py-2.5 text-[13.5px] outline-none bg-white"
                 style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}>
@@ -427,21 +427,21 @@ export function SponsorsClient({ eventId, sponsors: initial }: Props) {
               </select>
             </div>
             <div>
-              <div className="text-[11.5px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Booth location</div>
+              <div className="text-[11.5px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#65736B' }}>Booth location</div>
               <input type="text" value={form.booth_location} onChange={e => setForm(f => ({ ...f, booth_location: e.target.value }))}
                 placeholder="Hall B · Booth 14"
                 className="w-full border rounded-lg px-3 py-2.5 text-[13.5px] outline-none"
                 style={{ borderColor: '#E5E0D4', color: '#0F1F18' }} />
             </div>
             <div>
-              <div className="text-[11.5px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Website</div>
+              <div className="text-[11.5px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#65736B' }}>Website</div>
               <input type="url" value={form.website_url} onChange={e => setForm(f => ({ ...f, website_url: e.target.value }))}
                 placeholder="https://paystack.com"
                 className="w-full border rounded-lg px-3 py-2.5 text-[13.5px] outline-none"
                 style={{ borderColor: '#E5E0D4', color: '#0F1F18' }} />
             </div>
             <div className="sm:col-span-2">
-              <div className="text-[11.5px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Contact email (optional)</div>
+              <div className="text-[11.5px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#65736B' }}>Contact email (optional)</div>
               <input type="email" value={form.contact_email} onChange={e => setForm(f => ({ ...f, contact_email: e.target.value }))}
                 placeholder="sponsor@company.com"
                 className="w-full border rounded-lg px-3 py-2.5 text-[13.5px] outline-none"
@@ -452,7 +452,7 @@ export function SponsorsClient({ eventId, sponsors: initial }: Props) {
             </div>
             {/* Logo upload (optional — uploaded after sponsor created) */}
             <div className="sm:col-span-2">
-              <div className="text-[11.5px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Logo (optional)</div>
+              <div className="text-[11.5px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#65736B' }}>Logo (optional)</div>
               <input ref={addLogoInputRef} type="file" accept="image/*" className="hidden"
                 onChange={e => { const f = e.target.files?.[0]; if (f) handleLogoFileSelect(f); }} />
               <button type="button" onClick={() => addLogoInputRef.current?.click()}
@@ -463,7 +463,7 @@ export function SponsorsClient({ eventId, sponsors: initial }: Props) {
                     {/* Local FileReader data-URL preview — the optimizer can't process
                         data: URLs, so this one stays unoptimized. */}
                     <Image src={logoPreview} alt="Preview" width={40} height={40} unoptimized className="h-10 w-10 object-contain rounded-lg" style={{ border: '1px solid #E5E0D4' }} />
-                    <span className="text-[12px]" style={{ color: '#6B7A72' }}>Change logo</span>
+                    <span className="text-[12px]" style={{ color: '#65736B' }}>Change logo</span>
                   </>
                 ) : (
                   <span className="text-[12px]" style={{ color: '#9BA8A1' }}>Upload logo — PNG, JPG, SVG</span>
@@ -482,7 +482,7 @@ export function SponsorsClient({ eventId, sponsors: initial }: Props) {
               </svg>
             </div>
             <h3 className="font-display text-[16px] font-semibold mb-2" style={{ color: '#0F1F18' }}>No sponsors yet</h3>
-            <p className="text-[13px] max-w-[380px] mx-auto" style={{ color: '#6B7A72' }}>
+            <p className="text-[13px] max-w-[380px] mx-auto" style={{ color: '#65736B' }}>
               Add a sponsor to generate their exhibitor portal link.
             </p>
           </div>
@@ -519,7 +519,7 @@ export function SponsorsClient({ eventId, sponsors: initial }: Props) {
                           </span>
                         )}
                       </div>
-                      <div className="text-[12.5px] mt-0.5 flex items-center gap-3 flex-wrap" style={{ color: '#6B7A72' }}>
+                      <div className="text-[12.5px] mt-0.5 flex items-center gap-3 flex-wrap" style={{ color: '#65736B' }}>
                         {sponsor.booth_location && <span>{sponsor.booth_location}</span>}
                         {sponsor.website_url && <span>{sponsor.website_url}</span>}
                       </div>
@@ -528,14 +528,14 @@ export function SponsorsClient({ eventId, sponsors: initial }: Props) {
                     <div className="flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto sm:ml-auto justify-end shrink-0">
                       <div className="text-center shrink-0 hidden sm:block">
                         <div className="text-[15px]" style={{ color: '#0F1F18' }}>{sponsor.lead_count}</div>
-                        <div className="text-[11.5px] tracking-[0.1em] uppercase" style={{ color: '#6B7A72' }}>leads</div>
+                        <div className="text-[11.5px] tracking-[0.1em] uppercase" style={{ color: '#65736B' }}>leads</div>
                       </div>
 
                       {/* Edit button */}
                       <button
                         onClick={() => setEditingSponsor(sponsor)}
-                        className="w-8 h-8 grid place-items-center rounded-lg transition-colors shrink-0 sm:opacity-0 sm:group-hover:opacity-100"
-                        style={{ color: '#6B7A72' }}
+                        className="w-10 h-10 grid place-items-center rounded-lg transition-colors shrink-0 sm:opacity-0 sm:group-hover:opacity-100"
+                        style={{ color: '#65736B' }}
                         title="Edit sponsor"
                       >
                         <svg width={14} height={14} fill="none" stroke="currentColor" strokeWidth={1.6} viewBox="0 0 24 24">
@@ -547,7 +547,7 @@ export function SponsorsClient({ eventId, sponsors: initial }: Props) {
                       {/* Delete button */}
                       <button
                         onClick={() => setDeletingSponsor(sponsor)}
-                        className="w-8 h-8 grid place-items-center rounded-lg transition-colors shrink-0 sm:opacity-0 sm:group-hover:opacity-100"
+                        className="w-10 h-10 grid place-items-center rounded-lg transition-colors shrink-0 sm:opacity-0 sm:group-hover:opacity-100"
                         style={{ color: '#B8423C' }}
                         title="Delete sponsor"
                       >
@@ -571,7 +571,7 @@ export function SponsorsClient({ eventId, sponsors: initial }: Props) {
                       </button>
                       <a href={`/exhibitor/${sponsor.invite_token}`} target="_blank" rel="noopener noreferrer"
                         title="Open portal"
-                        className="w-8 h-8 grid place-items-center rounded-lg shrink-0" style={{ color: '#6B7A72' }}>
+                        className="w-10 h-10 grid place-items-center rounded-lg shrink-0" style={{ color: '#65736B' }}>
                         <svg width={15} height={15} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
                         </svg>

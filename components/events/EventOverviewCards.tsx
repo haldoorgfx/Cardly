@@ -90,7 +90,7 @@ export function EventOverviewCards({ cards, userPlan }: Props) {
                 <p className="font-display text-[14.5px] font-semibold leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.01em' }}>
                   {card.label}
                 </p>
-                <p className="text-[12.5px] mt-1 flex-1" style={{ color: '#6B7A72', lineHeight: 1.5 }}>
+                <p className="text-[12.5px] mt-1 flex-1" style={{ color: '#65736B', lineHeight: 1.5 }}>
                   {card.desc}
                 </p>
               </button>
@@ -123,7 +123,7 @@ export function EventOverviewCards({ cards, userPlan }: Props) {
                 </div>
                 {card.badge && (
                   <span className="text-[12.5px] font-medium shrink-0 ml-2"
-                    style={{ color: card.badgeGreen ? '#2D7A4F' : '#6B7A72' }}>
+                    style={{ color: card.badgeGreen ? '#2D7A4F' : '#65736B' }}>
                     {card.badge}
                   </span>
                 )}
@@ -132,7 +132,7 @@ export function EventOverviewCards({ cards, userPlan }: Props) {
                 {card.label}
                 {card.gold && <Sparkles size={11} strokeWidth={2} className="inline ml-1" style={{ color: '#C9A45E', verticalAlign: 'middle' }} />}
               </p>
-              <p className="text-[12.5px] mt-1 flex-1" style={{ color: '#6B7A72', lineHeight: 1.5 }}>
+              <p className="text-[12.5px] mt-1 flex-1" style={{ color: '#65736B', lineHeight: 1.5 }}>
                 {card.desc}
               </p>
             </Link>

@@ -88,10 +88,10 @@ export function OrganizerCalendarClient({ userId, name, avatarUrl, bio, follower
               <h1 className="font-display font-semibold text-[22px]" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
                 {name}
               </h1>
-              <p className="text-[13px]" style={{ color: '#6B7A72' }}>
+              <p className="text-[13px]" style={{ color: '#65736B' }}>
                 {followerCount.toLocaleString()} subscribers · {events.length} upcoming event{events.length !== 1 ? 's' : ''}
               </p>
-              {bio && <p className="text-[13px] mt-1 max-w-sm" style={{ color: '#6B7A72' }}>{bio}</p>}
+              {bio && <p className="text-[13px] mt-1 max-w-sm" style={{ color: '#65736B' }}>{bio}</p>}
             </div>
           </div>
           <div className="flex flex-col gap-2 shrink-0">
@@ -101,7 +101,7 @@ export function OrganizerCalendarClient({ userId, name, avatarUrl, bio, follower
               style={{ background: '#1F4D3A', color: '#FAF6EE' }}>
               <CalendarDays size={14} /> Subscribe
             </button>
-            <Link href={`/o/${userId}`} className="text-[12px] text-center transition hover:opacity-70" style={{ color: '#6B7A72' }}>
+            <Link href={`/o/${userId}`} className="text-[12px] text-center transition hover:opacity-70" style={{ color: '#65736B' }}>
               View profile
             </Link>
           </div>
@@ -116,7 +116,7 @@ export function OrganizerCalendarClient({ userId, name, avatarUrl, bio, follower
         ) : (
           Object.entries(byMonth).map(([month, monthEvents]) => (
             <div key={month} className="mb-8">
-              <div className="text-[11px] font-bold tracking-[0.14em] uppercase mb-3" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
+              <div className="text-[11px] font-bold tracking-[0.14em] uppercase mb-3" style={{ color: '#65736B', fontFamily: 'Inter, system-ui, sans-serif' }}>
                 {month}
               </div>
               <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid #E5E0D4', background: '#FFFFFF' }}>
@@ -128,7 +128,7 @@ export function OrganizerCalendarClient({ userId, name, avatarUrl, bio, follower
                       {dt ? (
                         <div className="w-16 shrink-0 text-center">
                           <div className="font-display font-bold text-[22px] leading-none" style={{ color: '#0F1F18', fontFamily: 'Inter, system-ui, sans-serif' }}>{dt.day}</div>
-                          <div className="text-[10px] font-semibold tracking-[0.1em] mt-0.5" style={{ color: '#6B7A72' }}>{dt.month} · {dt.dow}</div>
+                          <div className="text-[10px] font-semibold tracking-[0.1em] mt-0.5" style={{ color: '#65736B' }}>{dt.month} · {dt.dow}</div>
                         </div>
                       ) : (
                         <div className="w-16 shrink-0" />
@@ -141,7 +141,7 @@ export function OrganizerCalendarClient({ userId, name, avatarUrl, bio, follower
                       {/* Details */}
                       <div className="flex-1 min-w-0">
                         <div className="font-semibold text-[14px] truncate" style={{ color: '#0F1F18' }}>{ep.title}</div>
-                        <div className="flex items-center gap-1.5 mt-0.5 text-[12px]" style={{ color: '#6B7A72' }}>
+                        <div className="flex items-center gap-1.5 mt-0.5 text-[12px]" style={{ color: '#65736B' }}>
                           {ep.is_online ? <Globe size={11} /> : <MapPin size={11} />}
                           <span className="truncate">{ep.is_online ? 'Online' : [ep.venue_name, ep.city].filter(Boolean).join(', ') || 'TBA'}</span>
                         </div>
@@ -165,9 +165,9 @@ export function OrganizerCalendarClient({ userId, name, avatarUrl, bio, follower
           <div className="w-full max-w-sm rounded-2xl p-6 shadow-lift" style={{ background: '#FFFFFF' }} onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-display font-semibold text-[18px]" style={{ color: '#0F1F18' }}>Subscribe to {name}</h3>
-              <button onClick={() => setShowSubscribeModal(false)} style={{ color: '#6B7A72' }}><X size={18} /></button>
+              <button onClick={() => setShowSubscribeModal(false)} style={{ color: '#65736B' }}><X size={18} /></button>
             </div>
-            <p className="text-[13px] mb-5" style={{ color: '#6B7A72' }}>Choose how you want to stay updated when new events are added.</p>
+            <p className="text-[13px] mb-5" style={{ color: '#65736B' }}>Choose how you want to stay updated when new events are added.</p>
             {[
               { key: 'ics', label: 'Calendar feed', sub: 'ICS / Google Calendar / Apple Calendar' },
               { key: 'email', label: 'Email digest', sub: 'Weekly summary of upcoming events' },
@@ -182,13 +182,13 @@ export function OrganizerCalendarClient({ userId, name, avatarUrl, bio, follower
                 />
                 <div>
                   <div className="text-[14px] font-medium" style={{ color: '#0F1F18' }}>{opt.label}</div>
-                  <div className="text-[12px]" style={{ color: '#6B7A72' }}>{opt.sub}</div>
+                  <div className="text-[12px]" style={{ color: '#65736B' }}>{opt.sub}</div>
                 </div>
               </label>
             ))}
             {subscribeTypes.ics && (
               <div className="mt-3 mb-5">
-                <div className="text-[11px] font-medium mb-1.5" style={{ color: '#6B7A72' }}>ICS URL</div>
+                <div className="text-[11px] font-medium mb-1.5" style={{ color: '#65736B' }}>ICS URL</div>
                 <div className="flex items-center gap-2 px-3 py-2 rounded-lg text-[11px] break-all" style={{ background: '#F0EDE6', fontFamily: 'Inter, system-ui, sans-serif', color: '#3A4A42' }}>
                   <span className="flex-1 truncate">{icsUrl}</span>
                   <CopyICS url={icsUrl} />

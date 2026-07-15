@@ -92,7 +92,7 @@ export function VideoDemoBlock({ content }: VideoDemoBlockProps) {
         {content.caption && (
           <p
             className="mt-4 text-center  text-[13px] tracking-[0.08em]"
-            style={{ color: '#6B7A72' }}
+            style={{ color: '#65736B' }}
           >
             {content.caption}
           </p>

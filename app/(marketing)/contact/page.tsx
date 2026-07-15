@@ -26,7 +26,7 @@ export default function ContactPage() {
         <h1 className="font-title font-bold text-[52px] sm:text-[68px] leading-[0.95] text-[#0F1F18] mb-4">
           Let&apos;s talk.
         </h1>
-        <p className="text-[17px] text-[#6B7A72] max-w-[480px] leading-relaxed mb-14">
+        <p className="text-[17px] text-[#65736B] max-w-[480px] leading-relaxed mb-14">
           We&apos;re here to help. Send a message and we&apos;ll get back to you — usually within one business day.
         </p>
 
@@ -35,7 +35,7 @@ export default function ContactPage() {
 
         {/* Good reasons — below the fold, extra info */}
         <div className="mt-16 pt-12" style={{ borderTop: '1px solid #E5E0D4' }}>
-          <div className=" text-[10px] tracking-[0.22em] uppercase text-[#6B7A72] mb-5">
+          <div className=" text-[10px] tracking-[0.22em] uppercase text-[#65736B] mb-5">
             Good reasons to reach out
           </div>
           <ul className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">

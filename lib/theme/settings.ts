@@ -60,7 +60,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
     accentDark:  '#C9A45E',
     ink:         '#0F1F18',
     inkSoft:     '#3A4A42',
-    muted:       '#6B7A72',
+    muted:       '#65736B',
     cream:       '#FAF6EE',
   },
   fonts: {

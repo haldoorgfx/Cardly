@@ -43,7 +43,7 @@ export function AttendeeEntitlementRow({ ent, revoke, onUnredeem, onExtend, onTr
   return (
     <div className="bg-white rounded-2xl border p-4 sm:p-5" style={{ borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
       <div className="flex items-start gap-3">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl" style={{ background: '#F0EDE6', color: '#6B7A72' }}>
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl" style={{ background: '#F0EDE6', color: '#65736B' }}>
           <EntitlementIcon type={ent.type} size={19} strokeWidth={1.9} />
         </div>
         <div className="min-w-0 flex-1">
@@ -53,20 +53,20 @@ export function AttendeeEntitlementRow({ ent, revoke, onUnredeem, onExtend, onTr
               {meta.label}
             </span>
           </div>
-          <p className="text-[12.5px] mt-0.5" style={{ color: '#6B7A72' }}>{entitlementTypeLabel(ent.type)}</p>
+          <p className="text-[12.5px] mt-0.5" style={{ color: '#65736B' }}>{entitlementTypeLabel(ent.type)}</p>
 
           {ent.state === 'redeemed' && (
             <div className="mt-2 flex items-center gap-x-3 gap-y-1 flex-wrap text-[12px]" style={{ color: '#3A4A42' }}>
               <span className="inline-flex items-center gap-1"><Clock size={12} strokeWidth={2} style={{ color: '#2D7A4F' }} /> {fmtDateTime(ent.redeemedAt)}</span>
-              {ent.redeemedByName && <span className="inline-flex items-center gap-1"><CheckCircle2 size={12} strokeWidth={2} style={{ color: '#6B7A72' }} /> {ent.redeemedByName}</span>}
-              <span className="inline-flex items-center gap-1"><Smartphone size={12} strokeWidth={1.9} style={{ color: '#6B7A72' }} /> {shortDevice(ent.deviceId)}</span>
+              {ent.redeemedByName && <span className="inline-flex items-center gap-1"><CheckCircle2 size={12} strokeWidth={2} style={{ color: '#65736B' }} /> {ent.redeemedByName}</span>}
+              <span className="inline-flex items-center gap-1"><Smartphone size={12} strokeWidth={1.9} style={{ color: '#65736B' }} /> {shortDevice(ent.deviceId)}</span>
             </div>
           )}
           {ent.state === 'expired' && ent.valid_until && (
             <p className="mt-2 text-[12px]" style={{ color: '#C97A2D' }}>Validity ended {fmtDateTime(ent.valid_until)}</p>
           )}
           {ent.state === 'held' && ent.valid_until && (
-            <p className="mt-2 text-[12px]" style={{ color: '#6B7A72' }}>Valid until {fmtDateTime(ent.valid_until)}</p>
+            <p className="mt-2 text-[12px]" style={{ color: '#65736B' }}>Valid until {fmtDateTime(ent.valid_until)}</p>
           )}
         </div>
       </div>
@@ -92,7 +92,7 @@ export function AttendeeEntitlementRow({ ent, revoke, onUnredeem, onExtend, onTr
             </button>
             <button type="button" disabled={pending} onClick={() => { setConfirmRevoke(false); setReason(''); }}
               className="rounded-lg px-3.5 py-2 text-[13px] font-medium border transition disabled:opacity-60"
-              style={{ borderColor: '#E5E0D4', color: '#6B7A72', background: '#FFFFFF' }}>
+              style={{ borderColor: '#E5E0D4', color: '#65736B', background: '#FFFFFF' }}>
               Cancel
             </button>
           </div>

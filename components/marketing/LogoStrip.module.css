@@ -15,7 +15,7 @@
   font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #6B7A72;
+  color: #65736B;
   margin: 0 0 22px;
 }
 .row {
@@ -32,7 +32,7 @@
   display: inline-flex;
   align-items: center;
   gap: 9px;
-  color: #6B7A72;
+  color: #65736B;
   opacity: 0.78;
   transition: color 0.18s, opacity 0.18s;
 }

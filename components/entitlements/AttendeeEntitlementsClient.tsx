@@ -38,7 +38,7 @@ export function AttendeeEntitlementsClient({ eventSlug, header, entitlements, ac
 
   const held = entitlements.filter((e) => e.held);
   const grantable = entitlements.filter((e) => !e.held);
-  const status = STATUS_STYLE[header.status] ?? { bg: '#F0EEE7', color: '#6B7A72', label: header.status };
+  const status = STATUS_STYLE[header.status] ?? { bg: '#F0EEE7', color: '#65736B', label: header.status };
 
   const onChanged = () => router.refresh();
   const closeAndRefresh = (close: () => void) => { close(); router.refresh(); };
@@ -49,7 +49,7 @@ export function AttendeeEntitlementsClient({ eventSlug, header, entitlements, ac
 
         <Link href={`/events/${eventSlug}/registrations/${header.registrationId}`}
           className="inline-flex items-center gap-1.5 text-[13px] font-medium mb-4 transition hover:text-[#1F4D3A]"
-          style={{ color: '#6B7A72' }}>
+          style={{ color: '#65736B' }}>
           <ArrowLeft size={15} strokeWidth={2} /> Back to attendee
         </Link>
 
@@ -75,7 +75,7 @@ export function AttendeeEntitlementsClient({ eventSlug, header, entitlements, ac
                 </span>
               </div>
               {header.email && (
-                <p className="flex items-center gap-1.5 text-[12.5px] mt-2" style={{ color: '#6B7A72' }}>
+                <p className="flex items-center gap-1.5 text-[12.5px] mt-2" style={{ color: '#65736B' }}>
                   <Mail size={12} strokeWidth={1.9} /> {header.email}
                 </p>
               )}
@@ -108,7 +108,7 @@ export function AttendeeEntitlementsClient({ eventSlug, header, entitlements, ac
               <Ticket size={22} strokeWidth={1.9} />
             </div>
             <p className="font-display text-[17px] font-semibold" style={{ color: '#0F1F18' }}>No entitlements held</p>
-            <p className="text-[14px] mt-1.5" style={{ color: '#6B7A72' }}>
+            <p className="text-[14px] mt-1.5" style={{ color: '#65736B' }}>
               This attendee doesn&apos;t hold any entitlements yet. Use &ldquo;Grant entitlement&rdquo; to add one.
             </p>
           </div>

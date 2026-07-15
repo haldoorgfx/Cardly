@@ -56,20 +56,20 @@ function ConfirmModal({ session, onClose, onConfirm, confirming }: { session: Se
             Book your seat
           </h3>
           <p className="font-semibold text-[15px]" style={{ color: '#0F1F18' }}>{session.title}</p>
-          <div className="flex items-center gap-3 mt-2 text-[13px]" style={{ color: '#6B7A72' }}>
+          <div className="flex items-center gap-3 mt-2 text-[13px]" style={{ color: '#65736B' }}>
             <span className="flex items-center gap-1"><Clock size={12} /> {fmtTime(session.starts_at)} · {duration(session.starts_at, session.ends_at)}</span>
             {session.room && <span className="flex items-center gap-1"><MapPin size={12} /> {session.room}</span>}
           </div>
         </div>
 
         <div className="px-5 py-4">
-          <p className="text-[13px] mb-4" style={{ color: '#6B7A72' }}>
+          <p className="text-[13px] mb-4" style={{ color: '#65736B' }}>
             This seat will be added to your personal agenda. Check in by scanning your ticket at the door.
           </p>
           <div className="flex gap-2">
             <button onClick={onClose}
               className="flex-1 py-3 rounded-xl text-[14px] font-semibold border transition hover:opacity-80"
-              style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>
+              style={{ borderColor: '#E5E0D4', color: '#65736B' }}>
               Cancel
             </button>
             <button onClick={onConfirm} disabled={confirming}
@@ -127,7 +127,7 @@ export function WorkshopsClient({ eventId, eventSlug, sessions, bookedIds: initi
           <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight mb-1" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
             Workshops — book your seat
           </h1>
-          <p className="text-[14px]" style={{ color: '#6B7A72' }}>
+          <p className="text-[14px]" style={{ color: '#65736B' }}>
             Limited-capacity sessions. Book early to guarantee your spot.
           </p>
         </div>
@@ -135,7 +135,7 @@ export function WorkshopsClient({ eventId, eventSlug, sessions, bookedIds: initi
         {Object.entries(byDay).map(([day, daySessions]) => (
           <div key={day} className="mb-7">
             <div className="text-[12.5px] font-bold tracking-[0.12em] uppercase mb-3"
-              style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
+              style={{ color: '#65736B', fontFamily: 'Inter, system-ui, sans-serif' }}>
               {day}
             </div>
             <div className="flex flex-col gap-2">
@@ -165,7 +165,7 @@ export function WorkshopsClient({ eventId, eventSlug, sessions, bookedIds: initi
                           </span>
                         )}
                         <h3 className="font-semibold text-[14px] mb-1" style={{ color: '#0F1F18' }}>{s.title}</h3>
-                        <div className="flex flex-wrap items-center gap-2 text-[12px] mb-2" style={{ color: '#6B7A72' }}>
+                        <div className="flex flex-wrap items-center gap-2 text-[12px] mb-2" style={{ color: '#65736B' }}>
                           <span className="flex items-center gap-1">
                             <Clock size={11} />
                             {fmtTime(s.starts_at)} · {s.ends_at ? duration(s.starts_at, s.ends_at) : ''}
@@ -219,7 +219,7 @@ export function WorkshopsClient({ eventId, eventSlug, sessions, bookedIds: initi
         {sessions.length === 0 && (
           <div className="rounded-2xl py-20 text-center" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
             <p className="text-[15px] font-medium mb-1" style={{ color: '#0F1F18' }}>No workshops scheduled yet</p>
-            <p className="text-[13px]" style={{ color: '#6B7A72' }}>Check back soon — bookable sessions will appear here once the organizer adds them.</p>
+            <p className="text-[13px]" style={{ color: '#65736B' }}>Check back soon — bookable sessions will appear here once the organizer adds them.</p>
           </div>
         )}
 

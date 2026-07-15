@@ -289,7 +289,7 @@ function HomeTab({ speaker, event, sessions, onTab }: { speaker: Speaker; event:
           {/* ── Checklist ── */}
           <div>
             <div className="text-[10px] tracking-[0.18em] uppercase mb-3"
-              style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
+              style={{ color: '#65736B', fontFamily: 'Inter, system-ui, sans-serif' }}>
               Your checklist
             </div>
             <div className="space-y-2">
@@ -308,7 +308,7 @@ function HomeTab({ speaker, event, sessions, onTab }: { speaker: Speaker; event:
                     : <Circle size={18} style={{ color: '#C9C3B1', flexShrink: 0 }} />
                   }
                   <span className="flex-1 text-[13px] font-medium"
-                    style={{ color: item.done ? '#6B7A72' : '#0F1F18', textDecoration: item.done ? 'line-through' : 'none' }}>
+                    style={{ color: item.done ? '#65736B' : '#0F1F18', textDecoration: item.done ? 'line-through' : 'none' }}>
                     {item.label}
                   </span>
                   {!item.done && (
@@ -325,7 +325,7 @@ function HomeTab({ speaker, event, sessions, onTab }: { speaker: Speaker; event:
           {sessions.length > 0 && (
             <div>
               <div className="text-[10px] tracking-[0.18em] uppercase mb-3"
-                style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
+                style={{ color: '#65736B', fontFamily: 'Inter, system-ui, sans-serif' }}>
                 Your sessions
               </div>
               <div className="space-y-3">
@@ -338,7 +338,7 @@ function HomeTab({ speaker, event, sessions, onTab }: { speaker: Speaker; event:
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="text-[13px] font-medium mb-1" style={{ color: '#0F1F18' }}>{s.title}</div>
-                      <div className="flex items-center gap-1.5 text-[12px] mb-2" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
+                      <div className="flex items-center gap-1.5 text-[12px] mb-2" style={{ color: '#65736B', fontFamily: 'Inter, system-ui, sans-serif' }}>
                         <span>{sessionDay(s)}</span>
                         <span>·</span>
                         <span>{fmtTime(s.starts_at)}–{fmtTime(s.ends_at)}</span>
@@ -377,7 +377,7 @@ function HomeTab({ speaker, event, sessions, onTab }: { speaker: Speaker; event:
           {keyDates.length > 0 && (
             <div style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 12, padding: '16px 20px' }}>
               <div className="text-[10px] tracking-[0.18em] uppercase mb-3"
-                style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
+                style={{ color: '#65736B', fontFamily: 'Inter, system-ui, sans-serif' }}>
                 Key dates
               </div>
               <div className="space-y-3">
@@ -397,7 +397,7 @@ function HomeTab({ speaker, event, sessions, onTab }: { speaker: Speaker; event:
           {/* Speaker card */}
           <div style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 12, padding: '20px', textAlign: 'center' }}>
             <div className="text-[10px] tracking-[0.18em] uppercase mb-4"
-              style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
+              style={{ color: '#65736B', fontFamily: 'Inter, system-ui, sans-serif' }}>
               Your speaker card
             </div>
             <div className="flex justify-center mb-4">
@@ -512,7 +512,7 @@ function ProfileTab({ speaker, onSaved }: { speaker: Speaker; onSaved: (s: Parti
                 >
                   <Camera size={13} /> {photoUploading ? 'Uploading…' : 'Change headshot'}
                 </button>
-                <p className="text-[11px] mt-1.5" style={{ color: '#6B7A72' }}>JPG or PNG, at least 400×400px</p>
+                <p className="text-[11px] mt-1.5" style={{ color: '#65736B' }}>JPG or PNG, at least 400×400px</p>
                 <input ref={photoRef} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handlePhoto} />
               </div>
             </div>
@@ -594,7 +594,7 @@ function ProfileTab({ speaker, onSaved }: { speaker: Speaker; onSaved: (s: Parti
 
         {/* Directory preview */}
         <div>
-          <div className="text-[11px] uppercase tracking-widest mb-3" style={{ color: '#6B7A72' }}>
+          <div className="text-[11px] uppercase tracking-widest mb-3" style={{ color: '#65736B' }}>
             Directory preview
           </div>
           <div style={{ background: '#fff', border: '1px solid #E5E0D4', borderRadius: 12, padding: '20px' }}>
@@ -610,7 +610,7 @@ function ProfileTab({ speaker, onSaved }: { speaker: Speaker; onSaved: (s: Parti
               <div>
                 <div className="font-semibold text-[15px]" style={{ color: '#0F1F18' }}>{form.name || 'Your Name'}</div>
                 {(form.role || form.company) && (
-                  <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>
+                  <div className="text-[12px] mt-0.5" style={{ color: '#65736B' }}>
                     {[form.role, form.company].filter(Boolean).join(' · ')}
                   </div>
                 )}
@@ -674,7 +674,7 @@ function SessionsTab({ sessions }: { sessions: Session[] }) {
           <Calendar size={20} style={{ color: '#1F4D3A' }} />
         </div>
         <h2 className="font-display font-normal text-[22px] mb-2" style={{ color: '#0F1F18' }}>No sessions yet</h2>
-        <p className="text-[14px]" style={{ color: '#6B7A72' }}>
+        <p className="text-[14px]" style={{ color: '#65736B' }}>
           Sessions will appear here once the organiser assigns them to you.
         </p>
       </div>
@@ -685,7 +685,7 @@ function SessionsTab({ sessions }: { sessions: Session[] }) {
     <div className="max-w-[760px] mx-auto px-4 sm:px-6 py-8 space-y-4">
       <div>
         <h2 className="font-display font-normal text-[22px]" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>My Sessions</h2>
-        <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>Upload slides and review your session details.</p>
+        <p className="text-[14px] mt-1" style={{ color: '#65736B' }}>Upload slides and review your session details.</p>
       </div>
 
       {/* Deadline banner */}
@@ -712,7 +712,7 @@ function SessionsTab({ sessions }: { sessions: Session[] }) {
             </div>
             <div className="flex-1 min-w-0">
               <div className="font-medium text-[14px]" style={{ color: '#0F1F18' }}>{s.title}</div>
-              <div className="text-[12px] mt-1" style={{ color: '#6B7A72' }}>
+              <div className="text-[12px] mt-1" style={{ color: '#65736B' }}>
                 {fmt(s.starts_at)} · {fmtTime(s.starts_at)}–{fmtTime(s.ends_at)}
                 {s.room && ` · ${s.room}`}
               </div>
@@ -734,7 +734,7 @@ function SessionsTab({ sessions }: { sessions: Session[] }) {
               onClick={() => fileRefs.current[s.id]?.click()}
               disabled={uploading === s.id}
               className="flex items-center gap-2 h-9 px-4 rounded-lg text-[13px] font-medium transition-colors shrink-0 whitespace-nowrap"
-              style={{ background: uploading === s.id ? '#E8EFEB' : '#1F4D3A', color: uploading === s.id ? '#6B7A72' : '#FAF6EE' }}
+              style={{ background: uploading === s.id ? '#E8EFEB' : '#1F4D3A', color: uploading === s.id ? '#65736B' : '#FAF6EE' }}
             >
               <Upload size={13} />
               {uploading === s.id ? 'Uploading…' : slidesUrl ? 'Replace slides' : 'Upload slides'}
@@ -772,7 +772,7 @@ function CardTab({ speaker, event }: { speaker: Speaker; event: EventInfo }) {
       <h2 className="font-display font-normal text-[22px] mb-2" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
         Your speaker card
       </h2>
-      <p className="text-[14px] mb-8" style={{ color: '#6B7A72' }}>
+      <p className="text-[14px] mb-8" style={{ color: '#65736B' }}>
         Share it on social to bring your audience to the event.
       </p>
 
@@ -820,7 +820,7 @@ function ResourcesTab({ resources, organizerEmail }: { resources: Resource[]; or
     <div className="max-w-[760px] mx-auto px-4 sm:px-6 py-8 space-y-4">
       <div>
         <h2 className="font-display font-normal text-[22px]" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>Resources</h2>
-        <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>Everything you need to prepare.</p>
+        <p className="text-[14px] mt-1" style={{ color: '#65736B' }}>Everything you need to prepare.</p>
       </div>
 
       {resources.length === 0 ? (
@@ -829,7 +829,7 @@ function ResourcesTab({ resources, organizerEmail }: { resources: Resource[]; or
             <FileText size={16} style={{ color: '#1F4D3A' }} />
           </div>
           <div className="text-[14px] font-medium" style={{ color: '#0F1F18' }}>No resources yet</div>
-          <p className="text-[12.5px] mt-1 max-w-[320px]" style={{ color: '#6B7A72' }}>
+          <p className="text-[12.5px] mt-1 max-w-[320px]" style={{ color: '#65736B' }}>
             When the organiser shares briefs, slide templates, or logistics docs, they&apos;ll appear here.
           </p>
         </div>
@@ -849,7 +849,7 @@ function ResourcesTab({ resources, organizerEmail }: { resources: Resource[]; or
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-[13px] font-medium truncate" style={{ color: '#0F1F18' }}>{r.title}</div>
-              <div className="text-[11px] mt-0.5" style={{ color: '#6B7A72' }}>
+              <div className="text-[11px] mt-0.5" style={{ color: '#65736B' }}>
                 {r.file_type}{r.file_size ? ` · ${fileSize(r.file_size)}` : ''}
               </div>
             </div>
@@ -864,7 +864,7 @@ function ResourcesTab({ resources, organizerEmail }: { resources: Resource[]; or
         <div className="flex items-center justify-between px-5 py-4 rounded-xl" style={{ background: '#FAF6EE', border: '1px solid #E5E0D4' }}>
           <div>
             <div className="text-[13px] font-medium" style={{ color: '#0F1F18' }}>Need help?</div>
-            <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>Reach the organiser team directly.</div>
+            <div className="text-[12px] mt-0.5" style={{ color: '#65736B' }}>Reach the organiser team directly.</div>
           </div>
           <a
             href={`mailto:${organizerEmail}`}
@@ -903,7 +903,7 @@ function QATab({ questions, sessions }: { questions: Question[]; sessions: Sessi
           Live
         </span>
       </div>
-      <p className="text-[13px]" style={{ color: '#6B7A72' }}>
+      <p className="text-[13px]" style={{ color: '#65736B' }}>
         Sorted by upvotes · {questions.length} question{questions.length !== 1 ? 's' : ''} · read-only
       </p>
 
@@ -913,7 +913,7 @@ function QATab({ questions, sessions }: { questions: Question[]; sessions: Sessi
             <MessageSquare size={28} style={{ color: '#C9A45E' }} />
           </div>
           <div className="font-display text-[17px] font-semibold" style={{ color: '#0F1F18' }}>No questions yet</div>
-          <p className="text-[13px] mt-1.5 max-w-[260px] mx-auto" style={{ color: '#6B7A72' }}>
+          <p className="text-[13px] mt-1.5 max-w-[260px] mx-auto" style={{ color: '#65736B' }}>
             Questions from the audience will appear here as they&apos;re asked — most-upvoted first.
           </p>
         </div>
@@ -928,14 +928,14 @@ function QATab({ questions, sessions }: { questions: Question[]; sessions: Sessi
                 style={{ background: '#fff', border: '1px solid #E5E0D4' }}>
                 <div className="flex flex-col items-center justify-center rounded-lg shrink-0"
                   style={{ width: 44, padding: '6px 0', background: top ? 'rgba(31,77,58,0.08)' : '#FAF6EE', border: `1px solid ${top ? 'rgba(31,77,58,0.2)' : '#E5E0D4'}` }}>
-                  <ArrowBigUp size={16} style={{ color: top ? '#1F4D3A' : '#6B7A72' }} fill={top ? '#1F4D3A' : 'none'} />
+                  <ArrowBigUp size={16} style={{ color: top ? '#1F4D3A' : '#65736B' }} fill={top ? '#1F4D3A' : 'none'} />
                   <span className="text-[13px] font-semibold" style={{ color: top ? '#1F4D3A' : '#3A4A42', fontFamily: 'Inter, system-ui, sans-serif' }}>
                     {q.upvotes_count ?? 0}
                   </span>
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="text-[13.5px] leading-snug" style={{ color: '#0F1F18' }}>{q.question}</div>
-                  <div className="text-[11.5px] mt-1" style={{ color: '#6B7A72' }}>
+                  <div className="text-[11.5px] mt-1" style={{ color: '#65736B' }}>
                     {author} · {ago(q.created_at)}{sTitle ? ` · ${sTitle}` : ''}
                   </div>
                 </div>
@@ -957,7 +957,7 @@ function GreenRoomTab({ sessions }: { sessions: Session[] }) {
           <Mic size={20} style={{ color: '#1F4D3A' }} />
         </div>
         <h2 className="font-display font-normal text-[22px] mb-2" style={{ color: '#0F1F18' }}>Green room</h2>
-        <p className="text-[14px]" style={{ color: '#6B7A72' }}>
+        <p className="text-[14px]" style={{ color: '#65736B' }}>
           Once the organiser assigns you a session, your call time and stage logistics will appear here.
         </p>
       </div>
@@ -973,7 +973,7 @@ function GreenRoomTab({ sessions }: { sessions: Session[] }) {
 
   const stat = (label: string, value: string) => (
     <div className="flex-1" style={{ background: '#fff', border: '1px solid #E5E0D4', borderRadius: 12, padding: '14px 16px' }}>
-      <div className="text-[10px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>{label}</div>
+      <div className="text-[10px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#65736B', fontFamily: 'Inter, system-ui, sans-serif' }}>{label}</div>
       <div className="text-[19px] font-semibold" style={{ color: '#0F1F18', fontFamily: 'Inter, system-ui, sans-serif' }}>{value}</div>
     </div>
   );
@@ -988,7 +988,7 @@ function GreenRoomTab({ sessions }: { sessions: Session[] }) {
     <div className="max-w-[760px] mx-auto px-4 sm:px-6 py-8 space-y-5">
       <div>
         <h2 className="font-display font-normal text-[22px]" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>Green room</h2>
-        <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>{next.title}</p>
+        <p className="text-[14px] mt-1" style={{ color: '#65736B' }}>{next.title}</p>
       </div>
 
       {/* Stats */}
@@ -1005,7 +1005,7 @@ function GreenRoomTab({ sessions }: { sessions: Session[] }) {
             <MapPin size={17} style={{ color: '#1F4D3A' }} />
           </div>
           <div className="min-w-0">
-            <div className="text-[11px]" style={{ color: '#6B7A72' }}>Stage</div>
+            <div className="text-[11px]" style={{ color: '#65736B' }}>Stage</div>
             <div className="text-[13.5px] font-medium" style={{ color: '#0F1F18' }}>{next.room || 'Main stage'}</div>
           </div>
         </div>
@@ -1014,7 +1014,7 @@ function GreenRoomTab({ sessions }: { sessions: Session[] }) {
             <Phone size={17} style={{ color: '#C9A45E' }} />
           </div>
           <div className="min-w-0 flex-1">
-            <div className="text-[11px]" style={{ color: '#6B7A72' }}>AV / stage manager</div>
+            <div className="text-[11px]" style={{ color: '#65736B' }}>AV / stage manager</div>
             <div className="text-[13.5px] font-medium" style={{ color: '#0F1F18' }}>Contact your organiser on-site</div>
           </div>
         </div>
@@ -1022,11 +1022,11 @@ function GreenRoomTab({ sessions }: { sessions: Session[] }) {
 
       {/* Run of show */}
       <div>
-        <div className="text-[10px] tracking-[0.16em] uppercase mb-2.5" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>Run of show</div>
+        <div className="text-[10px] tracking-[0.16em] uppercase mb-2.5" style={{ color: '#65736B', fontFamily: 'Inter, system-ui, sans-serif' }}>Run of show</div>
         <div style={{ background: '#fff', border: '1px solid #E5E0D4', borderRadius: 12, overflow: 'hidden' }}>
           {runOfShow.map((r, i) => (
             <div key={i} className="flex items-center gap-3 px-4 py-3" style={{ borderTop: i === 0 ? 'none' : '1px solid #E5E0D4' }}>
-              <span className="text-[11px]" style={{ color: '#6B7A72', width: 44, fontFamily: 'Inter, system-ui, sans-serif' }}>{r.time}</span>
+              <span className="text-[11px]" style={{ color: '#65736B', width: 44, fontFamily: 'Inter, system-ui, sans-serif' }}>{r.time}</span>
               <span className="rounded-full shrink-0" style={{ width: 7, height: 7, background: r.dot }} />
               <span className="text-[13.5px] font-medium" style={{ color: '#0F1F18' }}>{r.label}</span>
             </div>
@@ -1035,7 +1035,7 @@ function GreenRoomTab({ sessions }: { sessions: Session[] }) {
       </div>
 
       <div className="flex items-start gap-2.5 px-4 py-3 rounded-xl" style={{ background: '#FAF6EE', border: '1px solid #E5E0D4' }}>
-        <Clock size={16} style={{ color: '#6B7A72', flexShrink: 0, marginTop: 1 }} />
+        <Clock size={16} style={{ color: '#65736B', flexShrink: 0, marginTop: 1 }} />
         <span className="text-[12px] leading-relaxed" style={{ color: '#3A4A42' }}>
           Call time and run-of-show are estimated from your session schedule. Confirm exact times with the AV team on the day.
         </span>
@@ -1066,10 +1066,10 @@ export function SpeakerPortalClient({ speaker: initialSpeaker, event, sessions, 
             <span className="text-[13px] font-medium" style={{ color: '#0F1F18' }}>Eventera</span>
             <span className="text-[13px]" style={{ color: '#C9C3B1' }}>/</span>
             <span className="text-[10px] tracking-[0.18em] uppercase font-medium"
-              style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>Speaker Portal</span>
+              style={{ color: '#65736B', fontFamily: 'Inter, system-ui, sans-serif' }}>Speaker Portal</span>
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-[12px] hidden sm:block" style={{ color: '#6B7A72' }}>{event.name}</span>
+            <span className="text-[12px] hidden sm:block" style={{ color: '#65736B' }}>{event.name}</span>
             <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#E8C57E', display: 'grid', placeItems: 'center', fontSize: 12, fontWeight: 700, color: '#1F4D3A' }}>
               {speaker.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
             </div>
@@ -1088,7 +1088,7 @@ export function SpeakerPortalClient({ speaker: initialSpeaker, event, sessions, 
                 onClick={() => setActiveTab(tab.id)}
                 className="flex items-center gap-2 px-4 h-11 text-[13px] font-medium whitespace-nowrap transition-colors shrink-0"
                 style={{
-                  color: activeTab === tab.id ? '#1F4D3A' : '#6B7A72',
+                  color: activeTab === tab.id ? '#1F4D3A' : '#65736B',
                   borderBottom: activeTab === tab.id ? '2px solid #1F4D3A' : '2px solid transparent',
                   background: 'none',
                 }}

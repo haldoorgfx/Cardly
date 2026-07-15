@@ -19,13 +19,13 @@ const STATUS_STYLES: Record<string, { bg: string; color: string }> = {
   checked_in:       { bg: 'rgba(31,77,58,0.12)',   color: '#1F4D3A' },
   pending:          { bg: 'rgba(201,122,45,0.14)', color: '#C97A2D' },
   pending_approval: { bg: 'rgba(201,122,45,0.14)', color: '#C97A2D' },
-  cancelled:        { bg: 'rgba(107,122,114,0.12)', color: '#6B7A72' },
+  cancelled:        { bg: 'rgba(107,122,114,0.12)', color: '#65736B' },
   refunded:         { bg: 'rgba(184,66,60,0.10)',  color: '#B8423C' },
 };
 
 const PAYMENT_STYLES: Record<string, { bg: string; color: string }> = {
   paid:     { bg: 'rgba(45,122,79,0.12)',  color: '#2D7A4F' },
-  free:     { bg: '#F5F5F4',               color: '#6B7A72' },
+  free:     { bg: '#F5F5F4',               color: '#65736B' },
   pending:  { bg: 'rgba(201,122,45,0.14)', color: '#C97A2D' },
   refunded: { bg: 'rgba(184,66,60,0.10)',  color: '#B8423C' },
   failed:   { bg: 'rgba(184,66,60,0.14)',  color: '#B8423C' },
@@ -83,13 +83,13 @@ function ConfirmDialog({
           </div>
           <div>
             <h3 className="font-semibold text-[15px] text-[#0F1F18]">{title}</h3>
-            <div className="text-[13px] text-[#6B7A72] mt-1 leading-relaxed">{body}</div>
+            <div className="text-[13px] text-[#65736B] mt-1 leading-relaxed">{body}</div>
           </div>
         </div>
         <div className="flex gap-2 justify-end">
           <button
             onClick={onCancel}
-            className="px-4 py-2 rounded-lg text-[13px] text-[#6B7A72] border border-[#E5E0D4] hover:bg-[#FAF6EE] transition-colors"
+            className="px-4 py-2 rounded-lg text-[13px] text-[#65736B] border border-[#E5E0D4] hover:bg-[#FAF6EE] transition-colors"
           >
             Cancel
           </button>
@@ -258,19 +258,84 @@ export function RegistrationsAdminClient({
     }
   };
 
+  // ── Shared cell renderers (used by both table + mobile cards) ────────────────
+
+  const renderStatusBadge = (r: RegistrationRow) => {
+    const statusStyle = STATUS_STYLES[r.status] ?? STATUS_STYLES.cancelled;
+    return (
+      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[12px] tracking-[0.06em] uppercase" style={statusStyle}>
+        {r.status.replace('_', ' ')}
+      </span>
+    );
+  };
+
+  const renderPaymentBadge = (r: RegistrationRow) => {
+    const paymentStyle = PAYMENT_STYLES[r.payment_status] ?? PAYMENT_STYLES.free;
+    return (
+      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[12px] tracking-[0.06em] uppercase" style={paymentStyle}>
+        {r.payment_status}
+      </span>
+    );
+  };
+
+  const EventCell = ({ r }: { r: RegistrationRow }) =>
+    r.event_slug ? (
+      <Link
+        href={`/e/${r.event_slug}`}
+        target="_blank"
+        className="group inline-flex items-center gap-1 text-[#0F1F18] hover:text-[#1F4D3A] transition-colors"
+      >
+        <span className="max-w-[200px] truncate">{r.event_name ?? r.event_slug}</span>
+        <ExternalLink size={11} strokeWidth={2} className="text-[#65736B]/40 group-hover:text-[#1F4D3A]/60 transition-colors shrink-0" />
+      </Link>
+    ) : (
+      <span className="text-[#65736B]">{r.event_name ?? '—'}</span>
+    );
+
+  const RowActions = ({ r }: { r: RegistrationRow }) => {
+    const isBusy = busy === r.id;
+    if (!canManage) return <span className="text-[12.5px] text-[#65736B]/30">—</span>;
+    if (isBusy) return <Loader2 size={13} strokeWidth={2} className="animate-spin text-[#65736B]" />;
+    return (
+      <div className="flex items-center gap-2">
+        <select
+          defaultValue={r.status}
+          key={r.status}
+          onChange={e => changeStatus(r.id, e.target.value as RegStatus)}
+          disabled={changing === r.id}
+          className="h-10 px-2 rounded-lg border border-[#E5E0D4] text-[12px] bg-white outline-none focus:ring-2 focus:ring-[#1F4D3A]/20 transition disabled:opacity-50"
+        >
+          {STATUS_OPTIONS.map(s => (
+            <option key={s} value={s}>{s.replace('_', ' ')}</option>
+          ))}
+        </select>
+        {changing === r.id && (
+          <Loader2 size={13} strokeWidth={2} className="animate-spin text-[#65736B]" />
+        )}
+        <button
+          onClick={() => setConfirmDelete(r)}
+          title="Delete registration"
+          className="h-10 w-10 rounded-lg border border-[#E5E0D4] grid place-items-center text-[#B8423C] hover:bg-red-50 transition-colors shrink-0"
+        >
+          <Trash2 size={12} strokeWidth={2} />
+        </button>
+      </div>
+    );
+  };
+
   return (
     <div>
       {/* ── Filters ──────────────────────────────────────────── */}
       <div className="mb-5 flex flex-wrap gap-2 items-end">
         {/* Search */}
         <div className="flex items-center gap-2 h-9 px-3 rounded-lg border border-[#E5E0D4] bg-white min-w-[200px] flex-1 max-w-[280px]">
-          <Search size={13} strokeWidth={2} className="text-[#6B7A72] shrink-0" />
+          <Search size={13} strokeWidth={2} className="text-[#65736B] shrink-0" />
           <input
             value={filters.q}
             onChange={e => setFilters(f => ({ ...f, q: e.target.value }))}
             onKeyDown={e => e.key === 'Enter' && applyFilters()}
             placeholder="Attendee name or email…"
-            className="outline-none bg-transparent flex-1 text-[13px] placeholder-[#6B7A72]/60 text-[#0F1F18]"
+            className="outline-none bg-transparent flex-1 text-[13px] placeholder-[#65736B]/60 text-[#0F1F18]"
           />
         </div>
 
@@ -309,7 +374,7 @@ export function RegistrationsAdminClient({
         {hasActiveFilters && (
           <button
             onClick={clearFilters}
-            className="h-9 px-4 rounded-lg text-[13px] text-[#6B7A72] border border-[#E5E0D4] hover:bg-[#FAF6EE] transition-colors"
+            className="h-9 px-4 rounded-lg text-[13px] text-[#65736B] border border-[#E5E0D4] hover:bg-[#FAF6EE] transition-colors"
           >
             Clear
           </button>
@@ -328,7 +393,7 @@ export function RegistrationsAdminClient({
       </div>
 
       {/* Count */}
-      <div className="mb-4 text-[12px] text-[#6B7A72]">
+      <div className="mb-4 text-[12px] text-[#65736B]">
         {total} {total === 1 ? 'registration' : 'registrations'}
         {page > 1 && ` — page ${page} of ${totalPages}`}
       </div>
@@ -373,7 +438,7 @@ export function RegistrationsAdminClient({
             onClick={clearSelection}
             title="Clear selection"
             aria-label="Clear selection"
-            className="h-8 w-8 grid place-items-center rounded-lg border border-[#E5E0D4] bg-white text-[#6B7A72] hover:bg-[#FAF6EE] transition-colors disabled:opacity-50"
+            className="h-10 w-10 grid place-items-center rounded-lg border border-[#E5E0D4] bg-white text-[#65736B] hover:bg-[#FAF6EE] transition-colors disabled:opacity-50"
           >
             <X size={13} strokeWidth={2} />
           </button>
@@ -382,41 +447,38 @@ export function RegistrationsAdminClient({
 
       {/* ── Table ────────────────────────────────────────────── */}
       {rows.length === 0 ? (
-        <div className="py-16 text-center text-[14px] text-[#6B7A72]">No registrations match these filters.</div>
+        <div className="py-16 text-center text-[14px] text-[#65736B]">No registrations match these filters.</div>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-[#E5E0D4]">
-          <table className="w-full text-[13px]">
-            <thead>
-              <tr style={{ background: '#FAF6EE', borderBottom: '1px solid #E5E0D4' }}>
-                {canManage && (
-                  <th className="w-10 px-4 py-3">
-                    <input
-                      type="checkbox"
-                      aria-label="Select all"
-                      checked={allSelected}
-                      onChange={toggleAll}
-                      disabled={selectableIds.length === 0}
-                      className="h-4 w-4 rounded border-[#E5E0D4] accent-[#1F4D3A] cursor-pointer disabled:cursor-not-allowed"
-                    />
-                  </th>
-                )}
-                <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#6B7A72]">Attendee</th>
-                <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#6B7A72]">Event</th>
-                <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#6B7A72]">Ticket</th>
-                <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#6B7A72]">Status</th>
-                <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#6B7A72]">Payment</th>
-                <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#6B7A72]">Amount</th>
-                <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#6B7A72]">Created</th>
-                <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#6B7A72]">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-[#E5E0D4]">
-              {rows.map(r => {
-                const statusStyle  = STATUS_STYLES[r.status]  ?? STATUS_STYLES.cancelled;
-                const paymentStyle = PAYMENT_STYLES[r.payment_status] ?? PAYMENT_STYLES.free;
-                const isBusy = busy === r.id;
-
-                return (
+        <>
+          {/* ── Desktop table (md+) ────────────────────────────── */}
+          <div className="hidden md:block overflow-x-auto rounded-xl border border-[#E5E0D4]">
+            <table className="w-full text-[13px]">
+              <thead>
+                <tr style={{ background: '#FAF6EE', borderBottom: '1px solid #E5E0D4' }}>
+                  {canManage && (
+                    <th className="w-10 px-4 py-3">
+                      <input
+                        type="checkbox"
+                        aria-label="Select all"
+                        checked={allSelected}
+                        onChange={toggleAll}
+                        disabled={selectableIds.length === 0}
+                        className="h-4 w-4 rounded border-[#E5E0D4] accent-[#1F4D3A] cursor-pointer disabled:cursor-not-allowed"
+                      />
+                    </th>
+                  )}
+                  <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#65736B]">Attendee</th>
+                  <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#65736B]">Event</th>
+                  <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#65736B]">Ticket</th>
+                  <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#65736B]">Status</th>
+                  <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#65736B]">Payment</th>
+                  <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#65736B]">Amount</th>
+                  <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#65736B]">Created</th>
+                  <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#65736B]">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-[#E5E0D4]">
+                {rows.map(r => (
                   <tr key={r.id} className={`hover:bg-[#FAF6EE]/60 transition-colors ${selected.has(r.id) ? 'bg-[#E8EFEB]/50' : ''}`}>
                     {canManage && (
                       <td className="w-10 px-4 py-3">
@@ -432,91 +494,79 @@ export function RegistrationsAdminClient({
 
                     <td className="px-4 py-3">
                       <div className="font-medium text-[#0F1F18]">{r.attendee_name}</div>
-                      <div className="text-[12.5px] text-[#6B7A72]">{r.attendee_email}</div>
+                      <div className="text-[12.5px] text-[#65736B]">{r.attendee_email}</div>
                     </td>
 
-                    <td className="px-4 py-3">
-                      {r.event_slug ? (
-                        <Link
-                          href={`/e/${r.event_slug}`}
-                          target="_blank"
-                          className="group inline-flex items-center gap-1 text-[#0F1F18] hover:text-[#1F4D3A] transition-colors"
-                        >
-                          <span className="max-w-[200px] truncate">{r.event_name ?? r.event_slug}</span>
-                          <ExternalLink size={11} strokeWidth={2} className="text-[#6B7A72]/40 group-hover:text-[#1F4D3A]/60 transition-colors shrink-0" />
-                        </Link>
-                      ) : (
-                        <span className="text-[#6B7A72]">{r.event_name ?? '—'}</span>
-                      )}
-                    </td>
+                    <td className="px-4 py-3"><EventCell r={r} /></td>
 
                     <td className="px-4 py-3 text-[#3A4A42]">{r.ticket_name ?? '—'}</td>
 
-                    <td className="px-4 py-3">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[12px] tracking-[0.06em] uppercase" style={statusStyle}>
-                        {r.status.replace('_', ' ')}
-                      </span>
-                    </td>
+                    <td className="px-4 py-3">{renderStatusBadge(r)}</td>
 
-                    <td className="px-4 py-3">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[12px] tracking-[0.06em] uppercase" style={paymentStyle}>
-                        {r.payment_status}
-                      </span>
-                    </td>
+                    <td className="px-4 py-3">{renderPaymentBadge(r)}</td>
 
                     <td className="px-4 py-3 text-[12px] text-[#3A4A42]">
                       {formatAmount(r.amount_paid, r.currency)}
                     </td>
 
-                    <td className="px-4 py-3  text-[12.5px] text-[#6B7A72]">
+                    <td className="px-4 py-3  text-[12.5px] text-[#65736B]">
                       {formatDate(r.created_at)}
                     </td>
 
-                    {/* Actions */}
-                    <td className="px-4 py-3">
-                      {!canManage ? (
-                        <span className="text-[12.5px] text-[#6B7A72]/30">—</span>
-                      ) : isBusy ? (
-                        <Loader2 size={13} strokeWidth={2} className="animate-spin text-[#6B7A72]" />
-                      ) : (
-                        <div className="flex items-center gap-2">
-                          <select
-                            defaultValue={r.status}
-                            key={r.status}
-                            onChange={e => changeStatus(r.id, e.target.value as RegStatus)}
-                            disabled={changing === r.id}
-                            className="h-8 px-2 rounded-lg border border-[#E5E0D4] text-[12px] bg-white outline-none focus:ring-2 focus:ring-[#1F4D3A]/20 transition disabled:opacity-50"
-                          >
-                            {STATUS_OPTIONS.map(s => (
-                              <option key={s} value={s}>{s.replace('_', ' ')}</option>
-                            ))}
-                          </select>
-                          {changing === r.id && (
-                            <Loader2 size={13} strokeWidth={2} className="animate-spin text-[#6B7A72]" />
-                          )}
-                          <button
-                            onClick={() => setConfirmDelete(r)}
-                            title="Delete registration"
-                            className="h-7 w-7 rounded-lg border border-[#E5E0D4] grid place-items-center text-[#B8423C] hover:bg-red-50 transition-colors"
-                          >
-                            <Trash2 size={12} strokeWidth={2} />
-                          </button>
-                        </div>
-                      )}
-                    </td>
+                    <td className="px-4 py-3"><RowActions r={r} /></td>
                   </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* ── Mobile cards (below md) ────────────────────────── */}
+          <div className="md:hidden space-y-2.5">
+            {rows.map(r => (
+              <div key={r.id} className={`rounded-xl border p-3.5 ${selected.has(r.id) ? 'border-[#1F4D3A]/30 bg-[#E8EFEB]/40' : 'border-[#E5E0D4] bg-white'}`}>
+                <div className="flex items-start gap-2.5">
+                  {canManage && (
+                    <input
+                      type="checkbox"
+                      aria-label={`Select ${r.attendee_email}`}
+                      checked={selected.has(r.id)}
+                      onChange={() => toggleOne(r.id)}
+                      className="h-4 w-4 mt-1 rounded border-[#E5E0D4] accent-[#1F4D3A] cursor-pointer shrink-0"
+                    />
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium text-[#0F1F18] text-[13.5px] truncate">{r.attendee_name}</div>
+                    <div className="text-[12px] text-[#65736B] truncate">{r.attendee_email}</div>
+                  </div>
+                </div>
+                <div className="mt-2.5 text-[12px] text-[#65736B]">
+                  <EventCell r={r} />
+                </div>
+                <div className="mt-1 text-[12.5px] text-[#3A4A42]">{r.ticket_name ?? '—'}</div>
+                <div className="flex items-center gap-2 flex-wrap mt-2.5">
+                  {renderStatusBadge(r)}
+                  {renderPaymentBadge(r)}
+                </div>
+                <div className="mt-2.5 flex items-center justify-between text-[12px] text-[#65736B]">
+                  <span>{formatAmount(r.amount_paid, r.currency)}</span>
+                  <span>{formatDate(r.created_at)}</span>
+                </div>
+                {canManage && (
+                  <div className="mt-3 pt-3 border-t border-[#E5E0D4]">
+                    <RowActions r={r} />
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </>
       )}
 
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="mt-6 flex items-center justify-between">
           <PagLink page={page - 1} disabled={page <= 1} label="← Previous" filters={defaultFilters} pathname={pathname} />
-          <span className="text-[13px] text-[#6B7A72]">{page} / {totalPages}</span>
+          <span className="text-[13px] text-[#65736B]">{page} / {totalPages}</span>
           <PagLink page={page + 1} disabled={page >= totalPages} label="Next →" filters={defaultFilters} pathname={pathname} />
         </div>
       )}
@@ -567,7 +617,7 @@ function PagLink({ page, disabled, label, filters, pathname }: {
   params.set('page', String(page));
 
   if (disabled) {
-    return <span className="text-[13px] text-[#6B7A72]/40  px-3 py-1.5">{label}</span>;
+    return <span className="text-[13px] text-[#65736B]/40  px-3 py-1.5">{label}</span>;
   }
   return (
     <a

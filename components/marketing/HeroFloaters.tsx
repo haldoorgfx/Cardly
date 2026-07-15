@@ -31,7 +31,7 @@ const title: React.CSSProperties = {
 const sub: React.CSSProperties = {
   fontFamily: 'var(--font-sans)',
   fontSize: 11,
-  color: '#6B7A72',
+  color: '#65736B',
   marginTop: 2,
 };
 

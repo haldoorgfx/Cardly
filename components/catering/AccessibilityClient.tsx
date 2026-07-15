@@ -64,7 +64,7 @@ export function AccessibilityClient({ eventSlug, data, loadError }: Props) {
         <Link
           href={`/events/${eventSlug}/catering`}
           className="inline-flex items-center gap-1.5 text-[13px] font-medium mb-4 transition hover:text-[#1F4D3A]"
-          style={{ color: '#6B7A72' }}
+          style={{ color: '#65736B' }}
         >
           <ArrowLeft size={15} strokeWidth={2} /> Back to catering
         </Link>
@@ -87,7 +87,7 @@ export function AccessibilityClient({ eventSlug, data, loadError }: Props) {
             <p className="font-display text-[17px] font-semibold" style={{ color: '#0F1F18' }}>
               {loadError === 'auth' ? 'You can’t manage this event' : 'Couldn’t load this summary'}
             </p>
-            <p className="text-[14px] mt-1.5 mb-5" style={{ color: '#6B7A72' }}>
+            <p className="text-[14px] mt-1.5 mb-5" style={{ color: '#65736B' }}>
               {loadError === 'auth'
                 ? 'Only the event owner or its staff can see accessibility needs.'
                 : 'Something went wrong fetching the summary.'}
@@ -110,7 +110,7 @@ export function AccessibilityClient({ eventSlug, data, loadError }: Props) {
             <p className="font-display text-[18px] font-semibold" style={{ color: '#0F1F18' }}>
               No accessibility needs shared
             </p>
-            <p className="text-[14px] mt-1.5" style={{ color: '#6B7A72' }}>
+            <p className="text-[14px] mt-1.5" style={{ color: '#65736B' }}>
               No one has shared an accessibility need yet. When they do, it’ll show here so you can prepare — with the total, a breakdown, and how to reach them.
             </p>
           </div>
@@ -120,7 +120,7 @@ export function AccessibilityClient({ eventSlug, data, loadError }: Props) {
             <div className="bg-white rounded-2xl border p-5 mb-4" style={{ borderColor: '#E5E0D4' }}>
               <div className="flex items-baseline gap-2 mb-4">
                 <span className="font-display font-semibold text-[26px]" style={{ color: '#0F1F18' }}>{data!.total_with_needs}</span>
-                <span className="text-[14px]" style={{ color: '#6B7A72' }}>
+                <span className="text-[14px]" style={{ color: '#65736B' }}>
                   {data!.total_with_needs === 1 ? 'attendee shared a need' : 'attendees shared a need'}
                 </span>
               </div>

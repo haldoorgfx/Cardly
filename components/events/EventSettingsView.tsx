@@ -255,8 +255,8 @@ export function EventSettingsView({ event }: Props) {
   const statusBadge = {
     published: { label: 'Live', bg: 'rgba(45,122,79,0.12)', color: '#2D7A4F', dot: '#2D7A4F' },
     draft:     { label: 'Draft', bg: 'rgba(201,122,45,0.12)', color: '#C97A2D', dot: '#C97A2D' },
-    archived:  { label: 'Archived', bg: '#F5F0E8', color: '#6B7A72', dot: '#6B7A72' },
-  }[event.status] ?? { label: event.status, bg: '#F5F0E8', color: '#6B7A72', dot: '#6B7A72' };
+    archived:  { label: 'Archived', bg: '#F5F0E8', color: '#65736B', dot: '#65736B' },
+  }[event.status] ?? { label: event.status, bg: '#F5F0E8', color: '#65736B', dot: '#65736B' };
 
   return (
     <PageShell width="wide">
@@ -288,7 +288,7 @@ export function EventSettingsView({ event }: Props) {
               className="h-8 px-4 rounded-lg text-[13px] font-medium transition"
               style={{
                 background: tab === t.id ? 'white' : 'transparent',
-                color: tab === t.id ? '#0F1F18' : '#6B7A72',
+                color: tab === t.id ? '#0F1F18' : '#65736B',
                 boxShadow: tab === t.id ? '0 1px 3px rgba(15,31,24,0.08)' : 'none',
               }}
             >
@@ -347,7 +347,7 @@ export function EventSettingsView({ event }: Props) {
                   placeholder="Search venue name or address"
                 />
                 {placeData?.venue_address && (
-                  <p className="mt-1 text-[12px] pl-1" style={{ color: '#6B7A72' }}>
+                  <p className="mt-1 text-[12px] pl-1" style={{ color: '#65736B' }}>
                     <span className="inline-flex items-center gap-1"><MapPin size={11} />{placeData.venue_address}</span>
                   </p>
                 )}
@@ -389,7 +389,7 @@ export function EventSettingsView({ event }: Props) {
                     onFocus={e => (e.target.style.borderColor = '#E8C57E')}
                     onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
                   />
-                  <span className="text-[12px]" style={{ color: '#6B7A72' }}>attendees</span>
+                  <span className="text-[12px]" style={{ color: '#65736B' }}>attendees</span>
                 </div>
               </InfoRow>
               <InfoRow label="Waitlist" desc="When your event fills up, attendees can join a waitlist. Manage it here." last>
@@ -426,8 +426,8 @@ export function EventSettingsView({ event }: Props) {
 
           {/* Payment methods — which processors buyers can use for paid tickets */}
           <div className="mt-4 pt-4" style={{ borderTop: '1px solid #F0EDE7' }}>
-            <div className="text-[12.5px] font-semibold uppercase tracking-wider mb-1" style={{ color: '#6B7A72', letterSpacing: '0.06em' }}>Payment methods</div>
-            <p className="text-[12px] mb-3" style={{ color: '#6B7A72' }}>
+            <div className="text-[12.5px] font-semibold uppercase tracking-wider mb-1" style={{ color: '#65736B', letterSpacing: '0.06em' }}>Payment methods</div>
+            <p className="text-[12px] mb-3" style={{ color: '#65736B' }}>
               Which methods buyers can use to pay for paid tickets. Free tickets skip payment entirely.
             </p>
             <div className="space-y-2.5">
@@ -459,7 +459,7 @@ export function EventSettingsView({ event }: Props) {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-[13.5px] font-medium" style={{ color: '#0F1F18' }}>{m.label}</p>
-                      <p className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>{m.desc}</p>
+                      <p className="text-[12px] mt-0.5" style={{ color: '#65736B' }}>{m.desc}</p>
                     </div>
                   </button>
                 );
@@ -471,7 +471,7 @@ export function EventSettingsView({ event }: Props) {
           </div>
 
           <div className="mt-4 pt-4" style={{ borderTop: '1px solid #F0EDE7' }}>
-            <div className="text-[12.5px] font-semibold uppercase tracking-wider mb-1" style={{ color: '#6B7A72', letterSpacing: '0.06em' }}>Platform fee</div>
+            <div className="text-[12.5px] font-semibold uppercase tracking-wider mb-1" style={{ color: '#65736B', letterSpacing: '0.06em' }}>Platform fee</div>
             <InfoRow
               label="Pass the platform fee to attendees"
               desc={passFee
@@ -559,15 +559,15 @@ export function EventSettingsView({ event }: Props) {
                 </div>
                 <h3 className="font-display text-[16px] font-semibold" style={{ color: '#0F1F18' }}>Delete event</h3>
               </div>
-              <button onClick={() => setDeleteOpen(false)} className="h-7 w-7 rounded-lg grid place-items-center hover:bg-[#F5F3EE]" style={{ color: '#6B7A72' }}>
+              <button onClick={() => setDeleteOpen(false)} className="h-10 w-10 rounded-lg grid place-items-center hover:bg-[#F5F3EE]" style={{ color: '#65736B' }}>
                 <X size={14} strokeWidth={2.2} />
               </button>
             </div>
 
-            <p className="text-[13px] mb-1" style={{ color: '#6B7A72' }}>
+            <p className="text-[13px] mb-1" style={{ color: '#65736B' }}>
               This will permanently delete <strong style={{ color: '#0F1F18' }}>{event.name}</strong> and all its data — registrations, tickets, sessions, and media. This cannot be undone.
             </p>
-            <p className="text-[13px] mb-4" style={{ color: '#6B7A72' }}>
+            <p className="text-[13px] mb-4" style={{ color: '#65736B' }}>
               Type <strong style={{ color: '#0F1F18' }}>{event.name}</strong> to confirm.
             </p>
 
@@ -581,7 +581,7 @@ export function EventSettingsView({ event }: Props) {
             {deleteError && <p className="text-[12px] mb-3" style={{ color: '#B8423C' }}>{deleteError}</p>}
 
             <div className="flex gap-3">
-              <button onClick={() => setDeleteOpen(false)} className="flex-1 h-10 rounded-lg text-[13px] font-medium border transition" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>
+              <button onClick={() => setDeleteOpen(false)} className="flex-1 h-10 rounded-lg text-[13px] font-medium border transition" style={{ borderColor: '#E5E0D4', color: '#65736B' }}>
                 Cancel
               </button>
               <button
@@ -630,7 +630,7 @@ function InfoRow({ label, desc, last, children }: { label: string; desc?: string
     >
       <div>
         <p className="text-[13.5px] font-medium" style={{ color: '#0F1F18' }}>{label}</p>
-        {desc && <p className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>{desc}</p>}
+        {desc && <p className="text-[12px] mt-0.5" style={{ color: '#65736B' }}>{desc}</p>}
       </div>
       {children}
     </div>
@@ -664,7 +664,7 @@ function DangerCard({ title, desc, action, danger }: { title: string; desc: stri
     >
       <div>
         <p className="text-[14px] font-semibold font-display" style={{ color: danger ? '#B8423C' : '#0F1F18' }}>{title}</p>
-        <p className="text-[12.5px] mt-0.5" style={{ color: danger ? 'rgba(184,66,60,0.7)' : '#6B7A72' }}>{desc}</p>
+        <p className="text-[12.5px] mt-0.5" style={{ color: danger ? 'rgba(184,66,60,0.7)' : '#65736B' }}>{desc}</p>
       </div>
       {action}
     </div>

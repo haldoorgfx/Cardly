@@ -63,7 +63,7 @@ export default async function DashboardPage() {
             <CalendarDays size={26} strokeWidth={1.7} />
           </div>
           <h1 className="font-display text-[30px] font-semibold text-[#0F1F18] tracking-[-0.02em]">Create your first event</h1>
-          <p className="mt-3 text-[#6B7A72] text-[15px] leading-[1.6] max-w-[480px] mx-auto">
+          <p className="mt-3 text-[#65736B] text-[15px] leading-[1.6] max-w-[480px] mx-auto">
             Set up your event page, add tickets, build your agenda, and get a personalized Eventera Card ready for every attendee.
           </p>
           <div className="mt-10 grid sm:grid-cols-3 gap-4 text-left">
@@ -71,10 +71,10 @@ export default async function DashboardPage() {
               <div key={s.n} className="bg-white rounded-2xl border p-5" style={{ borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
                 <div className="flex items-center justify-between mb-4">
                   <span className="w-9 h-9 rounded-lg grid place-items-center text-[#1F4D3A]" style={{ background: '#E8EFEB' }}>{s.icon}</span>
-                  <span className=" text-[12.5px] text-[#6B7A72]/50">{s.n}</span>
+                  <span className=" text-[12.5px] text-[#65736B]/50">{s.n}</span>
                 </div>
                 <div className="font-display text-[15px] font-semibold text-[#0F1F18] tracking-tight">{s.title}</div>
-                <p className="text-[13px] text-[#6B7A72] mt-1.5 leading-[1.5]">{s.body}</p>
+                <p className="text-[13px] text-[#65736B] mt-1.5 leading-[1.5]">{s.body}</p>
               </div>
             ))}
           </div>
@@ -165,7 +165,7 @@ export default async function DashboardPage() {
             <div key={i} className="flex items-center gap-5">
               <div>
                 <span className="font-title font-bold text-[20px] text-[#0F1F18] tracking-tight">{s.value}</span>
-                <span className="ml-2 text-[13px] text-[#6B7A72]">{s.label}</span>
+                <span className="ml-2 text-[13px] text-[#65736B]">{s.label}</span>
               </div>
               {!s.last && <span className="text-[#E5E0D4] hidden sm:inline">·</span>}
             </div>
@@ -236,7 +236,7 @@ export default async function DashboardPage() {
         )}
 
         {/* ── Events grid ── */}
-        <div className=" text-[12px] tracking-[0.2em] uppercase text-[#6B7A72] mb-3">Your events</div>
+        <div className=" text-[12px] tracking-[0.2em] uppercase text-[#65736B] mb-3">Your events</div>
         <DashboardContent events={allEvents} atLimit={atLimit} regsByEvent={regsByEvent} draftCount={draftCount} activeCount={activeCount} />
 
     </PageShell>

@@ -76,7 +76,7 @@ const PLAN_META: Record<PlanKey, {
   Icon: typeof Leaf;
   badgeBg: string; badgeText: string; badgeBorder: string;
 }> = {
-  free:   { label: 'Free',   Icon: Leaf,  badgeBg: '#F1EFE8',                badgeText: '#6B7A72', badgeBorder: '#E0DBCE' },
+  free:   { label: 'Free',   Icon: Leaf,  badgeBg: '#F1EFE8',                badgeText: '#65736B', badgeBorder: '#E0DBCE' },
   pro:    { label: 'Pro',    Icon: Zap,   badgeBg: 'rgba(232,197,126,0.20)', badgeText: '#B58A34', badgeBorder: 'rgba(181,138,52,0.35)' },
   studio: { label: 'Studio', Icon: Crown, badgeBg: '#E8EFEB',                badgeText: '#1F4D3A', badgeBorder: '#C9DDD3' },
 };
@@ -195,7 +195,7 @@ const EVENT_NAV_SECTIONS = [
 const EVENT_STATUS_BADGE: Record<string, { cls: string; dot: string; label: string }> = {
   published: { cls: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30', dot: '#2D7A4F', label: 'Live' },
   draft:     { cls: 'bg-amber-500/20 text-amber-300 border-amber-500/30',       dot: '#C9A45E', label: 'Draft' },
-  archived:  { cls: 'bg-white/10 text-white/40 border-white/15',                dot: '#6B7A72', label: 'Archived' },
+  archived:  { cls: 'bg-white/10 text-white/40 border-white/15',                dot: '#65736B', label: 'Archived' },
 };
 
 // ─── User nav ─────────────────────────────────────────────────────────────────
@@ -276,7 +276,7 @@ function NavItem({ href, icon, label, badge, active, onNavigate }: {
         <span className="flex-1 leading-none">{label}</span>
         {badge && (
           <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-md tracking-wide"
-            style={{ color: '#6B7A72', background: '#F5F3EE' }}>
+            style={{ color: '#65736B', background: '#F5F3EE' }}>
             {badge}
           </span>
         )}
@@ -347,7 +347,7 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
           )}
         </div>
         {mounted && profile?.full_name && (
-          <p className="text-[13.5px] font-medium px-0.5" style={{ color: '#6B7A72' }}>
+          <p className="text-[13.5px] font-medium px-0.5" style={{ color: '#65736B' }}>
             {profile.full_name}
           </p>
         )}
@@ -396,7 +396,7 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
             <div key={group.key}>
               <button
                 onClick={() => toggleGroup(group.key)}
-                className="w-full px-2.5 mb-1.5 flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.08em] transition-colors hover:text-[#6B7A72]"
+                className="w-full px-2.5 mb-1.5 flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.08em] transition-colors hover:text-[#65736B]"
                 style={{ color: '#9BA8A1' }}>
                 <span className="flex items-center gap-1.5">
                   {group.title}
@@ -434,7 +434,7 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
         )}
         <div className="flex items-center justify-between mt-2.5 mb-1 px-1">
           <span className="text-[10.5px] font-semibold uppercase tracking-[0.08em]" style={{ color: '#9BA8A1' }}>Events</span>
-          <span suppressHydrationWarning className="text-[11px] font-medium tabular-nums" style={{ color: '#6B7A72' }}>
+          <span suppressHydrationWarning className="text-[11px] font-medium tabular-nums" style={{ color: '#65736B' }}>
             {eventCount}&nbsp;/&nbsp;{planLimit === Infinity ? '∞' : planLimit}
           </span>
         </div>
@@ -452,13 +452,13 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
           }`}
           style={pathname === '/settings' || pathname.startsWith('/settings/')
             ? { background: '#E8EFEB', color: '#1F4D3A' }
-            : { color: '#6B7A72' }}>
+            : { color: '#65736B' }}>
           <Settings2 size={15} strokeWidth={1.7} className="shrink-0" />
           <span className="leading-none">Settings</span>
         </Link>
         <button onClick={handleSignOut}
           className="w-full flex items-center gap-3 px-2.5 py-[6px] rounded-lg text-[14.5px] transition-colors text-left hover:bg-[#F5F3EE]"
-          style={{ color: '#6B7A72' }}>
+          style={{ color: '#65736B' }}>
           <LogOut size={15} strokeWidth={1.7} className="shrink-0" />
           <span className="leading-none">Sign out</span>
         </button>
@@ -563,7 +563,7 @@ function EventNavContent({ pathname, eventId, onNavigate }: {
       <div className="px-3 pt-3 pb-3 shrink-0" style={{ borderBottom: '1px solid #E5E0D4' }}>
         <Link href="/dashboard" onClick={onNavigate}
           className="inline-flex items-center gap-1.5 text-[13px] transition-colors mb-3 hover:text-[#0F1F18]"
-          style={{ color: '#6B7A72' }}>
+          style={{ color: '#65736B' }}>
           <ArrowLeft size={13} strokeWidth={2} />
           All events
         </Link>
@@ -579,7 +579,7 @@ function EventNavContent({ pathname, eventId, onNavigate }: {
               ? { background: '#E8EFEB', color: '#2D7A4F', borderColor: '#C9DDD3' }
               : event?.status === 'draft'
               ? { background: '#FEF9EE', color: '#C97A2D', borderColor: '#F0D99A' }
-              : { background: '#F5F3EE', color: '#6B7A72', borderColor: '#E5E0D4' }}>
+              : { background: '#F5F3EE', color: '#65736B', borderColor: '#E5E0D4' }}>
             <span className="w-1.5 h-1.5 rounded-full" style={{ background: badge.dot }} />
             {badge.label}
           </span>
@@ -731,40 +731,40 @@ function CommandPalette({ onClose }: { onClose: () => void }) {
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
       <div className="relative w-full max-w-[560px] bg-white rounded-2xl shadow-[0_8px_40px_rgba(15,31,24,0.18)] border overflow-hidden" style={{ borderColor: '#E5E0D4' }}>
         <div className="flex items-center gap-3 px-4 py-3 border-b" style={{ borderColor: '#E5E0D4' }}>
-          <Search className="text-[#6B7A72] shrink-0" size={15} strokeWidth={2} />
+          <Search className="text-[#65736B] shrink-0" size={15} strokeWidth={2} />
           <input
             ref={inputRef}
             value={query}
             onChange={e => setQuery(e.target.value)}
             placeholder="Search events, or jump to…"
             aria-label="Search events, or jump to a page"
-            className="flex-1 text-[14px] placeholder-[#6B7A72] outline-none bg-transparent text-[#0F1F18]"
+            className="flex-1 text-[14px] placeholder-[#65736B] outline-none bg-transparent text-[#0F1F18]"
           />
           {loading && (
-            <svg className="animate-spin text-[#6B7A72] shrink-0" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <svg className="animate-spin text-[#65736B] shrink-0" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="M21 12a9 9 0 1 1-9-9" strokeLinecap="round" />
             </svg>
           )}
-          <button onClick={onClose} className="text-[12px] text-[#6B7A72] border px-1.5 py-0.5 rounded-md hover:text-[#0F1F18] transition leading-none" style={{ borderColor: '#E5E0D4' }}>
+          <button onClick={onClose} className="text-[12px] text-[#65736B] border px-1.5 py-0.5 rounded-md hover:text-[#0F1F18] transition leading-none" style={{ borderColor: '#E5E0D4' }}>
             ESC
           </button>
         </div>
 
         <div className="max-h-[360px] overflow-y-auto">
           {query.trim() && results.length === 0 && !loading && (
-            <div className="px-4 py-10 text-center text-[14px] text-[#6B7A72]">
+            <div className="px-4 py-10 text-center text-[14px] text-[#65736B]">
               No events found for &ldquo;{query}&rdquo;
             </div>
           )}
           {results.length > 0 && (
             <div className="p-1.5">
-              <div className="px-2.5 py-1.5 text-[11px] text-[#6B7A72]/70 uppercase tracking-widest">Events</div>
+              <div className="px-2.5 py-1.5 text-[11px] text-[#65736B]/70 uppercase tracking-widest">Events</div>
               {results.map((r, i) => (
                 <button key={r.id} onClick={() => navigate(r)} onMouseEnter={() => setSelected(i)}
                   className={`w-full flex items-center gap-3 px-2.5 py-2 rounded-xl text-left transition-colors ${i === selected ? 'bg-[#F5F5F4]' : 'hover:bg-[#F5F5F4]/60'}`}>
                   <div className="flex-1 min-w-0">
                     <div className="text-[14px] font-medium text-[#0F1F18] truncate">{r.name}</div>
-                    <div className="text-[12px] text-[#6B7A72]">/{r.slug}</div>
+                    <div className="text-[12px] text-[#65736B]">/{r.slug}</div>
                   </div>
                   <span className={`text-[11px] px-2 py-0.5 rounded-full border ${r.status === 'published' ? 'border-emerald-200 bg-emerald-50 text-emerald-600' : r.status === 'archived' ? 'border-rose-200 bg-rose-50 text-rose-500' : 'border-amber-200 bg-amber-50 text-amber-600'}`}>
                     {r.status}
@@ -775,7 +775,7 @@ function CommandPalette({ onClose }: { onClose: () => void }) {
           )}
           {!query.trim() && (
             <div className="p-1.5">
-              <div className="px-2.5 py-1.5 text-[11px] text-[#6B7A72]/70 uppercase tracking-widest">Quick actions</div>
+              <div className="px-2.5 py-1.5 text-[11px] text-[#65736B]/70 uppercase tracking-widest">Quick actions</div>
               {quickActions.map((a, i) => (
                 <Link key={a.href} href={a.href} onClick={onClose}
                   className={`flex items-center gap-3 px-2.5 py-2 rounded-xl transition-colors ${i === selected ? 'bg-[#F5F5F4]' : 'hover:bg-[#F5F5F4]/60'}`}>
@@ -790,7 +790,7 @@ function CommandPalette({ onClose }: { onClose: () => void }) {
           )}
         </div>
 
-        <div className="border-t px-4 py-2.5 flex items-center gap-4 text-[12px] text-[#6B7A72]" style={{ borderColor: '#E5E0D4' }}>
+        <div className="border-t px-4 py-2.5 flex items-center gap-4 text-[12px] text-[#65736B]" style={{ borderColor: '#E5E0D4' }}>
           <span><kbd className="font-sans border px-1 rounded text-[11px]" style={{ borderColor: '#E5E0D4' }}>↑↓</kbd> navigate</span>
           <span><kbd className="font-sans border px-1 rounded text-[11px]" style={{ borderColor: '#E5E0D4' }}>↵</kbd> open</span>
           <span><kbd className="font-sans border px-1 rounded text-[11px]" style={{ borderColor: '#E5E0D4' }}>ESC</kbd> close</span>
@@ -949,7 +949,7 @@ function NotifItem({ notif, onRead }: { notif: Notification; onRead: (id: string
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-[14px] leading-snug" style={{ color: '#0F1F18' }}>{notif.title}</p>
-        {notif.body && <p className="text-[12.5px] mt-0.5 truncate" style={{ color: '#6B7A72' }}>{notif.body}</p>}
+        {notif.body && <p className="text-[12.5px] mt-0.5 truncate" style={{ color: '#65736B' }}>{notif.body}</p>}
         <p className="text-[12px] mt-0.5 " style={{ color: '#9BA8A1' }}>{formatNotifTime(notif.created_at)}</p>
       </div>
       {!notif.read_at && (
@@ -1145,7 +1145,7 @@ export function AppShell({ children, initialSections, initialProfile, initialEve
             {/* Left: hamburger + breadcrumb */}
             <div className="flex items-center gap-2 min-w-0 flex-1">
               <button className="md:hidden h-10 w-10 rounded-lg hover:bg-[#F5F3EE] grid place-items-center shrink-0 transition"
-                style={{ color: '#6B7A72' }}
+                style={{ color: '#65736B' }}
                 onClick={() => setMobileNavOpen(true)} aria-label="Open menu">
                 <Menu size={16} strokeWidth={2} />
               </button>
@@ -1161,7 +1161,7 @@ export function AppShell({ children, initialSections, initialProfile, initialEve
                         <span style={{ color: '#C9C3B1' }}>/</span>
                         {crumb.href ? (
                           <Link href={crumb.href} className="truncate hover:text-[#1F4D3A] transition-colors"
-                            style={{ color: '#6B7A72' }}>
+                            style={{ color: '#65736B' }}>
                             {crumb.label}
                           </Link>
                         ) : (
@@ -1181,7 +1181,7 @@ export function AppShell({ children, initialSections, initialProfile, initialEve
               {/* Search bar */}
               <button onClick={() => setCmdOpen(true)}
                 className="hidden sm:flex h-8 items-center gap-2 px-3 rounded-xl transition hover:shadow-[0_0_0_2px_#1F4D3A20]"
-                style={{ color: '#6B7A72', border: '1px solid #E5E0D4', background: '#FAF6EE', width: '200px' }}
+                style={{ color: '#65736B', border: '1px solid #E5E0D4', background: '#FAF6EE', width: '200px' }}
                 aria-label="Search (⌘K)">
                 <Search size={13} strokeWidth={2} className="shrink-0" style={{ color: '#9BA8A1' }} />
                 <span className="flex-1 text-left text-[13.5px]" style={{ color: '#9BA8A1' }}>Search…</span>
@@ -1191,7 +1191,7 @@ export function AppShell({ children, initialSections, initialProfile, initialEve
               {/* Mobile search icon only */}
               <button onClick={() => setCmdOpen(true)}
                 className="sm:hidden h-10 w-10 rounded-lg grid place-items-center transition hover:bg-[#F5F3EE]"
-                style={{ color: '#6B7A72' }} aria-label="Search">
+                style={{ color: '#65736B' }} aria-label="Search">
                 <Search size={15} strokeWidth={2} />
               </button>
 
@@ -1206,7 +1206,7 @@ export function AppShell({ children, initialSections, initialProfile, initialEve
                     if (next) fetchNotifications();
                   }}
                   className="relative h-10 w-10 rounded-lg grid place-items-center transition hover:bg-[#F5F3EE]"
-                  style={{ color: '#6B7A72' }}
+                  style={{ color: '#65736B' }}
                   aria-label="Notifications">
                   <Bell size={15} strokeWidth={2} />
                   {notifications.some(n => !n.read_at) && (
@@ -1300,7 +1300,7 @@ export function AppShell({ children, initialSections, initialProfile, initialEve
                           <div suppressHydrationWarning className="text-[14.5px] font-semibold text-[#0F1F18] leading-tight truncate">
                             {profile?.full_name ?? '—'}
                           </div>
-                          <div suppressHydrationWarning className=" text-[12px] text-[#6B7A72] truncate">{profile?.email ?? ''}</div>
+                          <div suppressHydrationWarning className=" text-[12px] text-[#65736B] truncate">{profile?.email ?? ''}</div>
                         </div>
                       </div>
 
@@ -1343,7 +1343,7 @@ export function AppShell({ children, initialSections, initialProfile, initialEve
                           <div suppressHydrationWarning className="flex items-center gap-1.5 text-[13px] font-semibold" style={{ color: '#C9A45E' }}>
                             <Zap size={12} strokeWidth={2} /> {planLabel} plan
                           </div>
-                          <div suppressHydrationWarning className="text-[12.5px] text-[#6B7A72] mt-0.5">
+                          <div suppressHydrationWarning className="text-[12.5px] text-[#65736B] mt-0.5">
                             {planLabel === 'Studio' ? "You're on the full platform." : 'Upgrade for more features.'}
                           </div>
                         </div>

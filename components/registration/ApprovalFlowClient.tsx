@@ -153,7 +153,7 @@ export function ApprovalFlowClient({ eventId, eventName, eventSlug, questions }:
                 }`}>
                   {i < currentStep ? <Check size={13} strokeWidth={3} /> : i + 1}
                 </div>
-                <span className={`text-[10px] font-medium hidden sm:block ${i <= currentStep ? 'text-[#1F4D3A]' : 'text-[#6B7A72]'}`}>
+                <span className={`text-[10px] font-medium hidden sm:block ${i <= currentStep ? 'text-[#1F4D3A]' : 'text-[#65736B]'}`}>
                   {step.label}
                 </span>
               </div>
@@ -236,7 +236,7 @@ export function ApprovalFlowClient({ eventId, eventName, eventSlug, questions }:
                         onChange={e => setAnswer(q.id, e.target.value)}
                         aria-invalid={!!err}
                         className="w-full h-11 px-4 rounded-xl text-[16px] outline-none focus:border-[#1F4D3A] focus:ring-[3px] focus:ring-[rgba(31,77,58,0.12)]"
-                        style={{ ...INPUT_STYLE, borderColor: err ? '#B8423C' : '#E5E0D4', color: answers[q.id] ? '#0F1F18' : '#6B7A72' }}
+                        style={{ ...INPUT_STYLE, borderColor: err ? '#B8423C' : '#E5E0D4', color: answers[q.id] ? '#0F1F18' : '#65736B' }}
                       >
                         <option value="">Select…</option>
                         {q.options.map(o => <option key={o} value={o}>{o}</option>)}
@@ -256,7 +256,7 @@ export function ApprovalFlowClient({ eventId, eventName, eventSlug, questions }:
                         ) : (
                           <Upload size={15} style={{ color: '#1F4D3A' }} className="shrink-0" />
                         )}
-                        <span className="text-[14px] truncate" style={{ color: fileNames[q.id] ? '#0F1F18' : '#6B7A72' }}>
+                        <span className="text-[14px] truncate" style={{ color: fileNames[q.id] ? '#0F1F18' : '#65736B' }}>
                           {uploadStatus[q.id] === 'uploading'
                             ? `Uploading ${fileNames[q.id] ?? ''}…`
                             : fileNames[q.id] || 'Choose a file…'}

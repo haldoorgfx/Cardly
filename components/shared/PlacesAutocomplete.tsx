@@ -147,7 +147,7 @@ export function PlacesAutocomplete({ value, onChange, onPlaceSelected, placehold
                 <MapPin size={14} strokeWidth={2} className="mt-0.5 shrink-0" style={{ color: '#1F4D3A' }} />
                 <span className="min-w-0">
                   <span className="block text-[13px] font-medium truncate" style={{ color: '#0F1F18' }}>{primary}</span>
-                  {rest && <span className="block text-[12px] truncate" style={{ color: '#6B7A72' }}>{rest}</span>}
+                  {rest && <span className="block text-[12px] truncate" style={{ color: '#65736B' }}>{rest}</span>}
                 </span>
               </button>
             );

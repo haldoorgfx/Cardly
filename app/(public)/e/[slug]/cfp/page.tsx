@@ -29,7 +29,7 @@ export default async function CFPPage({ params }: Props) {
           <h1 className="font-display font-normal text-[32px] mb-4" style={{ color: '#0F1F18', letterSpacing: '-0.025em' }}>
             Call for papers is closed
           </h1>
-          <p className="text-[15px]" style={{ color: '#6B7A72' }}>
+          <p className="text-[15px]" style={{ color: '#65736B' }}>
             Abstract submissions are not currently open for {event.name}.
           </p>
         </div>
@@ -52,7 +52,7 @@ export default async function CFPPage({ params }: Props) {
         <h1 className="font-display font-normal text-[32px]" style={{ color: '#0F1F18', letterSpacing: '-0.025em' }}>
           Submit your abstract
         </h1>
-        <p className="text-[15px] mt-1 mb-2" style={{ color: '#6B7A72' }}>{eventPageTitle}</p>
+        <p className="text-[15px] mt-1 mb-2" style={{ color: '#65736B' }}>{eventPageTitle}</p>
 
         {/* Deadline pill */}
         <div
@@ -61,7 +61,7 @@ export default async function CFPPage({ params }: Props) {
         >
           <b className=" font-medium" style={{ color: '#0F1F18' }}>Deadline: {deadline}</b>
           {daysLeft > 0 && (
-            <span style={{ color: '#6B7A72' }}>· {daysLeft} day{daysLeft !== 1 ? 's' : ''} remaining</span>
+            <span style={{ color: '#65736B' }}>· {daysLeft} day{daysLeft !== 1 ? 's' : ''} remaining</span>
           )}
         </div>
 

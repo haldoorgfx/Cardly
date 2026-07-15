@@ -130,7 +130,7 @@ export default function CardRedownload({ eventName, attendeeName, outputUrl, cre
 
         {/* Event + date */}
         <p style={{
-          margin: '24px 0 0', fontSize: 12, color: '#6B7A72', textAlign: 'center', lineHeight: 1.5,
+          margin: '24px 0 0', fontSize: 12, color: '#65736B', textAlign: 'center', lineHeight: 1.5,
         }}>
           {eventName} · {date}
         </p>
@@ -155,7 +155,7 @@ export default function CardRedownload({ eventName, attendeeName, outputUrl, cre
         </button>
 
         <p style={{
-          marginTop: 24, fontSize: 11, color: '#6B7A72', textAlign: 'center',
+          marginTop: 24, fontSize: 11, color: '#65736B', textAlign: 'center',
           letterSpacing: '0.04em',
         }}>
           <PoweredByInline />

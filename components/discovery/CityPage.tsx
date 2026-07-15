@@ -161,7 +161,7 @@ export function CityPage({ city, events, savedIds, eventCount }: CityPageProps) 
           <div className="rounded-2xl flex items-center justify-center py-20 text-center" style={{ background: '#fff', border: '1px solid #E5E0D4' }}>
             <div>
               <div className="font-medium text-[15px] mb-1" style={{ color: '#0F1F18' }}>No events match</div>
-              <div className="text-[13px]" style={{ color: '#6B7A72' }}>Try adjusting the filters above.</div>
+              <div className="text-[13px]" style={{ color: '#65736B' }}>Try adjusting the filters above.</div>
             </div>
           </div>
         ) : (
@@ -240,7 +240,7 @@ function EventSection({
           <h2 className="font-display font-semibold text-[20px]" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
             {label}
           </h2>
-          <p className="text-[12px] mt-0.5" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
+          <p className="text-[12px] mt-0.5" style={{ color: '#65736B', fontFamily: 'Inter, system-ui, sans-serif' }}>
             {dateRange}
           </p>
         </div>

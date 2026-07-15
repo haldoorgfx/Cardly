@@ -26,7 +26,7 @@ const STATUS_STYLE: Record<string, { bg: string; color: string; border: string }
   confirmed:   { bg: 'rgba(45,122,79,0.08)',  color: '#2D7A4F', border: 'rgba(45,122,79,0.2)' },
   checked_in:  { bg: 'rgba(45,122,79,0.08)',  color: '#2D7A4F', border: 'rgba(45,122,79,0.2)' },
   pending:     { bg: 'rgba(201,122,45,0.08)', color: '#C97A2D', border: 'rgba(201,122,45,0.2)' },
-  refunded:    { bg: 'rgba(15,31,24,0.05)',   color: '#6B7A72', border: '#E5E0D4' },
+  refunded:    { bg: 'rgba(15,31,24,0.05)',   color: '#65736B', border: '#E5E0D4' },
   waitlisted:  { bg: 'rgba(58,107,140,0.08)', color: '#3A6B8C', border: 'rgba(58,107,140,0.2)' },
   cancelled:   { bg: 'rgba(184,66,60,0.08)',  color: '#B8423C', border: 'rgba(184,66,60,0.2)' },
 };
@@ -170,7 +170,7 @@ export function OrdersClient({ eventId, orders: initialOrders }: Props) {
           { label: 'Refunded', value: orders.filter(o => o.status === 'refunded').length },
         ].map(s => (
           <div key={s.label} className="bg-white rounded-2xl p-5" style={{ border: '1px solid #E5E0D4' }}>
-            <div className=" text-[11.5px] tracking-[0.14em] uppercase mb-2" style={{ color: '#6B7A72' }}>{s.label}</div>
+            <div className=" text-[11.5px] tracking-[0.14em] uppercase mb-2" style={{ color: '#65736B' }}>{s.label}</div>
             <div className=" text-[22px] leading-none tracking-tight" style={{ color: '#0F1F18' }}>{s.value}</div>
           </div>
         ))}
@@ -182,7 +182,7 @@ export function OrdersClient({ eventId, orders: initialOrders }: Props) {
           {TABS.map(t => (
             <button key={t.id} onClick={() => setTab(t.id)}
               className="px-3 py-1.5 rounded-lg text-[12.5px] font-medium transition-all"
-              style={tab === t.id ? { background: '#1F4D3A', color: 'white' } : { color: '#6B7A72' }}>
+              style={tab === t.id ? { background: '#1F4D3A', color: 'white' } : { color: '#65736B' }}>
               {t.label}
             </button>
           ))}
@@ -195,7 +195,7 @@ export function OrdersClient({ eventId, orders: initialOrders }: Props) {
 
       {filtered.length === 0 ? (
         <div className="bg-white rounded-2xl py-16 text-center" style={{ border: '1px solid #E5E0D4' }}>
-          <p className="text-[13.5px]" style={{ color: '#6B7A72' }}>No orders match your filter.</p>
+          <p className="text-[13.5px]" style={{ color: '#65736B' }}>No orders match your filter.</p>
         </div>
       ) : (
         <div className="grid lg:grid-cols-[1fr_360px] gap-5">
@@ -211,7 +211,7 @@ export function OrdersClient({ eventId, orders: initialOrders }: Props) {
                     <Avatar name={o.attendee_name ?? '?'} />
                     <div className="min-w-0 flex-1">
                       <div className="text-[13.5px] font-medium truncate" style={{ color: '#0F1F18' }}>{o.attendee_name ?? '—'}</div>
-                      <div className=" text-[12.5px] mt-0.5 truncate" style={{ color: '#6B7A72' }}>
+                      <div className=" text-[12.5px] mt-0.5 truncate" style={{ color: '#65736B' }}>
                         {o.ticket_types?.name ?? '—'} · {fmtDate(o.created_at)}
                       </div>
                     </div>
@@ -250,10 +250,10 @@ export function OrdersClient({ eventId, orders: initialOrders }: Props) {
                     <div className="min-w-0">
                       <div className="text-[14px] font-medium truncate" style={{ color: '#0F1F18' }}>{selectedOrder.attendee_name ?? '—'}</div>
                       {selectedOrder.attendee_email && (
-                        <a href={`mailto:${selectedOrder.attendee_email}`} className="block text-[12.5px] truncate hover:underline" style={{ color: '#6B7A72' }}>{selectedOrder.attendee_email}</a>
+                        <a href={`mailto:${selectedOrder.attendee_email}`} className="block text-[12.5px] truncate hover:underline" style={{ color: '#65736B' }}>{selectedOrder.attendee_email}</a>
                       )}
                       {selectedOrder.attendee_phone && (
-                        <a href={`tel:${selectedOrder.attendee_phone}`} className="block text-[12.5px] hover:underline" style={{ color: '#6B7A72' }}>{selectedOrder.attendee_phone}</a>
+                        <a href={`tel:${selectedOrder.attendee_phone}`} className="block text-[12.5px] hover:underline" style={{ color: '#65736B' }}>{selectedOrder.attendee_phone}</a>
                       )}
                     </div>
                   </div>
@@ -266,7 +266,7 @@ export function OrdersClient({ eventId, orders: initialOrders }: Props) {
                   ].map((row, i, arr) => (
                     <div key={row.label} className={`flex items-center justify-between py-2.5 ${i < arr.length - 1 ? 'border-b' : ''}`}
                       style={{ borderColor: 'rgba(229,224,212,0.6)' }}>
-                      <span className=" text-[12px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>{row.label}</span>
+                      <span className=" text-[12px] tracking-[0.12em] uppercase" style={{ color: '#65736B' }}>{row.label}</span>
                       <span className={`text-[13.5px] ${row.mono ? ' text-[12px]' : ''}`} style={{ color: '#0F1F18' }}>{row.value}</span>
                     </div>
                   ))}
@@ -277,11 +277,11 @@ export function OrdersClient({ eventId, orders: initialOrders }: Props) {
                   <div className="bg-white rounded-2xl p-5" style={{ border: '1px solid #E5E0D4' }}>
                     <div className="font-display text-[13px] font-semibold mb-3" style={{ color: '#0F1F18' }}>Customer history</div>
                     <div className="flex items-center justify-between text-[13px]">
-                      <span style={{ color: '#6B7A72' }}>Orders at this event</span>
+                      <span style={{ color: '#65736B' }}>Orders at this event</span>
                       <span style={{ color: '#0F1F18' }}>{customerOrders.length}</span>
                     </div>
                     <div className="flex items-center justify-between text-[13px] mt-1.5">
-                      <span style={{ color: '#6B7A72' }}>Total spent</span>
+                      <span style={{ color: '#65736B' }}>Total spent</span>
                       <span style={{ color: '#0F1F18' }}>{fmtMoney(customerSpent, selectedOrder.currency)}</span>
                     </div>
                   </div>
@@ -303,7 +303,7 @@ export function OrdersClient({ eventId, orders: initialOrders }: Props) {
                     {refunding ? 'Refunding…' : 'Refund order'}
                   </button>
                 ) : selectedOrder.status === 'refunded' ? (
-                  <div className="w-full px-4 py-2.5 rounded-xl text-[13px] font-medium text-center" style={{ background: '#F5F3EE', color: '#6B7A72' }}>
+                  <div className="w-full px-4 py-2.5 rounded-xl text-[13px] font-medium text-center" style={{ background: '#F5F3EE', color: '#65736B' }}>
                     Refunded
                   </div>
                 ) : null}
@@ -321,7 +321,7 @@ export function OrdersClient({ eventId, orders: initialOrders }: Props) {
         maxWidth={420}
         footer={
           <>
-            <button onClick={() => setConfirmRefund(null)} className="h-10 px-4 rounded-lg text-[13px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>Cancel</button>
+            <button onClick={() => setConfirmRefund(null)} className="h-10 px-4 rounded-lg text-[13px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#65736B' }}>Cancel</button>
             <button onClick={() => confirmRefund && refundOrder(confirmRefund)} disabled={refunding} className="h-10 px-5 rounded-lg text-[13px] font-semibold text-white disabled:opacity-60" style={{ background: '#B8423C' }}>
               {refunding ? 'Refunding…' : 'Refund order'}
             </button>

@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 const C = {
   primary: '#1F4D3A', primaryDark: '#163828', primarySoft: '#E8EFEB',
   accent: '#E8C57E', accentDark: '#C9A45E', ink: '#0F1F18', inkSoft: '#3A4A42',
-  muted: '#6B7A72', cream: '#FAF6EE', surface: '#FFFFFF', border: '#E5E0D4',
+  muted: '#65736B', cream: '#FAF6EE', surface: '#FFFFFF', border: '#E5E0D4',
 } as const;
 
 const ATTENDEE = [

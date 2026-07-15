@@ -129,7 +129,7 @@ export function StaffRolesClient({ eventId, eventName, initialStaff, ownerEmail 
             </div>
             <div className="flex-1 min-w-0">
               <div className="font-medium text-[14px]" style={{ color: '#0F1F18' }}>You</div>
-              <div className="text-[12px]" style={{ color: '#6B7A72' }}>{ownerEmail} · Owner · full access, all events</div>
+              <div className="text-[12px]" style={{ color: '#65736B' }}>{ownerEmail} · Owner · full access, all events</div>
             </div>
             <span className="flex items-center gap-1.5 text-[12.5px] font-semibold px-2.5 py-1 rounded-full" style={{ background: '#163828', color: '#E8C57E', fontFamily: 'Inter, system-ui, sans-serif' }}>
               <Crown size={10} /> ORG ADMIN
@@ -137,7 +137,7 @@ export function StaffRolesClient({ eventId, eventName, initialStaff, ownerEmail 
           </div>
 
           {staff.length === 0 ? (
-            <div className="py-14 flex flex-col items-center" style={{ color: '#6B7A72' }}>
+            <div className="py-14 flex flex-col items-center" style={{ color: '#65736B' }}>
               <UserPlus size={28} style={{ color: '#C9C3B1' }} className="mb-3" />
               <p className="text-[14px] font-medium" style={{ color: '#0F1F18' }}>No staff invited yet</p>
               <p className="text-[13px] mt-1">Invite team members to help you run this event.</p>
@@ -155,7 +155,7 @@ export function StaffRolesClient({ eventId, eventName, initialStaff, ownerEmail 
                     <div className="font-medium text-[14px] truncate" style={{ color: '#0F1F18' }}>
                       {isPending ? s.email : s.email}
                     </div>
-                    <div className="text-[12px]" style={{ color: '#6B7A72' }}>
+                    <div className="text-[12px]" style={{ color: '#65736B' }}>
                       {isPending ? `Invite pending · sent ${relativeTime(s.invited_at)}` : `This event only`}
                     </div>
                   </div>
@@ -203,7 +203,7 @@ export function StaffRolesClient({ eventId, eventName, initialStaff, ownerEmail 
         </div>
 
         {/* Role definitions grid */}
-        <h2 className="text-[13px] font-semibold mb-4" style={{ color: '#6B7A72', letterSpacing: '0.04em', textTransform: 'uppercase', fontFamily: 'Inter, system-ui, sans-serif' }}>
+        <h2 className="text-[13px] font-semibold mb-4" style={{ color: '#65736B', letterSpacing: '0.04em', textTransform: 'uppercase', fontFamily: 'Inter, system-ui, sans-serif' }}>
           What each role can do
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -224,9 +224,9 @@ export function StaffRolesClient({ eventId, eventName, initialStaff, ownerEmail 
             <div className="flex items-start justify-between mb-4">
               <div>
                 <h3 className="font-display font-semibold text-[18px]" style={{ color: '#0F1F18' }}>Invite staff to this event</h3>
-                <p className="text-[13px] mt-1" style={{ color: '#6B7A72' }}>Scoped to {eventName} only — they never see your other events.</p>
+                <p className="text-[13px] mt-1" style={{ color: '#65736B' }}>Scoped to {eventName} only — they never see your other events.</p>
               </div>
-              <button onClick={() => setShowModal(false)} className="p-1 rounded-lg hover:opacity-70" style={{ color: '#6B7A72' }}>
+              <button onClick={() => setShowModal(false)} className="p-1 rounded-lg hover:opacity-70" style={{ color: '#65736B' }}>
                 <X size={18} />
               </button>
             </div>
@@ -252,7 +252,7 @@ export function StaffRolesClient({ eventId, eventName, initialStaff, ownerEmail 
                     <input type="radio" name="inv_role" value={r.id} checked={invRole === r.id} onChange={() => setInvRole(r.id)} className="mt-0.5" />
                     <div>
                       <div className="text-[13px] font-semibold" style={{ color: '#0F1F18' }}>{r.label}</div>
-                      <div className="text-[12px]" style={{ color: '#6B7A72' }}>{r.desc}</div>
+                      <div className="text-[12px]" style={{ color: '#65736B' }}>{r.desc}</div>
                     </div>
                   </label>
                 ))}

@@ -29,7 +29,7 @@ const T = {
   primarySoft: '#E8EFEB',
   ink:         '#0F1F18',
   inkSoft:     '#3A4A42',
-  muted:       '#6B7A72',
+  muted:       '#65736B',
   danger:      '#B8423C',
   warning:     '#C97A2D',
   success:     '#2D7A4F',

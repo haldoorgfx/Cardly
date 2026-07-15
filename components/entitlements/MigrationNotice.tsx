@@ -71,16 +71,16 @@ export function MigrationNotice({ eventsCount, ticketTypesCount, onDismiss }: Pr
         <div className="flex items-center gap-3 sm:gap-4 flex-wrap">
           {/* before */}
           <div className="rounded-xl border px-4 py-3 flex items-center gap-2.5" style={{ borderColor: '#E5E0D4', background: '#FAF6EE' }}>
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', color: '#6B7A72' }}>
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', color: '#65736B' }}>
               <Ticket size={16} strokeWidth={1.9} />
             </div>
             <div>
-              <p className="text-[10px] uppercase tracking-[0.12em]" style={{ color: '#6B7A72' }}>Before</p>
+              <p className="text-[10px] uppercase tracking-[0.12em]" style={{ color: '#65736B' }}>Before</p>
               <p className="text-[13px] font-medium" style={{ color: '#3A4A42' }}>One ticket = one scan</p>
             </div>
           </div>
 
-          <ArrowRight size={18} strokeWidth={2} style={{ color: '#6B7A72' }} className="shrink-0" />
+          <ArrowRight size={18} strokeWidth={2} style={{ color: '#65736B' }} className="shrink-0" />
 
           {/* after */}
           <div className="rounded-xl border px-4 py-3 flex items-center gap-2.5" style={{ borderColor: 'rgba(31,77,58,0.28)', background: '#E8EFEB' }}>
@@ -105,15 +105,15 @@ export function MigrationNotice({ eventsCount, ticketTypesCount, onDismiss }: Pr
           style={{ background: '#FAF6EE', border: '1px solid #E5E0D4' }}>
           <div className="flex items-baseline gap-1.5">
             <span className="font-display font-bold text-[18px]" style={{ color: '#1F4D3A' }}>{nEvents}</span>
-            <span className="text-[13px]" style={{ color: '#6B7A72' }}>{eventsCount === 1 ? 'event' : 'events'} ready</span>
+            <span className="text-[13px]" style={{ color: '#65736B' }}>{eventsCount === 1 ? 'event' : 'events'} ready</span>
           </div>
           <span className="hidden sm:inline" style={{ color: '#E5E0D4' }}>·</span>
           <div className="flex items-baseline gap-1.5">
             <span className="font-display font-bold text-[18px]" style={{ color: '#1F4D3A' }}>{nTickets}</span>
-            <span className="text-[13px]" style={{ color: '#6B7A72' }}>{ticketTypesCount === 1 ? 'ticket type' : 'ticket types'}</span>
+            <span className="text-[13px]" style={{ color: '#65736B' }}>{ticketTypesCount === 1 ? 'ticket type' : 'ticket types'}</span>
           </div>
           <span className="hidden sm:inline" style={{ color: '#E5E0D4' }}>·</span>
-          <span className="text-[13px]" style={{ color: '#6B7A72' }}>Entry entitlement ready on each</span>
+          <span className="text-[13px]" style={{ color: '#65736B' }}>Entry entitlement ready on each</span>
         </div>
 
         <div className="mt-4">

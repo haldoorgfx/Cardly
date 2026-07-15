@@ -81,7 +81,7 @@ export function ExhibitorShell({ token, companyName, tier, boothNumber, logoUrl,
             <span className="w-7 h-7 rounded-lg shrink-0" style={{ background: 'linear-gradient(135deg,#1F4D3A,#2A6A50 60%,#E8C57E)' }} />
             <div className="leading-none">
               <div className="font-display text-[15px] font-bold" style={{ color: '#1F4D3A' }}>Eventera</div>
-              <div className=" text-[8.5px] tracking-[0.16em] uppercase mt-0.5" style={{ color: '#6B7A72' }}>{modeWord} Portal</div>
+              <div className=" text-[8.5px] tracking-[0.16em] uppercase mt-0.5" style={{ color: '#65736B' }}>{modeWord} Portal</div>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -96,7 +96,7 @@ export function ExhibitorShell({ token, companyName, tier, boothNumber, logoUrl,
                 <span className="sm:hidden">Dashboard</span>
               </Link>
             )}
-            <span className="hidden sm:inline  text-[11px]" style={{ color: '#6B7A72' }}>{eventName}</span>
+            <span className="hidden sm:inline  text-[11px]" style={{ color: '#65736B' }}>{eventName}</span>
             {logoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={logoUrl} alt={companyName} className="h-8 w-8 rounded-full object-cover border" style={{ borderColor: '#E5E0D4' }} />
@@ -156,7 +156,7 @@ export function ExhibitorShell({ token, companyName, tier, boothNumber, logoUrl,
                 key={id}
                 href={href(id)}
                 className="relative px-3.5 py-3 text-[13.5px] font-medium whitespace-nowrap transition-colors"
-                style={{ color: isActive ? '#1F4D3A' : '#6B7A72' }}
+                style={{ color: isActive ? '#1F4D3A' : '#65736B' }}
               >
                 {label}
                 {isActive && (

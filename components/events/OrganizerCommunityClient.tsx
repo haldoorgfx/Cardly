@@ -64,7 +64,7 @@ export function OrganizerCommunityClient({ eventName, eventSlug, channels: dbCha
           { label: 'Active attendees', value: Math.round(totalMessages * 0.4), icon: <Users size={16} /> },
         ].map(s => (
           <div key={s.label} className="rounded-2xl p-4" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
-            <div className="flex items-center gap-2 mb-1" style={{ color: '#6B7A72' }}>{s.icon}
+            <div className="flex items-center gap-2 mb-1" style={{ color: '#65736B' }}>{s.icon}
               <span className="text-[12px]">{s.label}</span>
             </div>
             <div className="font-display font-bold text-[22px]" style={{ color: '#0F1F18' }}>
@@ -77,7 +77,7 @@ export function OrganizerCommunityClient({ eventName, eventSlug, channels: dbCha
       {/* Channels list */}
       <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid #E5E0D4' }}>
         <div className="px-5 py-3 flex items-center justify-between" style={{ background: '#FAF6EE', borderBottom: '1px solid #E5E0D4' }}>
-          <span className="text-[12px] font-semibold" style={{ color: '#6B7A72' }}>CHANNELS</span>
+          <span className="text-[12px] font-semibold" style={{ color: '#65736B' }}>CHANNELS</span>
           <Link href={`/e/${eventSlug}/community`} target="_blank"
             className="flex items-center gap-1.5 text-[12px] font-medium transition hover:opacity-70"
             style={{ color: '#1F4D3A' }}>
@@ -91,7 +91,7 @@ export function OrganizerCommunityClient({ eventName, eventSlug, channels: dbCha
             style={{ borderBottom: i < channels.length - 1 ? '1px solid #E5E0D4' : 'none', background: '#FFFFFF' }}>
             <div className="w-9 h-9 rounded-xl flex items-center justify-center"
               style={{ background: ch.is_pinned ? '#E8EFEB' : '#FAF6EE' }}>
-              <Hash size={15} style={{ color: ch.is_pinned ? '#1F4D3A' : '#6B7A72' }} />
+              <Hash size={15} style={{ color: ch.is_pinned ? '#1F4D3A' : '#65736B' }} />
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-0.5">
@@ -103,7 +103,7 @@ export function OrganizerCommunityClient({ eventName, eventSlug, channels: dbCha
                   </span>
                 )}
               </div>
-              <p className="text-[12px] truncate" style={{ color: '#6B7A72' }}>{ch.description}</p>
+              <p className="text-[12px] truncate" style={{ color: '#65736B' }}>{ch.description}</p>
             </div>
             <div className="flex items-center gap-3">
               <div className="text-right">
@@ -112,7 +112,7 @@ export function OrganizerCommunityClient({ eventName, eventSlug, channels: dbCha
                 </div>
                 <div className="text-[12.5px]" style={{ color: '#C9C3B1' }}>messages</div>
               </div>
-              <button className="w-8 h-8 rounded-lg flex items-center justify-center transition hover:opacity-70"
+              <button className="w-10 h-10 rounded-lg flex items-center justify-center transition hover:opacity-70"
                 style={{ color: '#C9C3B1' }}>
                 <Trash2 size={13} />
               </button>
@@ -124,7 +124,7 @@ export function OrganizerCommunityClient({ eventName, eventSlug, channels: dbCha
           <div className="py-16 text-center" style={{ background: '#FFFFFF' }}>
             <Hash size={28} style={{ color: '#C9C3B1' }} className="mx-auto mb-3" />
             <p className="font-medium text-[15px] mb-1" style={{ color: '#0F1F18' }}>No channels yet</p>
-            <p className="text-[13px]" style={{ color: '#6B7A72' }}>Create a channel to let attendees connect</p>
+            <p className="text-[13px]" style={{ color: '#65736B' }}>Create a channel to let attendees connect</p>
           </div>
         )}
       </div>
@@ -147,7 +147,7 @@ export function OrganizerCommunityClient({ eventName, eventSlug, channels: dbCha
         footer={
           <>
             <button onClick={() => setShowNew(false)}
-              className="h-10 px-4 rounded-xl text-[13px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>
+              className="h-10 px-4 rounded-xl text-[13px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#65736B' }}>
               Cancel
             </button>
             <button onClick={handleCreate} disabled={!newName.trim()}
@@ -158,14 +158,14 @@ export function OrganizerCommunityClient({ eventName, eventSlug, channels: dbCha
         }
       >
         <div className="mb-3">
-          <label className="block text-[12px] font-semibold mb-1.5" style={{ color: '#6B7A72' }}>Channel name</label>
+          <label className="block text-[12px] font-semibold mb-1.5" style={{ color: '#65736B' }}>Channel name</label>
           <input value={newName} onChange={e => setNewName(e.target.value.toLowerCase().replace(/\s+/g, '-'))}
             placeholder="e.g. networking"
             className="w-full px-3 py-2.5 rounded-xl text-[14px] outline-none"
             style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#0F1F18' }} />
         </div>
         <div>
-          <label className="block text-[12px] font-semibold mb-1.5" style={{ color: '#6B7A72' }}>Description (optional)</label>
+          <label className="block text-[12px] font-semibold mb-1.5" style={{ color: '#65736B' }}>Description (optional)</label>
           <input value={newDesc} onChange={e => setNewDesc(e.target.value)}
             placeholder="What this channel is for"
             className="w-full px-3 py-2.5 rounded-xl text-[14px] outline-none"

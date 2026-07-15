@@ -80,7 +80,7 @@ export function ApprovalsClient({ eventId, eventName, initialRegs }: Props) {
             {s.icon}
             <div>
               <div className="font-semibold text-[20px] font-display" style={{ color: '#0F1F18' }}>{s.value}</div>
-              <div className="text-[12px]" style={{ color: '#6B7A72' }}>{s.label}</div>
+              <div className="text-[12px]" style={{ color: '#65736B' }}>{s.label}</div>
             </div>
           </div>
         ))}
@@ -106,7 +106,7 @@ export function ApprovalsClient({ eventId, eventName, initialRegs }: Props) {
         <div className="rounded-2xl flex flex-col items-center justify-center py-20" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
           <Users size={32} style={{ color: '#C9C3B1' }} className="mb-3" />
           <p className="text-[15px] font-medium" style={{ color: '#0F1F18' }}>No applications yet</p>
-          <p className="text-[13px] mt-1" style={{ color: '#6B7A72' }}>Applications appear here when attendees apply to attend.</p>
+          <p className="text-[13px] mt-1" style={{ color: '#65736B' }}>Applications appear here when attendees apply to attend.</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -125,9 +125,9 @@ export function ApprovalsClient({ eventId, eventName, initialRegs }: Props) {
                     </div>
                     <div className="min-w-0">
                       <div className="font-medium text-[14px] truncate" style={{ color: '#0F1F18' }}>{r.attendee_name ?? 'Unknown'}</div>
-                      <div className="text-[12px] truncate" style={{ color: '#6B7A72' }}>{r.attendee_email}</div>
+                      <div className="text-[12px] truncate" style={{ color: '#65736B' }}>{r.attendee_email}</div>
                       {r.ticket_types?.name && (
-                        <div className="text-[12.5px] mt-0.5" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
+                        <div className="text-[12.5px] mt-0.5" style={{ color: '#65736B', fontFamily: 'Inter, system-ui, sans-serif' }}>
                           {r.ticket_types.name}
                         </div>
                       )}
@@ -167,14 +167,14 @@ export function ApprovalsClient({ eventId, eventName, initialRegs }: Props) {
                   <div className="mt-3 pt-3 space-y-1.5" style={{ borderTop: '1px solid #F0EDE6' }}>
                     {Object.entries(r.attendee_data.answers as Record<string, string>).map(([q, a]) => (
                       <div key={q}>
-                        <div className="text-[12.5px] font-medium mb-0.5" style={{ color: '#6B7A72' }}>{q}</div>
+                        <div className="text-[12.5px] font-medium mb-0.5" style={{ color: '#65736B' }}>{q}</div>
                         <div className="text-[13px]" style={{ color: '#0F1F18' }}>{a}</div>
                       </div>
                     ))}
                   </div>
                 )}
 
-                <div className="mt-2 text-[12.5px]" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
+                <div className="mt-2 text-[12.5px]" style={{ color: '#65736B', fontFamily: 'Inter, system-ui, sans-serif' }}>
                   Applied {fmtTime(r.created_at)}
                 </div>
               </div>

@@ -121,7 +121,7 @@ export function EmbedWidgetsClient({ eventName, slug, status }: Props) {
             <div className="text-[13px] font-semibold mb-1" style={{ color: active === w.id ? '#FAF6EE' : '#0F1F18' }}>
               {w.label}
             </div>
-            <div className="text-[12px] leading-snug" style={{ color: active === w.id ? 'rgba(250,246,238,0.7)' : '#6B7A72' }}>
+            <div className="text-[12px] leading-snug" style={{ color: active === w.id ? 'rgba(250,246,238,0.7)' : '#65736B' }}>
               {w.description}
             </div>
           </button>
@@ -167,7 +167,7 @@ export function EmbedWidgetsClient({ eventName, slug, status }: Props) {
 
       {/* Public link */}
       <div className="mt-4 flex items-center gap-3 rounded-xl px-4 py-3" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
-        <span className="text-[12px] text-[#6B7A72]" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>{publicUrl}</span>
+        <span className="text-[12px] text-[#65736B]" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>{publicUrl}</span>
         <a
           href={publicUrl}
           target="_blank"
@@ -181,7 +181,7 @@ export function EmbedWidgetsClient({ eventName, slug, status }: Props) {
       </div>
 
       {/* Event name */}
-      <p className="mt-3 text-center text-[12px]" style={{ color: '#6B7A72' }}>
+      <p className="mt-3 text-center text-[12px]" style={{ color: '#65736B' }}>
         Widgets for <span className="font-medium" style={{ color: '#0F1F18' }}>{eventName}</span>
       </p>
     </PageShell>

@@ -78,7 +78,7 @@ export function SearchAndMap({ events, savedIds, query: initialQuery, totalCount
         {/* Search input */}
         <div className="px-5 py-4" style={{ borderBottom: '1px solid #E5E0D4' }}>
           <div className="relative">
-            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: '#6B7A72' }} />
+            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: '#65736B' }} />
             <input
               type="text"
               value={q}
@@ -113,7 +113,7 @@ export function SearchAndMap({ events, savedIds, query: initialQuery, totalCount
 
         {/* Result count */}
         <div className="px-5 py-3" style={{ borderBottom: '1px solid #E5E0D4' }}>
-          <p className="text-[12px]" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
+          <p className="text-[12px]" style={{ color: '#65736B', fontFamily: 'Inter, system-ui, sans-serif' }}>
             {totalCount} event{totalCount !== 1 ? 's' : ''} match{totalCount === 1 ? 'es' : ''}{cityParam ? ` in ${cityParam}` : ''}
           </p>
         </div>
@@ -123,7 +123,7 @@ export function SearchAndMap({ events, savedIds, query: initialQuery, totalCount
           {events.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center px-4">
               <p className="font-medium text-[15px] mb-1" style={{ color: '#0F1F18' }}>No events found</p>
-              <p className="text-[13px]" style={{ color: '#6B7A72' }}>Try a different search or adjust the filters.</p>
+              <p className="text-[13px]" style={{ color: '#65736B' }}>Try a different search or adjust the filters.</p>
             </div>
           ) : (
             events.map(ev => (
@@ -234,7 +234,7 @@ function ResultCard({
           <div className="font-medium text-[14px] leading-snug line-clamp-2" style={{ color: '#0F1F18' }}>
             {event.title}
           </div>
-          <div className="text-[12px] mt-1" style={{ color: '#6B7A72' }}>
+          <div className="text-[12px] mt-1" style={{ color: '#65736B' }}>
             {new Date(event.starts_at).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
             {(event.city || event.venue_name) && ` · ${event.city ?? event.venue_name}`}
           </div>
@@ -257,7 +257,7 @@ function ResultCard({
             className="ml-auto w-7 h-7 flex items-center justify-center rounded-full transition hover:bg-[#E8EFEB]"
             aria-label={saved ? 'Unsave' : 'Save'}
           >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill={saved ? '#E8C57E' : 'none'} stroke={saved ? '#E8C57E' : '#6B7A72'} strokeWidth="2">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill={saved ? '#E8C57E' : 'none'} stroke={saved ? '#E8C57E' : '#65736B'} strokeWidth="2">
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
             </svg>
           </button>

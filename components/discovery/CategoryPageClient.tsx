@@ -49,12 +49,12 @@ function EventCard({ ep }: { ep: EventPage }) {
       </div>
       <div className="p-4">
         <h3 className="font-semibold text-[14px] mb-1.5 line-clamp-2" style={{ color: '#0F1F18' }}>{ep.title}</h3>
-        <div className="flex items-center gap-1 text-[12px] mb-1" style={{ color: '#6B7A72' }}>
+        <div className="flex items-center gap-1 text-[12px] mb-1" style={{ color: '#65736B' }}>
           <Calendar size={11} />
           {ep.starts_at ? fmtDate(ep.starts_at) : 'Date TBA'}
         </div>
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1 text-[12px]" style={{ color: '#6B7A72' }}>
+          <div className="flex items-center gap-1 text-[12px]" style={{ color: '#65736B' }}>
             {ep.is_online ? <Globe size={11} /> : <MapPin size={11} />}
             <span>{ep.is_online ? 'Online' : ep.city ?? 'TBA'}</span>
           </div>
@@ -91,13 +91,13 @@ export function CategoryPageClient({ category, events }: Props) {
       <div className="px-5 py-10 max-w-6xl mx-auto">
         <div className="flex items-start justify-between gap-4 mb-6">
           <div>
-            <p className="text-[12px] font-semibold uppercase tracking-widest mb-2" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
+            <p className="text-[12px] font-semibold uppercase tracking-widest mb-2" style={{ color: '#65736B', fontFamily: 'Inter, system-ui, sans-serif' }}>
               Category
             </p>
             <h1 className="font-display font-bold text-[34px]" style={{ color: '#0F1F18', letterSpacing: '-0.03em' }}>
               {label} events
             </h1>
-            <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>
+            <p className="text-[14px] mt-1" style={{ color: '#65736B' }}>
               {filtered.length} event{filtered.length !== 1 ? 's' : ''} found
             </p>
           </div>
@@ -105,7 +105,7 @@ export function CategoryPageClient({ category, events }: Props) {
 
         {/* Filters */}
         <div className="flex flex-wrap items-center gap-2 mb-8">
-          <div className="flex items-center gap-1 text-[12px] font-semibold mr-1" style={{ color: '#6B7A72' }}>
+          <div className="flex items-center gap-1 text-[12px] font-semibold mr-1" style={{ color: '#65736B' }}>
             <SlidersHorizontal size={13} /> Filter:
           </div>
           {[
@@ -168,7 +168,7 @@ export function CategoryPageClient({ category, events }: Props) {
         {filtered.length === 0 && (
           <div className="rounded-2xl py-20 text-center" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
             <p className="text-[15px] font-medium mb-1" style={{ color: '#0F1F18' }}>No events found</p>
-            <p className="text-[13px]" style={{ color: '#6B7A72' }}>Try a different filter or check back soon</p>
+            <p className="text-[13px]" style={{ color: '#65736B' }}>Try a different filter or check back soon</p>
           </div>
         )}
 

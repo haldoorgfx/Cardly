@@ -15,7 +15,7 @@ const C = {
   accentDark: '#C9A45E',
   ink: '#0F1F18',
   inkSoft: '#3A4A42',
-  muted: '#6B7A72',
+  muted: '#65736B',
   cream: '#FAF6EE',
   surface: '#FFFFFF',
   border: '#E5E0D4',
@@ -132,7 +132,7 @@ function QAPollsMockup() {
             ].map((s) => (
               <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <div style={{ background: 'rgba(31,77,58,0.08)', border: '1px solid rgba(31,77,58,0.2)', borderRadius: 8, padding: '4px 10px', fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif', fontSize: 14, fontWeight: 700, color: '#1F4D3A', flexShrink: 0 }}>{s.label}</div>
-                <span style={{ fontFamily: 'var(--font-sans)', fontSize: 14, color: '#6B7A72' }}>{s.desc}</span>
+                <span style={{ fontFamily: 'var(--font-sans)', fontSize: 14, color: '#65736B' }}>{s.desc}</span>
               </div>
             ))}
           </div>
@@ -155,7 +155,7 @@ function QAPollsMockup() {
                 <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#FEBC2E' }} />
                 <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#28C840' }} />
               </div>
-              <div style={{ background: '#FFFFFF', borderRadius: 5, padding: '3px 10px', fontFamily: 'var(--font-sans)', fontSize: 11, color: '#6B7A72', border: '1px solid #E5E0D4' }}>
+              <div style={{ background: '#FFFFFF', borderRadius: 5, padding: '3px 10px', fontFamily: 'var(--font-sans)', fontSize: 11, color: '#65736B', border: '1px solid #E5E0D4' }}>
                 eventera.so/e/summit/qa
               </div>
             </div>
@@ -179,7 +179,7 @@ function QAPollsMockup() {
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
                   <div>
                     <div style={{ fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif', fontSize: 11, fontWeight: 700, color: '#0F1F18' }}>Fintech in East Africa</div>
-                    <div style={{ fontFamily: 'var(--font-sans)', fontSize: 9, color: '#6B7A72' }}>87 questions · 312 voting</div>
+                    <div style={{ fontFamily: 'var(--font-sans)', fontSize: 9, color: '#65736B' }}>87 questions · 312 voting</div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                     <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#B8423C' }} />

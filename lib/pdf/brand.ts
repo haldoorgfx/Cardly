@@ -9,7 +9,7 @@ export const C = {
   accentDark:  '#C9A45E',
   ink:         '#0F1F18',
   inkSoft:     '#3A4A42',
-  muted:       '#6B7A72',
+  muted:       '#65736B',
   mutedLight:  '#9BA8A1',
   cream:       '#FAF6EE',
   creams:      '#F5F3EE',  // slightly darker cream for alt rows

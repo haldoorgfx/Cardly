@@ -127,14 +127,14 @@ export function RedemptionDashboard({ eventId, eventName, rows, error }: Props) 
               className="flex items-center gap-1.5 shrink-0 rounded-full px-2.5 py-1 text-[12px] font-medium"
               style={{
                 background: connected ? '#E8EFEB' : '#FAF6EE',
-                color: connected ? '#1F4D3A' : '#6B7A72',
+                color: connected ? '#1F4D3A' : '#65736B',
                 border: `1px solid ${connected ? '#1F4D3A22' : '#E5E0D4'}`,
               }}
               title={connected ? 'Connected — updating live' : 'Not connected — showing latest snapshot'}
             >
               <span
                 className={`inline-block h-2 w-2 rounded-full ${connected ? 'animate-pulse' : ''}`}
-                style={{ background: connected ? '#2D7A4F' : '#6B7A72' }}
+                style={{ background: connected ? '#2D7A4F' : '#65736B' }}
               />
               {connected ? 'Live' : 'Offline'}
             </div>
@@ -145,7 +145,7 @@ export function RedemptionDashboard({ eventId, eventName, rows, error }: Props) 
       {error ? (
           <div className="bg-white rounded-2xl border border-[#E5E0D4] p-10 text-center">
             <p className="font-display text-[17px] font-semibold" style={{ color: '#0F1F18' }}>Couldn&apos;t load redemptions</p>
-            <p className="text-[14px] mt-1.5 mb-5" style={{ color: '#6B7A72' }}>
+            <p className="text-[14px] mt-1.5 mb-5" style={{ color: '#65736B' }}>
               Something went wrong fetching the redemption data.
             </p>
             <button
@@ -162,7 +162,7 @@ export function RedemptionDashboard({ eventId, eventName, rows, error }: Props) 
               <Radio size={22} strokeWidth={1.9} />
             </div>
             <p className="font-display text-[17px] font-semibold" style={{ color: '#0F1F18' }}>No redemptions yet</p>
-            <p className="text-[14px] mt-1.5" style={{ color: '#6B7A72' }}>
+            <p className="text-[14px] mt-1.5" style={{ color: '#65736B' }}>
               Redemptions appear here live as attendees scan in. Add entitlements to your ticket types to get started.
             </p>
           </div>
@@ -178,7 +178,7 @@ export function RedemptionDashboard({ eventId, eventName, rows, error }: Props) 
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="font-display font-semibold text-[16px] leading-tight truncate" style={{ color: '#0F1F18' }}>{r.name}</p>
-                      <p className="text-[12.5px] mt-0.5" style={{ color: '#6B7A72' }}>
+                      <p className="text-[12.5px] mt-0.5" style={{ color: '#65736B' }}>
                         {entitlementTypeLabel(r.type)} · {LIMIT_LABEL[r.redemptionLimit]}
                         {r.quantity != null ? ` · Cap ${r.quantity.toLocaleString()}` : ''}
                       </p>
@@ -187,7 +187,7 @@ export function RedemptionDashboard({ eventId, eventName, rows, error }: Props) 
                       <span className="font-display font-semibold text-[20px] leading-none tabular-nums" style={{ color: '#0F1F18' }}>
                         {r.redeemed.toLocaleString()}
                       </span>
-                      <span className="text-[13px] tabular-nums" style={{ color: '#6B7A72' }}> / {r.holders.toLocaleString()}</span>
+                      <span className="text-[13px] tabular-nums" style={{ color: '#65736B' }}> / {r.holders.toLocaleString()}</span>
                     </div>
                   </div>
 
@@ -198,7 +198,7 @@ export function RedemptionDashboard({ eventId, eventName, rows, error }: Props) 
                     />
                   </div>
 
-                  <p className="text-[12.5px] mt-3" style={{ color: '#6B7A72' }}>
+                  <p className="text-[12.5px] mt-3" style={{ color: '#65736B' }}>
                     {r.last
                       ? <>Last: <span style={{ color: '#3A4A42', fontWeight: 500 }}>{r.last.name}</span> · {timeAgo(r.last.at)}</>
                       : 'No redemptions yet'}

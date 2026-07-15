@@ -79,7 +79,7 @@ export function PhotoWallAdmin({ eventId, eventName, initialPhotos }: Props) {
             {s.icon}
             <div>
               <div className="font-semibold text-[18px] font-display" style={{ color: '#0F1F18' }}>{s.value}</div>
-              <div className="text-[12.5px]" style={{ color: '#6B7A72' }}>{s.label}</div>
+              <div className="text-[12.5px]" style={{ color: '#65736B' }}>{s.label}</div>
             </div>
           </div>
         ))}
@@ -105,7 +105,7 @@ export function PhotoWallAdmin({ eventId, eventName, initialPhotos }: Props) {
         <div className="rounded-2xl flex flex-col items-center py-20" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
           <Images size={32} style={{ color: '#C9C3B1' }} className="mb-3" />
           <p className="text-[15px] font-medium" style={{ color: '#0F1F18' }}>No photos yet</p>
-          <p className="text-[13px] mt-1" style={{ color: '#6B7A72' }}>Attendees can upload photos through the event page.</p>
+          <p className="text-[13px] mt-1" style={{ color: '#65736B' }}>Attendees can upload photos through the event page.</p>
         </div>
       ) : (
         <div className="columns-2 sm:columns-3 lg:columns-4 gap-3">
@@ -148,7 +148,7 @@ export function PhotoWallAdmin({ eventId, eventName, initialPhotos }: Props) {
                         <div className="text-[12.5px] font-medium truncate" style={{ color: '#0F1F18' }}>{photo.attendee_name}</div>
                       )}
                       {photo.caption && (
-                        <div className="text-[12.5px] truncate" style={{ color: '#6B7A72' }}>{photo.caption}</div>
+                        <div className="text-[12.5px] truncate" style={{ color: '#65736B' }}>{photo.caption}</div>
                       )}
                     </div>
                     <span className="text-[12px] font-medium px-1.5 py-0.5 rounded-full shrink-0 border" style={{ fontFamily: 'Inter, system-ui, sans-serif', background: pill.bg, color: pill.color, borderColor: pill.border }}>

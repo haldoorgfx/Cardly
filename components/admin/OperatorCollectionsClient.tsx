@@ -8,11 +8,6 @@ type Collection = any;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Promoted = any;
 
-function qualityScore(q: Record<string, boolean>) {
-  const checks = Object.values(q);
-  return checks.filter(Boolean).length;
-}
-
 export function OperatorCollectionsClient({ collections, promoted: dbPromoted }: { collections: Collection[]; promoted: Promoted[] }) {
   // Real DB data only — no fabricated demo rows (admins must never see fiction
   // they can "approve"). Empty states below handle the no-data case honestly.
@@ -102,7 +97,7 @@ export function OperatorCollectionsClient({ collections, promoted: dbPromoted }:
             <h1 className="font-display font-bold text-[28px]" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
               Marketplace curation
             </h1>
-            <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>
+            <p className="text-[14px] mt-1" style={{ color: '#65736B' }}>
               Manage event collections and review promoted listing requests
             </p>
           </div>
@@ -132,7 +127,7 @@ export function OperatorCollectionsClient({ collections, promoted: dbPromoted }:
               className="flex items-center gap-2 px-4 py-2 rounded-lg text-[13px] font-semibold transition"
               style={{
                 background: activeTab === tab.key ? '#FFFFFF' : 'transparent',
-                color: activeTab === tab.key ? '#0F1F18' : '#6B7A72',
+                color: activeTab === tab.key ? '#0F1F18' : '#65736B',
                 boxShadow: activeTab === tab.key ? '0 1px 3px rgba(15,31,24,0.08)' : 'none',
               }}>
               <tab.icon size={14} />
@@ -171,13 +166,13 @@ export function OperatorCollectionsClient({ collections, promoted: dbPromoted }:
                       </span>
                     ) : (
                       <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[12.5px] font-semibold"
-                        style={{ background: 'rgba(107,122,114,0.1)', color: '#6B7A72' }}>
+                        style={{ background: 'rgba(107,122,114,0.1)', color: '#65736B' }}>
                         <Clock size={9} /> Scheduled
                       </span>
                     )}
                   </div>
                   {col.description && (
-                    <p className="text-[12px] truncate" style={{ color: '#6B7A72' }}>{col.description}</p>
+                    <p className="text-[12px] truncate" style={{ color: '#65736B' }}>{col.description}</p>
                   )}
                 </div>
 
@@ -186,7 +181,7 @@ export function OperatorCollectionsClient({ collections, promoted: dbPromoted }:
                   <div className="font-bold text-[20px]" style={{ color: '#0F1F18', fontFamily: 'Inter, system-ui, sans-serif' }}>
                     {col.event_count ?? 0}
                   </div>
-                  <div className="text-[12.5px]" style={{ color: '#6B7A72' }}>events</div>
+                  <div className="text-[12.5px]" style={{ color: '#65736B' }}>events</div>
                 </div>
               </div>
             ))}
@@ -194,7 +189,7 @@ export function OperatorCollectionsClient({ collections, promoted: dbPromoted }:
             {/* Feed rules card */}
             <div className="rounded-2xl p-5" style={{ background: '#E8EFEB', border: '1px solid rgba(31,77,58,0.18)' }}>
               <div className="flex items-center gap-2 mb-2">
-                <AlertCircle size={15} style={{ color: '#6B7A72' }} />
+                <AlertCircle size={15} style={{ color: '#65736B' }} />
                 <span className="font-semibold text-[13px]" style={{ color: '#0F1F18' }}>Feed rules</span>
               </div>
               <p className="text-[12px]" style={{ color: '#3A4A42' }}>
@@ -209,7 +204,7 @@ export function OperatorCollectionsClient({ collections, promoted: dbPromoted }:
           <div className="flex flex-col gap-4">
             {/* Select all */}
             {promoted.length > 0 && (
-              <label className="flex items-center gap-2 cursor-pointer text-[13px] w-fit" style={{ color: '#6B7A72' }}>
+              <label className="flex items-center gap-2 cursor-pointer text-[13px] w-fit" style={{ color: '#65736B' }}>
                 <input
                   type="checkbox"
                   aria-label="Select all listings"
@@ -248,7 +243,7 @@ export function OperatorCollectionsClient({ collections, promoted: dbPromoted }:
                   disabled={bulkBusy}
                   onClick={clearSelection}
                   title="Clear selection"
-                  className="h-8 w-8 grid place-items-center rounded-lg border border-[#E5E0D4] bg-white text-[#6B7A72] hover:bg-[#FAF6EE] transition-colors disabled:opacity-50"
+                  className="h-10 w-10 grid place-items-center rounded-lg border border-[#E5E0D4] bg-white text-[#65736B] hover:bg-[#FAF6EE] transition-colors disabled:opacity-50"
                 >
                   <X size={13} />
                 </button>
@@ -259,20 +254,11 @@ export function OperatorCollectionsClient({ collections, promoted: dbPromoted }:
               <div className="rounded-2xl py-20 text-center" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
                 <CheckCircle2 size={32} style={{ color: '#C9C3B1' }} className="mx-auto mb-3" />
                 <p className="font-medium text-[15px]" style={{ color: '#0F1F18' }}>All caught up</p>
-                <p className="text-[13px] mt-1" style={{ color: '#6B7A72' }}>No promoted listings awaiting review</p>
+                <p className="text-[13px] mt-1" style={{ color: '#65736B' }}>No promoted listings awaiting review</p>
               </div>
             ) : (
               promoted.map((p: Promoted) => {
                 const ep = p.event_pages;
-                const q = p.quality ?? {};
-                const score = qualityScore(q);
-                const total = Object.keys(q).length || 4;
-                const qualityChecks = [
-                  { key: 'cover', label: 'Cover image' },
-                  { key: 'description', label: 'Description' },
-                  { key: 'tickets', label: 'Tickets live' },
-                  { key: 'external_links', label: 'No ext links' },
-                ];
 
                 return (
                   <div key={p.id} className="rounded-2xl overflow-hidden"
@@ -300,7 +286,7 @@ export function OperatorCollectionsClient({ collections, promoted: dbPromoted }:
                           <h3 className="font-semibold text-[15px] mb-0.5" style={{ color: '#0F1F18' }}>
                             {ep?.title ?? 'Untitled event'}
                           </h3>
-                          <p className="text-[12px]" style={{ color: '#6B7A72' }}>
+                          <p className="text-[12px]" style={{ color: '#65736B' }}>
                             {ep?.city && ep?.venue_name ? `${ep.venue_name}, ${ep.city}` : ep?.city ?? ep?.venue_name ?? 'Location TBA'}
                             {ep?.starts_at ? ` · ${new Date(ep.starts_at).toLocaleDateString('en', { month: 'short', day: 'numeric', year: 'numeric' })}` : ''}
                           </p>
@@ -308,30 +294,6 @@ export function OperatorCollectionsClient({ collections, promoted: dbPromoted }:
                             Submitted {new Date(p.submitted_at).toLocaleDateString('en', { month: 'short', day: 'numeric' })}
                           </p>
                         </div>
-
-                        {/* Quality score */}
-                        <div className="text-right shrink-0">
-                          <div className="font-bold text-[18px]" style={{ color: score >= total ? '#2D7A4F' : score >= total - 1 ? '#C97A2D' : '#B8423C', fontFamily: 'Inter, system-ui, sans-serif' }}>
-                            {score}/{total}
-                          </div>
-                          <div className="text-[12px]" style={{ color: '#6B7A72' }}>quality</div>
-                        </div>
-                      </div>
-
-                      {/* Quality checks */}
-                      <div className="grid grid-cols-2 gap-1.5 mb-4">
-                        {qualityChecks.map(qc => {
-                          const passed = q[qc.key] !== false;
-                          return (
-                            <div key={qc.key} className="flex items-center gap-1.5 text-[12px]"
-                              style={{ color: passed ? '#2D7A4F' : '#B8423C' }}>
-                              {passed
-                                ? <CheckCircle2 size={12} />
-                                : <XCircle size={12} />}
-                              {qc.label}
-                            </div>
-                          );
-                        })}
                       </div>
 
                       {/* Actions */}

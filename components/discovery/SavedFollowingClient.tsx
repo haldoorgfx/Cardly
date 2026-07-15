@@ -120,7 +120,7 @@ export function SavedFollowingClient({ saved: dbSaved, following: dbFollowing, e
               className="px-5 py-2 rounded-lg text-[13px] font-semibold transition"
               style={{
                 background: tab === t.key ? '#FFFFFF' : 'transparent',
-                color: tab === t.key ? '#0F1F18' : '#6B7A72',
+                color: tab === t.key ? '#0F1F18' : '#65736B',
                 boxShadow: tab === t.key ? '0 1px 3px rgba(15,31,24,0.08)' : 'none',
               }}>
               {t.label}
@@ -151,11 +151,11 @@ export function SavedFollowingClient({ saved: dbSaved, following: dbFollowing, e
                 </div>
                 <div className="p-4">
                   <h3 className="font-semibold text-[14px] mb-1 line-clamp-2" style={{ color: '#0F1F18' }}>{ep.title}</h3>
-                  <div className="flex items-center gap-1.5 text-[12px] mb-1" style={{ color: '#6B7A72' }}>
+                  <div className="flex items-center gap-1.5 text-[12px] mb-1" style={{ color: '#65736B' }}>
                     {ep.starts_at && <><Calendar size={11} /> {fmtDate(ep.starts_at)}</>}
                   </div>
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1 text-[12px]" style={{ color: '#6B7A72' }}>
+                    <div className="flex items-center gap-1 text-[12px]" style={{ color: '#65736B' }}>
                       {ep.is_online ? <Globe size={11} /> : <MapPin size={11} />}
                       <span>{ep.is_online ? 'Online' : ep.city ?? 'TBA'}</span>
                     </div>
@@ -168,7 +168,7 @@ export function SavedFollowingClient({ saved: dbSaved, following: dbFollowing, e
               <div className="col-span-2 py-20 text-center rounded-2xl" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
                 <Heart size={28} style={{ color: '#C9C3B1' }} className="mx-auto mb-3" />
                 <p className="font-medium text-[15px]" style={{ color: '#0F1F18' }}>No saved events yet</p>
-                <p className="text-[13px] mt-1" style={{ color: '#6B7A72' }}>Heart an event to save it here</p>
+                <p className="text-[13px] mt-1" style={{ color: '#65736B' }}>Heart an event to save it here</p>
               </div>
             )}
           </div>
@@ -198,7 +198,7 @@ export function SavedFollowingClient({ saved: dbSaved, following: dbFollowing, e
                       style={{ color: '#0F1F18' }}>
                       {name}
                     </Link>
-                    <div className="flex items-center gap-3 text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>
+                    <div className="flex items-center gap-3 text-[12px] mt-0.5" style={{ color: '#65736B' }}>
                       <span className="flex items-center gap-1">
                         <Users size={11} /> {(f.follower_count ?? 0).toLocaleString()} followers
                       </span>
@@ -216,7 +216,7 @@ export function SavedFollowingClient({ saved: dbSaved, following: dbFollowing, e
                     style={{ background: notifOn ? '#E8EFEB' : '#F5F2EC' }}>
                     {notifOn
                       ? <Bell size={15} style={{ color: '#1F4D3A' }} fill="#1F4D3A" />
-                      : <BellOff size={15} style={{ color: '#6B7A72' }} />
+                      : <BellOff size={15} style={{ color: '#65736B' }} />
                     }
                   </button>
                   <button

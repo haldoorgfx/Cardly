@@ -135,7 +135,7 @@ function buildConfirmationHtml(p: RegistrationConfirmEmailParams, appUrl: string
     <p style="font-size:15px;color:#3A4A42;margin:0 0 24px;">Hi ${p.attendeeName}, your spot is confirmed.</p>
 
     <div style="background:white;border:1px solid #E5E0D4;border-radius:12px;padding:20px;margin-bottom:20px;">
-      <div style="font-size:12px;font-family:Inter,sans-serif;color:#6B7A72;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;">Event details</div>
+      <div style="font-size:12px;font-family:Inter,sans-serif;color:#65736B;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;">Event details</div>
       <div style="font-weight:600;font-size:16px;margin-bottom:6px;">${p.eventTitle}</div>
       <div style="font-size:14px;color:#3A4A42;margin-bottom:4px;">${p.eventDate}</div>
       <div style="font-size:14px;color:#3A4A42;margin-bottom:12px;">${p.eventVenue}</div>
@@ -146,9 +146,9 @@ function buildConfirmationHtml(p: RegistrationConfirmEmailParams, appUrl: string
 
     ${p.qrCodeUrl ? `
     <div style="text-align:center;background:white;border:1px solid #E5E0D4;border-radius:12px;padding:20px;margin-bottom:20px;">
-      <div style="font-size:12px;font-family:Inter,sans-serif;color:#6B7A72;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;">Your check-in QR code</div>
+      <div style="font-size:12px;font-family:Inter,sans-serif;color:#65736B;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;">Your check-in QR code</div>
       <img src="${p.qrCodeUrl}" alt="Check-in QR code" width="160" height="160" style="border-radius:8px;" />
-      <p style="font-size:12px;color:#6B7A72;margin:10px 0 0;">Show this at the door</p>
+      <p style="font-size:12px;color:#65736B;margin:10px 0 0;">Show this at the door</p>
     </div>
     ` : ''}
 
@@ -157,7 +157,7 @@ function buildConfirmationHtml(p: RegistrationConfirmEmailParams, appUrl: string
       <a href="${p.eventeraCardUrl}" style="display:inline-block;background:${brand.primary};color:white;font-size:15px;font-weight:600;padding:14px 32px;border-radius:8px;text-decoration:none;">
         Download your card
       </a>
-      <p style="font-size:12px;color:#6B7A72;margin:10px 0 0;">Share it on LinkedIn, Twitter, and WhatsApp</p>
+      <p style="font-size:12px;color:#65736B;margin:10px 0 0;">Share it on LinkedIn, Twitter, and WhatsApp</p>
     </div>
     ` : ''}
 
@@ -227,13 +227,13 @@ function buildWaitlistConfirmHtml(p: WaitlistConfirmEmailParams, appUrl: string,
     <p style="font-size:15px;color:#3A4A42;margin:0 0 24px;">Hi ${p.name}, we&apos;ve added you to the waitlist for ${p.eventTitle}.</p>
 
     <div style="background:white;border:1px solid #E5E0D4;border-radius:12px;padding:20px;margin-bottom:20px;">
-      <div style="font-size:12px;font-family:Inter,sans-serif;color:#6B7A72;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;">Event details</div>
+      <div style="font-size:12px;font-family:Inter,sans-serif;color:#65736B;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;">Event details</div>
       <div style="font-weight:600;font-size:16px;margin-bottom:6px;">${p.eventTitle}</div>
       ${p.eventDate ? `<div style="font-size:14px;color:#3A4A42;margin-bottom:4px;">${p.eventDate}</div>` : ''}
       ${p.city ? `<div style="font-size:14px;color:#3A4A42;">${p.city}</div>` : ''}
     </div>
 
-    <p style="font-size:14px;color:#6B7A72;text-align:center;margin:0 0 20px;">
+    <p style="font-size:14px;color:#65736B;text-align:center;margin:0 0 20px;">
       We&apos;ll email you immediately if a spot opens up. No action needed.
     </p>
 
@@ -259,7 +259,7 @@ function buildWaitlistInviteHtml(p: WaitlistInviteEmailParams, appUrl: string, b
     <p style="font-size:15px;color:#3A4A42;margin:0 0 24px;">A spot just opened for <strong>${p.eventTitle}</strong>. You&apos;re invited to register — act fast, this may not last long.</p>
 
     <div style="background:white;border:1px solid #E5E0D4;border-radius:12px;padding:20px;margin-bottom:24px;">
-      <div style="font-size:12px;font-family:Inter,sans-serif;color:#6B7A72;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;">Event</div>
+      <div style="font-size:12px;font-family:Inter,sans-serif;color:#65736B;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;">Event</div>
       <div style="font-weight:600;font-size:16px;margin-bottom:6px;">${p.eventTitle}</div>
       ${p.eventDate ? `<div style="font-size:14px;color:#3A4A42;">${p.eventDate}</div>` : ''}
     </div>
@@ -301,7 +301,7 @@ export async function sendPendingApprovalEmail(params: ApprovalEmailParams) {
     <h1 style="font-family:'DM Sans',system-ui,sans-serif;font-size:24px;font-weight:600;letter-spacing:-0.02em;margin:0 0 8px;">Hi ${params.name},</h1>
     <p style="font-size:15px;color:#3A4A42;margin:0 0 16px;">We received your registration for <strong>${params.eventTitle}</strong>. The organiser reviews applications manually — you&apos;ll hear back by email once a decision is made.</p>
     <div style="background:white;border:1px solid #E5E0D4;border-radius:12px;padding:16px 20px;margin-bottom:20px;">
-      <div style="font-size:12px;font-family:Inter,sans-serif;color:#6B7A72;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;">Event</div>
+      <div style="font-size:12px;font-family:Inter,sans-serif;color:#65736B;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;">Event</div>
       <div style="font-weight:600;">${params.eventTitle}</div>
       ${params.eventDate ? `<div style="font-size:14px;color:#3A4A42;margin-top:4px;">${params.eventDate}</div>` : ''}
     </div>
@@ -325,9 +325,9 @@ export async function sendApprovedEmail(params: ApprovalEmailParams & { qrCodeUr
     <h1 style="font-family:'DM Sans',system-ui,sans-serif;font-size:24px;font-weight:600;letter-spacing:-0.02em;margin:0 0 8px;">Great news, ${params.name}!</h1>
     <p style="font-size:15px;color:#3A4A42;margin:0 0 16px;">Your registration for <strong>${params.eventTitle}</strong> has been approved. Your spot is confirmed.</p>
     <div style="text-align:center;background:white;border:1px solid #E5E0D4;border-radius:12px;padding:20px;margin-bottom:20px;">
-      <div style="font-size:12px;font-family:Inter,sans-serif;color:#6B7A72;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:12px;">Your check-in QR code</div>
+      <div style="font-size:12px;font-family:Inter,sans-serif;color:#65736B;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:12px;">Your check-in QR code</div>
       <img src="${params.qrCodeUrl}" alt="QR code" width="160" height="160" style="border-radius:8px;" />
-      <p style="font-size:12px;color:#6B7A72;margin:10px 0 0;">Show this at the door</p>
+      <p style="font-size:12px;color:#65736B;margin:10px 0 0;">Show this at the door</p>
     </div>
     <div style="text-align:center;padding:20px 0;border-top:1px solid #E5E0D4;">
       <a href="${appUrl}/e/${params.eventSlug}" style="font-size:13px;color:${brand.primary};text-decoration:none;">View event page →</a>
@@ -370,7 +370,7 @@ export async function sendTransferEmail(params: { to: string; name: string; even
     <h1 style="font-family:'DM Sans',system-ui,sans-serif;font-size:24px;font-weight:600;letter-spacing:-0.02em;margin:0 0 8px;">Hi ${params.name},</h1>
     <p style="font-size:15px;color:#3A4A42;margin:0 0 16px;">Someone transferred their ticket for <strong>${params.eventTitle}</strong> to you. Your spot is confirmed.</p>
     <div style="text-align:center;background:white;border:1px solid #E5E0D4;border-radius:12px;padding:20px;margin-bottom:20px;">
-      <div style="font-size:12px;font-family:Inter,sans-serif;color:#6B7A72;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:12px;">Your check-in QR code</div>
+      <div style="font-size:12px;font-family:Inter,sans-serif;color:#65736B;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:12px;">Your check-in QR code</div>
       <img src="${params.qrCodeUrl}" alt="QR code" width="160" height="160" style="border-radius:8px;" />
     </div>
     <div style="text-align:center;padding:20px 0;border-top:1px solid #E5E0D4;">

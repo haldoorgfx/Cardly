@@ -54,12 +54,12 @@ export default function MobileFallback({ eventId, eventName, variantSlug }: Mobi
           }}>E</div>
           <span style={{
             fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11,
-            color: '#6B7A72', letterSpacing: '0.06em',
+            color: '#65736B', letterSpacing: '0.06em',
           }}>eventera</span>
         </a>
         <span style={{
           fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10,
-          color: '#6B7A72', letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 600,
+          color: '#65736B', letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 600,
         }}>Editor</span>
       </div>
 
@@ -81,7 +81,7 @@ export default function MobileFallback({ eventId, eventName, variantSlug }: Mobi
           {/* Mono label */}
           <div style={{
             fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10,
-            color: '#6B7A72', letterSpacing: '0.1em',
+            color: '#65736B', letterSpacing: '0.1em',
             textTransform: 'uppercase', fontWeight: 600,
           }}>Editor · Desktop required</div>
 
@@ -152,7 +152,7 @@ export default function MobileFallback({ eventId, eventName, variantSlug }: Mobi
               }}>{eventName}</div>
               <div style={{
                 fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10,
-                color: '#6B7A72', letterSpacing: '0.04em', marginTop: 2,
+                color: '#65736B', letterSpacing: '0.04em', marginTop: 2,
               }}>{(process.env.NEXT_PUBLIC_APP_URL ?? '').replace(/^https?:\/\//, '')}/events/{eventId.slice(0, 8)}</div>
             </div>
           </div>
@@ -209,7 +209,7 @@ export default function MobileFallback({ eventId, eventName, variantSlug }: Mobi
         <div style={{
           marginTop: 20,
           fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11,
-          color: '#6B7A72', letterSpacing: '0.04em',
+          color: '#65736B', letterSpacing: '0.04em',
         }}>
           powered by <span style={{ color: '#0F1F18', fontWeight: 500 }}>eventera</span>
         </div>

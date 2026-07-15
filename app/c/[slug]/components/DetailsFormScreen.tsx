@@ -197,7 +197,7 @@ function PhotoInput({
               color: '#0F1F18',
               whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
             }}>{photoFile.name}</div>
-            <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#6B7A72', marginTop: 2 }}>
+            <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#65736B', marginTop: 2 }}>
               {(photoFile.size / 1024 / 1024).toFixed(1)} MB · cropped
             </div>
           </div>
@@ -238,7 +238,7 @@ function PhotoInput({
           <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 15, color: '#0F1F18' }}>
             Tap to add photo
           </div>
-          <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#6B7A72' }}>
+          <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#65736B' }}>
             JPG or PNG · under 10 MB
           </div>
         </button>
@@ -274,7 +274,7 @@ function SelectInput({
             border: `1.5px solid ${error ? '#B8423C' : '#E5E0D4'}`,
             borderRadius: 12,
             fontFamily: 'Inter, sans-serif', fontSize: 16, fontWeight: 500,
-            color: value ? '#0F1F18' : '#6B7A72',
+            color: value ? '#0F1F18' : '#65736B',
             outline: 'none', appearance: 'none',
             cursor: 'pointer',
             boxSizing: 'border-box',
@@ -287,7 +287,7 @@ function SelectInput({
         </select>
         <ChevronDown size={18} strokeWidth={2} style={{
           position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)',
-          color: '#6B7A72', pointerEvents: 'none',
+          color: '#65736B', pointerEvents: 'none',
         }}/>
       </div>
       {error && <FieldError id={`${fieldId}-error`}>{error}</FieldError>}
@@ -314,7 +314,7 @@ function GroupHeader({ index, title, subtitle }: { index: number; title: string;
       </div>
       {subtitle && (
         <div style={{
-          fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#6B7A72',
+          fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#65736B',
           marginTop: 4, marginLeft: 32,
         }}>{subtitle}</div>
       )}
@@ -433,7 +433,7 @@ export default function DetailsFormScreen({
         width: fullWidth ? '100%' : 'auto',
         height: 56, padding: '0 28px',
         background: disabled ? '#E8EFEB' : '#1F4D3A',
-        color: disabled ? '#6B7A72' : '#FAF6EE',
+        color: disabled ? '#65736B' : '#FAF6EE',
         border: 'none', borderRadius: 12,
         fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 16,
         display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 10,
@@ -583,7 +583,7 @@ export default function DetailsFormScreen({
               />
             </div>
             <div style={{
-              fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#6B7A72',
+              fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#65736B',
               display: 'flex', alignItems: 'center', gap: 8,
             }}>
               <Pencil size={13} strokeWidth={2}/> Updates as you type
@@ -605,7 +605,7 @@ export default function DetailsFormScreen({
               style={{
                 background: 'transparent', border: 'none', cursor: 'pointer',
                 display: 'inline-flex', alignItems: 'center', gap: 8,
-                fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#6B7A72',
+                fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#65736B',
                 padding: 0, marginBottom: 16,
               }}
             >
@@ -617,7 +617,7 @@ export default function DetailsFormScreen({
             }}>Tell us about you</h1>
             <p style={{
               fontFamily: 'Inter, sans-serif', fontSize: 14, lineHeight: 1.5,
-              color: '#6B7A72', margin: '8px 0 0',
+              color: '#65736B', margin: '8px 0 0',
             }}>
               The preview on the left updates as you type. Required fields are marked with{' '}
               <span style={{ color: '#1F4D3A' }}>*</span>.
@@ -657,7 +657,7 @@ export default function DetailsFormScreen({
             display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16,
             flexShrink: 0,
           }}>
-            <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#6B7A72' }}>
+            <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#65736B' }}>
               You can edit anything before downloading.
             </div>
             <GenerateBtn fullWidth={false}/>

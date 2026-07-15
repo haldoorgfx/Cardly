@@ -10,7 +10,7 @@ interface Props {
 
 const SYSTEM_FONTS = [
   'Plus Jakarta Sans', 'Inter', 'Georgia', 'Times New Roman',
-  'Arial', 'Helvetica', 'Verdana', 'Courier New', 'Trebuchet MS',
+  'Arial', 'Helvetica', 'Verdana', 'Trebuchet MS',
 ];
 
 const COLOR_LABELS: { key: keyof ThemeColors; label: string; desc: string }[] = [
@@ -93,7 +93,7 @@ function LogoUploadCard({
       {/* Controls */}
       <div className="p-3 space-y-2" style={{ background: '#FAF6EE' }}>
         <div className="text-[12px] font-semibold text-[#0F1F18]">{label}</div>
-        <div className="text-[12.5px] text-[#6B7A72] leading-snug">{description}</div>
+        <div className="text-[12.5px] text-[#65736B] leading-snug">{description}</div>
         <div className="flex items-center gap-2 pt-1">
           <input
             ref={inputRef}
@@ -117,7 +117,7 @@ function LogoUploadCard({
             <button
               onClick={onRemove}
               className="inline-flex items-center gap-1 h-8 px-2.5 rounded-lg border text-[12px] transition hover:border-[#B8423C]/40 hover:text-[#B8423C] bg-white"
-              style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}
+              style={{ borderColor: '#E5E0D4', color: '#65736B' }}
             >
               <X size={11} strokeWidth={2} /> Remove
             </button>
@@ -194,7 +194,7 @@ export function ThemeEditorClient({ settings }: Props) {
           style={{ borderColor: '#E5E0D4' }}
           placeholder="Eventera"
         />
-        <p className="mt-2 text-[12px] text-[#6B7A72]">
+        <p className="mt-2 text-[12px] text-[#65736B]">
           Shown in the nav when no logo is set, and in the browser tab title.
         </p>
       </section>
@@ -202,7 +202,7 @@ export function ThemeEditorClient({ settings }: Props) {
       {/* Logo upload — two variants */}
       <section className="bg-white rounded-2xl border p-6" style={{ borderColor: '#E5E0D4' }}>
         <h2 className="font-display font-semibold text-[15px] text-[#0F1F18] mb-1">Logo</h2>
-        <p className="text-[12px] text-[#6B7A72] mb-5">
+        <p className="text-[12px] text-[#65736B] mb-5">
           Upload two variants — one for light backgrounds (front page), one for dark backgrounds (sidebar). Use transparent PNG or SVG.
         </p>
 
@@ -229,7 +229,7 @@ export function ThemeEditorClient({ settings }: Props) {
           />
         </div>
 
-        <p className="mt-4 text-[12.5px] text-[#6B7A72]">PNG, JPG, WebP, or SVG · max 2 MB each</p>
+        <p className="mt-4 text-[12.5px] text-[#65736B]">PNG, JPG, WebP, or SVG · max 2 MB each</p>
       </section>
 
       {/* Colors */}
@@ -255,7 +255,7 @@ export function ThemeEditorClient({ settings }: Props) {
                 </label>
                 <div className="min-w-0">
                   <div className="text-[13px] font-medium text-[#0F1F18]">{label}</div>
-                  <div className="text-[12.5px] text-[#6B7A72] truncate">{desc}</div>
+                  <div className="text-[12.5px] text-[#65736B] truncate">{desc}</div>
                 </div>
               </div>
               <input
@@ -281,7 +281,7 @@ export function ThemeEditorClient({ settings }: Props) {
           ] as const).map(({ key, label, desc }) => (
             <div key={key}>
               <label className="block text-[13px] font-medium text-[#0F1F18] mb-1">{label}</label>
-              <p className="text-[12.5px] text-[#6B7A72] mb-2">{desc}</p>
+              <p className="text-[12.5px] text-[#65736B] mb-2">{desc}</p>
               <select
                 value={form.fonts[key]}
                 onChange={e => setFont(key, e.target.value)}
@@ -300,7 +300,7 @@ export function ThemeEditorClient({ settings }: Props) {
       {/* Hero gradient */}
       <section className="bg-white rounded-2xl border p-6" style={{ borderColor: '#E5E0D4' }}>
         <h2 className="font-display font-semibold text-[15px] text-[#0F1F18] mb-1">Hero gradient</h2>
-        <p className="text-[12px] text-[#6B7A72] mb-4">
+        <p className="text-[12px] text-[#65736B] mb-4">
           Used on hero sections and premium marketing surfaces. Enter a valid CSS gradient value.
         </p>
         <div
@@ -321,7 +321,7 @@ export function ThemeEditorClient({ settings }: Props) {
         className="sticky bottom-6 flex items-center justify-between gap-4 px-5 py-3.5 rounded-2xl shadow-lift"
         style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}
       >
-        <div className="text-[13px] text-[#6B7A72]">
+        <div className="text-[13px] text-[#65736B]">
           Changes apply live across the whole product.
         </div>
         <div className="flex items-center gap-3">

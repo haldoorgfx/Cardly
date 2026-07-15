@@ -79,8 +79,8 @@ export function CategoryPage({ category, events, savedIds, cityCounts }: Categor
           }}
         />
         <div className="relative">
-          <nav className="text-[12px] mb-3" style={{ color: '#6B7A72' }}>
-            <Link href="/events" style={{ color: '#6B7A72' }}>Events</Link>
+          <nav className="text-[12px] mb-3" style={{ color: '#65736B' }}>
+            <Link href="/events" style={{ color: '#65736B' }}>Events</Link>
             {' / '}
             <span>Categories</span>
             {' / '}
@@ -92,7 +92,7 @@ export function CategoryPage({ category, events, savedIds, cityCounts }: Categor
           >
             {category} events
           </h1>
-          <p className="text-[13px] mb-6" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
+          <p className="text-[13px] mb-6" style={{ color: '#65736B', fontFamily: 'Inter, system-ui, sans-serif' }}>
             {events.length} upcoming &middot; East Africa &amp; beyond
           </p>
 
@@ -128,7 +128,7 @@ export function CategoryPage({ category, events, savedIds, cityCounts }: Categor
             <option value="all">All cities</option>
             {uniqueCities.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
-          <svg className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6B7A72" strokeWidth="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          <svg className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#65736B" strokeWidth="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
 
         <div className="relative">
@@ -142,7 +142,7 @@ export function CategoryPage({ category, events, savedIds, cityCounts }: Categor
             <option value="week">This week</option>
             <option value="month">This month</option>
           </select>
-          <svg className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6B7A72" strokeWidth="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          <svg className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#65736B" strokeWidth="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
 
         <div className="relative">
@@ -156,7 +156,7 @@ export function CategoryPage({ category, events, savedIds, cityCounts }: Categor
             <option value="free">Free</option>
             <option value="paid">Paid</option>
           </select>
-          <svg className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6B7A72" strokeWidth="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          <svg className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#65736B" strokeWidth="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
 
         <div className="relative">
@@ -170,7 +170,7 @@ export function CategoryPage({ category, events, savedIds, cityCounts }: Categor
             <option value="inperson">In-person</option>
             <option value="online">Virtual</option>
           </select>
-          <svg className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6B7A72" strokeWidth="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          <svg className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#65736B" strokeWidth="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
       </div>
 
@@ -179,7 +179,7 @@ export function CategoryPage({ category, events, savedIds, cityCounts }: Categor
         <div className="rounded-2xl flex items-center justify-center py-20 text-center" style={{ background: '#fff', border: '1px solid #E5E0D4' }}>
           <div>
             <div className="font-medium text-[15px] mb-1" style={{ color: '#0F1F18' }}>No events match</div>
-            <div className="text-[13px]" style={{ color: '#6B7A72' }}>Try adjusting the filters.</div>
+            <div className="text-[13px]" style={{ color: '#65736B' }}>Try adjusting the filters.</div>
           </div>
         </div>
       ) : (
@@ -208,7 +208,7 @@ export function CategoryPage({ category, events, savedIds, cityCounts }: Categor
                 style={{ color: '#0F1F18' }}
               >
                 {city}{' '}
-                <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 12, color: '#6B7A72' }}>
+                <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 12, color: '#65736B' }}>
                   {count}
                 </span>
               </Link>

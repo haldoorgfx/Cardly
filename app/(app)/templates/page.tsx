@@ -304,7 +304,7 @@ export default function TemplatesPage() {
         subtitle="30 professionally designed event cards — what you see is what you edit."
         actions={
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6B7A72]/60 pointer-events-none" size={13} strokeWidth={2} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#65736B]/60 pointer-events-none" size={13} strokeWidth={2} />
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search templates…"
               className="w-[240px] h-8 pl-8 pr-3 rounded-lg text-[13px] focus:outline-none transition"
               style={{ background:'#FAF6EE', border:'1px solid #E5E0D4', color:'#0F1F18' }} />
@@ -344,7 +344,7 @@ export default function TemplatesPage() {
               <option value="newest">Newest</option>
               <option value="az">A–Z</option>
             </select>
-            <svg className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6B7A72" strokeWidth="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            <svg className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#65736B" strokeWidth="2.5"><polyline points="6 9 12 15 18 9"/></svg>
           </div>
         </div>
       </div>
@@ -425,7 +425,7 @@ export default function TemplatesPage() {
           <div className="mt-12">
             <div className="flex items-center gap-3 mb-4">
               <div className="h-px flex-1 bg-[#E5E0D4]" />
-              <span className="text-[12px] text-[#6B7A72] uppercase tracking-widest">Platform templates</span>
+              <span className="text-[12px] text-[#65736B] uppercase tracking-widest">Platform templates</span>
               <div className="h-px flex-1 bg-[#E5E0D4]" />
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
@@ -437,7 +437,7 @@ export default function TemplatesPage() {
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={t.thumbnail_url} alt={t.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                     ) : (
-                      <div className="absolute inset-0 grid place-items-center text-[#6B7A72]">
+                      <div className="absolute inset-0 grid place-items-center text-[#65736B]">
                         <svg className="w-8 h-8 opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.2}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M4.5 19.5h15M3.75 6.75h16.5" />
                         </svg>
@@ -457,7 +457,7 @@ export default function TemplatesPage() {
                   <div className="p-3">
                     <div className="font-medium text-[13px] text-[#0F1F18] truncate">{t.name}</div>
                     {t.category && (
-                      <div className="text-[12px] text-[#6B7A72] uppercase tracking-wide mt-0.5">{t.category}</div>
+                      <div className="text-[12px] text-[#65736B] uppercase tracking-wide mt-0.5">{t.category}</div>
                     )}
                   </div>
                 </div>
@@ -468,7 +468,7 @@ export default function TemplatesPage() {
 
         {/* Coming soon */}
         <div className="mt-12 rounded-2xl border border-dashed border-[#1F4D3A]/20 bg-[#1F4D3A]/[0.03] px-8 py-8 text-center">
-          <div className="text-[12px] tracking-widest text-[#6B7A72]/60 mb-2 uppercase">Coming soon</div>
+          <div className="text-[12px] tracking-widest text-[#65736B]/60 mb-2 uppercase">Coming soon</div>
           <div className="font-display font-bold text-[22px]">Submit your own template</div>
           <p className="text-[13.5px] text-[#0F1F18]/55 mt-2 max-w-[420px] mx-auto">Save any event design as a reusable template and share it with the community.</p>
           <Link href="/pricing" className="mt-5 inline-flex items-center gap-2 text-[13px] font-semibold text-white px-6 py-3 rounded-lg hover:bg-[#163828] transition"

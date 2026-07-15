@@ -97,7 +97,7 @@ export default function AbstractSubmissionClient({
         <h2 className="font-display font-normal text-[28px] mb-3" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
           Abstract submitted
         </h2>
-        <p className="text-[15px] max-w-[440px] mx-auto" style={{ color: '#6B7A72' }}>
+        <p className="text-[15px] max-w-[440px] mx-auto" style={{ color: '#65736B' }}>
           We&apos;ll review your submission and send decisions by email. Thank you for contributing to {eventName}.
         </p>
       </div>
@@ -116,14 +116,14 @@ export default function AbstractSubmissionClient({
                 style={{
                   background: i < step ? '#E8EFEB' : i === step ? '#1F4D3A' : 'transparent',
                   border: `1.5px solid ${i <= step ? '#1F4D3A' : '#E5E0D4'}`,
-                  color: i === step ? 'white' : i < step ? '#1F4D3A' : '#6B7A72',
+                  color: i === step ? 'white' : i < step ? '#1F4D3A' : '#65736B',
                 }}
               >
                 {i < step ? <Check size={11} strokeWidth={2.5} /> : i + 1}
               </div>
               <span
                 className="text-[13px] font-medium whitespace-nowrap hidden sm:block"
-                style={{ color: i <= step ? '#1F4D3A' : '#6B7A72' }}
+                style={{ color: i <= step ? '#1F4D3A' : '#65736B' }}
               >
                 {label}
               </span>
@@ -163,7 +163,7 @@ export default function AbstractSubmissionClient({
             />
             <div
               className=" text-[12px] text-right mt-1.5"
-              style={{ color: wordCount > maxWords ? '#B8423C' : wordCount > maxWords * 0.9 ? '#C97A2D' : '#6B7A72' }}
+              style={{ color: wordCount > maxWords ? '#B8423C' : wordCount > maxWords * 0.9 ? '#C97A2D' : '#65736B' }}
             >
               {wordCount} / {maxWords} words
             </div>
@@ -213,7 +213,7 @@ export default function AbstractSubmissionClient({
                 <option value="">Select a category</option>
                 {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
-              <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" color="#6B7A72" />
+              <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" color="#65736B" />
             </div>
           </div>
 
@@ -329,13 +329,13 @@ export default function AbstractSubmissionClient({
                 className="flex items-start gap-4 px-5 py-4"
                 style={{ borderBottom: i < arr.length - 1 ? '1px solid #F0EBE3' : 'none' }}
               >
-                <span className="text-[12px] w-24 shrink-0 pt-0.5" style={{ color: '#6B7A72' }}>{row.key}</span>
+                <span className="text-[12px] w-24 shrink-0 pt-0.5" style={{ color: '#65736B' }}>{row.key}</span>
                 <span className="flex-1 text-[14px]" style={{ color: '#0F1F18' }}>{row.value}</span>
                 <button
                   type="button"
                   onClick={() => setStep(i < 3 ? 0 : 1)}
                   className="text-[12px] shrink-0"
-                  style={{ color: '#6B7A72' }}
+                  style={{ color: '#65736B' }}
                   aria-label={`Edit ${row.key}`}
                 >
                   ✎
@@ -361,7 +361,7 @@ export default function AbstractSubmissionClient({
           >
             {submitting ? 'Submitting…' : 'Submit abstract'}
           </button>
-          <p className="text-[13px] text-center" style={{ color: '#6B7A72' }}>
+          <p className="text-[13px] text-center" style={{ color: '#65736B' }}>
             You&apos;ll receive a confirmation email. Deadline: {deadline}.
           </p>
         </div>

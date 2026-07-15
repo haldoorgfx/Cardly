@@ -54,8 +54,8 @@ export default async function SeriesPage({ params }: Props) {
       <div className="max-w-[1120px] mx-auto px-5 py-10 pb-24">
 
         {/* Breadcrumb */}
-        <nav className="text-[12px] mb-4" style={{ color: '#6B7A72' }}>
-          <Link href="/events" style={{ color: '#6B7A72' }}>Events</Link>
+        <nav className="text-[12px] mb-4" style={{ color: '#65736B' }}>
+          <Link href="/events" style={{ color: '#65736B' }}>Events</Link>
           {' / '}
           <span style={{ color: '#0F1F18' }}>Series</span>
         </nav>
@@ -131,7 +131,7 @@ export default async function SeriesPage({ params }: Props) {
         {events.length === 0 && (
           <div className="rounded-2xl py-20 text-center" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
             <div className="font-medium text-[15px] mb-1" style={{ color: '#0F1F18' }}>No events yet</div>
-            <div className="text-[13px]" style={{ color: '#6B7A72' }}>Events will appear here when they&apos;re published.</div>
+            <div className="text-[13px]" style={{ color: '#65736B' }}>Events will appear here when they&apos;re published.</div>
           </div>
         )}
       </div>
@@ -170,7 +170,7 @@ function SeriesEventCard({ page }: { page: any }) {
           {page.title}
         </div>
         <div className="flex items-center justify-between gap-2 mt-2">
-          <span className="text-[12px] truncate" style={{ color: '#6B7A72' }}>
+          <span className="text-[12px] truncate" style={{ color: '#65736B' }}>
             {page.is_online ? 'Online' : (page.city ?? 'Location TBA')}
           </span>
           {price && (
@@ -198,16 +198,16 @@ function SeriesPastRow({ page }: { page: any }) {
           // eslint-disable-next-line @next/next/no-img-element
           <img src={page.cover_image_url} alt={page.title} className="w-full h-full object-cover opacity-70" />
         ) : (
-          <div className="w-full h-full" style={{ background: 'linear-gradient(135deg, #3A4A42, #6B7A72)' }} />
+          <div className="w-full h-full" style={{ background: 'linear-gradient(135deg, #3A4A42, #65736B)' }} />
         )}
       </div>
       <div className="min-w-0 flex-1">
         <div className="text-[14px] font-medium truncate" style={{ color: '#3A4A42' }}>{page.title}</div>
-        <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
+        <div className="text-[12px] mt-0.5" style={{ color: '#65736B', fontFamily: 'Inter, system-ui, sans-serif' }}>
           {fmtDate(page.starts_at)} · {page.is_online ? 'Online' : (page.city ?? '')}
         </div>
       </div>
-      <span className="text-[12px] shrink-0" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>Past</span>
+      <span className="text-[12px] shrink-0" style={{ color: '#65736B', fontFamily: 'Inter, system-ui, sans-serif' }}>Past</span>
     </Link>
   );
 }

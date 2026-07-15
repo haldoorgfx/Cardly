@@ -194,7 +194,7 @@ export function PromoCodesManager({ eventId, initialCodes, eventDates }: Props) 
         subtitle={editingCode?.code}
         footer={
           <>
-            <button onClick={() => setEditingCode(null)} className="h-10 px-4 rounded-xl text-[13px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>Cancel</button>
+            <button onClick={() => setEditingCode(null)} className="h-10 px-4 rounded-xl text-[13px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#65736B' }}>Cancel</button>
             <button onClick={handleEdit} disabled={saving} className="h-10 px-5 rounded-xl text-[13px] font-semibold text-white disabled:opacity-60" style={{ background: '#1F4D3A' }}>
               {saving ? 'Saving…' : 'Save changes'}
             </button>
@@ -204,7 +204,7 @@ export function PromoCodesManager({ eventId, initialCodes, eventDates }: Props) 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {error && <p className="sm:col-span-2 text-[13px] px-3 py-2 rounded-lg" style={{ background: '#FEF2F2', color: '#B8423C' }}>{error}</p>}
           <div>
-            <label className="block text-[12px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Discount type</label>
+            <label className="block text-[12px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#65736B' }}>Discount type</label>
             <select className={INPUT} style={INPUT_STYLE} value={editForm.discount_type}
               onChange={e => setEditForm(f => ({ ...f, discount_type: e.target.value as 'percent' | 'fixed' }))}>
               <option value="percent">Percentage (%)</option>
@@ -212,7 +212,7 @@ export function PromoCodesManager({ eventId, initialCodes, eventDates }: Props) 
             </select>
           </div>
           <div>
-            <label className="block text-[12px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>
+            <label className="block text-[12px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#65736B' }}>
               {editForm.discount_type === 'percent' ? 'Discount (%)' : 'Discount amount'} *
             </label>
             <input type="number" min="0" className={INPUT} style={INPUT_STYLE}
@@ -220,20 +220,20 @@ export function PromoCodesManager({ eventId, initialCodes, eventDates }: Props) 
               onChange={e => setEditForm(f => ({ ...f, discount_value: e.target.value }))} />
           </div>
           <div>
-            <label className="block text-[12px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Max uses (blank = unlimited)</label>
+            <label className="block text-[12px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#65736B' }}>Max uses (blank = unlimited)</label>
             <input type="number" min="1" className={INPUT} style={INPUT_STYLE}
               value={editForm.max_uses} placeholder="Unlimited"
               onChange={e => setEditForm(f => ({ ...f, max_uses: e.target.value }))} />
           </div>
           <div>
-            <label className="block text-[12px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Valid from</label>
+            <label className="block text-[12px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#65736B' }}>Valid from</label>
             <input type="datetime-local" className={INPUT} style={INPUT_STYLE}
               value={editForm.valid_from}
               max={eventEndMax}
               onChange={e => setEditForm(f => ({ ...f, valid_from: e.target.value }))} />
           </div>
           <div>
-            <label className="block text-[12px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>
+            <label className="block text-[12px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#65736B' }}>
               Valid until{eventDates?.ends_at && <span className="ml-1 normal-case font-sans text-[12px]" style={{ color: '#9BA8A1' }}>max {new Date(eventDates.ends_at).toLocaleDateString()}</span>}
             </label>
             <input type="datetime-local" className={INPUT} style={INPUT_STYLE}
@@ -284,7 +284,7 @@ export function PromoCodesManager({ eventId, initialCodes, eventDates }: Props) 
         title="New promo code"
         footer={
           <>
-            <button onClick={resetForm} className="h-10 px-4 rounded-xl text-[13px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>Cancel</button>
+            <button onClick={resetForm} className="h-10 px-4 rounded-xl text-[13px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#65736B' }}>Cancel</button>
             <button onClick={handleCreate} disabled={saving} className="h-10 px-5 rounded-xl text-[13px] font-semibold text-white disabled:opacity-60" style={{ background: '#1F4D3A' }}>
               {saving ? 'Creating…' : 'Create code'}
             </button>
@@ -294,7 +294,7 @@ export function PromoCodesManager({ eventId, initialCodes, eventDates }: Props) 
         <div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-[12px] mb-1.5" style={{ color: '#6B7A72' }}>Code *</label>
+              <label className="block text-[12px] mb-1.5" style={{ color: '#65736B' }}>Code *</label>
               <input
                 className={INPUT}
                 style={INPUT_STYLE}
@@ -304,7 +304,7 @@ export function PromoCodesManager({ eventId, initialCodes, eventDates }: Props) 
               />
             </div>
             <div>
-              <label className="block text-[12px] mb-1.5" style={{ color: '#6B7A72' }}>Discount type</label>
+              <label className="block text-[12px] mb-1.5" style={{ color: '#65736B' }}>Discount type</label>
               <select
                 className={INPUT}
                 style={INPUT_STYLE}
@@ -316,7 +316,7 @@ export function PromoCodesManager({ eventId, initialCodes, eventDates }: Props) 
               </select>
             </div>
             <div>
-              <label className="block text-[12px] mb-1.5" style={{ color: '#6B7A72' }}>
+              <label className="block text-[12px] mb-1.5" style={{ color: '#65736B' }}>
                 {form.discount_type === 'percent' ? 'Discount (%)' : 'Discount amount'} *
               </label>
               <input
@@ -331,7 +331,7 @@ export function PromoCodesManager({ eventId, initialCodes, eventDates }: Props) 
               />
             </div>
             <div>
-              <label className="block text-[12px] mb-1.5" style={{ color: '#6B7A72' }}>Max uses (leave blank for unlimited)</label>
+              <label className="block text-[12px] mb-1.5" style={{ color: '#65736B' }}>Max uses (leave blank for unlimited)</label>
               <input
                 type="number"
                 min="1"
@@ -343,7 +343,7 @@ export function PromoCodesManager({ eventId, initialCodes, eventDates }: Props) 
               />
             </div>
             <div>
-              <label className="block text-[12px] mb-1.5" style={{ color: '#6B7A72' }}>
+              <label className="block text-[12px] mb-1.5" style={{ color: '#65736B' }}>
                 Valid from{eventDates?.starts_at && <span className="ml-1  text-[12px]" style={{ color: '#9BA8A1' }}>event: {new Date(eventDates.starts_at).toLocaleDateString()}</span>}
               </label>
               <input
@@ -356,7 +356,7 @@ export function PromoCodesManager({ eventId, initialCodes, eventDates }: Props) 
               />
             </div>
             <div>
-              <label className="block text-[12px] mb-1.5" style={{ color: '#6B7A72' }}>
+              <label className="block text-[12px] mb-1.5" style={{ color: '#65736B' }}>
                 Valid until{eventDates?.ends_at && <span className="ml-1  text-[12px]" style={{ color: '#9BA8A1' }}>max: {new Date(eventDates.ends_at).toLocaleDateString()}</span>}
               </label>
               <input
@@ -387,7 +387,7 @@ export function PromoCodesManager({ eventId, initialCodes, eventDates }: Props) 
           className="rounded-2xl py-16 text-center"
           style={{ background: 'white', border: '1px solid #E5E0D4' }}
         >
-          <div className="text-[14px]" style={{ color: '#6B7A72' }}>No promo codes yet. Create one to offer discounts.</div>
+          <div className="text-[14px]" style={{ color: '#65736B' }}>No promo codes yet. Create one to offer discounts.</div>
         </div>
       ) : (
         <div className="space-y-3">
@@ -410,7 +410,7 @@ export function PromoCodesManager({ eventId, initialCodes, eventDates }: Props) 
                 <div className="flex items-center gap-4 mt-2 flex-wrap">
                   {/* Usage */}
                   <div className="flex items-center gap-2">
-                    <div className=" text-[12px]" style={{ color: '#6B7A72' }}>
+                    <div className=" text-[12px]" style={{ color: '#65736B' }}>
                       {c.uses_count} used{c.max_uses ? ` / ${c.max_uses}` : ''}
                     </div>
                     {c.max_uses && (
@@ -425,12 +425,12 @@ export function PromoCodesManager({ eventId, initialCodes, eventDates }: Props) 
 
                   {/* Dates */}
                   {c.valid_from && (
-                    <span className=" text-[12.5px]" style={{ color: '#6B7A72' }}>
+                    <span className=" text-[12.5px]" style={{ color: '#65736B' }}>
                       From {new Date(c.valid_from).toLocaleDateString()}
                     </span>
                   )}
                   {c.valid_until && (
-                    <span className=" text-[12.5px]" style={{ color: new Date(c.valid_until) < new Date() ? '#B8423C' : '#6B7A72' }}>
+                    <span className=" text-[12.5px]" style={{ color: new Date(c.valid_until) < new Date() ? '#B8423C' : '#65736B' }}>
                       Until {new Date(c.valid_until).toLocaleDateString()}
                       {new Date(c.valid_until) < new Date() && ' (expired)'}
                     </span>
@@ -442,7 +442,7 @@ export function PromoCodesManager({ eventId, initialCodes, eventDates }: Props) 
                 <button
                   onClick={() => openEdit(c)}
                   className="p-2 rounded-lg transition-colors hover:bg-[#F5F3EE]"
-                  style={{ color: '#6B7A72' }}
+                  style={{ color: '#65736B' }}
                   title="Edit code"
                 >
                   <Pencil size={14} />

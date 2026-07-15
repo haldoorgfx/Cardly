@@ -68,7 +68,7 @@ export default async function GamificationPage({ params }: Props) {
     <>
       <div className="sticky top-0 z-30 border-b bg-white" style={{ borderColor: '#E5E0D4' }}>
         <div className="max-w-[760px] mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-3">
-          <Link href={`/events/${event.slug}`} className="inline-flex items-center gap-1 text-[12px] text-[#6B7A72] hover:text-[#1F4D3A] transition-colors">
+          <Link href={`/events/${event.slug}`} className="inline-flex items-center gap-1 text-[12px] text-[#65736B] hover:text-[#1F4D3A] transition-colors">
             <ArrowLeft size={12} strokeWidth={2} />
             {event.name}
           </Link>
@@ -86,7 +86,7 @@ export default async function GamificationPage({ params }: Props) {
               </svg>
             </div>
             <h3 className="font-display text-[16px] font-semibold mb-2" style={{ color: '#0F1F18' }}>No points yet</h3>
-            <p className="text-[13px] max-w-[400px] mx-auto" style={{ color: '#6B7A72' }}>
+            <p className="text-[13px] max-w-[400px] mx-auto" style={{ color: '#65736B' }}>
               Attendees earn points by asking questions, voting in polls, and joining the conversation. The leaderboard fills up once your event goes live.
             </p>
           </div>
@@ -111,7 +111,7 @@ export default async function GamificationPage({ params }: Props) {
                       <div className="text-center">
                         <div className="font-display font-medium text-[13px] truncate max-w-[80px]" style={{ color: '#0F1F18' }}>{entry.attendee_name.split(' ')[0]}</div>
                         <div className="text-[13px] font-semibold" style={{ color: isFirst ? '#E8C57E' : '#0F1F18' }}>{entry.total_points}pts</div>
-                        <div className="text-[12.5px]" style={{ color: '#6B7A72' }}>#{entry.rank}</div>
+                        <div className="text-[12.5px]" style={{ color: '#65736B' }}>#{entry.rank}</div>
                       </div>
                     </div>
                   );
@@ -124,7 +124,7 @@ export default async function GamificationPage({ params }: Props) {
               <div className="rounded-2xl overflow-hidden" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
                 {rest.map((entry, i) => (
                   <div key={entry.registration_id} className="flex items-center gap-3 px-4 py-3" style={{ borderBottom: i < rest.length - 1 ? '1px solid #F0EBE3' : 'none' }}>
-                    <span className="text-[13px] w-8" style={{ color: '#6B7A72' }}>#{entry.rank}</span>
+                    <span className="text-[13px] w-8" style={{ color: '#65736B' }}>#{entry.rank}</span>
                     <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-[12px] font-display font-semibold shrink-0" style={{ background: '#1F4D3A' }}>{initials(entry.attendee_name)}</div>
                     <span className="flex-1 text-[14px] font-medium" style={{ color: '#0F1F18' }}>{entry.attendee_name}</span>
                     <span className="text-[14px] font-semibold" style={{ color: '#0F1F18' }}>{entry.total_points}pts</span>

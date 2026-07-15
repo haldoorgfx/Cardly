@@ -114,7 +114,7 @@ function buildBroadcastHtml({
     </div>
 
     <h1 style="font-family:'DM Sans',system-ui,sans-serif;font-size:22px;font-weight:600;letter-spacing:-0.02em;margin:0 0 16px;">${subject}</h1>
-    <p style="font-size:14px;color:#6B7A72;margin:0 0 16px;">Hi ${attendeeName},</p>
+    <p style="font-size:14px;color:#65736B;margin:0 0 16px;">Hi ${attendeeName},</p>
     <div style="font-size:15px;color:#3A4A42;line-height:1.6;margin-bottom:28px;">${messageHtml}</div>
 
     <div style="text-align:center;padding:20px 0;border-top:1px solid #E5E0D4;">

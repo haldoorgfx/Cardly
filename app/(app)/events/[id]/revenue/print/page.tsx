@@ -70,7 +70,7 @@ export default async function RevenuePrintPage({ params }: Props) {
           <h1 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 30, fontWeight: 700, letterSpacing: '-0.02em', color: '#0F1F18' }}>
             {event.name}
           </h1>
-          <p style={{ marginTop: 4, color: '#6B7A72', fontSize: 13 }}>Revenue Report</p>
+          <p style={{ marginTop: 4, color: '#65736B', fontSize: 13 }}>Revenue Report</p>
         </div>
 
         {/* Hero total */}
@@ -97,7 +97,7 @@ export default async function RevenuePrintPage({ params }: Props) {
           <thead>
             <tr style={{ borderBottom: '2px solid #0F1F18' }}>
               {['Ticket Type', 'Unit Price', 'Sold', 'Revenue'].map(h => (
-                <th key={h} style={{ textAlign: 'left', padding: '8px 10px', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#6B7A72', fontWeight: 600 }}>
+                <th key={h} style={{ textAlign: 'left', padding: '8px 10px', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#65736B', fontWeight: 600 }}>
                   {h}
                 </th>
               ))}
@@ -136,12 +136,12 @@ export default async function RevenuePrintPage({ params }: Props) {
             { label: 'Total',       value: allRegs.length,                                                     color: '#0F1F18' },
             { label: 'Confirmed',   value: allRegs.filter(r => r.status === 'confirmed').length,               color: '#C97A2D' },
             { label: 'Checked In',  value: allRegs.filter(r => r.status === 'checked_in').length,              color: '#2D7A4F' },
-            { label: 'Pending',     value: allRegs.filter(r => r.status === 'pending').length,                 color: '#6B7A72' },
+            { label: 'Pending',     value: allRegs.filter(r => r.status === 'pending').length,                 color: '#65736B' },
             { label: 'Cancelled',   value: allRegs.filter(r => r.status === 'cancelled').length,               color: '#B8423C' },
           ].filter(s => s.value > 0).map(s => (
             <div key={s.label} style={{ border: '1px solid #E5E0D4', borderRadius: 12, padding: '10px 16px', minWidth: 100 }}>
               <div style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 24, fontWeight: 700, color: s.color, lineHeight: 1 }}>{s.value}</div>
-              <div style={{ fontSize: 11, color: '#6B7A72', marginTop: 3 }}>{s.label}</div>
+              <div style={{ fontSize: 11, color: '#65736B', marginTop: 3 }}>{s.label}</div>
             </div>
           ))}
         </div>

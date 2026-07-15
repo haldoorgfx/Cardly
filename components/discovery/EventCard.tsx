@@ -210,7 +210,7 @@ export function EventCard({
 
         {/* Organizer */}
         {page.organizer_name && (
-          <div className="text-[12px] truncate" style={{ color: '#6B7A72' }}>
+          <div className="text-[12px] truncate" style={{ color: '#65736B' }}>
             {page.organizer_name}
           </div>
         )}
@@ -229,7 +229,7 @@ export function EventCard({
 
         {/* Location + price row */}
         <div className="flex items-center justify-between gap-2">
-          <div className="text-[12px] truncate" style={{ color: '#6B7A72' }}>
+          <div className="text-[12px] truncate" style={{ color: '#65736B' }}>
             {page.is_online ? 'Online' : (page.city ?? page.venue_name ?? 'Location TBA')}
           </div>
           {priceLabel && (

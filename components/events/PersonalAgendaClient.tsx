@@ -67,7 +67,7 @@ export default function PersonalAgendaClient({ sessions: initialSessions, regist
   if (sessions.length === 0) {
     return (
       <div className="flex flex-col items-center py-20 gap-4">
-        <p className="text-[16px]" style={{ color: '#6B7A72' }}>Your agenda is empty.</p>
+        <p className="text-[16px]" style={{ color: '#65736B' }}>Your agenda is empty.</p>
         <Link
           href={`/e/${eventSlug}/schedule`}
           className="px-5 py-2.5 rounded-lg text-sm font-medium text-white"
@@ -93,7 +93,7 @@ export default function PersonalAgendaClient({ sessions: initialSessions, regist
 
       {grouped.map(([dateKey, daySessions]) => (
         <div key={dateKey} className="space-y-1">
-          <h2 className="text-xs font-semibold uppercase tracking-wider px-1 mb-3" style={{ color: '#6B7A72' }}>
+          <h2 className="text-xs font-semibold uppercase tracking-wider px-1 mb-3" style={{ color: '#65736B' }}>
             {formatDateHeader(daySessions[0].starts_at)}
           </h2>
 
@@ -143,11 +143,11 @@ export default function PersonalAgendaClient({ sessions: initialSessions, regist
                           {session.title}
                         </p>
                         {speakerNames && (
-                          <p className="text-[13px] mt-0.5" style={{ color: '#6B7A72' }}>{speakerNames}</p>
+                          <p className="text-[13px] mt-0.5" style={{ color: '#65736B' }}>{speakerNames}</p>
                         )}
                         <div className="flex items-center gap-2 mt-1.5 flex-wrap">
                           {session.room && (
-                            <span className="text-[12px]" style={{ color: '#6B7A72' }}>{session.room}</span>
+                            <span className="text-[12px]" style={{ color: '#65736B' }}>{session.room}</span>
                           )}
                           {track && (
                             <span
@@ -171,7 +171,7 @@ export default function PersonalAgendaClient({ sessions: initialSessions, regist
                         <X
                           size={15}
                           className="group-hover:text-[#B8423C]"
-                          style={{ color: '#6B7A72' }}
+                          style={{ color: '#65736B' }}
                         />
                       </button>
                     </div>

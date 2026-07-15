@@ -93,11 +93,11 @@ export default function BillingActions() {
             <div className="flex items-start justify-between">
               <div>
                 <div className="font-display font-bold text-[18px] text-[#0F1F18]">{p.label}</div>
-                <div className="text-[13px] text-[#6B7A72] mt-0.5">{p.blurb}</div>
+                <div className="text-[13px] text-[#65736B] mt-0.5">{p.blurb}</div>
               </div>
               <div className="text-right shrink-0 ml-4">
-                <div className="font-display font-bold text-[22px] text-[#0F1F18] leading-none">${p.monthly}<span className="text-[13px] font-normal text-[#6B7A72]">/mo</span></div>
-                <div className=" text-[12.5px] text-[#6B7A72] mt-0.5">or ${p.annual}/mo billed yearly</div>
+                <div className="font-display font-bold text-[22px] text-[#0F1F18] leading-none">${p.monthly}<span className="text-[13px] font-normal text-[#65736B]">/mo</span></div>
+                <div className=" text-[12.5px] text-[#65736B] mt-0.5">or ${p.annual}/mo billed yearly</div>
               </div>
             </div>
             <ul className="mt-4 grid grid-cols-2 gap-y-1.5 gap-x-3">
@@ -132,7 +132,7 @@ export default function BillingActions() {
         </div>
       ))}
 
-      <p className="text-center text-[12px] text-[#6B7A72]">
+      <p className="text-center text-[12px] text-[#65736B]">
         No credit card required to start the trial. Cancel anytime.
       </p>
     </div>

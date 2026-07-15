@@ -37,7 +37,7 @@ export function EventDaysClient({ initialDays, entitlements, addDay, saveDay, re
           <CalendarDays size={20} strokeWidth={1.8} style={{ color: '#1F4D3A' }} />
         </div>
         <div className="font-display font-semibold text-[17px] mb-1" style={{ color: '#0F1F18' }}>Single-day event</div>
-        <div className="text-[14px] mb-6 max-w-[400px]" style={{ color: '#6B7A72' }}>
+        <div className="text-[14px] mb-6 max-w-[400px]" style={{ color: '#65736B' }}>
           This event runs on a single day. Add days to give each one its own check-in toggle, capacity and set of valid entitlements — for conferences, festivals and multi-day programs.
         </div>
         {error && (
@@ -57,7 +57,7 @@ export function EventDaysClient({ initialDays, entitlements, addDay, saveDay, re
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <p className="text-[13px]" style={{ color: '#6B7A72' }}>
+        <p className="text-[13px]" style={{ color: '#65736B' }}>
           {initialDays.length} day{initialDays.length !== 1 ? 's' : ''}
         </p>
         <button onClick={handleAdd} disabled={adding}

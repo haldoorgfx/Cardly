@@ -58,7 +58,7 @@ export function UnredeemModal({ ent, unredeem, onClose, onDone }: Props) {
         <>
           <button type="button" onClick={onClose} disabled={pending}
             className="rounded-lg px-4 py-2 text-[13px] font-medium border transition disabled:opacity-60"
-            style={{ borderColor: '#E5E0D4', color: '#6B7A72', background: '#FFFFFF' }}>
+            style={{ borderColor: '#E5E0D4', color: '#65736B', background: '#FFFFFF' }}>
             Cancel
           </button>
           <button type="button" onClick={submit} disabled={!canSubmit || pending}
@@ -71,11 +71,11 @@ export function UnredeemModal({ ent, unredeem, onClose, onDone }: Props) {
     >
       {/* Original scan */}
       <div className="rounded-xl p-3.5 mb-4" style={{ background: '#FAF6EE', border: '1px solid #E5E0D4' }}>
-        <p className="text-[11px] uppercase tracking-[0.1em] mb-2" style={{ color: '#6B7A72' }}>Original scan</p>
+        <p className="text-[11px] uppercase tracking-[0.1em] mb-2" style={{ color: '#65736B' }}>Original scan</p>
         <div className="space-y-1.5 text-[13px]" style={{ color: '#3A4A42' }}>
           <p className="flex items-center gap-2"><Clock size={13} strokeWidth={2} style={{ color: '#1F4D3A' }} /> {fmtDateTime(ent.redeemedAt)}</p>
-          <p className="flex items-center gap-2"><User size={13} strokeWidth={2} style={{ color: '#6B7A72' }} /> {ent.redeemedByName ?? 'Unknown staff'}</p>
-          <p className="flex items-center gap-2"><Smartphone size={13} strokeWidth={1.9} style={{ color: '#6B7A72' }} /> {shortDevice(ent.deviceId)}</p>
+          <p className="flex items-center gap-2"><User size={13} strokeWidth={2} style={{ color: '#65736B' }} /> {ent.redeemedByName ?? 'Unknown staff'}</p>
+          <p className="flex items-center gap-2"><Smartphone size={13} strokeWidth={1.9} style={{ color: '#65736B' }} /> {shortDevice(ent.deviceId)}</p>
         </div>
       </div>
 

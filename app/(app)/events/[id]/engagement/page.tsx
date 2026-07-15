@@ -59,7 +59,7 @@ export default async function EngagementPage({ params }: Props) {
     <>
       <div className="sticky top-0 z-30 border-b bg-white" style={{ borderColor: '#E5E0D4' }}>
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-3">
-          <Link href={`/events/${_ev.slug}`} className="inline-flex items-center gap-1 text-[12px] text-[#6B7A72] hover:text-[#1F4D3A] transition-colors">
+          <Link href={`/events/${_ev.slug}`} className="inline-flex items-center gap-1 text-[12px] text-[#65736B] hover:text-[#1F4D3A] transition-colors">
             <ArrowLeft size={12} strokeWidth={2} />
             {event.name}
           </Link>
@@ -85,7 +85,7 @@ export default async function EngagementPage({ params }: Props) {
                     </span>
                   )}
                 </div>
-                <p className="text-[13px] mt-1 leading-[1.5] text-[#6B7A72]">{card.desc}</p>
+                <p className="text-[13px] mt-1 leading-[1.5] text-[#65736B]">{card.desc}</p>
               </>
             );
             if (card.comingSoon) {

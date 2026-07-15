@@ -204,10 +204,10 @@ function TicketList({
     <div className="rounded-[20px] overflow-hidden" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', boxShadow: '0 4px 24px rgba(15,31,24,0.08)' }}>
       <div className="flex items-baseline justify-between px-6 py-5" style={{ borderBottom: '1px solid #E5E0D4' }}>
         <div>
-          <div className="text-[12px]" style={{ color: '#6B7A72' }}>From</div>
+          <div className="text-[12px]" style={{ color: '#65736B' }}>From</div>
           <div className="font-title font-extrabold text-[30px] leading-none mt-0.5" style={{ color: '#0F1F18', letterSpacing: '-0.03em' }}>
             {selectedObj ? fmtTicketPrice(selectedObj.price, selectedObj.currency) : minPrice}
-            <span className="font-sans font-normal text-[13px] ml-1" style={{ color: '#6B7A72' }}>/ ticket</span>
+            <span className="font-sans font-normal text-[13px] ml-1" style={{ color: '#65736B' }}>/ ticket</span>
           </div>
         </div>
         {hasTickets && !allSoldOut && !registrationClosed && (
@@ -240,10 +240,10 @@ function TicketList({
                 <div className="flex-1 min-w-0">
                   <div className="font-title font-semibold text-[15px]" style={{ color: '#0F1F18' }}>{ticket.name}</div>
                   {ticket.description && (
-                    <div className="text-[12px] mt-0.5 leading-snug" style={{ color: '#6B7A72' }}>{ticket.description}</div>
+                    <div className="text-[12px] mt-0.5 leading-snug" style={{ color: '#65736B' }}>{ticket.description}</div>
                   )}
                 </div>
-                <div className="font-medium text-[15px] shrink-0" style={{ color: soldOut ? '#6B7A72' : '#0F1F18', textDecoration: soldOut ? 'line-through' : 'none' }}>
+                <div className="font-medium text-[15px] shrink-0" style={{ color: soldOut ? '#65736B' : '#0F1F18', textDecoration: soldOut ? 'line-through' : 'none' }}>
                   {soldOut ? 'Sold out' : fmtTicketPrice(ticket.price, ticket.currency)}
                 </div>
               </div>
@@ -268,11 +268,11 @@ function TicketList({
         )}
 
         {registrationClosed ? (
-          <div className="flex items-center justify-center h-12 rounded-xl text-[15px] font-semibold" style={{ background: '#F5F0E8', color: '#6B7A72', border: '1px solid #E5E0D4' }}>
+          <div className="flex items-center justify-center h-12 rounded-xl text-[15px] font-semibold" style={{ background: '#F5F0E8', color: '#65736B', border: '1px solid #E5E0D4' }}>
             Registration closed
           </div>
         ) : !hasAnyTickets ? (
-          <div className="flex items-center justify-center h-12 rounded-xl text-[15px] font-semibold" style={{ background: '#F5F0E8', color: '#6B7A72', border: '1px solid #E5E0D4' }}>
+          <div className="flex items-center justify-center h-12 rounded-xl text-[15px] font-semibold" style={{ background: '#F5F0E8', color: '#65736B', border: '1px solid #E5E0D4' }}>
             Registration not open yet
           </div>
         ) : allSoldOut ? (
@@ -289,15 +289,15 @@ function TicketList({
           </Link>
         )}
 
-        <div className="flex items-center justify-center gap-1.5 mt-3 text-[12.5px]" style={{ color: '#6B7A72' }}>
-          <svg viewBox="0 0 24 24" className="w-3 h-3 shrink-0" fill="none" stroke="#6B7A72" strokeWidth="2">
+        <div className="flex items-center justify-center gap-1.5 mt-3 text-[12.5px]" style={{ color: '#65736B' }}>
+          <svg viewBox="0 0 24 24" className="w-3 h-3 shrink-0" fill="none" stroke="#65736B" strokeWidth="2">
             <path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6l8-4z"/>
           </svg>
           Secure checkout · QR ticket + Eventera Card to your phone
         </div>
 
         {page.registration_deadline && !registrationClosed && (
-          <div className="mt-2 text-center text-[12px]" style={{ color: '#6B7A72' }}>
+          <div className="mt-2 text-center text-[12px]" style={{ color: '#65736B' }}>
             Registration closes {new Date(page.registration_deadline).toLocaleDateString(undefined, { month: 'short', day: 'numeric', timeZone: page.timezone || 'UTC' })}
           </div>
         )}
@@ -354,7 +354,7 @@ function ERAQandA({ page, dateStr }: { page: EventPageRow; dateStr: string }) {
       <h2 className="font-title font-bold text-[22px] mb-2" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
         Have a question?
       </h2>
-      <p className="text-[14px] mb-4" style={{ color: '#6B7A72' }}>
+      <p className="text-[14px] mb-4" style={{ color: '#65736B' }}>
         Ask about this event and get an instant answer.
       </p>
       <div className="flex gap-2">
@@ -522,8 +522,8 @@ export function PublicEventPageClient({
       {/* ── Breadcrumb + Hero ─────────────────────────────── */}
       <div className="mx-auto px-6 lg:px-10" style={{ maxWidth: 1240 }}>
 
-        <nav className="flex items-center flex-wrap gap-2 pt-6 pb-3.5 text-[13px]" style={{ color: '#6B7A72' }}>
-          <Link href="/events" style={{ color: '#6B7A72', textDecoration: 'none' }}
+        <nav className="flex items-center flex-wrap gap-2 pt-6 pb-3.5 text-[13px]" style={{ color: '#65736B' }}>
+          <Link href="/events" style={{ color: '#65736B', textDecoration: 'none' }}
             className="hover:text-[#1F4D3A] transition-colors">Discover</Link>
           <svg viewBox="0 0 24 24" className="w-3 h-3 shrink-0" fill="none" stroke="#E5E0D4" strokeWidth="2.5">
             <path d="M9 18l6-6-6-6"/>
@@ -531,7 +531,7 @@ export function PublicEventPageClient({
           {page.category && (
             <>
               <Link href={`/events/category/${page.category.toLowerCase()}`}
-                style={{ color: '#6B7A72', textDecoration: 'none' }}
+                style={{ color: '#65736B', textDecoration: 'none' }}
                 className="hover:text-[#1F4D3A] transition-colors capitalize">
                 {page.category}
               </Link>
@@ -671,7 +671,7 @@ export function PublicEventPageClient({
                   className="shrink-0 inline-flex items-center gap-1.5 px-3.5 h-full text-[14px] font-medium border-b-2 transition-colors"
                   style={active
                     ? { color: '#1F4D3A', borderColor: '#1F4D3A', background: 'none', cursor: 'pointer' }
-                    : { color: '#6B7A72', borderColor: 'transparent', background: 'none', cursor: 'pointer' }}
+                    : { color: '#65736B', borderColor: 'transparent', background: 'none', cursor: 'pointer' }}
                 >
                   <Icon size={15} strokeWidth={active ? 2.2 : 1.8} />
                   {t.label}
@@ -721,7 +721,7 @@ export function PublicEventPageClient({
                   <div className="ml-auto flex items-center gap-3">
                     <Avatar src={organizerAvatarUrl} name={page.organizer_name ?? 'Eventera'} size={40} fontSize={13} seed={page.organizer_name ?? 'Eventera'} style={{ borderRadius: 11 }} />
                     <div>
-                      <div className="text-[12px]" style={{ color: '#6B7A72' }}>Hosted by</div>
+                      <div className="text-[12px]" style={{ color: '#65736B' }}>Hosted by</div>
                       {organizerUserId ? (
                         <Link href={`/o/${organizerUserId}`} className="font-title font-semibold text-[14px] hover:opacity-80 transition-opacity" style={{ color: '#0F1F18', textDecoration: 'none' }}>
                           {page.organizer_name}
@@ -799,7 +799,7 @@ export function PublicEventPageClient({
                         <div>
                           <div className="font-title font-semibold text-[15px]" style={{ color: '#0F1F18' }}>{s.title}</div>
                           {s.room && (
-                            <div className="text-[13px] mt-0.5" style={{ color: '#6B7A72' }}>{s.room}</div>
+                            <div className="text-[13px] mt-0.5" style={{ color: '#65736B' }}>{s.room}</div>
                           )}
                         </div>
                       </div>
@@ -834,7 +834,7 @@ export function PublicEventPageClient({
                         </div>
                         <div className="font-title font-semibold text-[14px]" style={{ color: '#0F1F18' }}>{s.name}</div>
                         {(s.headline ?? s.role) && (
-                          <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>{s.headline ?? s.role}</div>
+                          <div className="text-[12px] mt-0.5" style={{ color: '#65736B' }}>{s.headline ?? s.role}</div>
                         )}
                       </div>
                     ))}
@@ -998,7 +998,7 @@ export function PublicEventPageClient({
           {sessions.length === 0 ? (
             <div className="py-16 text-center">
               <CalendarDays size={40} strokeWidth={1.4} style={{ color: '#C9C3B1', margin: '0 auto 16px' }} />
-              <p className="text-[15px]" style={{ color: '#6B7A72' }}>Schedule not yet published</p>
+              <p className="text-[15px]" style={{ color: '#65736B' }}>Schedule not yet published</p>
             </div>
           ) : (
             <div className="space-y-10">
@@ -1019,7 +1019,7 @@ export function PublicEventPageClient({
                         <div>
                           <div className="font-medium text-[13px]" style={{ color: '#C9A45E' }}>{fmtSessionTime(s.starts_at, page.timezone || 'UTC')}</div>
                           {s.ends_at && (
-                            <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>{fmtSessionTime(s.ends_at, page.timezone || 'UTC')}</div>
+                            <div className="text-[12px] mt-0.5" style={{ color: '#65736B' }}>{fmtSessionTime(s.ends_at, page.timezone || 'UTC')}</div>
                           )}
                         </div>
                         <div>
@@ -1031,7 +1031,7 @@ export function PublicEventPageClient({
                             </span>
                           )}
                           {s.room && (
-                            <div className="flex items-center gap-1 text-[13px] mt-1" style={{ color: '#6B7A72' }}><MapPin size={12} />{s.room}</div>
+                            <div className="flex items-center gap-1 text-[13px] mt-1" style={{ color: '#65736B' }}><MapPin size={12} />{s.room}</div>
                           )}
                           {s.description && (
                             <div className="text-[13px] mt-1.5 leading-relaxed" style={{ color: '#3A4A42' }}>{s.description}</div>
@@ -1055,7 +1055,7 @@ export function PublicEventPageClient({
           {speakers.length === 0 ? (
             <div className="py-16 text-center">
               <Mic size={40} strokeWidth={1.4} style={{ color: '#C9C3B1', margin: '0 auto 16px' }} />
-              <p className="text-[15px]" style={{ color: '#6B7A72' }}>Speaker lineup coming soon</p>
+              <p className="text-[15px]" style={{ color: '#65736B' }}>Speaker lineup coming soon</p>
             </div>
           ) : (
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1072,25 +1072,25 @@ export function PublicEventPageClient({
           {sponsors.length === 0 ? (
             <div className="py-16 text-center">
               <Store size={40} strokeWidth={1.4} style={{ color: '#C9C3B1', margin: '0 auto 16px' }} />
-              <p className="text-[15px]" style={{ color: '#6B7A72' }}>Sponsors will be announced soon</p>
+              <p className="text-[15px]" style={{ color: '#65736B' }}>Sponsors will be announced soon</p>
             </div>
           ) : (
             <div className="space-y-12">
               {sponsorTiers.map(tier => {
                 const tierMeta: Record<string, { label: string; cols: string; logoH: number; showTagline: boolean; accent: string }> = {
-                  platinum: { label: 'Platinum', cols: 'grid-cols-1 sm:grid-cols-2',              logoH: 80,  showTagline: true,  accent: '#6B7A72' },
-                  gold:     { label: 'Gold',     cols: 'grid-cols-2 sm:grid-cols-3',              logoH: 60,  showTagline: true,  accent: '#6B7A72' },
-                  silver:   { label: 'Silver',   cols: 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4', logoH: 48, showTagline: false, accent: '#6B7A72' },
-                  standard: { label: 'Standard', cols: 'grid-cols-3 sm:grid-cols-4 lg:grid-cols-5', logoH: 36, showTagline: false, accent: '#6B7A72' },
-                  partner:  { label: 'Partners', cols: 'grid-cols-3 sm:grid-cols-4 lg:grid-cols-5', logoH: 36, showTagline: false, accent: '#6B7A72' },
-                  media:    { label: 'Media Partners', cols: 'grid-cols-3 sm:grid-cols-4 lg:grid-cols-5', logoH: 36, showTagline: false, accent: '#6B7A72' },
+                  platinum: { label: 'Platinum', cols: 'grid-cols-1 sm:grid-cols-2',              logoH: 80,  showTagline: true,  accent: '#65736B' },
+                  gold:     { label: 'Gold',     cols: 'grid-cols-2 sm:grid-cols-3',              logoH: 60,  showTagline: true,  accent: '#65736B' },
+                  silver:   { label: 'Silver',   cols: 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4', logoH: 48, showTagline: false, accent: '#65736B' },
+                  standard: { label: 'Standard', cols: 'grid-cols-3 sm:grid-cols-4 lg:grid-cols-5', logoH: 36, showTagline: false, accent: '#65736B' },
+                  partner:  { label: 'Partners', cols: 'grid-cols-3 sm:grid-cols-4 lg:grid-cols-5', logoH: 36, showTagline: false, accent: '#65736B' },
+                  media:    { label: 'Media Partners', cols: 'grid-cols-3 sm:grid-cols-4 lg:grid-cols-5', logoH: 36, showTagline: false, accent: '#65736B' },
                 };
-                const meta = tierMeta[tier] ?? { label: tier, cols: 'grid-cols-3 sm:grid-cols-4', logoH: 36, showTagline: false, accent: '#6B7A72' };
+                const meta = tierMeta[tier] ?? { label: tier, cols: 'grid-cols-3 sm:grid-cols-4', logoH: 36, showTagline: false, accent: '#65736B' };
                 return (
                   <div key={tier}>
                     {/* Tier label — plain text, no emoji */}
                     <div className="flex items-center gap-3 mb-5">
-                      <span className="text-[12.5px] font-semibold uppercase tracking-[0.14em]" style={{ color: '#6B7A72' }}>{meta.label}</span>
+                      <span className="text-[12.5px] font-semibold uppercase tracking-[0.14em]" style={{ color: '#65736B' }}>{meta.label}</span>
                       <div className="flex-1 h-px" style={{ background: '#E5E0D4' }} />
                     </div>
                     <div className={`grid gap-4 ${meta.cols}`}>
@@ -1109,10 +1109,10 @@ export function PublicEventPageClient({
                               <div className="font-title font-semibold text-center" style={{ fontSize: tier === 'platinum' ? 16 : 13, color: '#0F1F18' }}>{s.company_name}</div>
                             )}
                             {meta.showTagline && s.tagline && (
-                              <div className="text-[12px] text-center leading-relaxed" style={{ color: '#6B7A72' }}>{s.tagline}</div>
+                              <div className="text-[12px] text-center leading-relaxed" style={{ color: '#65736B' }}>{s.tagline}</div>
                             )}
                             {s.logo_url && tier !== 'standard' && tier !== 'partner' && tier !== 'media' && (
-                              <div className="text-[12.5px] font-medium" style={{ color: '#6B7A72' }}>{s.company_name}</div>
+                              <div className="text-[12.5px] font-medium" style={{ color: '#65736B' }}>{s.company_name}</div>
                             )}
                           </div>
                         );
@@ -1141,7 +1141,7 @@ export function PublicEventPageClient({
           {!viewerRegistrationId && attendees.length === 0 ? (
             <div className="py-16 text-center">
               <Users size={40} strokeWidth={1.4} style={{ color: '#C9C3B1', margin: '0 auto 16px' }} />
-              <p className="text-[15px] mb-4" style={{ color: '#6B7A72' }}>No attendees yet — be the first!</p>
+              <p className="text-[15px] mb-4" style={{ color: '#65736B' }}>No attendees yet — be the first!</p>
               <Link href={registerHref}
                 className="inline-flex items-center h-11 px-6 rounded-lg font-semibold text-[14px] transition hover:opacity-90"
                 style={{ background: '#E8C57E', color: '#0F1F18', textDecoration: 'none' }}>
@@ -1164,17 +1164,17 @@ export function PublicEventPageClient({
         <div className="flex-1 min-w-0">
           <div className="font-title font-extrabold text-[20px]" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
             {totalPrice}
-            <small className="font-sans font-normal text-[12px] ml-1" style={{ color: '#6B7A72' }}>· per ticket</small>
+            <small className="font-sans font-normal text-[12px] ml-1" style={{ color: '#65736B' }}>· per ticket</small>
           </div>
         </div>
         {registrationClosed ? (
           <div className="inline-flex items-center h-11 px-6 rounded-lg font-semibold text-[14px]"
-            style={{ background: '#F5F0E8', color: '#6B7A72', border: '1px solid #E5E0D4' }}>
+            style={{ background: '#F5F0E8', color: '#65736B', border: '1px solid #E5E0D4' }}>
             Closed
           </div>
         ) : !hasAnyTickets ? (
           <div className="inline-flex items-center h-11 px-6 rounded-lg font-semibold text-[14px]"
-            style={{ background: '#F5F0E8', color: '#6B7A72', border: '1px solid #E5E0D4' }}>
+            style={{ background: '#F5F0E8', color: '#65736B', border: '1px solid #E5E0D4' }}>
             Not open yet
           </div>
         ) : allSoldOut ? (

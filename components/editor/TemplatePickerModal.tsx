@@ -140,12 +140,12 @@ export default function TemplatePickerModal({ eventId, onVariantCreated, onUploa
             <h2 className="font-display font-bold text-[18px] text-[#0F1F18] leading-tight tracking-tight">
               Choose a template
             </h2>
-            <p className="text-[12.5px] text-[#6B7A72] mt-0.5">
+            <p className="text-[12.5px] text-[#65736B] mt-0.5">
               Select a design to start from — you can customise everything in the editor.
             </p>
           </div>
           <button onClick={onClose} className="h-8 w-8 rounded-lg grid place-items-center hover:bg-[#FAF6EE] transition shrink-0">
-            <X size={16} strokeWidth={2} style={{ color: '#6B7A72' }} />
+            <X size={16} strokeWidth={2} style={{ color: '#65736B' }} />
           </button>
         </div>
 
@@ -236,7 +236,7 @@ export default function TemplatePickerModal({ eventId, onVariantCreated, onUploa
             })}
 
             {filtered.length === 0 && (
-              <div className="col-span-5 text-center py-12 text-[13px] text-[#6B7A72]">
+              <div className="col-span-5 text-center py-12 text-[13px] text-[#65736B]">
                 No templates match your search.
               </div>
             )}
@@ -245,7 +245,7 @@ export default function TemplatePickerModal({ eventId, onVariantCreated, onUploa
 
         {/* Footer */}
         <div className="flex items-center justify-between px-6 py-4 border-t shrink-0" style={{ borderColor: '#E5E0D4', background: '#FAF6EE' }}>
-          <p className="text-[12px] text-[#6B7A72]">Or start from scratch with your own design</p>
+          <p className="text-[12px] text-[#65736B]">Or start from scratch with your own design</p>
           <button
             onClick={onUploadInstead}
             className="inline-flex items-center gap-1.5 h-9 px-4 rounded-xl text-[12.5px] font-medium transition hover:bg-[#E8EFEB]"

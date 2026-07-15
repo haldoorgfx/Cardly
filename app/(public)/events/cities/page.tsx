@@ -37,8 +37,8 @@ export default async function CitiesIndexPage() {
     <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
       <PublicNav />
       <div className="max-w-[1120px] mx-auto px-5 py-12 pb-24">
-        <nav className="text-[12px] mb-4" style={{ color: '#6B7A72' }}>
-          <Link href="/events" style={{ color: '#6B7A72' }}>Events</Link>
+        <nav className="text-[12px] mb-4" style={{ color: '#65736B' }}>
+          <Link href="/events" style={{ color: '#65736B' }}>Events</Link>
           {' / '}
           <span style={{ color: '#0F1F18' }}>Cities</span>
         </nav>
@@ -49,12 +49,12 @@ export default async function CitiesIndexPage() {
         >
           Events by city
         </h1>
-        <p className="text-[15px] mb-10" style={{ color: '#6B7A72' }}>
+        <p className="text-[15px] mb-10" style={{ color: '#65736B' }}>
           {cities.length} cities with upcoming events
         </p>
 
         {cities.length === 0 ? (
-          <p style={{ color: '#6B7A72' }}>No city data yet — events are coming soon.</p>
+          <p style={{ color: '#65736B' }}>No city data yet — events are coming soon.</p>
         ) : (
           <div
             className="rounded-2xl p-8"
@@ -69,7 +69,7 @@ export default async function CitiesIndexPage() {
                   style={{ color: '#0F1F18' }}
                 >
                   {city}{' '}
-                  <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 12, color: '#6B7A72' }}>
+                  <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 12, color: '#65736B' }}>
                     {count}
                   </span>
                 </Link>

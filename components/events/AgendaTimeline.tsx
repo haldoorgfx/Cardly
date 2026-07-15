@@ -46,7 +46,7 @@ const TYPE_CONFIG: Record<string, TypeCfg> = {
     bg: '#FFFFFF',
     borderColor: '#1F4D3A',   // forest green
     titleColor: '#0F1F18',
-    metaColor: '#6B7A72',
+    metaColor: '#65736B',
     dotColor: '#1F4D3A',
   },
   workshop: {
@@ -54,7 +54,7 @@ const TYPE_CONFIG: Record<string, TypeCfg> = {
     bg: '#FFFFFF',
     borderColor: '#3A6B8C',   // info blue
     titleColor: '#0F1F18',
-    metaColor: '#6B7A72',
+    metaColor: '#65736B',
     dotColor: '#3A6B8C',
   },
   panel: {
@@ -62,7 +62,7 @@ const TYPE_CONFIG: Record<string, TypeCfg> = {
     bg: '#FFFFFF',
     borderColor: '#C97A2D',   // amber
     titleColor: '#0F1F18',
-    metaColor: '#6B7A72',
+    metaColor: '#65736B',
     dotColor: '#C97A2D',
   },
   fireside: {
@@ -70,16 +70,16 @@ const TYPE_CONFIG: Record<string, TypeCfg> = {
     bg: 'rgba(201,122,45,0.04)',
     borderColor: '#C97A2D',
     titleColor: '#0F1F18',
-    metaColor: '#6B7A72',
+    metaColor: '#65736B',
     dotColor: '#C97A2D',
   },
   lightning: {
     solid: false,
     bg: '#FFFFFF',
-    borderColor: '#6B7A72',
+    borderColor: '#65736B',
     titleColor: '#0F1F18',
     metaColor: '#9BA8A1',
-    dotColor: '#6B7A72',
+    dotColor: '#65736B',
   },
   break: {
     solid: false,
@@ -269,7 +269,7 @@ function DayGrid({ daySessions, tracks, dateKey, onSlotClick, onSessionClick }: 
               <div
                 key={h}
                 className="absolute right-2 text-right text-[12.5px] font-semibold -translate-y-1/2 select-none"
-                style={{ top: i * ROW_HEIGHT, color: '#6B7A72' }}
+                style={{ top: i * ROW_HEIGHT, color: '#65736B' }}
               >
                 {formatHour(h)}
               </div>
@@ -436,7 +436,7 @@ export function AgendaTimeline({ sessions, tracks, onSlotClick, onSessionClick }
   if (sessions.length === 0) {
     return (
       <div className="p-12 text-center">
-        <p className="text-[14px]" style={{ color: '#6B7A72' }}>
+        <p className="text-[14px]" style={{ color: '#65736B' }}>
           No sessions with time data yet.
         </p>
       </div>

@@ -77,7 +77,7 @@ export function CateringClient({ eventSlug, meals, loadError }: Props) {
         <Link
           href={`/events/${eventSlug}`}
           className="inline-flex items-center gap-1.5 text-[13px] font-medium mb-4 transition hover:text-[#1F4D3A]"
-          style={{ color: '#6B7A72' }}
+          style={{ color: '#65736B' }}
         >
           <ArrowLeft size={15} strokeWidth={2} /> Back to event
         </Link>
@@ -112,7 +112,7 @@ export function CateringClient({ eventSlug, meals, loadError }: Props) {
             <p className="font-display text-[17px] font-semibold" style={{ color: '#0F1F18' }}>
               {loadError === 'auth' ? 'You can’t manage this event' : 'Couldn’t load catering counts'}
             </p>
-            <p className="text-[14px] mt-1.5 mb-5" style={{ color: '#6B7A72' }}>
+            <p className="text-[14px] mt-1.5 mb-5" style={{ color: '#65736B' }}>
               {loadError === 'auth'
                 ? 'Only the event owner or its staff can see catering counts.'
                 : 'Something went wrong fetching the counts.'}
@@ -135,7 +135,7 @@ export function CateringClient({ eventSlug, meals, loadError }: Props) {
             <p className="font-display text-[18px] font-semibold" style={{ color: '#0F1F18' }}>
               No meal entitlements yet
             </p>
-            <p className="text-[14px] mt-1.5 mb-5" style={{ color: '#6B7A72' }}>
+            <p className="text-[14px] mt-1.5 mb-5" style={{ color: '#65736B' }}>
               Add a meal entitlement and attach it to your ticket types. Once meals are scanned at check-in, their counts and dietary breakdown appear here.
             </p>
             <Link
@@ -157,7 +157,7 @@ export function CateringClient({ eventSlug, meals, loadError }: Props) {
                     </div>
                     <div className="min-w-0">
                       <div className="text-[15px] font-semibold truncate" style={{ color: '#0F1F18' }}>{m.entitlement_name}</div>
-                      <div className="text-[12.5px]" style={{ color: '#6B7A72' }}>
+                      <div className="text-[12.5px]" style={{ color: '#65736B' }}>
                         {m.total_redeemed} {m.total_redeemed === 1 ? 'serving' : 'servings'} redeemed
                       </div>
                     </div>
@@ -165,7 +165,7 @@ export function CateringClient({ eventSlug, meals, loadError }: Props) {
                 </div>
 
                 {m.dietary.length === 0 ? (
-                  <p className="text-[13px]" style={{ color: '#6B7A72' }}>
+                  <p className="text-[13px]" style={{ color: '#65736B' }}>
                     No dietary needs shared for this meal yet.
                   </p>
                 ) : (

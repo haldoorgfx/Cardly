@@ -25,7 +25,7 @@ interface Props {
 const STATUS_STYLE = {
   published: { label: 'Live',     cls: 'bg-emerald-50 text-emerald-700 border-emerald-200', dot: '#2D7A4F', pulse: true },
   draft:     { label: 'Draft',    cls: 'bg-amber-50 text-amber-700 border-amber-200',       dot: '#C9A45E', pulse: false },
-  archived:  { label: 'Archived', cls: 'bg-[#FAF6EE] text-[#6B7A72] border-[#E5E0D4]',     dot: '#6B7A72', pulse: false },
+  archived:  { label: 'Archived', cls: 'bg-[#FAF6EE] text-[#65736B] border-[#E5E0D4]',     dot: '#65736B', pulse: false },
 };
 
 function formatDate(iso: string | null | undefined) {
@@ -104,7 +104,7 @@ export default function EventCard({ event, regCount, revenue, currency, checkinP
         </div>
         <div>
           <div className="font-display font-semibold text-[14px] text-[#0F1F18]">Delete &ldquo;{event.name}&rdquo;?</div>
-          <div className="text-[12px] text-[#6B7A72] mt-0.5">This cannot be undone.</div>
+          <div className="text-[12px] text-[#65736B] mt-0.5">This cannot be undone.</div>
           {deleteErr && <div className="text-[12px] mt-1.5" style={{ color: '#B8423C' }}>{deleteErr}</div>}
         </div>
         <div className="flex gap-2">
@@ -118,7 +118,7 @@ export default function EventCard({ event, regCount, revenue, currency, checkinP
   const Menu = (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>
-        <button aria-label="Event options" className="h-7 w-7 rounded-full flex items-center justify-center transition shadow-[0_1px_3px_rgba(15,31,24,0.12)]" style={{ background: 'rgba(255,255,255,0.92)', color: '#3A4A42' }} disabled={busy}
+        <button aria-label="Event options" className="h-10 w-10 rounded-full flex items-center justify-center transition shadow-[0_1px_3px_rgba(15,31,24,0.12)]" style={{ background: 'rgba(255,255,255,0.92)', color: '#3A4A42' }} disabled={busy}
           onMouseEnter={e => (e.currentTarget.style.background = '#FFFFFF')}
           onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.92)')}>
           <MoreVertical size={14} strokeWidth={1.8} />
@@ -147,13 +147,13 @@ export default function EventCard({ event, regCount, revenue, currency, checkinP
           )}
           <DropdownMenu.Separator className="my-1 h-px" style={{ background: '#E5E0D4' }} />
           {isLive && (
-            <DropdownMenu.Item className="flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer outline-none transition" style={{ color: '#6B7A72' }} onSelect={() => doStatus('draft')}
+            <DropdownMenu.Item className="flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer outline-none transition" style={{ color: '#65736B' }} onSelect={() => doStatus('draft')}
               onMouseEnter={e => (e.currentTarget.style.background = '#FAF6EE')} onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
               <RotateCcw size={13} strokeWidth={1.8} /> Unpublish
             </DropdownMenu.Item>
           )}
           {!isArchived ? (
-            <DropdownMenu.Item className="flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer outline-none transition" style={{ color: '#6B7A72' }} onSelect={() => doStatus('archived')}
+            <DropdownMenu.Item className="flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer outline-none transition" style={{ color: '#65736B' }} onSelect={() => doStatus('archived')}
               onMouseEnter={e => (e.currentTarget.style.background = '#FAF6EE')} onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
               <Archive size={13} strokeWidth={1.8} /> Archive
             </DropdownMenu.Item>
@@ -226,7 +226,7 @@ export default function EventCard({ event, regCount, revenue, currency, checkinP
 
         {/* Date + venue */}
         {(eventDate || venue) && (
-          <div className="flex items-center gap-2 mt-1  text-[12px] text-[#6B7A72] flex-wrap">
+          <div className="flex items-center gap-2 mt-1  text-[12px] text-[#65736B] flex-wrap">
             {eventDate && <span className="inline-flex items-center gap-1"><Calendar size={12} strokeWidth={1.8} />{eventDate}</span>}
             {eventDate && venue && <span className="text-[#E5E0D4]">·</span>}
             {venue && <span className="inline-flex items-center gap-1"><MapPin size={12} strokeWidth={1.8} />{venue}</span>}
@@ -234,7 +234,7 @@ export default function EventCard({ event, regCount, revenue, currency, checkinP
         )}
 
         {/* Stats */}
-        <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1  text-[12px] text-[#6B7A72]">
+        <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1  text-[12px] text-[#65736B]">
           <span><span className="text-[#0F1F18] font-semibold">{regCount}</span> registered</span>
           {!isDraft && revenue > 0 && currency && (
             <><span className="text-[#E5E0D4]">·</span>
@@ -257,14 +257,14 @@ export default function EventCard({ event, regCount, revenue, currency, checkinP
           {isLive && (
             <Link href={`/e/${event.slug}`} target="_blank"
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-[12.5px] transition hover:border-[#1F4D3A]/40 hover:text-[#1F4D3A]"
-              style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>
+              style={{ borderColor: '#E5E0D4', color: '#65736B' }}>
               <ExternalLink size={12} strokeWidth={1.8} /> View public
             </Link>
           )}
 
           {isLive && (
             <Link href={`/events/${event.slug}/check-in`}
-              className="ml-auto inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[12.5px] transition hover:bg-[#E8EFEB]"
+              className="ml-auto h-9 w-9 rounded-lg flex items-center justify-center transition hover:bg-[#E8EFEB]"
               style={{ color: '#1F4D3A' }}
               aria-label="Check-in scanner"
               title="Check-in scanner">

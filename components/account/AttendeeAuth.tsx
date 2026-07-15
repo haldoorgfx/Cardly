@@ -236,7 +236,7 @@ export default function AttendeeAuth() {
         <h1 style={{ fontFamily: 'var(--font-display, "Plus Jakarta Sans", sans-serif)', fontWeight: 400, fontSize: 28, letterSpacing: '-0.02em', color: '#0F1F18' }}>
           Check your email
         </h1>
-        <p className="text-[14px] mt-2 leading-relaxed" style={{ color: '#6B7A72' }}>
+        <p className="text-[14px] mt-2 leading-relaxed" style={{ color: '#65736B' }}>
           We sent a 6-digit code to{' '}
           <strong style={{ color: '#0F1F18', fontWeight: 600 }}>{email}</strong>
           {' '}
@@ -288,7 +288,7 @@ export default function AttendeeAuth() {
           {loading ? 'Verifying…' : 'Verify & continue'}
         </button>
 
-        <p className="text-[13px] mt-4" style={{ color: '#6B7A72' }}>
+        <p className="text-[13px] mt-4" style={{ color: '#65736B' }}>
           {countdown > 0 ? (
             <>Didn&apos;t get it? Resend in <strong style={{ fontFamily: 'Inter, system-ui, sans-serif', color: '#0F1F18' }}>0:{String(countdown).padStart(2, '0')}</strong> · check spam too</>
           ) : (
@@ -317,7 +317,7 @@ export default function AttendeeAuth() {
         <h1 style={{ fontFamily: 'var(--font-display, "Plus Jakarta Sans", sans-serif)', fontWeight: 400, fontSize: 28, letterSpacing: '-0.02em', color: '#0F1F18' }}>
           Set a password
         </h1>
-        <p className="text-[14px] mt-2 leading-relaxed" style={{ color: '#6B7A72' }}>
+        <p className="text-[14px] mt-2 leading-relaxed" style={{ color: '#65736B' }}>
           You&apos;re verified. Add a password so next time you can sign in
           straight away — no code needed.
         </p>
@@ -340,7 +340,7 @@ export default function AttendeeAuth() {
               onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
             />
             <button type="button" onClick={() => setShowPassword(p => !p)} tabIndex={-1}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-[12px] font-medium" style={{ color: '#6B7A72' }}>
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[12px] font-medium" style={{ color: '#65736B' }}>
               {showPassword ? 'Hide' : 'Show'}
             </button>
           </div>
@@ -361,7 +361,7 @@ export default function AttendeeAuth() {
           type="button"
           onClick={handleSkipPassword}
           className="w-full h-11 mt-2 rounded-lg font-medium text-[14px] transition"
-          style={{ color: '#6B7A72', fontFamily: '"Plus Jakarta Sans", sans-serif' }}
+          style={{ color: '#65736B', fontFamily: '"Plus Jakarta Sans", sans-serif' }}
         >
           Skip for now (I&apos;ll use a code each time)
         </button>
@@ -375,7 +375,7 @@ export default function AttendeeAuth() {
       <h1 style={{ fontFamily: 'var(--font-display, "Plus Jakarta Sans", sans-serif)', fontWeight: 400, fontSize: 28, letterSpacing: '-0.02em', color: '#0F1F18' }}>
         Welcome back
       </h1>
-      <p className="text-[14px] mt-2 leading-relaxed" style={{ color: '#6B7A72' }}>
+      <p className="text-[14px] mt-2 leading-relaxed" style={{ color: '#65736B' }}>
         Sign in to your tickets, follows and feed. New here? Enter your email and
         we&apos;ll set you up.
       </p>
@@ -393,7 +393,7 @@ export default function AttendeeAuth() {
 
       <div className="flex items-center gap-3.5 my-5">
         <div className="flex-1 h-px" style={{ background: '#E5E0D4' }} />
-        <span className="text-[12px]" style={{ color: '#6B7A72' }}>or use email</span>
+        <span className="text-[12px]" style={{ color: '#65736B' }}>or use email</span>
         <div className="flex-1 h-px" style={{ background: '#E5E0D4' }} />
       </div>
 
@@ -428,7 +428,7 @@ export default function AttendeeAuth() {
             onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
           />
           <button type="button" onClick={() => setShowPassword(p => !p)} tabIndex={-1}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-[12px] font-medium" style={{ color: '#6B7A72' }}>
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-[12px] font-medium" style={{ color: '#65736B' }}>
             {showPassword ? 'Hide' : 'Show'}
           </button>
         </div>
@@ -457,7 +457,7 @@ export default function AttendeeAuth() {
         Email me a code instead
       </button>
 
-      <p className="text-[12px] mt-4 text-center leading-relaxed" style={{ color: '#6B7A72' }}>
+      <p className="text-[12px] mt-4 text-center leading-relaxed" style={{ color: '#65736B' }}>
         New here or forgot your password? Use{' '}
         <button type="button" onClick={handleSendOtp} className="font-medium hover:underline" style={{ color: '#1F4D3A' }}>
           email me a code
@@ -470,7 +470,7 @@ export default function AttendeeAuth() {
       </p>
 
       <div className="mt-8 pt-6 text-center" style={{ borderTop: '1px solid #E5E0D4' }}>
-        <p className="text-[12px]" style={{ color: '#6B7A72' }}>
+        <p className="text-[12px]" style={{ color: '#65736B' }}>
           Organizing an event?{' '}
           <a href="/login" className="font-medium hover:underline" style={{ color: '#1F4D3A' }}>
             Sign in to your organizer account →

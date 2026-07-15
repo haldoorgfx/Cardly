@@ -36,14 +36,14 @@ export default async function SuspendedPage() {
         <h1 className="text-2xl font-semibold text-[#0F1F18] font-title tracking-tight mb-2">
           Account Suspended
         </h1>
-        <p className="text-[#6B7A72] text-sm leading-relaxed mb-6">
+        <p className="text-[#65736B] text-sm leading-relaxed mb-6">
           {reason}
         </p>
 
         {/* Divider */}
         <div className="border-t border-[#E5E0D4] my-6" />
 
-        <p className="text-xs text-[#6B7A72] mb-6">
+        <p className="text-xs text-[#65736B] mb-6">
           If you believe this is a mistake, please contact support with your account email:{' '}
           <span className=" text-[#0F1F18]">{user.email}</span>
         </p>
@@ -58,7 +58,7 @@ export default async function SuspendedPage() {
           <form action={signOut}>
             <button
               type="submit"
-              className="w-full border border-[#E5E0D4] text-[#6B7A72] py-2.5 rounded-lg text-sm font-medium hover:bg-[#FAF6EE] transition-colors"
+              className="w-full border border-[#E5E0D4] text-[#65736B] py-2.5 rounded-lg text-sm font-medium hover:bg-[#FAF6EE] transition-colors"
             >
               Sign Out
             </button>

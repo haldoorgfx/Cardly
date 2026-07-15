@@ -40,7 +40,7 @@ const TABS = [
 function StatCard({ label, value }: { label: string; value: string | number }) {
   return (
     <div className="bg-white rounded-2xl p-5" style={{ border: '1px solid #E5E0D4' }}>
-      <div className=" text-[11.5px] tracking-[0.14em] uppercase mb-2" style={{ color: '#6B7A72' }}>{label}</div>
+      <div className=" text-[11.5px] tracking-[0.14em] uppercase mb-2" style={{ color: '#65736B' }}>{label}</div>
       <div className=" text-[24px] leading-none tracking-tight" style={{ color: '#0F1F18' }}>{value}</div>
     </div>
   );
@@ -144,7 +144,7 @@ export function ReportsClient({ eventId, eventName, totalRevenue, regCount, chec
         {TABS.map(t => (
           <button key={t.id} onClick={() => setTab(t.id)}
             className="px-3.5 py-2 rounded-lg text-[13px] font-medium transition-all whitespace-nowrap"
-            style={tab === t.id ? { background: '#1F4D3A', color: 'white' } : { color: '#6B7A72' }}>
+            style={tab === t.id ? { background: '#1F4D3A', color: 'white' } : { color: '#65736B' }}>
             {t.label}
           </button>
         ))}
@@ -209,7 +209,7 @@ export function ReportsClient({ eventId, eventName, totalRevenue, regCount, chec
             {/* By ticket */}
             <Panel title="Revenue by ticket type">
               {byTicket.length === 0 ? (
-                <p className="text-[13px]" style={{ color: '#6B7A72' }}>No ticket types defined.</p>
+                <p className="text-[13px]" style={{ color: '#65736B' }}>No ticket types defined.</p>
               ) : (
                 <div className="grid gap-3">
                   {byTicket.map(tt => {
@@ -218,7 +218,7 @@ export function ReportsClient({ eventId, eventName, totalRevenue, regCount, chec
                       <div key={tt.id}>
                         <div className="flex items-center justify-between mb-1.5 text-[13px]">
                           <span style={{ color: '#3A4A42' }}>{tt.name}</span>
-                          <span className="" style={{ color: '#6B7A72' }}>
+                          <span className="" style={{ color: '#65736B' }}>
                             {tt.count} sold · {tt.revenue === 0 ? 'Free' : (primaryCurrency ? fmtCurrency(tt.revenue, primaryCurrency) : tt.revenue.toLocaleString())}
                           </span>
                         </div>
@@ -248,7 +248,7 @@ export function ReportsClient({ eventId, eventName, totalRevenue, regCount, chec
                     className="flex flex-col items-start gap-0.5 px-3 py-2.5 rounded-lg text-[13px] border transition-colors text-left hover:border-[#1F4D3A]/40"
                     style={{ borderColor: selected ? '#1F4D3A' : '#E5E0D4', background: selected ? '#E8EFEB' : 'transparent', color: selected ? '#1F4D3A' : '#3A4A42' }}>
                     <span className="font-medium">{s.label}</span>
-                    <span className="text-[13px]" style={{ color: '#6B7A72' }}>{s.desc}</span>
+                    <span className="text-[13px]" style={{ color: '#65736B' }}>{s.desc}</span>
                   </button>
                 );
               })}
@@ -258,7 +258,7 @@ export function ReportsClient({ eventId, eventName, totalRevenue, regCount, chec
             {source === 'sessions' ? (
               <div className="py-10 text-center">
                 <p className="text-[13.5px] font-medium" style={{ color: '#0F1F18' }}>Session attendance export</p>
-                <p className="text-[13px] mt-1.5 max-w-[360px] mx-auto leading-relaxed" style={{ color: '#6B7A72' }}>
+                <p className="text-[13px] mt-1.5 max-w-[360px] mx-auto leading-relaxed" style={{ color: '#65736B' }}>
                   The full agenda — sessions, tracks and speakers — is exportable as a spreadsheet or PDF from the Downloads page.
                 </p>
                 <a href={`/events/${eventId}/downloads`}
@@ -272,7 +272,7 @@ export function ReportsClient({ eventId, eventName, totalRevenue, regCount, chec
                 <p className="text-[13.5px] font-medium" style={{ color: '#0F1F18' }}>
                   {source === 'orders' ? 'No paid orders yet' : 'No registrations yet'}
                 </p>
-                <p className="text-[13px] mt-1.5" style={{ color: '#6B7A72' }}>
+                <p className="text-[13px] mt-1.5" style={{ color: '#65736B' }}>
                   {source === 'orders'
                     ? 'Paid registrations will appear here once tickets sell.'
                     : 'Rows will appear here as people register.'}
@@ -284,7 +284,7 @@ export function ReportsClient({ eventId, eventName, totalRevenue, regCount, chec
                   <thead>
                     <tr className="border-b" style={{ borderColor: '#E5E0D4' }}>
                       {['Name', 'Ticket', 'Amount', 'Status', 'Date'].map(h => (
-                        <th key={h} className="text-left py-2 px-3  text-[12px] tracking-[0.12em] uppercase whitespace-nowrap" style={{ color: '#6B7A72' }}>{h}</th>
+                        <th key={h} className="text-left py-2 px-3  text-[12px] tracking-[0.12em] uppercase whitespace-nowrap" style={{ color: '#65736B' }}>{h}</th>
                       ))}
                     </tr>
                   </thead>
@@ -298,11 +298,11 @@ export function ReportsClient({ eventId, eventName, totalRevenue, regCount, chec
                         <td className="py-2.5 px-3  text-[12px]" style={{ color: '#0F1F18' }}>
                           {fmtCurrency(r.amount_paid ?? 0, r.currency)}
                         </td>
-                        <td className="py-2.5 px-3 whitespace-nowrap" style={{ color: '#6B7A72' }}>
+                        <td className="py-2.5 px-3 whitespace-nowrap" style={{ color: '#65736B' }}>
                           {r.status === 'checked_in' ? 'Checked In'
                             : r.status.charAt(0).toUpperCase() + r.status.slice(1).replace(/_/g, ' ')}
                         </td>
-                        <td className="py-2.5 px-3  text-[12.5px] whitespace-nowrap" style={{ color: '#6B7A72' }}>
+                        <td className="py-2.5 px-3  text-[12.5px] whitespace-nowrap" style={{ color: '#65736B' }}>
                           {new Date(r.created_at).toLocaleDateString()}
                         </td>
                       </tr>
@@ -310,7 +310,7 @@ export function ReportsClient({ eventId, eventName, totalRevenue, regCount, chec
                   </tbody>
                 </table>
                 {sourceRegs.length > 8 && (
-                  <div className="px-3 py-2.5  text-[12.5px]" style={{ color: '#6B7A72', borderTop: '1px solid rgba(229,224,212,0.6)' }}>
+                  <div className="px-3 py-2.5  text-[12.5px]" style={{ color: '#65736B', borderTop: '1px solid rgba(229,224,212,0.6)' }}>
                     Showing 8 of {sourceRegs.length} rows
                   </div>
                 )}
@@ -329,7 +329,7 @@ export function ReportsClient({ eventId, eventName, totalRevenue, regCount, chec
             </svg>
           </div>
           <p className="text-[14px] font-medium mb-1" style={{ color: '#0F1F18' }}>Scheduled reports</p>
-          <p className="text-[13px]" style={{ color: '#6B7A72' }}>Set up automatic exports — daily, weekly, or post-event.</p>
+          <p className="text-[13px]" style={{ color: '#65736B' }}>Set up automatic exports — daily, weekly, or post-event.</p>
         </div>
       )}
     </PageShell>

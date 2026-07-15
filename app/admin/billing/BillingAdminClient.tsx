@@ -7,7 +7,7 @@ import type { BillingUserRow } from './page';
 import { toast } from '@/hooks/use-toast';
 
 const PLAN_STYLES: Record<string, { bg: string; color: string }> = {
-  free:   { bg: 'rgba(107,122,114,0.10)', color: '#6B7A72' },
+  free:   { bg: 'rgba(107,122,114,0.10)', color: '#65736B' },
   pro:    { bg: 'rgba(232,197,126,0.15)', color: '#C9A45E' },
   studio: { bg: 'rgba(31,77,58,0.12)',   color: '#1F4D3A' },
 };
@@ -16,9 +16,9 @@ const SUB_STYLES: Record<string, { bg: string; color: string }> = {
   active:     { bg: 'rgba(45,122,79,0.10)',  color: '#2D7A4F' },
   trialing:   { bg: 'rgba(58,107,140,0.10)', color: '#3A6B8C' },
   past_due:   { bg: 'rgba(201,122,45,0.12)', color: '#C97A2D' },
-  canceled:   { bg: 'rgba(107,122,114,0.10)', color: '#6B7A72' },
+  canceled:   { bg: 'rgba(107,122,114,0.10)', color: '#65736B' },
   incomplete: { bg: 'rgba(184,66,60,0.10)', color: '#B8423C' },
-  none:       { bg: 'rgba(107,122,114,0.10)', color: '#6B7A72' },
+  none:       { bg: 'rgba(107,122,114,0.10)', color: '#65736B' },
 };
 
 interface Invoice {
@@ -94,16 +94,16 @@ function CompModal({
       <div className="relative bg-white rounded-2xl shadow-lift border border-[#E5E0D4] p-6 max-w-sm w-full">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-semibold text-[15px] text-[#0F1F18]">Comp plan</h3>
-          <button onClick={onClose} className="h-7 w-7 grid place-items-center rounded-lg hover:bg-[#FAF6EE] transition-colors">
-            <X size={13} strokeWidth={2} className="text-[#6B7A72]" />
+          <button onClick={onClose} className="h-10 w-10 grid place-items-center rounded-lg hover:bg-[#FAF6EE] transition-colors">
+            <X size={13} strokeWidth={2} className="text-[#65736B]" />
           </button>
         </div>
-        <p className="text-[13px] text-[#6B7A72] mb-4">
+        <p className="text-[13px] text-[#65736B] mb-4">
           Grant a plan to <strong className="text-[#0F1F18]">{user.email}</strong> without Stripe.
           This overrides their current plan ({user.plan}) and is logged in the audit trail.
         </p>
         <div className="mb-3">
-          <label className="text-[12px] text-[#6B7A72] mb-1.5 block">New plan</label>
+          <label className="text-[12px] text-[#65736B] mb-1.5 block">New plan</label>
           <select
             value={plan}
             onChange={e => setPlan(e.target.value)}
@@ -115,7 +115,7 @@ function CompModal({
           </select>
         </div>
         <div className="mb-4">
-          <label className="text-[12px] text-[#6B7A72] mb-1.5 block">Reason (optional)</label>
+          <label className="text-[12px] text-[#65736B] mb-1.5 block">Reason (optional)</label>
           <input
             value={reason}
             onChange={e => setReason(e.target.value)}
@@ -125,7 +125,7 @@ function CompModal({
         </div>
         {error && <p className="text-[12px] text-[#B8423C] mb-3">{error}</p>}
         <div className="flex gap-2 justify-end">
-          <button onClick={onClose} className="px-4 py-2 rounded-lg text-[13px] text-[#6B7A72] border border-[#E5E0D4] hover:bg-[#FAF6EE] transition-colors">Cancel</button>
+          <button onClick={onClose} className="px-4 py-2 rounded-lg text-[13px] text-[#65736B] border border-[#E5E0D4] hover:bg-[#FAF6EE] transition-colors">Cancel</button>
           <button
             onClick={submit}
             disabled={saving}
@@ -204,22 +204,22 @@ function InvoicesPanel({ user, onClose }: { user: BillingUserRow; onClose: () =>
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#E5E0D4]">
           <div>
             <h3 className="font-semibold text-[15px] text-[#0F1F18]">Invoices</h3>
-            <p className="text-[12px] text-[#6B7A72] mt-0.5">{user.email}</p>
+            <p className="text-[12px] text-[#65736B] mt-0.5">{user.email}</p>
           </div>
-          <button onClick={onClose} className="h-7 w-7 grid place-items-center rounded-lg hover:bg-[#FAF6EE] transition-colors">
-            <X size={13} strokeWidth={2} className="text-[#6B7A72]" />
+          <button onClick={onClose} className="h-10 w-10 grid place-items-center rounded-lg hover:bg-[#FAF6EE] transition-colors">
+            <X size={13} strokeWidth={2} className="text-[#65736B]" />
           </button>
         </div>
 
         <div className="flex-1 overflow-y-auto p-6">
           {loading && (
-            <div className="py-10 flex justify-center"><Loader2 size={20} strokeWidth={1.8} className="animate-spin text-[#6B7A72]" /></div>
+            <div className="py-10 flex justify-center"><Loader2 size={20} strokeWidth={1.8} className="animate-spin text-[#65736B]" /></div>
           )}
           {!loading && !user.stripe_customer_id && (
-            <p className="text-[13px] text-[#6B7A72] text-center py-8">No Stripe customer ID — this user has never paid.</p>
+            <p className="text-[13px] text-[#65736B] text-center py-8">No Stripe customer ID — this user has never paid.</p>
           )}
           {!loading && invoices?.length === 0 && user.stripe_customer_id && (
-            <p className="text-[13px] text-[#6B7A72] text-center py-8">No invoices found.</p>
+            <p className="text-[13px] text-[#65736B] text-center py-8">No invoices found.</p>
           )}
           {invoices && invoices.length > 0 && (
             <div className="space-y-3">
@@ -228,7 +228,7 @@ function InvoicesPanel({ user, onClose }: { user: BillingUserRow; onClose: () =>
                   <div className="flex items-start justify-between mb-2">
                     <div>
                       <div className=" text-[12px] text-[#0F1F18]">{inv.number ?? inv.id}</div>
-                      <div className="text-[12.5px] text-[#6B7A72] mt-0.5">
+                      <div className="text-[12.5px] text-[#65736B] mt-0.5">
                         {new Date(inv.created * 1000).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
                       </div>
                     </div>
@@ -311,18 +311,57 @@ export function BillingAdminClient({ users: initialUsers, total, page, totalPage
     setCompUser(null);
   };
 
+  // ── Shared cell renderers (used by both table + mobile cards) ────────────────
+
+  const renderPlanBadge = (u: BillingUserRow) => {
+    const planStyle = PLAN_STYLES[u.plan] ?? PLAN_STYLES.free;
+    return (
+      <span className="inline-flex items-center px-2 py-0.5 rounded-full  text-[12px] tracking-[0.1em] uppercase" style={planStyle}>
+        {u.plan}
+      </span>
+    );
+  };
+
+  const renderSubBadge = (u: BillingUserRow) => {
+    const subStyle = SUB_STYLES[u.subscription_status] ?? SUB_STYLES.none;
+    return (
+      <span className="inline-flex items-center px-2 py-0.5 rounded-full  text-[12px]" style={{ background: subStyle.bg, color: subStyle.color }}>
+        {u.subscription_status}
+      </span>
+    );
+  };
+
+  const RowActions = ({ u }: { u: BillingUserRow }) => (
+    <div className="flex items-center gap-1 shrink-0">
+      <button
+        onClick={() => setCompUser(u)}
+        title="Comp plan"
+        className="h-10 w-10 rounded-lg border border-[#E5E0D4] grid place-items-center text-[#1F4D3A] hover:bg-[#E8EFEB] transition-colors"
+      >
+        <Gift size={12} strokeWidth={2} />
+      </button>
+      <button
+        onClick={() => setInvoiceUser(u)}
+        title="View invoices"
+        className="h-10 w-10 rounded-lg border border-[#E5E0D4] grid place-items-center text-[#65736B] hover:bg-[#FAF6EE] transition-colors"
+      >
+        <FileText size={12} strokeWidth={2} />
+      </button>
+    </div>
+  );
+
   return (
     <div>
       {/* Filters */}
       <div className="mb-5 flex flex-wrap gap-2 items-end">
         <div className="flex items-center gap-2 h-9 px-3 rounded-lg border border-[#E5E0D4] bg-white min-w-[200px] flex-1 max-w-[280px]">
-          <Search size={13} strokeWidth={2} className="text-[#6B7A72] shrink-0" />
+          <Search size={13} strokeWidth={2} className="text-[#65736B] shrink-0" />
           <input
             value={filters.q}
             onChange={e => setFilters(f => ({ ...f, q: e.target.value }))}
             onKeyDown={e => e.key === 'Enter' && applyFilters()}
             placeholder="Email or name…"
-            className="outline-none bg-transparent flex-1 text-[13px] placeholder-[#6B7A72]/60 text-[#0F1F18]"
+            className="outline-none bg-transparent flex-1 text-[13px] placeholder-[#65736B]/60 text-[#0F1F18]"
           />
         </div>
 
@@ -339,97 +378,106 @@ export function BillingAdminClient({ users: initialUsers, total, page, totalPage
 
         <button onClick={applyFilters} className="h-9 px-4 rounded-lg text-[13px] font-medium text-white hover:opacity-90 transition" style={{ background: '#1F4D3A' }}>Apply</button>
         {hasActiveFilters && (
-          <button onClick={clearFilters} className="h-9 px-4 rounded-lg text-[13px] text-[#6B7A72] border border-[#E5E0D4] hover:bg-[#FAF6EE] transition-colors">Clear</button>
+          <button onClick={clearFilters} className="h-9 px-4 rounded-lg text-[13px] text-[#65736B] border border-[#E5E0D4] hover:bg-[#FAF6EE] transition-colors">Clear</button>
         )}
       </div>
 
-      <div className="mb-4 text-[12px] text-[#6B7A72]">
+      <div className="mb-4 text-[12px] text-[#65736B]">
         {total} {total === 1 ? 'user' : 'users'}{page > 1 && ` — page ${page} of ${totalPages}`}
       </div>
 
       {/* Table */}
       {users.length === 0 ? (
-        <div className="py-16 text-center text-[14px] text-[#6B7A72]">No users match these filters.</div>
+        <div className="py-16 text-center text-[14px] text-[#65736B]">No users match these filters.</div>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-[#E5E0D4]">
-          <table className="w-full text-[13px]">
-            <thead>
-              <tr style={{ background: '#FAF6EE', borderBottom: '1px solid #E5E0D4' }}>
-                <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#6B7A72]">User</th>
-                <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#6B7A72]">Plan</th>
-                <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#6B7A72]">Subscription</th>
-                <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#6B7A72]">Period ends</th>
-                <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#6B7A72]">Cards / mo</th>
-                <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#6B7A72]">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-[#E5E0D4]">
-              {users.map(u => {
-                const planStyle = PLAN_STYLES[u.plan] ?? PLAN_STYLES.free;
-                const subStyle  = SUB_STYLES[u.subscription_status] ?? SUB_STYLES.none;
-
-                return (
+        <>
+          {/* ── Desktop table (md+) ────────────────────────────── */}
+          <div className="hidden md:block overflow-x-auto rounded-xl border border-[#E5E0D4]">
+            <table className="w-full text-[13px]">
+              <thead>
+                <tr style={{ background: '#FAF6EE', borderBottom: '1px solid #E5E0D4' }}>
+                  <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#65736B]">User</th>
+                  <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#65736B]">Plan</th>
+                  <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#65736B]">Subscription</th>
+                  <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#65736B]">Period ends</th>
+                  <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#65736B]">Cards / mo</th>
+                  <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#65736B]">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-[#E5E0D4]">
+                {users.map(u => (
                   <tr key={u.id} className="hover:bg-[#FAF6EE]/50 transition-colors">
                     <td className="px-4 py-3">
                       <div className="font-medium text-[#0F1F18]">{u.full_name ?? '—'}</div>
-                      <div className="text-[12.5px] text-[#6B7A72]">{u.email}</div>
+                      <div className="text-[12.5px] text-[#65736B]">{u.email}</div>
                       {u.stripe_customer_id && (
-                        <div className="text-[12px] text-[#6B7A72]/50 mt-0.5">{u.stripe_customer_id}</div>
+                        <div className="text-[12px] text-[#65736B]/50 mt-0.5">{u.stripe_customer_id}</div>
                       )}
                     </td>
                     <td className="px-4 py-3">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full  text-[12px] tracking-[0.1em] uppercase" style={planStyle}>
-                        {u.plan}
-                      </span>
+                      {renderPlanBadge(u)}
                       {u.billing_cycle && u.billing_cycle !== 'none' && (
-                        <div className="text-[12px] text-[#6B7A72] mt-0.5">{u.billing_cycle}</div>
+                        <div className="text-[12px] text-[#65736B] mt-0.5">{u.billing_cycle}</div>
                       )}
                     </td>
                     <td className="px-4 py-3">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full  text-[12px]" style={{ background: subStyle.bg, color: subStyle.color }}>
-                        {u.subscription_status}
-                      </span>
+                      {renderSubBadge(u)}
                       {u.cancel_at_period_end && (
                         <div className="text-[12px] text-[#C97A2D] mt-0.5">cancels at period end</div>
                       )}
                     </td>
-                    <td className="px-4 py-3  text-[12.5px] text-[#6B7A72]">
+                    <td className="px-4 py-3  text-[12.5px] text-[#65736B]">
                       {formatDate(u.current_period_end)}
                     </td>
-                    <td className="px-4 py-3  text-[12.5px] text-[#6B7A72]">
+                    <td className="px-4 py-3  text-[12.5px] text-[#65736B]">
                       {u.cards_this_month}
                     </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-1">
-                        <button
-                          onClick={() => setCompUser(u)}
-                          title="Comp plan"
-                          className="h-7 w-7 rounded-lg border border-[#E5E0D4] grid place-items-center text-[#1F4D3A] hover:bg-[#E8EFEB] transition-colors"
-                        >
-                          <Gift size={12} strokeWidth={2} />
-                        </button>
-                        <button
-                          onClick={() => setInvoiceUser(u)}
-                          title="View invoices"
-                          className="h-7 w-7 rounded-lg border border-[#E5E0D4] grid place-items-center text-[#6B7A72] hover:bg-[#FAF6EE] transition-colors"
-                        >
-                          <FileText size={12} strokeWidth={2} />
-                        </button>
-                      </div>
-                    </td>
+                    <td className="px-4 py-3"><RowActions u={u} /></td>
                   </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* ── Mobile cards (below md) ────────────────────────── */}
+          <div className="md:hidden space-y-2.5">
+            {users.map(u => (
+              <div key={u.id} className="rounded-xl border border-[#E5E0D4] bg-white p-3.5">
+                <div className="flex items-start gap-2.5">
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium text-[#0F1F18] text-[13.5px] truncate">{u.full_name ?? '—'}</div>
+                    <div className="text-[12px] text-[#65736B] truncate">{u.email}</div>
+                    {u.stripe_customer_id && (
+                      <div className="text-[11.5px] text-[#65736B]/50 truncate mt-0.5">{u.stripe_customer_id}</div>
+                    )}
+                  </div>
+                  <RowActions u={u} />
+                </div>
+                <div className="flex items-center gap-2 flex-wrap mt-3">
+                  {renderPlanBadge(u)}
+                  {u.billing_cycle && u.billing_cycle !== 'none' && (
+                    <span className="text-[12px] text-[#65736B]">{u.billing_cycle}</span>
+                  )}
+                  {renderSubBadge(u)}
+                  {u.cancel_at_period_end && (
+                    <span className="text-[12px] text-[#C97A2D]">cancels at period end</span>
+                  )}
+                </div>
+                <div className="mt-2.5 flex items-center justify-between text-[12px] text-[#65736B]">
+                  <span>Ends {formatDate(u.current_period_end)}</span>
+                  <span>{u.cards_this_month} cards/mo</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
       )}
 
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="mt-6 flex items-center justify-between">
           <PagLink page={page - 1} disabled={page <= 1} label="← Previous" filters={defaultFilters} pathname={pathname} />
-          <span className="text-[13px] text-[#6B7A72]">{page} / {totalPages}</span>
+          <span className="text-[13px] text-[#65736B]">{page} / {totalPages}</span>
           <PagLink page={page + 1} disabled={page >= totalPages} label="Next →" filters={defaultFilters} pathname={pathname} />
         </div>
       )}
@@ -447,7 +495,7 @@ function PagLink({ page, disabled, label, filters, pathname }: {
   if (filters.q)    params.set('q',    filters.q);
   if (filters.plan) params.set('plan', filters.plan);
   params.set('page', String(page));
-  if (disabled) return <span className="text-[13px] text-[#6B7A72]/40  px-3 py-1.5">{label}</span>;
+  if (disabled) return <span className="text-[13px] text-[#65736B]/40  px-3 py-1.5">{label}</span>;
   return (
     <a href={`${pathname}?${params.toString()}`} className="text-[13px] text-[#1F4D3A] hover:underline px-3 py-1.5 rounded-lg hover:bg-[#E8EFEB] transition-colors">{label}</a>
   );

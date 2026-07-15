@@ -84,7 +84,7 @@ function ProposeModal({
       <div className="relative bg-white rounded-2xl w-full max-w-[380px]" style={{ border: '1px solid #E5E0D4', boxShadow: '0 8px 40px rgba(15,31,24,0.18)' }}>
         <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid #E5E0D4' }}>
           <div className="font-display text-[15px] font-semibold" style={{ color: '#0F1F18' }}>Propose a time</div>
-          <button onClick={onClose} aria-label="Close" className="w-7 h-7 rounded-lg grid place-items-center hover:bg-[#F5F3EE]" style={{ color: '#6B7A72' }}>
+          <button onClick={onClose} aria-label="Close" className="w-10 h-10 rounded-lg grid place-items-center hover:bg-[#F5F3EE]" style={{ color: '#65736B' }}>
             <svg width={14} height={14} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -108,7 +108,7 @@ function ProposeModal({
           <button
             onClick={onClose}
             className="px-4 py-2.5 rounded-xl text-[13.5px] font-medium border"
-            style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}
+            style={{ borderColor: '#E5E0D4', color: '#65736B' }}
           >
             Cancel
           </button>
@@ -147,7 +147,7 @@ function MeetingCard({
         <div className="flex-1 min-w-0">
           <div className="font-display text-[14.5px] font-semibold tracking-[-0.01em] truncate" style={{ color: '#0F1F18' }}>{name}</div>
           {(meeting.requester_email || meeting.message) && (
-            <div className="text-[12px] truncate mt-0.5" style={{ color: '#6B7A72' }}>
+            <div className="text-[12px] truncate mt-0.5" style={{ color: '#65736B' }}>
               {meeting.message || meeting.requester_email}
             </div>
           )}
@@ -248,12 +248,12 @@ export function MeetingsTab({ meetings: initial, token }: Props) {
               className="px-3.5 py-1.5 rounded-lg text-[13px] font-medium transition-colors"
               style={{
                 background: active ? '#FFFFFF' : 'transparent',
-                color: active ? '#1F4D3A' : '#6B7A72',
+                color: active ? '#1F4D3A' : '#65736B',
                 boxShadow: active ? '0 1px 3px rgba(15,31,24,0.08)' : 'none',
               }}
             >
               {label}{' '}
-              <span className="text-[11px]" style={{ color: active ? '#6B7A72' : '#9AA69E' }}>{count}</span>
+              <span className="text-[11px]" style={{ color: active ? '#65736B' : '#9AA69E' }}>{count}</span>
             </button>
           );
         })}
@@ -270,7 +270,7 @@ export function MeetingsTab({ meetings: initial, token }: Props) {
           <div className="font-display text-[15px] font-semibold" style={{ color: '#0F1F18' }}>
             {tab === 'requests' ? 'No meeting requests' : 'No scheduled meetings'}
           </div>
-          <p className="text-[13px] mt-1.5 max-w-[320px] mx-auto" style={{ color: '#6B7A72' }}>
+          <p className="text-[13px] mt-1.5 max-w-[320px] mx-auto" style={{ color: '#65736B' }}>
             {tab === 'requests'
               ? 'When attendees request booth time, they’ll appear here to accept or reschedule.'
               : 'Accepted meetings drop into your agenda and the attendee’s — both get a reminder.'}

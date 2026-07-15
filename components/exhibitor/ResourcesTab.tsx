@@ -106,7 +106,7 @@ export function ResourcesTab({ resources: initial, token }: Props) {
             >
               {isPending ? 'Adding…' : 'Add'}
             </button>
-            <button onClick={() => setShowAdd(false)} className="px-4 py-2 rounded-xl text-[13.5px] border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>
+            <button onClick={() => setShowAdd(false)} className="px-4 py-2 rounded-xl text-[13.5px] border" style={{ borderColor: '#E5E0D4', color: '#65736B' }}>
               Cancel
             </button>
           </div>
@@ -115,7 +115,7 @@ export function ResourcesTab({ resources: initial, token }: Props) {
 
       {/* List */}
       {resources.length === 0 ? (
-        <div className="px-5 py-10 text-center text-[13.5px]" style={{ color: '#6B7A72' }}>
+        <div className="px-5 py-10 text-center text-[13.5px]" style={{ color: '#65736B' }}>
           No resources yet. Add a one-pager, demo video, or job listings.
         </div>
       ) : (
@@ -127,12 +127,12 @@ export function ResourcesTab({ resources: initial, token }: Props) {
               </span>
               <div className="min-w-0 flex-1">
                 <div className="text-[13.5px] font-medium truncate" style={{ color: '#0F1F18' }}>{r.name}</div>
-                <div className=" text-[11px] mt-0.5" style={{ color: '#6B7A72' }}>{kindLabel(r.kind, r.file_size_bytes)}</div>
+                <div className=" text-[11px] mt-0.5" style={{ color: '#65736B' }}>{kindLabel(r.kind, r.file_size_bytes)}</div>
               </div>
-              <span className=" text-[11px] shrink-0 whitespace-nowrap" style={{ color: '#6B7A72' }}>{r.opens} opens</span>
+              <span className=" text-[11px] shrink-0 whitespace-nowrap" style={{ color: '#65736B' }}>{r.opens} opens</span>
               <button
                 onClick={() => handleDelete(r.id)}
-                className="w-8 h-8 grid place-items-center rounded-lg transition-colors shrink-0 opacity-60 sm:opacity-0 sm:group-hover:opacity-100"
+                className="w-10 h-10 grid place-items-center rounded-lg transition-colors shrink-0 opacity-60 sm:opacity-0 sm:group-hover:opacity-100"
                 style={{ color: '#B8423C' }}
                 title="Remove"
               >

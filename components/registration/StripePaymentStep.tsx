@@ -99,7 +99,7 @@ function InnerForm({ returnUrl, amount, currency, eventTitle, ticketName }: Prop
         <h2 className="font-display font-semibold text-[22px] mb-1" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
           Payment
         </h2>
-        <p className="text-[14px]" style={{ color: '#6B7A72' }}>
+        <p className="text-[14px]" style={{ color: '#65736B' }}>
           {ticketName} · {eventTitle}
         </p>
       </div>
@@ -160,7 +160,7 @@ function InnerForm({ returnUrl, amount, currency, eventTitle, ticketName }: Prop
       </button>
 
       {/* Security badge */}
-      <div className="flex items-center justify-center gap-1.5 mt-3 text-[12px]" style={{ color: '#6B7A72' }}>
+      <div className="flex items-center justify-center gap-1.5 mt-3 text-[12px]" style={{ color: '#65736B' }}>
         <ShieldCheck size={13} strokeWidth={2} />
         Secured by Stripe
       </div>

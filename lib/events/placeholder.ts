@@ -30,7 +30,7 @@ export function bannerGradientFor(seed: string): string {
 }
 
 /** Solid avatar colors for initials placeholders. */
-export const AVATAR_COLORS = ['#1F4D3A', '#8A5A2E', '#9C4A2E', '#6B7A72', '#D2853A', '#163828', '#2D7A4F', '#C9A45E'];
+export const AVATAR_COLORS = ['#1F4D3A', '#8A5A2E', '#9C4A2E', '#65736B', '#D2853A', '#163828', '#2D7A4F', '#C9A45E'];
 
 export function avatarColorFor(seed: string): string {
   return AVATAR_COLORS[hashSeed(seed) % AVATAR_COLORS.length];

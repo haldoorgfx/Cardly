@@ -212,7 +212,7 @@ export default async function HomePage() {
                     <div className="space-y-0.5">
                       {org.recent.map((r) => (
                         <div key={r.id} className="flex items-center gap-3 px-3 py-2">
-                          <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: r.amount > 0 ? '#2D7A4F' : '#6B7A72' }} />
+                          <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: r.amount > 0 ? '#2D7A4F' : '#65736B' }} />
                           <div className="min-w-0 flex-1 text-[13px]">
                             <span className="font-medium" style={{ color: '#0F1F18' }}>{r.name}</span>
                             <span style={{ color: '#3A4A42' }}> · {r.event}</span>

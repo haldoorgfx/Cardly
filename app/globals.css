@@ -15,7 +15,7 @@
     --secondary:           155 15% 93%;  /* primary-soft #E8EFEB */
     --secondary-foreground:155 30% 9%;
     --muted:               155 10% 92%;
-    --muted-foreground:    155 8% 45%;   /* muted #6B7A72 */
+    --muted-foreground:    146 6% 42%;   /* muted #65736B (darkened from #65736B for WCAG AA text contrast on cream) */
     --accent:              40 68% 70%;   /* #E8C57E */
     --accent-foreground:   155 30% 9%;
     --destructive:         3 54% 47%;    /* danger #B8423C */

@@ -109,7 +109,7 @@ export function WaitlistClient({ eventId, eventName, waitlist, totalRegs, capaci
           { label: 'Converted', value: '—' },
         ].map(s => (
           <div key={s.label} className="bg-white rounded-2xl p-5" style={{ border: '1px solid #E5E0D4' }}>
-            <div className=" text-[11.5px] tracking-[0.14em] uppercase mb-2" style={{ color: '#6B7A72' }}>{s.label}</div>
+            <div className=" text-[11.5px] tracking-[0.14em] uppercase mb-2" style={{ color: '#65736B' }}>{s.label}</div>
             <div className=" text-[24px] leading-none" style={{ color: '#0F1F18' }}>{s.value}</div>
           </div>
         ))}
@@ -119,7 +119,7 @@ export function WaitlistClient({ eventId, eventName, waitlist, totalRegs, capaci
       {capacity > 0 && (
         <div className="bg-white rounded-2xl p-5 mb-5" style={{ border: '1px solid #E5E0D4' }}>
           <div className="flex items-center justify-between mb-3">
-            <div className=" text-[11.5px] tracking-[0.14em] uppercase" style={{ color: '#6B7A72' }}>Capacity usage</div>
+            <div className=" text-[11.5px] tracking-[0.14em] uppercase" style={{ color: '#65736B' }}>Capacity usage</div>
             <div className=" text-[12px]" style={{ color: '#3A4A42' }}>{totalRegs} / {capacity} · {spotsLeft} spot{spotsLeft !== 1 ? 's' : ''} available</div>
           </div>
           <div className="h-3 rounded-full overflow-hidden" style={{ background: '#E8EFEB' }}>
@@ -143,16 +143,16 @@ export function WaitlistClient({ eventId, eventName, waitlist, totalRegs, capaci
               </svg>
             </div>
             <p className="text-[14px] font-medium mb-1" style={{ color: '#0F1F18' }}>Waitlist is empty</p>
-            <p className="text-[13px]" style={{ color: '#6B7A72' }}>No one is waiting. You can expand capacity to allow more registrations.</p>
+            <p className="text-[13px]" style={{ color: '#65736B' }}>No one is waiting. You can expand capacity to allow more registrations.</p>
           </div>
         ) : (
           <div className="bg-white rounded-2xl overflow-hidden" style={{ border: '1px solid #E5E0D4' }}>
             <div className="px-5 py-3 border-b flex items-center justify-between" style={{ borderColor: 'rgba(229,224,212,0.7)' }}>
-              <div className=" text-[11.5px] tracking-[0.14em] uppercase" style={{ color: '#6B7A72' }}>
+              <div className=" text-[11.5px] tracking-[0.14em] uppercase" style={{ color: '#65736B' }}>
                 {list.length} waiting · oldest first
               </div>
               {selected.length > 0 && (
-                <span className=" text-[12px]" style={{ color: '#6B7A72' }}>{selected.length} selected</span>
+                <span className=" text-[12px]" style={{ color: '#65736B' }}>{selected.length} selected</span>
               )}
             </div>
             <div className="divide-y" style={{ borderColor: 'rgba(229,224,212,0.5)' }}>
@@ -173,7 +173,7 @@ export function WaitlistClient({ eventId, eventName, waitlist, totalRegs, capaci
                     <div className="text-[13.5px] font-medium truncate" style={{ color: '#0F1F18' }}>
                       {entry.attendee_name ?? '—'}
                     </div>
-                    <div className=" text-[12.5px] truncate" style={{ color: '#6B7A72' }}>
+                    <div className=" text-[12.5px] truncate" style={{ color: '#65736B' }}>
                       {entry.attendee_email ?? ''} · {entry.ticket_types?.name ?? 'General'}
                     </div>
                   </div>

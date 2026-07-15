@@ -12,14 +12,14 @@ import type { UserRole } from '@/lib/auth/permissions';
 import { toast } from '@/hooks/use-toast';
 
 const ROLE_STYLES: Record<string, { bg: string; color: string }> = {
-  user:        { bg: 'rgba(107,122,114,0.10)', color: '#6B7A72' },
+  user:        { bg: 'rgba(107,122,114,0.10)', color: '#65736B' },
   studio:      { bg: 'rgba(31,77,58,0.10)',    color: '#1F4D3A' },
   admin:       { bg: 'rgba(232,197,126,0.20)', color: '#B58A34' },
   super_admin: { bg: 'rgba(184,66,60,0.10)',   color: '#B8423C' },
 };
 
 const PLAN_STYLES: Record<string, { bg: string; color: string }> = {
-  free:   { bg: '#F1EFE8',                color: '#6B7A72' },
+  free:   { bg: '#F1EFE8',                color: '#65736B' },
   pro:    { bg: 'rgba(232,197,126,0.18)', color: '#B58A34' },
   studio: { bg: 'rgba(31,77,58,0.12)',    color: '#1F4D3A' },
 };
@@ -47,7 +47,7 @@ const AVATAR_TINTS = [
   { bg: '#F5ECDD', color: '#B58A34' },
   { bg: '#EAF0F0', color: '#3A6A6A' },
   { bg: '#F1EBF0', color: '#7A4A72' },
-  { bg: '#F1EFE8', color: '#6B7A72' },
+  { bg: '#F1EFE8', color: '#65736B' },
 ];
 function avatarTint(id: string) {
   let h = 0;
@@ -100,12 +100,12 @@ function ConfirmDialog({
           </div>
           <div>
             <h3 className="font-semibold text-[15px] text-[#0F1F18]">{title}</h3>
-            <div className="text-[13px] text-[#6B7A72] mt-1 leading-relaxed">{body}</div>
+            <div className="text-[13px] text-[#65736B] mt-1 leading-relaxed">{body}</div>
           </div>
         </div>
         {extraInput && (
           <div className="mb-4">
-            <label className="text-[12px] text-[#6B7A72] mb-1.5 block">{extraInput.label}</label>
+            <label className="text-[12px] text-[#65736B] mb-1.5 block">{extraInput.label}</label>
             <input
               value={extra}
               onChange={e => setExtra(e.target.value)}
@@ -117,7 +117,7 @@ function ConfirmDialog({
         <div className="flex gap-2 justify-end">
           <button
             onClick={onCancel}
-            className="px-4 py-2 rounded-lg text-[13px] text-[#6B7A72] border border-[#E5E0D4] hover:bg-[#FAF6EE] transition-colors"
+            className="px-4 py-2 rounded-lg text-[13px] text-[#65736B] border border-[#E5E0D4] hover:bg-[#FAF6EE] transition-colors"
           >
             Cancel
           </button>
@@ -410,7 +410,7 @@ export function UsersAdminClient({
     const isSelf = u.id === currentUserId;
     const isSuperA = u.role === 'super_admin';
     const editable = !isSelf && !isSuperA && assignable.length > 1;
-    if (changing === u.id) return <Loader2 size={13} strokeWidth={2} className="animate-spin text-[#6B7A72]" />;
+    if (changing === u.id) return <Loader2 size={13} strokeWidth={2} className="animate-spin text-[#65736B]" />;
     return editRole === u.id && editable ? (
       <select
         autoFocus
@@ -457,20 +457,20 @@ export function UsersAdminClient({
         <button
           onClick={() => setOpenMenu(open ? null : u.id)}
           aria-label="Row actions"
-          className="h-8 w-8 grid place-items-center rounded-lg border border-[#E5E0D4] text-[#6B7A72] hover:bg-[#FAF6EE] hover:text-[#0F1F18] transition-colors"
+          className="h-10 w-10 grid place-items-center rounded-lg border border-[#E5E0D4] text-[#65736B] hover:bg-[#FAF6EE] hover:text-[#0F1F18] transition-colors"
         >
           {busy === u.id ? <Loader2 size={14} strokeWidth={2} className="animate-spin" /> : <MoreHorizontal size={15} strokeWidth={2} />}
         </button>
         {open && (
           <>
             <div className="fixed inset-0 z-[190]" onClick={() => setOpenMenu(null)} />
-            <div className="absolute right-0 top-9 z-[200] w-52 rounded-xl border border-[#E5E0D4] bg-white shadow-lift py-1.5 text-[13px]">
+            <div className="absolute right-0 top-11 z-[200] w-52 rounded-xl border border-[#E5E0D4] bg-white shadow-lift py-1.5 text-[13px]">
               <Link
                 href={`/admin/users/${u.id}`}
                 className="flex items-center gap-2.5 px-3.5 py-2 text-[#3A4A42] hover:bg-[#FAF6EE] transition-colors"
                 onClick={() => setOpenMenu(null)}
               >
-                <ExternalLink size={14} strokeWidth={1.9} className="text-[#6B7A72]" /> View details
+                <ExternalLink size={14} strokeWidth={1.9} className="text-[#65736B]" /> View details
               </Link>
               {canSuspend && canActOnRow && (
                 u.suspended ? (
@@ -501,7 +501,7 @@ export function UsersAdminClient({
                 </>
               )}
               {!canActOnRow && (
-                <div className="px-3.5 py-2 text-[12px] text-[#6B7A72]/70">{isSelf ? 'This is your account.' : 'Protected account.'}</div>
+                <div className="px-3.5 py-2 text-[12px] text-[#65736B]/70">{isSelf ? 'This is your account.' : 'Protected account.'}</div>
               )}
             </div>
           </>
@@ -539,10 +539,10 @@ export function UsersAdminClient({
               className="block font-medium text-[13.5px] text-[#0F1F18] hover:text-[#1F4D3A] transition-colors text-left truncate max-w-[220px]"
             >
               {u.full_name ?? '—'}
-              {isSelf && <span className="ml-1.5 text-[11.5px] font-normal text-[#6B7A72]/70">(you)</span>}
+              {isSelf && <span className="ml-1.5 text-[11.5px] font-normal text-[#65736B]/70">(you)</span>}
             </button>
           )}
-          <Link href={`/admin/users/${u.id}`} className="block text-[12px] text-[#6B7A72] hover:text-[#1F4D3A] transition-colors truncate max-w-[220px]">
+          <Link href={`/admin/users/${u.id}`} className="block text-[12px] text-[#65736B] hover:text-[#1F4D3A] transition-colors truncate max-w-[220px]">
             {u.email}
           </Link>
         </div>
@@ -556,13 +556,13 @@ export function UsersAdminClient({
       <th className={`text-left px-4 py-3 ${className}`}>
         <button
           onClick={() => onSort(sortKey)}
-          className={`inline-flex items-center gap-1 text-[11px] tracking-[0.12em] uppercase font-semibold transition-colors ${active ? 'text-[#1F4D3A]' : 'text-[#6B7A72] hover:text-[#0F1F18]'}`}
+          className={`inline-flex items-center gap-1 text-[11px] tracking-[0.12em] uppercase font-semibold transition-colors ${active ? 'text-[#1F4D3A]' : 'text-[#65736B] hover:text-[#0F1F18]'}`}
         >
           {label}
           {active ? (
             dir === 'asc' ? <ArrowUp size={12} strokeWidth={2.4} /> : <ArrowDown size={12} strokeWidth={2.4} />
           ) : (
-            <ChevronsUpDown size={12} strokeWidth={2} className="text-[#6B7A72]/40" />
+            <ChevronsUpDown size={12} strokeWidth={2} className="text-[#65736B]/40" />
           )}
         </button>
       </th>
@@ -576,16 +576,16 @@ export function UsersAdminClient({
       {/* ── Filter bar ───────────────────────────────────────── */}
       <div className="mb-4 flex flex-col sm:flex-row sm:items-center gap-2.5">
         <div className="flex items-center gap-2 h-10 px-3.5 rounded-xl border border-[#E5E0D4] bg-white flex-1 sm:max-w-[320px] focus-within:ring-2 focus-within:ring-[#1F4D3A]/15 transition">
-          <Search size={15} strokeWidth={2} className="text-[#6B7A72] shrink-0" />
+          <Search size={15} strokeWidth={2} className="text-[#65736B] shrink-0" />
           <input
             value={filters.q}
             onChange={e => setFilters(f => ({ ...f, q: e.target.value }))}
             onKeyDown={e => e.key === 'Enter' && applySearch()}
             placeholder="Search by name or email…"
-            className="outline-none bg-transparent flex-1 text-[13.5px] placeholder-[#6B7A72]/60 text-[#0F1F18]"
+            className="outline-none bg-transparent flex-1 text-[13.5px] placeholder-[#65736B]/60 text-[#0F1F18]"
           />
           {filters.q && (
-            <button onClick={() => { setFilters(f => ({ ...f, q: '' })); go({ q: '', page: 1 }); }} aria-label="Clear search" className="text-[#6B7A72] hover:text-[#0F1F18] transition-colors">
+            <button onClick={() => { setFilters(f => ({ ...f, q: '' })); go({ q: '', page: 1 }); }} aria-label="Clear search" className="text-[#65736B] hover:text-[#0F1F18] transition-colors">
               <X size={14} strokeWidth={2} />
             </button>
           )}
@@ -611,7 +611,7 @@ export function UsersAdminClient({
           </select>
 
           {hasActiveFilters && (
-            <button onClick={clearFilters} className="h-10 px-3.5 rounded-xl text-[13px] text-[#6B7A72] border border-[#E5E0D4] hover:bg-[#FAF6EE] transition-colors">
+            <button onClick={clearFilters} className="h-10 px-3.5 rounded-xl text-[13px] text-[#65736B] border border-[#E5E0D4] hover:bg-[#FAF6EE] transition-colors">
               Clear
             </button>
           )}
@@ -626,7 +626,7 @@ export function UsersAdminClient({
       </div>
 
       {/* Count */}
-      <div className="mb-3 text-[12.5px] text-[#6B7A72]">
+      <div className="mb-3 text-[12.5px] text-[#65736B]">
         <span className="font-medium text-[#3A4A42]">{total.toLocaleString()}</span> {total === 1 ? 'account' : 'accounts'}
         {hasActiveFilters && ' matching filters'}
         {totalPages > 1 && ` · page ${page} of ${totalPages}`}
@@ -647,7 +647,7 @@ export function UsersAdminClient({
           {canDelete && (
             <button disabled={bulkBusy} onClick={() => setBulkConfirm('delete')} className="h-8 px-3 rounded-lg text-[12px] font-medium text-white hover:opacity-90 transition disabled:opacity-50" style={{ background: '#B8423C' }}>Delete</button>
           )}
-          <button disabled={bulkBusy} onClick={clearSelection} title="Clear selection" aria-label="Clear selection" className="h-8 w-8 grid place-items-center rounded-lg border border-[#E5E0D4] bg-white text-[#6B7A72] hover:bg-[#FAF6EE] transition-colors disabled:opacity-50">
+          <button disabled={bulkBusy} onClick={clearSelection} title="Clear selection" aria-label="Clear selection" className="h-10 w-10 grid place-items-center rounded-lg border border-[#E5E0D4] bg-white text-[#65736B] hover:bg-[#FAF6EE] transition-colors disabled:opacity-50">
             <X size={13} strokeWidth={2} />
           </button>
         </div>
@@ -659,7 +659,7 @@ export function UsersAdminClient({
             <Search size={17} strokeWidth={1.8} color="#1F4D3A" />
           </div>
           <div className="font-semibold text-[14px] text-[#0F1F18]">No accounts match these filters</div>
-          <p className="text-[13px] text-[#6B7A72] mt-1">Try a different search or clear the filters.</p>
+          <p className="text-[13px] text-[#65736B] mt-1">Try a different search or clear the filters.</p>
         </div>
       ) : (
         <>
@@ -697,7 +697,7 @@ export function UsersAdminClient({
                       <td className="px-4 py-3 align-middle">{renderPlan(u)}</td>
                       <td className="px-4 py-3 align-middle">{renderRole(u)}</td>
                       <td className="px-4 py-3 align-middle">{renderStatus(u)}</td>
-                      <td className="px-4 py-3 align-middle text-[12.5px] text-[#6B7A72]">{formatDate(u.created_at)}</td>
+                      <td className="px-4 py-3 align-middle text-[12.5px] text-[#65736B]">{formatDate(u.created_at)}</td>
                       <td className="px-4 py-3 align-middle text-right"><RowMenu u={u} /></td>
                     </tr>
                   );
@@ -724,7 +724,7 @@ export function UsersAdminClient({
                     {renderRole(u)}
                     {renderStatus(u)}
                   </div>
-                  <div className="mt-2.5 text-[12px] text-[#6B7A72]">Joined {formatDate(u.created_at)}</div>
+                  <div className="mt-2.5 text-[12px] text-[#65736B]">Joined {formatDate(u.created_at)}</div>
                 </div>
               );
             })}
@@ -738,15 +738,15 @@ export function UsersAdminClient({
           <button
             disabled={page <= 1}
             onClick={() => go({ page: page - 1 })}
-            className="text-[13px] px-3.5 py-2 rounded-lg transition-colors disabled:text-[#6B7A72]/40 disabled:cursor-not-allowed enabled:text-[#1F4D3A] enabled:hover:bg-[#E8EFEB]"
+            className="text-[13px] px-3.5 py-2 rounded-lg transition-colors disabled:text-[#65736B]/40 disabled:cursor-not-allowed enabled:text-[#1F4D3A] enabled:hover:bg-[#E8EFEB]"
           >
             ← Previous
           </button>
-          <span className="text-[13px] text-[#6B7A72]">{page} / {totalPages}</span>
+          <span className="text-[13px] text-[#65736B]">{page} / {totalPages}</span>
           <button
             disabled={page >= totalPages}
             onClick={() => go({ page: page + 1 })}
-            className="text-[13px] px-3.5 py-2 rounded-lg transition-colors disabled:text-[#6B7A72]/40 disabled:cursor-not-allowed enabled:text-[#1F4D3A] enabled:hover:bg-[#E8EFEB]"
+            className="text-[13px] px-3.5 py-2 rounded-lg transition-colors disabled:text-[#65736B]/40 disabled:cursor-not-allowed enabled:text-[#1F4D3A] enabled:hover:bg-[#E8EFEB]"
           >
             Next →
           </button>

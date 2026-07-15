@@ -67,7 +67,7 @@ function ComposeModal({
         <button onClick={onClose} className="h-10 px-5 rounded-lg text-[13px] font-semibold text-white" style={{ background: '#1F4D3A' }}>Done</button>
       ) : (
         <>
-          <button onClick={onClose} className="h-10 px-4 rounded-lg text-[13px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>Cancel</button>
+          <button onClick={onClose} className="h-10 px-4 rounded-lg text-[13px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#65736B' }}>Cancel</button>
           <button
             onClick={handleSend}
             disabled={sending || registrantCount === 0}
@@ -85,7 +85,7 @@ function ComposeModal({
               <CheckCircle2 size={22} strokeWidth={2} style={{ color: '#1F4D3A' }} />
             </div>
             <h4 className="font-display text-[18px] font-semibold mb-1" style={{ color: '#0F1F18' }}>Email sent!</h4>
-            <p className="text-[14px]" style={{ color: '#6B7A72' }}>
+            <p className="text-[14px]" style={{ color: '#65736B' }}>
               Your message was delivered to {registrantCount} attendee{registrantCount !== 1 ? 's' : ''}.
             </p>
           </div>
@@ -99,14 +99,14 @@ function ComposeModal({
               )}
 
               <div className="px-4 py-2.5 rounded-xl text-[12.5px] flex items-center gap-2" style={{ background: '#F5F7F5', border: '1px solid #E5E0D4' }}>
-                <Bell size={13} strokeWidth={2} style={{ color: '#6B7A72', flexShrink: 0 }} />
+                <Bell size={13} strokeWidth={2} style={{ color: '#65736B', flexShrink: 0 }} />
                 <span style={{ color: '#3A4A42' }}>
                   To: <strong>{registrantCount} confirmed attendee{registrantCount !== 1 ? 's' : ''}</strong>
                 </span>
               </div>
 
               <div>
-                <label className="block text-[12.5px] uppercase tracking-widest mb-1.5" style={{ color: fieldErrors.subject ? '#B8423C' : '#6B7A72' }}>Subject *</label>
+                <label className="block text-[12.5px] uppercase tracking-widest mb-1.5" style={{ color: fieldErrors.subject ? '#B8423C' : '#65736B' }}>Subject *</label>
                 <input
                   value={subject}
                   aria-invalid={!!fieldErrors.subject}
@@ -120,7 +120,7 @@ function ComposeModal({
               </div>
 
               <div>
-                <label className="block text-[12.5px] uppercase tracking-widest mb-1.5" style={{ color: fieldErrors.message ? '#B8423C' : '#6B7A72' }}>Message *</label>
+                <label className="block text-[12.5px] uppercase tracking-widest mb-1.5" style={{ color: fieldErrors.message ? '#B8423C' : '#65736B' }}>Message *</label>
                 <textarea
                   value={message}
                   aria-invalid={!!fieldErrors.message}
@@ -163,9 +163,9 @@ function CampaignDraftModal({ draft, onClose }: { draft: string; onClose: () => 
               </span>
               <h3 className="font-display text-[15px] font-semibold" style={{ color: '#0F1F18' }}>Campaign draft</h3>
             </div>
-            <p className="text-[12px]" style={{ color: '#6B7A72' }}>Copy and paste into your messaging tool</p>
+            <p className="text-[12px]" style={{ color: '#65736B' }}>Copy and paste into your messaging tool</p>
           </div>
-          <button onClick={onClose} className="h-7 w-7 rounded-lg grid place-items-center" style={{ color: '#6B7A72' }}>
+          <button onClick={onClose} className="h-10 w-10 rounded-lg grid place-items-center" style={{ color: '#65736B' }}>
             <X size={14} strokeWidth={2.2} />
           </button>
         </div>
@@ -180,7 +180,7 @@ function CampaignDraftModal({ draft, onClose }: { draft: string; onClose: () => 
           >
             {copied ? <><Check size={13} strokeWidth={2} /> Copied!</> : <><Copy size={13} strokeWidth={2} /> Copy</>}
           </button>
-          <button onClick={onClose} className="h-9 px-4 rounded-lg text-[13px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>
+          <button onClick={onClose} className="h-9 px-4 rounded-lg text-[13px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#65736B' }}>
             Close
           </button>
         </div>
@@ -268,7 +268,7 @@ export function CommunicationsView({ eventId, eventName, registrantCount, plan =
             style={{ gridTemplateColumns: '1fr 120px 100px 155px', borderBottom: '1px solid #E5E0D4', background: '#FAFAF8' }}
           >
             {['Subject', 'Type', 'Recipients', 'Status'].map(h => (
-              <span key={h} className="text-[12.5px] font-medium" style={{ color: '#6B7A72', letterSpacing: '0.03em' }}>{h}</span>
+              <span key={h} className="text-[12.5px] font-medium" style={{ color: '#65736B', letterSpacing: '0.03em' }}>{h}</span>
             ))}
           </div>
 
@@ -276,12 +276,12 @@ export function CommunicationsView({ eventId, eventName, registrantCount, plan =
           <div className="grid items-center px-5 py-3.5" style={{ gridTemplateColumns: '1fr 120px 100px 155px', borderBottom: '1px solid #F5F0E8' }}>
             <div className="flex items-center gap-2.5 min-w-0">
               <div className="h-7 w-7 rounded-lg flex items-center justify-center shrink-0" style={{ background: '#F0EDE6' }}>
-                <Bell size={13} strokeWidth={2} style={{ color: '#6B7A72' }} />
+                <Bell size={13} strokeWidth={2} style={{ color: '#65736B' }} />
               </div>
               <span className="text-[13px] truncate" style={{ color: '#0F1F18' }}>You&apos;re in! Here&apos;s everything you need</span>
             </div>
             <div><span className="inline-flex items-center h-5 px-2 rounded-full text-[12.5px] font-medium whitespace-nowrap" style={{ background: 'rgba(232,197,126,0.2)', color: '#9A7A3A' }}>Confirmation</span></div>
-            <span className="text-[12.5px]" style={{ color: '#6B7A72' }}>
+            <span className="text-[12.5px]" style={{ color: '#65736B' }}>
               {registrantCount > 0 ? registrantCount : '—'}
             </span>
             <div><span className="inline-flex items-center gap-1 h-5 px-2 rounded-full text-[12.5px] font-medium whitespace-nowrap" style={{ background: 'rgba(31,77,58,0.08)', color: '#1F4D3A' }}>
@@ -292,7 +292,7 @@ export function CommunicationsView({ eventId, eventName, registrantCount, plan =
 
         {registrantCount === 0 && (
           <div className="px-5 py-6 text-center" style={{ borderTop: '1px solid #E5E0D4' }}>
-            <p className="text-[13px]" style={{ color: '#6B7A72' }}>
+            <p className="text-[13px]" style={{ color: '#65736B' }}>
               No registrants yet. Emails will go out automatically once attendees register.
             </p>
           </div>
@@ -310,7 +310,7 @@ export function CommunicationsView({ eventId, eventName, registrantCount, plan =
         <div className="flex items-center justify-between mb-3">
           <div>
             <p className="text-[13px] font-medium" style={{ color: '#0F1F18' }}>Draft a message to promote this event</p>
-            <p className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>ERA will write an email or WhatsApp message ready to send</p>
+            <p className="text-[12px] mt-0.5" style={{ color: '#65736B' }}>ERA will write an email or WhatsApp message ready to send</p>
           </div>
           <div className="flex items-center gap-1 rounded-lg p-0.5" style={{ background: '#F5F0E8', border: '1px solid #E5E0D4' }}>
             {(['email', 'whatsapp'] as const).map(t => (
@@ -320,7 +320,7 @@ export function CommunicationsView({ eventId, eventName, registrantCount, plan =
                 className="h-7 px-3 rounded-lg text-[12px] font-medium transition"
                 style={{
                   background: campaignType === t ? 'white' : 'transparent',
-                  color: campaignType === t ? '#1F4D3A' : '#6B7A72',
+                  color: campaignType === t ? '#1F4D3A' : '#65736B',
                   boxShadow: campaignType === t ? '0 1px 3px rgba(15,31,24,0.08)' : 'none',
                 }}
               >
@@ -353,7 +353,7 @@ export function CommunicationsView({ eventId, eventName, registrantCount, plan =
 
       {/* Info note */}
       <div className="flex items-start gap-2.5 px-4 py-3 rounded-xl text-[12.5px]" style={{ background: '#F5F7F5', border: '1px solid #E5E0D4' }}>
-        <CheckCircle2 size={14} strokeWidth={2} style={{ color: '#6B7A72', flexShrink: 0, marginTop: 1 }} />
+        <CheckCircle2 size={14} strokeWidth={2} style={{ color: '#65736B', flexShrink: 0, marginTop: 1 }} />
         <span style={{ color: '#3A4A42' }}>
           Confirmation and reminder emails are sent automatically.
           Use <strong>Compose</strong> to send a custom update to all confirmed attendees.
@@ -378,14 +378,14 @@ function CampaignCard({ subject, type, typeStyle, recipients, status, statusStyl
     <div className="px-4 py-3.5">
       <div className="flex items-start gap-2.5 mb-2.5">
         <div className="h-7 w-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5" style={{ background: '#F0EDE6' }}>
-          <Bell size={13} strokeWidth={2} style={{ color: '#6B7A72' }} />
+          <Bell size={13} strokeWidth={2} style={{ color: '#65736B' }} />
         </div>
         <span className="text-[13px] font-medium leading-snug" style={{ color: '#0F1F18' }}>{subject}</span>
       </div>
       <div className="flex items-center gap-2 flex-wrap pl-9">
         <span className="inline-flex items-center h-5 px-2 rounded-full text-[12.5px] font-medium" style={typeStyle}>{type}</span>
         {recipients !== null && (
-          <span className="text-[12px]" style={{ color: '#6B7A72' }}>{recipients} recipients</span>
+          <span className="text-[12px]" style={{ color: '#65736B' }}>{recipients} recipients</span>
         )}
         <span className="inline-flex items-center gap-1 h-5 px-2 rounded-full text-[12.5px] font-medium" style={statusStyle}>
           {status}{statusSub && <span className="opacity-70">· {statusSub}</span>}
@@ -401,11 +401,11 @@ function CommStat({ label, value, sub, icon, accent }: {
   return (
     <div className="rounded-2xl p-4" style={{ background: accent ? 'rgba(31,77,58,0.06)' : 'white', border: accent ? '1px solid rgba(31,77,58,0.2)' : '1px solid #E5E0D4' }}>
       <div className="flex items-center justify-between mb-2">
-        <span className="text-[12.5px] font-medium" style={{ color: '#6B7A72' }}>{label}</span>
-        <span style={{ color: accent ? '#1F4D3A' : '#6B7A72' }}>{icon}</span>
+        <span className="text-[12.5px] font-medium" style={{ color: '#65736B' }}>{label}</span>
+        <span style={{ color: accent ? '#1F4D3A' : '#65736B' }}>{icon}</span>
       </div>
       <p className="text-[22px] font-bold" style={{ color: '#0F1F18' }}>{value}</p>
-      {sub && <p className="text-[12.5px] mt-0.5" style={{ color: '#6B7A72' }}>{sub}</p>}
+      {sub && <p className="text-[12.5px] mt-0.5" style={{ color: '#65736B' }}>{sub}</p>}
     </div>
   );
 }

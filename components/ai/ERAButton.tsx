@@ -60,7 +60,7 @@ export function ERAButton({ label = 'ERA', plan, onFetch, onApply, requiresStudi
       >
         <div className="flex items-center gap-2 min-w-0">
           <ERABadge locked />
-          <span className="text-[12px] font-medium truncate" style={{ color: '#6B7A72' }}>
+          <span className="text-[12px] font-medium truncate" style={{ color: '#65736B' }}>
             {label} — {requiresStudio ? 'Studio' : 'Pro'} feature
           </span>
         </div>
@@ -133,7 +133,7 @@ export function ERAButton({ label = 'ERA', plan, onFetch, onApply, requiresStudi
         style={{ height: '36px', padding: '0 14px', border: '1px solid rgba(31,77,58,0.15)', background: 'rgba(31,77,58,0.03)' }}
       >
         <ERABadge />
-        <span className="text-[13px]" style={{ color: '#6B7A72' }}>Thinking&hellip;</span>
+        <span className="text-[13px]" style={{ color: '#65736B' }}>Thinking&hellip;</span>
         <svg className="animate-spin shrink-0" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1F4D3A" strokeWidth="2.5">
           <path d="M21 12a9 9 0 1 1-9-9" strokeLinecap="round" />
         </svg>
@@ -147,7 +147,7 @@ export function ERAButton({ label = 'ERA', plan, onFetch, onApply, requiresStudi
       <div className={`flex items-start gap-3 px-4 py-3 rounded-xl ${mt}`} style={{ background: 'rgba(184,66,60,0.05)', border: '1px solid rgba(184,66,60,0.18)' }}>
         <ERABadge />
         <div className="flex-1 min-w-0">
-          <p className="text-[12px]" style={{ color: '#6B7A72' }}>{errorMsg}</p>
+          <p className="text-[12px]" style={{ color: '#65736B' }}>{errorMsg}</p>
         </div>
         <button onClick={() => setState('idle')} className="text-[12px] font-semibold shrink-0 transition" style={{ color: '#1F4D3A' }}
           onMouseEnter={e => { e.currentTarget.style.textDecoration = 'underline'; }}
@@ -171,12 +171,12 @@ export function ERAButton({ label = 'ERA', plan, onFetch, onApply, requiresStudi
       >
         <div className="flex items-start gap-2.5 flex-1 min-w-[180px]">
           <span className="mt-0.5"><ERABadge locked /></span>
-          <p className="text-[12.5px] min-w-0" style={{ color: '#6B7A72', lineHeight: 1.55 }}>{result}</p>
+          <p className="text-[12.5px] min-w-0" style={{ color: '#65736B', lineHeight: 1.55 }}>{result}</p>
         </div>
         <button
           onClick={() => { setState('idle'); setResult(''); }}
           className="shrink-0 rounded-lg p-1 transition hover:bg-[rgba(232,197,126,0.18)]"
-          style={{ color: '#6B7A72' }}
+          style={{ color: '#65736B' }}
           aria-label="Dismiss"
         >
           <X size={13} strokeWidth={2} />

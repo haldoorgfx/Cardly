@@ -15,7 +15,7 @@ function EventCreateMock() {
     <div className="bg-white rounded-xl border border-[#E5E0D4] p-4">
       <div className="text-[13px] font-semibold text-[#0F1F18] font-display mb-2">Event Title</div>
       <div className="h-[52px] rounded-lg bg-[#E8EFEB] mb-3" />
-      <div className="flex items-center gap-1 text-[11px] text-[#6B7A72]"><MapPin size={10} />Nairobi · 14 Mar 2026</div>
+      <div className="flex items-center gap-1 text-[11px] text-[#65736B]"><MapPin size={10} />Nairobi · 14 Mar 2026</div>
     </div>
   );
 }
@@ -62,7 +62,7 @@ function AgendaMock() {
           </span>
           <div>
             <div className="font-medium text-[#0F1F18] leading-tight">{title}</div>
-            <div className="text-[#6B7A72] text-[10px]">{speaker}</div>
+            <div className="text-[#65736B] text-[10px]">{speaker}</div>
           </div>
         </div>
       ))}
@@ -74,12 +74,12 @@ function RegMock() {
   return (
     <div className="bg-white rounded-xl border border-[#E5E0D4] p-3 flex flex-col gap-2">
       <div
-        className="h-6 rounded-md border border-[#E5E0D4] bg-[#FAF6EE] text-[10px] text-[#6B7A72] flex items-center px-2"
+        className="h-6 rounded-md border border-[#E5E0D4] bg-[#FAF6EE] text-[10px] text-[#65736B] flex items-center px-2"
       >
         Full name
       </div>
       <div
-        className="h-6 rounded-md border border-[#E5E0D4] bg-[#FAF6EE] text-[10px] text-[#6B7A72] flex items-center px-2"
+        className="h-6 rounded-md border border-[#E5E0D4] bg-[#FAF6EE] text-[10px] text-[#65736B] flex items-center px-2"
       >
         Email address
       </div>

@@ -154,7 +154,7 @@ export default async function BillingPage({
           <div className="max-w-[760px] mx-auto">
           <div className="mb-8">
             <h1 className="font-display font-semibold text-[24px] text-[#0F1F18] tracking-tight">Billing</h1>
-            <p className="text-[14px] text-[#6B7A72] mt-1">Manage your plan and payment method</p>
+            <p className="text-[14px] text-[#65736B] mt-1">Manage your plan and payment method</p>
           </div>
           {checkout === 'success' && (
             <div className="mb-6 rounded-2xl border border-[#A8D5B5] bg-[#F0FAF4] px-5 py-4 flex items-center gap-3">
@@ -164,7 +164,7 @@ export default async function BillingPage({
           )}
           {checkout === 'cancelled' && (
             <div className="mb-6 rounded-2xl border border-[#E5E0D4] bg-[#FAF6EE] px-5 py-4 flex items-center gap-3">
-              <span className="h-2 w-2 rounded-full bg-[#6B7A72] shrink-0" />
+              <span className="h-2 w-2 rounded-full bg-[#65736B] shrink-0" />
               <p className="text-[14px] text-[#3A4A42]">Checkout cancelled — no charge was made.</p>
             </div>
           )}
@@ -181,7 +181,7 @@ export default async function BillingPage({
       <div className="flex items-start justify-between gap-4 mb-8 flex-wrap">
         <div>
           <h1 className="font-display font-semibold text-[24px] text-[#0F1F18] tracking-tight">Billing</h1>
-          <p className="text-[14px] text-[#6B7A72] mt-1">Manage your plan and payment method</p>
+          <p className="text-[14px] text-[#65736B] mt-1">Manage your plan and payment method</p>
         </div>
         {plan !== 'studio' && <UpgradeStudioButton />}
       </div>
@@ -302,7 +302,7 @@ export default async function BillingPage({
                 <div className="text-[13px] font-medium text-[#0F1F18]">
                   •••• {paymentMethod.last4}
                 </div>
-                <div className="text-[12px] text-[#6B7A72]">
+                <div className="text-[12px] text-[#65736B]">
                   Expires {String(paymentMethod.expMonth).padStart(2, '0')}/{String(paymentMethod.expYear).slice(-2)}
                 </div>
               </div>
@@ -320,18 +320,18 @@ export default async function BillingPage({
                 style={{ background: '#E8EFEB' }}
               >
                 <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
-                  <rect x="0.5" y="0.5" width="15" height="11" rx="1.5" stroke="#6B7A72"/>
-                  <rect x="0" y="3" width="16" height="2.5" fill="#6B7A72" opacity="0.3"/>
+                  <rect x="0.5" y="0.5" width="15" height="11" rx="1.5" stroke="#65736B"/>
+                  <rect x="0" y="3" width="16" height="2.5" fill="#65736B" opacity="0.3"/>
                 </svg>
               </div>
-              <div className="text-[13px] text-[#6B7A72]">No card on file</div>
+              <div className="text-[13px] text-[#65736B]">No card on file</div>
               {hasPortal && (
                 <BillingPortalButton label="Add" />
               )}
             </div>
           )}
 
-          <p className="text-[12px] text-[#6B7A72] leading-relaxed">
+          <p className="text-[12px] text-[#65736B] leading-relaxed">
             Billed {cycle === 'annual' ? 'annually' : 'monthly'} in USD. African mobile money and bank transfer available on annual plans.
           </p>
 
@@ -354,7 +354,7 @@ export default async function BillingPage({
                 {['DATE', 'DESCRIPTION', 'AMOUNT', 'STATUS', ''].map(col => (
                   <th
                     key={col}
-                    className="px-6 py-3 text-left text-[12px] tracking-widest text-[#6B7A72]"
+                    className="px-6 py-3 text-left text-[12px] tracking-widest text-[#65736B]"
                   >
                     {col}
                   </th>
@@ -383,7 +383,7 @@ export default async function BillingPage({
                       </span>
                     )}
                     {inv.status === 'free' && (
-                      <span className="text-[12px] text-[#6B7A72]">—</span>
+                      <span className="text-[12px] text-[#65736B]">—</span>
                     )}
                     {inv.status === 'open' && (
                       <span
@@ -394,7 +394,7 @@ export default async function BillingPage({
                       </span>
                     )}
                     {inv.status === 'void' && (
-                      <span className="text-[12px] text-[#6B7A72]">Void</span>
+                      <span className="text-[12px] text-[#65736B]">Void</span>
                     )}
                     {inv.status === 'uncollectible' && (
                       <span
@@ -411,7 +411,7 @@ export default async function BillingPage({
                         href={inv.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-[#6B7A72] hover:text-[#0F1F18] transition"
+                        className="text-[#65736B] hover:text-[#0F1F18] transition"
                       >
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                           <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
@@ -431,7 +431,7 @@ export default async function BillingPage({
 
       {invoices.length === 0 && (
         <div className="bg-white rounded-2xl border border-border shadow-soft p-8 text-center">
-          <div className="text-[13px] text-[#6B7A72]">No invoices yet.</div>
+          <div className="text-[13px] text-[#65736B]">No invoices yet.</div>
         </div>
       )}
     </div>

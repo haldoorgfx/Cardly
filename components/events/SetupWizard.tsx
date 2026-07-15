@@ -69,7 +69,7 @@ export function SetupWizard({
           <button
             onClick={handleSaveDraft}
             className="shrink-0 flex items-center gap-1.5 text-[13px] font-medium transition hover:text-[#1F4D3A]"
-            style={{ color: '#6B7A72' }}
+            style={{ color: '#65736B' }}
           >
             <ChevronLeft size={14} strokeWidth={2} />
             Exit
@@ -101,7 +101,7 @@ export function SetupWizard({
                   >
                     {done
                       ? <Check size={12} strokeWidth={3} color="white" />
-                      : <span className="text-[12.5px] font-semibold" style={{ color: active ? 'white' : '#6B7A72' }}>{s.id}</span>
+                      : <span className="text-[12.5px] font-semibold" style={{ color: active ? 'white' : '#65736B' }}>{s.id}</span>
                     }
                   </div>
                   <span
@@ -223,7 +223,7 @@ export function SetupWizard({
               <button
                 onClick={advance}
                 className="text-[13px] font-medium transition hover:text-[#1F4D3A]"
-                style={{ color: '#6B7A72' }}
+                style={{ color: '#65736B' }}
               >
                 Skip for now
               </button>
@@ -259,7 +259,7 @@ function StepHeader({
 }) {
   return (
     <div className="mb-8">
-      <p className="text-[12.5px] font-semibold uppercase tracking-widest mb-1" style={{ color: '#6B7A72' }}>
+      <p className="text-[12.5px] font-semibold uppercase tracking-widest mb-1" style={{ color: '#65736B' }}>
         Step {step} of {total}{optional ? ' · Optional' : ''}
       </p>
       <h1
@@ -267,7 +267,7 @@ function StepHeader({
         style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}
         dangerouslySetInnerHTML={{ __html: title }}
       />
-      <p className="text-[14px] mt-1.5" style={{ color: '#6B7A72' }}>{description}</p>
+      <p className="text-[14px] mt-1.5" style={{ color: '#65736B' }}>{description}</p>
     </div>
   );
 }
@@ -299,13 +299,13 @@ function PublishStep({
   return (
     <div>
       <div className="mb-10">
-        <p className="text-[12.5px] font-semibold uppercase tracking-widest mb-1" style={{ color: '#6B7A72' }}>
+        <p className="text-[12.5px] font-semibold uppercase tracking-widest mb-1" style={{ color: '#65736B' }}>
           Step 5 of 5
         </p>
         <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight mb-2" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
           {isAlreadyPublished ? 'Your event is live' : 'Ready to go live?'}
         </h1>
-        <p className="text-[14px]" style={{ color: '#6B7A72' }}>
+        <p className="text-[14px]" style={{ color: '#65736B' }}>
           {isAlreadyPublished
             ? 'Your event is already published. You can view it or return to the dashboard.'
             : 'Review the checklist below, then publish when ready. You can always save as a draft and come back.'}
@@ -338,7 +338,7 @@ function PublishStep({
                 {item.label}
               </p>
               {!item.done && item.hint && (
-                <p className="text-[12px] mt-0.5" style={{ color: item.required ? '#B8423C' : '#6B7A72' }}>
+                <p className="text-[12px] mt-0.5" style={{ color: item.required ? '#B8423C' : '#65736B' }}>
                   {item.hint}
                 </p>
               )}
@@ -359,7 +359,7 @@ function PublishStep({
           <ArrowRight size={15} strokeWidth={2} color="#1F4D3A" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-[12.5px] font-semibold uppercase tracking-widest mb-0.5" style={{ color: '#6B7A72' }}>
+          <p className="text-[12.5px] font-semibold uppercase tracking-widest mb-0.5" style={{ color: '#65736B' }}>
             Your event URL
           </p>
           <p className="text-[13px] truncate" style={{ color: '#0F1F18' }}>

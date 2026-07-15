@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 const C = {
   primary: '#1F4D3A', primaryDark: '#163828', primarySoft: '#E8EFEB',
   accent: '#E8C57E', accentDark: '#C9A45E',
-  ink: '#0F1F18', inkSoft: '#3A4A42', muted: '#6B7A72',
+  ink: '#0F1F18', inkSoft: '#3A4A42', muted: '#65736B',
   cream: '#FAF6EE', surface: '#FFFFFF', border: '#E5E0D4',
 } as const;
 
@@ -110,7 +110,7 @@ function SponsorsMockup() {
                   <div key={l.initials} style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 8, padding: 10, display: 'flex', flexDirection: 'row' as const, alignItems: 'center', gap: 10, marginBottom: 6 }}>
                     <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#E8EFEB', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif', fontSize: 11, fontWeight: 700, color: '#1F4D3A', flexShrink: 0 }}>{l.initials}</div>
                     <div style={{ flex: 1, fontFamily: 'var(--font-sans)', fontSize: 12, color: '#0F1F18' }}>{l.name}</div>
-                    <span style={{ fontFamily: 'var(--font-sans)', fontSize: 10, color: '#6B7A72' }}>{l.time}</span>
+                    <span style={{ fontFamily: 'var(--font-sans)', fontSize: 10, color: '#65736B' }}>{l.time}</span>
                     <span style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: '#1F4D3A' }}>View →</span>
                   </div>
                 ))}
@@ -122,15 +122,15 @@ function SponsorsMockup() {
                 <div style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 10, padding: 14, marginBottom: 10 }}>
                   <div style={{ fontFamily: 'var(--font-sans)', fontSize: 9, fontWeight: 700, color: '#C9A45E', textTransform: 'uppercase' as const, letterSpacing: '0.08em', marginBottom: 6 }}>SPONSORED</div>
                   <div style={{ fontFamily: 'var(--font-sans)', fontSize: 14, fontWeight: 700, color: '#0F1F18', marginBottom: 4 }}>Building Fintech at Scale</div>
-                  <div style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: '#6B7A72', marginBottom: 10 }}>Mar 15 · 2:00 PM · Tech Track</div>
+                  <div style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: '#65736B', marginBottom: 10 }}>Mar 15 · 2:00 PM · Tech Track</div>
                   <div style={{ fontFamily: 'var(--font-sans)', fontSize: 12, fontWeight: 700, color: '#0F1F18' }}>1,840 views</div>
-                  <div style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: '#6B7A72', marginTop: 2 }}>312 attendees live</div>
+                  <div style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: '#65736B', marginTop: 2 }}>312 attendees live</div>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 8 }}>
                   {[{ n: '47', l: 'Leads' }, { n: '284', l: 'Booth visits' }].map((s) => (
                     <div key={s.l} style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', borderRadius: 8, padding: 10, textAlign: 'center' as const }}>
                       <div style={{ fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif', fontSize: 20, fontWeight: 700, color: '#1F4D3A' }}>{s.n}</div>
-                      <div style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: '#6B7A72', marginTop: 2 }}>{s.l}</div>
+                      <div style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: '#65736B', marginTop: 2 }}>{s.l}</div>
                     </div>
                   ))}
                 </div>

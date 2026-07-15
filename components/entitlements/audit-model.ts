@@ -63,7 +63,7 @@ export function statusColors(status: string): { bg: string; color: string } {
     case 'already':        return { bg: 'rgba(201,122,45,0.12)', color: '#C97A2D' };
     case 'not_entitled':
     case 'outside_window': return { bg: 'rgba(184,66,60,0.10)', color: '#B8423C' };
-    default:               return { bg: '#F0EEE7', color: '#6B7A72' };
+    default:               return { bg: '#F0EEE7', color: '#65736B' };
   }
 }
 
@@ -89,6 +89,6 @@ export function actionColors(action: string): { bg: string; color: string } {
     case 'revoked':     return { bg: 'rgba(184,66,60,0.10)', color: '#B8423C' };
     case 'transferred': return { bg: 'rgba(58,107,140,0.10)', color: '#3A6B8C' };
     case 'extended':    return { bg: 'rgba(201,164,94,0.14)', color: '#C9A45E' };
-    default:            return { bg: '#F0EEE7', color: '#6B7A72' };
+    default:            return { bg: '#F0EEE7', color: '#65736B' };
   }
 }

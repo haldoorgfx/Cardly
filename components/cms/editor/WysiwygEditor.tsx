@@ -151,7 +151,7 @@ export function WysiwygEditor({ value, onChange, placeholder = 'Start writing…
           '[&_ul]:list-disc [&_ul]:pl-5 [&_ul]:my-2',
           '[&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:my-2',
           '[&_li]:my-0.5',
-          '[&_blockquote]:border-l-4 [&_blockquote]:border-[#E8C57E] [&_blockquote]:pl-4 [&_blockquote]:text-[#6B7A72] [&_blockquote]:italic [&_blockquote]:my-3',
+          '[&_blockquote]:border-l-4 [&_blockquote]:border-[#E8C57E] [&_blockquote]:pl-4 [&_blockquote]:text-[#65736B] [&_blockquote]:italic [&_blockquote]:my-3',
           '[&_pre]:bg-[#FAF6EE] [&_pre]:border [&_pre]:border-[#E5E0D4] [&_pre]:rounded-lg [&_pre]:px-4 [&_pre]:py-3 [&_pre]:[&_pre]:text-[13px] [&_pre]:my-3',
           '[&_a]:text-[#1F4D3A] [&_a]:underline',
           '[&_hr]:border-[#E5E0D4] [&_hr]:my-4',

@@ -34,7 +34,7 @@ export function FlagsAdminClient({ initialFlags }: Props) {
             {flags.length === 0 && (
               <div className="flex flex-col items-center py-16 gap-3">
                 <Flag size={28} strokeWidth={1.4} color="#C9C3B1" />
-                <p className="text-[13px] text-[#6B7A72]">No flags found. Run migration 009 in Supabase.</p>
+                <p className="text-[13px] text-[#65736B]">No flags found. Run migration 009 in Supabase.</p>
               </div>
             )}
 
@@ -55,17 +55,17 @@ export function FlagsAdminClient({ initialFlags }: Props) {
                     background: flag.enabled ? 'rgba(31,77,58,0.08)' : 'rgba(107,122,114,0.10)',
                   }}
                 >
-                  <Flag size={15} strokeWidth={1.8} color={flag.enabled ? '#1F4D3A' : '#6B7A72'} />
+                  <Flag size={15} strokeWidth={1.8} color={flag.enabled ? '#1F4D3A' : '#65736B'} />
                 </div>
 
                 {/* Info */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-[13.5px] font-semibold text-[#0F1F18]">{flag.label}</span>
-                    <span className="text-[12px] text-[#6B7A72]/60 break-all">{flag.flag}</span>
+                    <span className="text-[12px] text-[#65736B]/60 break-all">{flag.flag}</span>
                   </div>
                   {flag.description && (
-                    <p className="text-[12.5px] text-[#6B7A72] mt-0.5 leading-relaxed">{flag.description}</p>
+                    <p className="text-[12.5px] text-[#65736B] mt-0.5 leading-relaxed">{flag.description}</p>
                   )}
                 </div>
 
@@ -86,7 +86,7 @@ export function FlagsAdminClient({ initialFlags }: Props) {
             ))}
           </div>
 
-      <p className="mt-4 text-[12px] text-[#6B7A72]/60 px-1">
+      <p className="mt-4 text-[12px] text-[#65736B]/60 px-1">
         Per-user overrides can be set via the API: <code className="font-sans text-[12.5px]">POST /api/admin/flags/[flag]/overrides</code>
       </p>
     </div>

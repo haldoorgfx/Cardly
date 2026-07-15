@@ -18,7 +18,7 @@ const config: Config = {
         // Neutral
         ink:            "var(--theme-ink,         #0F1F18)",
         "ink-soft":     "var(--theme-ink-soft,    #3A4A42)",
-        muted:          "var(--theme-muted,        #6B7A72)",
+        muted:          "var(--theme-muted,        #65736B)",
         cream:          "var(--theme-cream,        #FAF6EE)",
         // Static — not theme-able
         surface:        "#FFFFFF",

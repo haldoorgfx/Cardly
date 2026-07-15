@@ -20,7 +20,7 @@ export function StatsStripBlock({ content }: StatsStripBlockProps) {
             </span>
             <span
               className=" text-[11px] uppercase tracking-[0.18em]"
-              style={{ color: '#6B7A72' }}
+              style={{ color: '#65736B' }}
             >
               {stat.label}
             </span>
@@ -63,7 +63,7 @@ export function StatsStripBlock({ content }: StatsStripBlockProps) {
               </span>
               <span
                 className="mt-2  text-[11px] uppercase tracking-[0.18em]"
-                style={{ color: isDark ? 'rgba(250,246,238,0.55)' : '#6B7A72' }}
+                style={{ color: isDark ? 'rgba(250,246,238,0.55)' : '#65736B' }}
               >
                 {stat.label}
               </span>

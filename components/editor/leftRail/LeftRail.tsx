@@ -14,7 +14,7 @@ import { buildSVG, TEMPLATE_CONFIGS } from '@/lib/templates/svgs';
 const T = {
   cream: '#FAF6EE', surface: '#FFFFFF', border: '#E5E0D4',
   borderStrong: '#C9C3B1', primary: '#1F4D3A', primarySoft: '#E8EFEB',
-  ink: '#0F1F18', inkSoft: '#3A4A42', muted: '#6B7A72',
+  ink: '#0F1F18', inkSoft: '#3A4A42', muted: '#65736B',
   warning: '#C97A2D',
 };
 

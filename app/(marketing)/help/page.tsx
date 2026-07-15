@@ -43,7 +43,7 @@ function HelpCenter() {
         </h1>
         <p className="text-[15px] mb-8" style={{ color: '#3A4A42' }}>Search the docs, or browse by topic.</p>
         <div className="max-w-[520px] mx-auto relative">
-          <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2" style={{ color: '#6B7A72' }} />
+          <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2" style={{ color: '#65736B' }} />
           <input
             value={query}
             onChange={e => setQuery(e.target.value)}
@@ -66,7 +66,7 @@ function HelpCenter() {
                   {cat.icon}
                 </div>
                 <div className="font-semibold text-[15px] mb-1" style={{ color: '#0F1F18' }}>{cat.title}</div>
-                <div className="text-[12px] mb-4" style={{ color: '#6B7A72' }}>Guides coming soon</div>
+                <div className="text-[12px] mb-4" style={{ color: '#65736B' }}>Guides coming soon</div>
                 <ul className="space-y-1.5">
                   {cat.articles.map(a => (
                     <li key={a}>
@@ -81,14 +81,14 @@ function HelpCenter() {
             ))}
           </div>
           {filtered.length === 0 && (
-            <p className="text-center text-[14px] py-8" style={{ color: '#6B7A72' }}>No results for &quot;{query}&quot;</p>
+            <p className="text-center text-[14px] py-8" style={{ color: '#65736B' }}>No results for &quot;{query}&quot;</p>
           )}
         </div>
 
         {/* Popular */}
         {!query && (
           <div>
-            <div className=" text-[10px] uppercase tracking-widest mb-4" style={{ color: '#6B7A72' }}>Popular questions</div>
+            <div className=" text-[10px] uppercase tracking-widest mb-4" style={{ color: '#65736B' }}>Popular questions</div>
             <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid #E5E0D4', background: '#fff' }}>
               {POPULAR.map((q, i) => (
                 <div
@@ -103,7 +103,7 @@ function HelpCenter() {
                 </div>
               ))}
             </div>
-            <p className="mt-3 text-[12px]" style={{ color: '#6B7A72' }}>
+            <p className="mt-3 text-[12px]" style={{ color: '#65736B' }}>
               Don&apos;t see your question? <a href="mailto:hello@eventera.so" className="underline" style={{ color: '#1F4D3A' }}>Email our team</a> and we&apos;ll help.
             </p>
           </div>
@@ -135,7 +135,7 @@ function StatusTab() {
         <CheckCircle2 size={24} style={{ color: '#2D7A4F', flexShrink: 0 }} />
         <div>
           <div className="font-semibold text-[15px]" style={{ color: '#0F1F18' }}>All systems operational</div>
-          <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>No incidents reported.</div>
+          <div className="text-[12px] mt-0.5" style={{ color: '#65736B' }}>No incidents reported.</div>
         </div>
       </div>
 
@@ -162,7 +162,7 @@ function ChangelogTab() {
     <div className="max-w-[760px] mx-auto px-4 sm:px-6 py-12 space-y-6">
       <div>
         <h2 className="font-display font-normal text-[26px]" style={{ color: '#0F1F18', letterSpacing: '-0.025em' }}>What&apos;s new</h2>
-        <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>Every release, every improvement.</p>
+        <p className="text-[14px] mt-1" style={{ color: '#65736B' }}>Every release, every improvement.</p>
       </div>
       <div className="rounded-2xl px-6 py-8 text-center" style={{ background: '#fff', border: '1px solid #E5E0D4' }}>
         <p className="text-[14px] mb-5" style={{ color: '#3A4A42' }}>
@@ -186,7 +186,7 @@ function LegalTab() {
     <div className="max-w-[760px] mx-auto px-4 sm:px-6 py-12 space-y-6">
       <div>
         <h2 className="font-display font-normal text-[26px]" style={{ color: '#0F1F18', letterSpacing: '-0.025em' }}>Legal</h2>
-        <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>Privacy Policy and Terms of Service.</p>
+        <p className="text-[14px] mt-1" style={{ color: '#65736B' }}>Privacy Policy and Terms of Service.</p>
       </div>
       <div className="rounded-2xl px-6 py-8 text-center" style={{ background: '#fff', border: '1px solid #E5E0D4' }}>
         <p className="text-[14px] mb-5" style={{ color: '#3A4A42' }}>
@@ -238,7 +238,7 @@ export default function HelpPage() {
                 onClick={() => setActive(tab.id)}
                 className="px-4 h-12 text-[13px] font-medium transition-colors"
                 style={{
-                  color: active === tab.id ? '#1F4D3A' : '#6B7A72',
+                  color: active === tab.id ? '#1F4D3A' : '#65736B',
                   borderBottom: active === tab.id ? '2px solid #1F4D3A' : '2px solid transparent',
                   background: 'none',
                 }}
@@ -247,7 +247,7 @@ export default function HelpPage() {
               </button>
             ))}
           </nav>
-          <a href="/" className="text-[12px] flex items-center gap-1" style={{ color: '#6B7A72' }}>
+          <a href="/" className="text-[12px] flex items-center gap-1" style={{ color: '#65736B' }}>
             ← Product
           </a>
         </div>

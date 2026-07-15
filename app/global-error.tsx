@@ -47,7 +47,7 @@ export default function GlobalError({
           >
             Something went wrong
           </h1>
-          <p style={{ color: '#6B7A72', margin: '0 0 2rem', maxWidth: 380 }}>
+          <p style={{ color: '#65736B', margin: '0 0 2rem', maxWidth: 380 }}>
             An unexpected error occurred. Please try again, or contact support if the problem persists.
           </p>
           <button
@@ -66,7 +66,7 @@ export default function GlobalError({
             Try again
           </button>
           {error.digest && (
-            <p style={{ color: '#6B7A72', fontSize: '0.75rem', marginTop: '1.5rem' }}>
+            <p style={{ color: '#65736B', fontSize: '0.75rem', marginTop: '1.5rem' }}>
               Error ID: {error.digest}
             </p>
           )}

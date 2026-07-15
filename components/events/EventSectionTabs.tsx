@@ -44,7 +44,7 @@ export function EventSectionTabs() {
               className="shrink-0 inline-flex items-center gap-1.5 px-3.5 h-full text-[14px] font-medium border-b-2 transition-colors"
               style={active
                 ? { color: '#1F4D3A', borderColor: '#1F4D3A' }
-                : { color: '#6B7A72', borderColor: 'transparent' }}
+                : { color: '#65736B', borderColor: 'transparent' }}
             >
               <Icon size={15} strokeWidth={active ? 2.2 : 1.8} />
               {s.label}

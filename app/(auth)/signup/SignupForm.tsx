@@ -110,7 +110,7 @@ export default function SignupForm() {
               required
               autoComplete="name"
               placeholder="Your name"
-              className="w-full h-10 px-3.5 rounded-lg border text-[14px] text-[#0F1F18] placeholder:text-[#6B7A72]/60 transition focus:outline-none"
+              className="w-full h-10 px-3.5 rounded-lg border text-[14px] text-[#0F1F18] placeholder:text-[#65736B]/60 transition focus:outline-none"
               style={{
                 borderColor: "#E5E0D4",
                 background: "#FAF6EE",
@@ -138,7 +138,7 @@ export default function SignupForm() {
               required
               autoComplete="email"
               placeholder="you@studio.com"
-              className="w-full h-10 px-3.5 rounded-lg border text-[14px] text-[#0F1F18] placeholder:text-[#6B7A72]/60 transition focus:outline-none"
+              className="w-full h-10 px-3.5 rounded-lg border text-[14px] text-[#0F1F18] placeholder:text-[#65736B]/60 transition focus:outline-none"
               style={{
                 borderColor: "#E5E0D4",
                 background: "#FAF6EE",
@@ -168,7 +168,7 @@ export default function SignupForm() {
                 minLength={8}
                 autoComplete="new-password"
                 placeholder="At least 8 characters"
-                className="w-full h-10 px-3.5 pr-10 rounded-lg border text-[14px] text-[#0F1F18] placeholder:text-[#6B7A72]/60 transition focus:outline-none"
+                className="w-full h-10 px-3.5 pr-10 rounded-lg border text-[14px] text-[#0F1F18] placeholder:text-[#65736B]/60 transition focus:outline-none"
                 style={{
                   borderColor: "#E5E0D4",
                   background: "#FAF6EE",
@@ -186,7 +186,7 @@ export default function SignupForm() {
               <button
                 type="button"
                 onClick={() => setShowPassword(p => !p)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6B7A72] hover:text-[#0F1F18] transition"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#65736B] hover:text-[#0F1F18] transition"
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? (

@@ -112,7 +112,7 @@ export function CardZoneFill({
       {/* -- Live preview -- */}
       {backgroundUrl && (
         <div className="shrink-0 lg:sticky lg:top-24">
-          <div className="text-[11px] uppercase tracking-widest mb-2 text-center" style={{ color: '#6B7A72' }}>
+          <div className="text-[11px] uppercase tracking-widest mb-2 text-center" style={{ color: '#65736B' }}>
             Preview
           </div>
           <div
@@ -232,12 +232,12 @@ function PhotoField({ zone, previewUrl, error, onChange, onClear }: {
               <button type="button" onClick={() => inputRef.current?.click()} className="text-[12px] font-medium" style={{ color: '#1F4D3A' }}>
                 Change
               </button>
-              <button type="button" onClick={onClear} className="text-[12px]" style={{ color: '#6B7A72' }}>
+              <button type="button" onClick={onClear} className="text-[12px]" style={{ color: '#65736B' }}>
                 Remove
               </button>
             </div>
           </div>
-          <button type="button" onClick={onClear} aria-label="Remove" className="shrink-0" style={{ color: '#6B7A72' }}>
+          <button type="button" onClick={onClear} aria-label="Remove" className="shrink-0" style={{ color: '#65736B' }}>
             <X size={16} strokeWidth={2} />
           </button>
         </div>
@@ -251,8 +251,8 @@ function PhotoField({ zone, previewUrl, error, onChange, onClear }: {
           onMouseEnter={e => (e.currentTarget.style.borderColor = '#E8C57E')}
           onMouseLeave={e => (e.currentTarget.style.borderColor = error ? '#B8423C' : '#E5E0D4')}
         >
-          <Camera size={20} strokeWidth={1.8} style={{ color: '#6B7A72', flexShrink: 0 }} />
-          <span className="text-[16px]" style={{ color: '#6B7A72' }}>Click to upload photo</span>
+          <Camera size={20} strokeWidth={1.8} style={{ color: '#65736B', flexShrink: 0 }} />
+          <span className="text-[16px]" style={{ color: '#65736B' }}>Click to upload photo</span>
         </button>
       )}
       <input

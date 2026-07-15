@@ -69,7 +69,7 @@ const CATS_TILES = [
   { n: 'Arts',      cat: 'Arts',      bg: '#E8EFEB', fg: '#1F4D3A', path: 'M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.6-.7 1.6-1.7 0-.4-.2-.8-.4-1.1-.3-.3-.4-.7-.4-1.1a1.6 1.6 0 011.7-1.7H16c3 0 5.5-2.5 5.5-5.5C22 6 17.5 2 12 2z' },
   { n: 'Education', cat: 'Education', bg: '#F3EAD7', fg: '#C9A45E', path: 'M22 10L12 5 2 10l10 5 10-5zM6 12v5c0 1 3 3 6 3s6-2 6-3v-5' },
   { n: 'Health',    cat: 'Health',    bg: '#E8EFEB', fg: '#1F4D3A', path: 'M20.8 8.6a5 5 0 00-8.8-3 5 5 0 00-8.8 3c0 5 8.8 11 8.8 11s8.8-6 8.8-11z' },
-  { n: 'More',      cat: null,        bg: '#F0EDE8', fg: '#6B7A72', path: 'M5 12a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM12 12a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM19 12a1.5 1.5 0 100-3 1.5 1.5 0 000 3z' },
+  { n: 'More',      cat: null,        bg: '#F0EDE8', fg: '#65736B', path: 'M5 12a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM12 12a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM19 12a1.5 1.5 0 100-3 1.5 1.5 0 000 3z' },
 ];
 
 /* ─── Helpers ───────────────────────────────────────────────────── */
@@ -150,7 +150,7 @@ function Dropdown({
         style={{ border: `1px solid ${open ? '#1F4D3A' : '#E5E0D4'}`, background: '#FAF6EE', color: isPlaceholder ? '#3A4A42' : '#0F1F18' }}>
         {icon}
         <span className="flex-1 text-left truncate">{selected ? selected.label : placeholder}</span>
-        <ChevronDown size={16} style={{ color: '#6B7A72', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform .15s' }} />
+        <ChevronDown size={16} style={{ color: '#65736B', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform .15s' }} />
       </button>
       {open && (
         <div role="listbox" aria-label={label} className="absolute z-40 mt-2 left-0 right-0 rounded-2xl p-1.5 overflow-y-auto"
@@ -375,7 +375,7 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents, ban
             </span>{' '}
             you.
           </h1>
-          <p className="mt-5 mx-auto" style={{ fontSize: 'clamp(15px,2vw,18px)', lineHeight: 1.6, color: '#6B7A72', maxWidth: 520 }}>
+          <p className="mt-5 mx-auto" style={{ fontSize: 'clamp(15px,2vw,18px)', lineHeight: 1.6, color: '#65736B', maxWidth: 520 }}>
             Find conferences, festivals, workshops and experiences worth your time — near you or anywhere in the world.
           </p>
 
@@ -384,7 +384,7 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents, ban
             style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', boxShadow: '0 12px 40px rgba(15,31,24,0.10)', padding: 16, maxWidth: 920 }}>
             {/* Search input row */}
             <div className="flex items-center gap-3 px-4" style={{ height: 56, borderBottom: '1px solid #E5E0D4' }}>
-              <Search size={20} style={{ color: '#6B7A72', flexShrink: 0 }} />
+              <Search size={20} style={{ color: '#65736B', flexShrink: 0 }} />
               <input value={query} onChange={e => setQuery(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter') scrollToResults(); }}
                 placeholder="Search events, topics, organizers or venues"
@@ -395,24 +395,24 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents, ban
             {/* Filter controls — city, date, category, format + search */}
             <div className="grid grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_1fr_auto] gap-2.5 pt-3.5">
               <Dropdown
-                icon={<MapPin size={16} style={{ color: '#6B7A72', flexShrink: 0 }} />}
+                icon={<MapPin size={16} style={{ color: '#65736B', flexShrink: 0 }} />}
                 label="City" value={city} placeholder="Anywhere" onChange={setCity}
                 options={[{ value: '', label: 'Anywhere' }, ...cities.map(c => ({ value: c, label: c }))]}
               />
               <Dropdown
-                icon={<Calendar size={16} style={{ color: '#6B7A72', flexShrink: 0 }} />}
+                icon={<Calendar size={16} style={{ color: '#65736B', flexShrink: 0 }} />}
                 label="When" value={when} placeholder="Any time" onChange={setWhen}
                 options={WHEN_OPTIONS}
               />
               <Dropdown
-                icon={<Tag size={16} style={{ color: '#6B7A72', flexShrink: 0 }} />}
+                icon={<Tag size={16} style={{ color: '#65736B', flexShrink: 0 }} />}
                 label="Category" value={activeCat} placeholder="Any category" onChange={setActiveCat}
                 options={CATEGORIES.map(c => ({ value: c, label: c === 'All' ? 'Any category' : c }))}
               />
               <Dropdown
                 icon={format === 'online'
-                  ? <Globe size={16} style={{ color: '#6B7A72', flexShrink: 0 }} />
-                  : <Users size={16} style={{ color: '#6B7A72', flexShrink: 0 }} />}
+                  ? <Globe size={16} style={{ color: '#65736B', flexShrink: 0 }} />
+                  : <Users size={16} style={{ color: '#65736B', flexShrink: 0 }} />}
                 label="Format" value={format} placeholder="Any format" onChange={v => setFormat(v as FormatValue)}
                 options={FORMAT_OPTIONS.map(f => ({ value: f.value, label: f.label }))}
               />
@@ -512,7 +512,7 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents, ban
             <h2 className="font-title font-bold text-[22px] sm:text-[26px]" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
               {hasFilter ? 'Results' : 'Upcoming events'}
             </h2>
-            <p className="text-[13px] mt-1" style={{ color: '#6B7A72' }}>
+            <p className="text-[13px] mt-1" style={{ color: '#65736B' }}>
               {filtered.length} event{filtered.length !== 1 ? 's' : ''}
               {city && ` in ${city}`}
               {activeCat !== 'All' && ` · ${activeCat}`}
@@ -523,7 +523,7 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents, ban
           <div className="flex items-center gap-3 shrink-0">
             {hasFilter && (
               <button onClick={() => { setQuery(''); setActiveCat('All'); setCity(''); setWhen('any'); setFormat('all'); }}
-                className="text-[13px] font-medium transition hover:opacity-70" style={{ color: '#6B7A72' }}>
+                className="text-[13px] font-medium transition hover:opacity-70" style={{ color: '#65736B' }}>
                 Clear filters
               </button>
             )}
@@ -545,7 +545,7 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents, ban
           <div className="rounded-2xl py-16 px-6 text-center" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
             <Search size={28} style={{ color: '#C9C3B1' }} className="mx-auto mb-3" />
             <p className="font-display font-semibold text-[16px]" style={{ color: '#0F1F18' }}>No events found</p>
-            <p className="text-[13px] mt-1" style={{ color: '#6B7A72' }}>Try a different search or clear your filters.</p>
+            <p className="text-[13px] mt-1" style={{ color: '#65736B' }}>Try a different search or clear your filters.</p>
           </div>
         )}
       </Band>
@@ -555,7 +555,7 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents, ban
         <h2 className="font-title font-bold text-[22px] sm:text-[26px] mb-1" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
           Browse by city
         </h2>
-        <p className="text-[13px] mb-5" style={{ color: '#6B7A72' }}>Jump straight to what&apos;s happening in your city.</p>
+        <p className="text-[13px] mb-5" style={{ color: '#65736B' }}>Jump straight to what&apos;s happening in your city.</p>
         <div className="flex flex-wrap gap-2.5">
           {cities.slice(0, 16).map(c => (
             <Link key={c} href={`/events/city/${citySlug(c)}`}
@@ -573,7 +573,7 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents, ban
           <h2 className="font-title font-bold text-[22px] sm:text-[26px] mb-1" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
             Top event hosts
           </h2>
-          <p className="text-[13px] mb-5" style={{ color: '#6B7A72' }}>Organizers creating events worth showing up for.</p>
+          <p className="text-[13px] mb-5" style={{ color: '#65736B' }}>Organizers creating events worth showing up for.</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {hosts.map((h, i) => (
               <Link key={h.name}
@@ -591,7 +591,7 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents, ban
                 )}
                 <div className="flex-1 min-w-0">
                   <div className="font-display font-semibold text-[15px] truncate group-hover:text-[#1F4D3A] transition-colors" style={{ color: '#0F1F18' }}>{h.name}</div>
-                  <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>
+                  <div className="text-[12px] mt-0.5" style={{ color: '#65736B' }}>
                     {h.count} event{h.count !== 1 ? 's' : ''} · Tap to view
                   </div>
                 </div>

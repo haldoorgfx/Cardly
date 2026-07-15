@@ -43,10 +43,10 @@ export function SettingsTabs() {
               className="shrink-0 px-4 pt-3 pb-2.5 text-[13px] font-medium border-b-2 transition-colors whitespace-nowrap focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[#1F4D3A]"
               style={{
                 borderColor: active ? '#1F4D3A' : 'transparent',
-                color: active ? '#1F4D3A' : '#6B7A72',
+                color: active ? '#1F4D3A' : '#65736B',
               }}
               onMouseEnter={e => { if (!active) (e.currentTarget as HTMLElement).style.color = '#0F1F18'; }}
-              onMouseLeave={e => { if (!active) (e.currentTarget as HTMLElement).style.color = '#6B7A72'; }}
+              onMouseLeave={e => { if (!active) (e.currentTarget as HTMLElement).style.color = '#65736B'; }}
             >
               {tab.label}
             </Link>

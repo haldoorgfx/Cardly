@@ -47,10 +47,10 @@ function StatCard({ icon, label, value, sub }: { icon: React.ReactNode; label: s
         <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: '#E8EFEB' }}>
           <span style={{ color: '#1F4D3A' }}>{icon}</span>
         </div>
-        <span className="text-[12px] font-medium uppercase tracking-wider" style={{ color: '#6B7A72', letterSpacing: '0.06em' }}>{label}</span>
+        <span className="text-[12px] font-medium uppercase tracking-wider" style={{ color: '#65736B', letterSpacing: '0.06em' }}>{label}</span>
       </div>
       <p className="font-display font-semibold text-[28px] leading-none" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>{value}</p>
-      {sub && <p className="text-[12px]" style={{ color: '#6B7A72' }}>{sub}</p>}
+      {sub && <p className="text-[12px]" style={{ color: '#65736B' }}>{sub}</p>}
     </div>
   );
 }
@@ -137,7 +137,7 @@ export function RevenueView({ registrations }: Props) {
         <StatCard icon={<TrendingUp size={16} />} label="Net payable" value={fmtShort(totalNet, primaryCurrency)} sub="what you'll receive" />
         <StatCard icon={<Users size={16} />} label="Attendees" value={String(totalCount)} />
       </div>
-      <p className="text-[12px] mb-8" style={{ color: '#6B7A72' }}>
+      <p className="text-[12px] mb-8" style={{ color: '#65736B' }}>
         Net payable is your revenue after Eventera&apos;s platform fee. Payouts are processed manually for now — we&apos;ll be in touch to settle.
       </p>
 
@@ -151,7 +151,7 @@ export function RevenueView({ registrations }: Props) {
               className="px-3.5 py-1.5 rounded-md text-[13px] font-medium transition-all"
               style={tab === t
                 ? { background: 'white', color: '#0F1F18', boxShadow: '0 1px 3px rgba(15,31,24,0.08)' }
-                : { color: '#6B7A72' }}
+                : { color: '#65736B' }}
             >
               {t === 'tickets' ? 'By ticket' : t === 'promoters' ? 'By promoter' : 'By source'}
             </button>
@@ -172,11 +172,11 @@ export function RevenueView({ registrations }: Props) {
       <div className="min-w-[420px]">
         {tab === 'tickets' ? (
           <>
-            <div className="grid grid-cols-3 px-4 py-2.5 text-[12.5px] font-semibold uppercase tracking-wider" style={{ background: '#F4F1EB', color: '#6B7A72', letterSpacing: '0.06em' }}>
+            <div className="grid grid-cols-3 px-4 py-2.5 text-[12.5px] font-semibold uppercase tracking-wider" style={{ background: '#F4F1EB', color: '#65736B', letterSpacing: '0.06em' }}>
               <span>Ticket type</span><span className="text-right">Registrations</span><span className="text-right">Revenue</span>
             </div>
             {byTicket.length === 0 && (
-              <div className="py-12 text-center text-[14px]" style={{ color: '#6B7A72' }}>No data yet</div>
+              <div className="py-12 text-center text-[14px]" style={{ color: '#65736B' }}>No data yet</div>
             )}
             {byTicket.map((t, i) => (
               <div
@@ -187,7 +187,7 @@ export function RevenueView({ registrations }: Props) {
                 <span className="font-medium text-[14px]" style={{ color: '#0F1F18' }}>{t.name}</span>
                 <span className="text-right  text-[14px]" style={{ color: '#3A4A42' }}>{t.count}</span>
                 <span className="text-right  font-semibold text-[14px]" style={{ color: '#0F1F18' }}>
-                  {t.revenue > 0 ? fmt(t.revenue, t.currency) : <span style={{ color: '#6B7A72', fontWeight: 400 }}>Free</span>}
+                  {t.revenue > 0 ? fmt(t.revenue, t.currency) : <span style={{ color: '#65736B', fontWeight: 400 }}>Free</span>}
                 </span>
               </div>
             ))}
@@ -202,11 +202,11 @@ export function RevenueView({ registrations }: Props) {
           </>
         ) : tab === 'promoters' ? (
           <>
-            <div className="grid grid-cols-3 px-4 py-2.5 text-[12.5px] font-semibold uppercase tracking-wider" style={{ background: '#F4F1EB', color: '#6B7A72', letterSpacing: '0.06em' }}>
+            <div className="grid grid-cols-3 px-4 py-2.5 text-[12.5px] font-semibold uppercase tracking-wider" style={{ background: '#F4F1EB', color: '#65736B', letterSpacing: '0.06em' }}>
               <span>Promoter code</span><span className="text-right">Registrations</span><span className="text-right">Revenue</span>
             </div>
             {byPromoter.length === 0 && (
-              <div className="py-12 text-center text-[14px]" style={{ color: '#6B7A72' }}>No data yet</div>
+              <div className="py-12 text-center text-[14px]" style={{ color: '#65736B' }}>No data yet</div>
             )}
             {byPromoter.map((p, i) => (
               <div
@@ -214,23 +214,23 @@ export function RevenueView({ registrations }: Props) {
                 className="grid grid-cols-3 px-4 py-3.5 items-center"
                 style={{ borderTop: i > 0 ? '1px solid #F0EDE6' : undefined }}
               >
-                <span className=" text-[13px] font-semibold px-2.5 py-0.5 rounded-md inline-block" style={p.code === 'Direct' ? { color: '#6B7A72' } : { background: '#E8EFEB', color: '#1F4D3A' }}>
+                <span className=" text-[13px] font-semibold px-2.5 py-0.5 rounded-md inline-block" style={p.code === 'Direct' ? { color: '#65736B' } : { background: '#E8EFEB', color: '#1F4D3A' }}>
                   {p.code}
                 </span>
                 <span className="text-right  text-[14px]" style={{ color: '#3A4A42' }}>{p.count}</span>
                 <span className="text-right  font-semibold text-[14px]" style={{ color: '#0F1F18' }}>
-                  {p.revenue > 0 ? fmt(p.revenue, p.currency) : <span style={{ color: '#6B7A72', fontWeight: 400 }}>—</span>}
+                  {p.revenue > 0 ? fmt(p.revenue, p.currency) : <span style={{ color: '#65736B', fontWeight: 400 }}>—</span>}
                 </span>
               </div>
             ))}
           </>
         ) : (
           <>
-            <div className="grid grid-cols-3 px-4 py-2.5 text-[12.5px] font-semibold uppercase tracking-wider" style={{ background: '#F4F1EB', color: '#6B7A72', letterSpacing: '0.06em' }}>
+            <div className="grid grid-cols-3 px-4 py-2.5 text-[12.5px] font-semibold uppercase tracking-wider" style={{ background: '#F4F1EB', color: '#65736B', letterSpacing: '0.06em' }}>
               <span>UTM source</span><span className="text-right">Registrations</span><span className="text-right">Revenue</span>
             </div>
             {bySource.length === 0 && (
-              <div className="py-12 text-center text-[14px]" style={{ color: '#6B7A72' }}>No UTM data yet</div>
+              <div className="py-12 text-center text-[14px]" style={{ color: '#65736B' }}>No UTM data yet</div>
             )}
             {bySource.map((s, i) => (
               <div
@@ -238,12 +238,12 @@ export function RevenueView({ registrations }: Props) {
                 className="grid grid-cols-3 px-4 py-3.5 items-center"
                 style={{ borderTop: i > 0 ? '1px solid #F0EDE6' : undefined }}
               >
-                <span className=" text-[13px] font-semibold px-2.5 py-0.5 rounded-md inline-block" style={s.source === 'Direct' ? { color: '#6B7A72' } : { background: '#E8EFEB', color: '#1F4D3A' }}>
+                <span className=" text-[13px] font-semibold px-2.5 py-0.5 rounded-md inline-block" style={s.source === 'Direct' ? { color: '#65736B' } : { background: '#E8EFEB', color: '#1F4D3A' }}>
                   {s.source}
                 </span>
                 <span className="text-right  text-[14px]" style={{ color: '#3A4A42' }}>{s.count}</span>
                 <span className="text-right  font-semibold text-[14px]" style={{ color: '#0F1F18' }}>
-                  {s.revenue > 0 ? fmt(s.revenue, s.currency) : <span style={{ color: '#6B7A72', fontWeight: 400 }}>—</span>}
+                  {s.revenue > 0 ? fmt(s.revenue, s.currency) : <span style={{ color: '#65736B', fontWeight: 400 }}>—</span>}
                 </span>
               </div>
             ))}

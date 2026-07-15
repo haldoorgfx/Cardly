@@ -116,22 +116,22 @@ export function AICopilotClient({ eventId, eventName, stats }: Props) {
           <h1 className="font-display font-semibold text-[16px]" style={{ color: '#0F1F18', letterSpacing: '-0.01em' }}>
             AI Copilot
           </h1>
-          <p className="text-[12px]" style={{ color: '#6B7A72' }}>{eventName} · Powered by Eventera AI</p>
+          <p className="text-[12px]" style={{ color: '#65736B' }}>{eventName} · Powered by Eventera AI</p>
         </div>
         {/* Live stats */}
         <div className="ml-auto flex items-center gap-4">
-          <div className="hidden sm:flex items-center gap-1.5 text-[13px]" style={{ color: '#6B7A72' }}>
-            <Users size={13} style={{ color: '#6B7A72' }} />
+          <div className="hidden sm:flex items-center gap-1.5 text-[13px]" style={{ color: '#65736B' }}>
+            <Users size={13} style={{ color: '#65736B' }} />
             <span className="font-semibold" style={{ color: '#0F1F18', fontFamily: 'Inter, system-ui, sans-serif' }}>{stats.registrations.toLocaleString()}</span>
             <span>regs</span>
           </div>
-          <div className="hidden sm:flex items-center gap-1.5 text-[13px]" style={{ color: '#6B7A72' }}>
+          <div className="hidden sm:flex items-center gap-1.5 text-[13px]" style={{ color: '#65736B' }}>
             <ScanLine size={13} style={{ color: '#2D7A4F' }} />
             <span className="font-semibold" style={{ color: '#0F1F18', fontFamily: 'Inter, system-ui, sans-serif' }}>{stats.checkedIn.toLocaleString()}</span>
             <span>checked in</span>
           </div>
           {stats.registrations > 0 && (
-            <div className="hidden sm:flex items-center gap-1.5 text-[13px]" style={{ color: '#6B7A72' }}>
+            <div className="hidden sm:flex items-center gap-1.5 text-[13px]" style={{ color: '#65736B' }}>
               <TrendingUp size={13} style={{ color: '#E8C57E' }} />
               <span className="font-semibold" style={{ color: '#0F1F18', fontFamily: 'Inter, system-ui, sans-serif' }}>
                 {Math.round((stats.checkedIn / stats.registrations) * 100)}%

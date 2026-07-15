@@ -66,7 +66,7 @@ export default async function MyCardsPage() {
               <div className="p-4 flex items-center gap-3">
                 <div className="min-w-0 flex-1">
                   <div className="font-medium text-[14px] truncate" style={{ color: '#0F1F18' }}>{c.events?.name ?? 'Event'}</div>
-                  <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>{c.attendee_name}</div>
+                  <div className="text-[12px] mt-0.5" style={{ color: '#65736B' }}>{c.attendee_name}</div>
                 </div>
                 {c.eventera_card_url && (
                   <a

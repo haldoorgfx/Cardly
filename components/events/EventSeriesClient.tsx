@@ -79,7 +79,7 @@ export function EventSeriesClient({ eventId, eventName, eventSlug, series }: Pro
 
         {/* Frequency chips */}
         <div className="mb-4">
-          <label className="text-[12px] font-semibold mb-2 block" style={{ color: '#6B7A72' }}>Frequency</label>
+          <label className="text-[12px] font-semibold mb-2 block" style={{ color: '#65736B' }}>Frequency</label>
           <div className="flex flex-wrap gap-2">
             {FREQ_OPTIONS.map(opt => (
               <button key={opt.key} onClick={() => setFreq(opt.key)}
@@ -96,7 +96,7 @@ export function EventSeriesClient({ eventId, eventName, eventSlug, series }: Pro
 
         {/* Time */}
         <div className="mb-5">
-          <label className="text-[12px] font-semibold mb-2 block" style={{ color: '#6B7A72' }}>Default start time</label>
+          <label className="text-[12px] font-semibold mb-2 block" style={{ color: '#65736B' }}>Default start time</label>
           <input
             type="time"
             value={time}
@@ -111,7 +111,7 @@ export function EventSeriesClient({ eventId, eventName, eventSlug, series }: Pro
           <p className="text-[12px] font-semibold mb-2" style={{ color: '#3A4A42' }}>Inherited from parent event</p>
           <div className="flex flex-wrap gap-x-6 gap-y-1">
             {INHERITED.map(item => (
-              <span key={item} className="text-[12px] flex items-center gap-1" style={{ color: '#6B7A72' }}>
+              <span key={item} className="text-[12px] flex items-center gap-1" style={{ color: '#65736B' }}>
                 <Check size={14} strokeWidth={1.8} style={{ color: '#2D7A4F' }} className="shrink-0" /> {item}
               </span>
             ))}
@@ -162,12 +162,12 @@ export function EventSeriesClient({ eventId, eventName, eventSlug, series }: Pro
               <div key={inst.id} style={{ borderBottom: isLast ? 'none' : '1px solid #F0EDE6' }}>
                 <div className="flex items-center gap-4 px-5 py-4 cursor-pointer hover:bg-[#FAFAF8] transition"
                   onClick={() => setExpandedId(expanded ? null : inst.id)}>
-                  <Calendar size={16} className="shrink-0" style={{ color: '#6B7A72' }} />
+                  <Calendar size={16} className="shrink-0" style={{ color: '#65736B' }} />
                   <div className="flex-1 min-w-0">
                     <div className="font-semibold text-[14px]" style={{ color: '#0F1F18' }}>
                       {inst.events?.name ?? fmtDate(inst.scheduled_date)}
                     </div>
-                    <div className="text-[12px]" style={{ color: '#6B7A72' }}>
+                    <div className="text-[12px]" style={{ color: '#65736B' }}>
                       {fmtDate(inst.scheduled_date)}
                       {inst.registrations_count > 0 && ` · ${inst.registrations_count} registrations`}
                     </div>
@@ -175,11 +175,11 @@ export function EventSeriesClient({ eventId, eventName, eventSlug, series }: Pro
                   <span className="px-2 py-0.5 rounded-full text-[12.5px] font-semibold shrink-0"
                     style={{
                       background: inst.status === 'published' ? 'rgba(45,122,79,0.1)' : 'rgba(107,122,114,0.1)',
-                      color: inst.status === 'published' ? '#2D7A4F' : '#6B7A72',
+                      color: inst.status === 'published' ? '#2D7A4F' : '#65736B',
                     }}>
                     {inst.status === 'published' ? 'Live' : 'Draft'}
                   </span>
-                  {expanded ? <ChevronUp size={14} style={{ color: '#6B7A72' }} /> : <ChevronDown size={14} style={{ color: '#6B7A72' }} />}
+                  {expanded ? <ChevronUp size={14} style={{ color: '#65736B' }} /> : <ChevronDown size={14} style={{ color: '#65736B' }} />}
                 </div>
 
                 {expanded && (
@@ -205,10 +205,10 @@ export function EventSeriesClient({ eventId, eventName, eventSlug, series }: Pro
 
       {/* Attendee-facing preview */}
       <div className="rounded-2xl p-5" style={{ background: '#E8EFEB', border: '1px solid #C9E0D4' }}>
-        <p className="text-[12px] font-semibold mb-3" style={{ color: '#6B7A72' }}>How attendees see it</p>
+        <p className="text-[12px] font-semibold mb-3" style={{ color: '#65736B' }}>How attendees see it</p>
         <div className="rounded-xl p-4" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
           <div className="font-semibold text-[14px] mb-0.5" style={{ color: '#0F1F18' }}>{eventName}</div>
-          <div className="text-[12px] mb-2" style={{ color: '#6B7A72' }}>Recurring series · {FREQ_OPTIONS.find(f => f.key === freq)?.label}</div>
+          <div className="text-[12px] mb-2" style={{ color: '#65736B' }}>Recurring series · {FREQ_OPTIONS.find(f => f.key === freq)?.label}</div>
           <div className="flex gap-1.5 mb-3 flex-wrap">
             {instances.slice(0, 3).map((inst: Instance) => (
               <span key={inst.id} className="px-2.5 py-1 rounded-lg text-[12.5px] font-medium"

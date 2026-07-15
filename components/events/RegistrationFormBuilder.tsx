@@ -177,13 +177,13 @@ export function RegistrationFormBuilder({ eventId, initialFields }: Props) {
           <div
             key={f.label}
             className="flex items-center gap-2 h-9 px-3.5 rounded-xl text-[13px]"
-            style={{ background: 'white', border: '1px solid #E5E0D4', color: '#6B7A72' }}
+            style={{ background: 'white', border: '1px solid #E5E0D4', color: '#65736B' }}
           >
             <AlignLeft size={13} strokeWidth={2} />
             {f.label}
             <span
               className="text-[12px] px-1.5 py-0.5 rounded"
-              style={{ background: '#F5F5F4', color: '#6B7A72' }}
+              style={{ background: '#F5F5F4', color: '#65736B' }}
             >
               required
             </span>
@@ -211,12 +211,12 @@ export function RegistrationFormBuilder({ eventId, initialFields }: Props) {
                 <div className="flex flex-col gap-0.5 shrink-0">
                   <button onClick={() => handleMove(idx, -1)} disabled={idx === 0}
                     className="h-5 w-5 rounded flex items-center justify-center disabled:opacity-20"
-                    style={{ color: '#6B7A72' }}>
+                    style={{ color: '#65736B' }}>
                     <ChevronUp size={13} strokeWidth={2.5} />
                   </button>
                   <button onClick={() => handleMove(idx, 1)} disabled={idx === fields.length - 1}
                     className="h-5 w-5 rounded flex items-center justify-center disabled:opacity-20"
-                    style={{ color: '#6B7A72' }}>
+                    style={{ color: '#65736B' }}>
                     <ChevronDown size={13} strokeWidth={2.5} />
                   </button>
                 </div>
@@ -233,18 +233,18 @@ export function RegistrationFormBuilder({ eventId, initialFields }: Props) {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-[14px] font-medium" style={{ color: '#0F1F18' }}>{f.label}</span>
-                    <span className="text-[12.5px]" style={{ color: '#6B7A72' }}>{info?.label}</span>
+                    <span className="text-[12.5px]" style={{ color: '#65736B' }}>{info?.label}</span>
                     {f.is_required && (
                       <span
                         className="text-[12px] px-1.5 py-0.5 rounded"
-                        style={{ background: '#F5F5F4', color: '#6B7A72' }}
+                        style={{ background: '#F5F5F4', color: '#65736B' }}
                       >
                         required
                       </span>
                     )}
                   </div>
                   {opts.length > 0 && (
-                    <div className="text-[12px] mt-0.5 truncate" style={{ color: '#6B7A72' }}>
+                    <div className="text-[12px] mt-0.5 truncate" style={{ color: '#65736B' }}>
                       {opts.join(' · ')}
                     </div>
                   )}
@@ -253,17 +253,17 @@ export function RegistrationFormBuilder({ eventId, initialFields }: Props) {
                 {/* Actions */}
                 <div className="flex items-center gap-1 shrink-0">
                   <button onClick={() => openEdit(f)} title="Edit"
-                    className="h-8 w-8 rounded-lg flex items-center justify-center transition"
-                    style={{ color: '#6B7A72' }}
+                    className="h-10 w-10 rounded-lg flex items-center justify-center transition"
+                    style={{ color: '#65736B' }}
                     onMouseEnter={e => (e.currentTarget.style.background = '#F5F5F4')}
                     onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
                     <Pencil size={14} strokeWidth={2} />
                   </button>
                   <button onClick={() => setConfirmDelete(f.id)} title="Delete"
-                    className="h-8 w-8 rounded-lg flex items-center justify-center transition"
-                    style={{ color: '#6B7A72' }}
+                    className="h-10 w-10 rounded-lg flex items-center justify-center transition"
+                    style={{ color: '#65736B' }}
                     onMouseEnter={e => { e.currentTarget.style.background = 'rgba(184,66,60,0.08)'; e.currentTarget.style.color = '#B8423C'; }}
-                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#6B7A72'; }}>
+                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#65736B'; }}>
                     <Trash2 size={14} strokeWidth={2} />
                   </button>
                 </div>
@@ -302,12 +302,12 @@ export function RegistrationFormBuilder({ eventId, initialFields }: Props) {
                       background: form.field_type === ft.value ? 'rgba(31,77,58,0.05)' : 'white',
                     }}
                   >
-                    <span style={{ color: form.field_type === ft.value ? '#1F4D3A' : '#6B7A72' }}>{ft.icon}</span>
+                    <span style={{ color: form.field_type === ft.value ? '#1F4D3A' : '#65736B' }}>{ft.icon}</span>
                     <div>
                       <div className="text-[13px] font-medium" style={{ color: form.field_type === ft.value ? '#0F1F18' : '#3A4A42' }}>
                         {ft.label}
                       </div>
-                      <div className="text-[12.5px]" style={{ color: '#6B7A72' }}>{ft.hint}</div>
+                      <div className="text-[12.5px]" style={{ color: '#65736B' }}>{ft.hint}</div>
                     </div>
                   </button>
                 ))}
@@ -373,9 +373,9 @@ export function RegistrationFormBuilder({ eventId, initialFields }: Props) {
                         <button
                           onClick={() => setF('options', form.options.filter((_, j) => j !== i))}
                           className="h-9 w-9 rounded-lg flex items-center justify-center transition shrink-0"
-                          style={{ color: '#6B7A72' }}
+                          style={{ color: '#65736B' }}
                           onMouseEnter={e => { e.currentTarget.style.background = 'rgba(184,66,60,0.08)'; e.currentTarget.style.color = '#B8423C'; }}
-                          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#6B7A72'; }}
+                          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#65736B'; }}
                         >
                           <Trash2 size={13} strokeWidth={2} />
                         </button>
@@ -397,7 +397,7 @@ export function RegistrationFormBuilder({ eventId, initialFields }: Props) {
             <div className="flex items-center justify-between pt-1">
               <div>
                 <div className="text-[14px] font-medium" style={{ color: '#0F1F18' }}>Required</div>
-                <div className="text-[12px]" style={{ color: '#6B7A72' }}>Attendee must answer this field.</div>
+                <div className="text-[12px]" style={{ color: '#65736B' }}>Attendee must answer this field.</div>
               </div>
               <button
                 type="button"
@@ -440,7 +440,7 @@ export function RegistrationFormBuilder({ eventId, initialFields }: Props) {
             <h3 className="font-display font-semibold text-[18px] mb-2" style={{ color: '#0F1F18' }}>
               Remove this field?
             </h3>
-            <p className="text-[14px] mb-5" style={{ color: '#6B7A72' }}>
+            <p className="text-[14px] mb-5" style={{ color: '#65736B' }}>
               Existing registrations that already answered this field will keep their data — it just won&apos;t show in new forms.
             </p>
             <div className="flex gap-3">

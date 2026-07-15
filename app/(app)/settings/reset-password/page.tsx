@@ -42,7 +42,7 @@ export default function ResetPasswordPage() {
         style={{ border: "1px solid #E5E0D4", boxShadow: "0 1px 2px rgba(15,31,24,0.04)" }}
       >
         <h1 className="text-[22px] font-bold text-[#0F1F18] tracking-tight mb-1">Set new password</h1>
-        <p className="text-[14px] text-[#6B7A72] mb-7">Choose a strong password for your account.</p>
+        <p className="text-[14px] text-[#65736B] mb-7">Choose a strong password for your account.</p>
 
         <form className="space-y-4" onSubmit={handleSubmit}>
           {error && (
@@ -57,7 +57,7 @@ export default function ResetPasswordPage() {
               required
               minLength={8}
               placeholder="At least 8 characters"
-              className="w-full h-10 px-3.5 rounded-lg border text-[14px] text-[#0F1F18] placeholder:text-[#6B7A72]/60 transition focus:outline-none"
+              className="w-full h-10 px-3.5 rounded-lg border text-[14px] text-[#0F1F18] placeholder:text-[#65736B]/60 transition focus:outline-none"
               style={{ borderColor: "#E5E0D4", background: "#FAF6EE" }}
               onFocus={e => { e.currentTarget.style.borderColor = "rgba(31,77,58,0.4)"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(31,77,58,0.1)"; }}
               onBlur={e => { e.currentTarget.style.borderColor = "#E5E0D4"; e.currentTarget.style.boxShadow = "none"; }}
@@ -72,7 +72,7 @@ export default function ResetPasswordPage() {
               required
               minLength={8}
               placeholder="Same password again"
-              className="w-full h-10 px-3.5 rounded-lg border text-[14px] text-[#0F1F18] placeholder:text-[#6B7A72]/60 transition focus:outline-none"
+              className="w-full h-10 px-3.5 rounded-lg border text-[14px] text-[#0F1F18] placeholder:text-[#65736B]/60 transition focus:outline-none"
               style={{ borderColor: "#E5E0D4", background: "#FAF6EE" }}
               onFocus={e => { e.currentTarget.style.borderColor = "rgba(31,77,58,0.4)"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(31,77,58,0.1)"; }}
               onBlur={e => { e.currentTarget.style.borderColor = "#E5E0D4"; e.currentTarget.style.boxShadow = "none"; }}

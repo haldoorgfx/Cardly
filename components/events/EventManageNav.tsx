@@ -22,7 +22,7 @@ export function EventManageNav({ eventSlug, eventName, active }: Props) {
     <div className="sticky top-0 z-30 border-b" style={{ background: 'white', borderColor: '#E5E0D4' }}>
       <div className="px-4 sm:px-6 lg:px-8 pt-3 pb-0">
         {/* Breadcrumb */}
-        <div className="flex items-center gap-1.5 text-[12px] mb-2.5" style={{ color: '#6B7A72' }}>
+        <div className="flex items-center gap-1.5 text-[12px] mb-2.5" style={{ color: '#65736B' }}>
           <Link href="/dashboard" className="hover:text-[#1F4D3A] transition-colors">Events</Link>
           <ChevronRight size={12} strokeWidth={2} />
           <Link href={`/events/${eventSlug}`} className="hover:text-[#1F4D3A] transition-colors truncate max-w-[200px]">
@@ -38,7 +38,7 @@ export function EventManageNav({ eventSlug, eventName, active }: Props) {
               href={tab.href(eventSlug)}
               className="flex-none text-[13px] font-medium px-3 pb-2.5 border-b-2 transition-colors whitespace-nowrap"
               style={{
-                color: active === tab.key ? '#1F4D3A' : '#6B7A72',
+                color: active === tab.key ? '#1F4D3A' : '#65736B',
                 borderBottomColor: active === tab.key ? '#1F4D3A' : 'transparent',
               }}
             >

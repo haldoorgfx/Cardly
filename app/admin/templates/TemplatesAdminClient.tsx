@@ -9,7 +9,7 @@ type Template = Database['public']['Tables']['templates']['Row'];
 type MinPlan = 'free' | 'pro' | 'studio';
 
 const MIN_PLAN_STYLES: Record<MinPlan, { bg: string; color: string }> = {
-  free:   { bg: 'rgba(107,122,114,0.10)', color: '#6B7A72' },
+  free:   { bg: 'rgba(107,122,114,0.10)', color: '#65736B' },
   pro:    { bg: 'rgba(232,197,126,0.15)', color: '#C9A45E' },
   studio: { bg: 'rgba(31,77,58,0.12)',   color: '#1F4D3A' },
 };
@@ -59,8 +59,8 @@ function TemplateModal({
           <h2 className="font-display font-semibold text-[17px] text-[#0F1F18]">
             {initial.name ? 'Edit template' : 'New template'}
           </h2>
-          <button onClick={onClose} aria-label="Close" className="h-8 w-8 rounded-lg grid place-items-center hover:bg-[#FAF6EE] transition-colors">
-            <X size={15} strokeWidth={2} className="text-[#6B7A72]" />
+          <button onClick={onClose} aria-label="Close" className="h-10 w-10 rounded-lg grid place-items-center hover:bg-[#FAF6EE] transition-colors">
+            <X size={15} strokeWidth={2} className="text-[#65736B]" />
           </button>
         </div>
 
@@ -96,7 +96,7 @@ function TemplateModal({
               placeholder="https://… (from Supabase templates bucket)"
               className="w-full border border-[#E5E0D4] rounded-lg px-3 py-2 text-[13px] outline-none focus:ring-2 focus:ring-[#1F4D3A]/20 text-[#0F1F18]"
             />
-            <p className="text-[12.5px] text-[#6B7A72] mt-1">Upload to the &ldquo;templates&rdquo; Supabase storage bucket, paste the public URL here.</p>
+            <p className="text-[12.5px] text-[#65736B] mt-1">Upload to the &ldquo;templates&rdquo; Supabase storage bucket, paste the public URL here.</p>
           </div>
 
           {/* Background URL */}
@@ -151,7 +151,7 @@ function TemplateModal({
         <div className="px-6 pb-6 flex items-center justify-end gap-3">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-lg text-[13px] text-[#6B7A72] border border-[#E5E0D4] hover:bg-[#FAF6EE] transition-colors"
+            className="px-4 py-2 rounded-lg text-[13px] text-[#65736B] border border-[#E5E0D4] hover:bg-[#FAF6EE] transition-colors"
           >
             Cancel
           </button>
@@ -317,7 +317,7 @@ export function TemplatesAdminClient({ initialTemplates }: { initialTemplates: T
       <div className="mb-5 flex items-center justify-between">
         <div className="flex items-center gap-3">
           {templates.length > 0 && (
-            <label className="flex items-center gap-2 cursor-pointer text-[12px] text-[#6B7A72]">
+            <label className="flex items-center gap-2 cursor-pointer text-[12px] text-[#65736B]">
               <input
                 type="checkbox"
                 aria-label="Select all templates"
@@ -328,7 +328,7 @@ export function TemplatesAdminClient({ initialTemplates }: { initialTemplates: T
               Select all
             </label>
           )}
-          <div className="text-[12px] text-[#6B7A72]">
+          <div className="text-[12px] text-[#65736B]">
             {templates.length} template{templates.length !== 1 ? 's' : ''}
             {' '}&mdash; {published} published
           </div>
@@ -361,7 +361,7 @@ export function TemplatesAdminClient({ initialTemplates }: { initialTemplates: T
           <button
             disabled={bulkBusy}
             onClick={() => setBulkConfirm('unpublish')}
-            className="h-8 px-3 rounded-lg text-[12px] font-medium border border-[#E5E0D4] bg-white text-[#6B7A72] hover:bg-[#FAF6EE] transition-colors disabled:opacity-50"
+            className="h-8 px-3 rounded-lg text-[12px] font-medium border border-[#E5E0D4] bg-white text-[#65736B] hover:bg-[#FAF6EE] transition-colors disabled:opacity-50"
           >
             Unpublish
           </button>
@@ -378,7 +378,7 @@ export function TemplatesAdminClient({ initialTemplates }: { initialTemplates: T
             onClick={clearSelection}
             title="Clear selection"
             aria-label="Clear selection"
-            className="h-8 w-8 grid place-items-center rounded-lg border border-[#E5E0D4] bg-white text-[#6B7A72] hover:bg-[#FAF6EE] transition-colors disabled:opacity-50"
+            className="h-10 w-10 grid place-items-center rounded-lg border border-[#E5E0D4] bg-white text-[#65736B] hover:bg-[#FAF6EE] transition-colors disabled:opacity-50"
           >
             <X size={13} strokeWidth={2} />
           </button>
@@ -388,7 +388,7 @@ export function TemplatesAdminClient({ initialTemplates }: { initialTemplates: T
       {/* Grid */}
       {templates.length === 0 ? (
         <div className="py-20 text-center">
-          <p className="text-[14px] text-[#6B7A72] mb-4">No templates yet.</p>
+          <p className="text-[14px] text-[#65736B] mb-4">No templates yet.</p>
           <button
             onClick={openNew}
             className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-[13px] font-medium text-white"
@@ -423,7 +423,7 @@ export function TemplatesAdminClient({ initialTemplates }: { initialTemplates: T
                   {t.thumbnail_url ? (
                     <img src={t.thumbnail_url} alt={t.name} className="w-full h-full object-cover" />
                   ) : (
-                    <div className="absolute inset-0 grid place-items-center text-[#6B7A72]">
+                    <div className="absolute inset-0 grid place-items-center text-[#65736B]">
                       <svg className="w-8 h-8 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M4.5 19.5h15M3.75 6.75h16.5" />
                       </svg>
@@ -445,7 +445,7 @@ export function TemplatesAdminClient({ initialTemplates }: { initialTemplates: T
                     </span>
                   </div>
                   {t.category && (
-                    <div className="text-[12.5px] text-[#6B7A72] mb-3">{t.category}</div>
+                    <div className="text-[12.5px] text-[#65736B] mb-3">{t.category}</div>
                   )}
 
                   {/* Actions */}
@@ -453,7 +453,7 @@ export function TemplatesAdminClient({ initialTemplates }: { initialTemplates: T
                     <button
                       onClick={() => openEdit(t)}
                       disabled={isBusy}
-                      className="flex-1 flex items-center justify-center gap-1.5 h-8 rounded-lg border border-[#E5E0D4] text-[12px] text-[#3A4A42] hover:bg-[#FAF6EE] transition-colors disabled:opacity-50"
+                      className="flex-1 flex items-center justify-center gap-1.5 h-10 rounded-lg border border-[#E5E0D4] text-[12px] text-[#3A4A42] hover:bg-[#FAF6EE] transition-colors disabled:opacity-50"
                     >
                       <Pencil size={11} strokeWidth={2} /> Edit
                     </button>
@@ -461,7 +461,7 @@ export function TemplatesAdminClient({ initialTemplates }: { initialTemplates: T
                       onClick={() => togglePublished(t)}
                       disabled={isBusy}
                       title={t.published ? 'Unpublish' : 'Publish'}
-                      className={`h-8 w-8 rounded-lg border border-[#E5E0D4] grid place-items-center transition-colors disabled:opacity-50 ${t.published ? 'text-[#2D7A4F] hover:bg-[rgba(45,122,79,0.10)]' : 'text-[#6B7A72] hover:bg-[#FAF6EE]'}`}
+                      className={`h-10 w-10 rounded-lg border border-[#E5E0D4] grid place-items-center transition-colors disabled:opacity-50 ${t.published ? 'text-[#2D7A4F] hover:bg-[rgba(45,122,79,0.10)]' : 'text-[#65736B] hover:bg-[#FAF6EE]'}`}
                     >
                       {isBusy ? (
                         <Loader2 size={12} strokeWidth={2} className="animate-spin" />
@@ -475,7 +475,7 @@ export function TemplatesAdminClient({ initialTemplates }: { initialTemplates: T
                       onClick={() => setConfirmDelete(t)}
                       disabled={isBusy}
                       title="Delete"
-                      className="h-8 w-8 rounded-lg border border-[#E5E0D4] grid place-items-center text-[#B8423C] hover:bg-[rgba(184,66,60,0.08)] transition-colors disabled:opacity-50"
+                      className="h-10 w-10 rounded-lg border border-[#E5E0D4] grid place-items-center text-[#B8423C] hover:bg-[rgba(184,66,60,0.08)] transition-colors disabled:opacity-50"
                     >
                       <Trash2 size={12} strokeWidth={2} />
                     </button>
@@ -508,13 +508,13 @@ export function TemplatesAdminClient({ initialTemplates }: { initialTemplates: T
               </div>
               <div>
                 <h3 className="font-semibold text-[15px] text-[#0F1F18]">Delete template?</h3>
-                <p className="text-[13px] text-[#6B7A72] mt-1">
+                <p className="text-[13px] text-[#65736B] mt-1">
                   &ldquo;{confirmDelete.name}&rdquo; will be permanently removed.
                 </p>
               </div>
             </div>
             <div className="flex gap-2 justify-end">
-              <button onClick={() => setConfirmDelete(null)} className="px-4 py-2 rounded-lg text-[13px] text-[#6B7A72] border border-[#E5E0D4] hover:bg-[#FAF6EE] transition-colors">Cancel</button>
+              <button onClick={() => setConfirmDelete(null)} className="px-4 py-2 rounded-lg text-[13px] text-[#65736B] border border-[#E5E0D4] hover:bg-[#FAF6EE] transition-colors">Cancel</button>
               <button onClick={() => doDelete(confirmDelete)} className="px-4 py-2 rounded-lg text-[13px] font-medium text-white bg-[#B8423C] hover:opacity-90 transition">Delete</button>
             </div>
           </div>
@@ -534,13 +534,13 @@ export function TemplatesAdminClient({ initialTemplates }: { initialTemplates: T
                 <h3 className="font-semibold text-[15px] text-[#0F1F18]">
                   Delete {selected.size} template{selected.size === 1 ? '' : 's'}?
                 </h3>
-                <p className="text-[13px] text-[#6B7A72] mt-1">
+                <p className="text-[13px] text-[#65736B] mt-1">
                   The selected template{selected.size === 1 ? '' : 's'} will be permanently removed.
                 </p>
               </div>
             </div>
             <div className="flex gap-2 justify-end">
-              <button onClick={() => setBulkConfirm(null)} className="px-4 py-2 rounded-lg text-[13px] text-[#6B7A72] border border-[#E5E0D4] hover:bg-[#FAF6EE] transition-colors">Cancel</button>
+              <button onClick={() => setBulkConfirm(null)} className="px-4 py-2 rounded-lg text-[13px] text-[#65736B] border border-[#E5E0D4] hover:bg-[#FAF6EE] transition-colors">Cancel</button>
               <button onClick={() => runBulk('delete')} className="px-4 py-2 rounded-lg text-[13px] font-medium text-white bg-[#B8423C] hover:opacity-90 transition">Delete {selected.size}</button>
             </div>
           </div>
@@ -555,13 +555,13 @@ export function TemplatesAdminClient({ initialTemplates }: { initialTemplates: T
             <h3 className="font-semibold text-[15px] text-[#0F1F18]">
               {bulkConfirm === 'publish' ? 'Publish' : 'Unpublish'} {selected.size} template{selected.size === 1 ? '' : 's'}?
             </h3>
-            <p className="text-[13px] text-[#6B7A72] mt-1 mb-5">
+            <p className="text-[13px] text-[#65736B] mt-1 mb-5">
               {bulkConfirm === 'publish'
                 ? 'The selected templates will become available to organizers.'
                 : 'The selected templates will be hidden from organizers.'}
             </p>
             <div className="flex gap-2 justify-end">
-              <button onClick={() => setBulkConfirm(null)} className="px-4 py-2 rounded-lg text-[13px] text-[#6B7A72] border border-[#E5E0D4] hover:bg-[#FAF6EE] transition-colors">Cancel</button>
+              <button onClick={() => setBulkConfirm(null)} className="px-4 py-2 rounded-lg text-[13px] text-[#65736B] border border-[#E5E0D4] hover:bg-[#FAF6EE] transition-colors">Cancel</button>
               <button onClick={() => runBulk(bulkConfirm)} className="px-4 py-2 rounded-lg text-[13px] font-medium text-white hover:opacity-90 transition" style={{ background: '#1F4D3A' }}>
                 {bulkConfirm === 'publish' ? 'Publish' : 'Unpublish'} {selected.size}
               </button>

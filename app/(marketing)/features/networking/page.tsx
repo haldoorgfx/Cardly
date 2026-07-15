@@ -15,7 +15,7 @@ const C = {
   accentDark: '#C9A45E',
   ink: '#0F1F18',
   inkSoft: '#3A4A42',
-  muted: '#6B7A72',
+  muted: '#65736B',
   cream: '#FAF6EE',
   surface: '#FFFFFF',
   border: '#E5E0D4',
@@ -133,7 +133,7 @@ function NetworkingMockup() {
             ].map((s) => (
               <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <div style={{ background: 'rgba(31,77,58,0.08)', border: '1px solid rgba(31,77,58,0.2)', borderRadius: 8, padding: '4px 10px', fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif', fontSize: 14, fontWeight: 700, color: '#1F4D3A', flexShrink: 0 }}>{s.label}</div>
-                <span style={{ fontFamily: 'var(--font-sans)', fontSize: 14, color: '#6B7A72' }}>{s.desc}</span>
+                <span style={{ fontFamily: 'var(--font-sans)', fontSize: 14, color: '#65736B' }}>{s.desc}</span>
               </div>
             ))}
           </div>
@@ -156,7 +156,7 @@ function NetworkingMockup() {
                 <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#FEBC2E' }} />
                 <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#28C840' }} />
               </div>
-              <div style={{ background: '#FFFFFF', borderRadius: 5, padding: '3px 10px', fontFamily: 'var(--font-sans)', fontSize: 11, color: '#6B7A72', border: '1px solid #E5E0D4' }}>
+              <div style={{ background: '#FFFFFF', borderRadius: 5, padding: '3px 10px', fontFamily: 'var(--font-sans)', fontSize: 11, color: '#65736B', border: '1px solid #E5E0D4' }}>
                 eventera.so/e/summit/networking
               </div>
             </div>
@@ -195,7 +195,7 @@ function NetworkingMockup() {
                     <div style={{ fontFamily: 'var(--font-sans)', fontSize: 10, fontWeight: 600, color: '#2D7A4F', flexShrink: 0 }}>{m.pct}%</div>
                   </div>
                 ))}
-                <div style={{ fontFamily: 'var(--font-sans)', fontSize: 10, color: '#6B7A72', marginTop: 8, marginBottom: 5 }}>Networking feed</div>
+                <div style={{ fontFamily: 'var(--font-sans)', fontSize: 10, color: '#65736B', marginTop: 8, marginBottom: 5 }}>Networking feed</div>
                 {[{ w: 100 }, { w: 85 }].map((r, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
                     <div style={{ width: 16, height: 16, borderRadius: '50%', background: '#E8EFEB', flexShrink: 0 }} />

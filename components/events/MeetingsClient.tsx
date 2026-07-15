@@ -51,7 +51,7 @@ export function MeetingsClient({ eventName }: Props) {
           { label: 'No-shows', value: '—' },
         ].map(s => (
           <div key={s.label} className="bg-white rounded-2xl p-5" style={{ border: '1px solid #E5E0D4' }}>
-            <div className=" text-[11.5px] tracking-[0.14em] uppercase mb-2" style={{ color: '#6B7A72' }}>{s.label}</div>
+            <div className=" text-[11.5px] tracking-[0.14em] uppercase mb-2" style={{ color: '#65736B' }}>{s.label}</div>
             <div className=" text-[24px] leading-none" style={{ color: '#0F1F18' }}>{s.value}</div>
           </div>
         ))}
@@ -62,7 +62,7 @@ export function MeetingsClient({ eventName }: Props) {
         {TABS.map(t => (
           <button key={t.id} onClick={() => setTab(t.id)}
             className="px-3.5 py-2 rounded-lg text-[13px] font-medium transition-all"
-            style={tab === t.id ? { background: '#1F4D3A', color: 'white' } : { color: '#6B7A72' }}>
+            style={tab === t.id ? { background: '#1F4D3A', color: 'white' } : { color: '#65736B' }}>
             {t.label}
           </button>
         ))}
@@ -82,7 +82,7 @@ export function MeetingsClient({ eventName }: Props) {
               <div className="grid items-center gap-2 mb-2" style={{ gridTemplateColumns: '56px repeat(5, 1fr)' }}>
                 <span />
                 {TABLES.map((t, i) => (
-                  <div key={i} className="text-center  text-[11.5px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>{t}</div>
+                  <div key={i} className="text-center  text-[11.5px] tracking-[0.12em] uppercase" style={{ color: '#65736B' }}>{t}</div>
                 ))}
               </div>
               {SLOTS.map((s, r) => (
@@ -98,7 +98,7 @@ export function MeetingsClient({ eventName }: Props) {
                         style={{ background: 'rgba(232,239,235,0.7)', border: '1px solid rgba(31,77,58,0.2)' }}>
                         <span className="w-6 h-6 rounded-full grid place-items-center text-cream font-display text-[11.5px] font-semibold"
                           style={{ background: GRADS[ai] }}>{INITIALS[ai]}</span>
-                        <svg width={10} height={10} fill="none" stroke="#6B7A72" strokeWidth={1.5} viewBox="0 0 24 24">
+                        <svg width={10} height={10} fill="none" stroke="#65736B" strokeWidth={1.5} viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
                         </svg>
                         <span className="w-6 h-6 rounded-full grid place-items-center text-cream font-display text-[11.5px] font-semibold"
@@ -118,7 +118,7 @@ export function MeetingsClient({ eventName }: Props) {
         <div className="grid gap-3">
           {requests.length === 0 ? (
             <div className="bg-white rounded-2xl py-16 text-center" style={{ border: '1px solid #E5E0D4' }}>
-              <p className="text-[13.5px]" style={{ color: '#6B7A72' }}>All caught up — no pending meeting requests.</p>
+              <p className="text-[13.5px]" style={{ color: '#65736B' }}>All caught up — no pending meeting requests.</p>
             </div>
           ) : requests.map((r, i) => (
             <div key={i} className="bg-white rounded-2xl p-4 flex items-center gap-4" style={{ border: '1px solid #E5E0D4' }}>
@@ -133,11 +133,11 @@ export function MeetingsClient({ eventName }: Props) {
               <div className="min-w-0 flex-1">
                 <div className="text-[13.5px]" style={{ color: '#0F1F18' }}>
                   <span className="font-medium">{(r.from as [string, number])[0]}</span>
-                  <span className="mx-1.5" style={{ color: '#6B7A72' }}>→</span>
+                  <span className="mx-1.5" style={{ color: '#65736B' }}>→</span>
                   <span className="font-medium">{(r.to as [string, number])[0]}</span>
                 </div>
                 <div className="text-[12.5px] mt-0.5" style={{ color: '#3A4A42' }}>{r.topic}</div>
-                <div className=" text-[12px] tracking-[0.1em] uppercase mt-1" style={{ color: '#6B7A72' }}>{r.when}</div>
+                <div className=" text-[12px] tracking-[0.1em] uppercase mt-1" style={{ color: '#65736B' }}>{r.when}</div>
               </div>
               <div className="flex items-center gap-2 shrink-0">
                 <button onClick={() => dismiss(i)} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-[12.5px] font-medium border transition-colors"
@@ -162,7 +162,7 @@ export function MeetingsClient({ eventName }: Props) {
             <div className="flex items-center justify-between mb-4 pb-4 border-b" style={{ borderColor: 'rgba(229,224,212,0.7)' }}>
               <div>
                 <div className="text-[13.5px] font-medium" style={{ color: '#0F1F18' }}>Meeting scheduler</div>
-                <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>Enable 1:1 meetings for this event</div>
+                <div className="text-[12px] mt-0.5" style={{ color: '#65736B' }}>Enable 1:1 meetings for this event</div>
               </div>
               <button onClick={() => setMeetingOn(v => !v)}
                 className="relative w-10 h-6 rounded-full transition-colors"
@@ -174,7 +174,7 @@ export function MeetingsClient({ eventName }: Props) {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {[['Meeting length', '30 min'], ['Tables', '5'], ['From', '10:00'], ['Until', '16:00']].map(([label, val]) => (
                 <div key={label}>
-                  <div className=" text-[11.5px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>{label}</div>
+                  <div className=" text-[11.5px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#65736B' }}>{label}</div>
                   <div className="border rounded-lg px-3 py-2.5 text-[13.5px]" style={{ borderColor: '#E5E0D4', color: '#3A4A42', background: 'rgba(250,246,238,0.5)' }}>{val}</div>
                 </div>
               ))}
@@ -192,7 +192,7 @@ export function MeetingsClient({ eventName }: Props) {
                 style={{ borderColor: 'rgba(229,224,212,0.7)' }}>
                 <div>
                   <div className="text-[13.5px] font-medium" style={{ color: '#0F1F18' }}>{label as string}</div>
-                  <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>{desc as string}</div>
+                  <div className="text-[12px] mt-0.5" style={{ color: '#65736B' }}>{desc as string}</div>
                 </div>
                 <div className="relative w-10 h-6 rounded-full shrink-0" style={{ background: on ? '#1F4D3A' : '#E5E0D4' }}>
                   <span className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow transition-transform"

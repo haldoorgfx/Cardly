@@ -63,7 +63,7 @@ export function SearchPageClient({ initialQuery, initialCity, events: serverEven
             {/* Search input */}
             <div className="flex-1 flex items-center gap-2 px-4 py-2.5 rounded-xl"
               style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
-              <Search size={16} style={{ color: '#6B7A72', flexShrink: 0 }} />
+              <Search size={16} style={{ color: '#65736B', flexShrink: 0 }} />
               <input
                 value={query}
                 onChange={e => setQuery(e.target.value)}
@@ -87,7 +87,7 @@ export function SearchPageClient({ initialQuery, initialCity, events: serverEven
               <button
                 onClick={() => setShowCityDropdown(!showCityDropdown)}
                 className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-medium transition hover:opacity-80"
-                style={{ background: cityFilter ? '#E8EFEB' : '#FFFFFF', color: cityFilter ? '#1F4D3A' : '#6B7A72', border: `1px solid ${cityFilter ? '#1F4D3A' : '#E5E0D4'}` }}>
+                style={{ background: cityFilter ? '#E8EFEB' : '#FFFFFF', color: cityFilter ? '#1F4D3A' : '#65736B', border: `1px solid ${cityFilter ? '#1F4D3A' : '#E5E0D4'}` }}>
                 <MapPin size={14} />
                 {cityFilter || 'Any city'}
               </button>
@@ -95,7 +95,7 @@ export function SearchPageClient({ initialQuery, initialCity, events: serverEven
                 <div className="absolute right-0 top-full mt-2 w-48 rounded-2xl shadow-lg z-20 overflow-hidden"
                   style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
                   <button className="w-full text-left px-4 py-2.5 text-[13px] hover:bg-[#FAF6EE] transition"
-                    style={{ color: '#6B7A72' }}
+                    style={{ color: '#65736B' }}
                     onClick={() => { setCityFilter(''); doSearch(query, ''); setShowCityDropdown(false); }}>
                     Any city
                   </button>
@@ -125,8 +125,8 @@ export function SearchPageClient({ initialQuery, initialCity, events: serverEven
         {!hasFilters && (
           <div className="mb-8">
             <div className="flex items-center gap-2 mb-3">
-              <Filter size={13} style={{ color: '#6B7A72' }} />
-              <span className="text-[12px] font-semibold" style={{ color: '#6B7A72' }}>Popular searches</span>
+              <Filter size={13} style={{ color: '#65736B' }} />
+              <span className="text-[12px] font-semibold" style={{ color: '#65736B' }}>Popular searches</span>
             </div>
             <div className="flex flex-wrap gap-2">
               {POPULAR_SEARCHES.map(s => (
@@ -143,12 +143,12 @@ export function SearchPageClient({ initialQuery, initialCity, events: serverEven
         {/* Results header */}
         {hasFilters && (
           <div className="flex items-center justify-between mb-5">
-            <p className="text-[14px]" style={{ color: '#6B7A72' }}>
+            <p className="text-[14px]" style={{ color: '#65736B' }}>
               {events.length} result{events.length !== 1 ? 's' : ''}
               {query && <> for <strong style={{ color: '#0F1F18' }}>&ldquo;{query}&rdquo;</strong></>}
               {cityFilter && <> in <strong style={{ color: '#0F1F18' }}>{cityFilter}</strong></>}
             </p>
-            <button onClick={clear} className="flex items-center gap-1 text-[13px] transition hover:opacity-70" style={{ color: '#6B7A72' }}>
+            <button onClick={clear} className="flex items-center gap-1 text-[13px] transition hover:opacity-70" style={{ color: '#65736B' }}>
               <X size={13} /> Clear filters
             </button>
           </div>
@@ -173,11 +173,11 @@ export function SearchPageClient({ initialQuery, initialCity, events: serverEven
               </div>
               <div className="p-4">
                 <h3 className="font-semibold text-[14px] mb-1.5 line-clamp-2" style={{ color: '#0F1F18' }}>{ep.title}</h3>
-                <div className="flex items-center gap-1.5 text-[12px] mb-1" style={{ color: '#6B7A72' }}>
+                <div className="flex items-center gap-1.5 text-[12px] mb-1" style={{ color: '#65736B' }}>
                   <Calendar size={11} /> {ep.starts_at ? fmtDate(ep.starts_at) : 'Date TBA'}
                 </div>
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1 text-[12px]" style={{ color: '#6B7A72' }}>
+                  <div className="flex items-center gap-1 text-[12px]" style={{ color: '#65736B' }}>
                     {ep.is_online ? <Globe size={11} /> : <MapPin size={11} />}
                     <span className="truncate">{ep.is_online ? 'Online' : ep.city ?? 'TBA'}</span>
                   </div>
@@ -192,7 +192,7 @@ export function SearchPageClient({ initialQuery, initialCity, events: serverEven
           <div className="rounded-2xl py-20 text-center" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
             <Search size={28} style={{ color: '#C9C3B1' }} className="mx-auto mb-3" />
             <p className="font-medium text-[15px] mb-1" style={{ color: '#0F1F18' }}>No results found</p>
-            <p className="text-[13px]" style={{ color: '#6B7A72' }}>Try different keywords or clear the filters</p>
+            <p className="text-[13px]" style={{ color: '#65736B' }}>Try different keywords or clear the filters</p>
           </div>
         )}
 

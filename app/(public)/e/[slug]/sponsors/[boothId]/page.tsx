@@ -171,7 +171,7 @@ export default async function BoothPage({ params }: Props) {
                     )}
                     <div>
                       <div className="font-medium text-[14px]" style={{ color: '#0F1F18' }}>{member.name}</div>
-                      <div className="text-[12px]" style={{ color: '#6B7A72' }}>{member.role}</div>
+                      <div className="text-[12px]" style={{ color: '#65736B' }}>{member.role}</div>
                     </div>
                   </div>
                 ))}
@@ -192,7 +192,7 @@ export default async function BoothPage({ params }: Props) {
               </div>
             )}
             {sponsor.booth_hours && (
-              <div className=" text-[13px] mb-5" style={{ color: '#6B7A72' }}>
+              <div className=" text-[13px] mb-5" style={{ color: '#65736B' }}>
                 Open: {sponsor.booth_hours}
               </div>
             )}
@@ -225,7 +225,7 @@ export default async function BoothPage({ params }: Props) {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block text-center text-[13px] mt-4 hover:underline"
-                style={{ color: '#6B7A72' }}
+                style={{ color: '#65736B' }}
               >
                 {safeHostname(sponsor.website_url)} →
               </a>

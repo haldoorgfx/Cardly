@@ -9,7 +9,7 @@ import { toast } from '@/hooks/use-toast';
 const STATUS_STYLES: Record<string, { bg: string; color: string }> = {
   draft:     { bg: 'rgba(232,197,126,0.15)', color: '#C9A45E' },
   published: { bg: 'rgba(31,77,58,0.10)',   color: '#2D7A4F' },
-  archived:  { bg: 'rgba(107,122,114,0.10)', color: '#6B7A72' },
+  archived:  { bg: 'rgba(107,122,114,0.10)', color: '#65736B' },
 };
 
 const MOD_STYLES: Record<string, { bg: string; color: string; label: string }> = {
@@ -177,18 +177,116 @@ export function EventsOversightClient({ events: initialEvents, total, page, tota
     }
   };
 
+  // ── Shared cell renderers (used by both table + mobile cards) ────────────────
+
+  const EventNameCell = ({ ev }: { ev: EventRow }) => (
+    <div className="min-w-0">
+      {editName === ev.id ? (
+        <input
+          autoFocus
+          value={nameDraft}
+          onChange={e => setNameDraft(e.target.value)}
+          onBlur={() => saveName(ev, nameDraft)}
+          onKeyDown={e => {
+            if (e.key === 'Enter') saveName(ev, nameDraft);
+            if (e.key === 'Escape') setEditName(null);
+          }}
+          className="w-full max-w-[220px] border border-[#1F4D3A]/40 rounded-lg px-2 py-1 text-[13px] outline-none focus:ring-2 focus:ring-[#1F4D3A]/20"
+        />
+      ) : (
+        <button
+          type="button"
+          onClick={() => { setNameDraft(ev.name); setEditName(ev.id); }}
+          title="Click to edit name"
+          className="font-medium text-[#0F1F18] hover:text-[#1F4D3A] transition-colors text-left truncate max-w-full block"
+        >
+          {ev.name}
+        </button>
+      )}
+      <div className="flex items-center gap-1 mt-0.5">
+        <span className="text-[12.5px] text-[#65736B] truncate">/{ev.slug}</span>
+        <a
+          href={`/c/${ev.slug}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-[#1F4D3A]/50 hover:text-[#1F4D3A] transition-colors shrink-0"
+          title="Open attendee page"
+        >
+          <ExternalLink size={10} strokeWidth={2} />
+        </a>
+      </div>
+    </div>
+  );
+
+  const renderStatusBadge = (ev: EventRow) => {
+    const statusStyle = STATUS_STYLES[ev.status] ?? STATUS_STYLES.draft;
+    return (
+      <span className="inline-flex items-center px-2 py-0.5 rounded-full  text-[12px] tracking-[0.1em] uppercase" style={statusStyle}>
+        {ev.status}
+      </span>
+    );
+  };
+
+  const renderModerationBadge = (ev: EventRow) => {
+    const modStyle = MOD_STYLES[ev.moderation_status] ?? MOD_STYLES.ok;
+    return (
+      <span className="inline-flex items-center px-2 py-0.5 rounded-full  text-[12px] tracking-[0.1em]" style={{ background: modStyle.bg, color: modStyle.color }}>
+        {modStyle.label}
+      </span>
+    );
+  };
+
+  const RowActions = ({ ev }: { ev: EventRow }) => {
+    const isBusy = busy === ev.id;
+    if (isBusy) return <Loader2 size={13} strokeWidth={2} className="animate-spin text-[#65736B]" />;
+    return (
+      <div className="flex items-center gap-1">
+        {/* Flag */}
+        {ev.moderation_status !== 'flagged' && ev.moderation_status !== 'removed' && (
+          <button
+            onClick={() => setModeration(ev, 'flagged')}
+            title="Flag"
+            className="h-10 w-10 rounded-lg border border-[#E5E0D4] grid place-items-center text-[#C97A2D] hover:bg-amber-50 transition-colors"
+          >
+            <Flag size={11} strokeWidth={2} />
+          </button>
+        )}
+        {/* Remove */}
+        {ev.moderation_status !== 'removed' && (
+          <button
+            onClick={() => setModeration(ev, 'removed')}
+            title="Remove"
+            className="h-10 w-10 rounded-lg border border-[#E5E0D4] grid place-items-center text-[#B8423C] hover:bg-red-50 transition-colors"
+          >
+            <Trash2 size={11} strokeWidth={2} />
+          </button>
+        )}
+        {/* Restore */}
+        {ev.moderation_status !== 'ok' && (
+          <button
+            onClick={() => setModeration(ev, 'ok')}
+            title="Restore"
+            className="h-10 w-10 rounded-lg border border-[#E5E0D4] grid place-items-center text-emerald-600 hover:bg-emerald-50 transition-colors"
+          >
+            <RotateCcw size={11} strokeWidth={2} />
+          </button>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div>
       {/* Filters */}
       <div className="mb-5 flex flex-wrap gap-2 items-end">
         <div className="flex items-center gap-2 h-9 px-3 rounded-lg border border-[#E5E0D4] bg-white min-w-[200px] flex-1 max-w-[280px]">
-          <Search size={13} strokeWidth={2} className="text-[#6B7A72] shrink-0" />
+          <Search size={13} strokeWidth={2} className="text-[#65736B] shrink-0" />
           <input
             value={filters.q}
             onChange={e => setFilters(f => ({ ...f, q: e.target.value }))}
             onKeyDown={e => e.key === 'Enter' && applyFilters()}
             placeholder="Event name or slug…"
-            className="outline-none bg-transparent flex-1 text-[13px] placeholder-[#6B7A72]/60 text-[#0F1F18]"
+            className="outline-none bg-transparent flex-1 text-[13px] placeholder-[#65736B]/60 text-[#0F1F18]"
           />
         </div>
 
@@ -223,7 +321,7 @@ export function EventsOversightClient({ events: initialEvents, total, page, tota
         </button>
 
         {hasActiveFilters && (
-          <button onClick={clearFilters} className="h-9 px-4 rounded-lg text-[13px] text-[#6B7A72] border border-[#E5E0D4] hover:bg-[#FAF6EE] transition-colors">
+          <button onClick={clearFilters} className="h-9 px-4 rounded-lg text-[13px] text-[#65736B] border border-[#E5E0D4] hover:bg-[#FAF6EE] transition-colors">
             Clear
           </button>
         )}
@@ -247,7 +345,7 @@ export function EventsOversightClient({ events: initialEvents, total, page, tota
       )}
 
       {/* Count */}
-      <div className="mb-4 text-[12px] text-[#6B7A72]">
+      <div className="mb-4 text-[12px] text-[#65736B]">
         {total} {total === 1 ? 'event' : 'events'}
         {page > 1 && ` — page ${page} of ${totalPages}`}
       </div>
@@ -284,7 +382,7 @@ export function EventsOversightClient({ events: initialEvents, total, page, tota
             disabled={bulkBusy}
             onClick={clearSelection}
             title="Clear selection"
-            className="h-8 w-8 grid place-items-center rounded-lg border border-[#E5E0D4] bg-white text-[#6B7A72] hover:bg-[#FAF6EE] transition-colors disabled:opacity-50"
+            className="h-10 w-10 grid place-items-center rounded-lg border border-[#E5E0D4] bg-white text-[#65736B] hover:bg-[#FAF6EE] transition-colors disabled:opacity-50"
           >
             <X size={13} strokeWidth={2} />
           </button>
@@ -293,38 +391,35 @@ export function EventsOversightClient({ events: initialEvents, total, page, tota
 
       {/* Table */}
       {events.length === 0 ? (
-        <div className="py-16 text-center text-[14px] text-[#6B7A72]">No events match these filters.</div>
+        <div className="py-16 text-center text-[14px] text-[#65736B]">No events match these filters.</div>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-[#E5E0D4]">
-          <table className="w-full text-[13px]">
-            <thead>
-              <tr style={{ background: '#FAF6EE', borderBottom: '1px solid #E5E0D4' }}>
-                <th className="w-10 px-4 py-3">
-                  <input
-                    type="checkbox"
-                    aria-label="Select all"
-                    checked={allSelected}
-                    onChange={toggleAll}
-                    disabled={events.length === 0}
-                    className="h-4 w-4 rounded border-[#E5E0D4] accent-[#1F4D3A] cursor-pointer disabled:cursor-not-allowed"
-                  />
-                </th>
-                <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#6B7A72]">Event</th>
-                <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#6B7A72]">Owner</th>
-                <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#6B7A72]">Status</th>
-                <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#6B7A72]">Moderation</th>
-                <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#6B7A72]">Views / Cards</th>
-                <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#6B7A72]">Created</th>
-                <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#6B7A72]">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-[#E5E0D4]">
-              {events.map(ev => {
-                const statusStyle = STATUS_STYLES[ev.status] ?? STATUS_STYLES.draft;
-                const modStyle    = MOD_STYLES[ev.moderation_status] ?? MOD_STYLES.ok;
-                const isBusy      = busy === ev.id;
-
-                return (
+        <>
+          {/* ── Desktop table (md+) ────────────────────────────── */}
+          <div className="hidden md:block overflow-x-auto rounded-xl border border-[#E5E0D4]">
+            <table className="w-full text-[13px]">
+              <thead>
+                <tr style={{ background: '#FAF6EE', borderBottom: '1px solid #E5E0D4' }}>
+                  <th className="w-10 px-4 py-3">
+                    <input
+                      type="checkbox"
+                      aria-label="Select all"
+                      checked={allSelected}
+                      onChange={toggleAll}
+                      disabled={events.length === 0}
+                      className="h-4 w-4 rounded border-[#E5E0D4] accent-[#1F4D3A] cursor-pointer disabled:cursor-not-allowed"
+                    />
+                  </th>
+                  <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#65736B]">Event</th>
+                  <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#65736B]">Owner</th>
+                  <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#65736B]">Status</th>
+                  <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#65736B]">Moderation</th>
+                  <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#65736B]">Views / Cards</th>
+                  <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#65736B]">Created</th>
+                  <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#65736B]">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-[#E5E0D4]">
+                {events.map(ev => (
                   <tr key={ev.id} className={`hover:bg-[#FAF6EE]/50 transition-colors ${ev.moderation_status === 'removed' ? 'opacity-50' : ''} ${selected.has(ev.id) ? 'bg-[#E8EFEB]/50' : ''}`}>
                     <td className="w-10 px-4 py-3">
                       <input
@@ -335,119 +430,69 @@ export function EventsOversightClient({ events: initialEvents, total, page, tota
                         className="h-4 w-4 rounded border-[#E5E0D4] accent-[#1F4D3A] cursor-pointer"
                       />
                     </td>
-                    <td className="px-4 py-3">
-                      {editName === ev.id ? (
-                        <input
-                          autoFocus
-                          value={nameDraft}
-                          onChange={e => setNameDraft(e.target.value)}
-                          onBlur={() => saveName(ev, nameDraft)}
-                          onKeyDown={e => {
-                            if (e.key === 'Enter') saveName(ev, nameDraft);
-                            if (e.key === 'Escape') setEditName(null);
-                          }}
-                          className="w-[220px] border border-[#1F4D3A]/40 rounded-lg px-2 py-1 text-[13px] outline-none focus:ring-2 focus:ring-[#1F4D3A]/20"
-                        />
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => { setNameDraft(ev.name); setEditName(ev.id); }}
-                          title="Click to edit name"
-                          className="font-medium text-[#0F1F18] hover:text-[#1F4D3A] transition-colors text-left"
-                        >
-                          {ev.name}
-                        </button>
-                      )}
-                      <div className="flex items-center gap-1 mt-0.5">
-                        <span className="text-[12.5px] text-[#6B7A72]">/{ev.slug}</span>
-                        <a
-                          href={`/c/${ev.slug}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-[#1F4D3A]/50 hover:text-[#1F4D3A] transition-colors"
-                          title="Open attendee page"
-                        >
-                          <ExternalLink size={10} strokeWidth={2} />
-                        </a>
-                      </div>
-                    </td>
+                    <td className="px-4 py-3"><EventNameCell ev={ev} /></td>
 
                     <td className="px-4 py-3">
                       <div className="text-[12px] text-[#0F1F18]">{ev.profiles?.full_name ?? '—'}</div>
-                      <div className="text-[12.5px] text-[#6B7A72]">{ev.profiles?.email ?? '—'}</div>
+                      <div className="text-[12.5px] text-[#65736B]">{ev.profiles?.email ?? '—'}</div>
                     </td>
 
-                    <td className="px-4 py-3">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full  text-[12px] tracking-[0.1em] uppercase" style={statusStyle}>
-                        {ev.status}
-                      </span>
-                    </td>
+                    <td className="px-4 py-3">{renderStatusBadge(ev)}</td>
 
-                    <td className="px-4 py-3">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full  text-[12px] tracking-[0.1em]" style={{ background: modStyle.bg, color: modStyle.color }}>
-                        {modStyle.label}
-                      </span>
-                    </td>
+                    <td className="px-4 py-3">{renderModerationBadge(ev)}</td>
 
-                    <td className="px-4 py-3  text-[12.5px] text-[#6B7A72]">
+                    <td className="px-4 py-3  text-[12.5px] text-[#65736B]">
                       {ev.view_count} / {ev.download_count}
                     </td>
 
-                    <td className="px-4 py-3  text-[12.5px] text-[#6B7A72]">
+                    <td className="px-4 py-3  text-[12.5px] text-[#65736B]">
                       {formatDate(ev.created_at)}
                     </td>
 
-                    <td className="px-4 py-3">
-                      {isBusy ? (
-                        <Loader2 size={13} strokeWidth={2} className="animate-spin text-[#6B7A72]" />
-                      ) : (
-                        <div className="flex items-center gap-1">
-                          {/* Flag */}
-                          {ev.moderation_status !== 'flagged' && ev.moderation_status !== 'removed' && (
-                            <button
-                              onClick={() => setModeration(ev, 'flagged')}
-                              title="Flag"
-                              className="h-7 w-7 rounded-lg border border-[#E5E0D4] grid place-items-center text-[#C97A2D] hover:bg-amber-50 transition-colors"
-                            >
-                              <Flag size={11} strokeWidth={2} />
-                            </button>
-                          )}
-                          {/* Remove */}
-                          {ev.moderation_status !== 'removed' && (
-                            <button
-                              onClick={() => setModeration(ev, 'removed')}
-                              title="Remove"
-                              className="h-7 w-7 rounded-lg border border-[#E5E0D4] grid place-items-center text-[#B8423C] hover:bg-red-50 transition-colors"
-                            >
-                              <Trash2 size={11} strokeWidth={2} />
-                            </button>
-                          )}
-                          {/* Restore */}
-                          {ev.moderation_status !== 'ok' && (
-                            <button
-                              onClick={() => setModeration(ev, 'ok')}
-                              title="Restore"
-                              className="h-7 w-7 rounded-lg border border-[#E5E0D4] grid place-items-center text-emerald-600 hover:bg-emerald-50 transition-colors"
-                            >
-                              <RotateCcw size={11} strokeWidth={2} />
-                            </button>
-                          )}
-                        </div>
-                      )}
-                    </td>
+                    <td className="px-4 py-3"><RowActions ev={ev} /></td>
                   </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* ── Mobile cards (below md) ────────────────────────── */}
+          <div className="md:hidden space-y-2.5">
+            {events.map(ev => (
+              <div key={ev.id} className={`rounded-xl border p-3.5 ${ev.moderation_status === 'removed' ? 'opacity-60' : ''} ${selected.has(ev.id) ? 'border-[#1F4D3A]/30 bg-[#E8EFEB]/40' : 'border-[#E5E0D4] bg-white'}`}>
+                <div className="flex items-start gap-2.5">
+                  <input
+                    type="checkbox"
+                    aria-label={`Select ${ev.name}`}
+                    checked={selected.has(ev.id)}
+                    onChange={() => toggleOne(ev.id)}
+                    className="h-4 w-4 mt-1 rounded border-[#E5E0D4] accent-[#1F4D3A] cursor-pointer shrink-0"
+                  />
+                  <div className="flex-1 min-w-0"><EventNameCell ev={ev} /></div>
+                  <RowActions ev={ev} />
+                </div>
+                <div className="mt-2.5 text-[12px] text-[#65736B]">
+                  {ev.profiles?.full_name ?? '—'} · {ev.profiles?.email ?? '—'}
+                </div>
+                <div className="flex items-center gap-2 flex-wrap mt-2.5">
+                  {renderStatusBadge(ev)}
+                  {renderModerationBadge(ev)}
+                </div>
+                <div className="mt-2.5 flex items-center justify-between text-[12px] text-[#65736B]">
+                  <span>{ev.view_count} views · {ev.download_count} cards</span>
+                  <span>{formatDate(ev.created_at)}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
       )}
 
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="mt-6 flex items-center justify-between">
           <PagLink page={page - 1} disabled={page <= 1} label="← Previous" filters={defaultFilters} pathname={pathname} />
-          <span className="text-[13px] text-[#6B7A72]">{page} / {totalPages}</span>
+          <span className="text-[13px] text-[#65736B]">{page} / {totalPages}</span>
           <PagLink page={page + 1} disabled={page >= totalPages} label="Next →" filters={defaultFilters} pathname={pathname} />
         </div>
       )}
@@ -464,7 +509,7 @@ function PagLink({ page, disabled, label, filters, pathname }: {
   if (filters.moderation) params.set('moderation', filters.moderation);
   params.set('page', String(page));
 
-  if (disabled) return <span className="text-[13px] text-[#6B7A72]/40  px-3 py-1.5">{label}</span>;
+  if (disabled) return <span className="text-[13px] text-[#65736B]/40  px-3 py-1.5">{label}</span>;
   return (
     <a href={`${pathname}?${params.toString()}`}
       className="text-[13px] text-[#1F4D3A] hover:underline px-3 py-1.5 rounded-lg hover:bg-[#E8EFEB] transition-colors">

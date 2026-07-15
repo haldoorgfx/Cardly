@@ -63,7 +63,7 @@ export function AttendanceGrid({ eventSlug, days, attendees, cells, perDay, erro
     return (
       <div className="bg-white rounded-2xl border border-[#E5E0D4] p-10 text-center">
         <p className="font-display text-[17px] font-semibold" style={{ color: '#0F1F18' }}>Couldn&apos;t load attendance</p>
-        <p className="text-[14px] mt-1.5 mb-5" style={{ color: '#6B7A72' }}>Something went wrong fetching the attendance data.</p>
+        <p className="text-[14px] mt-1.5 mb-5" style={{ color: '#65736B' }}>Something went wrong fetching the attendance data.</p>
         <button onClick={() => router.refresh()}
           className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-[14px] font-medium text-white" style={{ background: '#1F4D3A' }}>
           <RotateCw size={15} strokeWidth={2} /> Retry
@@ -79,7 +79,7 @@ export function AttendanceGrid({ eventSlug, days, attendees, cells, perDay, erro
           <CalendarDays size={22} strokeWidth={1.9} />
         </div>
         <p className="font-display text-[17px] font-semibold" style={{ color: '#0F1F18' }}>No days set up yet</p>
-        <p className="text-[14px] mt-1.5 mb-5" style={{ color: '#6B7A72' }}>
+        <p className="text-[14px] mt-1.5 mb-5" style={{ color: '#65736B' }}>
           Attendance by day appears once this event has days. Set up days to track who shows up when.
         </p>
         <Link href={`/events/${eventSlug}/settings/days`}
@@ -97,7 +97,7 @@ export function AttendanceGrid({ eventSlug, days, attendees, cells, perDay, erro
           <Users size={22} strokeWidth={1.9} />
         </div>
         <p className="font-display text-[17px] font-semibold" style={{ color: '#0F1F18' }}>No attendees yet</p>
-        <p className="text-[14px] mt-1.5" style={{ color: '#6B7A72' }}>
+        <p className="text-[14px] mt-1.5" style={{ color: '#65736B' }}>
           Once people register, their day-by-day attendance shows here as they check in.
         </p>
       </div>
@@ -123,12 +123,12 @@ export function AttendanceGrid({ eventSlug, days, attendees, cells, perDay, erro
           {/* Header */}
           <div className="grid items-stretch" style={{ gridTemplateColumns: gridTemplate, borderBottom: '1px solid #E5E0D4' }}>
             <div className="sticky left-0 z-10 px-4 py-3 flex items-end" style={{ background: 'white' }}>
-              <span className="text-[12.5px] font-semibold uppercase tracking-wide" style={{ color: '#6B7A72' }}>Attendee</span>
+              <span className="text-[12.5px] font-semibold uppercase tracking-wide" style={{ color: '#65736B' }}>Attendee</span>
             </div>
             {days.map((d) => (
               <div key={d.day_index} className="px-3 py-3 text-center" style={{ borderLeft: '1px solid #F0EDE6' }}>
                 <div className="font-display font-semibold text-[13px]" style={{ color: '#0F1F18' }}>Day {d.day_index + 1}</div>
-                <div className="text-[13px] mt-0.5" style={{ color: '#6B7A72' }}>{shortDate(d.date)}</div>
+                <div className="text-[13px] mt-0.5" style={{ color: '#65736B' }}>{shortDate(d.date)}</div>
               </div>
             ))}
           </div>
@@ -151,13 +151,13 @@ export function AttendanceGrid({ eventSlug, days, attendees, cells, perDay, erro
           {/* Per-day summary */}
           <div className="grid items-center" style={{ gridTemplateColumns: gridTemplate, borderTop: '2px solid #E5E0D4', background: '#FAF6EE' }}>
             <div className="sticky left-0 z-10 px-4 py-3" style={{ background: '#FAF6EE' }}>
-              <span className="text-[12.5px] font-semibold uppercase tracking-wide" style={{ color: '#6B7A72' }}>Checked in / entitled</span>
+              <span className="text-[12.5px] font-semibold uppercase tracking-wide" style={{ color: '#65736B' }}>Checked in / entitled</span>
             </div>
             {perDay.map((s) => (
               <div key={s.day_index} className="px-3 py-3 text-center" style={{ borderLeft: '1px solid #F0EDE6' }}>
                 <div className="text-[14px] font-display font-semibold" style={{ color: '#0F1F18' }}>
                   {s.checkedIn}
-                  <span className="text-[12.5px] font-normal" style={{ color: '#6B7A72' }}> / {s.entitled}</span>
+                  <span className="text-[12.5px] font-normal" style={{ color: '#65736B' }}> / {s.entitled}</span>
                 </div>
                 {s.capacity != null && (
                   <div className="text-[12.5px] mt-0.5" style={{ color: '#9BA8A1' }}>Cap {s.capacity.toLocaleString()}</div>

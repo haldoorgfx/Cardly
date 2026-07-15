@@ -71,7 +71,7 @@ export function AuditLogClient({ eventSlug, rows, loadError, entitlements, staff
   return (
     <PageShell width="wide">
       <Link href={`/events/${eventSlug}/analytics/redemption`}
-        className="inline-flex items-center gap-1.5 text-[13px] font-medium mb-4 transition hover:text-[#1F4D3A]" style={{ color: '#6B7A72' }}>
+        className="inline-flex items-center gap-1.5 text-[13px] font-medium mb-4 transition hover:text-[#1F4D3A]" style={{ color: '#65736B' }}>
         <ArrowLeft size={15} strokeWidth={2} /> Back to redemption
       </Link>
       <PageHeader
@@ -87,7 +87,7 @@ export function AuditLogClient({ eventSlug, rows, loadError, entitlements, staff
             <p className="font-display text-[17px] font-semibold" style={{ color: '#0F1F18' }}>
               {loadError === 'auth' ? 'You can’t view this audit log' : 'Couldn’t load the audit log'}
             </p>
-            <p className="text-[14px] mt-1.5 mb-5" style={{ color: '#6B7A72' }}>
+            <p className="text-[14px] mt-1.5 mb-5" style={{ color: '#65736B' }}>
               {loadError === 'auth' ? 'Only the event owner or its staff can view the entitlement audit log.' : 'Something went wrong fetching the audit trail.'}
             </p>
             {loadError === 'generic' && (
@@ -102,7 +102,7 @@ export function AuditLogClient({ eventSlug, rows, loadError, entitlements, staff
             {/* Filter bar */}
             <div className="bg-white rounded-2xl border p-4 mb-4" style={{ borderColor: '#E5E0D4' }}>
               <div className="flex items-center gap-2 mb-3">
-                <Filter size={14} strokeWidth={2} style={{ color: '#6B7A72' }} />
+                <Filter size={14} strokeWidth={2} style={{ color: '#65736B' }} />
                 <span className="text-[12px] font-medium" style={{ color: '#3A4A42' }}>Filters</span>
                 {hasActiveFilters && (
                   <button onClick={clearAll} className="ml-auto inline-flex items-center gap-1 text-[12px] font-medium" style={{ color: '#1F4D3A' }}>
@@ -145,15 +145,15 @@ export function AuditLogClient({ eventSlug, rows, loadError, entitlements, staff
               </div>
 
               <div className="flex flex-wrap items-center gap-2 mt-2">
-                <label className="text-[11px] uppercase tracking-[0.1em]" style={{ color: '#6B7A72' }}>From</label>
+                <label className="text-[11px] uppercase tracking-[0.1em]" style={{ color: '#65736B' }}>From</label>
                 <input type="datetime-local" value={filters.from} onChange={(e) => set({ from: e.target.value })} className={selCls} style={selStyle} />
-                <label className="text-[11px] uppercase tracking-[0.1em]" style={{ color: '#6B7A72' }}>To</label>
+                <label className="text-[11px] uppercase tracking-[0.1em]" style={{ color: '#65736B' }}>To</label>
                 <input type="datetime-local" value={filters.to} onChange={(e) => set({ to: e.target.value })} className={selCls} style={selStyle} />
               </div>
             </div>
 
             {/* Count */}
-            <p className="text-[13px] mb-3" style={{ color: '#6B7A72' }}>
+            <p className="text-[13px] mb-3" style={{ color: '#65736B' }}>
               {filtered.length} {filtered.length === 1 ? 'entry' : 'entries'}{hasActiveFilters && rows ? ` of ${rows.length}` : ''}
             </p>
 
@@ -165,7 +165,7 @@ export function AuditLogClient({ eventSlug, rows, loadError, entitlements, staff
                 <p className="font-display text-[17px] font-semibold" style={{ color: '#0F1F18' }}>
                   {rows && rows.length > 0 ? 'No entries match your filters' : 'No audit activity yet'}
                 </p>
-                <p className="text-[14px] mt-1.5" style={{ color: '#6B7A72' }}>
+                <p className="text-[14px] mt-1.5" style={{ color: '#65736B' }}>
                   {rows && rows.length > 0
                     ? 'Try widening the date range or clearing a filter.'
                     : 'Entitlement actions will appear here as they happen — redeems, grants, transfers and more.'}

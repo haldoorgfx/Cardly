@@ -36,7 +36,7 @@ function ReportButton({ eventId }: { eventId: string }) {
         onClick={handleReport}
         disabled={state !== 'idle'}
         style={{
-          fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#6B7A72',
+          fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#65736B',
           background: 'none', border: 'none', padding: 0,
           cursor: state === 'idle' ? 'pointer' : 'default', opacity: 0.7,
         }}
@@ -143,7 +143,7 @@ export default function ArrivalScreen({
 
           {/* Trust line */}
           <div className="flex items-center justify-center gap-4" style={{
-            fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#6B7A72',
+            fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#65736B',
           }}>
             <span className="inline-flex items-center gap-1.5">
               <ShieldCheck size={13} strokeWidth={2}/> Free
@@ -158,7 +158,7 @@ export default function ArrivalScreen({
 
           <div style={{
             fontFamily: 'Inter, system-ui, sans-serif',
-            fontSize: 11, color: '#6B7A72',
+            fontSize: 11, color: '#65736B',
             letterSpacing: '0.04em', textAlign: 'center',
           }}>
             <PoweredByInline />
@@ -175,7 +175,7 @@ export default function ArrivalScreen({
           </div>
           <div style={{
             fontFamily: 'Inter, system-ui, sans-serif',
-            fontSize: 11, color: '#6B7A72', letterSpacing: '0.04em',
+            fontSize: 11, color: '#65736B', letterSpacing: '0.04em',
           }}>
             <PoweredByInline />
           </div>
@@ -259,7 +259,7 @@ export default function ArrivalScreen({
                 <ArrowRight size={18} strokeWidth={2}/>
               </button>
               <div style={{
-                fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#6B7A72',
+                fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#65736B',
               }}>
                 Free · No signup · ~30 seconds
               </div>
@@ -278,13 +278,13 @@ export default function ArrivalScreen({
                   border: '1px solid #E5E0D4',
                   borderRadius: 12,
                 }}>
-                  <div style={{ color: '#6B7A72', marginBottom: 8 }}>{card.icon}</div>
+                  <div style={{ color: '#65736B', marginBottom: 8 }}>{card.icon}</div>
                   <div style={{
                     fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, fontSize: 13,
                     color: '#0F1F18', marginBottom: 2,
                   }}>{card.title}</div>
                   <div style={{
-                    fontFamily: 'Inter, sans-serif', fontSize: 12, lineHeight: 1.4, color: '#6B7A72',
+                    fontFamily: 'Inter, sans-serif', fontSize: 12, lineHeight: 1.4, color: '#65736B',
                   }}>{card.sub}</div>
                 </div>
               ))}

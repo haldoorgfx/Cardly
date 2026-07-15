@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 const C = {
   primary: '#1F4D3A', primaryDark: '#163828', primarySoft: '#E8EFEB',
   accent: '#E8C57E', accentDark: '#C9A45E',
-  ink: '#0F1F18', inkSoft: '#3A4A42', muted: '#6B7A72',
+  ink: '#0F1F18', inkSoft: '#3A4A42', muted: '#65736B',
   cream: '#FAF6EE', surface: '#FFFFFF', border: '#E5E0D4',
 } as const;
 
@@ -196,7 +196,7 @@ function AnalyticsMockup() {
                 <div key={r.label} style={{ marginBottom: 10 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                     <span style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'rgba(250,246,238,0.7)' }}>{r.label} {r.price}</span>
-                    <span style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: '#6B7A72' }}>{r.pct}%</span>
+                    <span style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: '#65736B' }}>{r.pct}%</span>
                   </div>
                   <div style={{ background: 'rgba(255,255,255,0.08)', height: 6, borderRadius: 3 }}>
                     <div style={{ width: `${r.pct}%`, height: '100%', background: '#1F4D3A', borderRadius: 3 }} />
@@ -215,7 +215,7 @@ function AnalyticsMockup() {
                 <div key={r.label} style={{ marginBottom: 10 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                     <span style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: '#FAF6EE' }}>{r.label}</span>
-                    <span style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: '#6B7A72' }}>{r.pct}%</span>
+                    <span style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: '#65736B' }}>{r.pct}%</span>
                   </div>
                   <div style={{ background: 'rgba(255,255,255,0.08)', height: 6, borderRadius: 3 }}>
                     <div style={{ width: `${r.pct}%`, height: '100%', background: '#1F4D3A', borderRadius: 3 }} />

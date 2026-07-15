@@ -110,7 +110,7 @@ export default function MessagingClient({ eventId, registrationId, initialThread
             <div className="px-5 py-12 text-center">
               <div className="text-[28px] mb-2">💬</div>
               <p className="text-[13px] font-medium mb-1" style={{ color: '#0F1F18' }}>No messages yet</p>
-              <p className="text-[12px]" style={{ color: '#6B7A72' }}>Connect with attendees to start a conversation.</p>
+              <p className="text-[12px]" style={{ color: '#65736B' }}>Connect with attendees to start a conversation.</p>
             </div>
           ) : threads.map(thread => (
             <button
@@ -139,14 +139,14 @@ export default function MessagingClient({ eventId, registrationId, initialThread
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center">
               <div className="text-[20px] font-display font-medium mb-2" style={{ color: '#0F1F18' }}>Your messages</div>
-              <div className="text-[14px]" style={{ color: '#6B7A72' }}>Select a conversation to read it.</div>
+              <div className="text-[14px]" style={{ color: '#65736B' }}>Select a conversation to read it.</div>
             </div>
           </div>
         ) : (
           <>
             {/* Header */}
             <div className="flex items-center gap-3 px-5 py-3 border-b shrink-0" style={{ background: 'white', borderColor: '#E5E0D4' }}>
-              <button className="md:hidden mr-1" onClick={() => setShowThreads(true)}><ArrowLeft size={18} style={{ color: '#6B7A72' }} /></button>
+              <button className="md:hidden mr-1" onClick={() => setShowThreads(true)}><ArrowLeft size={18} style={{ color: '#65736B' }} /></button>
               <Avatar name={activeThread.other_participant_name} size={36} />
               <div className="font-display font-medium text-[15px]" style={{ color: '#0F1F18' }}>{activeThread.other_participant_name}</div>
             </div>

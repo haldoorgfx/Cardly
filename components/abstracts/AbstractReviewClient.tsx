@@ -29,11 +29,11 @@ const STATUS_LABEL: Record<AbstractStatus, string> = {
 };
 
 const STATUS_STYLE: Record<AbstractStatus, { bg: string; color: string }> = {
-  pending: { bg: '#F5F5F0', color: '#6B7A72' },
+  pending: { bg: '#F5F5F0', color: '#65736B' },
   accept: { bg: '#E8EFEB', color: '#1F4D3A' },
   reject: { bg: 'rgba(184,66,60,0.1)', color: '#B8423C' },
   revision: { bg: '#FEF3C7', color: '#C97A2D' },
-  waitlist: { bg: '#E8EFEB', color: '#6B7A72' },
+  waitlist: { bg: '#E8EFEB', color: '#65736B' },
 };
 
 const DECISIONS: { key: AbstractStatus; label: string }[] = [
@@ -124,7 +124,7 @@ export default function AbstractReviewClient({
             { label: 'rejected', value: counts.rejected },
             { label: 'pending review', value: counts.pending },
           ].map(s => (
-            <span key={s.label} className="text-[14px]" style={{ color: '#6B7A72' }}>
+            <span key={s.label} className="text-[14px]" style={{ color: '#65736B' }}>
               <b className="font-title font-bold text-[16px]" style={{ color: '#0F1F18' }}>{s.value}</b>{' '}{s.label}
             </span>
           ))}
@@ -137,7 +137,7 @@ export default function AbstractReviewClient({
               onClick={() => setTab(t.key)}
               className="px-4 py-2.5 text-[13px] font-medium transition-colors border-b-2 -mb-px shrink-0 whitespace-nowrap"
               style={{
-                color: tab === t.key ? '#1F4D3A' : '#6B7A72',
+                color: tab === t.key ? '#1F4D3A' : '#65736B',
                 borderBottomColor: tab === t.key ? '#1F4D3A' : 'transparent',
               }}
             >
@@ -159,7 +159,7 @@ export default function AbstractReviewClient({
         {/* Left: abstract list */}
         <div className="overflow-y-auto max-h-[50vh] lg:max-h-full" style={{ borderRight: '1px solid #E5E0D4' }}>
           {filtered.length === 0 ? (
-            <div className="py-12 text-center text-[13px]" style={{ color: '#6B7A72' }}>No abstracts in this filter.</div>
+            <div className="py-12 text-center text-[13px]" style={{ color: '#65736B' }}>No abstracts in this filter.</div>
           ) : (
             filtered.map(a => {
               const st = a.status;
@@ -174,7 +174,7 @@ export default function AbstractReviewClient({
                   }}
                 >
                   <div className="text-[14px] font-medium leading-snug mb-1" style={{ color: '#0F1F18' }}>{a.title}</div>
-                  <div className="text-[12px] mb-2" style={{ color: '#6B7A72' }}>{a.authors?.split('·')[0]?.trim()}</div>
+                  <div className="text-[12px] mb-2" style={{ color: '#65736B' }}>{a.authors?.split('·')[0]?.trim()}</div>
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="inline-flex items-center h-5 px-2.5 rounded-full text-[11px] font-medium" style={{ background: '#F0EBE3', color: '#3A4A42' }}>
                       {a.category}
@@ -182,7 +182,7 @@ export default function AbstractReviewClient({
                     <span className="inline-flex items-center h-5 px-2.5 rounded-full text-[11px] font-medium" style={STATUS_STYLE[st]}>
                       {STATUS_LABEL[st]}
                     </span>
-                    <span className="ml-auto text-[11px]" style={{ color: '#6B7A72' }}>{relDate(a.submitted_at)}</span>
+                    <span className="ml-auto text-[11px]" style={{ color: '#65736B' }}>{relDate(a.submitted_at)}</span>
                   </div>
                 </div>
               );
@@ -193,19 +193,19 @@ export default function AbstractReviewClient({
         {/* Right: detail + review */}
         <div className="overflow-y-auto px-4 sm:px-6 lg:px-10 py-8">
           {!active ? (
-            <div className="py-16 text-center text-[14px]" style={{ color: '#6B7A72' }}>Select an abstract to review.</div>
+            <div className="py-16 text-center text-[14px]" style={{ color: '#65736B' }}>Select an abstract to review.</div>
           ) : (
             <>
               <h2 className="font-display font-normal text-[24px] mb-2" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
                 {active.title}
               </h2>
-              <p className="text-[15px] mb-3" style={{ color: '#6B7A72' }}>{active.authors}</p>
+              <p className="text-[15px] mb-3" style={{ color: '#65736B' }}>{active.authors}</p>
 
               <div className="flex items-center gap-2.5 mb-4">
                 <span className="inline-flex items-center h-6 px-2.5 rounded-full text-[11px] font-medium" style={{ background: '#F0EBE3', color: '#3A4A42' }}>
                   {active.category}
                 </span>
-                <span className="text-[13px]" style={{ color: '#6B7A72' }}>
+                <span className="text-[13px]" style={{ color: '#65736B' }}>
                   Submitted {relDate(active.submitted_at)}
                 </span>
               </div>
@@ -259,7 +259,7 @@ export default function AbstractReviewClient({
 
                 {sessions.length > 0 && (
                   <div className="mt-4">
-                    <label className="block text-[12px] mb-1.5" style={{ color: '#6B7A72' }}>Assign to session</label>
+                    <label className="block text-[12px] mb-1.5" style={{ color: '#65736B' }}>Assign to session</label>
                     <div className="relative">
                       <select
                         value={assignedSession[active.id] ?? active.assigned_session ?? ''}
@@ -270,7 +270,7 @@ export default function AbstractReviewClient({
                         <option value="">— No session assigned —</option>
                         {sessions.map(s => <option key={s.id} value={s.id}>{s.title}</option>)}
                       </select>
-                      <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: '#6B7A72' }} />
+                      <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: '#65736B' }} />
                     </div>
                   </div>
                 )}

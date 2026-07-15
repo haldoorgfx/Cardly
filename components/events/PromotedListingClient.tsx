@@ -32,11 +32,11 @@ function StatCard({ icon: Icon, label, value, sub }: { icon: React.ElementType; 
   return (
     <div className="rounded-2xl p-4" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
       <div className="flex items-center gap-2 mb-2">
-        <Icon size={14} style={{ color: '#6B7A72' }} />
-        <span className="text-[12px]" style={{ color: '#6B7A72' }}>{label}</span>
+        <Icon size={14} style={{ color: '#65736B' }} />
+        <span className="text-[12px]" style={{ color: '#65736B' }}>{label}</span>
       </div>
       <div className="font-display font-bold text-[24px]" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>{value}</div>
-      {sub && <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>{sub}</div>}
+      {sub && <div className="text-[12px] mt-0.5" style={{ color: '#65736B' }}>{sub}</div>}
     </div>
   );
 }
@@ -153,7 +153,7 @@ export function PromotedListingClient({ eventId, eventName, campaign }: Props) {
                     style={{
                       background: active ? '#E8EFEB' : '#FAF6EE',
                       borderColor: active ? '#1F4D3A' : '#E5E0D4',
-                      color: active ? '#1F4D3A' : '#6B7A72',
+                      color: active ? '#1F4D3A' : '#65736B',
                     }}>
                     <div className="w-4 h-4 rounded flex items-center justify-center shrink-0"
                       style={{ background: active ? '#1F4D3A' : 'transparent', border: active ? 'none' : '1.5px solid #C9C3B1' }}>
@@ -208,7 +208,7 @@ export function PromotedListingClient({ eventId, eventName, campaign }: Props) {
 
           {/* Live preview mockup */}
           <div className="rounded-2xl p-4" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
-            <div className="text-[12.5px] font-semibold mb-3 uppercase tracking-wider" style={{ color: '#6B7A72' }}>Feed preview</div>
+            <div className="text-[12.5px] font-semibold mb-3 uppercase tracking-wider" style={{ color: '#65736B' }}>Feed preview</div>
             <div className="flex flex-col gap-2">
               {/* Organic card */}
               <div className="h-10 rounded-xl" style={{ background: '#F5F2EC' }} />
@@ -231,10 +231,10 @@ export function PromotedListingClient({ eventId, eventName, campaign }: Props) {
           {/* Placement rules */}
           <div className="rounded-2xl p-4" style={{ background: '#FAF6EE', border: '1px solid #E5E0D4' }}>
             <div className="flex items-center gap-1.5 mb-2">
-              <LayoutGrid size={13} style={{ color: '#6B7A72' }} />
+              <LayoutGrid size={13} style={{ color: '#65736B' }} />
               <span className="text-[12px] font-semibold" style={{ color: '#3A4A42' }}>Placement rules</span>
             </div>
-            <p className="text-[12.5px]" style={{ color: '#6B7A72' }}>
+            <p className="text-[12.5px]" style={{ color: '#65736B' }}>
               Promoted listings are reviewed within 24h. They appear as native cards with a &ldquo;Promoted&rdquo; label. Max 1 promoted card per 5 organic cards.
             </p>
           </div>

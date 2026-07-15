@@ -20,7 +20,7 @@ const TYPE_OPTIONS: { value: ChangelogType; label: string; color: string }[] = [
   { value: 'added',    label: 'Added',    color: '#1F4D3A' },
   { value: 'improved', label: 'Improved', color: '#3A6B8C' },
   { value: 'fixed',    label: 'Fixed',    color: '#C97A2D' },
-  { value: 'removed',  label: 'Removed',  color: '#6B7A72' },
+  { value: 'removed',  label: 'Removed',  color: '#65736B' },
   { value: 'security', label: 'Security', color: '#B8423C' },
 ];
 
@@ -87,7 +87,7 @@ export function ChangelogForm({ entry, onSave, onCancel }: Props) {
           <h2 className="font-display font-semibold text-[16px] text-[#0F1F18]">
             {isEdit ? 'Edit entry' : 'New changelog entry'}
           </h2>
-          <button onClick={onCancel} className="h-7 w-7 rounded-lg hover:bg-[#FAF6EE] grid place-items-center text-[#6B7A72] transition">
+          <button onClick={onCancel} className="h-10 w-10 rounded-lg hover:bg-[#FAF6EE] grid place-items-center text-[#65736B] transition">
             <X size={14} strokeWidth={2} />
           </button>
         </div>
@@ -105,7 +105,7 @@ export function ChangelogForm({ entry, onSave, onCancel }: Props) {
                   className="px-3 py-1 rounded-full text-[12px] transition border"
                   style={form.type === o.value
                     ? { background: o.color, color: '#FAF6EE', borderColor: o.color }
-                    : { background: 'transparent', color: '#6B7A72', borderColor: '#E5E0D4' }
+                    : { background: 'transparent', color: '#65736B', borderColor: '#E5E0D4' }
                   }
                 >
                   {o.label}
@@ -116,7 +116,7 @@ export function ChangelogForm({ entry, onSave, onCancel }: Props) {
 
           {/* Version */}
           <div>
-            <label className="block text-[12px] font-medium text-[#3A4A42] mb-1">Version <span className="text-[#6B7A72] font-normal">(optional)</span></label>
+            <label className="block text-[12px] font-medium text-[#3A4A42] mb-1">Version <span className="text-[#65736B] font-normal">(optional)</span></label>
             <input
               value={form.version}
               onChange={e => setForm(f => ({ ...f, version: e.target.value }))}
@@ -161,7 +161,7 @@ export function ChangelogForm({ entry, onSave, onCancel }: Props) {
             <button
               type="button"
               onClick={onCancel}
-              className="h-9 px-4 rounded-lg text-[13px] text-[#6B7A72] hover:bg-[#FAF6EE] border transition"
+              className="h-9 px-4 rounded-lg text-[13px] text-[#65736B] hover:bg-[#FAF6EE] border transition"
               style={{ borderColor: '#E5E0D4' }}
             >
               Cancel

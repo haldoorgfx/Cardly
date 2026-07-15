@@ -60,7 +60,7 @@ export function UpgradeSlideOver({ feature, onClose }: Props) {
               <button
                 onClick={onClose}
                 className="w-8 h-8 grid place-items-center rounded-lg transition hover:bg-[#E8EFEB]"
-                style={{ color: '#6B7A72' }}
+                style={{ color: '#65736B' }}
               >
                 <X size={16} strokeWidth={2} />
               </button>
@@ -107,7 +107,7 @@ export function UpgradeSlideOver({ feature, onClose }: Props) {
               <div className="mt-6 flex items-center gap-2.5 px-4 py-3 rounded-xl"
                 style={{ background: 'rgba(232,197,126,0.12)', border: '1px solid rgba(232,197,126,0.3)' }}>
                 <Lock size={13} strokeWidth={1.8} style={{ color: '#C9A45E', flexShrink: 0 }} />
-                <span className="text-[12.5px]" style={{ color: '#6B7A72' }}>
+                <span className="text-[12.5px]" style={{ color: '#65736B' }}>
                   Available on the <strong style={{ color: '#0F1F18' }}>{planLabel}</strong> plan and above.
                 </span>
               </div>
@@ -125,7 +125,7 @@ export function UpgradeSlideOver({ feature, onClose }: Props) {
               <button
                 onClick={onClose}
                 className="text-[13px] transition hover:text-[#0F1F18]"
-                style={{ color: '#6B7A72' }}
+                style={{ color: '#65736B' }}
               >
                 Maybe later
               </button>

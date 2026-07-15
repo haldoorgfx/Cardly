@@ -119,7 +119,7 @@ function Hero() {
 
         <div
           className="mt-4 flex flex-wrap justify-center items-center gap-x-4 gap-y-2"
-          style={{ fontSize: 12, color: '#6B7A72' }}
+          style={{ fontSize: 12, color: '#65736B' }}
         >
           {['Free for 1 event', 'No credit card', 'Setup in 10 minutes'].map((t) => (
             <span key={t} className="inline-flex items-center gap-1.5">
@@ -390,7 +390,7 @@ function HowItWorks() {
                 >
                   {step.title}
                 </div>
-                <p style={{ fontSize: 13, color: '#6B7A72', lineHeight: 1.55 }}>{step.desc}</p>
+                <p style={{ fontSize: 13, color: '#65736B', lineHeight: 1.55 }}>{step.desc}</p>
                 <StepMock type={step.mock} />
               </div>
             ))}
@@ -455,7 +455,7 @@ function Testimonial() {
           </div>
           <div>
             <div style={{ fontSize: 14, fontWeight: 600, color: '#0F1F18', fontFamily: 'var(--font-display)' }}>The Eventera team</div>
-            <div style={{ fontSize: 12, color: '#6B7A72', fontFamily: 'var(--font-sans)' }}>Made in Djibouti · Built for organizers everywhere</div>
+            <div style={{ fontSize: 12, color: '#65736B', fontFamily: 'var(--font-sans)' }}>Made in Djibouti · Built for organizers everywhere</div>
           </div>
         </div>
       </div>

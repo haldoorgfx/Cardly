@@ -38,13 +38,13 @@ export function AuditFiltersClient({
         className="flex items-center gap-2 h-9 px-3 rounded-lg border text-[13px]"
         style={{ borderColor: '#E5E0D4', background: '#FFFFFF' }}
       >
-        <Search size={13} strokeWidth={2} className="text-[#6B7A72] shrink-0" />
+        <Search size={13} strokeWidth={2} className="text-[#65736B] shrink-0" />
         <input
           value={action}
           onChange={e => setAction(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && apply()}
           placeholder="Filter by action…"
-          className="outline-none bg-transparent w-[160px] placeholder-[#6B7A72]/60 text-[#0F1F18]"
+          className="outline-none bg-transparent w-[160px] placeholder-[#65736B]/60 text-[#0F1F18]"
         />
       </div>
 
@@ -53,13 +53,13 @@ export function AuditFiltersClient({
         className="flex items-center gap-2 h-9 px-3 rounded-lg border text-[13px]"
         style={{ borderColor: '#E5E0D4', background: '#FFFFFF' }}
       >
-        <Search size={13} strokeWidth={2} className="text-[#6B7A72] shrink-0" />
+        <Search size={13} strokeWidth={2} className="text-[#65736B] shrink-0" />
         <input
           value={actor}
           onChange={e => setActor(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && apply()}
           placeholder="Filter by email…"
-          className="outline-none bg-transparent w-[160px] placeholder-[#6B7A72]/60 text-[#0F1F18]"
+          className="outline-none bg-transparent w-[160px] placeholder-[#65736B]/60 text-[#0F1F18]"
         />
       </div>
 
@@ -74,7 +74,7 @@ export function AuditFiltersClient({
       {hasFilters && (
         <button
           onClick={clear}
-          className="h-9 px-3 rounded-lg text-[13px] text-[#6B7A72] hover:text-[#0F1F18] flex items-center gap-1.5 transition border"
+          className="h-9 px-3 rounded-lg text-[13px] text-[#65736B] hover:text-[#0F1F18] flex items-center gap-1.5 transition border"
           style={{ borderColor: '#E5E0D4' }}
         >
           <X size={13} strokeWidth={2} />

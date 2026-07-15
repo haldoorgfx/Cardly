@@ -96,7 +96,7 @@ function DownloadCard({ icon, title, description, actions }: DownloadCardProps) 
         </div>
         <div className="flex-1 min-w-0">
           <div className="font-display text-[15px] font-semibold leading-tight mb-1" style={{ color: '#0F1F18' }}>{title}</div>
-          <div className="text-[13px] leading-snug" style={{ color: '#6B7A72' }}>{description}</div>
+          <div className="text-[13px] leading-snug" style={{ color: '#65736B' }}>{description}</div>
         </div>
       </div>
       <div className="flex flex-wrap gap-2">{actions}</div>

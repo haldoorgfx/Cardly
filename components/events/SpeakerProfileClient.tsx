@@ -75,8 +75,8 @@ export default function SpeakerProfileClient({ speaker, sessions, eventSlug }: P
       <div className="mx-auto px-6 lg:px-10 pt-6 pb-20" style={{ maxWidth: 920 }}>
 
         {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 text-[13px] mb-5" style={{ color: '#6B7A72' }}>
-          <Link href={`/e/${eventSlug}?tab=speakers`} className="hover:text-[#1F4D3A] transition-colors" style={{ color: '#6B7A72' }}>
+        <nav className="flex items-center gap-2 text-[13px] mb-5" style={{ color: '#65736B' }}>
+          <Link href={`/e/${eventSlug}?tab=speakers`} className="hover:text-[#1F4D3A] transition-colors" style={{ color: '#65736B' }}>
             Speakers
           </Link>
           <svg viewBox="0 0 24 24" className="w-3 h-3 shrink-0" fill="none" stroke="#C9C3B1" strokeWidth="2.5"><path d="M9 18l6-6-6-6" /></svg>
@@ -120,7 +120,7 @@ export default function SpeakerProfileClient({ speaker, sessions, eventSlug }: P
                 <p className="text-[15px] mt-1.5" style={{ color: '#3A4A42' }}>{roleLine}</p>
               )}
               {speaker.headline && speaker.headline !== roleLine && (
-                <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>{speaker.headline}</p>
+                <p className="text-[14px] mt-1" style={{ color: '#65736B' }}>{speaker.headline}</p>
               )}
 
               {/* Socials + share */}
@@ -172,17 +172,17 @@ export default function SpeakerProfileClient({ speaker, sessions, eventSlug }: P
               {speaker.bio}
             </p>
           ) : (
-            <p className="text-[15px]" style={{ color: '#6B7A72' }}>No bio available yet.</p>
+            <p className="text-[15px]" style={{ color: '#65736B' }}>No bio available yet.</p>
           )}
         </div>
 
         {/* Sessions */}
         <div className="bg-white border rounded-[20px] p-6 sm:p-8 mt-5" style={{ borderColor: '#E5E0D4' }}>
           <h2 className="font-display text-[18px] font-bold mb-4" style={{ color: '#0F1F18', letterSpacing: '-0.01em' }}>
-            Sessions {sessions.length > 0 && <span style={{ color: '#6B7A72', fontWeight: 400 }}>· {sessions.length}</span>}
+            Sessions {sessions.length > 0 && <span style={{ color: '#65736B', fontWeight: 400 }}>· {sessions.length}</span>}
           </h2>
           {sessions.length === 0 ? (
-            <p className="text-[15px]" style={{ color: '#6B7A72' }}>No sessions assigned yet.</p>
+            <p className="text-[15px]" style={{ color: '#65736B' }}>No sessions assigned yet.</p>
           ) : (
             <div className="space-y-2.5">
               {sessions.map((session) => (
@@ -195,7 +195,7 @@ export default function SpeakerProfileClient({ speaker, sessions, eventSlug }: P
                   <p className="font-display text-[15px] font-semibold" style={{ color: '#0F1F18' }}>
                     {session.title}
                   </p>
-                  <p className="text-[12px] mt-1" style={{ color: '#6B7A72' }}>
+                  <p className="text-[12px] mt-1" style={{ color: '#65736B' }}>
                     {formatTimeRange(session.starts_at, session.ends_at)}
                     {session.room ? ` · ${session.room}` : ''}
                   </p>

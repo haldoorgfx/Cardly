@@ -47,7 +47,7 @@ export function ExtendModal({ ent, extend, onClose, onDone }: Props) {
         <>
           <button type="button" onClick={onClose} disabled={pending}
             className="rounded-lg px-4 py-2 text-[13px] font-medium border transition disabled:opacity-60"
-            style={{ borderColor: '#E5E0D4', color: '#6B7A72', background: '#FFFFFF' }}>
+            style={{ borderColor: '#E5E0D4', color: '#65736B', background: '#FFFFFF' }}>
             Cancel
           </button>
           <button type="button" onClick={submit} disabled={pending}
@@ -62,7 +62,7 @@ export function ExtendModal({ ent, extend, onClose, onDone }: Props) {
         This changes the entitlement&apos;s validity for <span className="font-medium" style={{ color: '#0F1F18' }}>everyone</span> who holds it, not just this attendee.
         {ent.valid_until ? <> Currently valid until <span className="font-medium" style={{ color: '#0F1F18' }}>{fmtDateTime(ent.valid_until)}</span>.</> : ' It has no end date yet.'}
       </p>
-      <label className="block text-[11px] uppercase tracking-[0.1em] mb-1.5" style={{ color: '#6B7A72' }}>New valid-until</label>
+      <label className="block text-[11px] uppercase tracking-[0.1em] mb-1.5" style={{ color: '#65736B' }}>New valid-until</label>
       <input
         type="datetime-local"
         value={value}

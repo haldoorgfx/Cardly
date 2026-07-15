@@ -202,13 +202,13 @@ export default function MessagingClient({ eventId, registrationId, embedded = fa
 
         <div className="flex-1 overflow-y-auto">
           {!registrationId ? (
-            <div className="py-12 px-5 text-center text-[13px]" style={{ color: '#6B7A72' }}>
+            <div className="py-12 px-5 text-center text-[13px]" style={{ color: '#65736B' }}>
               Register for this event to message other attendees.
             </div>
           ) : loadingThreads ? (
-            <div className="py-12 text-center text-[13px]" style={{ color: '#6B7A72' }}>Loading…</div>
+            <div className="py-12 text-center text-[13px]" style={{ color: '#65736B' }}>Loading…</div>
           ) : threads.length === 0 ? (
-            <div className="py-12 px-5 text-center text-[13px]" style={{ color: '#6B7A72' }}>
+            <div className="py-12 px-5 text-center text-[13px]" style={{ color: '#65736B' }}>
               No messages yet.<br />Connect with people at the event to start a conversation.
             </div>
           ) : (
@@ -235,12 +235,12 @@ export default function MessagingClient({ eventId, registrationId, embedded = fa
                     <div className="text-[15px] truncate" style={{ color: '#0F1F18', fontWeight: unread ? 600 : 500 }}>
                       {t.other_participant_name}
                     </div>
-                    <div className="text-[13px] truncate mt-0.5" style={{ color: '#6B7A72' }}>
+                    <div className="text-[13px] truncate mt-0.5" style={{ color: '#65736B' }}>
                       {t.last_message?.content ?? ''}
                     </div>
                   </div>
                   {t.last_message_at && (
-                    <div className="text-[11px] shrink-0 self-start mt-1" style={{ color: '#6B7A72' }}>
+                    <div className="text-[11px] shrink-0 self-start mt-1" style={{ color: '#65736B' }}>
                       {timeAgo(t.last_message_at)}
                     </div>
                   )}
@@ -254,7 +254,7 @@ export default function MessagingClient({ eventId, registrationId, embedded = fa
       {/* Right: thread */}
       <section style={{ display: 'flex', flexDirection: 'column', background: '#FAF6EE' }}>
         {!activeThread ? (
-          <div className="flex-1 flex items-center justify-center text-[14px]" style={{ color: '#6B7A72' }}>
+          <div className="flex-1 flex items-center justify-center text-[14px]" style={{ color: '#65736B' }}>
             Select a conversation
           </div>
         ) : (
@@ -273,13 +273,13 @@ export default function MessagingClient({ eventId, registrationId, embedded = fa
 
             <div className="flex-1 overflow-y-auto px-6 py-4 flex flex-col gap-3">
               {messages.length === 0 ? (
-                <div className="flex-1 flex items-center justify-center text-[13px]" style={{ color: '#6B7A72' }}>
+                <div className="flex-1 flex items-center justify-center text-[13px]" style={{ color: '#65736B' }}>
                   No messages yet. Say hello!
                 </div>
               ) : (
                 groupByDay(messages).map(group => (
                   <div key={group.label}>
-                    <div className="text-[11px] text-center my-3" style={{ color: '#6B7A72' }}>{group.label}</div>
+                    <div className="text-[11px] text-center my-3" style={{ color: '#65736B' }}>{group.label}</div>
                     {group.msgs.map(m => {
                       const isMe = m.sender_id === registrationId;
                       return (

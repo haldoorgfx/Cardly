@@ -36,7 +36,7 @@ export function PressSectionBlock({ content }: PressSectionBlockProps) {
                 </div>
                 <div
                   className=" text-[9px] tracking-[0.18em] uppercase"
-                  style={{ color: '#6B7A72' }}
+                  style={{ color: '#65736B' }}
                 >
                   {mention.date}
                 </div>

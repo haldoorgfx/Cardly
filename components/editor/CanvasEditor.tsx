@@ -1217,10 +1217,10 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
               color: '#3A4A42', letterSpacing: '0.04em',
               zIndex: 10, pointerEvents: 'none', whiteSpace: 'nowrap',
             }}>
-              <span style={{ color: '#6B7A72' }}>canvas</span>
+              <span style={{ color: '#65736B' }}>canvas</span>
               <span style={{ color: '#0F1F18', fontWeight: 500 }}>{bgW} &times; {bgH} px</span>
               <span style={{ width: 1, height: 12, background: '#E5E0D4' }} />
-              <span style={{ color: '#6B7A72' }}>{Math.round(zoom * 100)}%</span>
+              <span style={{ color: '#65736B' }}>{Math.round(zoom * 100)}%</span>
             </div>
           )}
 
@@ -1844,7 +1844,7 @@ function RightRail({
             style={{
               width: 22, height: 22, borderRadius: 4,
               background: '#FFFFFF', border: '1px solid #E5E0D4',
-              color: '#6B7A72', cursor: 'pointer',
+              color: '#65736B', cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}
           >
@@ -1852,7 +1852,7 @@ function RightRail({
           </button>
           <div style={{
             fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10,
-            color: '#6B7A72', letterSpacing: '0.1em', textTransform: 'uppercase',
+            color: '#65736B', letterSpacing: '0.1em', textTransform: 'uppercase',
           }}>
             Event / Attendee
           </div>
@@ -1870,7 +1870,7 @@ function RightRail({
           <div className="flex-1 min-w-0">
             <div style={{
               fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10,
-              color: '#6B7A72', letterSpacing: '0.1em', textTransform: 'uppercase',
+              color: '#65736B', letterSpacing: '0.1em', textTransform: 'uppercase',
             }}>
               {typeLabel}
             </div>
@@ -1884,7 +1884,7 @@ function RightRail({
           </div>
           <div style={{
             fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10,
-            color: '#6B7A72', letterSpacing: '0.04em', flexShrink: 0,
+            color: '#65736B', letterSpacing: '0.04em', flexShrink: 0,
           }}>
             #{selected.id.slice(-4)}
           </div>
@@ -2279,7 +2279,7 @@ function RightRail({
       <div style={{ padding: '0 14px 14px', display: 'flex', flexDirection: 'column', gap: 10 }}>
         {/* Layer order buttons */}
         <div style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 6, padding: '10px 12px' }}>
-          <div style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10, color: '#6B7A72', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 8 }}>Layer</div>
+          <div style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10, color: '#65736B', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 8 }}>Layer</div>
           <div className="flex gap-1.5">
             {[
               { fn: () => bringForward(selected.id), title: 'Bring forward · ]', disabled: zoneIndex >= zoneCount - 1, label: '-> Forward' },

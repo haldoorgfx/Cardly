@@ -19,7 +19,7 @@ export function AuditTable({ rows }: { rows: AuditRow[] }) {
             <tr style={{ background: '#FAF6EE' }}>
               {['Time', 'Attendee', 'Entitlement', 'Action', 'By', 'Device', 'Result'].map((h) => (
                 <th key={h} className="text-left text-[10px] uppercase tracking-[0.1em] font-medium px-4 py-3 whitespace-nowrap"
-                  style={{ color: '#6B7A72', borderBottom: '1px solid #E5E0D4' }}>
+                  style={{ color: '#65736B', borderBottom: '1px solid #E5E0D4' }}>
                   {h}
                 </th>
               ))}
@@ -36,7 +36,7 @@ export function AuditTable({ rows }: { rows: AuditRow[] }) {
                     {r.attendee_name ? (
                       <div className="min-w-0">
                         <p className="text-[13px] font-medium truncate max-w-[180px]" style={{ color: '#0F1F18' }}>{r.attendee_name}</p>
-                        {r.attendee_email && <p className="text-[11.5px] truncate max-w-[180px]" style={{ color: '#6B7A72' }}>{r.attendee_email}</p>}
+                        {r.attendee_email && <p className="text-[11.5px] truncate max-w-[180px]" style={{ color: '#65736B' }}>{r.attendee_email}</p>}
                       </div>
                     ) : (
                       <span className="text-[12.5px]" style={{ color: '#9BA8A1' }}>—</span>
@@ -56,7 +56,7 @@ export function AuditTable({ rows }: { rows: AuditRow[] }) {
                     <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[11.5px] font-medium" style={{ background: ac.bg, color: ac.color }}>
                       {actionLabel(r.action)}
                     </span>
-                    {r.reason && <p className="text-[11px] mt-1 max-w-[160px] truncate" style={{ color: '#6B7A72' }}>{r.reason}</p>}
+                    {r.reason && <p className="text-[11px] mt-1 max-w-[160px] truncate" style={{ color: '#65736B' }}>{r.reason}</p>}
                   </td>
                   <td className="px-4 py-3 text-[12.5px] whitespace-nowrap" style={{ color: '#3A4A42' }}>{r.performedByName ?? '—'}</td>
                   <td className="px-4 py-3 text-[12.5px] whitespace-nowrap" style={{ color: '#3A4A42' }}>

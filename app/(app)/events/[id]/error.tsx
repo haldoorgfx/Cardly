@@ -30,7 +30,7 @@ export default function EventDetailError({
         >
           Failed to load event
         </h2>
-        <p className="text-[14px] leading-relaxed mb-7" style={{ color: '#6B7A72' }}>
+        <p className="text-[14px] leading-relaxed mb-7" style={{ color: '#65736B' }}>
           Something went wrong loading this event. Your data is safe — try refreshing.
         </p>
         <div className="flex items-center justify-center gap-3">
@@ -52,7 +52,7 @@ export default function EventDetailError({
           </Link>
         </div>
         {error.digest && (
-          <p className="mt-6 text-[12.5px]" style={{ color: '#6B7A72' }}>
+          <p className="mt-6 text-[12.5px]" style={{ color: '#65736B' }}>
             ref: {error.digest}
           </p>
         )}

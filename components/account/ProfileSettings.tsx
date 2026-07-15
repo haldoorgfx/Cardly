@@ -131,7 +131,7 @@ function Section({
           {title}
         </span>
         <svg
-          width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6B7A72" strokeWidth="2"
+          width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#65736B" strokeWidth="2"
           className="shrink-0"
           style={{ transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s ease' }}
         >
@@ -346,7 +346,7 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
           <h1 className="font-normal text-[32px]" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', letterSpacing: '-0.025em', color: '#0F1F18' }}>
             Profile &amp; preferences
           </h1>
-          <p className="mt-2 text-[14px]" style={{ color: '#6B7A72' }}>
+          <p className="mt-2 text-[14px]" style={{ color: '#65736B' }}>
             What you pick here shapes your discovery feed and how Eventera reaches you.
           </p>
         </div>
@@ -372,7 +372,7 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
             )}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="text-[13px] truncate" style={{ color: '#6B7A72' }}>{profile.email}</div>
+            <div className="text-[13px] truncate" style={{ color: '#65736B' }}>{profile.email}</div>
           </div>
           <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} />
           <button
@@ -390,7 +390,7 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
         {/* Name + phone */}
         <div className="grid gap-3 sm:grid-cols-2">
           <div>
-            <label className="block text-[12px] mb-1.5 font-medium" style={{ color: '#6B7A72' }}>Display name</label>
+            <label className="block text-[12px] mb-1.5 font-medium" style={{ color: '#65736B' }}>Display name</label>
             <input
               type="text"
               value={fullName}
@@ -403,7 +403,7 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
             />
           </div>
           <div>
-            <label className="block text-[12px] mb-1.5 font-medium" style={{ color: '#6B7A72' }}>Phone / WhatsApp</label>
+            <label className="block text-[12px] mb-1.5 font-medium" style={{ color: '#65736B' }}>Phone / WhatsApp</label>
             <input
               type="tel"
               value={phone}
@@ -418,7 +418,7 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
         </div>
         {/* Bio */}
         <div className="mt-3">
-          <label className="block text-[12px] mb-1.5 font-medium" style={{ color: '#6B7A72' }}>Bio</label>
+          <label className="block text-[12px] mb-1.5 font-medium" style={{ color: '#65736B' }}>Bio</label>
           <textarea
             value={bio}
             onChange={e => { setBio(e.target.value); setSaved(false); }}
@@ -439,12 +439,12 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
         <h2 className="font-medium text-[17px]" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: '#0F1F18' }}>
           Work
         </h2>
-        <p className="mt-1 text-[13px]" style={{ color: '#6B7A72' }}>
+        <p className="mt-1 text-[13px]" style={{ color: '#65736B' }}>
           Helps people know who they&rsquo;re meeting.
         </p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           <div>
-            <label className="block text-[12px] mb-1.5 font-medium" style={{ color: '#6B7A72' }}>Job title</label>
+            <label className="block text-[12px] mb-1.5 font-medium" style={{ color: '#65736B' }}>Job title</label>
             <input
               type="text"
               value={jobTitle}
@@ -457,7 +457,7 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
             />
           </div>
           <div>
-            <label className="block text-[12px] mb-1.5 font-medium" style={{ color: '#6B7A72' }}>Company / organization</label>
+            <label className="block text-[12px] mb-1.5 font-medium" style={{ color: '#65736B' }}>Company / organization</label>
             <input
               type="text"
               value={organization}
@@ -471,7 +471,7 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
           </div>
         </div>
         <div className="mt-3 sm:max-w-[380px]">
-          <label className="block text-[12px] mb-1.5 font-medium" style={{ color: '#6B7A72' }}>Industry</label>
+          <label className="block text-[12px] mb-1.5 font-medium" style={{ color: '#65736B' }}>Industry</label>
           <div className="relative">
             <select
               value={industry}
@@ -484,7 +484,7 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
               <option value="">Choose an industry</option>
               {INDUSTRIES.map(i => <option key={i} value={i}>{i}</option>)}
             </select>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6B7A72" strokeWidth="2.5" className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#65736B" strokeWidth="2.5" className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none">
               <path d="M6 9l6 6 6-6" />
             </svg>
           </div>
@@ -515,7 +515,7 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
         <h2 className="font-medium text-[17px]" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: '#0F1F18' }}>
           Your interests
         </h2>
-        <p className="mt-1 text-[13px]" style={{ color: '#6B7A72' }}>
+        <p className="mt-1 text-[13px]" style={{ color: '#65736B' }}>
           Pick at least 3 — your &ldquo;For you&rdquo; feed is built from these.
         </p>
         <div className="flex flex-wrap gap-2 mt-4">
@@ -543,14 +543,14 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
         <h2 className="font-medium text-[17px]" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: '#0F1F18' }}>
           Home city
         </h2>
-        <p className="mt-1 text-[13px]" style={{ color: '#6B7A72' }}>Events near here come first.</p>
+        <p className="mt-1 text-[13px]" style={{ color: '#65736B' }}>Events near here come first.</p>
 
         {!showCityPicker ? (
           <div
             className="mt-4 flex items-center gap-3 h-12 px-4 rounded-xl w-full sm:max-w-[380px]"
             style={{ border: '1px solid #E5E0D4', background: '#FFFFFF' }}
           >
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#6B7A72" strokeWidth="1.8">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#65736B" strokeWidth="1.8">
               <path d="M12 21s-6-5.2-6-10a6 6 0 0112 0c0 4.8-6 10-6 10z" />
               <circle cx="12" cy="11" r="2.2" />
             </svg>
@@ -582,7 +582,7 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
                 {c}
               </button>
             ))}
-            <button onClick={() => setShowCityPicker(false)} className="text-[13px] mt-1" style={{ color: '#6B7A72' }}>
+            <button onClick={() => setShowCityPicker(false)} className="text-[13px] mt-1" style={{ color: '#65736B' }}>
               Cancel
             </button>
           </div>
@@ -594,7 +594,7 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
         <h2 className="font-medium text-[17px]" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: '#0F1F18' }}>
           What you want out of events
         </h2>
-        <p className="mt-1 text-[13px]" style={{ color: '#6B7A72' }}>
+        <p className="mt-1 text-[13px]" style={{ color: '#65736B' }}>
           We prioritize matches and sessions around this.
         </p>
         <div className="flex flex-wrap gap-2 mt-4">
@@ -622,14 +622,14 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
         <h2 className="font-medium text-[17px]" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: '#0F1F18' }}>
           How you&rsquo;ll connect
         </h2>
-        <p className="mt-1 text-[13px]" style={{ color: '#6B7A72' }}>
+        <p className="mt-1 text-[13px]" style={{ color: '#65736B' }}>
           Control how visible you are to other attendees.
         </p>
         <div className="mt-4 rounded-xl overflow-hidden" style={{ border: '1px solid #E5E0D4', background: '#FFFFFF' }}>
           <div className="flex items-center gap-3 px-4 py-3.5">
             <div className="flex-1 min-w-0">
               <p className="text-[14px] font-medium" style={{ color: '#0F1F18' }}>Show me in the attendee directory</p>
-              <p className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>Others can find and connect with you</p>
+              <p className="text-[12px] mt-0.5" style={{ color: '#65736B' }}>Others can find and connect with you</p>
             </div>
             <Toggle on={directoryVisible} onChange={v => { setDirectoryVisible(v); setSaved(false); }} />
           </div>
@@ -637,13 +637,13 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
           <div className="flex items-center gap-3 px-4 py-3.5">
             <div className="flex-1 min-w-0">
               <p className="text-[14px] font-medium" style={{ color: '#0F1F18' }}>Open to meeting people</p>
-              <p className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>Adds an &ldquo;open to connect&rdquo; badge</p>
+              <p className="text-[12px] mt-0.5" style={{ color: '#65736B' }}>Adds an &ldquo;open to connect&rdquo; badge</p>
             </div>
             <Toggle on={openToConnect} onChange={v => { setOpenToConnect(v); setSaved(false); }} />
           </div>
         </div>
 
-        <p className="mt-6 text-[12px] font-semibold tracking-wide" style={{ color: '#6B7A72' }}>YOUR LINKS (OPTIONAL)</p>
+        <p className="mt-6 text-[12px] font-semibold tracking-wide" style={{ color: '#65736B' }}>YOUR LINKS (OPTIONAL)</p>
         <div className="mt-3 grid gap-3 sm:max-w-[420px]">
           <input
             type="url"
@@ -676,7 +676,7 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
         <h2 className="font-medium text-[17px]" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: '#0F1F18' }}>
           Notifications
         </h2>
-        <p className="mt-1 text-[13px]" style={{ color: '#6B7A72' }}>
+        <p className="mt-1 text-[13px]" style={{ color: '#65736B' }}>
           Choose how each kind of update reaches you — email, WhatsApp and in-app.
         </p>
         <Link
@@ -688,7 +688,7 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
             <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.7 21a2 2 0 0 1-3.4 0" />
           </svg>
           <span className="flex-1 text-[14px] font-medium" style={{ color: '#0F1F18' }}>Manage notification preferences</span>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B7A72" strokeWidth="2"><path d="M9 6l6 6-6 6" /></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#65736B" strokeWidth="2"><path d="M9 6l6 6-6 6" /></svg>
         </Link>
       </div>
 
@@ -697,7 +697,7 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
         <h2 className="font-medium text-[17px]" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: '#0F1F18' }}>
           Language &amp; region
         </h2>
-        <p className="mt-1 text-[13px]" style={{ color: '#6B7A72' }}>
+        <p className="mt-1 text-[13px]" style={{ color: '#65736B' }}>
           Your preferred language. Saved with your preferences.
         </p>
         <div className="mt-4 w-full sm:max-w-[380px] grid gap-2">
@@ -745,10 +745,10 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
           <div className="text-[14px] font-medium" style={{ color: '#0F1F18', fontFamily: '"Plus Jakarta Sans", sans-serif' }}>
             Change email
           </div>
-          <p className="mt-1 text-[13px]" style={{ color: '#6B7A72' }}>
+          <p className="mt-1 text-[13px]" style={{ color: '#65736B' }}>
             We&rsquo;ll send a confirmation link to the new address. Your sign-in email changes only after you confirm it.
           </p>
-          <div className="mt-4 text-[12px] mb-1.5 font-medium" style={{ color: '#6B7A72' }}>
+          <div className="mt-4 text-[12px] mb-1.5 font-medium" style={{ color: '#65736B' }}>
             Current: <span style={{ color: '#0F1F18' }}>{profile.email}</span>
           </div>
           <div className="flex flex-col sm:flex-row gap-2.5">
@@ -800,7 +800,7 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
           <div className="text-[14px] font-medium" style={{ color: '#B8423C', fontFamily: '"Plus Jakarta Sans", sans-serif' }}>
             Delete account
           </div>
-          <p className="mt-1 text-[13px]" style={{ color: '#6B7A72' }}>
+          <p className="mt-1 text-[13px]" style={{ color: '#65736B' }}>
             This permanently removes your profile and data. This can&rsquo;t be undone.
           </p>
           <button
@@ -868,7 +868,7 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
             <h3 className="text-[19px] font-medium" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: '#0F1F18' }}>
               Delete account?
             </h3>
-            <p className="mt-2 text-[13px]" style={{ color: '#6B7A72' }}>
+            <p className="mt-2 text-[13px]" style={{ color: '#65736B' }}>
               This permanently removes your profile and all your data. This can&rsquo;t be undone.
               Type <span style={{ fontFamily: '"JetBrains Mono", monospace', color: '#B8423C' }}>DELETE</span> to confirm.
             </p>

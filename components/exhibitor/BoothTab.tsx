@@ -28,7 +28,7 @@ function Field({ label, value, onChange, area, readOnly }: {
 }) {
   return (
     <div>
-      <div className=" text-[9.5px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>{label}</div>
+      <div className=" text-[9.5px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#65736B' }}>{label}</div>
       {area ? (
         <textarea
           value={value}
@@ -183,7 +183,7 @@ export function BoothTab({ sponsor, token }: Props) {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
                   </svg>
                   <div className="text-[11.5px] mt-1.5 font-medium">Click to upload logo</div>
-                  <div className="text-[10.5px] mt-0.5" style={{ color: '#6B7A72' }}>PNG, JPG, SVG</div>
+                  <div className="text-[10.5px] mt-0.5" style={{ color: '#65736B' }}>PNG, JPG, SVG</div>
                 </div>
               )}
             </button>
@@ -192,7 +192,7 @@ export function BoothTab({ sponsor, token }: Props) {
                 onClick={() => fileRef.current?.click()}
                 disabled={logoUploading}
                 className="mt-2.5 w-full text-[12px] py-1.5 rounded-lg border transition-colors"
-                style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}
+                style={{ borderColor: '#E5E0D4', color: '#65736B' }}
               >
                 Replace logo
               </button>
@@ -207,7 +207,7 @@ export function BoothTab({ sponsor, token }: Props) {
           <div className="p-5 flex items-center justify-between">
             <div>
               <div className="text-[13px] font-medium" style={{ color: '#0F1F18' }}>Featured booth</div>
-              <div className="text-[11.5px] mt-0.5" style={{ color: '#6B7A72' }}>{tierLabel ?? 'Sponsor'} perk</div>
+              <div className="text-[11.5px] mt-0.5" style={{ color: '#65736B' }}>{tierLabel ?? 'Sponsor'} perk</div>
             </div>
             <span className="inline-flex items-center gap-1.5 text-[11px] font-medium px-2.5 py-1 rounded-full border" style={{ background: 'rgba(45,122,79,0.08)', color: '#2D7A4F', borderColor: 'rgba(45,122,79,0.2)' }}>
               <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#2D7A4F' }} />

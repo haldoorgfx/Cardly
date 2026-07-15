@@ -78,7 +78,7 @@ const META: Meta[] = [
 ];
 
 const C = {
-  ink: '#0F1F18', muted: '#6B7A72', border: '#E5E0D4', primary: '#1F4D3A',
+  ink: '#0F1F18', muted: '#65736B', border: '#E5E0D4', primary: '#1F4D3A',
   soft: '#E8EFEB', cream: '#FAF6EE', danger: '#B8423C', success: '#2D7A4F',
 };
 

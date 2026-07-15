@@ -134,7 +134,7 @@ function FieldEditor({
                 }}
               />
             ) : (
-              <span className="text-[12px] text-[#6B7A72]">{String(item)}</span>
+              <span className="text-[12px] text-[#65736B]">{String(item)}</span>
             )}
           </div>
         ))}
@@ -181,7 +181,7 @@ function ObjectEditor({ value, onChange }: {
     <div className="space-y-2">
       {Object.entries(value).map(([k, v]) => (
         <div key={k}>
-          <div className="text-[12px] uppercase tracking-[0.12em] text-[#6B7A72] mb-1">{k}</div>
+          <div className="text-[12px] uppercase tracking-[0.12em] text-[#65736B] mb-1">{k}</div>
           <FieldEditor
             name={k}
             value={v}
@@ -239,13 +239,13 @@ function BlockRow({
           <GripVertical size={14} />
         </div>
         <div className="w-6 h-6 rounded-md bg-[#FAF6EE] border border-[#E5E0D4] grid place-items-center shrink-0">
-          <span className=" text-[11.5px] text-[#6B7A72]">{index + 1}</span>
+          <span className=" text-[11.5px] text-[#65736B]">{index + 1}</span>
         </div>
         <div className="flex-1 min-w-0">
           <div className="font-medium text-[13px] text-[#0F1F18]">
             {BLOCK_LABELS[block.type as BlockType] ?? block.type}
           </div>
-          <div className=" text-[12px] text-[#6B7A72] truncate">
+          <div className=" text-[12px] text-[#65736B] truncate">
             {getContentSummary(block.content as unknown as Record<string, unknown>)}
           </div>
         </div>
@@ -259,7 +259,7 @@ function BlockRow({
           </button>
           <button
             onClick={onDelete}
-            className="h-7 w-7 rounded-lg border border-[#E5E0D4] grid place-items-center text-[#B8423C] hover:bg-red-50 transition-colors"
+            className="h-10 w-10 rounded-lg border border-[#E5E0D4] grid place-items-center text-[#B8423C] hover:bg-red-50 transition-colors"
           >
             <Trash2 size={12} />
           </button>
@@ -272,7 +272,7 @@ function BlockRow({
           <div className="space-y-4">
             {Object.entries(content).map(([key, val]) => (
               <div key={key}>
-                <div className="text-[12.5px] uppercase tracking-[0.12em] text-[#6B7A72] mb-1.5">{key}</div>
+                <div className="text-[12.5px] uppercase tracking-[0.12em] text-[#65736B] mb-1.5">{key}</div>
                 <FieldEditor
                   name={key}
                   value={val}
@@ -292,7 +292,7 @@ function BlockRow({
             </button>
             <button
               onClick={() => setOpen(false)}
-              className="h-8 px-3 rounded-lg border border-[#E5E0D4] text-[12px] text-[#6B7A72] hover:bg-white transition-colors"
+              className="h-8 px-3 rounded-lg border border-[#E5E0D4] text-[12px] text-[#65736B] hover:bg-white transition-colors"
             >
               Cancel
             </button>
@@ -395,7 +395,7 @@ export function PageEditorClient({ page }: { page: CmsPageWithBlocks }) {
         <div className="flex items-center gap-3 px-5 py-3 max-w-[900px] mx-auto">
           <Link
             href="/admin/content"
-            className="inline-flex items-center gap-1.5 text-[12px] text-[#6B7A72] hover:text-[#0F1F18] transition-colors shrink-0"
+            className="inline-flex items-center gap-1.5 text-[12px] text-[#65736B] hover:text-[#0F1F18] transition-colors shrink-0"
           >
             <ArrowLeft size={13} /> All pages
           </Link>
@@ -409,7 +409,7 @@ export function PageEditorClient({ page }: { page: CmsPageWithBlocks }) {
             className="flex-1 font-display font-semibold text-[16px] text-[#0F1F18] bg-transparent border-b border-transparent hover:border-[#E5E0D4] focus:border-[#1F4D3A] outline-none transition-colors py-0.5 min-w-0"
           />
 
-          {titleSaving && <Loader2 size={13} className="animate-spin text-[#6B7A72] shrink-0" />}
+          {titleSaving && <Loader2 size={13} className="animate-spin text-[#65736B] shrink-0" />}
 
           <div className="flex items-center gap-2 shrink-0 ml-auto">
             {/* Status badge */}
@@ -453,11 +453,11 @@ export function PageEditorClient({ page }: { page: CmsPageWithBlocks }) {
         <div className="mb-6 p-4 bg-white border border-[#E5E0D4] rounded-xl">
           <div className="flex items-center justify-between">
             <div>
-              <div className=" text-[12px] uppercase tracking-[0.14em] text-[#6B7A72] mb-1">Slug</div>
+              <div className=" text-[12px] uppercase tracking-[0.14em] text-[#65736B] mb-1">Slug</div>
               <div className=" text-[13px] text-[#3A4A42]">/{page.slug}</div>
             </div>
             <div>
-              <div className=" text-[12px] uppercase tracking-[0.14em] text-[#6B7A72] mb-1">Blocks</div>
+              <div className=" text-[12px] uppercase tracking-[0.14em] text-[#65736B] mb-1">Blocks</div>
               <div className=" text-[13px] text-[#3A4A42]">{blocks.length}</div>
             </div>
             <button
@@ -473,7 +473,7 @@ export function PageEditorClient({ page }: { page: CmsPageWithBlocks }) {
         <div className="space-y-3">
           {blocks.length === 0 && (
             <div className="py-16 text-center border-2 border-dashed border-[#E5E0D4] rounded-2xl">
-              <p className="text-[14px] text-[#6B7A72]">No blocks yet. Add one below.</p>
+              <p className="text-[14px] text-[#65736B]">No blocks yet. Add one below.</p>
             </div>
           )}
           {blocks.map((block, index) => (
@@ -493,7 +493,7 @@ export function PageEditorClient({ page }: { page: CmsPageWithBlocks }) {
           <button
             onClick={() => setShowAddBlock(o => !o)}
             disabled={addingBlock}
-            className="w-full h-10 rounded-xl border-2 border-dashed border-[#C9C3B1] text-[13px] text-[#6B7A72] hover:border-[#1F4D3A] hover:text-[#1F4D3A] transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+            className="w-full h-10 rounded-xl border-2 border-dashed border-[#C9C3B1] text-[13px] text-[#65736B] hover:border-[#1F4D3A] hover:text-[#1F4D3A] transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
           >
             {addingBlock ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
             Add block
@@ -508,12 +508,12 @@ export function PageEditorClient({ page }: { page: CmsPageWithBlocks }) {
                   className="text-left px-3 py-2 rounded-lg hover:bg-[#FAF6EE] transition-colors"
                 >
                   <div className="text-[12px] font-medium text-[#0F1F18]">{BLOCK_LABELS[type]}</div>
-                  <div className=" text-[12px] text-[#6B7A72]">{type}</div>
+                  <div className=" text-[12px] text-[#65736B]">{type}</div>
                 </button>
               ))}
               <button
                 onClick={() => setShowAddBlock(false)}
-                className="col-span-3 mt-1 text-[12.5px] text-[#6B7A72] hover:text-[#0F1F18] transition-colors py-1"
+                className="col-span-3 mt-1 text-[12.5px] text-[#65736B] hover:text-[#0F1F18] transition-colors py-1"
               >
                 Cancel
               </button>

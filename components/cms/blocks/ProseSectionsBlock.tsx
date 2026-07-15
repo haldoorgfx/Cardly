@@ -14,7 +14,7 @@ export function ProseSectionsBlock({ content }: { content: ProseSectionsContent 
         {headline}
       </h1>
       {updatedAt && (
-        <p className="text-[13px] text-[#6B7A72]/60 mb-10">
+        <p className="text-[13px] text-[#65736B]/60 mb-10">
           Last updated: {updatedAt}
         </p>
       )}

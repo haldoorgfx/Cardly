@@ -93,7 +93,7 @@ export function GoogleMapView({ events, hoveredId, onHover, onBoundsChange }: Pr
     return (
       <div className="w-full h-full flex flex-col items-center justify-center gap-2" style={{ background: '#E8EFEB' }}>
         <p className="text-[13px] font-medium" style={{ color: '#0F1F18' }}>Map unavailable</p>
-        <p className="text-[11px] text-center max-w-[200px]" style={{ color: '#6B7A72' }}>
+        <p className="text-[11px] text-center max-w-[200px]" style={{ color: '#65736B' }}>
           Add NEXT_PUBLIC_GOOGLE_MAPS_API_KEY to .env.local to enable the map.
         </p>
       </div>
@@ -203,7 +203,7 @@ export function GoogleMapView({ events, hoveredId, onHover, onBoundsChange }: Pr
               <div style={{ fontSize: 13, fontWeight: 600, color: '#0F1F18', marginBottom: 2, lineHeight: 1.3 }}>
                 {selectedEvent.title}
               </div>
-              <div style={{ fontSize: 11, color: '#6B7A72', marginBottom: 8 }}>
+              <div style={{ fontSize: 11, color: '#65736B', marginBottom: 8 }}>
                 {new Date(selectedEvent.starts_at).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
                 {selectedEvent.venue_name ? ` · ${selectedEvent.venue_name}` : ''}
               </div>
@@ -225,7 +225,7 @@ export function GoogleMapView({ events, hoveredId, onHover, onBoundsChange }: Pr
           style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', boxShadow: '0 2px 8px rgba(15,31,24,0.1)', color: '#0F1F18' }}
           onClick={handleSearchArea}
         >
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6B7A72" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#65736B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="1 4 1 10 7 10" /><polyline points="23 20 23 14 17 14" />
             <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15" />
           </svg>
@@ -241,7 +241,7 @@ export function GoogleMapView({ events, hoveredId, onHover, onBoundsChange }: Pr
             style={{ background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(8px)', border: '1px solid #E5E0D4' }}
           >
             <p className="text-[13px] font-medium mb-1" style={{ color: '#0F1F18' }}>No location data</p>
-            <p className="text-[12px]" style={{ color: '#6B7A72' }}>Events don&apos;t have coordinates yet.</p>
+            <p className="text-[12px]" style={{ color: '#65736B' }}>Events don&apos;t have coordinates yet.</p>
           </div>
         </div>
       )}
@@ -265,6 +265,6 @@ const BRAND_MAP_STYLE: google.maps.MapTypeStyle[] = [
   { featureType: 'poi', elementType: 'labels', stylers: [{ visibility: 'off' }] },
   { featureType: 'transit', stylers: [{ visibility: 'off' }] },
   { featureType: 'administrative', elementType: 'geometry.stroke', stylers: [{ color: '#C9C3B1' }] },
-  { featureType: 'administrative.country', elementType: 'labels.text.fill', stylers: [{ color: '#6B7A72' }] },
+  { featureType: 'administrative.country', elementType: 'labels.text.fill', stylers: [{ color: '#65736B' }] },
   { featureType: 'administrative.locality', elementType: 'labels.text.fill', stylers: [{ color: '#3A4A42' }] },
 ];

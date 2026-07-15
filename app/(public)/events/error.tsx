@@ -33,7 +33,7 @@ export default function EventsDiscoveryError({
       >
         Couldn’t load events
       </h1>
-      <p className="text-[14px] leading-relaxed mb-8 max-w-[320px]" style={{ color: '#6B7A72' }}>
+      <p className="text-[14px] leading-relaxed mb-8 max-w-[320px]" style={{ color: '#65736B' }}>
         We hit a snag loading the discovery feed. It might be a temporary issue — try again.
       </p>
 
@@ -57,7 +57,7 @@ export default function EventsDiscoveryError({
       </div>
 
       {error.digest && (
-        <p className="mt-8 text-[11px]" style={{ color: '#6B7A72' }}>
+        <p className="mt-8 text-[11px]" style={{ color: '#65736B' }}>
           ref: {error.digest}
         </p>
       )}

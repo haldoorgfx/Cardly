@@ -88,7 +88,7 @@ export function EventeraCardView({ eventName, eventSlug, eventStatus, totalCards
         <div className="flex flex-col gap-4">
           {hasDesign ? (
             <div>
-              <div className="text-[12.5px] font-semibold uppercase tracking-wider mb-2" style={{ color: '#6B7A72' }}>
+              <div className="text-[12.5px] font-semibold uppercase tracking-wider mb-2" style={{ color: '#65736B' }}>
                 Card design
               </div>
               <div
@@ -106,7 +106,7 @@ export function EventeraCardView({ eventName, eventSlug, eventStatus, totalCards
                 />
               </div>
               {primaryVariant!.zonesCount > 0 && (
-                <div className="mt-2 flex items-center gap-1.5 text-[12px]" style={{ color: '#6B7A72' }}>
+                <div className="mt-2 flex items-center gap-1.5 text-[12px]" style={{ color: '#65736B' }}>
                   <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#2D7A4F' }} />
                   {primaryVariant!.zonesCount} editable {primaryVariant!.zonesCount === 1 ? 'zone' : 'zones'} defined
                 </div>
@@ -126,7 +126,7 @@ export function EventeraCardView({ eventName, eventSlug, eventStatus, totalCards
                 <Palette size={20} strokeWidth={1.8} style={{ color: '#1F4D3A' }} />
               </div>
               <div className="font-medium text-[14px] mb-1" style={{ color: '#0F1F18' }}>Upload your design</div>
-              <div className="text-[12px]" style={{ color: '#6B7A72' }}>
+              <div className="text-[12px]" style={{ color: '#65736B' }}>
                 PNG or JPG background, then add name, photo &amp; role zones
               </div>
             </Link>
@@ -165,7 +165,7 @@ export function EventeraCardView({ eventName, eventSlug, eventStatus, totalCards
           }>
             {allVariants.length === 0 ? (
               <div className="text-center py-6">
-                <p className="text-[13px] mb-3" style={{ color: '#6B7A72' }}>
+                <p className="text-[13px] mb-3" style={{ color: '#65736B' }}>
                   No variants yet. Create different card designs for Attendees, Speakers, VIPs, etc.
                 </p>
                 <Link
@@ -198,7 +198,7 @@ export function EventeraCardView({ eventName, eventSlug, eventStatus, totalCards
                     )}
                     <div className="flex-1 min-w-0">
                       <div className="text-[13.5px] font-medium" style={{ color: '#0F1F18' }}>{v.name ?? `Variant ${v.position + 1}`}</div>
-                      <div className="text-[12.5px] mt-0.5" style={{ color: '#6B7A72' }}>
+                      <div className="text-[12.5px] mt-0.5" style={{ color: '#65736B' }}>
                         {v.zonesCount > 0 ? `${v.zonesCount} zone${v.zonesCount !== 1 ? 's' : ''}` : 'No zones yet'}
                       </div>
                     </div>
@@ -237,7 +237,7 @@ export function EventeraCardView({ eventName, eventSlug, eventStatus, totalCards
       {/* ── Check-in / badges section ── */}
       <div className="mt-6 rounded-2xl overflow-hidden" style={{ border: '1px solid #E5E0D4', background: 'white' }}>
         <div className="flex items-center gap-2.5 px-5 py-4" style={{ borderBottom: '1px solid #E5E0D4' }}>
-          <Printer size={15} strokeWidth={2} style={{ color: '#6B7A72' }} />
+          <Printer size={15} strokeWidth={2} style={{ color: '#65736B' }} />
           <div>
             <h3 className="text-[14px] font-semibold" style={{ color: '#0F1F18' }}>Door check-in</h3>
             <p className="text-[12px] mt-0.5" style={{ color: '#3A4A42' }}>
@@ -248,7 +248,7 @@ export function EventeraCardView({ eventName, eventSlug, eventStatus, totalCards
         <div className="p-5 grid sm:grid-cols-2 gap-6 sm:gap-8 items-start">
           {/* How check-in works today */}
           <div>
-            <div className="text-[12.5px] font-semibold uppercase tracking-wider mb-3" style={{ color: '#6B7A72' }}>How it works</div>
+            <div className="text-[12.5px] font-semibold uppercase tracking-wider mb-3" style={{ color: '#65736B' }}>How it works</div>
             <p className="text-[13px] mb-4" style={{ color: '#3A4A42', lineHeight: 1.55 }}>
               Each registrant gets a unique QR code by email and on their Eventera Card. Open the scanner at the door and check people in as they arrive.
             </p>
@@ -264,7 +264,7 @@ export function EventeraCardView({ eventName, eventSlug, eventStatus, totalCards
           </div>
           {/* What each card carries */}
           <div>
-            <div className="text-[12.5px] font-semibold uppercase tracking-wider mb-3" style={{ color: '#6B7A72' }}>Each card carries</div>
+            <div className="text-[12.5px] font-semibold uppercase tracking-wider mb-3" style={{ color: '#65736B' }}>Each card carries</div>
             <div className="space-y-2">
               {[
                 { label: 'Attendee name', always: true },
@@ -285,7 +285,7 @@ export function EventeraCardView({ eventName, eventSlug, eventStatus, totalCards
                     )}
                   </div>
                   {item.label}
-                  {!item.always && <span className="text-[12.5px] ml-auto" style={{ color: '#6B7A72' }}>if provided</span>}
+                  {!item.always && <span className="text-[12.5px] ml-auto" style={{ color: '#65736B' }}>if provided</span>}
                 </div>
               ))}
             </div>
@@ -313,11 +313,11 @@ function StatCard({
       }}
     >
       <div className="flex items-center justify-between mb-3">
-        <span className="text-[12.5px] font-medium" style={{ color: '#6B7A72', letterSpacing: '0.03em' }}>{label}</span>
-        <span style={{ color: '#6B7A72' }}>{icon}</span>
+        <span className="text-[12.5px] font-medium" style={{ color: '#65736B', letterSpacing: '0.03em' }}>{label}</span>
+        <span style={{ color: '#65736B' }}>{icon}</span>
       </div>
       <p className="text-[26px] font-bold leading-none" style={{ color: '#0F1F18' }}>{value}</p>
-      {sub && <p className="text-[12px] mt-1.5" style={{ color: '#6B7A72' }}>{sub}</p>}
+      {sub && <p className="text-[12px] mt-1.5" style={{ color: '#65736B' }}>{sub}</p>}
     </div>
   );
 }

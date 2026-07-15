@@ -104,7 +104,7 @@ export default function ScheduleClient({ sessions, tracks, registrationId, saved
               style={
                 activeDayIdx === idx
                   ? { color: '#1F4D3A', borderBottom: '2px solid #1F4D3A', marginBottom: -1 }
-                  : { color: '#6B7A72', borderBottom: '2px solid transparent', marginBottom: -1 }
+                  : { color: '#65736B', borderBottom: '2px solid transparent', marginBottom: -1 }
               }
             >
               {formatDayTab(day)}
@@ -151,7 +151,7 @@ export default function ScheduleClient({ sessions, tracks, registrationId, saved
       {/* Session list */}
       {visibleSessions.length === 0 ? (
         <div className="py-16 text-center">
-          <p className="text-sm" style={{ color: '#6B7A72' }}>No sessions scheduled for this day.</p>
+          <p className="text-sm" style={{ color: '#65736B' }}>No sessions scheduled for this day.</p>
         </div>
       ) : (
         <div className="space-y-2">
@@ -193,13 +193,13 @@ export default function ScheduleClient({ sessions, tracks, registrationId, saved
                       {session.title}
                     </p>
                     {speakerNames && (
-                      <p className="text-[13px] mt-0.5 truncate" style={{ color: '#6B7A72' }}>
+                      <p className="text-[13px] mt-0.5 truncate" style={{ color: '#65736B' }}>
                         {speakerNames}
                       </p>
                     )}
                     <div className="flex items-center gap-2 mt-1 flex-wrap">
                       {session.room && (
-                        <span className="text-[12px]" style={{ color: '#6B7A72' }}>{session.room}</span>
+                        <span className="text-[12px]" style={{ color: '#65736B' }}>{session.room}</span>
                       )}
                       <span
                         className="text-[12.5px] font-medium px-2 py-0.5 rounded-full"
@@ -220,7 +220,7 @@ export default function ScheduleClient({ sessions, tracks, registrationId, saved
                     {isSaved ? (
                       <BookmarkCheck size={18} style={{ color: '#E8C57E', fill: '#E8C57E' }} />
                     ) : (
-                      <Bookmark size={18} style={{ color: '#6B7A72' }} />
+                      <Bookmark size={18} style={{ color: '#65736B' }} />
                     )}
                   </button>
                 </div>

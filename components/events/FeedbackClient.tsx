@@ -32,7 +32,7 @@ function StarIcon({ filled }: { filled: boolean }) {
       height="100%"
       viewBox="0 0 24 24"
       fill={filled ? '#E8C57E' : 'none'}
-      stroke={filled ? '#E8C57E' : '#6B7A72'}
+      stroke={filled ? '#E8C57E' : '#65736B'}
       strokeWidth="1.5"
     >
       <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
@@ -47,7 +47,7 @@ function SmallStarIcon({ filled }: { filled: boolean }) {
       height="100%"
       viewBox="0 0 24 24"
       fill={filled ? '#E8C57E' : 'none'}
-      stroke={filled ? '#E8C57E' : '#6B7A72'}
+      stroke={filled ? '#E8C57E' : '#65736B'}
       strokeWidth="1.5"
     >
       <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
@@ -125,7 +125,7 @@ export default function FeedbackClient({ eventId, eventTitle, registrationId, at
         <h2 className="font-display text-[22px] font-normal" style={{ color: '#0F1F18' }}>
           Thank you for your feedback!
         </h2>
-        <p className="text-[15px]" style={{ color: '#6B7A72' }}>
+        <p className="text-[15px]" style={{ color: '#65736B' }}>
           Your response has been recorded.
         </p>
         <button
@@ -172,7 +172,7 @@ export default function FeedbackClient({ eventId, eventTitle, registrationId, at
 
         {overallRating > 0 && (
           <div className="space-y-1.5">
-            <label htmlFor="feedback-comment" className="block text-[13px]" style={{ color: '#6B7A72' }}>Tell us more (optional)</label>
+            <label htmlFor="feedback-comment" className="block text-[13px]" style={{ color: '#65736B' }}>Tell us more (optional)</label>
             <textarea
               id="feedback-comment"
               className="w-full border rounded-xl px-4 py-3 text-[15px] resize-none"

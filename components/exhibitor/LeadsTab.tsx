@@ -22,7 +22,7 @@ interface Props {
 const RATING_STYLES: Record<string, { bg: string; color: string; border: string }> = {
   hot:  { bg: 'rgba(45,122,79,0.08)',  color: '#2D7A4F', border: 'rgba(45,122,79,0.2)' },
   warm: { bg: 'rgba(232,197,126,0.2)', color: '#C9A45E', border: 'rgba(232,197,126,0.4)' },
-  cold: { bg: 'rgba(15,31,24,0.05)',   color: '#6B7A72', border: '#E5E0D4' },
+  cold: { bg: 'rgba(15,31,24,0.05)',   color: '#65736B', border: '#E5E0D4' },
 };
 
 function Avatar({ name, idx }: { name: string; idx: number }) {
@@ -105,7 +105,7 @@ function LeadPanel({
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid #E5E0D4' }}>
           <div className="font-display text-[15px] font-semibold" style={{ color: '#0F1F18' }}>Lead detail</div>
-          <button onClick={onClose} aria-label="Close" className="w-7 h-7 rounded-lg grid place-items-center hover:bg-[#F5F3EE]" style={{ color: '#6B7A72' }}>
+          <button onClick={onClose} aria-label="Close" className="w-10 h-10 rounded-lg grid place-items-center hover:bg-[#F5F3EE]" style={{ color: '#65736B' }}>
             <svg width={14} height={14} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -116,14 +116,14 @@ function LeadPanel({
         <div className="px-5 py-4 space-y-3">
           <div>
             <div className="font-display text-[16px] font-semibold" style={{ color: '#0F1F18' }}>{lead.attendee_name ?? 'Unknown'}</div>
-            {lead.attendee_email && <div className=" text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>{lead.attendee_email}</div>}
+            {lead.attendee_email && <div className=" text-[12px] mt-0.5" style={{ color: '#65736B' }}>{lead.attendee_email}</div>}
             {(lead.role || lead.company) && (
               <div className="text-[13px] mt-0.5" style={{ color: '#3A4A42' }}>
                 {[lead.role, lead.company].filter(Boolean).join(' · ')}
               </div>
             )}
             {(lead.captured_at || lead.created_at) && (
-              <div className=" text-[11px] mt-1" style={{ color: '#6B7A72' }}>
+              <div className=" text-[11px] mt-1" style={{ color: '#65736B' }}>
                 Captured {new Date(lead.captured_at ?? lead.created_at).toLocaleDateString()}
               </div>
             )}
@@ -131,7 +131,7 @@ function LeadPanel({
 
           {/* Rating */}
           <div>
-            <div className=" text-[10px] tracking-[0.12em] uppercase mb-2" style={{ color: '#6B7A72' }}>Rating</div>
+            <div className=" text-[10px] tracking-[0.12em] uppercase mb-2" style={{ color: '#65736B' }}>Rating</div>
             <div className="flex gap-2">
               {(['hot', 'warm', 'cold'] as const).map(r => {
                 const s = RATING_STYLES[r];
@@ -143,7 +143,7 @@ function LeadPanel({
                     className="flex-1 py-2 rounded-xl text-[13px] font-medium capitalize border transition-all"
                     style={{
                       background: active ? s.bg : 'white',
-                      color: active ? s.color : '#6B7A72',
+                      color: active ? s.color : '#65736B',
                       borderColor: active ? s.border : '#E5E0D4',
                       fontWeight: active ? 600 : 400,
                     }}
@@ -157,7 +157,7 @@ function LeadPanel({
 
           {/* Note */}
           <div>
-            <div className=" text-[10px] tracking-[0.12em] uppercase mb-2" style={{ color: '#6B7A72' }}>Note</div>
+            <div className=" text-[10px] tracking-[0.12em] uppercase mb-2" style={{ color: '#65736B' }}>Note</div>
             <textarea
               value={note}
               onChange={e => setNote(e.target.value)}
@@ -185,7 +185,7 @@ function LeadPanel({
           <button
             onClick={onClose}
             className="px-4 py-2.5 rounded-xl text-[13.5px] font-medium border"
-            style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}
+            style={{ borderColor: '#E5E0D4', color: '#65736B' }}
           >
             Cancel
           </button>
@@ -268,7 +268,7 @@ export function LeadsTab({ leads: initialLeads, token }: Props) {
 
       {/* List */}
       {filtered.length === 0 ? (
-        <div className="px-5 py-10 text-center text-[13.5px]" style={{ color: '#6B7A72' }}>
+        <div className="px-5 py-10 text-center text-[13.5px]" style={{ color: '#65736B' }}>
           {leads.length === 0 ? 'No leads captured yet.' : 'No leads match your search.'}
         </div>
       ) : (
@@ -287,7 +287,7 @@ export function LeadsTab({ leads: initialLeads, token }: Props) {
                   <div className="text-[13.5px] font-medium truncate" style={{ color: '#0F1F18' }}>
                     {lead.attendee_name ?? 'Unknown'}
                   </div>
-                  <div className=" text-[11px] truncate mt-0.5" style={{ color: '#6B7A72' }}>
+                  <div className=" text-[11px] truncate mt-0.5" style={{ color: '#65736B' }}>
                     {subtitle || lead.attendee_email || '—'}
                   </div>
                 </div>

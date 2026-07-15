@@ -81,14 +81,14 @@ export default function QandAClient({ eventId, registrationId, initialQuestions,
           <button
             onClick={() => setSessionFilter(null)}
             className="px-3 py-1.5 rounded-full text-[12px] font-medium"
-            style={{ background: !sessionFilter ? '#1F4D3A' : 'white', color: !sessionFilter ? 'white' : '#6B7A72', border: `1px solid ${!sessionFilter ? '#1F4D3A' : '#E5E0D4'}` }}
+            style={{ background: !sessionFilter ? '#1F4D3A' : 'white', color: !sessionFilter ? 'white' : '#65736B', border: `1px solid ${!sessionFilter ? '#1F4D3A' : '#E5E0D4'}` }}
           >All sessions</button>
           {sessions.map(s => (
             <button
               key={s.id}
               onClick={() => setSessionFilter(s.id)}
               className="px-3 py-1.5 rounded-full text-[12px] font-medium"
-              style={{ background: sessionFilter === s.id ? '#1F4D3A' : 'white', color: sessionFilter === s.id ? 'white' : '#6B7A72', border: `1px solid ${sessionFilter === s.id ? '#1F4D3A' : '#E5E0D4'}` }}
+              style={{ background: sessionFilter === s.id ? '#1F4D3A' : 'white', color: sessionFilter === s.id ? 'white' : '#65736B', border: `1px solid ${sessionFilter === s.id ? '#1F4D3A' : '#E5E0D4'}` }}
             >
               {s.title.length > 30 ? s.title.slice(0, 30) + '…' : s.title}
             </button>
@@ -106,7 +106,7 @@ export default function QandAClient({ eventId, registrationId, initialQuestions,
           <p className="text-[14px] font-medium mb-1" style={{ color: '#0F1F18' }}>
             No questions yet
           </p>
-          <p className="text-[13px]" style={{ color: '#6B7A72' }}>
+          <p className="text-[13px]" style={{ color: '#65736B' }}>
             Be the first to ask something.
           </p>
         </div>
@@ -130,7 +130,7 @@ export default function QandAClient({ eventId, registrationId, initialQuestions,
                 aria-label={upvotedIds.has(q.id) ? 'Remove upvote' : 'Upvote this question'}
                 aria-pressed={upvotedIds.has(q.id)}
                 className="flex flex-col items-center gap-1 shrink-0 w-10 rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-                style={{ color: upvotedIds.has(q.id) ? '#1F4D3A' : '#6B7A72', outlineColor: '#1F4D3A' }}
+                style={{ color: upvotedIds.has(q.id) ? '#1F4D3A' : '#65736B', outlineColor: '#1F4D3A' }}
               >
                 <ChevronUp size={20} strokeWidth={upvotedIds.has(q.id) ? 2.5 : 1.8} />
                 <span className="text-[14px] font-semibold">{q.upvotes_count}</span>
@@ -143,7 +143,7 @@ export default function QandAClient({ eventId, registrationId, initialQuestions,
                 )}
                 <p className="text-[15px]" style={{ color: '#0F1F18' }}>{q.question}</p>
                 <div className="flex items-center gap-3 mt-1.5">
-                  <span className="text-[12px]" style={{ color: '#6B7A72' }}>
+                  <span className="text-[12px]" style={{ color: '#65736B' }}>
                     {q.is_anonymous ? 'Anonymous' : (q.registrations as { attendee_name: string } | null)?.attendee_name ?? 'Attendee'}
                   </span>
                   {q.status === 'answered' && (
@@ -186,7 +186,7 @@ export default function QandAClient({ eventId, registrationId, initialQuestions,
                     <span className="block w-4 h-4 rounded-full bg-white m-0.5 transition-transform" style={{ transform: isAnon ? 'translateX(16px)' : 'none' }} />
                   </span>
                 </span>
-                <span className="text-[12px]" style={{ color: '#6B7A72' }}>Post anonymously</span>
+                <span className="text-[12px]" style={{ color: '#65736B' }}>Post anonymously</span>
               </label>
               <button
                 onClick={handleSubmit}

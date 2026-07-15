@@ -40,7 +40,7 @@ export function PricingCardsBlock({ content }: { content: PricingCardsContent })
                   {plan.price}
                 </span>
                 {plan.period && (
-                  <span className={`text-[14px] ${plan.highlighted ? 'text-[rgba(250,246,238,0.65)]' : 'text-[#6B7A72]'}`}>
+                  <span className={`text-[14px] ${plan.highlighted ? 'text-[rgba(250,246,238,0.65)]' : 'text-[#65736B]'}`}>
                     {plan.period}
                   </span>
                 )}
@@ -73,10 +73,10 @@ export function PricingCardsBlock({ content }: { content: PricingCardsContent })
         </div>
 
         {trialBanner && (
-          <div className="mt-8 text-center text-[14px] text-[#6B7A72]">{trialBanner}</div>
+          <div className="mt-8 text-center text-[14px] text-[#65736B]">{trialBanner}</div>
         )}
         {trustItems && trustItems.length > 0 && (
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[13px] text-[#6B7A72]">
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[13px] text-[#65736B]">
             {trustItems.map((t) => (
               <span key={t} className="inline-flex items-center gap-1.5">
                 <Check size={13} strokeWidth={2.5} style={{ color: '#1F4D3A' }} /> {t}

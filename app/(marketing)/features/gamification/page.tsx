@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 const C = {
   primary: '#1F4D3A', primaryDark: '#163828', primarySoft: '#E8EFEB',
   accent: '#E8C57E', accentDark: '#C9A45E',
-  ink: '#0F1F18', inkSoft: '#3A4A42', muted: '#6B7A72',
+  ink: '#0F1F18', inkSoft: '#3A4A42', muted: '#65736B',
   cream: '#FAF6EE', surface: '#FFFFFF', border: '#E5E0D4',
 } as const;
 const steps = [
@@ -47,7 +47,7 @@ function GamificationMockup() {
 
             {/* Top 3 */}
             <div style={{ background: '#FFFFFF', margin: 8, borderRadius: 14, padding: 16 }}>
-              <div style={{ fontFamily: 'var(--font-sans)', fontSize: 10, color: '#6B7A72', textTransform: 'uppercase' as const, letterSpacing: '0.05em', marginBottom: 12 }}>Top this event</div>
+              <div style={{ fontFamily: 'var(--font-sans)', fontSize: 10, color: '#65736B', textTransform: 'uppercase' as const, letterSpacing: '0.05em', marginBottom: 12 }}>Top this event</div>
               {[
                 { medalColor: '#E8C57E', initials: 'NK', avatarBg: 'linear-gradient(135deg,#E8C57E,#C9A45E)', initialsColor: '#163828', name: 'Dr. Naledi Khumalo', org: 'Nairobi Tech', pts: '1,240 pts' },
                 { medalColor: '#9AA6A0', initials: 'KA', avatarBg: 'linear-gradient(135deg,#1F4D3A,#2A6A50)', initialsColor: '#FAF6EE', name: 'Kofi Asante', org: 'Accra Labs', pts: '980 pts' },
@@ -60,7 +60,7 @@ function GamificationMockup() {
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 700, color: '#0F1F18', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{r.name}</div>
-                    <div style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: '#6B7A72' }}>{r.org}</div>
+                    <div style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: '#65736B' }}>{r.org}</div>
                   </div>
                   <div style={{ fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif', fontSize: 13, fontWeight: 700, color: '#1F4D3A', textAlign: 'right' as const, flexShrink: 0 }}>{r.pts}</div>
                 </div>
@@ -79,7 +79,7 @@ function GamificationMockup() {
                 ].map((b) => (
                   <div key={b.label} style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 8, padding: '8px 10px', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: 4, opacity: b.locked ? 0.4 : 1 }}>
                     <b.Icon size={20} strokeWidth={1.8} color="#1F4D3A" aria-hidden />
-                    <span style={{ fontFamily: 'var(--font-sans)', fontSize: 10, color: '#6B7A72' }}>{b.label}</span>
+                    <span style={{ fontFamily: 'var(--font-sans)', fontSize: 10, color: '#65736B' }}>{b.label}</span>
                   </div>
                 ))}
               </div>
@@ -87,7 +87,7 @@ function GamificationMockup() {
 
             {/* Activity Feed */}
             <div style={{ background: '#FFFFFF', margin: 8, borderRadius: 14, padding: 12 }}>
-              <div style={{ fontFamily: 'var(--font-sans)', fontSize: 10, color: '#6B7A72', textTransform: 'uppercase' as const, letterSpacing: '0.05em', marginBottom: 8 }}>Recent points</div>
+              <div style={{ fontFamily: 'var(--font-sans)', fontSize: 10, color: '#65736B', textTransform: 'uppercase' as const, letterSpacing: '0.05em', marginBottom: 8 }}>Recent points</div>
               {[
                 { pts: '+100', label: 'Attended Opening Keynote', time: 'Just now' },
                 { pts: '+50', label: 'Connected with Kofi Asante', time: '2m ago' },
@@ -98,7 +98,7 @@ function GamificationMockup() {
                     <span style={{ fontFamily: 'var(--font-sans)', fontSize: 11, fontWeight: 700, color: '#FAF6EE' }}>{a.pts}</span>
                   </div>
                   <span style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: '#0F1F18', flex: 1 }}>{a.label}</span>
-                  <span style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: '#6B7A72', flexShrink: 0 }}>{a.time}</span>
+                  <span style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: '#65736B', flexShrink: 0 }}>{a.time}</span>
                 </div>
               ))}
             </div>

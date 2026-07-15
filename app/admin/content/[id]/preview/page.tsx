@@ -51,7 +51,7 @@ export default async function ContentPreviewPage({ params }: { params: { id: str
       <div className="bg-[#FAF6EE] min-h-screen">
         {page.blocks.length === 0 ? (
           <div className="py-32 text-center">
-            <p className="text-[14px] text-[#6B7A72]">No blocks on this page yet.</p>
+            <p className="text-[14px] text-[#65736B]">No blocks on this page yet.</p>
           </div>
         ) : (
           page.blocks

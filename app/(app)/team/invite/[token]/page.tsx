@@ -35,7 +35,7 @@ export default async function AcceptInvitePage({ params }: PageProps) {
             <Link2 size={24} strokeWidth={1.8} />
           </div>
           <h1 className="font-display font-bold text-[22px] text-[#0F1F18] mb-2">Invalid invite</h1>
-          <p className="text-[14px] text-[#6B7A72] mb-6">This invite link doesn&apos;t exist or has been revoked.</p>
+          <p className="text-[14px] text-[#65736B] mb-6">This invite link doesn&apos;t exist or has been revoked.</p>
           <a href="/dashboard" className="text-[13px] font-medium text-[#1F4D3A] underline">Go to dashboard</a>
         </div>
       </div>
@@ -56,7 +56,7 @@ export default async function AcceptInvitePage({ params }: PageProps) {
           <h1 className="font-display font-bold text-[22px] text-[#0F1F18] mb-2">
             {isAccepted ? 'Already accepted' : 'Invite expired'}
           </h1>
-          <p className="text-[14px] text-[#6B7A72] mb-6">
+          <p className="text-[14px] text-[#65736B] mb-6">
             {isAccepted
               ? 'This invite has already been used.'
               : 'This invite link has expired. Ask the team owner to send a new one.'}

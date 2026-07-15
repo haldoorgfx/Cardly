@@ -82,23 +82,23 @@ export default async function BillingAdminPage({
       {/* Ticket-fee take-rate — Eventera's cut + what's owed to organizers */}
       {feeCurrencies.length > 0 && (
         <div className="mb-8">
-          <div className="text-[12px] tracking-[0.18em] uppercase text-[#6B7A72] mb-3">Ticket fees · take-rate revenue</div>
+          <div className="text-[12px] tracking-[0.18em] uppercase text-[#65736B] mb-3">Ticket fees · take-rate revenue</div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {feeCurrencies.map(([cur, v]) => (
               <div key={cur} className="rounded-2xl bg-white border p-5" style={{ borderColor: '#E5E0D4' }}>
                 <div className="flex items-center justify-between mb-3">
                   <span className="font-display font-semibold text-[14px] text-[#0F1F18]">{cur}</span>
-                  <span className="text-[12.5px] text-[#6B7A72]">{v.count} paid ticket{v.count !== 1 ? 's' : ''}</span>
+                  <span className="text-[12.5px] text-[#65736B]">{v.count} paid ticket{v.count !== 1 ? 's' : ''}</span>
                 </div>
                 <div className="space-y-1.5">
-                  <div className="flex items-center justify-between text-[13px]"><span className="text-[#6B7A72]">Gross processed</span><span className="font-medium text-[#0F1F18]">{fmtCur(v.gross, cur)}</span></div>
-                  <div className="flex items-center justify-between text-[13px]"><span className="text-[#6B7A72]">Eventera fees earned</span><span className="font-semibold text-[#0F1F18]">{fmtCur(v.fees, cur)}</span></div>
-                  <div className="flex items-center justify-between text-[13px] pt-1.5" style={{ borderTop: '1px solid #E5E0D4' }}><span className="text-[#6B7A72]">Owed to organizers</span><span className="font-medium text-[#0F1F18]">{fmtCur(v.owed, cur)}</span></div>
+                  <div className="flex items-center justify-between text-[13px]"><span className="text-[#65736B]">Gross processed</span><span className="font-medium text-[#0F1F18]">{fmtCur(v.gross, cur)}</span></div>
+                  <div className="flex items-center justify-between text-[13px]"><span className="text-[#65736B]">Eventera fees earned</span><span className="font-semibold text-[#0F1F18]">{fmtCur(v.fees, cur)}</span></div>
+                  <div className="flex items-center justify-between text-[13px] pt-1.5" style={{ borderTop: '1px solid #E5E0D4' }}><span className="text-[#65736B]">Owed to organizers</span><span className="font-medium text-[#0F1F18]">{fmtCur(v.owed, cur)}</span></div>
                 </div>
               </div>
             ))}
           </div>
-          <p className="mt-2.5 text-[12px] text-[#6B7A72]">Payouts are settled manually — pay each organizer their net (see each event&apos;s Revenue page for the per-event breakdown).</p>
+          <p className="mt-2.5 text-[12px] text-[#65736B]">Payouts are settled manually — pay each organizer their net (see each event&apos;s Revenue page for the per-event breakdown).</p>
         </div>
       )}
 

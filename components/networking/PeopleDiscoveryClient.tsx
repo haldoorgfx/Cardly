@@ -105,7 +105,7 @@ function StatusTag({ status }: { status: string }) {
     );
   }
   return (
-    <span className="inline-flex items-center gap-1.5 text-[12px] font-medium px-3 py-1.5 rounded-full" style={{ background: '#F0EDE8', color: '#6B7A72' }}>
+    <span className="inline-flex items-center gap-1.5 text-[12px] font-medium px-3 py-1.5 rounded-full" style={{ background: '#F0EDE8', color: '#65736B' }}>
       <Clock size={12} /> Pending
     </span>
   );
@@ -243,7 +243,7 @@ export default function PeopleDiscoveryClient({ eventId, eventSlug, registration
       <div className="rounded-2xl py-16 px-6 text-center" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
         <Users size={36} strokeWidth={1.4} style={{ color: '#C9C3B1', margin: '0 auto 14px' }} />
         <p className="font-display font-semibold text-[16px] mb-1.5" style={{ color: '#0F1F18' }}>Register to network</p>
-        <p className="text-[14px] max-w-sm mx-auto" style={{ color: '#6B7A72' }}>
+        <p className="text-[14px] max-w-sm mx-auto" style={{ color: '#65736B' }}>
           Register for this event to see who else is attending, get AI-matched, and start connecting.
         </p>
       </div>
@@ -298,7 +298,7 @@ export default function PeopleDiscoveryClient({ eventId, eventSlug, registration
       {/* Search + filter chips */}
       <div className="flex flex-wrap gap-3 mb-6">
         <div className="relative flex-1 min-w-[200px]">
-          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: '#6B7A72' }} />
+          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: '#65736B' }} />
           <input
             type="text"
             placeholder="Search by name…"
@@ -317,7 +317,7 @@ export default function PeopleDiscoveryClient({ eventId, eventSlug, registration
               className="px-4 py-2 rounded-full text-[13px] font-medium transition-colors inline-flex items-center gap-1.5 shrink-0"
               style={{
                 background: filter === t.key ? '#1F4D3A' : 'white',
-                color: filter === t.key ? 'white' : '#6B7A72',
+                color: filter === t.key ? 'white' : '#65736B',
                 border: `1px solid ${filter === t.key ? '#1F4D3A' : '#E5E0D4'}`,
               }}
             >
@@ -349,26 +349,26 @@ export default function PeopleDiscoveryClient({ eventId, eventSlug, registration
         loadingRequests && !requestsLoaded ? (
           <div className="rounded-2xl py-16 flex flex-col items-center justify-center gap-3" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
             <Loader2 size={24} className="animate-spin" style={{ color: '#1F4D3A' }} />
-            <p className="text-[13px]" style={{ color: '#6B7A72' }}>Loading requests…</p>
+            <p className="text-[13px]" style={{ color: '#65736B' }}>Loading requests…</p>
           </div>
         ) : incoming.length === 0 && sent.length === 0 ? (
           <div className="rounded-2xl py-16 text-center" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
-            <Inbox size={24} className="mx-auto mb-3" style={{ color: '#6B7A72' }} />
+            <Inbox size={24} className="mx-auto mb-3" style={{ color: '#65736B' }} />
             <p className="text-[14px] font-medium mb-1" style={{ color: '#0F1F18' }}>No pending requests</p>
-            <p className="text-[13px]" style={{ color: '#6B7A72' }}>Requests you send or receive will appear here.</p>
+            <p className="text-[13px]" style={{ color: '#65736B' }}>Requests you send or receive will appear here.</p>
           </div>
         ) : (
           <div className="flex flex-col gap-8">
             {/* Incoming */}
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <Inbox size={15} style={{ color: '#6B7A72' }} />
-                <span className="text-[11px] font-semibold uppercase tracking-[0.12em]" style={{ color: '#6B7A72' }}>
+                <Inbox size={15} style={{ color: '#65736B' }} />
+                <span className="text-[11px] font-semibold uppercase tracking-[0.12em]" style={{ color: '#65736B' }}>
                   Incoming · {incoming.length}
                 </span>
               </div>
               {incoming.length === 0 ? (
-                <p className="text-[13px]" style={{ color: '#6B7A72' }}>No incoming requests right now.</p>
+                <p className="text-[13px]" style={{ color: '#65736B' }}>No incoming requests right now.</p>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {incoming.map(r => (
@@ -377,7 +377,7 @@ export default function PeopleDiscoveryClient({ eventId, eventSlug, registration
                         <Avatar name={r.name} size={48} />
                         <div className="flex-1 min-w-0">
                           <div className="font-display font-medium text-[15px] truncate" style={{ color: '#0F1F18' }}>{r.name}</div>
-                          <div className="text-[12px]" style={{ color: '#6B7A72' }}>Wants to connect</div>
+                          <div className="text-[12px]" style={{ color: '#65736B' }}>Wants to connect</div>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
@@ -394,7 +394,7 @@ export default function PeopleDiscoveryClient({ eventId, eventSlug, registration
                           onClick={() => handleRespond(r.connection_id, 'decline')}
                           disabled={respondingTo === r.connection_id}
                           className="flex-1 inline-flex items-center justify-center gap-1.5 text-[12px] font-medium px-3 py-2 rounded-full transition-opacity"
-                          style={{ border: '1px solid #E5E0D4', color: '#6B7A72', opacity: respondingTo === r.connection_id ? 0.5 : 1 }}
+                          style={{ border: '1px solid #E5E0D4', color: '#65736B', opacity: respondingTo === r.connection_id ? 0.5 : 1 }}
                         >
                           <X size={12} /> Decline
                         </button>
@@ -408,13 +408,13 @@ export default function PeopleDiscoveryClient({ eventId, eventSlug, registration
             {/* Sent */}
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <Send size={15} style={{ color: '#6B7A72' }} />
-                <span className="text-[11px] font-semibold uppercase tracking-[0.12em]" style={{ color: '#6B7A72' }}>
+                <Send size={15} style={{ color: '#65736B' }} />
+                <span className="text-[11px] font-semibold uppercase tracking-[0.12em]" style={{ color: '#65736B' }}>
                   Sent · {sent.length}
                 </span>
               </div>
               {sent.length === 0 ? (
-                <p className="text-[13px]" style={{ color: '#6B7A72' }}>You haven&apos;t sent any requests yet.</p>
+                <p className="text-[13px]" style={{ color: '#65736B' }}>You haven&apos;t sent any requests yet.</p>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {sent.map(r => (
@@ -422,7 +422,7 @@ export default function PeopleDiscoveryClient({ eventId, eventSlug, registration
                       <Avatar name={r.name} size={44} />
                       <div className="flex-1 min-w-0">
                         <div className="font-display font-medium text-[15px] truncate" style={{ color: '#0F1F18' }}>{r.name}</div>
-                        <div className="text-[12px]" style={{ color: '#6B7A72' }}>Request sent</div>
+                        <div className="text-[12px]" style={{ color: '#65736B' }}>Request sent</div>
                       </div>
                       <StatusTag status="pending" />
                     </div>
@@ -436,13 +436,13 @@ export default function PeopleDiscoveryClient({ eventId, eventSlug, registration
         loadingSuggestions ? (
           <div className="rounded-2xl py-16 flex flex-col items-center justify-center gap-3" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
             <Loader2 size={24} className="animate-spin" style={{ color: '#1F4D3A' }} />
-            <p className="text-[13px]" style={{ color: '#6B7A72' }}>Finding your best matches…</p>
+            <p className="text-[13px]" style={{ color: '#65736B' }}>Finding your best matches…</p>
           </div>
         ) : suggestions.length === 0 ? (
           <div className="rounded-2xl py-16 text-center" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
-            <Sparkles size={24} className="mx-auto mb-3" style={{ color: '#6B7A72' }} />
+            <Sparkles size={24} className="mx-auto mb-3" style={{ color: '#65736B' }} />
             <p className="text-[14px] font-medium mb-1" style={{ color: '#0F1F18' }}>No suggestions yet</p>
-            <p className="text-[13px]" style={{ color: '#6B7A72' }}>Check back once more attendees have registered.</p>
+            <p className="text-[13px]" style={{ color: '#65736B' }}>Check back once more attendees have registered.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -470,7 +470,7 @@ export default function PeopleDiscoveryClient({ eventId, eventSlug, registration
 
           {/* Directory */}
           <div className="flex items-center gap-3 mb-4">
-            <span className="text-[11px] font-semibold uppercase tracking-[0.12em]" style={{ color: '#6B7A72' }}>
+            <span className="text-[11px] font-semibold uppercase tracking-[0.12em]" style={{ color: '#65736B' }}>
               All attendees · {people.length}
             </span>
             <div className="flex-1 h-px" style={{ background: '#E5E0D4' }} />
@@ -479,7 +479,7 @@ export default function PeopleDiscoveryClient({ eventId, eventSlug, registration
           {loadingPeople && people.length === 0 ? (
             <div className="rounded-2xl py-16 flex flex-col items-center justify-center gap-3" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
               <Loader2 size={24} className="animate-spin" style={{ color: '#1F4D3A' }} />
-              <p className="text-[13px]" style={{ color: '#6B7A72' }}>Loading attendees…</p>
+              <p className="text-[13px]" style={{ color: '#65736B' }}>Loading attendees…</p>
             </div>
           ) : peopleError ? (
             <div className="rounded-2xl py-14 text-center" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
@@ -490,8 +490,8 @@ export default function PeopleDiscoveryClient({ eventId, eventSlug, registration
             </div>
           ) : filteredPeople.length === 0 ? (
             <div className="rounded-2xl py-16 text-center" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
-              <Users size={24} className="mx-auto mb-3" style={{ color: '#6B7A72' }} />
-              <p className="text-[14px]" style={{ color: '#6B7A72' }}>
+              <Users size={24} className="mx-auto mb-3" style={{ color: '#65736B' }} />
+              <p className="text-[14px]" style={{ color: '#65736B' }}>
                 {query || filter !== 'all' ? 'No attendees match your filter.' : 'No one here yet — check back soon.'}
               </p>
             </div>
@@ -507,7 +507,7 @@ export default function PeopleDiscoveryClient({ eventId, eventSlug, registration
                         <div className="font-display font-medium text-[15px] truncate" style={{ color: '#0F1F18' }}>
                           {person.attendee_name}
                         </div>
-                        <div className="text-[12px] truncate" style={{ color: '#6B7A72' }}>
+                        <div className="text-[12px] truncate" style={{ color: '#65736B' }}>
                           {subtitle || 'Attendee'}
                         </div>
                       </div>
@@ -568,7 +568,7 @@ function MatchCard({
             <div className="font-display font-medium text-[15px] truncate flex-1" style={{ color: '#0F1F18' }}>{name}</div>
             <ScoreBadge score={match.score} />
           </div>
-          {subtitle && <div className="text-[12px] truncate mt-0.5" style={{ color: '#6B7A72' }}>{subtitle}</div>}
+          {subtitle && <div className="text-[12px] truncate mt-0.5" style={{ color: '#65736B' }}>{subtitle}</div>}
         </div>
       </div>
 

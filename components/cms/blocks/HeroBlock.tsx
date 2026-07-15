@@ -42,7 +42,7 @@ export function HeroBlock({ content }: { content: HeroContent }) {
             </div>
           )}
           {trustBadges && (
-            <div className="mt-7 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[13px] text-[#6B7A72]">
+            <div className="mt-7 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[13px] text-[#65736B]">
               {trustBadges.map((t) => (
                 <span key={t} className="inline-flex items-center gap-1.5">
                   <Check size={14} strokeWidth={2.5} style={{ color: '#1F4D3A' }} /> {t}
@@ -93,7 +93,7 @@ export function HeroBlock({ content }: { content: HeroContent }) {
             </div>
           )}
           {trustBadges && (
-            <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-2 text-[13px] text-[#6B7A72]">
+            <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-2 text-[13px] text-[#65736B]">
               {trustBadges.map((t) => (
                 <span key={t} className="inline-flex items-center gap-1.5">
                   <Check size={14} strokeWidth={2.5} style={{ color: '#1F4D3A' }} /> {t}
@@ -106,7 +106,7 @@ export function HeroBlock({ content }: { content: HeroContent }) {
               {statsStrip.map((s) => (
                 <div key={s.label} className="px-4 py-3.5" style={{ background: '#FAF6EE' }}>
                   <div className="font-display font-bold text-[#0F1F18] text-[22px] tracking-[-0.03em] leading-none">{s.value}</div>
-                  <div className="mt-1.5  text-[9px] tracking-[0.16em] uppercase text-[#6B7A72]">{s.label}</div>
+                  <div className="mt-1.5  text-[9px] tracking-[0.16em] uppercase text-[#65736B]">{s.label}</div>
                 </div>
               ))}
             </div>

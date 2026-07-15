@@ -145,7 +145,7 @@ export default function SettingsClient({ profile, section }: Props) {
               <div key={item.label} className="flex items-center justify-between gap-6 py-4">
                 <div>
                   <div className="text-[13.5px] font-medium text-[#0F1F18]">{item.label}</div>
-                  <div className="text-[12.5px] mt-0.5" style={{ color: '#6B7A72' }}>{item.desc}</div>
+                  <div className="text-[12.5px] mt-0.5" style={{ color: '#65736B' }}>{item.desc}</div>
                 </div>
                 <Toggle checked={item.checked} onChange={item.onChange} />
               </div>
@@ -167,7 +167,7 @@ export default function SettingsClient({ profile, section }: Props) {
               </span>
               <div>
                 <div className="text-[13.5px] font-medium text-[#0F1F18]">Change password</div>
-                <div className="text-[12.5px] mt-0.5" style={{ color: '#6B7A72' }}>Update the password you use to sign in.</div>
+                <div className="text-[12.5px] mt-0.5" style={{ color: '#65736B' }}>Update the password you use to sign in.</div>
               </div>
             </div>
             <ChevronRight size={16} strokeWidth={2} style={{ color: '#9BA8A1' }} />
@@ -183,7 +183,7 @@ export default function SettingsClient({ profile, section }: Props) {
               </span>
               <div>
                 <div className="text-[13.5px] font-medium text-[#0F1F18]">Log out of all devices</div>
-                <div className="text-[12.5px] mt-0.5" style={{ color: '#6B7A72' }}>
+                <div className="text-[12.5px] mt-0.5" style={{ color: '#65736B' }}>
                   {signingOutAll ? 'Signing out everywhere…' : 'Ends every active session, including this one.'}
                 </div>
               </div>
@@ -200,7 +200,7 @@ export default function SettingsClient({ profile, section }: Props) {
           <div className="flex items-center justify-between gap-6">
             <div>
               <div className="text-[13.5px] font-semibold mb-1" style={{ color: '#B8423C' }}>Delete account</div>
-              <div className="text-[13px]" style={{ color: '#6B7A72' }}>
+              <div className="text-[13px]" style={{ color: '#65736B' }}>
                 Permanently removes your account and all events. This can&apos;t be undone.
               </div>
             </div>
@@ -218,7 +218,7 @@ export default function SettingsClient({ profile, section }: Props) {
                 {deleting ? 'Deleting…' : deleteConfirm ? 'Confirm — delete forever' : 'Delete'}
               </button>
               {deleteConfirm && !deleting && (
-                <button onClick={() => setDeleteConfirm(false)} className="text-[13px] transition" style={{ color: '#6B7A72' }}>
+                <button onClick={() => setDeleteConfirm(false)} className="text-[13px] transition" style={{ color: '#65736B' }}>
                   Cancel
                 </button>
               )}

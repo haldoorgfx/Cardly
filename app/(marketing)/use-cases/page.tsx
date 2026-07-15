@@ -312,7 +312,7 @@ export default function UseCasesPage() {
                   <div className="font-display font-semibold text-[15px] text-[#0F1F18]">
                     {label}
                   </div>
-                  <p className="text-[#6B7A72] text-[13px] leading-[1.5]">{desc}</p>
+                  <p className="text-[#65736B] text-[13px] leading-[1.5]">{desc}</p>
                 </div>
               ))}
             </div>

@@ -35,14 +35,14 @@ export function LeaderboardView({ leaderboard, myRegistrationId, myEntry }: Prop
   if (leaderboard.length === 0) {
     return (
       <div className="rounded-2xl py-16 text-center" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
-        <p className="text-[14px]" style={{ color: '#6B7A72' }}>No points yet. Ask questions, vote in polls, and connect with people to earn points.</p>
+        <p className="text-[14px]" style={{ color: '#65736B' }}>No points yet. Ask questions, vote in polls, and connect with people to earn points.</p>
       </div>
     );
   }
 
   return (
     <>
-      <p className="text-[13px] text-center mb-6" style={{ color: '#6B7A72' }}>
+      <p className="text-[13px] text-center mb-6" style={{ color: '#65736B' }}>
         Earn points by asking questions, voting in polls, and connecting with people.
       </p>
 
@@ -65,7 +65,7 @@ export function LeaderboardView({ leaderboard, myRegistrationId, myEntry }: Prop
                 <div className="text-center">
                   <div className="font-display font-medium text-[13px] truncate max-w-[80px]" style={{ color: isYou(entry.registration_id) ? '#1F4D3A' : '#0F1F18' }}>{isYou(entry.registration_id) ? 'You' : entry.attendee_name.split(' ')[0]}</div>
                   <div className=" text-[13px] font-semibold" style={{ color: isFirst ? '#E8C57E' : '#0F1F18' }}>{entry.total_points}pts</div>
-                  <div className=" text-[12.5px]" style={{ color: '#6B7A72' }}>#{entry.rank}</div>
+                  <div className=" text-[12.5px]" style={{ color: '#65736B' }}>#{entry.rank}</div>
                 </div>
               </div>
             );
@@ -80,7 +80,7 @@ export function LeaderboardView({ leaderboard, myRegistrationId, myEntry }: Prop
             const you = isYou(entry.registration_id);
             return (
               <div key={entry.registration_id} className="flex items-center gap-3 px-4 py-3" style={{ borderBottom: i < rest.length - 1 ? '1px solid #F0EBE3' : 'none', background: you ? '#E8EFEB' : 'transparent' }}>
-                <span className=" text-[13px] w-8" style={{ color: you ? '#1F4D3A' : '#6B7A72' }}>#{entry.rank}</span>
+                <span className=" text-[13px] w-8" style={{ color: you ? '#1F4D3A' : '#65736B' }}>#{entry.rank}</span>
                 <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-[12px] font-display font-semibold shrink-0" style={{ background: '#1F4D3A' }}>{initials(entry.attendee_name)}</div>
                 <span className="flex-1 text-[14px] font-medium" style={{ color: you ? '#1F4D3A' : '#0F1F18' }}>{you ? 'You' : entry.attendee_name}</span>
                 <span className=" text-[14px] font-semibold" style={{ color: '#0F1F18' }}>{entry.total_points}pts</span>

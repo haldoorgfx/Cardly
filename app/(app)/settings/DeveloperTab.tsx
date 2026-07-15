@@ -50,7 +50,7 @@ function CopyBtn({ text }: { text: string }) {
     <button
       onClick={() => { navigator.clipboard.writeText(text).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); }); }}
       className="h-7 w-7 rounded-lg grid place-items-center transition hover:bg-[#FAF6EE]"
-      style={{ color: copied ? '#1F4D3A' : '#6B7A72' }}
+      style={{ color: copied ? '#1F4D3A' : '#65736B' }}
       title="Copy"
     >
       {copied ? <Check size={13} strokeWidth={2.5} /> : <Copy size={13} />}
@@ -115,7 +115,7 @@ function ApiKeysSection({ plan }: { plan: string }) {
     return (
       <div className="text-center py-8">
         <Key size={28} strokeWidth={1.4} color="#C9C3B1" className="mx-auto mb-3" />
-        <p className="text-[13px] text-[#6B7A72] mb-4">API keys are available on the Studio plan.</p>
+        <p className="text-[13px] text-[#65736B] mb-4">API keys are available on the Studio plan.</p>
         <a href="/settings/billing" className="inline-flex items-center gap-1.5 h-8 px-4 text-[13px] font-semibold text-white rounded-lg" style={{ background: '#1F4D3A' }}>
           Upgrade to Studio →
         </a>
@@ -127,7 +127,7 @@ function ApiKeysSection({ plan }: { plan: string }) {
     <div>
       {/* Base URL strip */}
       <div className="flex items-center gap-3 flex-wrap py-4 mb-2" style={{ borderBottom: '1px solid #E5E0D4' }}>
-        <span className="text-[13px]" style={{ color: '#6B7A72' }}>Base URL:</span>
+        <span className="text-[13px]" style={{ color: '#65736B' }}>Base URL:</span>
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-full  text-[13px]" style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#0F1F18' }}>
           {BASE_URL}
           <CopyBtn text={BASE_URL} />
@@ -141,7 +141,7 @@ function ApiKeysSection({ plan }: { plan: string }) {
       {newKey && (
         <div className="mb-5 rounded-2xl p-5" style={{ background: 'white', border: '1px solid #E5E0D4', boxShadow: '0 4px 12px rgba(15,31,24,0.08)' }}>
           <div className="font-display font-medium text-[18px] mb-1" style={{ color: '#0F1F18' }}>Your new API key</div>
-          <div className="text-[13px] mb-4" style={{ color: '#6B7A72' }}>Copy this key now — it won&apos;t be shown again.</div>
+          <div className="text-[13px] mb-4" style={{ color: '#65736B' }}>Copy this key now — it won&apos;t be shown again.</div>
           <div className="rounded-xl px-4 py-3  text-[14px] break-all mb-4" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
             {newKey}
           </div>
@@ -156,7 +156,7 @@ function ApiKeysSection({ plan }: { plan: string }) {
             <button
               onClick={() => setNewKey(null)}
               className="flex-1 py-2.5 rounded-xl text-[13px] font-medium"
-              style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#6B7A72' }}
+              style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#65736B' }}
             >
               I&apos;ve copied my key
             </button>
@@ -170,7 +170,7 @@ function ApiKeysSection({ plan }: { plan: string }) {
         <form onSubmit={create}>
           <div className="grid gap-3 grid-cols-1 sm:grid-cols-[1fr_1fr_auto]">
             <div>
-              <label className="block text-[12px] mb-1.5" style={{ color: '#6B7A72' }}>Key name</label>
+              <label className="block text-[12px] mb-1.5" style={{ color: '#65736B' }}>Key name</label>
               <input
                 type="text"
                 value={newName}
@@ -182,7 +182,7 @@ function ApiKeysSection({ plan }: { plan: string }) {
               />
             </div>
             <div>
-              <label className="block text-[12px] mb-1.5" style={{ color: '#6B7A72' }}>Scope</label>
+              <label className="block text-[12px] mb-1.5" style={{ color: '#65736B' }}>Scope</label>
               <select
                 value={newScopes}
                 onChange={e => setNewScopes(e.target.value)}
@@ -214,9 +214,9 @@ function ApiKeysSection({ plan }: { plan: string }) {
       {/* Keys table */}
       <div className="font-display font-medium text-[16px] mb-3" style={{ color: '#0F1F18' }}>Active keys</div>
       {loading ? (
-        <div className="text-[13px] text-[#6B7A72]">Loading…</div>
+        <div className="text-[13px] text-[#65736B]">Loading…</div>
       ) : keys.length === 0 ? (
-        <div className="text-center py-8 rounded-2xl text-[13px]" style={{ background: 'white', border: '1px solid #E5E0D4', color: '#6B7A72' }}>
+        <div className="text-center py-8 rounded-2xl text-[13px]" style={{ background: 'white', border: '1px solid #E5E0D4', color: '#65736B' }}>
           No API keys yet.
         </div>
       ) : (
@@ -227,7 +227,7 @@ function ApiKeysSection({ plan }: { plan: string }) {
             <thead>
               <tr style={{ borderBottom: '1px solid #E5E0D4', background: '#FAF6EE' }}>
                 {['Name', 'Key', 'Scopes', 'Last used', 'Created', 'Actions'].map(h => (
-                  <th key={h} className="text-left px-4 py-2.5 text-[12.5px] font-semibold uppercase tracking-wider" style={{ color: '#6B7A72' }}>
+                  <th key={h} className="text-left px-4 py-2.5 text-[12.5px] font-semibold uppercase tracking-wider" style={{ color: '#65736B' }}>
                     {h}
                   </th>
                 ))}
@@ -257,10 +257,10 @@ function ApiKeysSection({ plan }: { plan: string }) {
                       ))}
                     </div>
                   </td>
-                  <td className="px-4 py-3  text-[12px] whitespace-nowrap" style={{ color: '#6B7A72' }}>
+                  <td className="px-4 py-3  text-[12px] whitespace-nowrap" style={{ color: '#65736B' }}>
                     {k.last_used_at ? relativeTime(k.last_used_at) : '—'}
                   </td>
-                  <td className="px-4 py-3  text-[12px] whitespace-nowrap" style={{ color: '#6B7A72' }}>
+                  <td className="px-4 py-3  text-[12px] whitespace-nowrap" style={{ color: '#65736B' }}>
                     {new Date(k.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                   </td>
                   <td className="px-4 py-3">
@@ -309,7 +309,7 @@ function ApiKeysSection({ plan }: { plan: string }) {
                     </span>
                   ))}
                 </div>
-                <div className="flex items-center gap-x-3 gap-y-1 flex-wrap mt-2.5 text-[12px]" style={{ color: '#6B7A72' }}>
+                <div className="flex items-center gap-x-3 gap-y-1 flex-wrap mt-2.5 text-[12px]" style={{ color: '#65736B' }}>
                   <span className="whitespace-nowrap">Last used {k.last_used_at ? relativeTime(k.last_used_at) : '—'}</span>
                   <span className="whitespace-nowrap">· Created {new Date(k.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                 </div>
@@ -378,7 +378,7 @@ function WebhooksSection({ plan }: { plan: string }) {
     return (
       <div className="text-center py-8">
         <Webhook size={28} strokeWidth={1.4} color="#C9C3B1" className="mx-auto mb-3" />
-        <p className="text-[13px] text-[#6B7A72] mb-4">Webhooks are available on the Studio plan.</p>
+        <p className="text-[13px] text-[#65736B] mb-4">Webhooks are available on the Studio plan.</p>
         <a href="/settings/billing" className="inline-flex items-center gap-1.5 h-8 px-4 text-[13px] font-semibold text-white rounded-lg" style={{ background: '#1F4D3A' }}>
           Upgrade to Studio →
         </a>
@@ -423,9 +423,9 @@ function WebhooksSection({ plan }: { plan: string }) {
       </form>
 
       {loading ? (
-        <div className="text-[13px] text-[#6B7A72]">Loading…</div>
+        <div className="text-[13px] text-[#65736B]">Loading…</div>
       ) : hooks.length === 0 ? (
-        <div className="text-center py-6 text-[13px] text-[#6B7A72]">No webhooks yet.</div>
+        <div className="text-center py-6 text-[13px] text-[#65736B]">No webhooks yet.</div>
       ) : (
         <div className="rounded-xl overflow-hidden border" style={{ borderColor: '#E5E0D4' }}>
           {hooks.map((h, i) => (
@@ -434,15 +434,15 @@ function WebhooksSection({ plan }: { plan: string }) {
               className="flex items-center gap-3 px-4 py-3"
               style={{ borderBottom: i < hooks.length - 1 ? '1px solid #E5E0D4' : 'none', opacity: h.enabled ? 1 : 0.5 }}
             >
-              <Webhook size={13} strokeWidth={2} color="#6B7A72" className="shrink-0" />
+              <Webhook size={13} strokeWidth={2} color="#65736B" className="shrink-0" />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="text-[13px] text-[#0F1F18] truncate">{h.url}</span>
-                  <a href={h.url} target="_blank" rel="noopener noreferrer" className="shrink-0 text-[#6B7A72] hover:text-[#1F4D3A]">
+                  <a href={h.url} target="_blank" rel="noopener noreferrer" className="shrink-0 text-[#65736B] hover:text-[#1F4D3A]">
                     <ExternalLink size={11} strokeWidth={2} />
                   </a>
                 </div>
-                <div className="text-[13px] text-[#6B7A72] mt-0.5">
+                <div className="text-[13px] text-[#65736B] mt-0.5">
                   {h.events.join(', ')}
                   {h.last_fired_at && ` · last fired ${relativeTime(h.last_fired_at)}`}
                   {h.failure_count > 0 && <span className="text-[#C97A2D] ml-1">· {h.failure_count} failure{h.failure_count !== 1 ? 's' : ''}</span>}
@@ -451,7 +451,7 @@ function WebhooksSection({ plan }: { plan: string }) {
               <button
                 onClick={() => toggle(h.id, !h.enabled)}
                 className="text-[12.5px] px-2 py-1 rounded-lg transition"
-                style={{ background: h.enabled ? 'rgba(31,77,58,0.08)' : '#F5F5F0', color: h.enabled ? '#1F4D3A' : '#6B7A72' }}
+                style={{ background: h.enabled ? 'rgba(31,77,58,0.08)' : '#F5F5F0', color: h.enabled ? '#1F4D3A' : '#65736B' }}
               >
                 {h.enabled ? 'Enabled' : 'Disabled'}
               </button>
@@ -468,7 +468,7 @@ function WebhooksSection({ plan }: { plan: string }) {
         </div>
       )}
 
-      <p className="mt-3 text-[12px] text-[#6B7A72]">
+      <p className="mt-3 text-[12px] text-[#65736B]">
         Each request includes an <code className="font-sans text-[12.5px] bg-[#FAF6EE] px-1 py-0.5 rounded-md">X-Eventera-Signature</code> header (HMAC-SHA256) for verification.
       </p>
     </div>
@@ -483,7 +483,7 @@ export function DeveloperTab({ plan }: { plan: string }) {
       {/* API Keys */}
       <div className="bg-white rounded-2xl p-6 border" style={{ borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
         <div className="flex items-center gap-2 mb-4">
-          <Key size={15} strokeWidth={2} color="#6B7A72" />
+          <Key size={15} strokeWidth={2} color="#65736B" />
           <div className="text-[13.5px] font-semibold text-[#0F1F18]">API keys</div>
           {plan === 'studio' && (
             <span className="ml-auto text-[12px] px-2 py-0.5 rounded-full" style={{ background: 'rgba(31,77,58,0.08)', color: '#1F4D3A' }}>
@@ -497,7 +497,7 @@ export function DeveloperTab({ plan }: { plan: string }) {
       {/* Webhooks */}
       <div className="bg-white rounded-2xl p-6 border" style={{ borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
         <div className="flex items-center gap-2 mb-4">
-          <Webhook size={15} strokeWidth={2} color="#6B7A72" />
+          <Webhook size={15} strokeWidth={2} color="#65736B" />
           <div className="text-[13.5px] font-semibold text-[#0F1F18]">Webhooks</div>
           {plan === 'studio' && (
             <span className="ml-auto text-[12px] px-2 py-0.5 rounded-full" style={{ background: 'rgba(31,77,58,0.08)', color: '#1F4D3A' }}>

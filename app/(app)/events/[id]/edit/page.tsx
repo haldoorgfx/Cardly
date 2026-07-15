@@ -14,7 +14,7 @@ const CanvasEditor = nextDynamic(() => import('@/components/editor/CanvasEditor'
     <div className="flex-1 grid place-items-center bg-[#FAF6EE]">
       <div className="flex flex-col items-center gap-3">
         <div className="w-8 h-8 rounded-full border-2 border-[#1F4D3A] border-t-transparent animate-spin" />
-        <span className="text-[13px] text-[#6B7A72] font-medium">Loading editor…</span>
+        <span className="text-[13px] text-[#65736B] font-medium">Loading editor…</span>
       </div>
     </div>
   ),

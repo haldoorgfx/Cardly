@@ -74,7 +74,7 @@ export default async function PublicSpeakerPage({ params }: Props) {
       <div className="max-w-[680px] mx-auto px-5 py-10">
         <Link href={`/e/${params.slug}?tab=speakers`}
           className="inline-flex items-center gap-1.5 text-[13px] font-medium mb-6"
-          style={{ color: '#6B7A72' }}>
+          style={{ color: '#65736B' }}>
           <ArrowLeft size={14} strokeWidth={2} /> {event.name}
         </Link>
 
@@ -99,7 +99,7 @@ export default async function PublicSpeakerPage({ params }: Props) {
                 </p>
               )}
               {speaker.headline && (
-                <p className="text-[13px] mt-1" style={{ color: '#6B7A72' }}>{speaker.headline}</p>
+                <p className="text-[13px] mt-1" style={{ color: '#65736B' }}>{speaker.headline}</p>
               )}
               <div className="flex items-center gap-3 mt-3">
                 {speaker.linkedin_url && (
@@ -144,7 +144,7 @@ export default async function PublicSpeakerPage({ params }: Props) {
                   </span>
                   <div className="min-w-0">
                     <div className="text-[14px] font-medium" style={{ color: '#0F1F18' }}>{s.title}</div>
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 text-[12.5px]" style={{ color: '#6B7A72' }}>
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 text-[12.5px]" style={{ color: '#65736B' }}>
                       {s.starts_at && (
                         <span className="inline-flex items-center gap-1.5">
                           <Clock size={12} strokeWidth={1.9} /> {fmtTime(s.starts_at)}

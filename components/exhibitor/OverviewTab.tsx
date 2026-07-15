@@ -23,7 +23,7 @@ interface Props {
 const RATINGS = [
   { value: 'hot',  label: 'Hot',  desc: 'Ready to buy', color: '#2D7A4F', bg: 'rgba(45,122,79,0.1)',  border: 'rgba(45,122,79,0.3)' },
   { value: 'warm', label: 'Warm', desc: 'Interested',   color: '#C9A45E', bg: 'rgba(232,197,126,0.2)', border: 'rgba(201,164,94,0.4)' },
-  { value: 'cold', label: 'Cold', desc: 'Browsing',     color: '#6B7A72', bg: 'rgba(107,122,114,0.08)', border: '#E5E0D4' },
+  { value: 'cold', label: 'Cold', desc: 'Browsing',     color: '#65736B', bg: 'rgba(107,122,114,0.08)', border: '#E5E0D4' },
 ] as const;
 
 function LeadModal({ token, onClose, onAdded }: { token: string; onClose: () => void; onAdded: () => void }) {
@@ -56,7 +56,7 @@ function LeadModal({ token, onClose, onAdded }: { token: string; onClose: () => 
         {/* Modal header */}
         <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: '#E5E0D4' }}>
           <div className="font-display text-[15px] font-semibold" style={{ color: '#0F1F18' }}>Capture lead</div>
-          <button onClick={onClose} aria-label="Close" className="w-7 h-7 grid place-items-center rounded-lg transition-colors" style={{ color: '#6B7A72' }}>
+          <button onClick={onClose} aria-label="Close" className="w-10 h-10 grid place-items-center rounded-lg transition-colors" style={{ color: '#65736B' }}>
             <svg width={15} height={15} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -67,7 +67,7 @@ function LeadModal({ token, onClose, onAdded }: { token: string; onClose: () => 
           {/* Name + Email */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <div className=" text-[9.5px] tracking-[0.14em] uppercase mb-1" style={{ color: '#6B7A72' }}>Name *</div>
+              <div className=" text-[9.5px] tracking-[0.14em] uppercase mb-1" style={{ color: '#65736B' }}>Name *</div>
               <input
                 type="text" aria-label="Name" placeholder="Jane Smith" value={form.attendee_name} onChange={e => set('attendee_name')(e.target.value)}
                 className="w-full border rounded-lg px-3 py-2 text-[13.5px] outline-none focus:ring-2 bg-white"
@@ -75,7 +75,7 @@ function LeadModal({ token, onClose, onAdded }: { token: string; onClose: () => 
               />
             </div>
             <div>
-              <div className=" text-[9.5px] tracking-[0.14em] uppercase mb-1" style={{ color: '#6B7A72' }}>Email</div>
+              <div className=" text-[9.5px] tracking-[0.14em] uppercase mb-1" style={{ color: '#65736B' }}>Email</div>
               <input
                 type="email" aria-label="Email" placeholder="jane@…" value={form.attendee_email} onChange={e => set('attendee_email')(e.target.value)}
                 className="w-full border rounded-lg px-3 py-2 text-[13.5px] outline-none focus:ring-2 bg-white"
@@ -87,7 +87,7 @@ function LeadModal({ token, onClose, onAdded }: { token: string; onClose: () => 
           {/* Company + Role */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <div className=" text-[9.5px] tracking-[0.14em] uppercase mb-1" style={{ color: '#6B7A72' }}>Company</div>
+              <div className=" text-[9.5px] tracking-[0.14em] uppercase mb-1" style={{ color: '#65736B' }}>Company</div>
               <input
                 type="text" aria-label="Company" placeholder="Acme Corp" value={form.company} onChange={e => set('company')(e.target.value)}
                 className="w-full border rounded-lg px-3 py-2 text-[13.5px] outline-none focus:ring-2 bg-white"
@@ -95,7 +95,7 @@ function LeadModal({ token, onClose, onAdded }: { token: string; onClose: () => 
               />
             </div>
             <div>
-              <div className=" text-[9.5px] tracking-[0.14em] uppercase mb-1" style={{ color: '#6B7A72' }}>Role</div>
+              <div className=" text-[9.5px] tracking-[0.14em] uppercase mb-1" style={{ color: '#65736B' }}>Role</div>
               <input
                 type="text" aria-label="Role" placeholder="CTO" value={form.role} onChange={e => set('role')(e.target.value)}
                 className="w-full border rounded-lg px-3 py-2 text-[13.5px] outline-none focus:ring-2 bg-white"
@@ -106,7 +106,7 @@ function LeadModal({ token, onClose, onAdded }: { token: string; onClose: () => 
 
           {/* Rating */}
           <div>
-            <div className=" text-[9.5px] tracking-[0.14em] uppercase mb-2" style={{ color: '#6B7A72' }}>Lead rating</div>
+            <div className=" text-[9.5px] tracking-[0.14em] uppercase mb-2" style={{ color: '#65736B' }}>Lead rating</div>
             <div className="grid grid-cols-3 gap-2">
               {RATINGS.map(r => (
                 <button
@@ -116,7 +116,7 @@ function LeadModal({ token, onClose, onAdded }: { token: string; onClose: () => 
                   className="flex flex-col items-center py-2.5 rounded-xl border transition-all text-center"
                   style={form.rating === r.value
                     ? { background: r.bg, borderColor: r.border, color: r.color }
-                    : { background: 'white', borderColor: '#E5E0D4', color: '#6B7A72' }
+                    : { background: 'white', borderColor: '#E5E0D4', color: '#65736B' }
                   }
                 >
                   <span className="text-[13px] font-semibold">{r.label}</span>
@@ -128,7 +128,7 @@ function LeadModal({ token, onClose, onAdded }: { token: string; onClose: () => 
 
           {/* Notes */}
           <div>
-            <div className=" text-[9.5px] tracking-[0.14em] uppercase mb-1" style={{ color: '#6B7A72' }}>Notes</div>
+            <div className=" text-[9.5px] tracking-[0.14em] uppercase mb-1" style={{ color: '#65736B' }}>Notes</div>
             <textarea
               rows={2} aria-label="Notes" placeholder="What did you discuss…" value={form.note} onChange={e => set('note')(e.target.value)}
               className="w-full border rounded-lg px-3 py-2 text-[13.5px] outline-none focus:ring-2 resize-none bg-white"
@@ -152,7 +152,7 @@ function LeadModal({ token, onClose, onAdded }: { token: string; onClose: () => 
           <button
             onClick={onClose}
             className="px-4 py-2.5 rounded-xl text-[13.5px] border transition-colors"
-            style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}
+            style={{ borderColor: '#E5E0D4', color: '#65736B' }}
           >
             Cancel
           </button>
@@ -174,7 +174,7 @@ function Stat({ label, value, sub, accent }: { label: string; value: string | nu
           : { background: '#FFFFFF', borderColor: '#E5E0D4' }
       }
     >
-      <div className=" text-[9.5px] tracking-[0.14em] uppercase mb-2" style={{ color: '#6B7A72' }}>{label}</div>
+      <div className=" text-[9.5px] tracking-[0.14em] uppercase mb-2" style={{ color: '#65736B' }}>{label}</div>
       <div className=" text-[26px] tracking-tight leading-none" style={{ color: '#0F1F18' }}>{value}</div>
       {sub && <div className=" text-[11px] mt-2" style={{ color: '#2D7A4F' }}>{sub}</div>}
     </div>
@@ -276,7 +276,7 @@ export function OverviewTab({ stats: initialStats, token }: Props) {
                 <div key={i}>
                   <div className="flex items-center justify-between mb-1.5 text-[13px]">
                     <span style={{ color: '#3A4A42' }}>{bar.label}</span>
-                    <span className="" style={{ color: '#6B7A72' }}>{bar.count} · {pct}%</span>
+                    <span className="" style={{ color: '#65736B' }}>{bar.count} · {pct}%</span>
                   </div>
                   <div className="h-2.5 rounded-full overflow-hidden" style={{ background: 'rgba(232,239,235,0.6)' }}>
                     <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, background: bar.color }} />
@@ -292,7 +292,7 @@ export function OverviewTab({ stats: initialStats, token }: Props) {
             {/* No exhibitor-session data source exists yet — this used to fabricate
                 a "Product demo at booth" entry for any sponsor with a booth number,
                 regardless of whether a demo was ever actually scheduled. */}
-            <p className="text-[13px] py-3" style={{ color: '#6B7A72' }}>No sessions scheduled yet.</p>
+            <p className="text-[13px] py-3" style={{ color: '#65736B' }}>No sessions scheduled yet.</p>
           </div>
         </Panel>
       </div>

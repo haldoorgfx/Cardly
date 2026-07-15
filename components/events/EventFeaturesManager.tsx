@@ -10,7 +10,7 @@ interface MenuItem { id: string; label: string; type: 'link' | 'page'; url: stri
 interface Props { eventId: string; }
 
 const C = {
-  forest: '#1F4D3A', soft: '#E8EFEB', ink: '#0F1F18', muted: '#6B7A72',
+  forest: '#1F4D3A', soft: '#E8EFEB', ink: '#0F1F18', muted: '#65736B',
   border: '#E5E0D4', cream: '#FAF6EE', danger: '#B8423C', success: '#2D7A4F',
 };
 
@@ -169,7 +169,7 @@ export function EventFeaturesManager({ eventId }: Props) {
                       </button>
                     ))}
                   </div>
-                  <button onClick={() => removeItem(it.id)} className="w-8 h-8 grid place-items-center rounded-lg hover:bg-red-50 shrink-0" title="Remove">
+                  <button onClick={() => removeItem(it.id)} className="w-10 h-10 grid place-items-center rounded-lg hover:bg-red-50 shrink-0" title="Remove">
                     <Trash2 size={14} style={{ color: C.danger }} />
                   </button>
                 </div>

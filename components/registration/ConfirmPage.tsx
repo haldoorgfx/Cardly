@@ -311,7 +311,7 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
             <h1 className="font-display font-semibold text-[28px] mb-2" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
               Design your Eventera Card
             </h1>
-            <p className="text-[15px]" style={{ color: '#6B7A72' }}>
+            <p className="text-[15px]" style={{ color: '#65736B' }}>
               Personalise your card — it&apos;ll be generated when you confirm.
             </p>
           </div>
@@ -354,7 +354,7 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
             <button
               onClick={() => setPhase('done')}
               className="text-[13px] font-medium transition hover:opacity-70"
-              style={{ color: '#6B7A72' }}
+              style={{ color: '#65736B' }}
             >
               Skip for now
             </button>
@@ -399,7 +399,7 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
       <h1 className="font-display font-semibold text-[30px] lg:text-[36px] mb-1.5" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
         {registration.attendee_name}
       </h1>
-      <p className="text-[15px]" style={{ color: '#6B7A72' }}>
+      <p className="text-[15px]" style={{ color: '#65736B' }}>
         {ticketName ?? 'General Admission'} &middot; {eventTitle}
       </p>
     </div>
@@ -422,7 +422,7 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
               style={{ width: 160, height: 160, display: 'block' }}
             />
           </div>
-          <p className="text-[12px] font-medium" style={{ color: '#6B7A72' }}>Show this QR at the door</p>
+          <p className="text-[12px] font-medium" style={{ color: '#65736B' }}>Show this QR at the door</p>
         </div>
 
         {/* Divider */}
@@ -442,7 +442,7 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
         </a>
 
         {/* Share row */}
-        <p className="text-[11px] font-medium text-center mb-2.5" style={{ color: '#6B7A72' }}>Share</p>
+        <p className="text-[11px] font-medium text-center mb-2.5" style={{ color: '#65736B' }}>Share</p>
         <div className="flex gap-2 justify-center mb-5">
           {shareLinks.map(s => (
             <a
@@ -462,7 +462,7 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
           <button
             onClick={handleShare}
             className="h-9 w-9 rounded-full flex items-center justify-center transition"
-            style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#6B7A72' }}
+            style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#65736B' }}
             onMouseEnter={e => { e.currentTarget.style.borderColor = '#1F4D3A'; e.currentTarget.style.background = 'white'; }}
             onMouseLeave={e => { e.currentTarget.style.borderColor = '#E5E0D4'; e.currentTarget.style.background = '#FAF6EE'; }}
           >
@@ -475,9 +475,9 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
           <a
             href={`/e/${eventSlug}`}
             className="text-[12px] font-medium transition"
-            style={{ color: '#6B7A72' }}
+            style={{ color: '#65736B' }}
             onMouseEnter={e => (e.currentTarget.style.color = '#1F4D3A')}
-            onMouseLeave={e => (e.currentTarget.style.color = '#6B7A72')}
+            onMouseLeave={e => (e.currentTarget.style.color = '#65736B')}
           >
             Back to event &rarr;
           </a>
@@ -498,7 +498,7 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
           <div className="flex flex-col lg:flex-row gap-6 lg:gap-10 items-start">
             {/* LEFT — Ticket + QR */}
             <div className="w-full lg:w-[300px] shrink-0 lg:sticky lg:top-8">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.12em] mb-3" style={{ color: '#6B7A72' }}>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.12em] mb-3" style={{ color: '#65736B' }}>
                 Your ticket
               </p>
               <TicketPanel />
@@ -506,7 +506,7 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
 
             {/* RIGHT — Eventera Card */}
             <div className="flex-1 min-w-0">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.12em] mb-3" style={{ color: '#6B7A72' }}>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.12em] mb-3" style={{ color: '#65736B' }}>
                 Your Eventera Card
               </p>
               <div
@@ -539,7 +539,7 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
                   Edit
                 </button>
               </div>
-              <p className="text-[12px] mt-3" style={{ color: '#6B7A72' }}>
+              <p className="text-[12px] mt-3" style={{ color: '#65736B' }}>
                 Share your card on social media &mdash; let everyone know you&apos;re attending!
               </p>
             </div>

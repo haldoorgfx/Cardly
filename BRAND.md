@@ -32,7 +32,7 @@
 |---|---|---|
 | `ink` | `#0F1F18` | Primary text. Slightly green-tinted black, not pure black. |
 | `ink-soft` | `#3A4A42` | Secondary text. |
-| `muted` | `#6B7A72` | Captions, metadata, placeholders. |
+| `muted` | `#65736B` | Captions, metadata, placeholders. (Darkened from `#6B7A72` for WCAG AA text contrast on cream.) |
 | `cream` | `#FAF6EE` | Default app background. Replaces pure off-white. |
 | `surface` | `#FFFFFF` | Cards, modals, inputs sit on cream. |
 | `border` | `#E5E0D4` | Hairlines and input borders (warm, not grey). |

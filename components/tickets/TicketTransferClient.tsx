@@ -51,14 +51,14 @@ export function TicketTransferClient({ registration: reg }: Props) {
           <img src={ep.cover_image_url} alt="" className="w-full h-28 object-cover" />
         )}
         <div className="p-5">
-          <div className="text-[11px] font-semibold tracking-[0.1em] uppercase mb-1" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
+          <div className="text-[11px] font-semibold tracking-[0.1em] uppercase mb-1" style={{ color: '#65736B', fontFamily: 'Inter, system-ui, sans-serif' }}>
             {ticketName}
           </div>
           <div className="font-display font-semibold text-[18px] mb-1" style={{ color: '#0F1F18', letterSpacing: '-0.01em' }}>
             {eventTitle}
           </div>
           {ep?.starts_at && (
-            <div className="text-[13px]" style={{ color: '#6B7A72' }}>
+            <div className="text-[13px]" style={{ color: '#65736B' }}>
               {new Date(ep.starts_at).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' })}
             </div>
           )}
@@ -72,7 +72,7 @@ export function TicketTransferClient({ registration: reg }: Props) {
             <h1 className="font-display font-semibold text-[22px] mb-1" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
               Transfer ticket
             </h1>
-            <p className="text-[14px]" style={{ color: '#6B7A72' }}>
+            <p className="text-[14px]" style={{ color: '#65736B' }}>
               The recipient will receive a new QR code. Your current QR becomes invalid when they claim the ticket.
             </p>
           </div>
@@ -130,7 +130,7 @@ export function TicketTransferClient({ registration: reg }: Props) {
             <Check size={24} style={{ color: '#1F4D3A' }} />
           </div>
           <h2 className="font-display font-semibold text-[20px] mb-2" style={{ color: '#0F1F18' }}>Ticket transferred</h2>
-          <p className="text-[14px] mb-6" style={{ color: '#6B7A72' }}>
+          <p className="text-[14px] mb-6" style={{ color: '#65736B' }}>
             We&apos;ve emailed <strong style={{ color: '#0F1F18' }}>{recipientEmail}</strong> their check-in QR. This ticket has been removed from your account.
           </p>
           <Link href="/my-tickets" className="inline-flex px-6 py-3 rounded-2xl text-[14px] font-semibold" style={{ background: '#1F4D3A', color: '#FAF6EE' }}>

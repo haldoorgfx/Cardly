@@ -196,7 +196,7 @@ export function OrganizerProfile({
             <div className="rounded-2xl py-12 px-6 text-center" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
               <CalendarClock size={26} style={{ color: '#C9C3B1' }} className="mx-auto mb-3" />
               <p className="font-display font-semibold text-[15px]" style={{ color: '#0F1F18' }}>No upcoming events</p>
-              <p className="text-[13px] mt-1" style={{ color: '#6B7A72' }}>Follow to get notified when {displayName} announces something new.</p>
+              <p className="text-[13px] mt-1" style={{ color: '#65736B' }}>Follow to get notified when {displayName} announces something new.</p>
             </div>
           ) : (
             <div className="grid gap-5" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(280px, 100%), 1fr))' }}>
@@ -231,7 +231,7 @@ function Stat({ value, label }: { value: number; label: string }) {
       <span className="text-[17px] font-bold" style={{ color: '#0F1F18', fontFamily: 'Inter, system-ui, sans-serif' }}>
         {value.toLocaleString()}
       </span>
-      <span className="text-[13px]" style={{ color: '#6B7A72' }}>{label}</span>
+      <span className="text-[13px]" style={{ color: '#65736B' }}>{label}</span>
     </div>
   );
 }
@@ -256,7 +256,7 @@ function PastEventRow({ ev, first }: { ev: PastEvent; first: boolean }) {
       </div>
       <div className="min-w-0 flex-1">
         <div className="font-display font-medium text-[14px] truncate group-hover:text-[#1F4D3A] transition-colors" style={{ color: '#0F1F18' }}>{ev.title}</div>
-        <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
+        <div className="text-[12px] mt-0.5" style={{ color: '#65736B', fontFamily: 'Inter, system-ui, sans-serif' }}>
           {new Date(ev.starts_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
         </div>
       </div>

@@ -332,7 +332,7 @@ export function TicketTypesManager({ eventId, initialTickets, eventDates }: Prop
               <Users size={13} strokeWidth={2} />
               <span>
                 <strong style={{ color: '#0F1F18' }}>{totalAllocated}</strong>
-                <span style={{ color: '#6B7A72' }}> / {ev.max_capacity} spots allocated</span>
+                <span style={{ color: '#65736B' }}> / {ev.max_capacity} spots allocated</span>
               </span>
               <div className="w-16 h-1.5 rounded-full" style={{ background: 'rgba(31,77,58,0.15)' }}>
                 <div
@@ -360,7 +360,7 @@ export function TicketTypesManager({ eventId, initialTickets, eventDates }: Prop
           <div className="font-display font-semibold text-[17px] mb-1" style={{ color: '#0F1F18' }}>
             No ticket types yet
           </div>
-          <div className="text-[14px] mb-6 max-w-[320px]" style={{ color: '#6B7A72' }}>
+          <div className="text-[14px] mb-6 max-w-[320px]" style={{ color: '#65736B' }}>
             Add at least one ticket type before publishing your event. Free tickets need no payment setup.
           </div>
           <div className="flex items-center gap-2">
@@ -414,7 +414,7 @@ export function TicketTypesManager({ eventId, initialTickets, eventDates }: Prop
               <h3 className="font-display font-semibold text-[16px]" style={{ color: '#0F1F18' }}>
                 {isEditing ? 'Edit ticket type' : 'New ticket type'}
               </h3>
-              <button onClick={closePanel} aria-label="Close" className="h-8 w-8 rounded-lg flex items-center justify-center transition hover:bg-[#F5F5F4]" style={{ color: '#6B7A72' }}>
+              <button onClick={closePanel} aria-label="Close" className="h-10 w-10 rounded-lg flex items-center justify-center transition hover:bg-[#F5F5F4]" style={{ color: '#65736B' }}>
                 <X size={18} strokeWidth={2} />
               </button>
             </div>
@@ -540,7 +540,7 @@ export function TicketTypesManager({ eventId, initialTickets, eventDates }: Prop
                   {remainingCapacity !== null && (
                     <p
                       className="text-[12px] mt-1"
-                      style={{ color: remainingCapacity <= 0 ? '#B8423C' : '#6B7A72' }}
+                      style={{ color: remainingCapacity <= 0 ? '#B8423C' : '#65736B' }}
                     >
                       {remainingCapacity <= 0
                         ? `Event capacity (${ev.max_capacity}) is fully allocated — reduce other ticket quantities first`
@@ -591,7 +591,7 @@ export function TicketTypesManager({ eventId, initialTickets, eventDates }: Prop
                 type="button"
                 onClick={() => setF('hasSalesWindow', !form.hasSalesWindow)}
                 className="flex items-center gap-2 text-[13px] font-medium transition"
-                style={{ color: form.hasSalesWindow ? '#1F4D3A' : '#6B7A72' }}
+                style={{ color: form.hasSalesWindow ? '#1F4D3A' : '#65736B' }}
               >
                 <div
                   className="w-8 h-4 rounded-full transition-all relative"
@@ -608,7 +608,7 @@ export function TicketTypesManager({ eventId, initialTickets, eventDates }: Prop
               {form.hasSalesWindow && (
                 <div className="mt-3 space-y-3">
                   {ev.ends_at && (
-                    <p className="text-[12px] flex items-center gap-1.5" style={{ color: '#6B7A72' }}>
+                    <p className="text-[12px] flex items-center gap-1.5" style={{ color: '#65736B' }}>
                       <CalendarDays size={12} strokeWidth={2} />
                       Sales must close by <strong>{fmtDate(ev.ends_at)}</strong> (event end)
                     </p>
@@ -655,7 +655,7 @@ export function TicketTypesManager({ eventId, initialTickets, eventDates }: Prop
             <div className="flex items-center justify-between pt-1">
               <div>
                 <div className="text-[14px] font-medium" style={{ color: '#0F1F18' }}>Visible to attendees</div>
-                <div className="text-[12px]" style={{ color: '#6B7A72' }}>Hidden tickets can be shared via direct link only.</div>
+                <div className="text-[12px]" style={{ color: '#65736B' }}>Hidden tickets can be shared via direct link only.</div>
               </div>
               <button
                 type="button"
@@ -720,7 +720,7 @@ export function TicketTypesManager({ eventId, initialTickets, eventDates }: Prop
                   This ticket has <strong>{target?.quantity_sold}</strong> sale{target?.quantity_sold !== 1 ? 's' : ''}. Deleting it will not refund or cancel those registrations.
                 </p>
               ) : (
-                <p className="text-[14px] mb-5" style={{ color: '#6B7A72' }}>This cannot be undone.</p>
+                <p className="text-[14px] mb-5" style={{ color: '#65736B' }}>This cannot be undone.</p>
               )}
               {error && (
                 <p className="text-[13px] mb-3 flex items-center gap-1" style={{ color: '#B8423C' }}>
@@ -786,10 +786,10 @@ function TicketCard({
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3.5">
         {/* Reorder */}
         <div className="flex flex-col gap-0.5 shrink-0">
-          <button onClick={() => onMove(-1)} disabled={idx === 0} className="h-7 w-7 rounded flex items-center justify-center transition disabled:opacity-20" style={{ color: '#6B7A72' }}>
+          <button onClick={() => onMove(-1)} disabled={idx === 0} className="h-9 w-9 rounded flex items-center justify-center transition disabled:opacity-20" style={{ color: '#65736B' }}>
             <ChevronUp size={13} strokeWidth={2.5} />
           </button>
-          <button onClick={() => onMove(1)} disabled={idx === total - 1} className="h-7 w-7 rounded flex items-center justify-center transition disabled:opacity-20" style={{ color: '#6B7A72' }}>
+          <button onClick={() => onMove(1)} disabled={idx === total - 1} className="h-9 w-9 rounded flex items-center justify-center transition disabled:opacity-20" style={{ color: '#65736B' }}>
             <ChevronDown size={13} strokeWidth={2.5} />
           </button>
         </div>
@@ -797,24 +797,24 @@ function TicketCard({
         {/* Name + meta */}
         <div className="flex-1 min-w-[140px]">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-medium text-[14px]" style={{ color: ticket.is_visible ? '#0F1F18' : '#6B7A72' }}>
+            <span className="font-medium text-[14px]" style={{ color: ticket.is_visible ? '#0F1F18' : '#65736B' }}>
               {ticket.name}
             </span>
             {!ticket.is_visible && (
-              <span className="text-[12px] px-1.5 py-0.5 rounded" style={{ background: '#F5F5F4', color: '#6B7A72' }}>HIDDEN</span>
+              <span className="text-[12px] px-1.5 py-0.5 rounded" style={{ background: '#F5F5F4', color: '#65736B' }}>HIDDEN</span>
             )}
             <span className="text-[12px] px-1.5 py-0.5 rounded" style={{ background: statusBg, color: statusColor }}>
               {statusLabel.toUpperCase()}
             </span>
           </div>
           {ticket.description && (
-            <div className="text-[12px] mt-0.5 truncate" style={{ color: '#6B7A72' }}>{ticket.description}</div>
+            <div className="text-[12px] mt-0.5 truncate" style={{ color: '#65736B' }}>{ticket.description}</div>
           )}
         </div>
 
         {/* Quantity */}
         <div className="text-right shrink-0">
-          <div className="flex items-center gap-1 text-[12px]" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
+          <div className="flex items-center gap-1 text-[12px]" style={{ color: '#65736B', fontFamily: 'Inter, system-ui, sans-serif' }}>
             <Users size={11} strokeWidth={2} />
             {ticket.quantity === null
               ? <span title="Unlimited">∞</span>
@@ -832,13 +832,13 @@ function TicketCard({
 
         {/* Actions */}
         <div className="flex items-center gap-1 shrink-0 ml-1">
-          <button onClick={onToggleVisibility} title={ticket.is_visible ? 'Hide' : 'Show'} className="h-8 w-8 rounded-lg flex items-center justify-center transition" style={{ color: '#6B7A72' }} onMouseEnter={e => (e.currentTarget.style.background = '#F5F5F4')} onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
+          <button onClick={onToggleVisibility} title={ticket.is_visible ? 'Hide' : 'Show'} className="h-10 w-10 rounded-lg flex items-center justify-center transition" style={{ color: '#65736B' }} onMouseEnter={e => (e.currentTarget.style.background = '#F5F5F4')} onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
             {ticket.is_visible ? <Eye size={15} strokeWidth={2} /> : <EyeOff size={15} strokeWidth={2} />}
           </button>
-          <button onClick={onEdit} title="Edit" className="h-8 w-8 rounded-lg flex items-center justify-center transition" style={{ color: '#6B7A72' }} onMouseEnter={e => (e.currentTarget.style.background = '#F5F5F4')} onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
+          <button onClick={onEdit} title="Edit" className="h-10 w-10 rounded-lg flex items-center justify-center transition" style={{ color: '#65736B' }} onMouseEnter={e => (e.currentTarget.style.background = '#F5F5F4')} onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
             <Pencil size={14} strokeWidth={2} />
           </button>
-          <button onClick={onDelete} title="Delete" className="h-8 w-8 rounded-lg flex items-center justify-center transition" style={{ color: '#6B7A72' }} onMouseEnter={e => { e.currentTarget.style.background = 'rgba(184,66,60,0.08)'; e.currentTarget.style.color = '#B8423C'; }} onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#6B7A72'; }}>
+          <button onClick={onDelete} title="Delete" className="h-10 w-10 rounded-lg flex items-center justify-center transition" style={{ color: '#65736B' }} onMouseEnter={e => { e.currentTarget.style.background = 'rgba(184,66,60,0.08)'; e.currentTarget.style.color = '#B8423C'; }} onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#65736B'; }}>
             <Trash2 size={14} strokeWidth={2} />
           </button>
         </div>

@@ -61,7 +61,7 @@ export default function EventBrandStrip({ eventName, compact = false }: Props) {
         <div style={{
           fontFamily: 'Inter, system-ui, sans-serif',
           fontSize: 10,
-          color: '#6B7A72',
+          color: '#65736B',
           letterSpacing: '0.04em',
           marginTop: 2,
         }}>

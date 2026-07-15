@@ -24,7 +24,7 @@ function Badge({ children, style }: { children: React.ReactNode; style?: React.C
 function Field({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="py-3 flex items-start gap-4 border-b border-[#E5E0D4] last:border-0">
-      <span className="text-[12px] text-[#6B7A72] w-36 shrink-0 pt-0.5">{label}</span>
+      <span className="text-[12px] text-[#65736B] w-36 shrink-0 pt-0.5">{label}</span>
       <span className="text-[13px] text-[#0F1F18] flex-1">{value}</span>
     </div>
   );
@@ -59,18 +59,18 @@ export default async function UserDetailPage({ params }: { params: { id: string 
   const planStyle =
     profile.plan === 'studio' ? { bg: 'rgba(31,77,58,0.12)', color: '#1F4D3A' } :
     profile.plan === 'pro'    ? { bg: 'rgba(232,197,126,0.15)', color: '#C9A45E' } :
-                                 { bg: 'rgba(107,122,114,0.10)', color: '#6B7A72' };
+                                 { bg: 'rgba(107,122,114,0.10)', color: '#65736B' };
 
   const roleStyle =
     profile.role === 'super_admin' ? { bg: 'rgba(184,66,60,0.10)', color: '#B8423C' } :
     profile.role === 'admin'       ? { bg: 'rgba(232,197,126,0.18)', color: '#C9A45E' } :
     profile.role === 'studio'      ? { bg: 'rgba(31,77,58,0.10)', color: '#1F4D3A' } :
-                                      { bg: 'rgba(107,122,114,0.10)', color: '#6B7A72' };
+                                      { bg: 'rgba(107,122,114,0.10)', color: '#65736B' };
 
   return (
     <PageShell width="wide">
       {/* Breadcrumb */}
-      <div className="mb-6 flex items-center gap-2 text-[12px] text-[#6B7A72]">
+      <div className="mb-6 flex items-center gap-2 text-[12px] text-[#65736B]">
         <Link href="/admin/users" className="hover:text-[#1F4D3A] transition-colors">Users</Link>
         <span>/</span>
         <span className="text-[#0F1F18]">{profile.full_name ?? profile.email}</span>
@@ -88,7 +88,7 @@ export default async function UserDetailPage({ params }: { params: { id: string 
               <h1 className="font-display font-bold text-[26px] text-[#0F1F18] tracking-tight">
                 {profile.full_name ?? '(no name)'}
               </h1>
-              <div className="text-[13px] text-[#6B7A72] mt-0.5">{profile.email}</div>
+              <div className="text-[13px] text-[#65736B] mt-0.5">{profile.email}</div>
               <div className="flex items-center gap-2 mt-2.5">
                 <Badge style={planStyle}>{profile.plan}</Badge>
                 <Badge style={roleStyle}>{profile.role}</Badge>
@@ -109,7 +109,7 @@ export default async function UserDetailPage({ params }: { params: { id: string 
       {/* Details card */}
       <div className="bg-white border border-[#E5E0D4] rounded-2xl overflow-hidden mb-6">
         <div className="px-5 py-3 border-b border-[#E5E0D4] bg-[#FAF6EE]">
-          <h2 className="text-[12px] text-[#6B7A72] uppercase tracking-[0.14em]">Account details</h2>
+          <h2 className="text-[12px] text-[#65736B] uppercase tracking-[0.14em]">Account details</h2>
         </div>
         <div className="px-5">
           <Field label="User ID" value={<span className=" text-[12.5px] break-all">{profile.id}</span>} />
@@ -138,7 +138,7 @@ export default async function UserDetailPage({ params }: { params: { id: string 
       {auditEntries && auditEntries.length > 0 && (
         <div className="bg-white border border-[#E5E0D4] rounded-2xl overflow-hidden mb-6">
           <div className="px-5 py-3 border-b border-[#E5E0D4] bg-[#FAF6EE]">
-            <h2 className="text-[12px] text-[#6B7A72] uppercase tracking-[0.14em]">Recent audit activity</h2>
+            <h2 className="text-[12px] text-[#65736B] uppercase tracking-[0.14em]">Recent audit activity</h2>
           </div>
           <div className="divide-y divide-[#E5E0D4]">
             {auditEntries.map((entry, i) => (
@@ -146,11 +146,11 @@ export default async function UserDetailPage({ params }: { params: { id: string 
                 <span className=" text-[12.5px] bg-[#FAF6EE] border border-[#E5E0D4] px-2 py-0.5 rounded-md text-[#3A4A42]">
                   {entry.action}
                 </span>
-                <span className="text-[12.5px] text-[#6B7A72] ml-auto">
+                <span className="text-[12.5px] text-[#65736B] ml-auto">
                   {new Date(entry.created_at).toLocaleString()}
                 </span>
                 {entry.actor_email && (
-                  <span className="text-[12.5px] text-[#6B7A72]">by {entry.actor_email}</span>
+                  <span className="text-[12.5px] text-[#65736B]">by {entry.actor_email}</span>
                 )}
               </div>
             ))}

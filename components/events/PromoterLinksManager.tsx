@@ -41,7 +41,7 @@ function CopyButton({ text, label }: { text: string; label: string }) {
         setTimeout(() => setCopied(false), 1800);
       }}
       className="flex items-center gap-1.5 text-[12px] px-2.5 py-1 rounded-lg transition-colors"
-      style={{ background: copied ? '#E8EFEB' : '#F4F1EB', color: copied ? '#1F4D3A' : '#6B7A72' }}
+      style={{ background: copied ? '#E8EFEB' : '#F4F1EB', color: copied ? '#1F4D3A' : '#65736B' }}
       title={`Copy ${label}`}
     >
       {copied ? <Check size={11} /> : <Copy size={11} />}
@@ -102,7 +102,7 @@ export function PromoterLinksManager({ eventId, eventSlug, initialCodes, appUrl 
     <div>
       {/* Header row */}
       <div className="flex items-center justify-between mb-5">
-        <p className="text-[13px]" style={{ color: '#6B7A72' }}>
+        <p className="text-[13px]" style={{ color: '#65736B' }}>
           Share tracking links with partners or promoters. Each registration via their link is counted and attributed.
         </p>
         <button
@@ -122,7 +122,7 @@ export function PromoterLinksManager({ eventId, eventSlug, initialCodes, appUrl 
         title="New promoter link"
         footer={
           <>
-            <button onClick={() => { setShowForm(false); setError(''); setForm({ code: '', label: '' }); }} className="h-10 px-4 rounded-xl text-[13px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>Cancel</button>
+            <button onClick={() => { setShowForm(false); setError(''); setForm({ code: '', label: '' }); }} className="h-10 px-4 rounded-xl text-[13px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#65736B' }}>Cancel</button>
             <button onClick={handleCreate} disabled={saving} className="h-10 px-5 rounded-xl text-[13px] font-semibold text-white disabled:opacity-60" style={{ background: '#1F4D3A' }}>
               {saving ? 'Creating…' : 'Create link'}
             </button>
@@ -140,7 +140,7 @@ export function PromoterLinksManager({ eventId, eventSlug, initialCodes, appUrl 
                 value={form.code}
                 onChange={e => setForm(f => ({ ...f, code: e.target.value.toUpperCase().replace(/[^A-Z0-9_-]/g, '') }))}
               />
-              <p className="text-[12.5px] mt-1" style={{ color: '#6B7A72' }}>Letters, numbers, hyphens only</p>
+              <p className="text-[12.5px] mt-1" style={{ color: '#65736B' }}>Letters, numbers, hyphens only</p>
             </div>
             <div>
               <label className="block text-[12px] font-medium mb-1.5" style={{ color: '#3A4A42' }}>Label (optional)</label>
@@ -173,7 +173,7 @@ export function PromoterLinksManager({ eventId, eventSlug, initialCodes, appUrl 
           </div>
           <div>
             <p className="font-medium text-[14px]" style={{ color: '#0F1F18' }}>No promoter links yet</p>
-            <p className="text-[13px] mt-0.5" style={{ color: '#6B7A72' }}>Create links to track who drives registrations</p>
+            <p className="text-[13px] mt-0.5" style={{ color: '#65736B' }}>Create links to track who drives registrations</p>
           </div>
         </div>
       )}
@@ -200,7 +200,7 @@ export function PromoterLinksManager({ eventId, eventSlug, initialCodes, appUrl 
                         {c.code}
                       </span>
                       {c.label && (
-                        <span className="text-[12px] font-medium px-2 py-0.5 rounded-full" style={{ background: '#F0EDE6', color: '#6B7A72' }}>{c.label}</span>
+                        <span className="text-[12px] font-medium px-2 py-0.5 rounded-full" style={{ background: '#F0EDE6', color: '#65736B' }}>{c.label}</span>
                       )}
                     </div>
                     <button
@@ -218,14 +218,14 @@ export function PromoterLinksManager({ eventId, eventSlug, initialCodes, appUrl 
                   <div className="flex items-center gap-5 shrink-0 sm:border-l sm:pl-5" style={{ borderColor: '#F0EDE6' }}>
                     <div className="text-center">
                       <div className="font-title font-bold text-[20px] leading-none" style={{ color: c.uses > 0 ? '#0F1F18' : '#C9C3B1' }}>{c.uses}</div>
-                      <div className="text-[12px] uppercase tracking-[0.1em] mt-1" style={{ color: '#6B7A72' }}>sign-ups</div>
+                      <div className="text-[12px] uppercase tracking-[0.1em] mt-1" style={{ color: '#65736B' }}>sign-ups</div>
                     </div>
                     {c.revenue > 0 && (
                       <div className="text-center">
                         <div className="font-title font-bold text-[20px] leading-none flex items-center gap-1" style={{ color: '#0F1F18' }}>
                           <TrendingUp size={13} strokeWidth={2.2} />{fmt(c.revenue)}
                         </div>
-                        <div className="text-[12px] uppercase tracking-[0.1em] mt-1" style={{ color: '#6B7A72' }}>revenue</div>
+                        <div className="text-[12px] uppercase tracking-[0.1em] mt-1" style={{ color: '#65736B' }}>revenue</div>
                       </div>
                     )}
                   </div>
@@ -237,7 +237,7 @@ export function PromoterLinksManager({ eventId, eventSlug, initialCodes, appUrl 
                     <button
                       onClick={() => { setError(''); setConfirmDelete(c); }}
                       disabled={deleting === c.id}
-                      className="w-8 h-8 grid place-items-center rounded-lg transition-colors hover:bg-red-50 disabled:opacity-50"
+                      className="w-10 h-10 grid place-items-center rounded-lg transition-colors hover:bg-red-50 disabled:opacity-50"
                       style={{ color: '#B8423C' }}
                       title="Delete"
                     >
@@ -263,7 +263,7 @@ export function PromoterLinksManager({ eventId, eventSlug, initialCodes, appUrl 
               onClick={() => { setConfirmDelete(null); setError(''); }}
               disabled={!!deleting}
               className="h-10 px-4 rounded-xl text-[13px] font-medium border disabled:opacity-60"
-              style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}
+              style={{ borderColor: '#E5E0D4', color: '#65736B' }}
             >
               Cancel
             </button>

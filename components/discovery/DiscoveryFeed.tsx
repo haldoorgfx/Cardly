@@ -67,7 +67,7 @@ const CATS_TILES = [
   { n: 'Arts',      bg: '#F0E9FA', fg: '#7C4DC4', path: 'M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.6-.7 1.6-1.7 0-.4-.2-.8-.4-1.1-.3-.3-.4-.7-.4-1.1a1.6 1.6 0 011.7-1.7H16c3 0 5.5-2.5 5.5-5.5C22 6 17.5 2 12 2z' },
   { n: 'Education', bg: '#E8EFEB', fg: '#1F4D3A', path: 'M22 10L12 5 2 10l10 5 10-5zM6 12v5c0 1 3 3 6 3s6-2 6-3v-5' },
   { n: 'Health',    bg: '#FBE9EC', fg: '#C0436B', path: 'M20.8 8.6a5 5 0 00-8.8-3 5 5 0 00-8.8 3c0 5 8.8 11 8.8 11s8.8-6 8.8-11z' },
-  { n: 'More',      bg: '#F0EDE8', fg: '#6B7A72', path: 'M5 12a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM12 12a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM19 12a1.5 1.5 0 100-3 1.5 1.5 0 000 3z' },
+  { n: 'More',      bg: '#F0EDE8', fg: '#65736B', path: 'M5 12a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM12 12a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM19 12a1.5 1.5 0 100-3 1.5 1.5 0 000 3z' },
 ];
 
 /* ─── Stats band data ───────────────────────────────────────────── */
@@ -176,7 +176,7 @@ function TrendCard({ ep }: { ep: DiscoveryEvent }) {
             {ep.title}
           </div>
           {ep.starts_at && (
-            <div className="flex items-center gap-1.5 mt-2.5 text-[13px]" style={{ color: '#6B7A72' }}>
+            <div className="flex items-center gap-1.5 mt-2.5 text-[13px]" style={{ color: '#65736B' }}>
               <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.8">
                 <rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/>
               </svg>
@@ -184,7 +184,7 @@ function TrendCard({ ep }: { ep: DiscoveryEvent }) {
             </div>
           )}
           {(ep.city || ep.venue_name) && (
-            <div className="flex items-center gap-1.5 mt-1.5 text-[13px]" style={{ color: '#6B7A72' }}>
+            <div className="flex items-center gap-1.5 mt-1.5 text-[13px]" style={{ color: '#65736B' }}>
               <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.8">
                 <path d="M12 21s-6-5.2-6-10a6 6 0 0112 0c0 4.8-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/>
               </svg>
@@ -194,7 +194,7 @@ function TrendCard({ ep }: { ep: DiscoveryEvent }) {
           <div className="flex items-center justify-between mt-3.5 pt-3.5" style={{ borderTop: '1px solid #E5E0D4' }}>
             <span className="text-[13px] font-medium" style={{ color: '#0F1F18' }}>{price ?? 'Register'}</span>
             <div className="w-8 h-8 rounded-[8px] flex items-center justify-center" style={{ border: '1px solid #E5E0D4' }}>
-              <svg viewBox="0 0 24 24" className="w-[15px] h-[15px]" fill="none" stroke="#6B7A72" strokeWidth="1.8">
+              <svg viewBox="0 0 24 24" className="w-[15px] h-[15px]" fill="none" stroke="#65736B" strokeWidth="1.8">
                 <path d="M6 3h12a1 1 0 011 1v17l-7-4-7 4V4a1 1 0 011-1z"/>
               </svg>
             </div>
@@ -297,7 +297,7 @@ export function DiscoveryFeed({ events }: DiscoveryFeedProps) {
                 you.
               </h1>
 
-              <p className="mt-5" style={{ fontSize: 'clamp(16px,2.2vw,19px)', lineHeight: 1.6, color: '#6B7A72', maxWidth: 480 }}>
+              <p className="mt-5" style={{ fontSize: 'clamp(16px,2.2vw,19px)', lineHeight: 1.6, color: '#65736B', maxWidth: 480 }}>
                 Find conferences, festivals, workshops and experiences worth your time.
               </p>
 
@@ -306,7 +306,7 @@ export function DiscoveryFeed({ events }: DiscoveryFeedProps) {
                 className="mt-8 rounded-[18px]"
                 style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', boxShadow: '0 4px 24px rgba(15,31,24,0.08)', padding: 14, maxWidth: 560 }}>
                 <div className="flex items-center gap-3 px-4" style={{ height: 52, borderBottom: '1px solid #E5E0D4' }}>
-                  <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0" fill="none" stroke="#6B7A72" strokeWidth="2">
+                  <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0" fill="none" stroke="#65736B" strokeWidth="2">
                     <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
                   </svg>
                   <input type="text" value={query} onChange={e => setQuery(e.target.value)}
@@ -322,11 +322,11 @@ export function DiscoveryFeed({ events }: DiscoveryFeedProps) {
                   ].map(d => (
                     <div key={d.label} className="flex-1 min-w-[120px] h-[46px] px-3.5 rounded-xl flex items-center gap-2.5 text-[14px] cursor-pointer select-none"
                       style={{ border: '1px solid #E5E0D4', background: '#FAF6EE', color: '#3A4A42' }}>
-                      <svg viewBox="0 0 24 24" className="w-4 h-4 shrink-0" fill="none" stroke="#6B7A72" strokeWidth="1.8">
+                      <svg viewBox="0 0 24 24" className="w-4 h-4 shrink-0" fill="none" stroke="#65736B" strokeWidth="1.8">
                         <path d={d.path}/>
                       </svg>
                       {d.label}
-                      <svg viewBox="0 0 24 24" className="w-4 h-4 ml-auto shrink-0" fill="none" stroke="#6B7A72" strokeWidth="1.8">
+                      <svg viewBox="0 0 24 24" className="w-4 h-4 ml-auto shrink-0" fill="none" stroke="#65736B" strokeWidth="1.8">
                         <path d="M6 9l6 6 6-6"/>
                       </svg>
                     </div>
@@ -340,7 +340,7 @@ export function DiscoveryFeed({ events }: DiscoveryFeedProps) {
                     </svg>
                   </button>
                 </div>
-                <div className="flex flex-wrap items-center gap-2 pt-3.5 px-1 text-[13px]" style={{ color: '#6B7A72' }}>
+                <div className="flex flex-wrap items-center gap-2 pt-3.5 px-1 text-[13px]" style={{ color: '#65736B' }}>
                   <span className="font-medium" style={{ color: '#3A4A42' }}>Popular:</span>
                   {['Tech', 'Startup', 'Music', 'Education', 'Sports'].map((tag, i, arr) => (
                     <span key={tag} className="flex items-center gap-2">
@@ -363,7 +363,7 @@ export function DiscoveryFeed({ events }: DiscoveryFeedProps) {
                   </div>
                   <div>
                     <div className="font-display font-semibold text-[14px]" style={{ color: '#0F1F18' }}>Have an event code?</div>
-                    <div className="text-[12px]" style={{ color: '#6B7A72' }}>Jump straight to the event.</div>
+                    <div className="text-[12px]" style={{ color: '#65736B' }}>Jump straight to the event.</div>
                   </div>
                 </div>
                 <form onSubmit={handleJoin} className="flex items-center gap-2 flex-1 min-w-[220px]">
@@ -423,7 +423,7 @@ export function DiscoveryFeed({ events }: DiscoveryFeedProps) {
             </div>
             <div>
               <div className=" font-medium text-[17px]" style={{ color: '#0F1F18' }}>{upcoming.length || 120}</div>
-              <div className="text-[12px]" style={{ color: '#6B7A72' }}>people registered today</div>
+              <div className="text-[12px]" style={{ color: '#65736B' }}>people registered today</div>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -434,7 +434,7 @@ export function DiscoveryFeed({ events }: DiscoveryFeedProps) {
             </div>
             <div>
               <div className=" font-medium text-[17px]" style={{ color: '#0F1F18' }}>{upcoming.length || 32}</div>
-              <div className="text-[12px]" style={{ color: '#6B7A72' }}>events listed</div>
+              <div className="text-[12px]" style={{ color: '#65736B' }}>events listed</div>
             </div>
           </div>
           <Link href="/events/search" className="ml-auto font-display font-medium text-[13px] inline-flex items-center gap-1.5 transition hover:opacity-80 whitespace-nowrap"
@@ -488,7 +488,7 @@ export function DiscoveryFeed({ events }: DiscoveryFeedProps) {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="font-display font-semibold text-[14px] leading-snug truncate" style={{ color: '#0F1F18' }}>{name}</div>
-                  <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>{info.count} event{info.count !== 1 ? 's' : ''}</div>
+                  <div className="text-[12px] mt-0.5" style={{ color: '#65736B' }}>{info.count} event{info.count !== 1 ? 's' : ''}</div>
                 </div>
                 <Link href={`/events/search?q=${encodeURIComponent(name)}`}
                   className="ml-auto font-display font-medium text-[12px] px-3.5 py-1.5 rounded-full border transition hover:bg-[#1F4D3A] hover:text-white hover:border-[#1F4D3A]"
@@ -556,7 +556,7 @@ export function DiscoveryFeed({ events }: DiscoveryFeedProps) {
               </div>
               <div>
                 <div className="font-display font-semibold text-[14px]" style={{ color: '#0F1F18' }}>{t.t}</div>
-                <div className="text-[12px] mt-1 leading-[1.5]" style={{ color: '#6B7A72' }}>{t.s}</div>
+                <div className="text-[12px] mt-1 leading-[1.5]" style={{ color: '#65736B' }}>{t.s}</div>
               </div>
             </div>
           ))}
