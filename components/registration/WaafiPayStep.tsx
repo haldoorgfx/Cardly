@@ -103,7 +103,7 @@ export function WaafiPayStep({ registrationId, qrToken, amount, currency, eventT
 
       {/* Phone input */}
       <div className="mb-4">
-        <label className="block text-[12px] font-medium mb-1.5" style={{ color: '#3A4A42' }}>
+        <label htmlFor="waafi-phone" className="block text-[12px] font-medium mb-1.5" style={{ color: '#3A4A42' }}>
           Mobile money number
         </label>
         <div
@@ -114,6 +114,7 @@ export function WaafiPayStep({ registrationId, qrToken, amount, currency, eventT
           <select
             value={countryCode}
             onChange={e => setCountryCode(e.target.value)}
+            aria-label="Country code"
             className="h-11 pl-3 pr-2 text-[14px] outline-none shrink-0"
             style={{ background: 'transparent', borderRight: '1px solid #E5E0D4', color: '#0F1F18', minWidth: 90 }}
           >
@@ -131,11 +132,14 @@ export function WaafiPayStep({ registrationId, qrToken, amount, currency, eventT
 
           {/* Number input */}
           <input
+            id="waafi-phone"
             type="tel"
             inputMode="numeric"
             value={localNumber}
             onChange={e => setLocalNumber(e.target.value)}
             placeholder="61 234 5678"
+            aria-invalid={!!error}
+            aria-describedby={error ? 'waafi-phone-error' : detectedOperator ? 'waafi-phone-hint' : undefined}
             className="flex-1 h-11 pr-3 text-[15px] outline-none"
             style={{ color: '#0F1F18', fontFamily: 'Inter, system-ui, sans-serif', background: 'transparent' }}
           />
@@ -143,12 +147,12 @@ export function WaafiPayStep({ registrationId, qrToken, amount, currency, eventT
 
         {/* Operator hint */}
         {detectedOperator && !error && (
-          <p className="text-[12px] mt-1.5 flex items-center gap-1" style={{ color: '#2D7A4F' }}>
+          <p id="waafi-phone-hint" className="text-[12px] mt-1.5 flex items-center gap-1" style={{ color: '#2D7A4F' }}>
             <span>&#10003;</span> Detected: {detectedOperator.name}
           </p>
         )}
         {error && (
-          <p className="text-[12px] mt-1.5" style={{ color: '#B8423C' }}>{error}</p>
+          <p id="waafi-phone-error" role="alert" className="text-[12px] mt-1.5" style={{ color: '#B8423C' }}>{error}</p>
         )}
       </div>
 

@@ -46,12 +46,14 @@ export function CardZoneFill({
             );
           }
           if (zone.type === 'custom' && zone.options?.length) {
+            const fieldId = `cardzone-${zone.id}`;
             return (
               <div key={zone.id}>
-                <label className="block text-[12px] font-medium mb-1.5" style={{ color: '#3A4A42' }}>
+                <label htmlFor={fieldId} className="block text-[12px] font-medium mb-1.5" style={{ color: '#3A4A42' }}>
                   {zone.label ?? 'Select'}{zone.required && <span style={{ color: '#B8423C' }}> *</span>}
                 </label>
                 <select
+                  id={fieldId}
                   value={values[zone.id] ?? ''}
                   onChange={e => onChange(zone.id, e.target.value)}
                   aria-invalid={!!err}
@@ -66,13 +68,15 @@ export function CardZoneFill({
             );
           }
           const isTextarea = zone.h && zone.h > 80;
+          const fieldId = `cardzone-${zone.id}`;
           return (
             <div key={zone.id}>
-              <label className="block text-[12px] font-medium mb-1.5" style={{ color: '#3A4A42' }}>
+              <label htmlFor={fieldId} className="block text-[12px] font-medium mb-1.5" style={{ color: '#3A4A42' }}>
                 {zone.label ?? 'Text'}{zone.required && <span style={{ color: '#B8423C' }}> *</span>}
               </label>
               {isTextarea ? (
                 <textarea
+                  id={fieldId}
                   value={values[zone.id] ?? ''}
                   onChange={e => onChange(zone.id, e.target.value)}
                   aria-invalid={!!err}
@@ -86,6 +90,7 @@ export function CardZoneFill({
                 />
               ) : (
                 <input
+                  id={fieldId}
                   type="text"
                   value={values[zone.id] ?? ''}
                   onChange={e => onChange(zone.id, e.target.value)}
@@ -203,11 +208,12 @@ function PhotoField({ zone, previewUrl, error, onChange, onClear }: {
   onClear: () => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const labelId = `cardzone-photo-label-${zone.id}`;
   return (
     <div>
-      <label className="block text-[12px] font-medium mb-1.5" style={{ color: '#3A4A42' }}>
+      <span id={labelId} className="block text-[12px] font-medium mb-1.5" style={{ color: '#3A4A42' }}>
         {zone.label ?? 'Photo'}{zone.required && <span style={{ color: '#B8423C' }}> *</span>}
-      </label>
+      </span>
       {previewUrl ? (
         <div className="flex items-center gap-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -223,21 +229,23 @@ function PhotoField({ zone, previewUrl, error, onChange, onClear }: {
           <div className="flex-1 min-w-0">
             <div className="text-[13px] font-medium" style={{ color: '#0F1F18' }}>Photo selected</div>
             <div className="flex gap-2 mt-1">
-              <button onClick={() => inputRef.current?.click()} className="text-[12px] font-medium" style={{ color: '#1F4D3A' }}>
+              <button type="button" onClick={() => inputRef.current?.click()} className="text-[12px] font-medium" style={{ color: '#1F4D3A' }}>
                 Change
               </button>
-              <button onClick={onClear} className="text-[12px]" style={{ color: '#6B7A72' }}>
+              <button type="button" onClick={onClear} className="text-[12px]" style={{ color: '#6B7A72' }}>
                 Remove
               </button>
             </div>
           </div>
-          <button onClick={onClear} aria-label="Remove" className="shrink-0" style={{ color: '#6B7A72' }}>
+          <button type="button" onClick={onClear} aria-label="Remove" className="shrink-0" style={{ color: '#6B7A72' }}>
             <X size={16} strokeWidth={2} />
           </button>
         </div>
       ) : (
         <button
+          type="button"
           onClick={() => inputRef.current?.click()}
+          aria-labelledby={labelId}
           className="w-full flex items-center gap-3 px-4 h-16 rounded-xl border-2 border-dashed transition"
           style={{ borderColor: error ? '#B8423C' : '#E5E0D4', background: '#FAF6EE' }}
           onMouseEnter={e => (e.currentTarget.style.borderColor = '#E8C57E')}
@@ -251,6 +259,7 @@ function PhotoField({ zone, previewUrl, error, onChange, onClear }: {
         ref={inputRef}
         type="file"
         accept="image/jpeg,image/png,image/webp"
+        aria-labelledby={labelId}
         className="hidden"
         onChange={e => {
           const file = e.target.files?.[0];

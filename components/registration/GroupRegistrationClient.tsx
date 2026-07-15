@@ -212,7 +212,7 @@ export function GroupRegistrationClient({ eventId, eventName, eventSlug, tickets
 
       {/* Submit error banner */}
       {submitError && (
-        <div className="px-5 py-3 text-[13px] font-medium text-center" style={{ background: '#FEF2F2', color: '#B91C1C', borderBottom: '1px solid #FECACA' }}>
+        <div role="alert" aria-live="assertive" className="px-5 py-3 text-[13px] font-medium text-center" style={{ background: '#FEF2F2', color: '#B8423C', borderBottom: '1px solid #FECACA' }}>
           {submitError}
         </div>
       )}
@@ -305,6 +305,7 @@ export function GroupRegistrationClient({ eventId, eventName, eventSlug, tickets
                                 value={a.name}
                                 onChange={e => updateAttendee(t.id, i, 'name', e.target.value)}
                                 placeholder="Full name"
+                                aria-label={`${t.name} seat ${i + 1} full name`}
                                 className="px-3 py-2.5 rounded-xl border text-[14px] outline-none transition"
                                 style={{ borderColor: '#E5E0D4', background: '#FAF6EE', color: '#0F1F18' }}
                               />
@@ -313,6 +314,7 @@ export function GroupRegistrationClient({ eventId, eventName, eventSlug, tickets
                                 value={a.email}
                                 onChange={e => updateAttendee(t.id, i, 'email', e.target.value)}
                                 placeholder="Email address"
+                                aria-label={`${t.name} seat ${i + 1} email address`}
                                 className="px-3 py-2.5 rounded-xl border text-[14px] outline-none transition"
                                 style={{ borderColor: '#E5E0D4', background: '#FAF6EE', color: '#0F1F18' }}
                               />
@@ -320,6 +322,7 @@ export function GroupRegistrationClient({ eventId, eventName, eventSlug, tickets
                                 value={a.whatsapp}
                                 onChange={e => updateAttendee(t.id, i, 'whatsapp', e.target.value)}
                                 placeholder="WhatsApp (optional)"
+                                aria-label={`${t.name} seat ${i + 1} WhatsApp number, optional`}
                                 className="px-3 py-2.5 rounded-xl border text-[14px] outline-none transition sm:col-span-2"
                                 style={{ borderColor: '#E5E0D4', background: '#FAF6EE', color: '#0F1F18' }}
                               />

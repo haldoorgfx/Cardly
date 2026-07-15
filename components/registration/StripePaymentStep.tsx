@@ -131,6 +131,8 @@ function InnerForm({ returnUrl, amount, currency, eventTitle, ticketName }: Prop
       {/* Error */}
       {error && (
         <div
+          role="alert"
+          aria-live="assertive"
           className="flex items-start gap-2 px-4 py-3 rounded-xl mb-4 text-[13px]"
           style={{ background: 'rgba(184,66,60,0.08)', color: '#B8423C', border: '1px solid rgba(184,66,60,0.15)' }}
         >

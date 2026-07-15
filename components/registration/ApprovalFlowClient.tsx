@@ -285,7 +285,7 @@ export function ApprovalFlowClient({ eventId, eventName, eventSlug, questions }:
               })}
 
               {error && (
-                <div className="px-4 py-3 rounded-xl text-[13px] font-medium" style={{ background: '#FEF2F2', color: '#B8423C', border: '1px solid #FECACA' }}>
+                <div role="alert" aria-live="assertive" className="px-4 py-3 rounded-xl text-[13px] font-medium" style={{ background: '#FEF2F2', color: '#B8423C', border: '1px solid #FECACA' }}>
                   {error}
                 </div>
               )}

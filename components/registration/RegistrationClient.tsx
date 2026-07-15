@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Check, Lock, Unlock, ChevronDown, CreditCard, Smartphone, Layers } from 'lucide-react';
 import Image from 'next/image';
@@ -175,6 +175,13 @@ export default function RegistrationClient({
   // step 0 = ticket, 1 = details, 2 = review/pay, 3 = your card (canvas events only).
   // Always start at step 0 so the attendee confirms their ticket before continuing.
   const [step, setStep] = useState<0 | 1 | 2 | 3>(0);
+  // Move focus to the new step's heading on every step change so keyboard/screen-reader
+  // users get a clear signal the page moved forward, instead of focus staying stranded
+  // on the "Continue" button they just activated.
+  const stepHeadingRef = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    stepHeadingRef.current?.focus({ preventScroll: true });
+  }, [step]);
   const [confirmedToken, setConfirmedToken] = useState<string | null>(null);
   const [confirmedRegId, setConfirmedRegId] = useState<string | null>(null);
   const [selectedTicket, setSelectedTicket] = useState<TicketType | null>(() => preselected ?? pickDefaultTicket(tickets));
@@ -723,7 +730,7 @@ export default function RegistrationClient({
           {/* Step 0: Ticket */}
           {step === 0 && (
             <div>
-              <h2 className="font-display font-normal text-[28px] mb-1.5" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
+              <h2 ref={stepHeadingRef} tabIndex={-1} className="font-display font-normal text-[28px] mb-1.5 outline-none" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
                 Choose your ticket
               </h2>
               <p className="text-[14px] mb-6" style={{ color: '#6B7A72' }}>{eventSubtitle}</p>
@@ -745,6 +752,7 @@ export default function RegistrationClient({
                       <button
                         key={t.id}
                         disabled={sold}
+                        aria-pressed={isSelected}
                         onClick={() => { setSelectedTicket(t); setChosenPrice(''); setSubmitError(''); setFieldErrors({}); clearPromo(); }}
                         className="w-full text-left flex items-center gap-4 p-5 rounded-2xl transition-all"
                         style={{ border: `1px solid ${isSelected ? '#1F4D3A' : '#E5E0D4'}`, background: 'white', boxShadow: isSelected ? 'inset 0 0 0 1px #1F4D3A' : 'none', opacity: sold ? 0.5 : 1 }}
@@ -774,7 +782,7 @@ export default function RegistrationClient({
               {/* PWYW price input */}
               {isPWYW && selectedTicket && (
                 <div className="mt-4 rounded-2xl p-5" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
-                  <label className="block text-[13px] font-medium mb-2" style={{ color: '#3A4A42' }}>
+                  <label htmlFor="reg-pwyw-amount" className="block text-[13px] font-medium mb-2" style={{ color: '#3A4A42' }}>
                     Choose your amount <span className="font-normal" style={{ color: '#6B7A72' }}>(minimum {selectedTicket.currency} {selectedTicket.min_price})</span>
                   </label>
                   <div className="relative">
@@ -782,18 +790,20 @@ export default function RegistrationClient({
                       {selectedTicket.currency}
                     </span>
                     <input
+                      id="reg-pwyw-amount"
                       type="number"
                       min={selectedTicket.min_price ?? 0}
                       step="any"
                       value={chosenPrice}
                       aria-invalid={!!fieldErrors.chosenPrice}
+                      aria-describedby={fieldErrors.chosenPrice ? 'reg-pwyw-amount-error' : undefined}
                       onChange={e => { setChosenPrice(e.target.value); setFieldErrors(p => ({ ...p, chosenPrice: '' })); if (appliedPromo) clearPromo(); }}
                       placeholder={String(selectedTicket.min_price ?? 0)}
                       className={INPUT}
                       style={{ borderColor: fieldErrors.chosenPrice ? '#B8423C' : '#E5E0D4', background: 'white', color: '#0F1F18', paddingLeft: '3.5rem' }}
                     />
                   </div>
-                  {fieldErrors.chosenPrice && <p className="text-[12px] mt-1 font-medium" style={{ color: '#B8423C' }}>{fieldErrors.chosenPrice}</p>}
+                  {fieldErrors.chosenPrice && <p id="reg-pwyw-amount-error" className="text-[12px] mt-1 font-medium" style={{ color: '#B8423C' }}>{fieldErrors.chosenPrice}</p>}
                 </div>
               )}
 
@@ -810,9 +820,10 @@ export default function RegistrationClient({
                   </button>
                 ) : (
                   <div className="rounded-2xl p-4" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
-                    <label className="block text-[12px] font-medium mb-2" style={{ color: '#3A4A42' }}>Access code</label>
+                    <label htmlFor="reg-access-code" className="block text-[12px] font-medium mb-2" style={{ color: '#3A4A42' }}>Access code</label>
                     <div className="flex gap-2">
                       <input
+                        id="reg-access-code"
                         type="text"
                         value={accessCodeInput}
                         aria-invalid={!!accessCodeError}
@@ -846,7 +857,7 @@ export default function RegistrationClient({
           {/* Step 1: Details */}
           {step === 1 && (
             <div>
-              <h2 className="font-display font-normal text-[28px] mb-1.5" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
+              <h2 ref={stepHeadingRef} tabIndex={-1} className="font-display font-normal text-[28px] mb-1.5 outline-none" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
                 Your details
               </h2>
               <p className="text-[14px] mb-6" style={{ color: '#6B7A72' }}>
@@ -855,12 +866,14 @@ export default function RegistrationClient({
               <div className="space-y-4">
                 {/* Full name — always required */}
                 <div>
-                  <label className="block text-[12px] mb-1.5" style={{ color: fieldErrors.name ? '#B8423C' : '#6B7A72' }}>
+                  <label htmlFor="reg-name" className="block text-[12px] mb-1.5" style={{ color: fieldErrors.name ? '#B8423C' : '#6B7A72' }}>
                     Full name <span style={{ color: '#B8423C' }}>*</span>
                   </label>
                   <input
+                    id="reg-name"
                     type="text" value={name}
                     aria-invalid={!!fieldErrors.name}
+                    aria-describedby={fieldErrors.name ? 'reg-name-error' : undefined}
                     onChange={e => {
                       const val = e.target.value;
                       setName(val);
@@ -882,30 +895,33 @@ export default function RegistrationClient({
                     placeholder="Amina Osman" className={INPUT}
                     style={{ borderColor: fieldErrors.name ? '#B8423C' : '#E5E0D4', background: 'white', color: '#0F1F18' }}
                   />
-                  {fieldErrors.name && <p className="text-[12px] mt-1 font-medium" style={{ color: '#B8423C' }}>{fieldErrors.name}</p>}
+                  {fieldErrors.name && <p id="reg-name-error" className="text-[12px] mt-1 font-medium" style={{ color: '#B8423C' }}>{fieldErrors.name}</p>}
                 </div>
 
                 {/* Email */}
                 <div>
-                  <label className="block text-[12px] mb-1.5" style={{ color: fieldErrors.email ? '#B8423C' : '#6B7A72' }}>
+                  <label htmlFor="reg-email" className="block text-[12px] mb-1.5" style={{ color: fieldErrors.email ? '#B8423C' : '#6B7A72' }}>
                     Email <span style={{ color: '#B8423C' }}>*</span>
                   </label>
                   <input
+                    id="reg-email"
                     type="email" value={email}
                     aria-invalid={!!fieldErrors.email}
+                    aria-describedby={fieldErrors.email ? 'reg-email-error' : undefined}
                     onChange={e => { setEmail(e.target.value); if (fieldErrors.email) setFieldErrors(p => ({ ...p, email: '' })); }}
                     placeholder="you@example.com" className={INPUT}
                     style={{ borderColor: fieldErrors.email ? '#B8423C' : '#E5E0D4', background: 'white', color: '#0F1F18' }}
                   />
-                  {fieldErrors.email && <p className="text-[12px] mt-1 font-medium" style={{ color: '#B8423C' }}>{fieldErrors.email}</p>}
+                  {fieldErrors.email && <p id="reg-email-error" className="text-[12px] mt-1 font-medium" style={{ color: '#B8423C' }}>{fieldErrors.email}</p>}
                 </div>
 
                 {/* Phone — optional */}
                 <div>
-                  <label className="block text-[12px] mb-1.5" style={{ color: '#6B7A72' }}>
+                  <label htmlFor="reg-phone" className="block text-[12px] mb-1.5" style={{ color: '#6B7A72' }}>
                     Phone number <span style={{ color: '#6B7A72', fontWeight: 400 }}>(optional)</span>
                   </label>
                   <input
+                    id="reg-phone"
                     type="tel" value={phone}
                     onChange={e => setPhone(e.target.value)}
                     placeholder="+252 61 234 5678" className={INPUT}
@@ -921,21 +937,22 @@ export default function RegistrationClient({
                     setCustomFieldValues(p => ({ ...p, [f.id]: v }));
                     if (err) setFieldErrors(p => ({ ...p, [`cf_${f.id}`]: '' }));
                   };
+                  const fieldId = `reg-cf-${f.id}`;
                   const labelEl = (
-                    <label className="block text-[12px] mb-1.5" style={{ color: err ? '#B8423C' : '#6B7A72' }}>
+                    <label htmlFor={fieldId} className="block text-[12px] mb-1.5" style={{ color: err ? '#B8423C' : '#6B7A72' }}>
                       {f.label}{f.is_required && <span style={{ color: '#B8423C' }}> *</span>}
                     </label>
                   );
                   if (f.field_type === 'textarea') return (
                     <div key={f.id}>{labelEl}
-                      <textarea value={val} onChange={e => set(e.target.value)} rows={3} aria-invalid={!!err}
+                      <textarea id={fieldId} value={val} onChange={e => set(e.target.value)} rows={3} aria-invalid={!!err}
                         className={INPUT} style={{ borderColor: err ? '#B8423C' : '#E5E0D4', background: 'white', color: '#0F1F18', resize: 'vertical' }} />
                       {err && <p className="text-[12px] mt-1 font-medium" style={{ color: '#B8423C' }}>{err}</p>}
                     </div>
                   );
                   if (f.field_type === 'select' && f.options?.length) return (
                     <div key={f.id}>{labelEl}
-                      <select value={val} onChange={e => set(e.target.value)} aria-invalid={!!err}
+                      <select id={fieldId} value={val} onChange={e => set(e.target.value)} aria-invalid={!!err}
                         className={INPUT} style={{ borderColor: err ? '#B8423C' : '#E5E0D4', background: 'white', color: val ? '#0F1F18' : '#6B7A72' }}>
                         <option value="">Select…</option>
                         {f.options.map(o => <option key={o} value={o}>{o}</option>)}
@@ -945,9 +962,9 @@ export default function RegistrationClient({
                   );
                   if (f.field_type === 'checkbox') return (
                     <div key={f.id} className="flex items-center gap-3">
-                      <input type="checkbox" checked={val === 'true'} onChange={e => set(e.target.checked ? 'true' : '')}
+                      <input id={fieldId} type="checkbox" checked={val === 'true'} onChange={e => set(e.target.checked ? 'true' : '')}
                         className="w-4 h-4 rounded accent-[#1F4D3A]" />
-                      <span className="text-[14px]" style={{ color: '#0F1F18' }}>{f.label}{f.is_required && <span style={{ color: '#B8423C' }}> *</span>}</span>
+                      <label htmlFor={fieldId} className="text-[14px]" style={{ color: '#0F1F18' }}>{f.label}{f.is_required && <span style={{ color: '#B8423C' }}> *</span>}</label>
                       {err && <p className="text-[12px] font-medium" style={{ color: '#B8423C' }}>{err}</p>}
                     </div>
                   );
@@ -986,6 +1003,7 @@ export default function RegistrationClient({
                               <button
                                 key={o}
                                 type="button"
+                                aria-pressed={on}
                                 onClick={() => toggle(o)}
                                 className="px-3.5 py-2 rounded-full text-[13px] font-medium transition"
                                 style={{
@@ -1029,6 +1047,7 @@ export default function RegistrationClient({
                   return (
                     <div key={f.id}>{labelEl}
                       <input
+                        id={fieldId}
                         type={f.field_type === 'number' ? 'number' : f.field_type === 'date' ? 'date' : f.field_type === 'url' ? 'url' : f.field_type === 'phone' ? 'tel' : 'text'}
                         value={val} onChange={e => set(e.target.value)}
                         aria-invalid={!!err}
@@ -1045,7 +1064,7 @@ export default function RegistrationClient({
           {/* Step 2: Review / Confirm */}
           {step === 2 && (
             <div>
-              <h2 className="font-display font-normal text-[28px] mb-1.5" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
+              <h2 ref={stepHeadingRef} tabIndex={-1} className="font-display font-normal text-[28px] mb-1.5 outline-none" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
                 {effectivePrice === 0 ? 'Confirm registration' : 'Review & pay'}
               </h2>
               <p className="text-[14px] mb-5" style={{ color: '#6B7A72' }}>
@@ -1056,7 +1075,7 @@ export default function RegistrationClient({
 
               {/* Order summary */}
               <div className="rounded-2xl p-5 mb-4" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
-                <div className="text-[11px] font-semibold uppercase tracking-widest mb-3" style={{ color: '#9BA8A1' }}>Order summary</div>
+                <div className="text-[11px] font-semibold uppercase tracking-widest mb-3" style={{ color: '#6B7A72' }}>Order summary</div>
 
                 <div className="flex items-center justify-between py-1.5 text-[14px]" style={{ color: '#3A4A42' }}>
                   <span>{selectedTicket?.name}</span>
@@ -1068,6 +1087,7 @@ export default function RegistrationClient({
                   <div className="pt-3 pb-1 mt-1" style={{ borderTop: '1px solid #F0EDE6' }}>
                     <div className="flex gap-2">
                       <input
+                        aria-label="Promo code"
                         value={promoInput}
                         aria-invalid={!!promoError}
                         onChange={e => { setPromoInput(e.target.value.toUpperCase()); setPromoError(''); }}
@@ -1116,7 +1136,7 @@ export default function RegistrationClient({
               {/* Payment method — only shown for paid tickets */}
               {effectivePrice > 0 && (
                 <div className="mb-4">
-                  <div className="text-[11px] font-semibold uppercase tracking-widest mb-3" style={{ color: '#9BA8A1' }}>
+                  <div className="text-[11px] font-semibold uppercase tracking-widest mb-3" style={{ color: '#6B7A72' }}>
                     Payment method
                   </div>
 
@@ -1130,6 +1150,7 @@ export default function RegistrationClient({
                           <button
                             key={method.value}
                             type="button"
+                            aria-pressed={selected}
                             onClick={() => setStep2Processor(method.value)}
                             className="w-full flex items-center gap-3 p-4 rounded-xl text-left transition"
                             style={{
@@ -1180,7 +1201,7 @@ export default function RegistrationClient({
                   ) : null}
 
                   {/* Secure payment badge */}
-                  <div className="flex items-center justify-center gap-1.5 mt-4 text-[11px]" style={{ color: '#9BA8A1' }}>
+                  <div className="flex items-center justify-center gap-1.5 mt-4 text-[11px]" style={{ color: '#6B7A72' }}>
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                       <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
                     </svg>
@@ -1194,7 +1215,7 @@ export default function RegistrationClient({
           {/* Step 3: Your card */}
           {step === 3 && activeVariant && (
             <div>
-              <h2 className="font-display font-normal text-[28px] mb-1.5" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
+              <h2 ref={stepHeadingRef} tabIndex={-1} className="font-display font-normal text-[28px] mb-1.5 outline-none" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
                 Design your Eventera Card
               </h2>
               <p className="text-[14px] mb-6" style={{ color: '#6B7A72' }}>
@@ -1354,7 +1375,7 @@ export default function RegistrationClient({
       >
         {submitError && (
           <div className="px-5 pt-2">
-            <div className="max-w-[1100px] mx-auto px-4 py-2 rounded-lg text-[13px] font-medium" style={{ background: '#FEF2F2', color: '#B8423C', border: '1px solid #FECACA' }}>
+            <div role="alert" aria-live="assertive" className="max-w-[1100px] mx-auto px-4 py-2 rounded-lg text-[13px] font-medium" style={{ background: '#FEF2F2', color: '#B8423C', border: '1px solid #FECACA' }}>
               {submitError}
             </div>
           </div>

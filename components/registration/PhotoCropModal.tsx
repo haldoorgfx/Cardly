@@ -104,23 +104,26 @@ export function PhotoCropModal({ target, onConfirm, onCancel }: Props) {
 
         {/* Zoom slider */}
         <div className="flex items-center gap-3 px-5 py-4" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-          <button onClick={() => setZoom(z => Math.max(1, z - 0.1))} className="shrink-0" style={{ color: 'rgba(255,255,255,0.5)' }}>
+          <button type="button" onClick={() => setZoom(z => Math.max(1, z - 0.1))} aria-label="Zoom out" className="shrink-0" style={{ color: 'rgba(255,255,255,0.5)' }}>
             <ZoomOut size={16} strokeWidth={2} />
           </button>
           <input
             type="range" min={1} max={3} step={0.05}
             value={zoom}
             onChange={e => setZoom(parseFloat(e.target.value))}
+            aria-label="Zoom"
             className="flex-1 accent-[#E8C57E]"
           />
-          <button onClick={() => setZoom(z => Math.min(3, z + 0.1))} className="shrink-0" style={{ color: 'rgba(255,255,255,0.5)' }}>
+          <button type="button" onClick={() => setZoom(z => Math.min(3, z + 0.1))} aria-label="Zoom in" className="shrink-0" style={{ color: 'rgba(255,255,255,0.5)' }}>
             <ZoomIn size={16} strokeWidth={2} />
           </button>
           <button
+            type="button"
             onClick={() => { setCrop({ x: 0, y: 0 }); setZoom(1); }}
             className="shrink-0 transition"
             style={{ color: 'rgba(255,255,255,0.4)' }}
             title="Reset"
+            aria-label="Reset crop"
           >
             <RotateCcw size={14} strokeWidth={2} />
           </button>
