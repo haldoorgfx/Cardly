@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { randomUUID } from 'crypto';
 import { z } from 'zod';
 import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
+import { getUserPlan } from '@/lib/billing/can';
 
 // Optional sponsor contact email — trimmed; empty string coerces to undefined.
 const contactEmailSchema = z
@@ -100,6 +101,13 @@ export async function POST(req: Request) {
   const body = await req.json();
   const { event_id, company_name, tier, booth_location, website_url, contact_email } = body;
   if (!event_id || !company_name) return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
+
+  // Sponsors is a Studio-plan feature (see app/(app)/events/[id]/sponsors/page.tsx
+  // and UpgradeSlideOver) — enforce server-side, not just the dashboard page gate.
+  const plan = await getUserPlan(user.id);
+  if (plan !== 'studio') {
+    return NextResponse.json({ error: 'Sponsors requires the Studio plan.' }, { status: 402 });
+  }
 
   // Validate the optional contact email.
   const parsedEmail = contactEmailSchema.safeParse(contact_email);

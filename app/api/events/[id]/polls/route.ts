@@ -2,7 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient, createClient } from '@/lib/supabase/server';
 import { assertOwnsRegistration } from '@/lib/attendee-identity';
 import { hasModeratorAccess } from '@/lib/rbac/ownership';
+import { getUserPlan } from '@/lib/billing/can';
 import { z } from 'zod';
+
+const PLAN_RANK: Record<string, number> = { free: 0, pro: 1, studio: 2 };
 
 const CreateSchema = z.object({
   question: z.string().min(1),
@@ -42,6 +45,13 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
   if (!(await hasModeratorAccess(user.id, params.id))) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  }
+
+  // Q&A & Polls is a Pro-plan feature (see app/(app)/events/[id]/q-and-a/page.tsx
+  // and UpgradeSlideOver) — enforce server-side, not just the dashboard page gate.
+  const plan = await getUserPlan(user.id);
+  if (PLAN_RANK[plan] < PLAN_RANK.pro) {
+    return NextResponse.json({ error: 'Polls require the Pro plan.' }, { status: 402 });
   }
 
   const body = await req.json().catch(() => null);
