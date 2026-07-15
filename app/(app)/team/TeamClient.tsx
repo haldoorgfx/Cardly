@@ -201,7 +201,7 @@ function InviteModal({ teamId, onClose, onInvited }: { teamId: string; onClose: 
           </div>
           {error && <p className="text-[12px] text-[#B8423C]">{error}</p>}
           <div className="flex gap-3 pt-2">
-            <button type="button" onClick={onClose} className="flex-1 h-10 rounded-lg border border-border text-[13.5px] font-medium text-[#3A4A42] hover:bg-cream transition">
+            <button type="button" onClick={onClose} className="flex-1 h-10 rounded-xl border border-border text-[13.5px] font-medium text-[#3A4A42] hover:bg-cream transition">
               Cancel
             </button>
             <button
@@ -305,7 +305,7 @@ function MemberSettingsModal({
             <div>
               <p className="text-[13px] text-[#3A4A42] mb-3">Remove <strong>{name}</strong> from the team? They&apos;ll lose access to all shared events.</p>
               <div className="flex gap-3">
-                <button onClick={() => setConfirmRemove(false)} className="flex-1 h-10 rounded-lg border border-border text-[13.5px] font-medium text-[#3A4A42] hover:bg-cream transition">
+                <button onClick={() => setConfirmRemove(false)} className="flex-1 h-10 rounded-xl border border-border text-[13.5px] font-medium text-[#3A4A42] hover:bg-cream transition">
                   Cancel
                 </button>
                 <button
@@ -374,7 +374,7 @@ export function TeamClient({
               className="inline-flex items-center gap-1.5 h-9 px-5 rounded-lg text-[13.5px] font-semibold text-white shrink-0 transition hover:bg-[#163828]"
               style={{ background: '#1F4D3A' }}
             >
-              + Invite member
+              Upgrade to invite →
             </a>
           }
         />

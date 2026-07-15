@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
+import { Link2, CheckCircle2, Clock } from 'lucide-react';
 import { AcceptInviteClient } from './AcceptInviteClient';
 
 interface PageProps {
@@ -30,7 +31,9 @@ export default async function AcceptInvitePage({ params }: PageProps) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: '#FAF6EE' }}>
         <div className="text-center max-w-sm px-6">
-          <div className="text-[48px] mb-4">🔗</div>
+          <div className="h-14 w-14 rounded-2xl grid place-items-center text-white mx-auto mb-6" style={{ background: '#1F4D3A' }}>
+            <Link2 size={24} strokeWidth={1.8} />
+          </div>
           <h1 className="font-display font-bold text-[22px] text-[#0F1F18] mb-2">Invalid invite</h1>
           <p className="text-[14px] text-[#6B7A72] mb-6">This invite link doesn&apos;t exist or has been revoked.</p>
           <a href="/dashboard" className="text-[13px] font-medium text-[#1F4D3A] underline">Go to dashboard</a>
@@ -47,7 +50,9 @@ export default async function AcceptInvitePage({ params }: PageProps) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: '#FAF6EE' }}>
         <div className="text-center max-w-sm px-6">
-          <div className="text-[48px] mb-4">{isAccepted ? '✅' : '⏰'}</div>
+          <div className="h-14 w-14 rounded-2xl grid place-items-center text-white mx-auto mb-6" style={{ background: '#1F4D3A' }}>
+            {isAccepted ? <CheckCircle2 size={24} strokeWidth={1.8} /> : <Clock size={24} strokeWidth={1.8} />}
+          </div>
           <h1 className="font-display font-bold text-[22px] text-[#0F1F18] mb-2">
             {isAccepted ? 'Already accepted' : 'Invite expired'}
           </h1>

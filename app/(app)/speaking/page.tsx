@@ -56,7 +56,7 @@ const SUB_STATUS_STYLE: Record<string, { bg: string; color: string }> = {
   pending: { bg: '#F5F5F0', color: '#3A4A42' },
   accept: { bg: '#E8EFEB', color: '#1F4D3A' },
   reject: { bg: 'rgba(184,66,60,0.1)', color: '#B8423C' },
-  revision: { bg: '#FEF3C7', color: '#C97A2D' },
+  revision: { bg: 'rgba(201,122,45,0.12)', color: '#C97A2D' },
   waitlist: { bg: '#E8EFEB', color: '#3A4A42' },
 };
 

@@ -314,7 +314,7 @@ export default function TemplatesPage() {
 
       {/* Error */}
       {error && (
-        <div className="mb-4 px-4 py-3 rounded-xl text-[13px] flex items-center justify-between gap-3" style={{ background:'#FEF2F2', border:'1px solid #FECACA', color:'#B91C1C' }}>
+        <div className="mb-4 px-4 py-3 rounded-xl text-[13px] flex items-center justify-between gap-3" style={{ background:'rgba(184,66,60,0.07)', border:'1px solid rgba(184,66,60,0.2)', color:'#B8423C' }}>
           <span>{error}</span>
           <button onClick={() => setError('')} className="shrink-0 text-[12.5px] underline">Dismiss</button>
         </div>
@@ -379,7 +379,7 @@ export default function TemplatesPage() {
                   {/* POPULAR / NEW badge */}
                   {tmpl.badge && !isLoading && (
                     <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full text-[11.5px] tracking-widest text-white z-10"
-                      style={{ background:'linear-gradient(135deg,#1F4D3A,#E8C57E)' }}>
+                      style={{ background:'#1F4D3A' }}>
                       {tmpl.badge}
                     </div>
                   )}
