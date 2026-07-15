@@ -133,7 +133,7 @@ import {
   Trash2, Copy, AlignLeft, AlignCenter, AlignRight, AlignJustify,
   Upload, X, ChevronUp, ChevronDown, Square, AlignVerticalJustifyEnd,
   AlignStartVertical, AlignCenterVertical, AlignEndVertical,
-  AlignHorizontalJustifyCenter, AlignVerticalJustifyCenter,
+  AlignHorizontalJustifyCenter, AlignVerticalJustifyCenter, AlertTriangle,
 } from 'lucide-react';
 
 // Chrome components (UI only — no logic)
@@ -1717,11 +1717,11 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
         <Modal onClose={() => { setShowAddVariant(false); setVariantLimitHit(false); }} title="Add variant" subtitle="A new card type, e.g. Speaker, Sponsor, Exhibitor">
           {variantLimitHit ? (
             <div className="space-y-4">
-              <div className="rounded-xl p-4 flex gap-3" style={{ background: '#FEF3C7', border: '1px solid #F59E0B33' }}>
-                <span style={{ fontSize: 20 }}></span>
+              <div className="rounded-xl p-4 flex gap-3" style={{ background: 'rgba(201,122,45,0.10)', border: '1px solid rgba(201,122,45,0.30)' }}>
+                <AlertTriangle size={18} strokeWidth={2} style={{ color: '#C97A2D', flexShrink: 0, marginTop: 1 }} />
                 <div>
-                  <p className="text-[13.5px] font-semibold mb-1" style={{ color: '#92400E' }}>Variant limit reached</p>
-                  <p className="text-[12.5px] leading-relaxed" style={{ color: '#92400E' }}>
+                  <p className="text-[13.5px] font-semibold mb-1" style={{ color: '#0F1F18' }}>Variant limit reached</p>
+                  <p className="text-[12.5px] leading-relaxed" style={{ color: '#3A4A42' }}>
                     Your plan only allows a limited number of variants per event. Upgrade to Pro for 5 variants, or Studio for unlimited.
                   </p>
                 </div>

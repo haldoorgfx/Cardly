@@ -179,7 +179,7 @@ export default function TemplatePickerModal({ eventId, onVariantCreated, onUploa
 
         {/* Error */}
         {error && (
-          <div className="mx-6 mt-3 px-3 py-2 rounded-lg text-[12.5px] text-[#B8423C] shrink-0" style={{ background: '#FEF2F2', border: '1px solid #FECACA' }}>
+          <div className="mx-6 mt-3 px-3 py-2 rounded-lg text-[12.5px] text-[#B8423C] shrink-0" style={{ background: 'rgba(184,66,60,0.06)', border: '1px solid rgba(184,66,60,0.15)' }}>
             {error}
           </div>
         )}
