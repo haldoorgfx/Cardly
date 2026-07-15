@@ -693,7 +693,7 @@ export default function RegistrationClient({
 
   return (
     <div className="min-h-screen" style={{ background: '#FAF6EE' }}>
-      <div className="max-w-[1100px] mx-auto px-5 py-8 pb-20 lg:grid lg:grid-cols-[1fr_340px] lg:gap-12 lg:items-start">
+      <div className={`max-w-[1100px] mx-auto px-5 py-8 pb-20 lg:gap-12 lg:items-start ${step === 3 ? '' : 'lg:grid lg:grid-cols-[1fr_340px]'}`}>
         {/* Left: form */}
         <div>
           {/* Step indicator */}
@@ -1219,30 +1219,25 @@ export default function RegistrationClient({
           <div className="h-4" />
         </div>
 
-        {/* Right sidebar: card preview + order summary */}
-        {activeVariant && (
+        {/* Right sidebar: card preview + order summary.
+            Hidden on the card step (step 3) — CardZoneFill renders the single
+            live preview there, so a second sidebar preview would be redundant. */}
+        {activeVariant && step !== 3 && (
           <aside className="sticky hidden lg:block" style={{ top: 88 }}>
-            {/* Card preview — always shown; on step 3 it's the main focus */}
-            <div className={step === 3 ? 'mb-0' : 'mb-4'}>
+            {/* Card preview — shown while choosing ticket / filling details. */}
+            <div className="mb-4">
               <div className="text-[11px] font-semibold uppercase tracking-wider mb-3" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
-                {step === 3 ? 'Live preview' : 'Your Eventera Card'}
+                Your Eventera Card
               </div>
-              <div className={step === 3 ? 'rounded-2xl overflow-hidden' : ''} style={step === 3 ? { border: '1px solid #E5E0D4', boxShadow: '0 4px 12px rgba(15,31,24,0.08), 0 16px 40px rgba(31,77,58,0.10)' } : undefined}>
-                {step === 3 && (
-                  <div className="px-4 pt-4 pb-2 text-[11px] font-semibold text-center uppercase tracking-widest" style={{ background: 'white', color: '#6B7A72' }}>
-                    Updates as you type
-                  </div>
-                )}
-                <EventCardPreview
-                  backgroundUrl={activeVariant.backgroundUrl}
-                  backgroundWidth={activeVariant.backgroundWidth ?? 1200}
-                  backgroundHeight={activeVariant.backgroundHeight ?? 800}
-                  zones={activeVariant.zones}
-                  values={previewValues}
-                  photoUrls={previewPhotoUrls}
-                  style={step === 3 ? { borderRadius: 0 } : { borderRadius: 16, boxShadow: '0 4px 12px rgba(15,31,24,0.08), 0 16px 40px rgba(31,77,58,0.10)' }}
-                />
-              </div>
+              <EventCardPreview
+                backgroundUrl={activeVariant.backgroundUrl}
+                backgroundWidth={activeVariant.backgroundWidth ?? 1200}
+                backgroundHeight={activeVariant.backgroundHeight ?? 800}
+                zones={activeVariant.zones}
+                values={previewValues}
+                photoUrls={previewPhotoUrls}
+                style={{ borderRadius: 16, boxShadow: '0 4px 12px rgba(15,31,24,0.08), 0 16px 40px rgba(31,77,58,0.10)' }}
+              />
               {(step === 1) && (
                 <p className="text-[11px] mt-2 text-center" style={{ color: '#6B7A72' }}>Preview updates as you type</p>
               )}

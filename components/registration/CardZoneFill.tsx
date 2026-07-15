@@ -31,9 +31,6 @@ export function CardZoneFill({
     <div className="flex flex-col lg:flex-row gap-6 lg:gap-10 items-start">
       {/* -- Form fields -- */}
       <div className="flex-1 min-w-0 space-y-4 w-full">
-        <p className="text-[13px]" style={{ color: '#6B7A72' }}>
-          Personalise your card. It&apos;ll be generated when you confirm.
-        </p>
         {inputZones.map(zone => {
           const err = errors[zone.id];
           if (zone.type === 'photo') {
