@@ -182,53 +182,32 @@ function ChangelogTab() {
 
 /* ── Legal Tab ───────────────────────────────────────────────────── */
 function LegalTab() {
-  const [doc, setDoc] = useState<'privacy' | 'terms'>('privacy');
-
-  const PRIVACY = [
-    { title: 'Overview', body: 'Eventera is an event management platform operated by Cre8so. We collect information you provide when creating events, registering for events, or using our services. This policy explains what we collect, why, and how you can control it.' },
-    { title: 'What we collect', body: 'We collect: account information (name, email, password hash), event data you create, registration data for events you attend, payment information processed through Stripe or Flutterwave (we do not store card numbers), and usage data to improve the platform.' },
-    { title: 'How we use your data', body: 'We use your data to: provide and improve our services, send transactional emails (registration confirmations, event reminders), process payments, and comply with legal obligations. We do not sell your personal data to third parties.' },
-    { title: 'Your rights', body: 'You may request access to, correction of, or deletion of your personal data at any time by emailing privacy@eventera.so. We will respond within 30 days. You may also export your data from your account settings.' },
-  ];
-
-  const TERMS = [
-    { title: 'Acceptance', body: 'By using Eventera you agree to these terms. If you are using Eventera on behalf of an organisation, you represent that you have authority to bind that organisation.' },
-    { title: 'Permitted use', body: 'Eventera is for lawful event organisation and attendance. You may not use the platform to host events that promote illegal activity, discrimination, or harassment. We reserve the right to suspend accounts that violate these terms.' },
-    { title: 'Payments & refunds', body: 'Event organisers set their own ticket prices and refund policies. Eventera facilitates payment processing but is not responsible for organiser refund decisions. Platform fees are non-refundable.' },
-    { title: 'Liability', body: 'Eventera is provided as-is. We are not liable for events that are cancelled, postponed, or modified by organisers. Our total liability is limited to the fees you paid to Eventera in the 12 months preceding any claim.' },
-  ];
-
-  const sections = doc === 'privacy' ? PRIVACY : TERMS;
-
   return (
     <div className="max-w-[760px] mx-auto px-4 sm:px-6 py-12 space-y-6">
-      {/* Toggle */}
-      <div className="inline-flex rounded-xl p-1" style={{ background: '#E8EFEB' }}>
-        {(['privacy', 'terms'] as const).map(d => (
-          <button
-            key={d}
-            onClick={() => setDoc(d)}
-            className="px-5 py-2 rounded-lg text-[13px] font-medium transition-colors capitalize"
-            style={{
-              background: doc === d ? '#fff' : 'transparent',
-              color: doc === d ? '#0F1F18' : '#6B7A72',
-              boxShadow: doc === d ? '0 1px 2px rgba(15,31,24,0.06)' : 'none',
-            }}
-          >
-            {d === 'privacy' ? 'Privacy Policy' : 'Terms of Service'}
-          </button>
-        ))}
+      <div>
+        <h2 className="font-display font-normal text-[26px]" style={{ color: '#0F1F18', letterSpacing: '-0.025em' }}>Legal</h2>
+        <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>Privacy Policy and Terms of Service.</p>
       </div>
-
-      <div className="text-[11px]" style={{ color: '#6B7A72' }}>Last updated: June 2026</div>
-
-      <div className="space-y-4">
-        {sections.map((s) => (
-          <div key={s.title} style={{ background: '#fff', border: '1px solid #E5E0D4', borderRadius: 12, padding: '20px' }}>
-            <h3 className="font-semibold text-[14px] mb-2" style={{ color: '#0F1F18' }}>{s.title}</h3>
-            <p className="text-[13px] leading-relaxed" style={{ color: '#3A4A42' }}>{s.body}</p>
-          </div>
-        ))}
+      <div className="rounded-2xl px-6 py-8 text-center" style={{ background: '#fff', border: '1px solid #E5E0D4' }}>
+        <p className="text-[14px] mb-5" style={{ color: '#3A4A42' }}>
+          Read the full Privacy Policy and Terms of Service on their own pages, always kept up to date.
+        </p>
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          <a
+            href="/privacy"
+            className="inline-flex items-center gap-2 h-10 px-6 rounded-full text-[13px] font-medium"
+            style={{ background: '#1F4D3A', color: '#FAF6EE' }}
+          >
+            Privacy Policy <ArrowRight size={13} />
+          </a>
+          <a
+            href="/terms"
+            className="inline-flex items-center gap-2 h-10 px-6 rounded-full text-[13px] font-medium"
+            style={{ background: '#fff', color: '#0F1F18', border: '1px solid #E5E0D4' }}
+          >
+            Terms of Service <ArrowRight size={13} />
+          </a>
+        </div>
       </div>
     </div>
   );

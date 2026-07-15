@@ -144,7 +144,7 @@ export default function BillingActions({
             <ul className="mt-4 grid grid-cols-2 gap-y-1.5 gap-x-3">
               {p.features.map(f => (
                 <li key={f} className="flex items-center gap-1.5 text-[12px] text-[#3A4A42]">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1F4D3A" strokeWidth="2.5" strokeLinecap="round">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#3A4A42" strokeWidth="2.5" strokeLinecap="round">
                     <path d="M20 6L9 17l-5-5" />
                   </svg>
                   {f}

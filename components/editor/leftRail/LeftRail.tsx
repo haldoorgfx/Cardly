@@ -319,7 +319,7 @@ function ElementsPanel({
                       display:'flex', alignItems:'center', gap:5, padding:'5px 6px',
                       background:T.cream, border:`1px solid ${T.border}`, borderRadius:5, cursor:'pointer',
                     }}>
-                      <span style={{ width:18, height:18, borderRadius:3, background:T.primarySoft, color:T.primary, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>{it.icon}</span>
+                      <span style={{ width:18, height:18, borderRadius:3, background:T.surface, color:T.inkSoft, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>{it.icon}</span>
                       <span style={{ fontFamily:'Inter,sans-serif', fontSize:11, fontWeight:500, color:T.ink }}>{it.label}</span>
                     </button>
                   ))}

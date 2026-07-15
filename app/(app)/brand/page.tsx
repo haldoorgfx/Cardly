@@ -5,7 +5,7 @@ import { Check } from 'lucide-react';
 import { PageShell, PageHeader } from '@/components/dash';
 
 const BRAND_COLORS = [
-  { name: 'Forest', hex: '#1F403A' },
+  { name: 'Forest', hex: '#1F4D3A' },
   { name: 'Deep',   hex: '#163828' },
   { name: 'Sage',   hex: '#2A6A50' },
   { name: 'Gold',   hex: '#E8C57E' },

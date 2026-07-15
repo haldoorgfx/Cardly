@@ -279,7 +279,7 @@ export default function OnboardingWizard({
           style={{ background: GOLD_SOFT, color: '#8A6A28', border: `1px solid ${GOLD}`, fontFamily: BODY }}>
           Takes about a minute
         </span>
-        <h1 className="mt-5 text-[30px] font-normal" style={{ fontFamily: DISPLAY, letterSpacing: '-0.024em', color: FOREST }}>
+        <h1 className="mt-5 text-[30px] font-normal" style={{ fontFamily: DISPLAY, letterSpacing: '-0.024em', color: INK }}>
           Let&rsquo;s make Eventera yours
         </h1>
         <p className="mt-2.5 text-[15px] leading-relaxed" style={{ color: INK_SOFT, fontFamily: BODY }}>
@@ -479,10 +479,10 @@ export default function OnboardingWizard({
             <div>
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <h2 className="text-[24px] font-normal" style={{ fontFamily: DISPLAY, letterSpacing: '-0.02em', color: FOREST }}>What are you into?</h2>
+                  <h2 className="text-[24px] font-normal" style={{ fontFamily: DISPLAY, letterSpacing: '-0.02em', color: INK }}>What are you into?</h2>
                   <p className="mt-1.5 text-[14px]" style={{ color: MUTED, fontFamily: BODY }}>Pick a few — we&rsquo;ll match sessions and people to them.</p>
                 </div>
-                <span className="shrink-0 text-[13px] font-semibold pt-1" style={{ color: FOREST, fontFamily: BODY }}>
+                <span className="shrink-0 text-[13px] font-semibold pt-1" style={{ color: INK, fontFamily: BODY }}>
                   {(field.value ?? []).length} selected
                 </span>
               </div>
@@ -606,7 +606,7 @@ function toggle(arr: string[], v: string): string[] {
 function StepHeader({ title, sub }: { title: string; sub: string }) {
   return (
     <div>
-      <h2 className="text-[24px] font-normal" style={{ fontFamily: DISPLAY, letterSpacing: '-0.02em', color: FOREST }}>{title}</h2>
+      <h2 className="text-[24px] font-normal" style={{ fontFamily: DISPLAY, letterSpacing: '-0.02em', color: INK }}>{title}</h2>
       <p className="mt-1.5 text-[14px] leading-relaxed" style={{ color: MUTED, fontFamily: BODY }}>{sub}</p>
     </div>
   );

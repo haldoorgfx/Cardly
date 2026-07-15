@@ -183,7 +183,7 @@ export function RegistrationFormBuilder({ eventId, initialFields }: Props) {
             {f.label}
             <span
               className="text-[12px] px-1.5 py-0.5 rounded"
-              style={{ background: 'rgba(31,77,58,0.08)', color: '#1F4D3A' }}
+              style={{ background: '#F5F5F4', color: '#6B7A72' }}
             >
               required
             </span>
@@ -237,7 +237,7 @@ export function RegistrationFormBuilder({ eventId, initialFields }: Props) {
                     {f.is_required && (
                       <span
                         className="text-[12px] px-1.5 py-0.5 rounded"
-                        style={{ background: 'rgba(31,77,58,0.08)', color: '#1F4D3A' }}
+                        style={{ background: '#F5F5F4', color: '#6B7A72' }}
                       >
                         required
                       </span>

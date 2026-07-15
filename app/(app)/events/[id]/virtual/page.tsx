@@ -118,7 +118,7 @@ export default async function VirtualPage({ params }: Props) {
                 const statusStyle = isLive
                   ? { bg: 'rgba(45,122,79,0.15)', color: '#2D7A4F' }
                   : isUpcoming
-                  ? { bg: '#E8EFEB', color: '#1F4D3A' }
+                  ? { bg: '#E8EFEB', color: '#3A4A42' }
                   : { bg: '#F0F0EC', color: '#6B7A72' };
                 return (
                   <div key={ss.id} className="flex items-center gap-4 px-5 py-3.5">

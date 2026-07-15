@@ -187,14 +187,14 @@ const BRAND_COLORS = [
 ];
 
 const FONTS = [
-  'DM Sans','Inter','Inter','Space Grotesk','Playfair Display',
+  'DM Sans','Inter','Space Grotesk','Playfair Display',
   'Poppins','Montserrat','Raleway','Nunito','Lato',
   'Oswald','Roboto','Work Sans','Merriweather','Lora',
   'Cormorant Garamond','Bebas Neue','Anton','Georgia','Times New Roman',
 ];
 
 const GOOGLE_FONTS_URL =
-  'https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=&family=Space+Grotesk:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700&family=Lato:wght@300;400;700&family=Oswald:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&family=Work+Sans:wght@300;400;500;600;700&family=Merriweather:wght@300;400;700&family=Lora:wght@400;500;600;700&family=Cormorant+Garamond:wght@300;400;500;600;700&family=Bebas+Neue&family=Anton&display=swap';
+  'https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700&family=Lato:wght@300;400;700&family=Oswald:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&family=Work+Sans:wght@300;400;500;600;700&family=Merriweather:wght@300;400;700&family=Lora:wght@400;500;600;700&family=Cormorant+Garamond:wght@300;400;500;600;700&family=Bebas+Neue&family=Anton&display=swap';
 
 /* -- types ------------------------------------------------- */
 interface CanvasEditorProps {
@@ -1174,8 +1174,6 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
         handleDeleteVariant={handleDeleteVariant}
         handleDuplicateVariant={handleDuplicateVariant}
         onAddVariant={() => setShowTemplatePicker(true)}
-        bgW={bgW}
-        bgH={bgH}
       />
 
       <div className="flex-1 flex min-h-0">
@@ -1305,10 +1303,10 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
                 {/* Corner brackets */}
                 {!previewMode && (
                   <>
-                    <span className="absolute -top-1 -left-1 h-3 w-3 border-t border-l border-primary/50 pointer-events-none" />
-                    <span className="absolute -top-1 -right-1 h-3 w-3 border-t border-r border-primary/50 pointer-events-none" />
-                    <span className="absolute -bottom-1 -left-1 h-3 w-3 border-b border-l border-primary/50 pointer-events-none" />
-                    <span className="absolute -bottom-1 -right-1 h-3 w-3 border-b border-r border-primary/50 pointer-events-none" />
+                    <span className="absolute -top-1 -left-1 h-3 w-3 border-t border-l border-ink/20 pointer-events-none" />
+                    <span className="absolute -top-1 -right-1 h-3 w-3 border-t border-r border-ink/20 pointer-events-none" />
+                    <span className="absolute -bottom-1 -left-1 h-3 w-3 border-b border-l border-ink/20 pointer-events-none" />
+                    <span className="absolute -bottom-1 -right-1 h-3 w-3 border-b border-r border-ink/20 pointer-events-none" />
                   </>
                 )}
 
@@ -1791,7 +1789,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
 /* ----------------------------------------------------------
    RIGHT RAIL COMPONENT
 ---------------------------------------------------------- */
-const EDITOR_FONTS = ['DM Sans', 'Inter', 'Inter'];
+const EDITOR_FONTS = ['DM Sans', 'Inter'];
 
 function RightRail({
   selected, bgW, bgH,
@@ -1863,7 +1861,7 @@ function RightRail({
         <div className="flex items-center gap-2">
           <div style={{
             width: 22, height: 22, borderRadius: 4,
-            background: '#E8EFEB', color: '#1F4D3A',
+            background: '#E8EFEB', color: '#3A4A42',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             flexShrink: 0,
           }}>
@@ -1911,10 +1909,10 @@ function RightRail({
           <>
             {/* Field setup guide */}
             <div className="rounded-lg px-2.5 py-2 text-[10.5px] leading-relaxed space-y-0.5" style={{background:'rgba(31,77,58,0.07)',border:'1px solid rgba(31,77,58,0.15)'}}>
-              <div className="font-semibold text-primary text-[10px] uppercase tracking-wide mb-1">Attendee sees:</div>
-              <div className="text-ink-soft"><span className=" text-primary">Label</span> &rarr; field title in the form</div>
-              <div className="text-ink-soft"><span className=" text-primary">Placeholder</span> &rarr; hint below the title</div>
-              <div className="text-ink-soft"><span className=" text-primary">Preview text</span> &rarr; sample shown on card</div>
+              <div className="font-semibold text-ink text-[10px] uppercase tracking-wide mb-1">Attendee sees:</div>
+              <div className="text-ink-soft"><span className="font-semibold text-ink">Label</span> &rarr; field title in the form</div>
+              <div className="text-ink-soft"><span className="font-semibold text-ink">Placeholder</span> &rarr; hint below the title</div>
+              <div className="text-ink-soft"><span className="font-semibold text-ink">Preview text</span> &rarr; sample shown on card</div>
             </div>
             <PropRow label="Placeholder">
               <input value={selected.placeholder ?? ''} onChange={e => upd({ placeholder: e.target.value })} className="prop-input" placeholder="e.g. Enter your full name" />
@@ -2055,9 +2053,9 @@ function RightRail({
       {(selected.type === 'text' || selected.type === 'custom' || selected.type === 'label') && (
         <>
           <PropSection title="Typography">
-            {/* Font picker — restricted to the 3 bundled fonts */}
+            {/* Font picker — restricted to the bundled editor fonts */}
             <PropRow label="Font">
-              <div className="grid grid-cols-3 gap-1">
+              <div className="grid grid-cols-2 gap-1">
                 {EDITOR_FONTS.map(f => (
                   <button
                     key={f}

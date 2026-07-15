@@ -475,7 +475,7 @@ export default function SpeakersManager({ eventId, slug, initialSpeakers }: Prop
 
                 {/* Footer */}
                 <div className="flex items-center justify-between mt-4 pt-3 flex-1 items-end" style={{ borderTop: '1px solid rgba(229,224,212,0.7)' }}>
-                  <span className="inline-flex items-center text-[12px] font-medium px-2 py-0.5 rounded-full" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
+                  <span className="inline-flex items-center text-[12px] font-medium px-2 py-0.5 rounded-full" style={{ background: '#E8EFEB', color: '#3A4A42' }}>
                     {TYPE_LABELS[speaker.speaker_type]}
                   </span>
                   <div className="flex items-center gap-1">

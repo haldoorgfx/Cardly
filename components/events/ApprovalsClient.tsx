@@ -120,7 +120,7 @@ export function ApprovalsClient({ eventId, eventName, initialRegs }: Props) {
                 <div className="flex items-start justify-between gap-4">
                   {/* Left: avatar + info */}
                   <div className="flex items-start gap-3 min-w-0">
-                    <div className="w-9 h-9 rounded-full flex items-center justify-center font-semibold text-[13px] shrink-0" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
+                    <div className="w-9 h-9 rounded-full flex items-center justify-center font-semibold text-[13px] shrink-0" style={{ background: '#F0EDE6', color: '#3A4A42' }}>
                       {(r.attendee_name ?? 'A').slice(0, 1).toUpperCase()}
                     </div>
                     <div className="min-w-0">

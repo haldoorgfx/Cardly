@@ -115,7 +115,7 @@ function StatusHero() {
           >
             {UPTIME.map(({ label, value, period }) => (
               <div key={label} className="bg-cream p-5">
-                <div className="font-display font-bold text-primary text-[15px] lg:text-[17px] tracking-[-0.02em] leading-none">
+                <div className="font-display font-bold text-ink text-[15px] lg:text-[17px] tracking-[-0.02em] leading-none">
                   {value}
                 </div>
                 <div className="mt-1.5  text-[9px] tracking-[0.16em] uppercase text-muted">

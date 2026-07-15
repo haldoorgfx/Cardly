@@ -90,7 +90,7 @@ export default function WaitlistJoinClient({ slug, title, coverUrl, startsAt, ci
             className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-5"
             style={{ background: '#E8EFEB' }}
           >
-            <Users size={24} style={{ color: '#1F4D3A' }} />
+            <Users size={24} style={{ color: '#0F1F18' }} />
           </div>
           <h1
             className="font-display font-semibold text-[22px] mb-2"

@@ -193,21 +193,14 @@ export function AnalyticsClient({ stats, userGrowth, cardGrowth, planDist }: Pro
           )}
         </div>
 
-        {/* Quick numbers table */}
+        {/* Additional numbers not already shown as stat cards above */}
         <div className="bg-white border border-[#E5E0D4] rounded-2xl p-6">
           <h2 className="font-display font-semibold text-[16px] text-[#0F1F18] mb-1">Platform summary</h2>
           <p className="text-[12px] text-[#6B7A72] mb-5">Key numbers at a glance</p>
           <div className="space-y-3">
             {[
-              { label: 'Total users',         value: stats.totalUsers },
-              { label: 'Paid users',          value: stats.paidUsers },
-              { label: 'Free users',          value: stats.totalUsers - stats.paidUsers },
               { label: 'Conversion rate',     value: `${conversionRate}%` },
-              { label: 'Total events',        value: stats.totalEvents },
               { label: 'Published events',    value: stats.publishedEvents },
-              { label: 'Total registrations',  value: stats.totalRegistrations },
-      { label: 'Cards shared',        value: stats.totalCards },
-              { label: 'New users (30d)',     value: stats.newUsersThisMonth },
             ].map(row => (
               <div key={row.label} className="flex items-center justify-between py-2 border-b border-[#E5E0D4] last:border-0">
                 <span className="text-[12px] text-[#6B7A72]">{row.label}</span>

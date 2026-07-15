@@ -20,7 +20,7 @@ export default function CheckEmailPage() {
         style={{ border: "1px solid #E5E0D4", boxShadow: "0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(15,31,24,0.06)" }}
       >
         <div className="inline-flex h-12 w-12 rounded-2xl items-center justify-center mb-4" style={{ background: "rgba(31,77,58,0.08)" }}>
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1F4D3A" strokeWidth="2" strokeLinecap="round">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0F1F18" strokeWidth="2" strokeLinecap="round">
             <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
             <polyline points="22,6 12,13 2,6"/>
           </svg>

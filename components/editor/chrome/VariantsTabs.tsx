@@ -19,8 +19,6 @@ interface VariantsTabsProps {
   handleDeleteVariant: (id: string) => Promise<void>;
   handleDuplicateVariant: (id: string) => Promise<void>;
   onAddVariant: () => void;
-  bgW: number;
-  bgH: number;
 }
 
 export default function VariantsTabs({
@@ -30,7 +28,6 @@ export default function VariantsTabs({
   renameValue, setRenameValue,
   switchVariant, handleRenameVariant, handleDeleteVariant, handleDuplicateVariant,
   onAddVariant,
-  bgW, bgH,
 }: VariantsTabsProps) {
   return (
     <div
@@ -205,21 +202,8 @@ export default function VariantsTabs({
         <Plus size={12} strokeWidth={2.5} />Add variant
       </button>
 
-      {/* Spacer + canvas dims */}
+      {/* Spacer — canvas dims are already shown in the stage overlay chip, no need to repeat here */}
       <div className="flex-1" />
-      {bgW > 0 && bgH > 0 && (
-        <span
-          className="shrink-0 hidden sm:block"
-          style={{
-            fontFamily: 'Inter, system-ui, sans-serif',
-            fontSize: 10,
-            color: '#6B7A72',
-            letterSpacing: '0.04em',
-          }}
-        >
-          {bgW} &times; {bgH} px
-        </span>
-      )}
     </div>
   );
 }

@@ -184,7 +184,7 @@ export function RedemptionDashboard({ eventId, eventName, rows, error }: Props) 
                       </p>
                     </div>
                     <div className="text-right shrink-0">
-                      <span className="font-display font-semibold text-[20px] leading-none" style={{ color: '#1F4D3A' }}>
+                      <span className="font-display font-semibold text-[20px] leading-none" style={{ color: '#0F1F18' }}>
                         {r.redeemed.toLocaleString()}
                       </span>
                       <span className="text-[13px]" style={{ color: '#6B7A72' }}> / {r.holders.toLocaleString()}</span>

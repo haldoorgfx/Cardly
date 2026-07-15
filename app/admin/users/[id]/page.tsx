@@ -115,8 +115,6 @@ export default async function UserDetailPage({ params }: { params: { id: string 
           <Field label="User ID" value={<span className=" text-[12.5px] break-all">{profile.id}</span>} />
           <Field label="Email" value={profile.email ?? '—'} />
           <Field label="Name" value={profile.full_name ?? '—'} />
-          <Field label="Plan" value={<Badge style={planStyle}>{profile.plan}</Badge>} />
-          <Field label="Role" value={<Badge style={roleStyle}>{profile.role}</Badge>} />
           <Field label="Joined" value={new Date(profile.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })} />
           <Field label="Events created" value={eventCount} />
           <Field label="Cards generated" value={cardCount} />

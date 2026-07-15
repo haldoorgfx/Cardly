@@ -233,7 +233,7 @@ export function CommunityChatClient({ eventId, eventName, channels, initialMessa
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), sendMessage())}
-              placeholder={registrationId ? `Message #${activeChannel?.name ?? 'general'}` : 'Register to post a message'}
+              placeholder={registrationId ? `Message #${activeChannel?.name ?? 'general'}` : 'Message'}
               disabled={!registrationId || sending}
               className="flex-1 bg-transparent text-[14px] outline-none disabled:opacity-60"
               style={{ color: '#0F1F18' }}

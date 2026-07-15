@@ -17,7 +17,7 @@ export default function VariantPickerClient({ eventName, eventSlug, variants }: 
   return (
     <div
       className="min-h-screen flex flex-col items-center justify-center px-4 py-12"
-      style={{ background: 'linear-gradient(160deg, #070f0b 0%, #0F1F18 55%, #0a1810 100%)' }}
+      style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #163828 100%)' }}
     >
       <div className="w-full max-w-[375px]">
         <div className="text-center mb-10">

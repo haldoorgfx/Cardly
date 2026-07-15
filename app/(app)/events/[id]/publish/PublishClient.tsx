@@ -193,7 +193,7 @@ function RegistrationPreview({ eventName, dateLabel, venueLabel }: {
       <div style={{ flex: 1, padding: '10px 10px 0', display: 'flex', flexDirection: 'column', gap: 6 }}>
         {venueLabel && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 7, color: PT.inkSoft }}>
-            <div style={{ color: PT.primary, flexShrink: 0 }}>
+            <div style={{ color: PT.inkSoft, flexShrink: 0 }}>
               <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" />
               </svg>
@@ -531,7 +531,7 @@ export default function PublishClient({
               {ticketCount > 0 && (
                 <>
                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-                    <span style={{ width: 6, height: 6, borderRadius: '50%', background: PT.primary, display: 'block' }} />
+                    <span style={{ width: 6, height: 6, borderRadius: '50%', background: PT.muted, display: 'block' }} />
                     <span>{ticketCount} ticket type{ticketCount !== 1 ? 's' : ''}</span>
                   </span>
                   <span style={{ color: PT.borderStrong }}>·</span>
@@ -924,7 +924,7 @@ export default function PublishClient({
                 <div key={s.n} style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
                   <div style={{
                     width: 28, height: 28, borderRadius: '50%',
-                    background: PT.primary, color: PT.cream,
+                    background: PT.ink, color: PT.cream,
                     fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 700, fontSize: 13,
                     display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
                   }}>{s.n}</div>

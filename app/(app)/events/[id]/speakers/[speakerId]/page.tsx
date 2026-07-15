@@ -103,7 +103,7 @@ export default async function SpeakerDetailPage({ params }: Props) {
                 </span>
               )}
               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[12px] font-medium"
-                style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
+                style={{ background: '#E8EFEB', color: '#3A4A42' }}>
                 {TYPE_LABELS[speaker.speaker_type] ?? 'Speaker'}
               </span>
               {speaker.company && (

@@ -50,7 +50,7 @@ function ConfirmModal({ session, onClose, onConfirm, confirming }: { session: Se
         {/* Cover/header */}
         <div className="px-5 pt-6 pb-4" style={{ borderBottom: '1px solid #F0EDE6' }}>
           <div className="w-10 h-10 rounded-full flex items-center justify-center mb-3" style={{ background: '#E8EFEB' }}>
-            <CheckCircle2 size={20} style={{ color: '#1F4D3A' }} />
+            <CheckCircle2 size={20} style={{ color: '#3A4A42' }} />
           </div>
           <h3 className="font-display font-semibold text-[18px] mb-1" style={{ color: '#0F1F18', letterSpacing: '-0.01em' }}>
             Book your seat

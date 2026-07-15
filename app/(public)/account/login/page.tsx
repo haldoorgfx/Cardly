@@ -51,9 +51,9 @@ export default function AttendeeLoginPage() {
           </div>
         </div>
 
-        {/* Footer stat */}
+        {/* Footer tagline */}
         <div className="relative z-10" style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>
-          2M+ REGISTRATIONS · EAST AFRICA&apos;S EVENT MARKETPLACE
+          EAST AFRICA&apos;S EVENT MARKETPLACE
         </div>
       </div>
 

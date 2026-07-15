@@ -334,7 +334,7 @@ function PublishStep({
               {item.done && <Check size={11} strokeWidth={3} color="white" />}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[14px] font-medium" style={{ color: item.done ? '#1F4D3A' : '#0F1F18' }}>
+              <p className="text-[14px] font-medium" style={{ color: '#0F1F18' }}>
                 {item.label}
               </p>
               {!item.done && item.hint && (

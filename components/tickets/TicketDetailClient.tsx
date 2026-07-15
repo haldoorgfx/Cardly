@@ -244,7 +244,7 @@ function ReceiptModal({ reg, onClose }: { reg: Registration; onClose: () => void
             </div>
             <div className="flex justify-between items-center pt-3" style={{ borderTop: `1px solid ${BORDER}` }}>
               <span className="font-display font-semibold text-[15px]" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: INK }}>Total {isPaid ? 'paid' : ''}</span>
-              <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 19, color: FOREST }}>{isFree ? 'Free' : money(amount, currency)}</span>
+              <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 19, fontWeight: 700, color: INK }}>{isFree ? 'Free' : money(amount, currency)}</span>
             </div>
           </div>
 

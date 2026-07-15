@@ -43,7 +43,7 @@ export function AttendeeEntitlementRow({ ent, revoke, onUnredeem, onExtend, onTr
   return (
     <div className="bg-white rounded-2xl border p-4 sm:p-5" style={{ borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
       <div className="flex items-start gap-3">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl" style={{ background: '#F0EDE6', color: '#6B7A72' }}>
           <EntitlementIcon type={ent.type} size={19} strokeWidth={1.9} />
         </div>
         <div className="min-w-0 flex-1">

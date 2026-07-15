@@ -188,7 +188,7 @@ function AppCard({ app, onConfigure }: { app: Integration; onConfigure?: () => v
       <div className="flex items-center justify-between mb-3">
         <div
           className="h-10 w-10 rounded-xl flex items-center justify-center"
-          style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#1F4D3A' }}
+          style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#3A4A42' }}
         >
           {app.icon}
         </div>

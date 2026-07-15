@@ -5,10 +5,10 @@
 // Modes:
 //   preview     -> PreviewPanel
 //   multiselect -> MultiSelectPanel
-//   zone        -> children (RightRail from CanvasEditor) + LayersPanel + ShortcutsBlock
-//   event       -> EventPanel + LayersPanel + ShortcutsBlock
+//   zone        -> children (RightRail from CanvasEditor)
+//   event       -> EventPanel
 //
-// Layers and Shortcuts are ALWAYS rendered in this sidebar (below the top panel).
+// Layers and Shortcuts live in the LEFT rail (components/editor/leftRail/LeftRail.tsx), not here.
 
 import React from 'react';
 import {

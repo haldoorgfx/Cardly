@@ -84,7 +84,7 @@ export default function AboutPage() {
               fontSize: 'clamp(40px, 6vw, 64px)',
               lineHeight: 1.0,
               letterSpacing: '-0.02em',
-              color: C.primary,
+              color: C.ink,
               margin: '0 auto',
               maxWidth: 760,
             }}
@@ -133,7 +133,7 @@ export default function AboutPage() {
                 fontSize: 'clamp(30px, 4vw, 38px)',
                 letterSpacing: '-0.02em',
                 lineHeight: 1.05,
-                color: C.primary,
+                color: C.ink,
                 marginBottom: 28,
               }}
             >
@@ -407,7 +407,7 @@ export default function AboutPage() {
                 fontSize: 'clamp(26px, 3.5vw, 34px)',
                 letterSpacing: '-0.02em',
                 lineHeight: 1.1,
-                color: C.primary,
+                color: C.ink,
                 marginBottom: 20,
               }}
             >
@@ -531,7 +531,7 @@ export default function AboutPage() {
               fontWeight: 700,
               fontSize: 32,
               letterSpacing: '-0.02em',
-              color: C.primary,
+              color: C.ink,
               marginBottom: 8,
             }}
           >

@@ -483,7 +483,7 @@ export function DeveloperTab({ plan }: { plan: string }) {
       {/* API Keys */}
       <div className="bg-white rounded-2xl p-6 border" style={{ borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
         <div className="flex items-center gap-2 mb-4">
-          <Key size={15} strokeWidth={2} color="#1F4D3A" />
+          <Key size={15} strokeWidth={2} color="#6B7A72" />
           <div className="text-[13.5px] font-semibold text-[#0F1F18]">API keys</div>
           {plan === 'studio' && (
             <span className="ml-auto text-[12px] px-2 py-0.5 rounded-full" style={{ background: 'rgba(31,77,58,0.08)', color: '#1F4D3A' }}>
@@ -497,7 +497,7 @@ export function DeveloperTab({ plan }: { plan: string }) {
       {/* Webhooks */}
       <div className="bg-white rounded-2xl p-6 border" style={{ borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
         <div className="flex items-center gap-2 mb-4">
-          <Webhook size={15} strokeWidth={2} color="#1F4D3A" />
+          <Webhook size={15} strokeWidth={2} color="#6B7A72" />
           <div className="text-[13.5px] font-semibold text-[#0F1F18]">Webhooks</div>
           {plan === 'studio' && (
             <span className="ml-auto text-[12px] px-2 py-0.5 rounded-full" style={{ background: 'rgba(31,77,58,0.08)', color: '#1F4D3A' }}>

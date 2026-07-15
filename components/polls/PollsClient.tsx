@@ -50,7 +50,7 @@ function PollCard({ poll, eventId, registrationId, initialVote }: { poll: Poll; 
       {poll.is_closed && (
         <div className="text-[10px] font-semibold tracking-widest uppercase mb-3" style={{ color: '#6B7A72' }}>CLOSED</div>
       )}
-      <p className="font-display font-normal text-[20px] mb-4" style={{ color: '#1F4D3A', letterSpacing: '-0.015em' }}>{poll.question}</p>
+      <p className="font-display font-normal text-[20px] mb-4" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>{poll.question}</p>
 
       <div className="space-y-2.5">
         {options.sort((a, b) => a.position - b.position).map(opt => {

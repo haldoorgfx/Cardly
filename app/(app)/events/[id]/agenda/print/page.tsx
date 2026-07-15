@@ -93,7 +93,7 @@ export default async function AgendaPrintPage({ params }: Props) {
         {/* Days */}
         {grouped.map(([dateStr, daySessions]) => (
           <div key={dateStr} style={{ marginBottom: 40 }}>
-            <h2 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, color: '#1F4D3A', marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.06em', fontSize: 11 }}>
+            <h2 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, color: '#6B7A72', marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.06em', fontSize: 11 }}>
               {fmtDay(daySessions[0].starts_at)}
             </h2>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>

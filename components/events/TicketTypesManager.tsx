@@ -317,13 +317,13 @@ export function TicketTypesManager({ eventId, initialTickets, eventDates }: Prop
       {(ev.starts_at || ev.ends_at || ev.max_capacity !== null) && (
         <div
           className="mb-5 px-4 py-3 rounded-xl flex flex-wrap items-center gap-x-6 gap-y-2 text-[12.5px]"
-          style={{ background: '#E8EFEB', border: '1px solid rgba(31,77,58,0.2)', color: '#1F4D3A' }}
+          style={{ background: '#E8EFEB', border: '1px solid rgba(31,77,58,0.2)', color: '#3A4A42' }}
         >
           {(ev.starts_at || ev.ends_at) && (
             <span className="flex items-center gap-1.5">
               <CalendarDays size={13} strokeWidth={2} />
               {ev.starts_at && fmtDate(ev.starts_at)}
-              {ev.starts_at && ev.ends_at && <span style={{ color: 'rgba(31,77,58,0.5)' }}>→</span>}
+              {ev.starts_at && ev.ends_at && <span style={{ color: '#9BA8A1' }}>→</span>}
               {ev.ends_at && fmtDate(ev.ends_at)}
             </span>
           )}
@@ -331,8 +331,8 @@ export function TicketTypesManager({ eventId, initialTickets, eventDates }: Prop
             <span className="flex items-center gap-2 ml-auto">
               <Users size={13} strokeWidth={2} />
               <span>
-                <strong>{totalAllocated}</strong>
-                <span style={{ color: 'rgba(31,77,58,0.6)' }}> / {ev.max_capacity} spots allocated</span>
+                <strong style={{ color: '#0F1F18' }}>{totalAllocated}</strong>
+                <span style={{ color: '#6B7A72' }}> / {ev.max_capacity} spots allocated</span>
               </span>
               <div className="w-16 h-1.5 rounded-full" style={{ background: 'rgba(31,77,58,0.15)' }}>
                 <div

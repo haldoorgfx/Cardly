@@ -92,9 +92,9 @@ export default function AbstractSubmissionClient({
     return (
       <div className="text-center py-16">
         <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: '#E8EFEB' }}>
-          <Check size={24} strokeWidth={2.5} color="#1F4D3A" />
+          <Check size={24} strokeWidth={2.5} color="#0F1F18" />
         </div>
-        <h2 className="font-display font-normal text-[28px] mb-3" style={{ color: '#1F4D3A', letterSpacing: '-0.02em' }}>
+        <h2 className="font-display font-normal text-[28px] mb-3" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
           Abstract submitted
         </h2>
         <p className="text-[15px] max-w-[440px] mx-auto" style={{ color: '#6B7A72' }}>
@@ -233,7 +233,7 @@ export default function AbstractSubmissionClient({
       {step === 1 && (
         <div className="space-y-6">
           <div>
-            <div className="font-display font-medium text-[16px] mb-3" style={{ color: '#1F4D3A' }}>Primary author (you)</div>
+            <div className="font-display font-medium text-[16px] mb-3" style={{ color: '#0F1F18' }}>Primary author (you)</div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {(['name', 'email', 'affiliation'] as const).map(f => (
                 <input
@@ -266,7 +266,7 @@ export default function AbstractSubmissionClient({
           </div>
 
           <div>
-            <div className="font-display font-medium text-[16px] mb-3" style={{ color: '#1F4D3A' }}>Co-authors</div>
+            <div className="font-display font-medium text-[16px] mb-3" style={{ color: '#0F1F18' }}>Co-authors</div>
             <div className="space-y-3">
               {coAuthors.map((a, i) => (
                 <div key={i} className="grid grid-cols-1 sm:grid-cols-3 gap-3 relative">

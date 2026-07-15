@@ -275,8 +275,8 @@ export function CommunicationsView({ eventId, eventName, registrantCount, plan =
           {/* Confirmation email row */}
           <div className="grid items-center px-5 py-3.5" style={{ gridTemplateColumns: '1fr 120px 100px 155px', borderBottom: '1px solid #F5F0E8' }}>
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className="h-7 w-7 rounded-lg flex items-center justify-center shrink-0" style={{ background: 'rgba(31,77,58,0.08)' }}>
-                <Bell size={13} strokeWidth={2} style={{ color: '#1F4D3A' }} />
+              <div className="h-7 w-7 rounded-lg flex items-center justify-center shrink-0" style={{ background: '#F0EDE6' }}>
+                <Bell size={13} strokeWidth={2} style={{ color: '#6B7A72' }} />
               </div>
               <span className="text-[13px] truncate" style={{ color: '#0F1F18' }}>You&apos;re in! Here&apos;s everything you need</span>
             </div>
@@ -377,8 +377,8 @@ function CampaignCard({ subject, type, typeStyle, recipients, status, statusStyl
   return (
     <div className="px-4 py-3.5">
       <div className="flex items-start gap-2.5 mb-2.5">
-        <div className="h-7 w-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5" style={{ background: 'rgba(31,77,58,0.08)' }}>
-          <Bell size={13} strokeWidth={2} style={{ color: '#1F4D3A' }} />
+        <div className="h-7 w-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5" style={{ background: '#F0EDE6' }}>
+          <Bell size={13} strokeWidth={2} style={{ color: '#6B7A72' }} />
         </div>
         <span className="text-[13px] font-medium leading-snug" style={{ color: '#0F1F18' }}>{subject}</span>
       </div>

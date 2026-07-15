@@ -45,7 +45,7 @@ export default async function CitiesIndexPage() {
 
         <h1
           className="font-display font-semibold mb-2"
-          style={{ fontSize: 'clamp(24px,4vw,36px)', color: '#1F4D3A', letterSpacing: '-0.025em' }}
+          style={{ fontSize: 'clamp(24px,4vw,36px)', color: '#0F1F18', letterSpacing: '-0.025em' }}
         >
           Events by city
         </h1>

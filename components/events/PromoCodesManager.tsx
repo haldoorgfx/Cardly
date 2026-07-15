@@ -260,7 +260,7 @@ export function PromoCodesManager({ eventId, initialCodes, eventDates }: Props) 
           <button
             onClick={() => setShowImport(true)}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-medium border transition hover:bg-[#F5F3EE]"
-            style={{ borderColor: '#E5E0D4', color: '#1F4D3A' }}
+            style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}
           >
             <Upload size={15} />
             Import

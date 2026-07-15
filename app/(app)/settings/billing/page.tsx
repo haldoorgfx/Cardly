@@ -290,10 +290,10 @@ export default async function BillingPage({
             <div className="flex items-center gap-3 p-3 rounded-xl border border-border">
               <div
                 className="h-9 w-12 rounded-lg grid place-items-center shrink-0"
-                style={{ background: '#1F4D3A' }}
+                style={{ background: '#0F1F18' }}
               >
                 <svg width="20" height="14" viewBox="0 0 20 14" fill="none">
-                  <rect width="20" height="14" rx="2" fill="#1F4D3A"/>
+                  <rect width="20" height="14" rx="2" fill="#0F1F18"/>
                   <rect x="0" y="4" width="20" height="3" fill="rgba(232,197,126,0.4)"/>
                   <rect x="2" y="9" width="6" height="2" rx="0.5" fill="rgba(250,246,238,0.5)"/>
                 </svg>

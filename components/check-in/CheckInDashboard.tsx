@@ -120,7 +120,7 @@ function PhoneScannerModal({ eventId, onClose }: { eventId: string; onClose: () 
             ].map((step, i) => (
               <div key={i} className="flex items-start gap-3">
                 <span className="w-5 h-5 rounded-full grid place-items-center text-[12.5px] font-bold shrink-0 mt-0.5"
-                  style={{ background: '#E8EFEB', color: '#1F4D3A' }}>{i + 1}</span>
+                  style={{ background: '#E8EFEB', color: '#3A4A42' }}>{i + 1}</span>
                 <span className="text-[13px]" style={{ color: '#3A4A42' }}>{step}</span>
               </div>
             ))}
@@ -242,7 +242,7 @@ function AttendeeModal({ reg, eventId, onClose, onCheckedIn }: {
               <span className="text-[13px]" style={{ color: '#6B7A72' }}>Status</span>
               <span className={`text-[12.5px] uppercase px-2 py-0.5 rounded-full ${
                 isAlreadyIn ? 'bg-emerald-50 text-emerald-700' :
-                reg.status === 'pending' ? 'bg-amber-50 text-amber-700' : 'bg-[#E8EFEB] text-[#1F4D3A]'
+                reg.status === 'pending' ? 'bg-amber-50 text-amber-700' : 'bg-[#E8EFEB] text-[#3A4A42]'
               }`}>
                 {isAlreadyIn ? 'checked in' : reg.status}
               </span>

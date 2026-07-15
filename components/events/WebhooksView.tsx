@@ -118,7 +118,7 @@ export function WebhooksView(_props: Props) {
         className="flex items-start gap-2.5 px-4 py-3 rounded-xl mb-7 text-[12.5px]"
         style={{ background: '#F5F7F5', border: '1px solid #E5E0D4' }}
       >
-        <Key size={14} strokeWidth={2} style={{ color: '#1F4D3A', flexShrink: 0, marginTop: 1 }} />
+        <Key size={14} strokeWidth={2} style={{ color: '#6B7A72', flexShrink: 0, marginTop: 1 }} />
         <span style={{ color: '#3A4A42' }}>
           Each endpoint gets a signing secret. Verify the{' '}
           <code className="px-1 py-0.5 rounded text-[12.5px]" style={{ background: '#EDE9E0' }}>

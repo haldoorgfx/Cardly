@@ -316,7 +316,7 @@ export function ApprovalFlowClient({ eventId, eventName, eventSlug, questions }:
           <div className="rounded-2xl p-8 text-center" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
             <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
               style={{ background: '#E8EFEB' }}>
-              <Clock size={28} style={{ color: '#1F4D3A' }} />
+              <Clock size={28} style={{ color: '#0F1F18' }} />
             </div>
             <h2 className="font-display font-bold text-[22px] mb-2" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
               Application submitted

@@ -380,12 +380,11 @@ export function SponsorsClient({ eventId, sponsors: initial }: Props) {
         />
 
         {/* Stats */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
           {[
             { label: 'Sponsors',         value: sponsors.length, accent: false },
             { label: 'Total leads',      value: totalLeads || '—', accent: false },
             { label: 'Booths assigned',  value: booths, accent: false },
-            { label: 'Portal links generated', value: sponsors.length, accent: true },
           ].map(s => (
             <div key={s.label} className="bg-white rounded-2xl p-5" style={{ border: '1px solid #E5E0D4' }}>
               <div className="text-[12px] tracking-[0.12em] uppercase mb-2" style={{ color: '#6B7A72' }}>{s.label}</div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { IdCard, Share2, Sparkles, Palette, Plus, Printer, FileImage, ScanLine, ArrowRight } from 'lucide-react';
+import { IdCard, Share2, Sparkles, Palette, Plus, Printer, ScanLine, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { PageShell, PageHeader } from '@/components/dash';
 
@@ -81,28 +81,6 @@ export function EventeraCardView({ eventName, eventSlug, eventStatus, totalCards
         }
       />
 
-      {/* ── No design state ── */}
-      {!hasDesign && (
-        <div
-          className="flex items-center justify-between gap-4 px-5 py-4 rounded-xl mb-7"
-          style={{ background: 'rgba(232,197,126,0.1)', border: '1px solid rgba(232,197,126,0.35)' }}
-        >
-          <div className="flex items-center gap-2.5">
-            <FileImage size={15} strokeWidth={2} style={{ color: '#C9A45E', flexShrink: 0 }} />
-            <span className="text-[13px]" style={{ color: '#3A4A42' }}>
-              No card design uploaded yet. Upload your event design to generate personalised cards for every attendee.
-            </span>
-          </div>
-          <Link
-            href={`/events/${eventSlug}/edit`}
-            className="shrink-0 inline-flex items-center gap-1.5 h-8 px-3.5 rounded-lg text-[12.5px] font-semibold transition hover:opacity-90"
-            style={{ background: '#1F4D3A', color: 'white' }}
-          >
-            Upload design →
-          </Link>
-        </div>
-      )}
-
       {/* ── Main grid ── */}
       <div className="grid lg:grid-cols-[280px_1fr] gap-6">
 
@@ -171,7 +149,6 @@ export function EventeraCardView({ eventName, eventSlug, eventStatus, totalCards
               value={sharedCards.toLocaleString()}
               sub={totalCards > 0 && sharedCards > 0 ? `${Math.round((sharedCards / totalCards) * 100)}% of registrants` : 'Via registration flow'}
               icon={<Share2 size={15} strokeWidth={2} />}
-              accent
             />
           </div>
 
@@ -323,21 +300,21 @@ export function EventeraCardView({ eventName, eventSlug, eventStatus, totalCards
 /* ── Sub-components ── */
 
 function StatCard({
-  label, value, sub, icon, accent,
+  label, value, sub, icon,
 }: {
-  label: string; value: string; sub?: string; icon: React.ReactNode; accent?: boolean;
+  label: string; value: string; sub?: string; icon: React.ReactNode;
 }) {
   return (
     <div
       className="rounded-2xl p-4"
       style={{
-        background: accent ? 'rgba(31,77,58,0.06)' : 'white',
-        border: accent ? '1px solid rgba(31,77,58,0.2)' : '1px solid #E5E0D4',
+        background: 'white',
+        border: '1px solid #E5E0D4',
       }}
     >
       <div className="flex items-center justify-between mb-3">
         <span className="text-[12.5px] font-medium" style={{ color: '#6B7A72', letterSpacing: '0.03em' }}>{label}</span>
-        <span style={{ color: accent ? '#1F4D3A' : '#6B7A72' }}>{icon}</span>
+        <span style={{ color: '#6B7A72' }}>{icon}</span>
       </div>
       <p className="text-[26px] font-bold leading-none" style={{ color: '#0F1F18' }}>{value}</p>
       {sub && <p className="text-[12px] mt-1.5" style={{ color: '#6B7A72' }}>{sub}</p>}

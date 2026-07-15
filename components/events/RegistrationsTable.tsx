@@ -621,7 +621,7 @@ function ImportCSVModal({ eventId, ticketTypes, onClose, onImported }: {
               >
                 <Upload size={22} style={{ color: dragging ? '#1F4D3A' : '#9BA8A1' }} />
                 {fileName ? (
-                  <span className="text-[13px] font-medium" style={{ color: '#1F4D3A' }}>{fileName}</span>
+                  <span className="text-[13px] font-medium" style={{ color: '#0F1F18' }}>{fileName}</span>
                 ) : (
                   <>
                     <span className="text-[13px] font-medium" style={{ color: '#0F1F18' }}>Drop your CSV here, or click to browse</span>
@@ -1242,7 +1242,7 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
       {/* ── Bulk action bar ── */}
       {selected.size > 0 && (
         <div className="flex flex-wrap items-center gap-2 mb-3 px-4 py-2.5 rounded-xl" style={{ background: '#E8EFEB', border: '1px solid rgba(31,77,58,0.25)' }}>
-          <span className="text-[13px] font-semibold" style={{ color: '#1F4D3A' }}>{selected.size} selected</span>
+          <span className="text-[13px] font-semibold" style={{ color: '#0F1F18' }}>{selected.size} selected</span>
           <div className="flex items-center gap-2 ml-auto">
             <button
               onClick={() => bulkStatus('checked_in')}
@@ -1256,7 +1256,7 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
               onClick={exportSelected}
               disabled={bulkBusy}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12.5px] font-medium border transition hover:bg-white disabled:opacity-50"
-              style={{ borderColor: '#C9C3B1', color: '#1F4D3A', background: 'white' }}
+              style={{ borderColor: '#C9C3B1', color: '#3A4A42', background: 'white' }}
             >
               <Download size={13} strokeWidth={2} /> Export
             </button>

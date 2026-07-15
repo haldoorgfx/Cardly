@@ -91,7 +91,7 @@ export default function MobileFallback({ eventId, eventName, variantSlug }: Mobi
             width: 92, height: 92, borderRadius: '50%',
             background: '#E8EFEB',
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-            color: '#1F4D3A',
+            color: '#3A4A42',
           }}>
             <Monitor size={42} strokeWidth={1.6} />
             {/* Phone "no" overlay */}
@@ -137,7 +137,7 @@ export default function MobileFallback({ eventId, eventName, variantSlug }: Mobi
           }}>
             <div style={{
               width: 28, height: 28, borderRadius: '50%',
-              background: '#1F4D3A', color: '#E8C57E',
+              background: '#0F1F18', color: '#E8C57E',
               fontFamily: 'DM Sans, sans-serif', fontWeight: 700, fontSize: 11,
               display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
               flexShrink: 0,
@@ -198,7 +198,7 @@ export default function MobileFallback({ eventId, eventName, variantSlug }: Mobi
             background: '#E8EFEB',
             borderRadius: 999,
             fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10,
-            color: '#1F4D3A', letterSpacing: '0.04em',
+            color: '#3A4A42', letterSpacing: '0.04em',
           }}>
             <Smartphone size={12} strokeWidth={1.8} />
             <span>Editing on phone · coming later</span>

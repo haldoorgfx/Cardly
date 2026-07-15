@@ -191,7 +191,7 @@ export function GroupRegistrationClient({ eventId, eventName, eventSlug, tickets
         <div className="ml-auto flex items-center gap-2">
           {remaining !== null && (
             <span className="text-[12px] font-medium px-2.5 py-0.5 rounded-full"
-              style={{ background: remaining <= 5 ? '#FEF3C7' : '#E8EFEB', color: remaining <= 5 ? '#92400E' : '#1F4D3A' }}>
+              style={{ background: remaining <= 5 ? '#FEF3C7' : '#E8EFEB', color: remaining <= 5 ? '#92400E' : '#0F1F18' }}>
               {remaining} spot{remaining !== 1 ? 's' : ''} left
             </span>
           )}

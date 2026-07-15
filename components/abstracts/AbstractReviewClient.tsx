@@ -125,7 +125,7 @@ export default function AbstractReviewClient({
             { label: 'pending review', value: counts.pending },
           ].map(s => (
             <span key={s.label} className="text-[14px]" style={{ color: '#6B7A72' }}>
-              <b className="font-title font-bold text-[16px]" style={{ color: '#1F4D3A' }}>{s.value}</b>{' '}{s.label}
+              <b className="font-title font-bold text-[16px]" style={{ color: '#0F1F18' }}>{s.value}</b>{' '}{s.label}
             </span>
           ))}
         </div>
@@ -173,7 +173,7 @@ export default function AbstractReviewClient({
                     background: activeId === a.id ? '#E8EFEB' : 'transparent',
                   }}
                 >
-                  <div className="text-[14px] font-medium leading-snug mb-1" style={{ color: '#1F4D3A' }}>{a.title}</div>
+                  <div className="text-[14px] font-medium leading-snug mb-1" style={{ color: '#0F1F18' }}>{a.title}</div>
                   <div className="text-[12px] mb-2" style={{ color: '#6B7A72' }}>{a.authors?.split('·')[0]?.trim()}</div>
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="inline-flex items-center h-5 px-2.5 rounded-full text-[11px] font-medium" style={{ background: '#F0EBE3', color: '#3A4A42' }}>
@@ -196,7 +196,7 @@ export default function AbstractReviewClient({
             <div className="py-16 text-center text-[14px]" style={{ color: '#6B7A72' }}>Select an abstract to review.</div>
           ) : (
             <>
-              <h2 className="font-display font-normal text-[24px] mb-2" style={{ color: '#1F4D3A', letterSpacing: '-0.015em' }}>
+              <h2 className="font-display font-normal text-[24px] mb-2" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
                 {active.title}
               </h2>
               <p className="text-[15px] mb-3" style={{ color: '#6B7A72' }}>{active.authors}</p>
@@ -230,7 +230,7 @@ export default function AbstractReviewClient({
 
               {/* Review panel */}
               <div className="rounded-2xl p-6 mt-2" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
-                <h3 className="font-display font-medium text-[16px] mb-4" style={{ color: '#1F4D3A' }}>Review decision</h3>
+                <h3 className="font-display font-medium text-[16px] mb-4" style={{ color: '#0F1F18' }}>Review decision</h3>
 
                 <div className="flex flex-wrap gap-2 mb-4">
                   {DECISIONS.map(d => (

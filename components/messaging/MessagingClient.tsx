@@ -197,7 +197,7 @@ export default function MessagingClient({ eventId, registrationId, embedded = fa
       {/* Left: inbox */}
       <aside className="max-h-[50vh] lg:max-h-full" style={{ borderRight: '1px solid #E5E0D4', display: 'flex', flexDirection: 'column', background: 'white' }}>
         <div className="flex items-center justify-between px-5 py-4 shrink-0" style={{ borderBottom: '1px solid #E5E0D4' }}>
-          <span className="font-display font-medium text-[16px]" style={{ color: '#1F4D3A' }}>Messages</span>
+          <span className="font-display font-medium text-[16px]" style={{ color: '#0F1F18' }}>Messages</span>
         </div>
 
         <div className="flex-1 overflow-y-auto">
@@ -232,7 +232,7 @@ export default function MessagingClient({ eventId, registrationId, embedded = fa
                     {initials(t.other_participant_name)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-[15px] truncate" style={{ color: '#1F4D3A', fontWeight: unread ? 600 : 500 }}>
+                    <div className="text-[15px] truncate" style={{ color: '#0F1F18', fontWeight: unread ? 600 : 500 }}>
                       {t.other_participant_name}
                     </div>
                     <div className="text-[13px] truncate mt-0.5" style={{ color: '#6B7A72' }}>
@@ -266,7 +266,7 @@ export default function MessagingClient({ eventId, registrationId, embedded = fa
               >
                 {initials(activeThread.other_participant_name)}
               </div>
-              <div className="font-display font-medium text-[17px]" style={{ color: '#1F4D3A' }}>
+              <div className="font-display font-medium text-[17px]" style={{ color: '#0F1F18' }}>
                 {activeThread.other_participant_name}
               </div>
             </div>

@@ -133,7 +133,7 @@ export default async function BoothPage({ params }: Props) {
                       className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5"
                       style={{ background: '#E8EFEB' }}
                     >
-                      <Check size={11} strokeWidth={2.4} color="#1F4D3A" />
+                      <Check size={11} strokeWidth={2.4} color="#3A4A42" />
                     </span>
                     <span className="text-[15px] leading-snug" style={{ color: '#3A4A42' }}>{item}</span>
                   </div>

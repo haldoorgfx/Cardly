@@ -111,7 +111,7 @@ export default async function RevenuePrintPage({ params }: Props) {
                   {b.price != null && b.price > 0 ? fmtCurrency(b.price, currency) : 'Free'}
                 </td>
                 <td style={{ padding: '10px 10px', color: '#3A4A42', fontWeight: 600 }}>{b.sold}</td>
-                <td style={{ padding: '10px 10px', color: b.rev > 0 ? '#1F4D3A' : '#9BA8A1', fontWeight: 700 }}>
+                <td style={{ padding: '10px 10px', color: b.rev > 0 ? '#0F1F18' : '#9BA8A1', fontWeight: 700 }}>
                   {b.rev > 0 ? fmtCurrency(b.rev, currency) : '—'}
                 </td>
               </tr>
