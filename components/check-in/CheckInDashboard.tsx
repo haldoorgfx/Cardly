@@ -62,7 +62,7 @@ function PhoneScannerModal({ eventId, onClose }: { eventId: string; onClose: () 
   const [copied, setCopied] = useState(false);
 
   const scannerUrl = typeof window !== 'undefined'
-    ? `${window.location.origin}/events/${eventId}/check-in`
+    ? `${window.location.origin}/events/${eventId}/check-in?scan=1`
     : '';
 
   useEffect(() => {
@@ -291,7 +291,9 @@ function Row({ label, value, mono, muted }: { label: string; value: string; mono
 export default function CheckInDashboard({
   eventId, eventSlug, eventName, eventStatus, totalRegistrations, initialCheckedIn, recentCheckins,
 }: Props) {
-  const [scannerOpen, setScannerOpen]         = useState(false);
+  const [scannerOpen, setScannerOpen]         = useState(
+    typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('scan') === '1'
+  );
   const [phoneModalOpen, setPhoneModalOpen]   = useState(false);
   const [checkedIn, setCheckedIn]             = useState(initialCheckedIn);
   const [perHour, setPerHour]                 = useState(0);

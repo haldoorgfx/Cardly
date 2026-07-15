@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: 'Terms of Service',
@@ -122,8 +123,10 @@ export default function TermsPage() {
               Depending on your plan, Eventera may charge a subscription fee, a
               per-ticket fee on paid registrations, or both — current pricing is
               at{' '}
-              {(process.env.NEXT_PUBLIC_APP_URL ?? '').replace(/^https?:\/\//, '')}
-              /pricing. Payouts to organizers, and the timing of those payouts,
+              <Link href="/pricing" className="text-primary underline">
+                {(process.env.NEXT_PUBLIC_APP_URL ?? '').replace(/^https?:\/\//, '')}/pricing
+              </Link>
+              . Payouts to organizers, and the timing of those payouts,
               are governed by the connected payment processor&apos;s payout
               schedule and rules, which Eventera does not control.
             </p>
@@ -234,8 +237,11 @@ export default function TermsPage() {
             </h2>
             <p>
               The Free plan is free forever. Paid plans (Pro and Studio) are
-              available by subscription. Current pricing is listed at
-              {(process.env.NEXT_PUBLIC_APP_URL ?? '').replace(/^https?:\/\//, '')}/pricing. Prices may change; we will give you at least
+              available by subscription. Current pricing is listed at{' '}
+              <Link href="/pricing" className="text-primary underline">
+                {(process.env.NEXT_PUBLIC_APP_URL ?? '').replace(/^https?:\/\//, '')}/pricing
+              </Link>
+              . Prices may change; we will give you at least
               30 days&apos; notice before changing the price of an active
               subscription.
             </p>
