@@ -47,11 +47,25 @@ export default async function LiveDisplayPage({ params }: { params: Promise<{ id
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: polls } = await (admin as any)
     .from('polls')
-    .select('id, question, options, is_active')
+    .select('id, question, is_active, poll_options(id, text, votes_count, position)')
     .eq('event_id', id)
     .eq('is_active', true)
+    .eq('is_closed', false)
     .order('created_at', { ascending: false })
     .limit(1);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const rawPoll = polls?.[0] as any;
+  const activePoll = rawPoll
+    ? {
+        id: rawPoll.id,
+        question: rawPoll.question,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        options: (rawPoll.poll_options ?? [])
+          .sort((a: { position: number }, b: { position: number }) => a.position - b.position)
+          .map((o: { text: string; votes_count: number }) => ({ label: o.text, votes: o.votes_count })),
+      }
+    : null;
 
   return (
     <LiveDisplayClient
@@ -59,7 +73,7 @@ export default async function LiveDisplayPage({ params }: { params: Promise<{ id
       eventName={event.name}
       sessionLabel={(eventPage as { title?: string } | null)?.title ?? event.name}
       initialQuestions={questions ?? []}
-      activePoll={polls?.[0] ?? null}
+      activePoll={activePoll}
     />
   );
 }

@@ -36,6 +36,16 @@ export default function QAModerationClient({ eventId, eventSlug, initialQuestion
         const data = await res.json() as { questions: QAQuestion[] };
         if (data.questions) setQuestions(data.questions);
       } catch {}
+      try {
+        const res = await fetch(`/api/events/${eventId}/polls?active=true`);
+        const data = await res.json() as { polls: Poll[] };
+        if (data.polls) setPolls(prev => {
+          // Refresh vote counts on active polls; keep any already-closed ones as-is.
+          const activeIds = new Set(data.polls.map(p => p.id));
+          const untouched = prev.filter(p => !activeIds.has(p.id));
+          return [...data.polls, ...untouched];
+        });
+      } catch {}
     }, 15000);
     return () => clearInterval(iv);
   }, [eventId]);

@@ -125,7 +125,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
     { id: 'audit',          label: 'Audit log',      iconId: 'audit',     desc: 'Every pass action, fully traceable',        href: `/events/${slug}/analytics/audit`, badge: null },
     { id: 'networking',     label: 'Networking',     iconId: 'network',   desc: 'Attendee connections and matchmaking',      href: `/e/${event.slug}/people`,        badge: null, minPlan: 'pro' },
     { id: 'q-and-a',        label: 'Q&A & Polls',    iconId: 'message',   desc: 'Live session engagement',                  href: `/events/${slug}/q-and-a`,        badge: null, minPlan: 'pro' },
-    { id: 'gamification',   label: 'Gamification',   iconId: 'trophy',    desc: 'Points, leaderboard and badges',            href: `/events/${slug}/gamification`,   badge: null, minPlan: 'pro' },
+    { id: 'gamification',   label: 'Gamification',   iconId: 'trophy',    desc: 'Points and leaderboard for attendees',      href: `/events/${slug}/gamification`,   badge: null, minPlan: 'pro' },
     { id: 'sponsors',       label: 'Sponsors',       iconId: 'briefcase', desc: 'Manage sponsors and exhibitors',            href: `/events/${slug}/sponsors`,       badge: null, minPlan: 'studio' },
     { id: 'virtual',        label: 'Virtual',        iconId: 'video',     desc: 'Stream sessions online',                   href: `/events/${slug}/virtual`,        badge: null, minPlan: 'studio' },
     { id: 'analytics',      label: 'Analytics',      iconId: 'chart',     desc: 'Registration funnel and engagement data',  href: `/events/${slug}/analytics`,      badge: 'View →' },

@@ -37,9 +37,10 @@ function useLiveClock() {
   return time;
 }
 
-export function LiveDisplayClient({ eventId, sessionLabel, initialQuestions, activePoll }: Props) {
+export function LiveDisplayClient({ eventId, sessionLabel, initialQuestions, activePoll: initialActivePoll }: Props) {
   const [mode, setMode] = useState<Mode>('qa');
   const [questions, setQuestions] = useState<Question[]>(initialQuestions);
+  const [activePoll, setActivePoll] = useState<Poll | null>(initialActivePoll);
   const time = useLiveClock();
 
   const refresh = useCallback(async () => {
@@ -50,11 +51,33 @@ export function LiveDisplayClient({ eventId, sessionLabel, initialQuestions, act
     }
   }, [eventId]);
 
+  const refreshPoll = useCallback(async () => {
+    const res = await fetch(`/api/events/${eventId}/polls?active=true`);
+    if (res.ok) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { polls } = await res.json() as { polls: any[] };
+      const p = polls?.[0];
+      if (p) {
+        setActivePoll({
+          id: p.id,
+          question: p.question,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          options: (p.poll_options ?? [])
+            .sort((a: { position: number }, b: { position: number }) => a.position - b.position)
+            .map((o: { text: string; votes_count: number }) => ({ label: o.text, votes: o.votes_count })),
+        });
+      } else {
+        setActivePoll(null);
+      }
+    }
+  }, [eventId]);
+
   // Auto-refresh every 15s
   useEffect(() => {
     const id = setInterval(refresh, 15_000);
-    return () => clearInterval(id);
-  }, [refresh]);
+    const pollId = setInterval(refreshPoll, 15_000);
+    return () => { clearInterval(id); clearInterval(pollId); };
+  }, [refresh, refreshPoll]);
 
   const top4 = questions.slice(0, 4);
 
