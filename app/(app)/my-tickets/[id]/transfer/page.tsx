@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect, notFound } from 'next/navigation';
 import { TicketTransferClient } from '@/components/tickets/TicketTransferClient';
+import { registrationOwnershipFilter } from '@/lib/registration/ownership';
 
 export async function generateMetadata() {
   return { title: 'Transfer Ticket' };
@@ -21,7 +22,7 @@ export default async function TicketTransferPage({ params }: { params: Promise<{
     .from('registrations')
     .select('id, attendee_name, attendee_email, status, qr_code_token, ticket_types(name, price, currency), events(name, id, event_pages(title, starts_at, venue_name, cover_image_url))')
     .eq('id', id)
-    .or(`attendee_email.eq.${user.email?.toLowerCase()},user_id.eq.${user.id}`)
+    .or(registrationOwnershipFilter(user.id, user.email))
     .in('status', ['confirmed', 'pending_approval'])
     .maybeSingle();
 
