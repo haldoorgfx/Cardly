@@ -46,7 +46,7 @@
 //   floatBarPos: {left,top}|null    — line 132 — floating toolbar position
 //   toolbarOffset: {dx,dy}          — line 133 — toolbar drag offset
 //   history: HistoryState           — line 138 — {past: Zone[][], future: Zone[][]}
-//   isMobile: boolean               — line 155 — viewport < 900px
+//   isMobile: boolean               — line 155 — viewport < 768px
 //
 // -- Refs --------------------------------------------------------------------
 //   stageRef: HTMLDivElement        — line 141 — outer scrollable stage (for zoom/pan scroll)
@@ -107,7 +107,7 @@
 //   fitZoom()                       — line 818 — recalculate zoom to fit stage
 //
 // -- useEffects --------------------------------------------------------------
-//   Mobile detection                — line 156 — window.innerWidth < 900 -> isMobile
+//   Mobile detection                — line 156 — window.innerWidth < 768 -> isMobile
 //   Google Fonts inject             — line 163 — appends <link> to <head> once
 //   Floating toolbar position       — line 173 — computes floatBarPos from selected zone + zoom
 //   Reset toolbar drag offset       — line 192 — clears toolbarOffset on selection change
@@ -1116,7 +1116,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
 
   /* -- Mobile gate — canvas editor requires desktop (<768px) -- */
   if (isMobile) {
-    return <MobileFallback eventId={eventId} eventName={nameVal} />;
+    return <MobileFallback eventId={eventId} eventName={nameVal} variantSlug={eventSlug} />;
   }
 
   // Determine right sidebar mode

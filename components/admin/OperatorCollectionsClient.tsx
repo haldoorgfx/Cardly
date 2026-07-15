@@ -97,7 +97,7 @@ export function OperatorCollectionsClient({ collections, promoted: dbPromoted }:
       <div className="max-w-5xl mx-auto px-6 py-8">
 
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between flex-wrap gap-3 mb-6">
           <div>
             <h1 className="font-display font-bold text-[28px]" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
               Marketplace curation
@@ -108,7 +108,7 @@ export function OperatorCollectionsClient({ collections, promoted: dbPromoted }:
           </div>
           <button
             onClick={() => setNotice('Collection creation is managed server-side for now — new collections are seeded via migration. A create form is coming to this panel.')}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-semibold transition hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1F4D3A]"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-semibold transition hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1F4D3A] shrink-0"
             style={{ background: '#1F4D3A', color: '#FAF6EE' }}>
             <Plus size={15} /> New collection
           </button>

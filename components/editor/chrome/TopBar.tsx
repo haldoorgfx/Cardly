@@ -44,7 +44,7 @@ export default function TopBar({
 }: TopBarProps) {
   return (
     <header
-      className="bg-white border-b border-border flex items-center px-4 gap-3 shrink-0 z-10"
+      className="bg-white border-b border-border flex items-center px-4 gap-3 shrink-0 z-10 overflow-x-auto"
       style={{ height: 52 }}
     >
       {/* Left — back + breadcrumb */}

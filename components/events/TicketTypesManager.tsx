@@ -783,19 +783,19 @@ function TicketCard({
         boxShadow: isEditing ? '0 0 0 3px rgba(31,77,58,0.12)' : '0 1px 2px rgba(15,31,24,0.04)',
       }}
     >
-      <div className="flex items-center gap-3 px-4 py-3.5">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3.5">
         {/* Reorder */}
         <div className="flex flex-col gap-0.5 shrink-0">
-          <button onClick={() => onMove(-1)} disabled={idx === 0} className="h-5 w-5 rounded flex items-center justify-center transition disabled:opacity-20" style={{ color: '#6B7A72' }}>
+          <button onClick={() => onMove(-1)} disabled={idx === 0} className="h-7 w-7 rounded flex items-center justify-center transition disabled:opacity-20" style={{ color: '#6B7A72' }}>
             <ChevronUp size={13} strokeWidth={2.5} />
           </button>
-          <button onClick={() => onMove(1)} disabled={idx === total - 1} className="h-5 w-5 rounded flex items-center justify-center transition disabled:opacity-20" style={{ color: '#6B7A72' }}>
+          <button onClick={() => onMove(1)} disabled={idx === total - 1} className="h-7 w-7 rounded flex items-center justify-center transition disabled:opacity-20" style={{ color: '#6B7A72' }}>
             <ChevronDown size={13} strokeWidth={2.5} />
           </button>
         </div>
 
         {/* Name + meta */}
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-[140px]">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="font-medium text-[14px]" style={{ color: ticket.is_visible ? '#0F1F18' : '#6B7A72' }}>
               {ticket.name}

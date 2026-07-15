@@ -60,9 +60,9 @@ export function FlagsAdminClient({ initialFlags }: Props) {
 
                 {/* Info */}
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-[13.5px] font-semibold text-[#0F1F18]">{flag.label}</span>
-                    <span className=" text-[12px] text-[#6B7A72]/60">{flag.flag}</span>
+                    <span className="text-[12px] text-[#6B7A72]/60 break-all">{flag.flag}</span>
                   </div>
                   {flag.description && (
                     <p className="text-[12.5px] text-[#6B7A72] mt-0.5 leading-relaxed">{flag.description}</p>

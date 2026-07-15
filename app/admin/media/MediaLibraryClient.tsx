@@ -325,7 +325,7 @@ export function MediaLibraryClient({
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="mt-8 flex items-center justify-center gap-2">
+            <div className="mt-8 flex items-center justify-center flex-wrap gap-2">
               {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
                 <button
                   key={p}
@@ -335,7 +335,7 @@ export function MediaLibraryClient({
                     if (p > 1) params.set('page', String(p));
                     router.push(`/admin/media?${params.toString()}`);
                   }}
-                  className={`w-8 h-8 rounded-lg text-[13px] font-medium transition-colors ${
+                  className={`w-8 h-8 shrink-0 rounded-lg text-[13px] font-medium transition-colors ${
                     p === page
                       ? 'bg-[#1F4D3A] text-white'
                       : 'border border-[#E5E0D4] text-[#3A4A42] hover:bg-[#FAF6EE]'

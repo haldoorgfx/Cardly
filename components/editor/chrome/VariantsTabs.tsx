@@ -31,7 +31,7 @@ export default function VariantsTabs({
 }: VariantsTabsProps) {
   return (
     <div
-      className="shrink-0 flex items-center px-4 gap-1.5"
+      className="shrink-0 flex items-center px-4 gap-1.5 overflow-x-auto"
       style={{
         height: 40,
         background: '#FAF6EE',

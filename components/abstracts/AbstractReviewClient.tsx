@@ -130,12 +130,12 @@ export default function AbstractReviewClient({
           ))}
         </div>
 
-        <div className="flex gap-0" style={{ borderBottom: '1px solid #E5E0D4' }}>
+        <div className="flex gap-0 overflow-x-auto" style={{ borderBottom: '1px solid #E5E0D4' }}>
           {FILTER_TABS.map(t => (
             <button
               key={t.key}
               onClick={() => setTab(t.key)}
-              className="px-4 py-2.5 text-[13px] font-medium transition-colors border-b-2 -mb-px"
+              className="px-4 py-2.5 text-[13px] font-medium transition-colors border-b-2 -mb-px shrink-0 whitespace-nowrap"
               style={{
                 color: tab === t.key ? '#1F4D3A' : '#6B7A72',
                 borderBottomColor: tab === t.key ? '#1F4D3A' : 'transparent',

@@ -656,8 +656,8 @@ function ImportCSVModal({ eventId, ticketTypes, onClose, onImported }: {
                       Preview — {validRows.length} valid · {invalidRows.length > 0 ? `${invalidRows.length} invalid` : 'none invalid'}
                     </span>
                   </div>
-                  <div className="rounded-xl overflow-hidden" style={{ border: '1px solid #E5E0D4', maxHeight: 240, overflowY: 'auto' }}>
-                    <table className="w-full text-left">
+                  <div className="rounded-xl overflow-x-auto" style={{ border: '1px solid #E5E0D4', maxHeight: 240, overflowY: 'auto' }}>
+                    <table className="w-full text-left" style={{ minWidth: 420 }}>
                       <thead style={{ background: '#FAF6EE', position: 'sticky', top: 0 }}>
                         <tr>
                           {['Name', 'Email', 'Phone', ''].map(h => (
