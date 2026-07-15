@@ -2,17 +2,17 @@
 
 import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Check, ChevronLeft, ArrowRight, Plus, X, CalendarDays, Ticket, Layout } from 'lucide-react';
+import { Check, ChevronLeft, ArrowRight, Plus, X, CalendarDays, Ticket, Layout, Laptop, Music, Building2, Globe2, Church, Sparkles } from 'lucide-react';
 
 const STEPS = ['Welcome', 'Organization', 'Brand', 'First event', 'Invite team', 'Done'];
 
 const EVENT_TYPES = [
-  { id: 'tech',       label: 'Tech conference' },
-  { id: 'festival',   label: 'Festival / concert' },
-  { id: 'corporate',  label: 'Corporate / brand' },
-  { id: 'ngo',        label: 'NGO / community' },
-  { id: 'religious',  label: 'Religious' },
-  { id: 'other',      label: 'Something else' },
+  { id: 'tech',       label: 'Tech conference',      icon: Laptop },
+  { id: 'festival',   label: 'Festival / concert',   icon: Music },
+  { id: 'corporate',  label: 'Corporate / brand',    icon: Building2 },
+  { id: 'ngo',        label: 'NGO / community',      icon: Globe2 },
+  { id: 'religious',  label: 'Religious',            icon: Church },
+  { id: 'other',      label: 'Something else',       icon: Sparkles },
 ];
 
 const PRESETS = [
@@ -24,7 +24,7 @@ const PRESETS = [
 
 type Accent = { id: string; label: string; grad: string; ring: string };
 
-const INPUT = 'w-full bg-white border border-[#E5E0D4] rounded-xl px-3.5 py-3 text-[14.5px] text-[#0F1F18] placeholder:text-[#6B7A72]/60 focus:border-[#E8C57E] outline-none transition-colors';
+const INPUT = 'w-full bg-white border border-[#E5E0D4] rounded-xl px-3.5 py-3 text-[14.5px] text-[#0F1F18] placeholder:text-[#6B7A72]/60 focus:border-[#1F4D3A] focus:shadow-[0_0_0_3px_rgba(31,77,58,0.15)] outline-none transition-colors';
 const LABEL = 'block  text-[11.5px] tracking-[0.14em] uppercase text-[#6B7A72] mb-1.5';
 
 function MiniCard({ accent, name = 'Your Name', role = 'Attendee', eventLabel = 'Africa Tech Fest' }: {
@@ -187,10 +187,10 @@ export default function OnboardingClient() {
       {/* ── Left progress panel ── */}
       <div
         className="hidden lg:flex flex-col px-8 py-8 relative overflow-hidden"
-        style={{ background: 'linear-gradient(165deg,#0D1F17,#1F4D3A 65%,#235741)', color: '#FAF6EE' }}
+        style={{ background: '#163828', color: '#FAF6EE' }}
       >
         <div className="relative flex items-center gap-2.5 mb-12">
-          <span className="w-8 h-8 rounded-lg" style={{ background: 'linear-gradient(135deg,#FAF6EE,#E8C57E)' }} />
+          <span className="w-8 h-8 rounded-lg" style={{ background: '#E8C57E' }} />
           <span className="font-display text-[20px] font-bold tracking-tight">Eventera</span>
         </div>
 
@@ -232,7 +232,7 @@ export default function OnboardingClient() {
       </div>
 
       {/* ── Right content ── */}
-      <div className="flex flex-col min-h-screen" style={{ background: '#EFE9DC' }}>
+      <div className="flex flex-col min-h-screen" style={{ background: '#FAF6EE' }}>
         {/* Mobile progress bar */}
         <div className="lg:hidden h-1.5" style={{ background: '#E5E0D4' }}>
           <div
@@ -249,7 +249,7 @@ export default function OnboardingClient() {
             {step === 0 && (
               <div>
                 <h1 className="font-display text-[30px] font-semibold tracking-[-0.025em]" style={{ color: '#0F1F18' }}>
-                  Welcome to Eventera 👋
+                  Welcome to Eventera
                 </h1>
                 <p className="mt-3 text-[15px] leading-[1.6]" style={{ color: '#3A4A42' }}>
                   Let&apos;s tailor your workspace. What kind of events do you run?
@@ -257,6 +257,7 @@ export default function OnboardingClient() {
                 <div className="mt-7 grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {EVENT_TYPES.map(t => {
                     const on = evType === t.id;
+                    const Icon = t.icon;
                     return (
                       <button
                         key={t.id}
@@ -269,10 +270,10 @@ export default function OnboardingClient() {
                         }}
                       >
                         <span
-                          className="w-9 h-9 rounded-xl grid place-items-center shrink-0 text-[18px]"
+                          className="w-9 h-9 rounded-xl grid place-items-center shrink-0"
                           style={{ background: on ? '#1F4D3A' : '#E8EFEB', color: on ? '#FAF6EE' : '#1F4D3A' }}
                         >
-                          {t.id === 'tech' ? '💻' : t.id === 'festival' ? '🎵' : t.id === 'corporate' ? '🏢' : t.id === 'ngo' ? '🌍' : t.id === 'religious' ? '🕊️' : '✨'}
+                          <Icon size={17} strokeWidth={2} />
                         </span>
                         <span className="text-[13px] font-medium" style={{ color: '#0F1F18' }}>{t.label}</span>
                       </button>
@@ -295,7 +296,7 @@ export default function OnboardingClient() {
                   {/* Logo upload */}
                   <div className="flex items-center gap-4">
                     <label
-                      className="w-16 h-16 rounded-2xl border-2 border-dashed grid place-items-center shrink-0 cursor-pointer transition-colors hover:border-[#E8C57E] overflow-hidden"
+                      className="w-16 h-16 rounded-2xl border-2 border-dashed grid place-items-center shrink-0 cursor-pointer transition-colors hover:border-[#1F4D3A] overflow-hidden"
                       style={{
                         borderColor: logoPreview ? 'transparent' : 'rgba(31,77,58,0.35)',
                         background: logoPreview ? 'transparent' : 'white',
@@ -389,9 +390,9 @@ export default function OnboardingClient() {
 
                           {/* Custom color controls — inline below the Custom button */}
                           {a.id === 'custom' && on && (
-                            <div className="mt-2 p-4 rounded-2xl border border-[#E5E0D4] flex flex-col gap-3" style={{ background: '#FDFAF6' }}>
+                            <div className="mt-2 p-4 rounded-2xl border border-[#E5E0D4] flex flex-col gap-3" style={{ background: '#FAF6EE' }}>
                               {/* Solid / Gradient toggle */}
-                              <div className="flex gap-1 p-1 rounded-lg" style={{ background: '#F0EDE5' }}>
+                              <div className="flex gap-1 p-1 rounded-lg" style={{ background: '#E8EFEB' }}>
                                 {(['solid', 'gradient'] as const).map(m => (
                                   <button
                                     key={m}
@@ -556,7 +557,7 @@ export default function OnboardingClient() {
         {/* ── Footer nav ── */}
         <div
           className="border-t px-6 sm:px-10 py-4"
-          style={{ borderColor: '#E5E0D4', background: 'rgba(239,233,220,0.8)', backdropFilter: 'blur(8px)' }}
+          style={{ borderColor: '#E5E0D4', background: 'rgba(250,246,238,0.8)', backdropFilter: 'blur(8px)' }}
         >
           <div className="max-w-[600px] mx-auto flex items-center justify-between">
             {step > 0 && step < 5 ? (
