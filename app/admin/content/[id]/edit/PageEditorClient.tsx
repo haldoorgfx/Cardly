@@ -530,17 +530,26 @@ export function PageEditorClient({ page }: { page: CmsPageWithBlocks }) {
 function getDefaultContent(type: BlockType): Record<string, unknown> {
   const defaults: Partial<Record<BlockType, Record<string, unknown>>> = {
     hero: { eyebrow: '', headline: 'Your headline here', subheadline: '', buttons: [], layout: 'split' },
-    sectionHeader: { eyebrow: '', heading: 'Section heading', subtext: '', align: 'center' },
+    sectionHeader: { eyebrow: '', headline: 'Section heading', subtext: '', align: 'center' },
     richText: { html: '<p>Your content here.</p>' },
-    featuresGrid: { header: { heading: 'Features' }, features: [], background: 'light', columns: 3 },
-    stepsGrid: { header: { heading: 'How it works' }, steps: [], layout: 'horizontal' },
-    faqAccordion: { header: { heading: 'FAQ' }, items: [] },
+    featuresGrid: { header: { headline: 'Features' }, cards: [], background: 'light', columns: 3 },
+    stepsGrid: { header: { headline: 'How it works' }, steps: [], layout: 'horizontal' },
+    faqAccordion: { header: { headline: 'FAQ' }, items: [] },
     cta: { headline: 'Ready to get started?', subtext: '', buttons: [], background: 'default' },
     logoStrip: { eyebrow: 'Used by', logos: [] },
-    pricingCards: { header: { heading: 'Pricing' }, plans: [] },
-    testimonial: { quote: '', author: '', role: '', company: '' },
-    teamGrid: { header: { heading: 'Our team' }, members: [] },
+    pricingCards: { header: { headline: 'Pricing' }, plans: [] },
+    comparisonTable: { header: { headline: 'Compare plans' }, groups: [] },
+    testimonial: { quote: '', authorName: '', authorRole: '' },
+    teamGrid: { header: { headline: 'Our team' }, members: [] },
+    pressSection: { label: 'As seen in', mentions: [] },
+    useCasesGrid: { header: { headline: 'Use cases' }, cases: [], columns: 2 },
+    tabInterface: { tabs: [] },
+    contactChannels: { header: { headline: 'Get in touch' }, channels: [], reasons: [] },
+    categoryGrid: { header: { headline: 'Categories' }, categories: [] },
+    programCards: { header: { headline: 'Programs' }, programs: [] },
+    proseSections: { eyebrow: '', headline: 'Untitled page', sections: [] },
     statsStrip: { stats: [] },
+    videoDemo: { label: '', headline: 'See it in action', placeholder: 'Demo video' },
   };
   return defaults[type] ?? { content: '' };
 }

@@ -17,7 +17,7 @@ function StatusBadge({ status }: { status: 'draft' | 'published' }) {
   );
 }
 
-export function ContentAdminClient({ initialPages }: { initialPages: CmsPage[] }) {
+export function ContentAdminClient({ initialPages, blockCounts = {} }: { initialPages: CmsPage[]; blockCounts?: Record<string, number> }) {
   const [pages, setPages] = useState<CmsPage[]>(initialPages);
 
   // Bulk selection
@@ -161,7 +161,7 @@ export function ContentAdminClient({ initialPages }: { initialPages: CmsPage[] }
               <div className=" text-[12.5px] text-[#6B7A72] mt-0.5">/{page.slug}</div>
             </div>
             <div className="text-[13px] text-[#6B7A72] text-right px-6">
-              —
+              {blockCounts[page.id] ?? 0}
             </div>
             <div className="px-6">
               <StatusBadge status={page.status} />
