@@ -16,7 +16,7 @@ interface Props {
 }
 
 const POPULAR_SEARCHES = ['Fintech', 'Design Week', 'Tech Summit', 'Networking', 'Music Festival', 'Workshop'];
-const CITIES = ['Lagos', 'Nairobi', 'Accra', 'Dakar', 'Cape Town', 'Kigali', 'Abidjan', 'Cairo'];
+const CITIES = ['Djibouti City', 'Addis Ababa', 'Nairobi', 'Mogadishu', 'Dubai', 'Cairo', 'Lagos', 'Cape Town'];
 
 function fmtDate(iso: string) {
   return new Date(iso).toLocaleDateString('en', { month: 'short', day: 'numeric', year: 'numeric' });

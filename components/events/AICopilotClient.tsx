@@ -109,7 +109,7 @@ export function AICopilotClient({ eventId, eventName, stats }: Props) {
       {/* Header */}
       <div className="px-5 py-4 border-b flex items-center gap-3" style={{ background: '#FFFFFF', borderColor: '#E5E0D4' }}>
         <div className="w-9 h-9 rounded-xl flex items-center justify-center"
-          style={{ background: 'linear-gradient(135deg, #1F4D3A, #E8C57E)' }}>
+          style={{ background: '#1F4D3A' }}>
           <Sparkles size={16} style={{ color: '#FAF6EE' }} />
         </div>
         <div>
@@ -143,7 +143,7 @@ export function AICopilotClient({ eventId, eventName, stats }: Props) {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-5 py-5 space-y-4">
+      <div className="flex-1 overflow-y-auto px-5 py-5 space-y-4" role="log" aria-live="polite" aria-label="Copilot conversation">
         {messages.map(msg => (
           <div key={msg.id} className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
             <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
@@ -168,7 +168,7 @@ export function AICopilotClient({ eventId, eventName, stats }: Props) {
         {loading && (
           <div className="flex gap-3">
             <div className="w-8 h-8 rounded-full flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg, #1F4D3A, #E8C57E)' }}>
+              style={{ background: '#1F4D3A' }}>
               <Sparkles size={13} style={{ color: '#FAF6EE' }} />
             </div>
             <div className="px-4 py-3 rounded-2xl rounded-tl-sm" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
@@ -204,10 +204,11 @@ export function AICopilotClient({ eventId, eventName, stats }: Props) {
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), send())}
             placeholder="Ask about your event…"
+            aria-label="Ask AI Copilot about your event"
             className="flex-1 bg-transparent text-[14px] outline-none"
             style={{ color: '#0F1F18' }}
           />
-          <button onClick={() => send()} disabled={!input.trim() || loading}
+          <button onClick={() => send()} disabled={!input.trim() || loading} aria-label="Send message"
             className="w-9 h-9 rounded-xl flex items-center justify-center transition hover:opacity-80 disabled:opacity-30"
             style={{ background: '#1F4D3A', color: '#FAF6EE' }}>
             <Send size={15} />

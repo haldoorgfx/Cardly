@@ -208,13 +208,14 @@ export function ERAButton({ label = 'ERA', plan, onFetch, onApply, requiresStudi
           style={{ color: 'rgba(255,255,255,0.6)', padding: '2px' }}
           onMouseEnter={e => { e.currentTarget.style.color = 'white'; }}
           onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.6)'; }}
+          aria-label="Dismiss"
         >
           <X size={13} strokeWidth={2} />
         </button>
       </div>
 
       {/* Content */}
-      <div className="px-4 py-3.5" style={{ background: '#F5F9F6' }}>
+      <div className="px-4 py-3.5" style={{ background: '#E8EFEB' }}>
         <p className="text-[13px] whitespace-pre-wrap" style={{ color: '#0F1F18', lineHeight: 1.7 }}>{result}</p>
       </div>
 
