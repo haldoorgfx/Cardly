@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { assertOwnsRegistration } from '@/lib/attendee-identity';
+import { getEventOwnerPlan } from '@/lib/billing/can';
 import { z } from 'zod';
 import {
   sendConnectionRequestEmail,
   sendConnectionAcceptedEmail,
 } from '@/lib/email';
+
+const PLAN_RANK: Record<string, number> = { free: 0, pro: 1, studio: 2 };
 
 const RequestSchema = z.object({
   requester_id: z.string().uuid(),
@@ -98,6 +101,14 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const identity = await assertOwnsRegistration(params.id, requester_id);
   if (!identity.ok) {
     return NextResponse.json({ error: identity.error }, { status: identity.status });
+  }
+
+  // Networking (connections) is a Pro-plan feature (see app/(app)/events/[id]/page.tsx
+  // ACTION_CARDS minPlan and UpgradeSlideOver) — enforce server-side using the EVENT
+  // OWNER's plan, since the caller here is an attendee, not the organizer.
+  const ownerPlan = await getEventOwnerPlan(params.id);
+  if (!ownerPlan || PLAN_RANK[ownerPlan] < PLAN_RANK.pro) {
+    return NextResponse.json({ error: 'Networking requires the organizer to be on the Pro plan.' }, { status: 402 });
   }
 
   const admin = createAdminClient();

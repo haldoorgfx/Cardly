@@ -2,7 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { assertOwnsRegistration } from '@/lib/attendee-identity';
 import { authorizeEventContent } from '@/lib/auth/event-content';
+import { getUserPlan } from '@/lib/billing/can';
 import { generateMatches, generateMatchesForOne } from '@/lib/matchmaking';
+
+const PLAN_RANK: Record<string, number> = { free: 0, pro: 1, studio: 2 };
 
 // GET /api/events/[id]/matches?registration_id=xxx
 // Returns cached match suggestions for an attendee. Generates on-demand if none exist.
@@ -132,6 +135,15 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 export async function POST(_req: NextRequest, { params }: { params: { id: string } }) {
   const auth = await authorizeEventContent(params.id);
   if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
+
+  // Networking / matchmaking is a Pro-plan feature (see app/(app)/events/[id]/page.tsx
+  // ACTION_CARDS minPlan and UpgradeSlideOver) — enforce server-side, not just the
+  // dashboard page gate. This also runs LLM generation over up to 200 attendees, so
+  // it must not be triggerable for a Free/no-plan event.
+  const plan = await getUserPlan(auth.userId);
+  if (PLAN_RANK[plan] < PLAN_RANK.pro) {
+    return NextResponse.json({ error: 'Matchmaking requires the Pro plan.' }, { status: 402 });
+  }
 
   const admin = createAdminClient();
 

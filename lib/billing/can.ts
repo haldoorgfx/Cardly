@@ -30,6 +30,25 @@ export async function getUserPlan(userId: string): Promise<Plan> {
   return (data.plan as Plan) ?? 'free';
 }
 
+/**
+ * Plan of the EVENT OWNER (events.user_id), not the caller. Several attendee-
+ * facing mutations (messaging, connections, matchmaking, Q&A) are gated by
+ * whether the organizer's plan includes that feature — the caller is an
+ * attendee/guest with no plan of their own. Returns null if the event doesn't
+ * exist, so callers can treat that as "not entitled" without crashing.
+ */
+export async function getEventOwnerPlan(eventId: string): Promise<Plan | null> {
+  const admin = createAdminClient();
+  const { data: event } = await admin
+    .from('events')
+    .select('user_id')
+    .eq('id', eventId)
+    .single();
+
+  if (!event?.user_id) return null;
+  return getUserPlan(event.user_id);
+}
+
 export async function canCreateEvent(userId: string): Promise<boolean> {
   const admin = createAdminClient();
   const plan = await getUserPlan(userId);
