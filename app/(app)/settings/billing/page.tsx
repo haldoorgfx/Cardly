@@ -168,7 +168,7 @@ export default async function BillingPage({
               <p className="text-[14px] text-[#3A4A42]">Checkout cancelled — no charge was made.</p>
             </div>
           )}
-          <BillingActions plan={plan} hasPortal={hasPortal} isTrialing={isTrialing} />
+          <BillingActions />
         </div>
       </>
     );

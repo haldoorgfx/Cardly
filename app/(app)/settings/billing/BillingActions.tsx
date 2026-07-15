@@ -33,26 +33,10 @@ const UPGRADE_PLANS: {
   },
 ];
 
-export default function BillingActions({
-  plan,
-  hasPortal,
-  isTrialing,
-}: {
-  plan: Plan;
-  hasPortal: boolean;
-  isTrialing: boolean;
-}) {
+export default function BillingActions() {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-
-  function openPortal() {
-    startTransition(async () => {
-      const res = await fetch('/api/billing/create-portal', { method: 'POST' });
-      const data = await res.json();
-      if (data.url) window.location.href = data.url;
-    });
-  }
 
   function checkout(targetPlan: Exclude<Plan, 'free'>, billingCycle: 'monthly' | 'annual') {
     setError(null);
@@ -74,31 +58,6 @@ export default function BillingActions({
         setError('Could not start checkout. Please check your connection and try again.');
       }
     });
-  }
-
-  if (plan !== 'free') {
-    return (
-      <div className="mt-4">
-        {hasPortal && (
-          <button
-            onClick={openPortal}
-            disabled={isPending}
-            className="mt-4 inline-flex items-center gap-2 h-9 px-4 rounded-lg text-[13px] font-medium transition-colors disabled:opacity-50"
-            style={{ background: '#fff', border: '1px solid #E5E0D4', color: '#0F1F18' }}
-          >
-            {isPending ? 'Loading…' : 'Manage billing →'}
-          </button>
-        )}
-        {isTrialing && (
-          <p className="mt-3 text-[12px] text-[#6B7A72]">
-            Your trial ends soon. Add a payment method to keep access.
-          </p>
-        )}
-        <p className="mt-2 text-[12px] text-[#6B7A72]">
-          Change plan, update payment method, or download invoices via the Stripe portal.
-        </p>
-      </div>
-    );
   }
 
   return (

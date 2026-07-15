@@ -1206,7 +1206,7 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
                     totalRegistered: total,
                     totalCheckedIn: checkedIn,
                     checkInRate: total > 0 ? Math.round((checkedIn / total) * 100) : 0,
-                    revenue: 0,
+                    revenue: Object.values(revenueByCurrency).reduce((a, b) => a + b, 0),
                     topSessions: [],
                     cardDownloads: cards,
                   },

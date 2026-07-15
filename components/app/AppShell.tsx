@@ -15,7 +15,7 @@ import {
   UserCircle, HelpCircle, Zap, ShoppingCart, Handshake, Clock, IdCard, Heart,
   Crown, Leaf, ArrowRight,
   Tag, Plug, Globe, Download, Link2, Code2, UserCog, Share2, Images, Monitor,
-  RefreshCw, Megaphone, Bot, MessageCircle,
+  RefreshCw, Megaphone, Bot, MessageCircle, Layers,
 } from 'lucide-react';
 
 type Profile = {
@@ -244,6 +244,7 @@ const USER_NAV_GROUPS: NavGroup[] = [
     { href: '/admin/registrations', label: 'Registrations',  icon: <Ticket size={15} strokeWidth={1.8} />,      matchPrefix: true, superAdminOnly: true },
     { href: '/admin/billing',       label: 'Revenue',        icon: <CreditCard size={15} strokeWidth={1.8} />,  matchPrefix: true, superAdminOnly: true },
     { href: '/admin/content',       label: 'Content',        icon: <FileText size={15} strokeWidth={1.8} />,    matchPrefix: true },
+    { href: '/admin/collections',   label: 'Collections',    icon: <Layers size={15} strokeWidth={1.8} />,      matchPrefix: true },
     { href: '/admin/media',         label: 'Media',          icon: <Images size={15} strokeWidth={1.8} />,      matchPrefix: true },
     { href: '/admin/templates',     label: 'Templates',      icon: <Layout size={15} strokeWidth={1.8} />,      matchPrefix: true, superAdminOnly: true },
     { href: '/admin/theme',         label: 'Theme',          icon: <Palette size={15} strokeWidth={1.8} />,     matchPrefix: true },
