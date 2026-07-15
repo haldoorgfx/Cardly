@@ -210,12 +210,12 @@ export function RegistrationFormBuilder({ eventId, initialFields }: Props) {
                 {/* Reorder */}
                 <div className="flex flex-col gap-0.5 shrink-0">
                   <button onClick={() => handleMove(idx, -1)} disabled={idx === 0}
-                    className="h-5 w-5 rounded flex items-center justify-center disabled:opacity-20"
+                    className="h-9 w-9 rounded flex items-center justify-center disabled:opacity-20"
                     style={{ color: '#65736B' }}>
                     <ChevronUp size={13} strokeWidth={2.5} />
                   </button>
                   <button onClick={() => handleMove(idx, 1)} disabled={idx === fields.length - 1}
-                    className="h-5 w-5 rounded flex items-center justify-center disabled:opacity-20"
+                    className="h-9 w-9 rounded flex items-center justify-center disabled:opacity-20"
                     style={{ color: '#65736B' }}>
                     <ChevronDown size={13} strokeWidth={2.5} />
                   </button>

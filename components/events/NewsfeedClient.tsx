@@ -132,8 +132,8 @@ export function NewsfeedClient({ eventId, eventName, initialPosts }: Props) {
                       </div>
                     </div>
                     <p className="flex-1 text-[13px] line-clamp-2" style={{ color: '#3A4A42' }}>{p.body}</p>
-                    <button onClick={() => removeScheduled(p.id)}
-                      className="shrink-0 w-6 h-6 rounded-md flex items-center justify-center transition hover:bg-[#FAF6EE]"
+                    <button onClick={() => removeScheduled(p.id)} aria-label="Remove scheduled post"
+                      className="shrink-0 w-10 h-10 rounded-md flex items-center justify-center transition hover:bg-[#FAF6EE]"
                       style={{ color: '#C9C3B1' }}>
                       <X size={12} />
                     </button>
