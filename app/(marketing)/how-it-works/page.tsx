@@ -180,7 +180,7 @@ export default function HowItWorksPage() {
           </div>
 
           <h1
-            className="font-title font-bold text-[#1F4D3A] leading-[1.0]"
+            className="font-title font-bold text-[#0F1F18] leading-[1.0]"
             style={{ fontSize: 'clamp(40px, 6vw, 64px)' }}
           >
             From first ticket to last card shared.

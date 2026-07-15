@@ -239,7 +239,7 @@ export default function UseCasesPage() {
           </div>
 
           <h1
-            className="font-title font-bold text-[#1F4D3A] leading-[1.02] max-w-[820px]"
+            className="font-title font-bold text-[#0F1F18] leading-[1.02] max-w-[820px]"
             style={{ fontSize: 'clamp(36px, 5.5vw, 56px)' }}
           >
             Whatever you&apos;re organizing, Eventera handles it.

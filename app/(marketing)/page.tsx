@@ -73,7 +73,7 @@ function Hero() {
           className="font-title font-bold leading-[1.0]"
           style={{
             fontSize: 'clamp(36px, 4.5vw, 60px)',
-            color: '#1F4D3A',
+            color: '#0F1F18',
             letterSpacing: '-0.035em',
           }}
         >
