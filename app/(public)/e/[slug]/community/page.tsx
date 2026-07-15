@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import { createAdminClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
+import { getEventFeatures, isSectionEnabled } from '@/lib/events/sectionGate';
 import { resolveViewerRegistrationId } from '@/lib/attendee/resolveViewerRegistration';
 import { CommunityChatClient } from '@/components/events/CommunityChatClient';
 
@@ -13,6 +14,8 @@ export default async function CommunityPage({ params, searchParams }: Props) {
   const resolved = await resolvePublicSlug(params.slug);
   if (!resolved) notFound();
   const { event } = resolved;
+  // 404 when the organizer has explicitly disabled this section.
+  if (!isSectionEnabled(await getEventFeatures(event.id), 'community')) notFound();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const adminAny = admin as any;

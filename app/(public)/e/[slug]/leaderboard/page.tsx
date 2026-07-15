@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { notFound } from 'next/navigation';
 import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
+import { getEventFeatures, isSectionEnabled } from '@/lib/events/sectionGate';
 import { resolveViewerRegistrationId } from '@/lib/attendee/resolveViewerRegistration';
 import { getLeaderboard } from '@/lib/events/leaderboard';
 import { LeaderboardView } from '@/components/events/LeaderboardView';
@@ -12,6 +13,8 @@ export default async function LeaderboardPage({ params, searchParams }: Props) {
   const resolved = await resolvePublicSlug(params.slug);
   if (!resolved) notFound();
   const { eventPageTitle, event } = resolved;
+  // Leaderboard is the "gamification" section; 404 when explicitly disabled.
+  if (!isSectionEnabled(await getEventFeatures(event.id), 'gamification')) notFound();
 
   const myReg = await resolveViewerRegistrationId(event.id, searchParams.reg);
   const { leaderboard, myEntry } = await getLeaderboard(event.id, myReg);

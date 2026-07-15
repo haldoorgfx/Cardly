@@ -4,6 +4,7 @@ import { createAdminClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import { WorkshopsClient } from '@/components/events/WorkshopsClient';
 import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
+import { getEventFeatures, isSectionEnabled } from '@/lib/events/sectionGate';
 import { resolveViewerRegistrationId } from '@/lib/attendee/resolveViewerRegistration';
 
 interface Props { params: { slug: string }; searchParams: { reg?: string } }
@@ -14,6 +15,9 @@ export default async function WorkshopsPage({ params, searchParams }: Props) {
   const resolved = await resolvePublicSlug(params.slug);
   if (!resolved) notFound();
   const { event } = resolved;
+  // Workshops are capacity-limited agenda sessions — gate with the schedule
+  // section; 404 when the organizer has explicitly disabled it.
+  if (!isSectionEnabled(await getEventFeatures(event.id), 'schedule')) notFound();
 
   // Resolve the viewer's registration from their session so booking works
   // when arriving from the hub without an explicit ?reg=.

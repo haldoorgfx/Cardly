@@ -252,6 +252,11 @@ export default function RegistrationClient({
   const [submitError, setSubmitError] = useState('');
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
+  // Returning-guest guard: logged-in users are pre-checked server-side, but
+  // guests aren't — so we check their email before letting them reach payment.
+  const [checkingDup, setCheckingDup] = useState(false);
+  const [guestAlreadyRegistered, setGuestAlreadyRegistered] = useState(false);
+
   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   // Derived
@@ -390,6 +395,31 @@ export default function RegistrationClient({
       else if (val < (selectedTicket!.min_price!)) errs.chosenPrice = `Minimum is ${selectedTicket!.currency} ${selectedTicket!.min_price}`;
     }
     return errs;
+  }
+
+  // Advance from Ticket/Details steps. On leaving Details we run the guest
+  // duplicate-email check so a returning guest sees "already registered" here,
+  // not after filling out payment. Never blocks on a network failure — the
+  // /register API still rejects true duplicates at submit.
+  async function handleContinue() {
+    if (step === 0) {
+      const errs = validateTicket();
+      if (Object.keys(errs).length > 0) { setFieldErrors(errs); return; }
+      setStep(1);
+      return;
+    }
+    if (step === 1) {
+      const errs = validateDetails();
+      if (Object.keys(errs).length > 0) { setFieldErrors(errs); return; }
+      setCheckingDup(true);
+      try {
+        const res = await fetch(`/api/events/${eventId}/check-email?email=${encodeURIComponent(email.trim().toLowerCase())}`);
+        const data = await res.json() as { registered?: boolean };
+        if (data.registered) { setGuestAlreadyRegistered(true); return; }
+      } catch { /* non-blocking — server-side check still catches it at submit */ }
+      finally { setCheckingDup(false); }
+      setStep(2);
+    }
   }
 
   const handleSubmit = async (overrideProcessor?: string) => {
@@ -609,7 +639,9 @@ export default function RegistrationClient({
   }
 
   // Caught up front: this attendee already has a registration for this event.
-  if (alreadyRegistered) {
+  // `alreadyRegistered` = logged-in server-side pre-check; `guestAlreadyRegistered`
+  // = returning guest caught by the email check when leaving the Details step.
+  if (alreadyRegistered || guestAlreadyRegistered) {
     return (
       <div className="min-h-screen flex items-center justify-center px-5 py-12" style={{ background: '#FAF6EE' }}>
         <div className="w-full max-w-[420px] bg-white rounded-2xl border p-8 text-center" style={{ borderColor: '#E5E0D4' }}>
@@ -1357,22 +1389,17 @@ export default function RegistrationClient({
           {/* Primary CTA */}
           {step < 2 ? (
             <button
-              onClick={() => {
-                if (step === 0) {
-                  const errs = validateTicket();
-                  if (Object.keys(errs).length > 0) { setFieldErrors(errs); return; }
-                }
-                if (step === 1) {
-                  const errs = validateDetails();
-                  if (Object.keys(errs).length > 0) { setFieldErrors(errs); return; }
-                }
-                setStep(s => (s + 1) as 0 | 1 | 2 | 3);
-              }}
-              disabled={step === 0 && !selectedTicket}
-              className="h-11 px-7 rounded-xl font-semibold text-[14px] text-white disabled:opacity-40 transition-opacity shrink-0"
+              onClick={handleContinue}
+              disabled={(step === 0 && !selectedTicket) || checkingDup}
+              className="h-11 px-7 rounded-xl font-semibold text-[14px] text-white disabled:opacity-40 transition-opacity shrink-0 flex items-center gap-2"
               style={{ background: '#1F4D3A' }}
             >
-              Continue →
+              {checkingDup && (
+                <svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <path d="M21 12a9 9 0 1 1-9-9" strokeLinecap="round" />
+                </svg>
+              )}
+              {checkingDup ? 'Checking…' : 'Continue →'}
             </button>
           ) : step === 2 ? (
             <button

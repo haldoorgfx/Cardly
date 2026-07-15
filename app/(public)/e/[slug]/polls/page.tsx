@@ -4,6 +4,7 @@ import { createAdminClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import PollsClient from '@/components/polls/PollsClient';
 import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
+import { getEventFeatures, isSectionEnabled } from '@/lib/events/sectionGate';
 import { resolveViewerRegistrationId } from '@/lib/attendee/resolveViewerRegistration';
 
 interface Props { params: { slug: string }; searchParams: { reg?: string } }
@@ -14,6 +15,8 @@ export default async function PollsPage({ params, searchParams }: Props) {
   const resolved = await resolvePublicSlug(params.slug);
   if (!resolved) notFound();
   const { eventPageTitle, event } = resolved;
+  // 404 when the organizer has explicitly disabled this section.
+  if (!isSectionEnabled(await getEventFeatures(event.id), 'polls')) notFound();
   const eventPage = { title: eventPageTitle };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
