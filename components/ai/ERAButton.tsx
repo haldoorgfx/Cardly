@@ -21,7 +21,7 @@ function ERABadge({ locked = false }: { locked?: boolean }) {
       style={{
         background: locked
           ? 'linear-gradient(135deg, #9AA89F 0%, #B8B2A2 100%)'
-          : 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 100%)',
+          : '#1F4D3A',
         color: 'white',
         borderRadius: '5px',
         fontSize: '10px',
@@ -194,7 +194,7 @@ export function ERAButton({ label = 'ERA', plan, onFetch, onApply, requiresStudi
       {/* Header */}
       <div
         className="flex items-center justify-between px-4 py-2.5"
-        style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 100%)' }}
+        style={{ background: '#1F4D3A' }}
       >
         <div className="flex items-center gap-2">
           <Sparkles size={13} strokeWidth={2} color="white" style={{ opacity: 0.9 }} />

@@ -162,7 +162,7 @@ export function GetCardModal({ variant, registrationId, eventId, attendeeName, o
             onClick={handleGenerate}
             disabled={generating}
             className="w-full flex items-center justify-center gap-2 h-12 rounded-xl text-white font-semibold text-[15px] transition hover:opacity-90 disabled:opacity-50"
-            style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 100%)', boxShadow: '0 4px 12px rgba(31,77,58,0.25)' }}
+            style={{ background: '#1F4D3A', boxShadow: '0 4px 12px rgba(31,77,58,0.25)' }}
           >
             {generating ? (
               <>

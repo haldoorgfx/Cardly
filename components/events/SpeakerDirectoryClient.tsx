@@ -132,7 +132,7 @@ export default function SpeakerDirectoryClient({ speakers, eventSlug }: Props) {
               ) : (
                 <div
                   className="absolute inset-0 flex items-center justify-center font-display font-semibold"
-                  style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 100%)', color: 'rgba(255,255,255,0.92)', fontSize: 56 }}
+                  style={{ background: '#1F4D3A', color: 'rgba(255,255,255,0.92)', fontSize: 56 }}
                 >
                   {getInitials(featuredSpeaker.name)}
                 </div>

@@ -80,7 +80,7 @@ function PostCard({ post, delay }: { post: BlogPost; delay: number }) {
       >
         <div
           className="h-[140px] relative"
-          style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 100%)' }}
+          style={{ background: '#1F4D3A' }}
         >
           <div
             aria-hidden

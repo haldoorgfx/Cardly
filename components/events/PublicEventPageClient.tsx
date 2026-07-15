@@ -385,7 +385,7 @@ function ERAQandA({ page, dateStr }: { page: EventPageRow; dateStr: string }) {
       </div>
       {answer && (
         <div className="mt-3 rounded-xl overflow-hidden" style={{ border: '1px solid rgba(31,77,58,0.18)', boxShadow: '0 2px 12px rgba(31,77,58,0.07)' }}>
-          <div className="flex items-center gap-2 px-4 py-2.5" style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 100%)' }}>
+          <div className="flex items-center gap-2 px-4 py-2.5" style={{ background: '#1F4D3A' }}>
             <Sparkles size={12} strokeWidth={2} color="white" style={{ opacity: 0.88 }} />
             <span className="text-[12px] font-bold tracking-[0.1em] uppercase" style={{ color: 'rgba(255,255,255,0.85)' }}>ERA Answer</span>
           </div>
