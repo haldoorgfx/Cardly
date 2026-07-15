@@ -15,7 +15,7 @@ const CATEGORIES = [
 
 const INPUT = 'w-full rounded-xl px-4 py-3 text-[15px] outline-none transition';
 const INPUT_STYLE = { background: 'white', border: '1px solid #E5E0D4', color: '#0F1F18' };
-const INPUT_FOCUS = 'focus:border-[#E8C57E] focus:ring-[3px] focus:ring-[rgba(232,197,126,0.15)]';
+const INPUT_FOCUS = 'focus:border-[#1F4D3A] focus:ring-[3px] focus:ring-[rgba(31,77,58,0.12)]';
 
 function countWords(text: string) {
   return text.trim().split(/\s+/).filter(Boolean).length;
@@ -139,8 +139,9 @@ export default function AbstractSubmissionClient({
       {step === 0 && (
         <div className="space-y-5">
           <div>
-            <label className="block text-[13px] font-medium mb-2" style={{ color: '#3A4A42' }}>Paper title</label>
+            <label htmlFor="cfp-title" className="block text-[13px] font-medium mb-2" style={{ color: '#3A4A42' }}>Paper title</label>
             <input
+              id="cfp-title"
               type="text"
               value={title}
               onChange={e => setTitle(e.target.value)}
@@ -151,8 +152,9 @@ export default function AbstractSubmissionClient({
           </div>
 
           <div>
-            <label className="block text-[13px] font-medium mb-2" style={{ color: '#3A4A42' }}>Abstract</label>
+            <label htmlFor="cfp-abstract" className="block text-[13px] font-medium mb-2" style={{ color: '#3A4A42' }}>Abstract</label>
             <textarea
+              id="cfp-abstract"
               value={abstract}
               onChange={e => setAbstract(e.target.value)}
               placeholder="Describe your paper in clear, accessible language…"
@@ -168,7 +170,7 @@ export default function AbstractSubmissionClient({
           </div>
 
           <div>
-            <label className="block text-[13px] font-medium mb-2" style={{ color: '#3A4A42' }}>Keywords</label>
+            <label htmlFor="cfp-keywords" className="block text-[13px] font-medium mb-2" style={{ color: '#3A4A42' }}>Keywords</label>
             <div
               className="flex flex-wrap gap-2 p-3 rounded-xl"
               style={{ border: '1px solid #E5E0D4', background: 'white', minHeight: 48 }}
@@ -180,12 +182,13 @@ export default function AbstractSubmissionClient({
                   style={{ background: '#E8EFEB', color: '#1F4D3A' }}
                 >
                   {kw}
-                  <button onClick={() => setKeywords(prev => prev.filter(k => k !== kw))}>
+                  <button type="button" aria-label={`Remove keyword ${kw}`} onClick={() => setKeywords(prev => prev.filter(k => k !== kw))}>
                     <X size={11} strokeWidth={2.5} />
                   </button>
                 </span>
               ))}
               <input
+                id="cfp-keywords"
                 type="text"
                 value={kwInput}
                 onChange={e => setKwInput(e.target.value)}
@@ -198,9 +201,10 @@ export default function AbstractSubmissionClient({
           </div>
 
           <div>
-            <label className="block text-[13px] font-medium mb-2" style={{ color: '#3A4A42' }}>Category</label>
+            <label htmlFor="cfp-category" className="block text-[13px] font-medium mb-2" style={{ color: '#3A4A42' }}>Category</label>
             <div className="relative">
               <select
+                id="cfp-category"
                 value={category}
                 onChange={e => setCategory(e.target.value)}
                 className={`${INPUT} appearance-none pr-10 ${INPUT_FOCUS}`}
@@ -242,6 +246,7 @@ export default function AbstractSubmissionClient({
                   value={primaryAuthor[f]}
                   onChange={e => setPrimaryAuthor(prev => ({ ...prev, [f]: e.target.value }))}
                   placeholder={f.charAt(0).toUpperCase() + f.slice(1)}
+                  aria-label={`Primary author ${f}`}
                   className={`${INPUT} ${INPUT_FOCUS}`}
                   style={INPUT_STYLE}
                 />
@@ -277,14 +282,17 @@ export default function AbstractSubmissionClient({
                       value={a[f]}
                       onChange={e => setCoAuthor(i, f, e.target.value)}
                       placeholder={f.charAt(0).toUpperCase() + f.slice(1)}
+                      aria-label={`Co-author ${i + 1} ${f}`}
                       className={`${INPUT} ${INPUT_FOCUS}`}
                       style={INPUT_STYLE}
                     />
                   ))}
                   <button
+                    type="button"
                     onClick={() => removeCoAuthor(i)}
                     className="absolute -right-6 top-3 text-[#B8423C] hover:text-[#8B1F1F] sm:static sm:col-span-3 sm:w-fit"
                     title="Remove co-author"
+                    aria-label={`Remove co-author ${i + 1}`}
                   >
                     <X size={14} />
                   </button>
@@ -324,9 +332,11 @@ export default function AbstractSubmissionClient({
                 <span className="text-[12px] w-24 shrink-0 pt-0.5" style={{ color: '#6B7A72' }}>{row.key}</span>
                 <span className="flex-1 text-[14px]" style={{ color: '#0F1F18' }}>{row.value}</span>
                 <button
+                  type="button"
                   onClick={() => setStep(i < 3 ? 0 : 1)}
                   className="text-[12px] shrink-0"
                   style={{ color: '#6B7A72' }}
+                  aria-label={`Edit ${row.key}`}
                 >
                   ✎
                 </button>

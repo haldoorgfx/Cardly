@@ -152,31 +152,33 @@ export default function WaitlistJoinClient({ slug, title, coverUrl, startsAt, ci
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div>
-              <label className="block text-[13px] font-medium mb-1.5" style={{ color: '#0F1F18' }}>
+              <label htmlFor="waitlist-name" className="block text-[13px] font-medium mb-1.5" style={{ color: '#0F1F18' }}>
                 Full name
               </label>
               <input
+                id="waitlist-name"
                 type="text"
                 value={name}
                 onChange={e => setName(e.target.value)}
                 required
                 placeholder="Your name"
                 className="w-full h-11 px-4 rounded-xl text-[14px] outline-none transition"
-                style={{ border: '1px solid #E5E0D4', background: '#FAFAF8', color: '#0F1F18' }}
+                style={{ border: '1px solid #E5E0D4', background: '#FAF6EE', color: '#0F1F18' }}
               />
             </div>
             <div>
-              <label className="block text-[13px] font-medium mb-1.5" style={{ color: '#0F1F18' }}>
+              <label htmlFor="waitlist-email" className="block text-[13px] font-medium mb-1.5" style={{ color: '#0F1F18' }}>
                 Email address
               </label>
               <input
+                id="waitlist-email"
                 type="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 required
                 placeholder="you@example.com"
                 className="w-full h-11 px-4 rounded-xl text-[14px] outline-none transition"
-                style={{ border: '1px solid #E5E0D4', background: '#FAFAF8', color: '#0F1F18' }}
+                style={{ border: '1px solid #E5E0D4', background: '#FAF6EE', color: '#0F1F18' }}
               />
             </div>
 

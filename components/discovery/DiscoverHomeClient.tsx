@@ -125,8 +125,8 @@ function citySlug(c: string) { return c.toLowerCase().replace(/\s+/g, '-'); }
 interface Opt { value: string; label: string }
 
 function Dropdown({
-  icon, value, placeholder, options, onChange,
-}: { icon: React.ReactNode; value: string; placeholder: string; options: Opt[]; onChange: (v: string) => void }) {
+  icon, label, value, placeholder, options, onChange,
+}: { icon: React.ReactNode; label: string; value: string; placeholder: string; options: Opt[]; onChange: (v: string) => void }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -145,6 +145,7 @@ function Dropdown({
   return (
     <div ref={ref} className="relative">
       <button type="button" onClick={() => setOpen(o => !o)}
+        aria-haspopup="listbox" aria-expanded={open} aria-label={`${label}: ${selected ? selected.label : placeholder}`}
         className="w-full flex items-center gap-2 h-[46px] px-3.5 rounded-xl text-[14px] transition"
         style={{ border: `1px solid ${open ? '#1F4D3A' : '#E5E0D4'}`, background: '#FAF6EE', color: isPlaceholder ? '#3A4A42' : '#0F1F18' }}>
         {icon}
@@ -152,12 +153,12 @@ function Dropdown({
         <ChevronDown size={16} style={{ color: '#6B7A72', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform .15s' }} />
       </button>
       {open && (
-        <div className="absolute z-40 mt-2 left-0 right-0 rounded-2xl p-1.5 overflow-y-auto"
+        <div role="listbox" aria-label={label} className="absolute z-40 mt-2 left-0 right-0 rounded-2xl p-1.5 overflow-y-auto"
           style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', boxShadow: '0 14px 40px rgba(15,31,24,0.18)', maxHeight: 288 }}>
           {options.map(o => {
             const sel = o.value === value;
             return (
-              <button key={o.value || '_'} type="button"
+              <button key={o.value || '_'} type="button" role="option" aria-selected={sel}
                 onClick={() => { onChange(o.value); setOpen(false); }}
                 className={`w-full flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl text-[14px] text-left transition ${sel ? '' : 'hover:bg-[#F5F2EA]'}`}
                 style={{ ...(sel ? { background: '#E8EFEB' } : {}), color: sel ? '#1F4D3A' : '#3A4A42', fontWeight: sel ? 600 : 500 }}>
@@ -395,24 +396,24 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents, ban
             <div className="grid grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_1fr_auto] gap-2.5 pt-3.5">
               <Dropdown
                 icon={<MapPin size={16} style={{ color: '#6B7A72', flexShrink: 0 }} />}
-                value={city} placeholder="Anywhere" onChange={setCity}
+                label="City" value={city} placeholder="Anywhere" onChange={setCity}
                 options={[{ value: '', label: 'Anywhere' }, ...cities.map(c => ({ value: c, label: c }))]}
               />
               <Dropdown
                 icon={<Calendar size={16} style={{ color: '#6B7A72', flexShrink: 0 }} />}
-                value={when} placeholder="Any time" onChange={setWhen}
+                label="When" value={when} placeholder="Any time" onChange={setWhen}
                 options={WHEN_OPTIONS}
               />
               <Dropdown
                 icon={<Tag size={16} style={{ color: '#6B7A72', flexShrink: 0 }} />}
-                value={activeCat} placeholder="Any category" onChange={setActiveCat}
+                label="Category" value={activeCat} placeholder="Any category" onChange={setActiveCat}
                 options={CATEGORIES.map(c => ({ value: c, label: c === 'All' ? 'Any category' : c }))}
               />
               <Dropdown
                 icon={format === 'online'
                   ? <Globe size={16} style={{ color: '#6B7A72', flexShrink: 0 }} />
                   : <Users size={16} style={{ color: '#6B7A72', flexShrink: 0 }} />}
-                value={format} placeholder="Any format" onChange={v => setFormat(v as FormatValue)}
+                label="Format" value={format} placeholder="Any format" onChange={v => setFormat(v as FormatValue)}
                 options={FORMAT_OPTIONS.map(f => ({ value: f.value, label: f.label }))}
               />
               {/* Search button */}
