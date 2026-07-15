@@ -70,7 +70,7 @@ export default async function RegisterPage({ params, searchParams }: Props) {
       .order('price', { ascending: true }),
     (admin as any)
       .from('event_pages')
-      .select('cover_image_url, starts_at, ends_at, city, payment_processor, payment_processors, registration_deadline')
+      .select('cover_image_url, starts_at, ends_at, timezone, city, payment_processor, payment_processors, registration_deadline')
       .eq('event_id', event.id)
       .single(),
     // Load all variants — client picks the one matching the selected ticket (or the default)
@@ -149,6 +149,7 @@ export default async function RegisterPage({ params, searchParams }: Props) {
           eventSubtitle={eventPageTitle ?? event.name}
           coverUrl={page?.cover_image_url ?? null}
           startsAt={page?.starts_at ?? null}
+          timezone={page?.timezone ?? null}
           city={page?.city ?? null}
           tickets={tickets as any}
           allVariants={allVariants}

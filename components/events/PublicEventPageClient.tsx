@@ -283,7 +283,7 @@ function TicketList({
           </Link>
         ) : (
           <Link href={registerHref}
-            className="flex items-center justify-center h-12 rounded-xl text-white font-semibold text-[15px] transition hover:opacity-90"
+            className="flex items-center justify-center h-12 rounded-xl font-semibold text-[15px] transition hover:opacity-90"
             style={{ background: '#E8C57E', color: '#0F1F18', textDecoration: 'none' }}>
             Get tickets
           </Link>
@@ -298,7 +298,7 @@ function TicketList({
 
         {page.registration_deadline && !registrationClosed && (
           <div className="mt-2 text-center text-[12px]" style={{ color: '#6B7A72' }}>
-            Registration closes {new Date(page.registration_deadline).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+            Registration closes {new Date(page.registration_deadline).toLocaleDateString(undefined, { month: 'short', day: 'numeric', timeZone: page.timezone || 'UTC' })}
           </div>
         )}
       </div>

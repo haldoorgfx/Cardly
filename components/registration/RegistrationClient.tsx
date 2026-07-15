@@ -49,6 +49,7 @@ interface Props {
   eventSubtitle: string;
   coverUrl: string | null;
   startsAt: string | null;
+  timezone: string | null;
   city: string | null;
   tickets: TicketType[];
   canvasVariant: CanvasVariant | null;
@@ -81,9 +82,9 @@ function fmt(price: number, currency: string) {
   }
 }
 
-function dateStr(iso: string | null) {
+function dateStr(iso: string | null, tz: string | null) {
   if (!iso) return '';
-  return new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+  return new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric', timeZone: tz || 'UTC' });
 }
 
 /** Derive attendee_name from zone values (looks for name-like zone) */
@@ -154,7 +155,7 @@ function processorSupportsCurrency(processor: string, currency: string): boolean
 
 export default function RegistrationClient({
   eventSlug, eventId, eventName, eventSubtitle,
-  coverUrl, startsAt, city, tickets, canvasVariant,
+  coverUrl, startsAt, timezone, city, tickets, canvasVariant,
   allVariants = [],
   formFields = [],
   initialName = '', initialEmail = '',
@@ -230,6 +231,10 @@ export default function RegistrationClient({
   const [accessCodeError, setAccessCodeError] = useState('');
   const [unlocking, setUnlocking] = useState(false);
   const [unlockedTickets, setUnlockedTickets] = useState<TicketType[]>([]);
+  // Remember which access code unlocked each hidden ticket, keyed by ticket id.
+  // The visible input is cleared after unlock (UX), but the register API still
+  // needs the code at submit — without this, hidden-ticket registration 403s.
+  const [unlockCodes, setUnlockCodes] = useState<Record<string, string>>({});
 
   // Payment state (after submit for paid tickets)
   const [paymentStep, setPaymentStep] = useState(false);
@@ -338,6 +343,13 @@ export default function RegistrationClient({
         const existingIds = new Set(prev.map(t => t.id));
         return [...prev, ...newTickets.filter(t => !existingIds.has(t.id))];
       });
+      // Record the code that unlocked each of these tickets so submit can send it.
+      const usedCode = accessCodeInput.trim();
+      setUnlockCodes(prev => {
+        const next = { ...prev };
+        for (const t of newTickets) next[t.id] = usedCode;
+        return next;
+      });
       setSelectedTicket(newTickets[0]);
       setShowAccessCode(false);
       setAccessCodeInput('');
@@ -424,7 +436,7 @@ export default function RegistrationClient({
           ...(hasDietaryField ? { dietary: dietarySel, dietary_note: dietaryNote.trim() || undefined } : {}),
           ...(hasAccessField ? { accessibility: accessSel, accessibility_note: accessNote.trim() || undefined } : {}),
           chosen_price: isPWYW ? effectivePrice : undefined,
-          access_code: unlockedTickets.find(t => t.id === selectedTicket?.id) ? accessCodeInput || undefined : undefined,
+          access_code: selectedTicket ? (unlockCodes[selectedTicket.id] || undefined) : undefined,
           referral_code: referralCode ?? null,
           utm_source: utmSource ?? null,
           promo_code: appliedPromo?.code ?? null,
@@ -1216,7 +1228,7 @@ export default function RegistrationClient({
                     <div className="font-display font-medium text-[15px]" style={{ color: '#0F1F18' }}>{eventName}</div>
                     {(startsAt || city) && (
                       <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>
-                        {startsAt ? dateStr(startsAt) : ''}{city ? ` · ${city}` : ''}
+                        {startsAt ? dateStr(startsAt, timezone) : ''}{city ? ` · ${city}` : ''}
                       </div>
                     )}
                   </div>
@@ -1266,7 +1278,7 @@ export default function RegistrationClient({
                   <div className="font-display font-medium text-[15px]" style={{ color: '#0F1F18' }}>{eventName}</div>
                   {(startsAt || city) && (
                     <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>
-                      {startsAt ? dateStr(startsAt) : ''}{city ? ` · ${city}` : ''}
+                      {startsAt ? dateStr(startsAt, timezone) : ''}{city ? ` · ${city}` : ''}
                     </div>
                   )}
                 </div>

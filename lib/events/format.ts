@@ -15,6 +15,24 @@ export function formatEventDateRange(
     hour: 'numeric', minute: '2-digit', hour12: true, timeZone: tz,
   });
 
+  // Detect a multi-day event by comparing the calendar day IN THE EVENT'S TZ
+  // (en-CA gives YYYY-MM-DD). A 3-day conference must not read as a single day.
+  const dayKey = (d: Date) =>
+    new Intl.DateTimeFormat('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: tz }).format(d);
+  const isMultiDay = !!endsAt && !Number.isNaN(end.getTime()) && dayKey(start) !== dayKey(end);
+
+  if (isMultiDay) {
+    const startShort = new Intl.DateTimeFormat('en-US', {
+      weekday: 'short', month: 'short', day: 'numeric', timeZone: tz,
+    }).format(start);
+    const endLong = new Intl.DateTimeFormat('en-US', {
+      weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', timeZone: tz,
+    }).format(end);
+    // "Mon, Jul 13 – Wed, Jul 15, 2026 · from 9:00 AM" — endTime blanked so the
+    // hero doesn't append a misleading same-day "– 5:00 PM".
+    return { date: `${startShort} – ${endLong}`, time: timeFmt.format(start), endTime: '' };
+  }
+
   return {
     date: dateFmt.format(start),
     time: timeFmt.format(start),
