@@ -7,20 +7,21 @@ export const metadata = {
 };
 
 const SERVICES = [
-  { name: 'API',               desc: 'Core API — events, cards, auth',   status: 'operational' as const },
-  { name: 'Card generator',    desc: 'PNG rendering & download',          status: 'operational' as const },
-  { name: 'Editor',            desc: 'Canvas editor & zone saving',       status: 'operational' as const },
-  { name: 'File storage',      desc: 'Uploads, backgrounds, outputs',     status: 'operational' as const },
-  { name: 'Attendee pages',    desc: 'Public /c/[slug] routes',           status: 'operational' as const },
-  { name: 'Auth',              desc: 'Login, signup, session management', status: 'operational' as const },
-  { name: 'Email delivery',    desc: 'Transactional emails',              status: 'operational' as const },
-  { name: 'Dashboard',         desc: 'Designer app & analytics',          status: 'operational' as const },
+  { name: 'API',                       desc: 'Core API — events, registrations, auth',       status: 'operational' as const },
+  { name: 'Registration & ticketing',  desc: 'Attendee registration and checkout',           status: 'operational' as const },
+  { name: 'Payments',                  desc: 'Stripe, Flutterwave, and WaafiPay processing', status: 'operational' as const },
+  { name: 'Eventera Card',             desc: 'Card generation & rendering',                  status: 'operational' as const },
+  { name: 'File storage',              desc: 'Uploads, cover images, card outputs',          status: 'operational' as const },
+  { name: 'Public event pages',        desc: 'Discovery and public event routes',            status: 'operational' as const },
+  { name: 'Auth',                      desc: 'Login, signup, session management',            status: 'operational' as const },
+  { name: 'Email & notifications',     desc: 'Transactional email and push delivery',        status: 'operational' as const },
+  { name: 'Organizer dashboard',       desc: 'Event management & analytics',                 status: 'operational' as const },
 ];
 
 const UPTIME = [
-  { label: 'API',            value: 'Operational', period: 'Live' },
-  { label: 'Card generator', value: 'Operational', period: 'Live' },
-  { label: 'Storage',        value: 'Operational', period: 'Live' },
+  { label: 'API',      value: 'Operational', period: 'Live' },
+  { label: 'Payments', value: 'Operational', period: 'Live' },
+  { label: 'Storage',  value: 'Operational', period: 'Live' },
 ];
 
 const INCIDENTS: { date: string; title: string; body: string; resolved: boolean }[] = [];
