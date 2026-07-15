@@ -220,6 +220,11 @@ export default function RevealScreen({
       {/* Content sits above the confetti layer */}
       <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: 340, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
 
+        {/* This screen's visual "Your card · Ready" status label isn't a real
+            heading — give screen-reader users an actual h1 to land on when
+            focus moves here after generation. */}
+        <h1 className="sr-only">Your personalized {eventName} card is ready</h1>
+
         {/* Mono "YOUR CARD · READY" status label */}
         <div style={{
           display: 'flex', alignItems: 'center', gap: 8,

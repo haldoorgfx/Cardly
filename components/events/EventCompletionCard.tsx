@@ -38,7 +38,7 @@ export function EventCompletionCard({ items, status, publishHref }: Props) {
         {/* Left: ring + headline */}
         <div className="flex items-center gap-4 px-5 py-5 sm:w-[300px] shrink-0" style={{ background: 'linear-gradient(135deg, rgba(31,77,58,0.05), rgba(232,197,126,0.08))' }}>
           <div className="relative shrink-0" style={{ width: 64, height: 64 }}>
-            <svg width="64" height="64" viewBox="0 0 64 64" className="-rotate-90">
+            <svg aria-hidden="true" width="64" height="64" viewBox="0 0 64 64" className="-rotate-90">
               <circle cx="32" cy="32" r={R} fill="none" stroke="#E5E0D4" strokeWidth="5" />
               <circle cx="32" cy="32" r={R} fill="none" stroke={allDone ? '#2D7A4F' : '#1F4D3A'} strokeWidth="5"
                 strokeLinecap="round" strokeDasharray={`${dash} ${C}`} />

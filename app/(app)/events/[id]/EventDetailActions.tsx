@@ -121,6 +121,7 @@ export default function EventDetailActions({ eventId, eventName, status }: Props
             if (e.key === 'Enter') doRename();
             if (e.key === 'Escape') { setRenaming(false); setNameVal(eventName); }
           }}
+          aria-label="Event name"
           className="font-display font-semibold text-[22px] text-[#FAF6EE] placeholder-[#FAF6EE]/50 bg-white/10 border border-white/30 rounded-xl px-3 py-1.5 outline-none focus:ring-2 focus:ring-white/30 min-w-[240px]"
         />
         <button

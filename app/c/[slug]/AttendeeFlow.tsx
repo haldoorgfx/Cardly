@@ -12,7 +12,7 @@
  *   success   → E3 – Success + viral share
  */
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { fetchWithRetry } from '@/lib/utils/fetch-retry';
 import type { Zone } from '@/types/database';
 import type { Area } from 'react-easy-crop';
@@ -78,6 +78,14 @@ export default function AttendeeFlow({
 
   /* ── Screen state ─────────────────────────────────────────────────────── */
   const [screen, setScreen] = useState<Screen>('arrival');
+
+  // Each step swaps in a whole new screen — move focus to the top of the new
+  // screen on every transition so keyboard/screen-reader users aren't left
+  // stranded on a control that no longer exists (or silently reset to <body>).
+  const screenRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    screenRef.current?.focus();
+  }, [screen]);
 
   /* ── Form state ───────────────────────────────────────────────────────── */
   const [values, setValues]         = useState<Record<string, string>>({});
@@ -219,95 +227,106 @@ export default function AttendeeFlow({
 
   /* ── Render ───────────────────────────────────────────────────────────── */
 
-  if (screen === 'arrival') return (
-    <ArrivalScreen
-      eventId={eventId}
-      eventName={eventName}
-      backgroundUrl={backgroundUrl}
-      backgroundWidth={backgroundWidth}
-      backgroundHeight={backgroundHeight}
-      zones={zones}
-      onStart={() => setScreen('details')}
-    />
-  );
+  let content: React.ReactNode = null;
 
-  if (screen === 'details') return (
-    <>
-      <DetailsFormScreen
+  if (screen === 'arrival') {
+    content = (
+      <ArrivalScreen
+        eventId={eventId}
         eventName={eventName}
         backgroundUrl={backgroundUrl}
         backgroundWidth={backgroundWidth}
         backgroundHeight={backgroundHeight}
         zones={zones}
-        editableZones={editableZones}
-        values={values}
-        photoUrls={photoUrls}
-        photoFiles={photoFiles}
-        errors={errors}
-        isGenerating={isGenerating}
-        generateError={generateError}
-        allRequiredFilled={allRequiredFilled}
-        onValueChange={(zoneId, value) => {
-          setValues(v => ({ ...v, [zoneId]: value }));
-          if (errors[zoneId]) setErrors(e => { const n = { ...e }; delete n[zoneId]; return n; });
-        }}
-        onPhotoSelect={handlePhotoSelect}
-        onGenerate={handleGenerate}
-        onBack={() => setScreen('arrival')}
+        onStart={() => setScreen('details')}
       />
-      {/* Photo crop modal renders on top of the form */}
-      {cropTarget && (
-        <PhotoCropModal
-          cropTarget={cropTarget}
-          cropPos={cropPos}
-          cropZoom={cropZoom}
-          onCropChange={setCropPos}
-          onZoomChange={setCropZoom}
-          onCropComplete={(_area, pixels) => setCroppedAreaPx(pixels)}
-          onConfirm={handleCropConfirm}
-          onReupload={() => {
-            setCropTarget(null);
+    );
+  } else if (screen === 'details') {
+    content = (
+      <>
+        <DetailsFormScreen
+          eventName={eventName}
+          backgroundUrl={backgroundUrl}
+          backgroundWidth={backgroundWidth}
+          backgroundHeight={backgroundHeight}
+          zones={zones}
+          editableZones={editableZones}
+          values={values}
+          photoUrls={photoUrls}
+          photoFiles={photoFiles}
+          errors={errors}
+          isGenerating={isGenerating}
+          generateError={generateError}
+          allRequiredFilled={allRequiredFilled}
+          onValueChange={(zoneId, value) => {
+            setValues(v => ({ ...v, [zoneId]: value }));
+            if (errors[zoneId]) setErrors(e => { const n = { ...e }; delete n[zoneId]; return n; });
           }}
-          onClose={() => setCropTarget(null)}
+          onPhotoSelect={handlePhotoSelect}
+          onGenerate={handleGenerate}
+          onBack={() => setScreen('arrival')}
         />
-      )}
-    </>
-  );
+        {/* Photo crop modal renders on top of the form */}
+        {cropTarget && (
+          <PhotoCropModal
+            cropTarget={cropTarget}
+            cropPos={cropPos}
+            cropZoom={cropZoom}
+            onCropChange={setCropPos}
+            onZoomChange={setCropZoom}
+            onCropComplete={(_area, pixels) => setCroppedAreaPx(pixels)}
+            onConfirm={handleCropConfirm}
+            onReupload={() => {
+              setCropTarget(null);
+            }}
+            onClose={() => setCropTarget(null)}
+          />
+        )}
+      </>
+    );
+  } else if (screen === 'reveal' && resultUrl) {
+    content = (
+      <RevealScreen
+        eventName={eventName}
+        backgroundWidth={backgroundWidth}
+        backgroundHeight={backgroundHeight}
+        resultUrl={resultUrl}
+        onDownload={downloadPng}
+        onEnter={() => setScreen('success')}
+        onEdit={() => { setIdempotencyKey(crypto.randomUUID()); setCardId(null); setScreen('details'); }}
+      />
+    );
+  } else if (screen === 'preview' && resultUrl) {
+    content = (
+      <PreviewDownloadScreen
+        eventName={eventName}
+        backgroundWidth={backgroundWidth}
+        backgroundHeight={backgroundHeight}
+        resultUrl={resultUrl}
+        cardId={cardId}
+        onDownload={handleDownload}
+        onEdit={() => { setIdempotencyKey(crypto.randomUUID()); setCardId(null); setScreen('details'); }}
+      />
+    );
+  } else if (screen === 'success') {
+    content = (
+      <SuccessShareScreen
+        eventName={eventName}
+        backgroundWidth={backgroundWidth}
+        backgroundHeight={backgroundHeight}
+        resultUrl={resultUrl}
+        onBack={() => setScreen('reveal')}
+      />
+    );
+  }
 
-  if (screen === 'reveal' && resultUrl) return (
-    <RevealScreen
-      eventName={eventName}
-      backgroundWidth={backgroundWidth}
-      backgroundHeight={backgroundHeight}
-      resultUrl={resultUrl}
-      onDownload={downloadPng}
-      onEnter={() => setScreen('success')}
-      onEdit={() => { setIdempotencyKey(crypto.randomUUID()); setCardId(null); setScreen('details'); }}
-    />
+  // tabIndex={-1} + the focus() effect above make this container a
+  // programmatic focus target (not a tab stop) so each screen change lands
+  // keyboard/AT focus at the top of the new screen instead of leaving it
+  // stranded on a removed control.
+  return (
+    <div ref={screenRef} tabIndex={-1} className="outline-none">
+      {content}
+    </div>
   );
-
-  if (screen === 'preview' && resultUrl) return (
-    <PreviewDownloadScreen
-      eventName={eventName}
-      backgroundWidth={backgroundWidth}
-      backgroundHeight={backgroundHeight}
-      resultUrl={resultUrl}
-      cardId={cardId}
-      onDownload={handleDownload}
-      onEdit={() => { setIdempotencyKey(crypto.randomUUID()); setCardId(null); setScreen('details'); }}
-    />
-  );
-
-  if (screen === 'success') return (
-    <SuccessShareScreen
-      eventName={eventName}
-      backgroundWidth={backgroundWidth}
-      backgroundHeight={backgroundHeight}
-      resultUrl={resultUrl}
-      onBack={() => setScreen('reveal')}
-    />
-  );
-
-  // Fallback — should never reach here
-  return null;
 }

@@ -94,7 +94,7 @@ export default function LoginClient() {
         <form className="space-y-4" onSubmit={handleSubmit}>
           <input type="hidden" name="next" value={next} />
           {error && (
-            <div className="text-[13px] text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
+            <div role="alert" className="text-[13px] text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
               {error}
             </div>
           )}
@@ -166,7 +166,6 @@ export default function LoginClient() {
                 type="button"
                 onClick={() => setShowPassword(p => !p)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6B7A72] hover:text-[#0F1F18] transition"
-                tabIndex={-1}
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? (

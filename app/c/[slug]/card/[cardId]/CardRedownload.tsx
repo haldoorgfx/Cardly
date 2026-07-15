@@ -87,6 +87,9 @@ export default function CardRedownload({ eventName, attendeeName, outputUrl, cre
 
       <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: 340, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0 }}>
 
+        {/* This page has no visible heading — give screen-reader users a real h1. */}
+        <h1 className="sr-only">{attendeeName ? `${attendeeName}'s ${eventName} card` : `Your ${eventName} card`}</h1>
+
         {/* Kicker */}
         <div style={{
           display: 'flex', alignItems: 'center', gap: 8,

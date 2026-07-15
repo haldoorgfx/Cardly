@@ -35,6 +35,7 @@ export default function StickyCTA() {
     <div className="fixed inset-x-0 bottom-0 z-40 flex justify-center px-4 pb-4 pointer-events-none">
       <div
         className="pointer-events-auto flex items-center gap-3 sm:gap-5 rounded-full"
+        aria-hidden={!show}
         style={{
           background: '#1F4D3A',
           border: '1px solid #163828',
@@ -54,6 +55,7 @@ export default function StickyCTA() {
         </span>
         <Link
           href="/signup"
+          tabIndex={show ? undefined : -1}
           className="inline-flex items-center gap-2 rounded-full font-semibold transition-transform hover:-translate-y-0.5"
           style={{
             background: '#FAF6EE',
@@ -70,6 +72,7 @@ export default function StickyCTA() {
           type="button"
           onClick={() => setDismissed(true)}
           aria-label="Dismiss"
+          tabIndex={show ? undefined : -1}
           className="grid place-items-center rounded-full transition-colors hover:bg-white/10"
           style={{ width: 30, height: 30, color: 'rgba(250,246,238,0.6)', flexShrink: 0 }}
         >

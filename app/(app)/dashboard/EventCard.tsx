@@ -118,7 +118,7 @@ export default function EventCard({ event, regCount, revenue, currency, checkinP
   const Menu = (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>
-        <button className="h-7 w-7 rounded-full flex items-center justify-center transition shadow-[0_1px_3px_rgba(15,31,24,0.12)]" style={{ background: 'rgba(255,255,255,0.92)', color: '#3A4A42' }} disabled={busy}
+        <button aria-label="Event options" className="h-7 w-7 rounded-full flex items-center justify-center transition shadow-[0_1px_3px_rgba(15,31,24,0.12)]" style={{ background: 'rgba(255,255,255,0.92)', color: '#3A4A42' }} disabled={busy}
           onMouseEnter={e => (e.currentTarget.style.background = '#FFFFFF')}
           onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.92)')}>
           <MoreVertical size={14} strokeWidth={1.8} />
@@ -214,6 +214,7 @@ export default function EventCard({ event, regCount, revenue, currency, checkinP
         {renaming ? (
           <input ref={inputRef} value={nameVal} onChange={e => setNameVal(e.target.value)}
             onBlur={doRename} onKeyDown={e => { if (e.key === 'Enter') doRename(); if (e.key === 'Escape') { setRenaming(false); setNameVal(event.name); } }}
+            aria-label="Event name"
             className="w-full text-[15px] font-semibold rounded-lg px-2 py-0.5 outline-none mb-1"
             style={{ background: '#FAF6EE', border: '1px solid #E5E0D4' }} />
         ) : (
@@ -265,6 +266,7 @@ export default function EventCard({ event, regCount, revenue, currency, checkinP
             <Link href={`/events/${event.slug}/check-in`}
               className="ml-auto inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[12.5px] transition hover:bg-[#E8EFEB]"
               style={{ color: '#1F4D3A' }}
+              aria-label="Check-in scanner"
               title="Check-in scanner">
               <ScanLine size={15} strokeWidth={1.8} />
             </Link>

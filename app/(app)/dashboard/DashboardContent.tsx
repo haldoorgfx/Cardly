@@ -58,14 +58,13 @@ export default function DashboardContent({ events, atLimit, regsByEvent }: Props
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 mb-4">
         <div className="overflow-x-auto pb-0.5">
           <div className="flex items-center gap-0.5 p-1 rounded-xl w-max"
-            style={{ background: 'white', border: '1px solid #E5E0D4' }}
-            role="tablist">
+            style={{ background: 'white', border: '1px solid #E5E0D4' }}>
             {FILTERS.map(f => (
               <button
                 key={f.key}
+                type="button"
                 onClick={() => setFilter(f.key)}
-                role="tab"
-                aria-selected={filter === f.key}
+                aria-pressed={filter === f.key}
                 className="h-7 px-3 rounded-lg text-[12.5px] font-medium transition whitespace-nowrap"
                 style={filter === f.key
                   ? { background: '#E8EFEB', color: '#0F1F18' }
@@ -83,7 +82,7 @@ export default function DashboardContent({ events, atLimit, regsByEvent }: Props
 
         <div className="flex items-center gap-2 self-start sm:self-auto">
           {/* Search events by name */}
-          <div className="flex items-center gap-2 h-8 px-2.5 rounded-lg bg-white" style={{ border: '1px solid #E5E0D4' }}>
+          <div className="flex items-center gap-2 h-8 px-2.5 rounded-lg bg-white focus-within:ring-2 focus-within:ring-[#1F4D3A] focus-within:ring-offset-1" style={{ border: '1px solid #E5E0D4' }}>
             <Search size={13} strokeWidth={2} className="text-[#6B7A72] shrink-0" />
             <input
               value={query}
@@ -97,6 +96,7 @@ export default function DashboardContent({ events, atLimit, regsByEvent }: Props
           <select
             value={sort}
             onChange={e => setSort(e.target.value as SortKey)}
+            aria-label="Sort events"
             className="h-8 text-[12px] rounded-lg px-2.5 cursor-pointer outline-none"
             style={{ background: 'white', border: '1px solid #E5E0D4', color: '#3A4A42' }}
           >

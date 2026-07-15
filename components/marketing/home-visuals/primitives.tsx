@@ -165,7 +165,10 @@ export function Shot({ width, height, className, float, pad = 48, children }: {
     return () => ro.disconnect();
   }, [boxW]);
   return (
-    <div ref={wrapRef} className={`${s.hv} ${className ?? ''}`} style={{ width: '100%', height: boxH * scale }}>
+    <div ref={wrapRef} aria-hidden="true" className={`${s.hv} ${className ?? ''}`} style={{ width: '100%', height: boxH * scale }}>
+      {/* Purely decorative product mockup — hidden from assistive tech so screen
+          readers don't read through fake dashboard/card copy (names, stats, etc.)
+          that duplicates the real heading/paragraph text next to it. */}
       {/* Sized to the SCALED dimensions with overflow:hidden so the inner div's
           unscaled layout footprint (transform:scale doesn't shrink the box) can't
           push the document into horizontal scroll. The float animation lives here,

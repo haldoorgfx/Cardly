@@ -94,16 +94,17 @@ export default function SignupForm() {
         <form className="space-y-4" onSubmit={handleSubmit}>
           <input type="hidden" name="next" value={next} />
           {error && (
-            <div className="text-[13px] text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
+            <div role="alert" className="text-[13px] text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
               {error}
             </div>
           )}
 
           <div>
-            <label className="block text-[13px] font-medium text-[#3A4A42] mb-1.5">
+            <label htmlFor="signup-full-name" className="block text-[13px] font-medium text-[#3A4A42] mb-1.5">
               Full name
             </label>
             <input
+              id="signup-full-name"
               name="full_name"
               type="text"
               required
@@ -127,10 +128,11 @@ export default function SignupForm() {
           </div>
 
           <div>
-            <label className="block text-[13px] font-medium text-[#3A4A42] mb-1.5">
+            <label htmlFor="signup-email" className="block text-[13px] font-medium text-[#3A4A42] mb-1.5">
               Email
             </label>
             <input
+              id="signup-email"
               name="email"
               type="email"
               required
@@ -154,11 +156,12 @@ export default function SignupForm() {
           </div>
 
           <div>
-            <label className="block text-[13px] font-medium text-[#3A4A42] mb-1.5">
+            <label htmlFor="signup-password" className="block text-[13px] font-medium text-[#3A4A42] mb-1.5">
               Password
             </label>
             <div className="relative">
               <input
+                id="signup-password"
                 name="password"
                 type={showPassword ? "text" : "password"}
                 required
@@ -184,7 +187,6 @@ export default function SignupForm() {
                 type="button"
                 onClick={() => setShowPassword(p => !p)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6B7A72] hover:text-[#0F1F18] transition"
-                tabIndex={-1}
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? (

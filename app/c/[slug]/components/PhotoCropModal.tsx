@@ -6,6 +6,7 @@
  * Appears on top of the DetailsFormScreen when an attendee picks a photo.
  */
 
+import { useEffect, useRef } from 'react';
 import Cropper from 'react-easy-crop';
 import type { Area, Point } from 'react-easy-crop';
 import { X, ZoomIn, ZoomOut, Upload, Check } from 'lucide-react';
@@ -41,14 +42,59 @@ export default function PhotoCropModal({
 
   const pct = ((cropZoom - 1) / (3 - 1)) * 100;
 
+  // Modal focus management: this dialog renders BOTH a mobile sheet and a
+  // desktop dialog at once (one is `display:none` via a `lg:` breakpoint), so
+  // the trap only considers elements that are actually visible/rendered
+  // (offsetParent !== null). Traps Tab, closes on Escape, and restores focus
+  // to whatever was focused before the modal opened.
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const previouslyFocused = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    previouslyFocused.current = document.activeElement as HTMLElement | null;
+    const node = dialogRef.current;
+    const getFocusable = () => Array.from(
+      node?.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      ) ?? []
+    ).filter(el => el.offsetParent !== null);
+
+    const initial = getFocusable();
+    (initial[0] ?? node)?.focus();
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') { e.preventDefault(); onClose(); return; }
+      if (e.key !== 'Tab') return;
+      const list = getFocusable();
+      if (list.length === 0) return;
+      const first = list[0];
+      const last = list[list.length - 1];
+      const active = document.activeElement as HTMLElement | null;
+      if (e.shiftKey) {
+        if (active === first || !node?.contains(active)) { e.preventDefault(); last.focus(); }
+      } else if (active === last || !node?.contains(active)) {
+        e.preventDefault(); first.focus();
+      }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      previouslyFocused.current?.focus?.();
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <div
+      ref={dialogRef}
       role="dialog"
       aria-modal="true"
       aria-label="Position your photo"
+      tabIndex={-1}
       style={{
         position: 'fixed', inset: 0, zIndex: 50,
         fontFamily: 'Inter, sans-serif',
+        outline: 'none',
       }}
     >
       {/* Dark scrim */}
@@ -307,6 +353,16 @@ export default function PhotoCropModal({
           </div>
         </div>
       </div>
+
+      {/* The native range input is visually hidden (opacity:0) behind the custom
+          track/thumb, which also hides its default focus ring. Draw an explicit
+          one on the visible thumb when the input has keyboard focus. */}
+      <style>{`
+        .zoom-track:focus-within .zoom-thumb {
+          outline: 2px solid #E8C57E;
+          outline-offset: 2px;
+        }
+      `}</style>
     </div>
   );
 }
@@ -318,12 +374,13 @@ function ZoomSliderDark({ zoom, pct, onZoomChange }: { zoom: number; pct: number
       <div style={{ color: 'rgba(250,246,238,0.7)' }}>
         <ZoomOut size={18} strokeWidth={2}/>
       </div>
-      <div style={{ flex: 1, position: 'relative', height: 24, display: 'flex', alignItems: 'center' }}>
+      <div className="zoom-track" style={{ flex: 1, position: 'relative', height: 24, display: 'flex', alignItems: 'center' }}>
         <div style={{ position: 'absolute', left: 0, right: 0, height: 4, borderRadius: 999, background: 'rgba(250,246,238,0.18)' }}/>
         <div style={{ position: 'absolute', left: 0, height: 4, borderRadius: 999, width: `${pct}%`, background: '#1F4D3A' }}/>
-        <div style={{ position: 'absolute', left: `calc(${pct}% - 11px)`, width: 22, height: 22, borderRadius: '50%', background: '#1F4D3A', border: '3px solid #fff', boxShadow: '0 2px 6px rgba(0,0,0,0.25)' }}/>
+        <div className="zoom-thumb" style={{ position: 'absolute', left: `calc(${pct}% - 11px)`, width: 22, height: 22, borderRadius: '50%', background: '#1F4D3A', border: '3px solid #fff', boxShadow: '0 2px 6px rgba(0,0,0,0.25)' }}/>
         <input
           type="range" min={1} max={3} step={0.01} value={zoom}
+          aria-label="Zoom photo"
           onChange={e => onZoomChange(Number(e.target.value))}
           style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', width: '100%' }}
         />
@@ -342,12 +399,13 @@ function ZoomSliderLight({ zoom, pct, onZoomChange }: { zoom: number; pct: numbe
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
       <div style={{ color: '#3A4A42' }}><ZoomOut size={18} strokeWidth={2}/></div>
-      <div style={{ flex: 1, position: 'relative', height: 24, display: 'flex', alignItems: 'center' }}>
+      <div className="zoom-track" style={{ flex: 1, position: 'relative', height: 24, display: 'flex', alignItems: 'center' }}>
         <div style={{ position: 'absolute', left: 0, right: 0, height: 4, borderRadius: 999, background: '#E5E0D4' }}/>
         <div style={{ position: 'absolute', left: 0, height: 4, borderRadius: 999, width: `${pct}%`, background: '#1F4D3A' }}/>
-        <div style={{ position: 'absolute', left: `calc(${pct}% - 11px)`, width: 22, height: 22, borderRadius: '50%', background: '#1F4D3A', border: '3px solid #fff', boxShadow: '0 2px 6px rgba(15,31,24,0.25)' }}/>
+        <div className="zoom-thumb" style={{ position: 'absolute', left: `calc(${pct}% - 11px)`, width: 22, height: 22, borderRadius: '50%', background: '#1F4D3A', border: '3px solid #fff', boxShadow: '0 2px 6px rgba(15,31,24,0.25)' }}/>
         <input
           type="range" min={1} max={3} step={0.01} value={zoom}
+          aria-label="Zoom photo"
           onChange={e => onZoomChange(Number(e.target.value))}
           style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', width: '100%' }}
         />

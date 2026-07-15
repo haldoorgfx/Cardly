@@ -13,6 +13,7 @@ export function AppPhone({ className = '' }: { className?: string }) {
   return (
     <div
       className={className}
+      aria-hidden="true"
       style={{
         width: 300,
         borderRadius: 46,

@@ -33,9 +33,9 @@ interface Props {
 
 /* ── Field primitives ────────────────────────────────────────────────────── */
 
-function FieldLabel({ children, required }: { children: React.ReactNode; required?: boolean }) {
+function FieldLabel({ children, required, htmlFor }: { children: React.ReactNode; required?: boolean; htmlFor?: string }) {
   return (
-    <label style={{
+    <label htmlFor={htmlFor} style={{
       display: 'flex', alignItems: 'center', gap: 4,
       fontFamily: 'Inter, system-ui, sans-serif',
       fontSize: 12, color: '#3A4A42',
@@ -47,9 +47,9 @@ function FieldLabel({ children, required }: { children: React.ReactNode; require
   );
 }
 
-function FieldError({ children }: { children: React.ReactNode }) {
+function FieldError({ children, id }: { children: React.ReactNode; id?: string }) {
   return (
-    <div role="alert" aria-live="polite" style={{
+    <div id={id} role="alert" aria-live="polite" style={{
       display: 'flex', alignItems: 'center', gap: 8, marginTop: 8,
       fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#B8423C',
     }}>
@@ -62,15 +62,19 @@ function FieldError({ children }: { children: React.ReactNode }) {
 function TextInput({
   zone, value, error, onChange,
 }: { zone: Zone; value: string; error?: string; onChange: (v: string) => void }) {
+  const fieldId = `field-${zone.id}`;
   return (
     <div>
-      <FieldLabel required={zone.required}>{zone.label || 'Field'}</FieldLabel>
+      <FieldLabel htmlFor={fieldId} required={zone.required}>{zone.label || 'Field'}</FieldLabel>
       <input
+        id={fieldId}
         type="text"
         value={value}
         placeholder={zone.placeholder || zone.label || ''}
         maxLength={200}
         onChange={e => onChange(e.target.value)}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={error ? `${fieldId}-error` : undefined}
         style={{
           display: 'block', width: '100%', height: 56,
           padding: '0 16px',
@@ -86,7 +90,7 @@ function TextInput({
         onFocus={e => { e.target.style.borderColor = '#1F4D3A'; e.target.style.boxShadow = '0 0 0 3px rgba(31,77,58,0.15)'; }}
         onBlur={e => { e.target.style.borderColor = error ? '#B8423C' : '#E5E0D4'; e.target.style.boxShadow = 'none'; }}
       />
-      {error && <FieldError>{error}</FieldError>}
+      {error && <FieldError id={`${fieldId}-error`}>{error}</FieldError>}
     </div>
   );
 }
@@ -94,15 +98,19 @@ function TextInput({
 function TextAreaInput({
   zone, value, error, onChange,
 }: { zone: Zone; value: string; error?: string; onChange: (v: string) => void }) {
+  const fieldId = `field-${zone.id}`;
   return (
     <div>
-      <FieldLabel required={zone.required}>{zone.label || 'Field'}</FieldLabel>
+      <FieldLabel htmlFor={fieldId} required={zone.required}>{zone.label || 'Field'}</FieldLabel>
       <textarea
+        id={fieldId}
         value={value}
         placeholder={zone.placeholder || zone.label || ''}
         maxLength={500}
         onChange={e => onChange(e.target.value)}
         rows={3}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={error ? `${fieldId}-error` : undefined}
         style={{
           display: 'block', width: '100%',
           padding: '14px 16px',
@@ -118,7 +126,7 @@ function TextAreaInput({
         onFocus={e => { e.target.style.borderColor = '#1F4D3A'; e.target.style.boxShadow = '0 0 0 3px rgba(31,77,58,0.15)'; }}
         onBlur={e => { e.target.style.borderColor = error ? '#B8423C' : '#E5E0D4'; e.target.style.boxShadow = 'none'; }}
       />
-      {error && <FieldError>{error}</FieldError>}
+      {error && <FieldError id={`${fieldId}-error`}>{error}</FieldError>}
     </div>
   );
 }
@@ -146,14 +154,18 @@ function PhotoInput({
     e.target.value = '';
   };
 
+  const fieldId = `field-${zone.id}`;
   return (
     <div>
-      <FieldLabel required={zone.required}>{zone.label || 'Photo'}</FieldLabel>
+      <FieldLabel htmlFor={fieldId} required={zone.required}>{zone.label || 'Photo'}</FieldLabel>
       <input
+        id={fieldId}
         ref={inputRef}
         type="file"
         accept="image/jpeg,image/png,image/webp"
         className="sr-only"
+        aria-invalid={error ? true : undefined}
+        aria-describedby={error ? `${fieldId}-error` : undefined}
         onChange={handleChange}
       />
       {photoFile ? (
@@ -231,7 +243,7 @@ function PhotoInput({
           </div>
         </button>
       )}
-      {error && <FieldError>{error}</FieldError>}
+      {error && <FieldError id={`${fieldId}-error`}>{error}</FieldError>}
     </div>
   );
 }
@@ -244,13 +256,17 @@ function SelectInput({
       <TextInput zone={zone} value={value} error={error} onChange={onChange}/>
     );
   }
+  const fieldId = `field-${zone.id}`;
   return (
     <div>
-      <FieldLabel required={zone.required}>{zone.label || 'Field'}</FieldLabel>
+      <FieldLabel htmlFor={fieldId} required={zone.required}>{zone.label || 'Field'}</FieldLabel>
       <div style={{ position: 'relative' }}>
         <select
+          id={fieldId}
           value={value}
           onChange={e => onChange(e.target.value)}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error ? `${fieldId}-error` : undefined}
           style={{
             display: 'block', width: '100%', height: 56,
             padding: '0 40px 0 16px',
@@ -274,7 +290,7 @@ function SelectInput({
           color: '#6B7A72', pointerEvents: 'none',
         }}/>
       </div>
-      {error && <FieldError>{error}</FieldError>}
+      {error && <FieldError id={`${fieldId}-error`}>{error}</FieldError>}
     </div>
   );
 }
@@ -439,6 +455,10 @@ export default function DetailsFormScreen({
       {/* ── Mobile / tablet ─────────────────────────────────────────────── */}
       <div className="relative lg:hidden" style={{ background: '#FAF6EE', minHeight: '100vh' }}>
         <div style={{ padding: '16px 20px 100px' }}>
+          {/* Visually hidden — the desktop column has a visible "Tell us about
+              you" h1, but on mobile that copy is dropped for space. Screen
+              readers still need exactly one heading identifying this screen. */}
+          <h1 className="sr-only">Tell us about you — {eventName}</h1>
           {/* Brand strip */}
           <EventBrandStrip eventName={eventName} compact />
 
