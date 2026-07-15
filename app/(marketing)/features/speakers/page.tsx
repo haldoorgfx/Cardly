@@ -97,9 +97,9 @@ const STEPS = [
 ];
 
 const STATS = [
-  { value: '50+', label: 'speakers per event supported' },
+  { value: 'Session-linked', label: 'profiles tied to their sessions' },
   { value: 'Public', label: 'shareable speaker profiles' },
-  { value: '100%', label: 'of plans include shareable speaker URLs' },
+  { value: 'Every plan', label: 'includes shareable speaker URLs' },
 ];
 
 function SpeakersMockup() {
@@ -111,23 +111,23 @@ function SpeakersMockup() {
         <div style={{ flex: '1 1 300px', maxWidth: 420, textAlign: 'left' as const }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
             <div style={{ width: 24, height: 1, background: '#E8C57E' }} />
-            <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 700, letterSpacing: '0.15em', color: '#1F4D3A', textTransform: 'uppercase' as const }}>Speaker Directory</span>
+            <span style={{ fontFamily: 'var(--font-sans)', fontSize: 11, fontWeight: 700, letterSpacing: '0.15em', color: '#1F4D3A', textTransform: 'uppercase' as const }}>Speaker Directory</span>
           </div>
-          <h2 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 'clamp(26px, 3.5vw, 40px)', fontWeight: 700, letterSpacing: '-0.02em', color: '#0F1F18', marginBottom: 16, lineHeight: 1.15 }}>
+          <h2 style={{ fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif', fontSize: 'clamp(26px, 3.5vw, 40px)', fontWeight: 700, letterSpacing: '-0.02em', color: '#0F1F18', marginBottom: 16, lineHeight: 1.15 }}>
             A directory that builds anticipation before day one.
           </h2>
-          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 17, color: '#3A4A42', lineHeight: 1.65, marginBottom: 32 }}>
+          <p style={{ fontFamily: 'var(--font-sans)', fontSize: 17, color: '#3A4A42', lineHeight: 1.65, marginBottom: 32 }}>
             Every speaker gets a public profile. Attendees browse before the event. Speakers share it after.
           </p>
           <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 12 }}>
             {[
-              { label: '32', desc: 'speakers published' },
-              { label: '3×', desc: 'more event page visits from profiles' },
-              { label: '100%', desc: 'of plans include speaker URLs' },
+              { label: 'Photo', desc: 'bio, links and headshot per speaker' },
+              { label: 'Shared', desc: 'speakers post their profile to LinkedIn' },
+              { label: 'Every plan', desc: 'includes shareable speaker URLs' },
             ].map((s) => (
               <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <div style={{ background: 'rgba(31,77,58,0.08)', border: '1px solid rgba(31,77,58,0.2)', borderRadius: 8, padding: '4px 10px', fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 14, fontWeight: 700, color: '#1F4D3A', flexShrink: 0 }}>{s.label}</div>
-                <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#6B7A72' }}>{s.desc}</span>
+                <div style={{ background: 'rgba(31,77,58,0.08)', border: '1px solid rgba(31,77,58,0.2)', borderRadius: 8, padding: '4px 10px', fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif', fontSize: 14, fontWeight: 700, color: '#1F4D3A', flexShrink: 0 }}>{s.label}</div>
+                <span style={{ fontFamily: 'var(--font-sans)', fontSize: 14, color: '#6B7A72' }}>{s.desc}</span>
               </div>
             ))}
           </div>
@@ -138,7 +138,7 @@ function SpeakersMockup() {
           {/* Floating badge */}
           <div style={{ position: 'absolute' as const, top: -16, left: 20, background: '#1F4D3A', borderRadius: 999, padding: '6px 14px', display: 'flex', alignItems: 'center', gap: 7, zIndex: 10, boxShadow: '0 4px 16px rgba(15,31,24,0.25)' }}>
             <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#4ade80' }} />
-            <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: 600, color: '#FAF6EE' }}>32 speakers published</span>
+            <span style={{ fontFamily: 'var(--font-sans)', fontSize: 12, fontWeight: 600, color: '#FAF6EE' }}>Speaker directory · Live</span>
           </div>
 
           {/* Laptop */}
@@ -150,14 +150,14 @@ function SpeakersMockup() {
                 <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#FEBC2E' }} />
                 <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#28C840' }} />
               </div>
-              <div style={{ background: '#FFFFFF', borderRadius: 5, padding: '3px 10px', fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#6B7A72', border: '1px solid #E5E0D4' }}>
+              <div style={{ background: '#FFFFFF', borderRadius: 5, padding: '3px 10px', fontFamily: 'var(--font-sans)', fontSize: 11, color: '#6B7A72', border: '1px solid #E5E0D4' }}>
                 eventera.so/e/summit/speakers
               </div>
             </div>
             <div style={{ background: '#FAF6EE', display: 'flex', height: 320, overflow: 'hidden' }}>
               {/* Sidebar */}
               <div style={{ width: 130, background: '#FFFFFF', borderRight: '1px solid #E5E0D4', padding: '10px 8px', flexShrink: 0 }}>
-                <div style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 13, fontWeight: 700, color: '#1F4D3A', marginBottom: 14, padding: '0 4px' }}>Eventera</div>
+                <div style={{ fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif', fontSize: 13, fontWeight: 700, color: '#1F4D3A', marginBottom: 14, padding: '0 4px' }}>Eventera</div>
                 <div style={{ background: '#E8EFEB', borderRadius: 6, padding: '5px 8px', marginBottom: 3, display: 'flex', alignItems: 'center', gap: 6 }}>
                   <div style={{ width: 12, height: 12, borderRadius: 2, background: '#1F4D3A', flexShrink: 0 }} />
                   <div style={{ width: 55, height: 7, background: '#1F4D3A', opacity: 0.4, borderRadius: 3 }} />
@@ -172,14 +172,14 @@ function SpeakersMockup() {
               {/* Main content */}
               <div style={{ flex: 1, padding: 12, overflow: 'hidden' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-                  <div style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 11, fontWeight: 700, color: '#1F4D3A' }}>Speaker Directory</div>
-                  <div style={{ background: '#E8EFEB', borderRadius: 999, padding: '2px 8px', fontFamily: 'Inter, sans-serif', fontSize: 10, color: '#1F4D3A', fontWeight: 600 }}>32 speakers</div>
+                  <div style={{ fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif', fontSize: 11, fontWeight: 700, color: '#1F4D3A' }}>Speaker Directory</div>
+                  <div style={{ background: '#E8EFEB', borderRadius: 999, padding: '2px 8px', fontFamily: 'var(--font-sans)', fontSize: 10, color: '#1F4D3A', fontWeight: 600 }}>32 speakers</div>
                 </div>
                 {/* Featured keynote */}
                 <div style={{ background: 'linear-gradient(135deg,#1F4D3A,#163828)', borderRadius: 8, padding: '10px 12px', marginBottom: 10, display: 'flex', gap: 10, alignItems: 'center' }}>
-                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg,#E8C57E,#C9A45E)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 12, fontWeight: 700, color: '#163828', flexShrink: 0 }}>AO</div>
+                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg,#E8C57E,#C9A45E)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif', fontSize: 12, fontWeight: 700, color: '#163828', flexShrink: 0 }}>AO</div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 8, color: '#E8C57E', fontWeight: 700, letterSpacing: '0.12em', marginBottom: 3 }}>KEYNOTE</div>
+                    <div style={{ fontFamily: 'var(--font-sans)', fontSize: 8, color: '#E8C57E', fontWeight: 700, letterSpacing: '0.12em', marginBottom: 3 }}>KEYNOTE</div>
                     <div style={{ width: 80, height: 6, background: 'rgba(250,246,238,0.5)', borderRadius: 3, marginBottom: 3 }} />
                     <div style={{ width: 60, height: 5, background: 'rgba(250,246,238,0.3)', borderRadius: 3 }} />
                   </div>
@@ -205,10 +205,10 @@ function SpeakersMockup() {
           <div style={{ position: 'absolute' as const, bottom: -20, right: -35, width: 150, background: '#0F1F18', borderRadius: 24, padding: 6, boxShadow: '0 8px 40px rgba(0,0,0,0.45)', zIndex: 10 }}>
             <div style={{ background: '#FAF6EE', borderRadius: 20, overflow: 'hidden' }}>
               <div style={{ background: 'linear-gradient(135deg,#1F4D3A,#163828)', padding: '12px 10px 10px', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: 5 }}>
-                <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg,#E8C57E,#C9A45E)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 12, fontWeight: 700, color: '#163828' }}>AO</div>
+                <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg,#E8C57E,#C9A45E)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif', fontSize: 12, fontWeight: 700, color: '#163828' }}>AO</div>
                 <div style={{ width: 60, height: 6, background: 'rgba(250,246,238,0.5)', borderRadius: 3 }} />
                 <div style={{ width: 80, height: 5, background: 'rgba(250,246,238,0.3)', borderRadius: 3 }} />
-                <div style={{ background: 'rgba(232,197,126,0.2)', borderRadius: 4, padding: '2px 8px', fontFamily: 'Inter, sans-serif', fontSize: 8, color: '#E8C57E', fontWeight: 600, marginTop: 2 }}>Opening Keynote</div>
+                <div style={{ background: 'rgba(232,197,126,0.2)', borderRadius: 4, padding: '2px 8px', fontFamily: 'var(--font-sans)', fontSize: 8, color: '#E8C57E', fontWeight: 600, marginTop: 2 }}>Opening Keynote</div>
               </div>
               <div style={{ padding: '8px 8px 6px' }}>
                 {[{ w1: 55, w2: 48 }, { w1: 62, w2: 70 }, { w1: 50, w2: 60 }].map((r, i) => (
@@ -254,14 +254,14 @@ export default function SpeakersFeaturePage() {
               marginBottom: 28,
             }}
           >
-            <span style={{ color: C.primary, fontSize: 12, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase' as const, fontFamily: 'Inter, sans-serif' }}>
+            <span style={{ color: C.primary, fontSize: 12, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase' as const, fontFamily: 'var(--font-sans)' }}>
               Speaker Directory
             </span>
           </div>
 
           <h1
             style={{
-              fontFamily: 'Plus Jakarta Sans, sans-serif',
+              fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif',
               fontSize: 'clamp(2rem, 5vw, 3.5rem)',
               fontWeight: 700,
               letterSpacing: '-0.02em',
@@ -276,7 +276,7 @@ export default function SpeakersFeaturePage() {
 
           <p
             style={{
-              fontFamily: 'Inter, sans-serif',
+              fontFamily: 'var(--font-sans)',
               fontSize: 'clamp(1rem, 2vw, 1.2rem)',
               color: C.inkSoft,
               lineHeight: 1.7,
@@ -298,11 +298,11 @@ export default function SpeakersFeaturePage() {
                 gap: 8,
                 background: C.primary,
                 color: C.cream,
-                fontFamily: 'Inter, sans-serif',
+                fontFamily: 'var(--font-sans)',
                 fontSize: 15,
                 fontWeight: 600,
                 padding: '14px 28px',
-                borderRadius: 10,
+                borderRadius: 999,
                 textDecoration: 'none',
               }}
             >
@@ -316,11 +316,11 @@ export default function SpeakersFeaturePage() {
                 gap: 8,
                 background: C.surface,
                 color: C.primary,
-                fontFamily: 'Inter, sans-serif',
+                fontFamily: 'var(--font-sans)',
                 fontSize: 15,
                 fontWeight: 600,
                 padding: '14px 28px',
-                borderRadius: 10,
+                borderRadius: 999,
                 textDecoration: 'none',
                 border: `1.5px solid ${C.border}`,
               }}
@@ -339,7 +339,7 @@ export default function SpeakersFeaturePage() {
           <div style={{ textAlign: 'center', marginBottom: 56 }}>
             <h2
               style={{
-                fontFamily: 'Plus Jakarta Sans, sans-serif',
+                fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif',
                 fontSize: 'clamp(1.5rem, 3vw, 2.25rem)',
                 fontWeight: 700,
                 letterSpacing: '-0.02em',
@@ -349,7 +349,7 @@ export default function SpeakersFeaturePage() {
             >
               Profiles that work before and after
             </h2>
-            <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 17, color: C.muted, maxWidth: 540, margin: '0 auto' }}>
+            <p style={{ fontFamily: 'var(--font-sans)', fontSize: 17, color: C.muted, maxWidth: 540, margin: '0 auto' }}>
               Attendees discover speakers in advance. Speakers share their profile long after the event ends.
             </p>
           </div>
@@ -391,7 +391,7 @@ export default function SpeakersFeaturePage() {
                 </div>
                 <h3
                   style={{
-                    fontFamily: 'Plus Jakarta Sans, sans-serif',
+                    fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif',
                     fontSize: 18,
                     fontWeight: 700,
                     color: C.ink,
@@ -400,7 +400,7 @@ export default function SpeakersFeaturePage() {
                 >
                   {f.title}
                 </h3>
-                <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: C.inkSoft, lineHeight: 1.65 }}>
+                <p style={{ fontFamily: 'var(--font-sans)', fontSize: 15, color: C.inkSoft, lineHeight: 1.65 }}>
                   {f.description}
                 </p>
               </div>
@@ -415,7 +415,7 @@ export default function SpeakersFeaturePage() {
           <div style={{ textAlign: 'center', marginBottom: 56 }}>
             <h2
               style={{
-                fontFamily: 'Plus Jakarta Sans, sans-serif',
+                fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif',
                 fontSize: 'clamp(1.5rem, 3vw, 2.25rem)',
                 fontWeight: 700,
                 letterSpacing: '-0.02em',
@@ -425,7 +425,7 @@ export default function SpeakersFeaturePage() {
             >
               How it works
             </h2>
-            <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 17, color: C.muted }}>
+            <p style={{ fontFamily: 'var(--font-sans)', fontSize: 17, color: C.muted }}>
               Your speaker lineup, beautifully presented in minutes.
             </p>
           </div>
@@ -441,7 +441,7 @@ export default function SpeakersFeaturePage() {
               <div key={step.number} style={{ display: 'flex', flexDirection: 'column' as const, gap: 16 }}>
                 <div
                   style={{
-                    fontFamily: 'Plus Jakarta Sans, sans-serif',
+                    fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif',
                     fontSize: 48,
                     fontWeight: 800,
                     color: C.primarySoft,
@@ -453,7 +453,7 @@ export default function SpeakersFeaturePage() {
                 </div>
                 <h3
                   style={{
-                    fontFamily: 'Plus Jakarta Sans, sans-serif',
+                    fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif',
                     fontSize: 18,
                     fontWeight: 700,
                     color: C.ink,
@@ -462,7 +462,7 @@ export default function SpeakersFeaturePage() {
                 >
                   {step.title}
                 </h3>
-                <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: C.inkSoft, lineHeight: 1.65 }}>
+                <p style={{ fontFamily: 'var(--font-sans)', fontSize: 15, color: C.inkSoft, lineHeight: 1.65 }}>
                   {step.description}
                 </p>
               </div>
@@ -494,7 +494,7 @@ export default function SpeakersFeaturePage() {
             <div key={s.label} style={{ display: 'flex', flexDirection: 'column' as const, gap: 8 }}>
               <span
                 style={{
-                  fontFamily: 'Plus Jakarta Sans, sans-serif',
+                  fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif',
                   fontSize: 'clamp(2rem, 4vw, 2.75rem)',
                   fontWeight: 800,
                   color: C.primary,
@@ -504,7 +504,7 @@ export default function SpeakersFeaturePage() {
               >
                 {s.value}
               </span>
-              <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: C.muted }}>
+              <span style={{ fontFamily: 'var(--font-sans)', fontSize: 15, color: C.muted }}>
                 {s.label}
               </span>
             </div>
@@ -525,7 +525,7 @@ export default function SpeakersFeaturePage() {
         <div style={{ position: 'relative', maxWidth: 640, margin: '0 auto' }}>
           <h2
             style={{
-              fontFamily: 'Plus Jakarta Sans, sans-serif',
+              fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif',
               fontSize: 'clamp(1.75rem, 4vw, 3rem)',
               fontWeight: 700,
               letterSpacing: '-0.02em',
@@ -537,7 +537,7 @@ export default function SpeakersFeaturePage() {
           </h2>
           <p
             style={{
-              fontFamily: 'Inter, sans-serif',
+              fontFamily: 'var(--font-sans)',
               fontSize: 'clamp(1rem, 2vw, 1.15rem)',
               color: 'rgba(255,255,255,0.8)',
               lineHeight: 1.65,
@@ -554,11 +554,11 @@ export default function SpeakersFeaturePage() {
                 alignItems: 'center',
                 background: C.accent,
                 color: C.ink,
-                fontFamily: 'Inter, sans-serif',
+                fontFamily: 'var(--font-sans)',
                 fontSize: 15,
                 fontWeight: 700,
                 padding: '14px 32px',
-                borderRadius: 10,
+                borderRadius: 999,
                 textDecoration: 'none',
               }}
             >
@@ -571,11 +571,11 @@ export default function SpeakersFeaturePage() {
                 alignItems: 'center',
                 background: 'rgba(255,255,255,0.12)',
                 color: '#FFFFFF',
-                fontFamily: 'Inter, sans-serif',
+                fontFamily: 'var(--font-sans)',
                 fontSize: 15,
                 fontWeight: 600,
                 padding: '14px 32px',
-                borderRadius: 10,
+                borderRadius: 999,
                 textDecoration: 'none',
                 border: '1.5px solid rgba(255,255,255,0.25)',
               }}

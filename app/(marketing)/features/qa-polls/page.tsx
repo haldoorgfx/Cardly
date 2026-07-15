@@ -116,23 +116,23 @@ function QAPollsMockup() {
         <div style={{ flex: '1 1 300px', maxWidth: 420, textAlign: 'left' as const }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
             <div style={{ width: 24, height: 1, background: '#E8C57E' }} />
-            <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 700, letterSpacing: '0.15em', color: '#1F4D3A', textTransform: 'uppercase' as const }}>Session View</span>
+            <span style={{ fontFamily: 'var(--font-sans)', fontSize: 11, fontWeight: 700, letterSpacing: '0.15em', color: '#1F4D3A', textTransform: 'uppercase' as const }}>Session View</span>
           </div>
-          <h2 style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', fontSize: 'clamp(26px, 3.5vw, 40px)', fontWeight: 700, letterSpacing: '-0.02em', color: '#0F1F18', marginBottom: 16, lineHeight: 1.15 }}>
+          <h2 style={{ fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif', fontSize: 'clamp(26px, 3.5vw, 40px)', fontWeight: 700, letterSpacing: '-0.02em', color: '#0F1F18', marginBottom: 16, lineHeight: 1.15 }}>
             Questions the audience actually wants answered.
           </h2>
-          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 17, color: '#3A4A42', lineHeight: 1.65, marginBottom: 32 }}>
+          <p style={{ fontFamily: 'var(--font-sans)', fontSize: 17, color: '#3A4A42', lineHeight: 1.65, marginBottom: 32 }}>
             No mic needed. Anonymous or named. Ranked by the room in real time.
           </p>
           <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 12 }}>
             {[
-              { label: '3×', desc: 'more questions vs. open mic' },
-              { label: '94%', desc: 'of speakers say sessions are more engaging' },
+              { label: 'Anonymous', desc: 'or named — the attendee’s choice' },
+              { label: 'Upvoting', desc: 'the room ranks the questions' },
               { label: 'Any phone', desc: 'no app download required' },
             ].map((s) => (
               <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <div style={{ background: 'rgba(31,77,58,0.08)', border: '1px solid rgba(31,77,58,0.2)', borderRadius: 8, padding: '4px 10px', fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 14, fontWeight: 700, color: '#1F4D3A', flexShrink: 0 }}>{s.label}</div>
-                <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#6B7A72' }}>{s.desc}</span>
+                <div style={{ background: 'rgba(31,77,58,0.08)', border: '1px solid rgba(31,77,58,0.2)', borderRadius: 8, padding: '4px 10px', fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif', fontSize: 14, fontWeight: 700, color: '#1F4D3A', flexShrink: 0 }}>{s.label}</div>
+                <span style={{ fontFamily: 'var(--font-sans)', fontSize: 14, color: '#6B7A72' }}>{s.desc}</span>
               </div>
             ))}
           </div>
@@ -143,7 +143,7 @@ function QAPollsMockup() {
           {/* Floating badge */}
           <div style={{ position: 'absolute' as const, top: -16, left: 20, background: '#1F4D3A', borderRadius: 999, padding: '6px 14px', display: 'flex', alignItems: 'center', gap: 7, zIndex: 10, boxShadow: '0 4px 16px rgba(15,31,24,0.25)' }}>
             <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#B8423C' }} />
-            <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: 600, color: '#FAF6EE' }}>87 questions · Session live</span>
+            <span style={{ fontFamily: 'var(--font-sans)', fontSize: 12, fontWeight: 600, color: '#FAF6EE' }}>87 questions · Session live</span>
           </div>
 
           {/* Laptop */}
@@ -155,14 +155,14 @@ function QAPollsMockup() {
                 <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#FEBC2E' }} />
                 <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#28C840' }} />
               </div>
-              <div style={{ background: '#FFFFFF', borderRadius: 5, padding: '3px 10px', fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#6B7A72', border: '1px solid #E5E0D4' }}>
+              <div style={{ background: '#FFFFFF', borderRadius: 5, padding: '3px 10px', fontFamily: 'var(--font-sans)', fontSize: 11, color: '#6B7A72', border: '1px solid #E5E0D4' }}>
                 eventera.so/e/summit/qa
               </div>
             </div>
             <div style={{ background: '#FAF6EE', display: 'flex', height: 320, overflow: 'hidden' }}>
               {/* Sidebar */}
               <div style={{ width: 130, background: '#FFFFFF', borderRight: '1px solid #E5E0D4', padding: '10px 8px', flexShrink: 0 }}>
-                <div style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 13, fontWeight: 700, color: '#1F4D3A', marginBottom: 14, padding: '0 4px' }}>Eventera</div>
+                <div style={{ fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif', fontSize: 13, fontWeight: 700, color: '#1F4D3A', marginBottom: 14, padding: '0 4px' }}>Eventera</div>
                 <div style={{ background: '#E8EFEB', borderRadius: 6, padding: '5px 8px', marginBottom: 3, display: 'flex', alignItems: 'center', gap: 6 }}>
                   <div style={{ width: 12, height: 12, borderRadius: 2, background: '#1F4D3A', flexShrink: 0 }} />
                   <div style={{ width: 55, height: 7, background: '#1F4D3A', opacity: 0.4, borderRadius: 3 }} />
@@ -178,21 +178,21 @@ function QAPollsMockup() {
               <div style={{ flex: 1, padding: 12, overflow: 'hidden' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
                   <div>
-                    <div style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 11, fontWeight: 700, color: '#0F1F18' }}>Fintech in East Africa</div>
-                    <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 9, color: '#6B7A72' }}>87 questions · 312 voting</div>
+                    <div style={{ fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif', fontSize: 11, fontWeight: 700, color: '#0F1F18' }}>Fintech in East Africa</div>
+                    <div style={{ fontFamily: 'var(--font-sans)', fontSize: 9, color: '#6B7A72' }}>87 questions · 312 voting</div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                     <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#B8423C' }} />
-                    <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 9, color: '#B8423C', fontWeight: 700 }}>LIVE</span>
+                    <span style={{ fontFamily: 'var(--font-sans)', fontSize: 9, color: '#B8423C', fontWeight: 700 }}>LIVE</span>
                   </div>
                 </div>
                 {/* Top question */}
                 <div style={{ background: '#FFFFFF', border: '1.5px solid #1F4D3A', borderRadius: 7, padding: '8px 10px', marginBottom: 5 }}>
-                  <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 9, fontWeight: 700, color: '#E8C57E', marginBottom: 4, letterSpacing: '0.06em' }}>TOP</div>
+                  <div style={{ fontFamily: 'var(--font-sans)', fontSize: 9, fontWeight: 700, color: '#E8C57E', marginBottom: 4, letterSpacing: '0.06em' }}>TOP</div>
                   <div style={{ width: '90%', height: 6, background: '#E5E0D4', borderRadius: 3, marginBottom: 3 }} />
                   <div style={{ width: '75%', height: 6, background: '#E5E0D4', borderRadius: 3, marginBottom: 6 }} />
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <div style={{ background: '#E8EFEB', borderRadius: 4, padding: '2px 7px', fontFamily: 'Inter, sans-serif', fontSize: 10, fontWeight: 600, color: '#1F4D3A' }}>▲ 47</div>
+                    <div style={{ background: '#E8EFEB', borderRadius: 4, padding: '2px 7px', fontFamily: 'var(--font-sans)', fontSize: 10, fontWeight: 600, color: '#1F4D3A' }}>▲ 47</div>
                     <div style={{ width: 35, height: 5, background: '#E8EFEB', borderRadius: 3 }} />
                   </div>
                 </div>
@@ -200,12 +200,15 @@ function QAPollsMockup() {
                   <div key={i} style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 7, padding: '7px 10px', marginBottom: 5 }}>
                     <div style={{ width: `${q.w1}%`, height: 5, background: '#E5E0D4', borderRadius: 3, marginBottom: 3 }} />
                     <div style={{ width: `${q.w2}%`, height: 5, background: '#E8EFEB', borderRadius: 3, marginBottom: 5 }} />
-                    <div style={{ background: '#E8EFEB', display: 'inline-block', borderRadius: 4, padding: '2px 7px', fontFamily: 'Inter, sans-serif', fontSize: 10, fontWeight: 600, color: '#1F4D3A' }}>▲ {q.v}</div>
+                    <div style={{ background: '#E8EFEB', display: 'inline-block', borderRadius: 4, padding: '2px 7px', fontFamily: 'var(--font-sans)', fontSize: 10, fontWeight: 600, color: '#1F4D3A' }}>▲ {q.v}</div>
                   </div>
                 ))}
                 {/* Poll */}
                 <div style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 7, padding: '7px 10px' }}>
-                  <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 10, fontWeight: 700, color: '#0F1F18', marginBottom: 5 }}>📊 Live Poll · 58 votes</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'var(--font-sans)', fontSize: 10, fontWeight: 700, color: '#0F1F18', marginBottom: 5 }}>
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#1F4D3A" strokeWidth="2.2" strokeLinecap="round" aria-hidden><line x1="6" y1="20" x2="6" y2="13" /><line x1="12" y1="20" x2="12" y2="5" /><line x1="18" y1="20" x2="18" y2="10" /></svg>
+                    Live Poll · 58 votes
+                  </div>
                   {[42, 33, 25].map((pct, i) => (
                     <div key={i} style={{ marginBottom: 4 }}>
                       <div style={{ background: '#E8EFEB', borderRadius: 3, height: 4, overflow: 'hidden' }}>
@@ -225,24 +228,24 @@ function QAPollsMockup() {
             <div style={{ background: '#FAF6EE', borderRadius: 20, overflow: 'hidden' }}>
               <div style={{ background: '#1F4D3A', padding: '10px 10px 8px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 10, fontWeight: 700, color: '#FAF6EE' }}>Live Q&amp;A</div>
+                  <div style={{ fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif', fontSize: 10, fontWeight: 700, color: '#FAF6EE' }}>Live Q&amp;A</div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
                     <div style={{ width: 5, height: 5, borderRadius: '50%', background: '#B8423C' }} />
-                    <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 8, color: '#FAF6EE', fontWeight: 700 }}>LIVE</span>
+                    <span style={{ fontFamily: 'var(--font-sans)', fontSize: 8, color: '#FAF6EE', fontWeight: 700 }}>LIVE</span>
                   </div>
                 </div>
               </div>
               <div style={{ padding: '6px 8px' }}>
                 <div style={{ background: '#FFFFFF', border: '1.5px solid #1F4D3A', borderRadius: 6, padding: '6px 8px', marginBottom: 4 }}>
-                  <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 8, color: '#E8C57E', fontWeight: 700, marginBottom: 3 }}>TOP</div>
+                  <div style={{ fontFamily: 'var(--font-sans)', fontSize: 8, color: '#E8C57E', fontWeight: 700, marginBottom: 3 }}>TOP</div>
                   <div style={{ width: '90%', height: 4, background: '#E5E0D4', borderRadius: 2, marginBottom: 2 }} />
                   <div style={{ width: '70%', height: 4, background: '#E5E0D4', borderRadius: 2, marginBottom: 4 }} />
-                  <div style={{ background: '#E8EFEB', display: 'inline-block', borderRadius: 3, padding: '1px 5px', fontFamily: 'Inter, sans-serif', fontSize: 9, color: '#1F4D3A', fontWeight: 600 }}>▲ 47</div>
+                  <div style={{ background: '#E8EFEB', display: 'inline-block', borderRadius: 3, padding: '1px 5px', fontFamily: 'var(--font-sans)', fontSize: 9, color: '#1F4D3A', fontWeight: 600 }}>▲ 47</div>
                 </div>
                 {[23, 18].map((v, i) => (
                   <div key={i} style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 5, padding: '5px 8px', marginBottom: 4 }}>
                     <div style={{ width: i === 0 ? '85%' : '75%', height: 4, background: '#E5E0D4', borderRadius: 2, marginBottom: 4 }} />
-                    <div style={{ background: '#E8EFEB', display: 'inline-block', borderRadius: 3, padding: '1px 5px', fontFamily: 'Inter, sans-serif', fontSize: 9, color: '#1F4D3A', fontWeight: 600 }}>▲ {v}</div>
+                    <div style={{ background: '#E8EFEB', display: 'inline-block', borderRadius: 3, padding: '1px 5px', fontFamily: 'var(--font-sans)', fontSize: 9, color: '#1F4D3A', fontWeight: 600 }}>▲ {v}</div>
                   </div>
                 ))}
                 <div style={{ height: 22, background: '#FAF6EE', border: '1px solid #E5E0D4', borderRadius: 5, display: 'flex', alignItems: 'center', padding: '0 6px' }}>
@@ -293,7 +296,7 @@ export default function QAPollsPage() {
             />
             <span
               style={{
-                fontFamily: 'Inter, sans-serif',
+                fontFamily: 'var(--font-sans)',
                 fontSize: 12,
                 fontWeight: 600,
                 letterSpacing: '0.08em',
@@ -307,7 +310,7 @@ export default function QAPollsPage() {
 
           <h1
             style={{
-              fontFamily: '"Plus Jakarta Sans", sans-serif',
+              fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif',
               fontSize: 'clamp(34px, 5.5vw, 64px)',
               fontWeight: 700,
               letterSpacing: '-0.02em',
@@ -322,7 +325,7 @@ export default function QAPollsPage() {
 
           <p
             style={{
-              fontFamily: 'Inter, sans-serif',
+              fontFamily: 'var(--font-sans)',
               fontSize: 'clamp(17px, 2.2vw, 20px)',
               lineHeight: 1.65,
               color: C.inkSoft,
@@ -343,7 +346,7 @@ export default function QAPollsPage() {
                 gap: 8,
                 background: C.primary,
                 color: C.surface,
-                fontFamily: 'Inter, sans-serif',
+                fontFamily: 'var(--font-sans)',
                 fontWeight: 600,
                 fontSize: 15,
                 padding: '14px 28px',
@@ -364,7 +367,7 @@ export default function QAPollsPage() {
                 gap: 8,
                 background: 'transparent',
                 color: C.primary,
-                fontFamily: 'Inter, sans-serif',
+                fontFamily: 'var(--font-sans)',
                 fontWeight: 600,
                 fontSize: 15,
                 padding: '14px 28px',
@@ -392,7 +395,7 @@ export default function QAPollsPage() {
           <div style={{ textAlign: 'center', marginBottom: 56 }}>
             <h2
               style={{
-                fontFamily: '"Plus Jakarta Sans", sans-serif',
+                fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif',
                 fontSize: 'clamp(26px, 4vw, 40px)',
                 fontWeight: 700,
                 letterSpacing: '-0.02em',
@@ -404,7 +407,7 @@ export default function QAPollsPage() {
             </h2>
             <p
               style={{
-                fontFamily: 'Inter, sans-serif',
+                fontFamily: 'var(--font-sans)',
                 fontSize: 17,
                 color: C.muted,
                 maxWidth: 500,
@@ -451,7 +454,7 @@ export default function QAPollsPage() {
                 </div>
                 <h3
                   style={{
-                    fontFamily: '"Plus Jakarta Sans", sans-serif',
+                    fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif',
                     fontSize: 20,
                     fontWeight: 700,
                     color: C.ink,
@@ -462,7 +465,7 @@ export default function QAPollsPage() {
                 </h3>
                 <p
                   style={{
-                    fontFamily: 'Inter, sans-serif',
+                    fontFamily: 'var(--font-sans)',
                     fontSize: 15,
                     lineHeight: 1.65,
                     color: C.inkSoft,
@@ -488,7 +491,7 @@ export default function QAPollsPage() {
           <div style={{ textAlign: 'center', marginBottom: 56 }}>
             <h2
               style={{
-                fontFamily: '"Plus Jakarta Sans", sans-serif',
+                fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif',
                 fontSize: 'clamp(26px, 4vw, 40px)',
                 fontWeight: 700,
                 letterSpacing: '-0.02em',
@@ -500,7 +503,7 @@ export default function QAPollsPage() {
             </h2>
             <p
               style={{
-                fontFamily: 'Inter, sans-serif',
+                fontFamily: 'var(--font-sans)',
                 fontSize: 17,
                 color: C.muted,
                 maxWidth: 440,
@@ -523,7 +526,7 @@ export default function QAPollsPage() {
               <div key={s.n}>
                 <div
                   style={{
-                    fontFamily: '"Plus Jakarta Sans", sans-serif',
+                    fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif',
                     fontSize: 56,
                     fontWeight: 800,
                     color: C.primarySoft,
@@ -536,7 +539,7 @@ export default function QAPollsPage() {
                 </div>
                 <h3
                   style={{
-                    fontFamily: '"Plus Jakarta Sans", sans-serif',
+                    fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif',
                     fontSize: 18,
                     fontWeight: 700,
                     color: C.ink,
@@ -547,7 +550,7 @@ export default function QAPollsPage() {
                 </h3>
                 <p
                   style={{
-                    fontFamily: 'Inter, sans-serif',
+                    fontFamily: 'var(--font-sans)',
                     fontSize: 15,
                     lineHeight: 1.65,
                     color: C.inkSoft,
@@ -585,7 +588,7 @@ export default function QAPollsPage() {
             <div key={s.label}>
               <div
                 style={{
-                  fontFamily: '"Plus Jakarta Sans", sans-serif',
+                  fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif',
                   fontSize: 'clamp(32px, 5vw, 48px)',
                   fontWeight: 800,
                   color: C.primary,
@@ -598,7 +601,7 @@ export default function QAPollsPage() {
               </div>
               <div
                 style={{
-                  fontFamily: 'Inter, sans-serif',
+                  fontFamily: 'var(--font-sans)',
                   fontSize: 14,
                   color: C.muted,
                   textTransform: 'uppercase' as const,
@@ -624,7 +627,7 @@ export default function QAPollsPage() {
         <div style={{ maxWidth: 640, margin: '0 auto' }}>
           <h2
             style={{
-              fontFamily: '"Plus Jakarta Sans", sans-serif',
+              fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif',
               fontSize: 'clamp(28px, 4.5vw, 48px)',
               fontWeight: 700,
               letterSpacing: '-0.02em',
@@ -636,7 +639,7 @@ export default function QAPollsPage() {
           </h2>
           <p
             style={{
-              fontFamily: 'Inter, sans-serif',
+              fontFamily: 'var(--font-sans)',
               fontSize: 18,
               color: 'rgba(255,255,255,0.8)',
               lineHeight: 1.6,
@@ -656,7 +659,7 @@ export default function QAPollsPage() {
                 gap: 8,
                 background: C.surface,
                 color: C.primary,
-                fontFamily: 'Inter, sans-serif',
+                fontFamily: 'var(--font-sans)',
                 fontWeight: 700,
                 fontSize: 15,
                 padding: '14px 28px',
@@ -677,7 +680,7 @@ export default function QAPollsPage() {
                 gap: 8,
                 background: 'transparent',
                 color: '#FFFFFF',
-                fontFamily: 'Inter, sans-serif',
+                fontFamily: 'var(--font-sans)',
                 fontWeight: 600,
                 fontSize: 15,
                 padding: '14px 28px',

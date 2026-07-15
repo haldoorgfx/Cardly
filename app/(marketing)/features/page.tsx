@@ -78,10 +78,10 @@ export default function FeaturesIndexPage() {
           </div>
 
           <div className="mt-12 flex flex-wrap items-center justify-center gap-3">
-            <Link href="/signup" className="inline-flex items-center gap-2 rounded-xl font-semibold text-white transition hover:opacity-90" style={{ background: C.primary, fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif', height: 52, padding: '0 24px', fontSize: 15 }}>
+            <Link href="/signup" className="inline-flex items-center gap-2 rounded-full font-semibold text-white transition hover:opacity-90" style={{ background: C.primary, fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif', height: 52, padding: '0 24px', fontSize: 15 }}>
               Start free <ArrowRight size={16} strokeWidth={2} />
             </Link>
-            <Link href="/pricing" className="inline-flex items-center gap-2 rounded-xl font-semibold transition hover:border-[#1F4D3A]" style={{ background: '#FFFFFF', border: `1px solid ${C.border}`, color: C.ink, fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif', height: 52, padding: '0 24px', fontSize: 15 }}>
+            <Link href="/pricing" className="inline-flex items-center gap-2 rounded-full font-semibold transition hover:border-[#1F4D3A]" style={{ background: '#FFFFFF', border: `1px solid ${C.border}`, color: C.ink, fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif', height: 52, padding: '0 24px', fontSize: 15 }}>
               See pricing
             </Link>
           </div>

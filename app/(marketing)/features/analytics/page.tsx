@@ -99,7 +99,7 @@ const STEPS = [
 
 const STATS = [
   { value: 'Live', label: 'real-time data' },
-  { value: '6mo', label: 'data retention on all plans' },
+  { value: 'Exportable', label: 'download any dataset' },
   { value: 'CSV', label: 'export on all plans' },
 ];
 
@@ -108,18 +108,18 @@ function AnalyticsMockup() {
   const barDays = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
   return (
-    <section style={{ background: '#0F1F18', padding: 'clamp(72px,10vw,112px) clamp(20px,4vw,48px) 0', overflow: 'hidden' }}>
+    <section style={{ background: 'linear-gradient(165deg, #1F4D3A 0%, #163828 100%)', padding: 'clamp(72px,10vw,112px) clamp(20px,4vw,48px) 0', overflow: 'hidden' }}>
       <div style={{ maxWidth: 1080, margin: '0 auto' }}>
         {/* TOP ROW */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(260px,1fr))', gap: 40, alignItems: 'end', marginBottom: 48 }}>
           <div>
-            <div style={{ display: 'inline-block', background: 'rgba(232,197,126,0.12)', border: '1px solid rgba(232,197,126,0.25)', color: '#E8C57E', fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase' as const, borderRadius: 999, padding: '5px 14px', fontFamily: 'Inter,sans-serif', marginBottom: 20 }}>
+            <div style={{ display: 'inline-block', background: 'rgba(232,197,126,0.12)', border: '1px solid rgba(232,197,126,0.25)', color: '#E8C57E', fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase' as const, borderRadius: 999, padding: '5px 14px', fontFamily: 'var(--font-sans)', marginBottom: 20 }}>
               Organiser Dashboard
             </div>
-            <h2 style={{ fontFamily: 'Plus Jakarta Sans,sans-serif', fontSize: 'clamp(1.7rem,3vw,2.4rem)', fontWeight: 700, color: '#FAF6EE', letterSpacing: '-0.02em', lineHeight: 1.15, marginBottom: 14 }}>
+            <h2 style={{ fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif', fontSize: 'clamp(1.7rem,3vw,2.4rem)', fontWeight: 700, color: '#FAF6EE', letterSpacing: '-0.02em', lineHeight: 1.15, marginBottom: 14 }}>
               Every metric that matters, live.
             </h2>
-            <p style={{ fontFamily: 'Inter,sans-serif', fontSize: 16, color: 'rgba(250,246,238,0.60)', lineHeight: 1.65, maxWidth: 400 }}>
+            <p style={{ fontFamily: 'var(--font-sans)', fontSize: 16, color: 'rgba(250,246,238,0.60)', lineHeight: 1.65, maxWidth: 400 }}>
               From the moment your page goes live — registrations, revenue, check-in rates, page views. All in one place.
             </p>
           </div>
@@ -130,8 +130,8 @@ function AnalyticsMockup() {
               { n: '87%', label: 'check-in rate' },
             ].map((s) => (
               <div key={s.label} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '14px 18px', flex: '1 1 120px' }}>
-                <div style={{ fontFamily: 'Plus Jakarta Sans,sans-serif', fontSize: 28, fontWeight: 700, color: '#FAF6EE', letterSpacing: '-0.03em', lineHeight: 1 }}>{s.n}</div>
-                <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 12, color: 'rgba(250,246,238,0.45)', marginTop: 4 }}>{s.label}</div>
+                <div style={{ fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif', fontSize: 28, fontWeight: 700, color: '#FAF6EE', letterSpacing: '-0.03em', lineHeight: 1 }}>{s.n}</div>
+                <div style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'rgba(250,246,238,0.45)', marginTop: 4 }}>{s.label}</div>
               </div>
             ))}
           </div>
@@ -141,10 +141,10 @@ function AnalyticsMockup() {
         <div style={{ background: '#1A2620', borderRadius: '14px 14px 0 0', padding: 20, boxShadow: '0 -4px 60px rgba(0,0,0,0.4)' }}>
           {/* Header row */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontFamily: 'Plus Jakarta Sans,sans-serif', fontSize: 14, fontWeight: 700, color: '#FAF6EE' }}>Pan-African Tech Summit</span>
+            <span style={{ fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif', fontSize: 14, fontWeight: 700, color: '#FAF6EE' }}>Pan-African Tech Summit</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#2D7A4F', display: 'inline-block' }} />
-              <span style={{ fontFamily: 'Inter,sans-serif', fontSize: 12, color: '#2D7A4F' }}>Live · Mar 15, 2025</span>
+              <span style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: '#2D7A4F' }}>Live · Mar 15, 2025</span>
             </div>
           </div>
 
@@ -157,9 +157,9 @@ function AnalyticsMockup() {
               { val: '2,841', label: 'Page views', sub: '+124 today', subColor: '#2D7A4F' },
             ].map((s) => (
               <div key={s.label} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: 14 }}>
-                <div style={{ fontFamily: 'Plus Jakarta Sans,sans-serif', fontSize: 24, fontWeight: 700, color: '#FAF6EE', lineHeight: 1 }}>{s.val}</div>
-                <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 11, color: 'rgba(250,246,238,0.45)', marginTop: 4 }}>{s.label}</div>
-                <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 11, color: s.subColor, marginTop: 4 }}>{s.sub}</div>
+                <div style={{ fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif', fontSize: 24, fontWeight: 700, color: '#FAF6EE', lineHeight: 1 }}>{s.val}</div>
+                <div style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: 'rgba(250,246,238,0.45)', marginTop: 4 }}>{s.label}</div>
+                <div style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: s.subColor, marginTop: 4 }}>{s.sub}</div>
               </div>
             ))}
           </div>
@@ -167,8 +167,8 @@ function AnalyticsMockup() {
           {/* Bar chart */}
           <div style={{ background: 'rgba(0,0,0,0.2)', borderRadius: 10, padding: 16 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-              <span style={{ fontFamily: 'Inter,sans-serif', fontSize: 13, fontWeight: 700, color: 'rgba(250,246,238,0.7)' }}>Registrations this week</span>
-              <span style={{ fontFamily: 'Inter,sans-serif', fontSize: 12, color: 'rgba(250,246,238,0.4)' }}>Export CSV →</span>
+              <span style={{ fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 700, color: 'rgba(250,246,238,0.7)' }}>Registrations this week</span>
+              <span style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'rgba(250,246,238,0.4)' }}>Export CSV →</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, height: 80 }}>
               {barHeights.map((h, i) => (
@@ -179,7 +179,7 @@ function AnalyticsMockup() {
             </div>
             <div style={{ display: 'flex', marginTop: 6 }}>
               {barDays.map((d, i) => (
-                <div key={i} style={{ flex: 1, fontFamily: 'Inter,sans-serif', fontSize: 10, color: 'rgba(250,246,238,0.35)', textAlign: 'center' as const }}>{d}</div>
+                <div key={i} style={{ flex: 1, fontFamily: 'var(--font-sans)', fontSize: 10, color: 'rgba(250,246,238,0.35)', textAlign: 'center' as const }}>{d}</div>
               ))}
             </div>
           </div>
@@ -187,7 +187,7 @@ function AnalyticsMockup() {
           {/* Bottom row */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(240px,1fr))', gap: 16, marginTop: 16 }}>
             <div>
-              <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 12, fontWeight: 700, color: '#FAF6EE', marginBottom: 10 }}>Ticket breakdown</div>
+              <div style={{ fontFamily: 'var(--font-sans)', fontSize: 12, fontWeight: 700, color: '#FAF6EE', marginBottom: 10 }}>Ticket breakdown</div>
               {[
                 { label: 'General', price: '$0', pct: 62 },
                 { label: 'Professional', price: '$49', pct: 35 },
@@ -195,8 +195,8 @@ function AnalyticsMockup() {
               ].map((r) => (
                 <div key={r.label} style={{ marginBottom: 10 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                    <span style={{ fontFamily: 'Inter,sans-serif', fontSize: 12, color: 'rgba(250,246,238,0.7)' }}>{r.label} {r.price}</span>
-                    <span style={{ fontFamily: 'Inter,sans-serif', fontSize: 11, color: '#6B7A72' }}>{r.pct}%</span>
+                    <span style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'rgba(250,246,238,0.7)' }}>{r.label} {r.price}</span>
+                    <span style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: '#6B7A72' }}>{r.pct}%</span>
                   </div>
                   <div style={{ background: 'rgba(255,255,255,0.08)', height: 6, borderRadius: 3 }}>
                     <div style={{ width: `${r.pct}%`, height: '100%', background: '#1F4D3A', borderRadius: 3 }} />
@@ -205,7 +205,7 @@ function AnalyticsMockup() {
               ))}
             </div>
             <div>
-              <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 12, fontWeight: 700, color: '#FAF6EE', marginBottom: 10 }}>Top referrer channels</div>
+              <div style={{ fontFamily: 'var(--font-sans)', fontSize: 12, fontWeight: 700, color: '#FAF6EE', marginBottom: 10 }}>Top referrer channels</div>
               {[
                 { label: 'Instagram', pct: 38 },
                 { label: 'WhatsApp', pct: 27 },
@@ -214,8 +214,8 @@ function AnalyticsMockup() {
               ].map((r) => (
                 <div key={r.label} style={{ marginBottom: 10 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                    <span style={{ fontFamily: 'Inter,sans-serif', fontSize: 12, color: '#FAF6EE' }}>{r.label}</span>
-                    <span style={{ fontFamily: 'Inter,sans-serif', fontSize: 11, color: '#6B7A72' }}>{r.pct}%</span>
+                    <span style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: '#FAF6EE' }}>{r.label}</span>
+                    <span style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: '#6B7A72' }}>{r.pct}%</span>
                   </div>
                   <div style={{ background: 'rgba(255,255,255,0.08)', height: 6, borderRadius: 3 }}>
                     <div style={{ width: `${r.pct}%`, height: '100%', background: '#1F4D3A', borderRadius: 3 }} />
@@ -255,14 +255,14 @@ export default function AnalyticsFeaturePage() {
               marginBottom: 28,
             }}
           >
-            <span style={{ color: C.primary, fontSize: 12, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase' as const, fontFamily: 'Inter, sans-serif' }}>
+            <span style={{ color: C.primary, fontSize: 12, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase' as const, fontFamily: 'var(--font-sans)' }}>
               Event Analytics
             </span>
           </div>
 
           <h1
             style={{
-              fontFamily: 'Plus Jakarta Sans, sans-serif',
+              fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif',
               fontSize: 'clamp(2rem, 5vw, 3.5rem)',
               fontWeight: 700,
               letterSpacing: '-0.02em',
@@ -277,7 +277,7 @@ export default function AnalyticsFeaturePage() {
 
           <p
             style={{
-              fontFamily: 'Inter, sans-serif',
+              fontFamily: 'var(--font-sans)',
               fontSize: 'clamp(1rem, 2vw, 1.2rem)',
               color: C.inkSoft,
               lineHeight: 1.7,
@@ -298,7 +298,7 @@ export default function AnalyticsFeaturePage() {
                 gap: 8,
                 background: C.primary,
                 color: C.cream,
-                fontFamily: 'Inter, sans-serif',
+                fontFamily: 'var(--font-sans)',
                 fontSize: 15,
                 fontWeight: 600,
                 padding: '14px 28px',
@@ -316,7 +316,7 @@ export default function AnalyticsFeaturePage() {
                 gap: 8,
                 background: C.surface,
                 color: C.primary,
-                fontFamily: 'Inter, sans-serif',
+                fontFamily: 'var(--font-sans)',
                 fontSize: 15,
                 fontWeight: 600,
                 padding: '14px 28px',
@@ -339,7 +339,7 @@ export default function AnalyticsFeaturePage() {
           <div style={{ textAlign: 'center', marginBottom: 56 }}>
             <h2
               style={{
-                fontFamily: 'Plus Jakarta Sans, sans-serif',
+                fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif',
                 fontSize: 'clamp(1.5rem, 3vw, 2.25rem)',
                 fontWeight: 700,
                 letterSpacing: '-0.02em',
@@ -349,7 +349,7 @@ export default function AnalyticsFeaturePage() {
             >
               The full picture, not just a headcount
             </h2>
-            <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 17, color: C.muted, maxWidth: 520, margin: '0 auto' }}>
+            <p style={{ fontFamily: 'var(--font-sans)', fontSize: 17, color: C.muted, maxWidth: 520, margin: '0 auto' }}>
               Every metric you need to understand your audience and improve your next event.
             </p>
           </div>
@@ -391,7 +391,7 @@ export default function AnalyticsFeaturePage() {
                 </div>
                 <h3
                   style={{
-                    fontFamily: 'Plus Jakarta Sans, sans-serif',
+                    fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif',
                     fontSize: 18,
                     fontWeight: 700,
                     color: C.ink,
@@ -400,7 +400,7 @@ export default function AnalyticsFeaturePage() {
                 >
                   {f.title}
                 </h3>
-                <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: C.inkSoft, lineHeight: 1.65 }}>
+                <p style={{ fontFamily: 'var(--font-sans)', fontSize: 15, color: C.inkSoft, lineHeight: 1.65 }}>
                   {f.description}
                 </p>
               </div>
@@ -415,7 +415,7 @@ export default function AnalyticsFeaturePage() {
           <div style={{ textAlign: 'center', marginBottom: 56 }}>
             <h2
               style={{
-                fontFamily: 'Plus Jakarta Sans, sans-serif',
+                fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif',
                 fontSize: 'clamp(1.5rem, 3vw, 2.25rem)',
                 fontWeight: 700,
                 letterSpacing: '-0.02em',
@@ -425,7 +425,7 @@ export default function AnalyticsFeaturePage() {
             >
               How it works
             </h2>
-            <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 17, color: C.muted }}>
+            <p style={{ fontFamily: 'var(--font-sans)', fontSize: 17, color: C.muted }}>
               Analytics on by default. No tracking scripts to install.
             </p>
           </div>
@@ -441,7 +441,7 @@ export default function AnalyticsFeaturePage() {
               <div key={step.number} style={{ display: 'flex', flexDirection: 'column' as const, gap: 16 }}>
                 <div
                   style={{
-                    fontFamily: 'Plus Jakarta Sans, sans-serif',
+                    fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif',
                     fontSize: 48,
                     fontWeight: 800,
                     color: C.primarySoft,
@@ -453,7 +453,7 @@ export default function AnalyticsFeaturePage() {
                 </div>
                 <h3
                   style={{
-                    fontFamily: 'Plus Jakarta Sans, sans-serif',
+                    fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif',
                     fontSize: 18,
                     fontWeight: 700,
                     color: C.ink,
@@ -462,7 +462,7 @@ export default function AnalyticsFeaturePage() {
                 >
                   {step.title}
                 </h3>
-                <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: C.inkSoft, lineHeight: 1.65 }}>
+                <p style={{ fontFamily: 'var(--font-sans)', fontSize: 15, color: C.inkSoft, lineHeight: 1.65 }}>
                   {step.description}
                 </p>
               </div>
@@ -494,7 +494,7 @@ export default function AnalyticsFeaturePage() {
             <div key={s.label} style={{ display: 'flex', flexDirection: 'column' as const, gap: 8 }}>
               <span
                 style={{
-                  fontFamily: 'Plus Jakarta Sans, sans-serif',
+                  fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif',
                   fontSize: 'clamp(2rem, 4vw, 2.75rem)',
                   fontWeight: 800,
                   color: C.primary,
@@ -504,7 +504,7 @@ export default function AnalyticsFeaturePage() {
               >
                 {s.value}
               </span>
-              <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: C.muted }}>
+              <span style={{ fontFamily: 'var(--font-sans)', fontSize: 15, color: C.muted }}>
                 {s.label}
               </span>
             </div>
@@ -525,7 +525,7 @@ export default function AnalyticsFeaturePage() {
         <div style={{ position: 'relative', maxWidth: 640, margin: '0 auto' }}>
           <h2
             style={{
-              fontFamily: 'Plus Jakarta Sans, sans-serif',
+              fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif',
               fontSize: 'clamp(1.75rem, 4vw, 3rem)',
               fontWeight: 700,
               letterSpacing: '-0.02em',
@@ -537,7 +537,7 @@ export default function AnalyticsFeaturePage() {
           </h2>
           <p
             style={{
-              fontFamily: 'Inter, sans-serif',
+              fontFamily: 'var(--font-sans)',
               fontSize: 'clamp(1rem, 2vw, 1.15rem)',
               color: 'rgba(255,255,255,0.8)',
               lineHeight: 1.65,
@@ -554,7 +554,7 @@ export default function AnalyticsFeaturePage() {
                 alignItems: 'center',
                 background: C.accent,
                 color: C.ink,
-                fontFamily: 'Inter, sans-serif',
+                fontFamily: 'var(--font-sans)',
                 fontSize: 15,
                 fontWeight: 700,
                 padding: '14px 32px',
@@ -571,7 +571,7 @@ export default function AnalyticsFeaturePage() {
                 alignItems: 'center',
                 background: 'rgba(255,255,255,0.12)',
                 color: '#FFFFFF',
-                fontFamily: 'Inter, sans-serif',
+                fontFamily: 'var(--font-sans)',
                 fontSize: 15,
                 fontWeight: 600,
                 padding: '14px 32px',

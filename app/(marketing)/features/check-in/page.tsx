@@ -120,12 +120,12 @@ function CheckInMockup() {
         <div style={{ flex: '1 1 300px', maxWidth: 420, textAlign: 'left' as const }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
             <div style={{ width: 24, height: 1, background: '#E8C57E' }} />
-            <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 700, letterSpacing: '0.15em', color: '#1F4D3A', textTransform: 'uppercase' as const }}>Door Staff View</span>
+            <span style={{ fontFamily: 'var(--font-sans)', fontSize: 11, fontWeight: 700, letterSpacing: '0.15em', color: '#1F4D3A', textTransform: 'uppercase' as const }}>Door Staff View</span>
           </div>
-          <h2 style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', fontSize: 'clamp(26px, 3.5vw, 40px)', fontWeight: 700, letterSpacing: '-0.02em', color: '#0F1F18', marginBottom: 16, lineHeight: 1.15 }}>
+          <h2 style={{ fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif', fontSize: 'clamp(26px, 3.5vw, 40px)', fontWeight: 700, letterSpacing: '-0.02em', color: '#0F1F18', marginBottom: 16, lineHeight: 1.15 }}>
             367 checked in. 45 still to arrive.
           </h2>
-          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 17, color: '#3A4A42', lineHeight: 1.65, marginBottom: 32 }}>
+          <p style={{ fontFamily: 'var(--font-sans)', fontSize: 17, color: '#3A4A42', lineHeight: 1.65, marginBottom: 32 }}>
             Every QR scan updates your dashboard in real time. Know your room fill rate as it happens.
           </p>
           <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 12 }}>
@@ -135,8 +135,8 @@ function CheckInMockup() {
               { label: 'Any phone', desc: 'no app download for staff' },
             ].map((s) => (
               <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <div style={{ background: 'rgba(31,77,58,0.08)', border: '1px solid rgba(31,77,58,0.2)', borderRadius: 8, padding: '4px 10px', fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 14, fontWeight: 700, color: '#1F4D3A', flexShrink: 0 }}>{s.label}</div>
-                <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#6B7A72' }}>{s.desc}</span>
+                <div style={{ background: 'rgba(31,77,58,0.08)', border: '1px solid rgba(31,77,58,0.2)', borderRadius: 8, padding: '4px 10px', fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif', fontSize: 14, fontWeight: 700, color: '#1F4D3A', flexShrink: 0 }}>{s.label}</div>
+                <span style={{ fontFamily: 'var(--font-sans)', fontSize: 14, color: '#6B7A72' }}>{s.desc}</span>
               </div>
             ))}
           </div>
@@ -147,7 +147,7 @@ function CheckInMockup() {
           {/* Floating badge */}
           <div style={{ position: 'absolute' as const, top: -16, left: 20, background: '#1F4D3A', borderRadius: 999, padding: '6px 14px', display: 'flex', alignItems: 'center', gap: 7, zIndex: 10, boxShadow: '0 4px 16px rgba(15,31,24,0.25)' }}>
             <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#4ade80' }} />
-            <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: 600, color: '#FAF6EE' }}>367 checked in · Doors open</span>
+            <span style={{ fontFamily: 'var(--font-sans)', fontSize: 12, fontWeight: 600, color: '#FAF6EE' }}>367 checked in · Doors open</span>
           </div>
 
           {/* Laptop */}
@@ -159,14 +159,14 @@ function CheckInMockup() {
                 <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#FEBC2E' }} />
                 <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#28C840' }} />
               </div>
-              <div style={{ background: '#FFFFFF', borderRadius: 5, padding: '3px 10px', fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#6B7A72', border: '1px solid #E5E0D4' }}>
+              <div style={{ background: '#FFFFFF', borderRadius: 5, padding: '3px 10px', fontFamily: 'var(--font-sans)', fontSize: 11, color: '#6B7A72', border: '1px solid #E5E0D4' }}>
                 eventera.so/e/summit/check-in
               </div>
             </div>
             <div style={{ background: '#FAF6EE', display: 'flex', height: 320, overflow: 'hidden' }}>
               {/* Sidebar */}
               <div style={{ width: 130, background: '#FFFFFF', borderRight: '1px solid #E5E0D4', padding: '10px 8px', flexShrink: 0 }}>
-                <div style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 13, fontWeight: 700, color: '#1F4D3A', marginBottom: 14, padding: '0 4px' }}>Eventera</div>
+                <div style={{ fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif', fontSize: 13, fontWeight: 700, color: '#1F4D3A', marginBottom: 14, padding: '0 4px' }}>Eventera</div>
                 <div style={{ background: '#E8EFEB', borderRadius: 6, padding: '5px 8px', marginBottom: 3, display: 'flex', alignItems: 'center', gap: 6 }}>
                   <div style={{ width: 12, height: 12, borderRadius: 2, background: '#1F4D3A', flexShrink: 0 }} />
                   <div style={{ width: 55, height: 7, background: '#1F4D3A', opacity: 0.4, borderRadius: 3 }} />
@@ -181,21 +181,21 @@ function CheckInMockup() {
               {/* Main content */}
               <div style={{ flex: 1, padding: 12, overflow: 'hidden' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-                  <div style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 11, fontWeight: 700, color: '#1F4D3A' }}>Check-in · Live</div>
+                  <div style={{ fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif', fontSize: 11, fontWeight: 700, color: '#1F4D3A' }}>Check-in · Live</div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                     <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#4ade80' }} />
-                    <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 10, color: '#2D7A4F', fontWeight: 600 }}>LIVE</span>
+                    <span style={{ fontFamily: 'var(--font-sans)', fontSize: 10, color: '#2D7A4F', fontWeight: 600 }}>LIVE</span>
                   </div>
                 </div>
                 <div style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 8, padding: '10px 12px', marginBottom: 10 }}>
-                  <div style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 26, fontWeight: 800, color: '#1F4D3A', letterSpacing: '-0.02em' }}>367</div>
+                  <div style={{ fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif', fontSize: 26, fontWeight: 800, color: '#1F4D3A', letterSpacing: '-0.02em' }}>367</div>
                   <div style={{ width: 60, height: 6, background: '#E5E0D4', borderRadius: 3, marginTop: 4, marginBottom: 8 }} />
                   <div style={{ background: '#E8EFEB', borderRadius: 3, height: 5, overflow: 'hidden' }}>
                     <div style={{ width: '71%', height: '100%', background: '#1F4D3A', borderRadius: 3 }} />
                   </div>
-                  <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 9, color: '#6B7A72', marginTop: 3 }}>of 512 expected · 71%</div>
+                  <div style={{ fontFamily: 'var(--font-sans)', fontSize: 9, color: '#6B7A72', marginTop: 3 }}>of 512 expected · 71%</div>
                 </div>
-                <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 10, color: '#6B7A72', marginBottom: 6 }}>Recent arrivals</div>
+                <div style={{ fontFamily: 'var(--font-sans)', fontSize: 10, color: '#6B7A72', marginBottom: 6 }}>Recent arrivals</div>
                 {[{ w1: 40, w2: 25 }, { w1: 55, w2: 30 }, { w1: 48, w2: 28 }, { w1: 62, w2: 22 }].map((row, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5, paddingBottom: i < 3 ? 5 : 0, borderBottom: i < 3 ? '1px solid #F0EDE5' : 'none' }}>
                     <div style={{ width: 18, height: 18, borderRadius: '50%', background: '#E8EFEB', flexShrink: 0 }} />
@@ -221,12 +221,12 @@ function CheckInMockup() {
                     <path d="M5 12l5 5L20 7" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 </div>
-                <div style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 11, fontWeight: 700, color: '#FAF6EE' }}>Checked In</div>
+                <div style={{ fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif', fontSize: 11, fontWeight: 700, color: '#FAF6EE' }}>Checked In</div>
                 <div style={{ width: 50, height: 5, background: 'rgba(250,246,238,0.3)', borderRadius: 3 }} />
               </div>
               <div style={{ padding: '8px 8px 8px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
-                  <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'linear-gradient(135deg,#1F4D3A,#E8C57E)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 10, fontWeight: 700, color: '#fff', flexShrink: 0 }}>AY</div>
+                  <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'linear-gradient(135deg,#1F4D3A,#E8C57E)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif', fontSize: 10, fontWeight: 700, color: '#fff', flexShrink: 0 }}>AY</div>
                   <div>
                     <div style={{ width: 55, height: 6, background: '#E5E0D4', borderRadius: 3, marginBottom: 3 }} />
                     <div style={{ width: 70, height: 5, background: '#E8EFEB', borderRadius: 3 }} />
@@ -280,7 +280,7 @@ export default function CheckInPage() {
             />
             <span
               style={{
-                fontFamily: 'Inter, sans-serif',
+                fontFamily: 'var(--font-sans)',
                 fontSize: 12,
                 fontWeight: 600,
                 letterSpacing: '0.08em',
@@ -294,7 +294,7 @@ export default function CheckInPage() {
 
           <h1
             style={{
-              fontFamily: '"Plus Jakarta Sans", sans-serif',
+              fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif',
               fontSize: 'clamp(36px, 6vw, 68px)',
               fontWeight: 700,
               letterSpacing: '-0.02em',
@@ -311,7 +311,7 @@ export default function CheckInPage() {
 
           <p
             style={{
-              fontFamily: 'Inter, sans-serif',
+              fontFamily: 'var(--font-sans)',
               fontSize: 'clamp(17px, 2.2vw, 20px)',
               lineHeight: 1.65,
               color: C.inkSoft,
@@ -332,11 +332,11 @@ export default function CheckInPage() {
                 gap: 8,
                 background: C.primary,
                 color: C.surface,
-                fontFamily: 'Inter, sans-serif',
+                fontFamily: 'var(--font-sans)',
                 fontWeight: 600,
                 fontSize: 15,
                 padding: '14px 28px',
-                borderRadius: 10,
+                borderRadius: 999,
                 textDecoration: 'none',
               }}
             >
@@ -353,11 +353,11 @@ export default function CheckInPage() {
                 gap: 8,
                 background: 'transparent',
                 color: C.primary,
-                fontFamily: 'Inter, sans-serif',
+                fontFamily: 'var(--font-sans)',
                 fontWeight: 600,
                 fontSize: 15,
                 padding: '14px 28px',
-                borderRadius: 10,
+                borderRadius: 999,
                 textDecoration: 'none',
                 border: `1.5px solid ${C.border}`,
               }}
@@ -381,7 +381,7 @@ export default function CheckInPage() {
           <div style={{ textAlign: 'center', marginBottom: 56 }}>
             <h2
               style={{
-                fontFamily: '"Plus Jakarta Sans", sans-serif',
+                fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif',
                 fontSize: 'clamp(26px, 4vw, 40px)',
                 fontWeight: 700,
                 letterSpacing: '-0.02em',
@@ -393,7 +393,7 @@ export default function CheckInPage() {
             </h2>
             <p
               style={{
-                fontFamily: 'Inter, sans-serif',
+                fontFamily: 'var(--font-sans)',
                 fontSize: 17,
                 color: C.muted,
                 maxWidth: 480,
@@ -440,7 +440,7 @@ export default function CheckInPage() {
                 </div>
                 <h3
                   style={{
-                    fontFamily: '"Plus Jakarta Sans", sans-serif',
+                    fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif',
                     fontSize: 20,
                     fontWeight: 700,
                     color: C.ink,
@@ -451,7 +451,7 @@ export default function CheckInPage() {
                 </h3>
                 <p
                   style={{
-                    fontFamily: 'Inter, sans-serif',
+                    fontFamily: 'var(--font-sans)',
                     fontSize: 15,
                     lineHeight: 1.65,
                     color: C.inkSoft,
@@ -477,7 +477,7 @@ export default function CheckInPage() {
           <div style={{ textAlign: 'center', marginBottom: 56 }}>
             <h2
               style={{
-                fontFamily: '"Plus Jakarta Sans", sans-serif',
+                fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif',
                 fontSize: 'clamp(26px, 4vw, 40px)',
                 fontWeight: 700,
                 letterSpacing: '-0.02em',
@@ -489,7 +489,7 @@ export default function CheckInPage() {
             </h2>
             <p
               style={{
-                fontFamily: 'Inter, sans-serif',
+                fontFamily: 'var(--font-sans)',
                 fontSize: 17,
                 color: C.muted,
                 maxWidth: 440,
@@ -525,7 +525,7 @@ export default function CheckInPage() {
                 )}
                 <div
                   style={{
-                    fontFamily: '"Plus Jakarta Sans", sans-serif',
+                    fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif',
                     fontSize: 56,
                     fontWeight: 800,
                     color: C.primarySoft,
@@ -538,7 +538,7 @@ export default function CheckInPage() {
                 </div>
                 <h3
                   style={{
-                    fontFamily: '"Plus Jakarta Sans", sans-serif',
+                    fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif',
                     fontSize: 18,
                     fontWeight: 700,
                     color: C.ink,
@@ -549,7 +549,7 @@ export default function CheckInPage() {
                 </h3>
                 <p
                   style={{
-                    fontFamily: 'Inter, sans-serif',
+                    fontFamily: 'var(--font-sans)',
                     fontSize: 15,
                     lineHeight: 1.65,
                     color: C.inkSoft,
@@ -587,7 +587,7 @@ export default function CheckInPage() {
             <div key={s.label}>
               <div
                 style={{
-                  fontFamily: '"Plus Jakarta Sans", sans-serif',
+                  fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif',
                   fontSize: 'clamp(32px, 5vw, 48px)',
                   fontWeight: 800,
                   color: C.primary,
@@ -600,7 +600,7 @@ export default function CheckInPage() {
               </div>
               <div
                 style={{
-                  fontFamily: 'Inter, sans-serif',
+                  fontFamily: 'var(--font-sans)',
                   fontSize: 14,
                   color: C.muted,
                   textTransform: 'uppercase' as const,
@@ -626,7 +626,7 @@ export default function CheckInPage() {
         <div style={{ maxWidth: 640, margin: '0 auto' }}>
           <h2
             style={{
-              fontFamily: '"Plus Jakarta Sans", sans-serif',
+              fontFamily: 'var(--theme-font-display, "Plus Jakarta Sans"), sans-serif',
               fontSize: 'clamp(28px, 4.5vw, 48px)',
               fontWeight: 700,
               letterSpacing: '-0.02em',
@@ -638,7 +638,7 @@ export default function CheckInPage() {
           </h2>
           <p
             style={{
-              fontFamily: 'Inter, sans-serif',
+              fontFamily: 'var(--font-sans)',
               fontSize: 18,
               color: 'rgba(255,255,255,0.8)',
               lineHeight: 1.6,
@@ -658,11 +658,11 @@ export default function CheckInPage() {
                 gap: 8,
                 background: C.surface,
                 color: C.primary,
-                fontFamily: 'Inter, sans-serif',
+                fontFamily: 'var(--font-sans)',
                 fontWeight: 700,
                 fontSize: 15,
                 padding: '14px 28px',
-                borderRadius: 10,
+                borderRadius: 999,
                 textDecoration: 'none',
               }}
             >
@@ -679,11 +679,11 @@ export default function CheckInPage() {
                 gap: 8,
                 background: 'transparent',
                 color: '#FFFFFF',
-                fontFamily: 'Inter, sans-serif',
+                fontFamily: 'var(--font-sans)',
                 fontWeight: 600,
                 fontSize: 15,
                 padding: '14px 28px',
-                borderRadius: 10,
+                borderRadius: 999,
                 textDecoration: 'none',
                 border: '1.5px solid rgba(255,255,255,0.35)',
               }}

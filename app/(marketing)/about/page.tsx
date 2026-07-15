@@ -1,5 +1,6 @@
 ﻿import type { Metadata } from 'next';
 import Link from 'next/link';
+import { Sparkles } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'About Eventera — The Event Platform',
@@ -45,14 +46,6 @@ function CrossIcon() {
     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
       <circle cx="7" cy="7" r="7" fill={C.muted} fillOpacity="0.12" />
       <path d="M4.5 4.5l5 5M9.5 4.5l-5 5" stroke={C.muted} strokeWidth="1.5" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function SparkleIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
-      <path d="M8 1l1.5 4.5L14 7l-4.5 1.5L8 13l-1.5-4.5L2 7l4.5-1.5z" fill={C.accent} />
     </svg>
   );
 }
@@ -247,7 +240,7 @@ export default function AboutPage() {
                 gap: 10,
               }}
             >
-              <SparkleIcon />
+              <Sparkles size={16} strokeWidth={1.8} aria-hidden style={{ color: C.accent, flexShrink: 0, marginTop: 1 }} />
               <div>
                 <span
                   style={{
@@ -766,7 +759,7 @@ export default function AboutPage() {
               color: 'rgba(250,246,238,0.40)',
             }}
           >
-            Made in Djibouti 🇩🇯 · {(process.env.NEXT_PUBLIC_APP_URL ?? '').replace(/^https?:\/\//, '')}
+            Made in Djibouti · {(process.env.NEXT_PUBLIC_APP_URL ?? '').replace(/^https?:\/\//, '')}
           </p>
         </div>
       </section>

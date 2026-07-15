@@ -66,17 +66,17 @@ export default function AppPage() {
             <div>
               <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 mb-6" style={{ background: C.primarySoft }}>
                 <Smartphone size={13} strokeWidth={2} style={{ color: C.primary }} />
-                <span style={{ fontSize: 12, fontWeight: 600, color: C.primary, fontFamily: 'var(--font-sans)', letterSpacing: '0.02em' }}>Eventera app · iOS &amp; Android</span>
+                <span style={{ fontSize: 12, fontWeight: 600, color: C.primary, fontFamily: 'var(--font-sans)', letterSpacing: '0.02em' }}>Coming soon · iOS &amp; Android</span>
               </div>
               <h1 className="font-title font-extrabold" style={{ fontSize: 'clamp(38px, 6vw, 68px)', color: C.ink, letterSpacing: '-0.03em', lineHeight: 1.02 }}>
                 The whole event, in your pocket.
               </h1>
               <p style={{ fontFamily: 'var(--font-sans)', fontSize: 19, color: C.inkSoft, lineHeight: 1.6, marginTop: 20, maxWidth: 500 }}>
-                Your tickets, your Eventera Card, and the fastest check-in at the door — in one native app for attendees and organizers. Built to keep working when the venue Wi-Fi doesn&apos;t.
+                Your tickets, your Eventera Card, and the fastest check-in at the door — in one native app for attendees and organizers. Built to keep working when the venue Wi-Fi doesn&apos;t. Coming soon to iOS and Android.
               </p>
               <div className="mt-8"><AppStoreBadges /></div>
               <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2" style={{ fontSize: 13, color: C.muted, fontFamily: 'var(--font-sans)' }}>
-                <span>Free to download</span><span aria-hidden>·</span><span>iOS 15+ &amp; Android 8+</span><span aria-hidden>·</span><span>Offline-ready</span>
+                <span>Free when it lands</span><span aria-hidden>·</span><span>iOS 15+ &amp; Android 8+</span><span aria-hidden>·</span><span>Offline-ready</span>
               </div>
             </div>
             <div className="flex justify-center lg:justify-end">
@@ -126,10 +126,10 @@ export default function AppPage() {
               </div>
               <div className="text-center sm:text-left">
                 <h2 className="font-title font-bold" style={{ fontSize: 'clamp(26px, 3.5vw, 38px)', color: C.cream, letterSpacing: '-0.03em', lineHeight: 1.08 }}>
-                  Scan to download.
+                  Be first to know when it lands.
                 </h2>
                 <p style={{ fontFamily: 'var(--font-sans)', fontSize: 16, color: 'rgba(250,246,238,0.78)', lineHeight: 1.6, marginTop: 12, maxWidth: 460 }}>
-                  Point your camera at the code, or grab it from the App Store or Google Play.
+                  The Eventera app is on its way to iOS and Android. Watch this space — you&apos;ll be able to grab it from the App Store and Google Play at launch.
                 </p>
                 <div className="mt-7 flex justify-center sm:justify-start"><AppStoreBadges onDark /></div>
               </div>

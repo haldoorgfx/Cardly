@@ -43,7 +43,7 @@ const CATEGORIES: { name: string; items: FAQItem[] }[] = [
   {
     name: 'The mobile app',
     items: [
-      { q: 'Is there a mobile app?', a: 'Yes — a native Eventera app for iOS and Android. Attendees get their ticket wallet, Eventera Card, agenda and entitlements; organizers get on-site QR check-in and entitlement scanning.' },
+      { q: 'Is there a mobile app?', a: 'A native iOS and Android app is coming soon. Attendees will get their ticket wallet, Eventera Card, agenda and entitlements; organizers will get on-site QR check-in and entitlement scanning. Everything works on the web in the meantime.' },
       { q: 'Can I sign in with Face or Touch ID?', a: 'Yes. Biometric sign-in is supported, so you don’t retype your password at the door.' },
       { q: 'Does the organizer scanner work offline?', a: 'Yes — scans queue offline and sync later, so the door keeps moving even when venue Wi-Fi drops.' },
     ],
