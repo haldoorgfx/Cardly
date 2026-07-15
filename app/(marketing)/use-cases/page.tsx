@@ -322,7 +322,7 @@ export default function UseCasesPage() {
 
       {/* ── SECTION 4 · Final CTA ── */}
       <section
-        style={{ background: 'linear-gradient(135deg, #163828 0%, #1F4D3A 60%, #2A6A50 100%)' }}
+        style={{ background: 'linear-gradient(135deg, #163828 0%, #1F4D3A 55%, #2A6A50 100%)' }}
       >
         <div className="mx-auto max-w-[900px] px-5 lg:px-10 py-20 lg:py-28 text-center">
           <h2

@@ -177,7 +177,7 @@ export default function AboutPage() {
             style={{
               borderRadius: 16,
               padding: '28px 28px 24px',
-              background: 'linear-gradient(135deg, #1F4D3A 0%, #163828 100%)',
+              background: C.primaryDark,
             }}
           >
             <p
@@ -332,7 +332,7 @@ export default function AboutPage() {
             <div
               style={{
                 flex: 1,
-                background: 'linear-gradient(135deg, #1F4D3A 0%, #163828 100%)',
+                background: C.primaryDark,
                 border: `1.5px solid ${C.accentDark}`,
                 borderRadius: 16,
                 padding: '20px 16px',
@@ -561,7 +561,7 @@ export default function AboutPage() {
                   width: 64,
                   height: 64,
                   borderRadius: '50%',
-                  background: `linear-gradient(135deg, ${C.primary} 0%, ${C.accent} 100%)`,
+                  background: C.primary,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',

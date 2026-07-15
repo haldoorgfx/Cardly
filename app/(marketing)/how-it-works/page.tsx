@@ -85,7 +85,7 @@ function RegMock() {
       </div>
       <div
         className="mt-1 rounded-lg p-2.5 flex items-center gap-2"
-        style={{ background: 'linear-gradient(135deg, #163828 0%, #1F4D3A 100%)' }}
+        style={{ background: '#1F4D3A' }}
       >
         <Check size={11} className="text-[#E8C57E] shrink-0" />
         <span className="text-[11px] font-medium text-[#FAF6EE]">Your card is ready ✓</span>
@@ -281,7 +281,7 @@ export default function HowItWorksPage() {
         <div
           className="rounded-2xl overflow-hidden border"
           style={{
-            background: 'linear-gradient(135deg, #163828 0%, #1F4D3A 60%, #2A6A50 100%)',
+            background: 'linear-gradient(135deg, #163828 0%, #1F4D3A 55%, #2A6A50 100%)',
             borderColor: '#C9A45E',
           }}
         >
@@ -349,7 +349,7 @@ export default function HowItWorksPage() {
 
       {/* ── SECTION 4 · Final CTA ── */}
       <section
-        style={{ background: 'linear-gradient(135deg, #163828 0%, #1F4D3A 60%, #2A6A50 100%)' }}
+        style={{ background: 'linear-gradient(135deg, #163828 0%, #1F4D3A 55%, #2A6A50 100%)' }}
       >
         <div className="mx-auto max-w-[900px] px-5 lg:px-10 py-20 lg:py-28 text-center">
           <h2

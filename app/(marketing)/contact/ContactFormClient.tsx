@@ -95,7 +95,7 @@ export function ContactFormClient() {
           <div className="py-12 flex flex-col items-center text-center">
             <div
               className="h-16 w-16 rounded-2xl grid place-items-center mb-6"
-              style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 130%)' }}
+              style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 100%)' }}
             >
               <Check size={28} strokeWidth={2.5} className="text-white" />
             </div>

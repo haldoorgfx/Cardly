@@ -171,7 +171,7 @@ export default function AdLandingPage() {
       <Pricing />
 
       {/* ── Final CTA ──────────────────────────────────────── */}
-      <section style={{ background: 'linear-gradient(150deg, #163828 0%, #1F4D3A 55%, #235741 100%)', padding: 'clamp(72px,9vw,104px) clamp(20px,5vw,64px)' }}>
+      <section style={{ background: 'linear-gradient(135deg, #163828 0%, #1F4D3A 55%, #2A6A50 100%)', padding: 'clamp(72px,9vw,104px) clamp(20px,5vw,64px)' }}>
         <div className="text-center mx-auto" style={{ maxWidth: 720 }}>
           <h2 className="font-title font-bold" style={{ fontSize: 'clamp(30px, 5vw, 52px)', color: '#FAF6EE', letterSpacing: '-0.035em', lineHeight: 1.05, marginBottom: 18 }}>
             Set up your first event in 10 minutes.
