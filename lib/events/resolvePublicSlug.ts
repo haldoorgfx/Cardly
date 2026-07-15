@@ -11,12 +11,13 @@ export interface ResolvedPublicEvent {
  * Tries custom_slug first, then falls back to events.slug.
  * The broken .or() cross-table query pattern cannot be used in PostgREST.
  *
- * Requires BOTH event_pages.is_public AND events.status === 'published'.
- * is_public alone used to be enough — but the Event Page editor defaulted it
- * to true for a brand-new event, so a draft event went fully public and
- * orderable the moment the organizer saved the first wizard step, well
- * before ever clicking "Publish." Requiring status='published' too makes the
- * actual Publish action the real gate, matching what its own UI copy claims.
+ * Gated on event_pages.is_public — IDENTICAL to how the public event page
+ * itself (`resolveEventPage` in app/(public)/e/[slug]/page.tsx) resolves. The
+ * two MUST agree: if the event page is viewable, its "Get tickets" button must
+ * lead to a working register page, never a 404. (Previously this also required
+ * events.status='published', which the event page does not — so a public-but-
+ * not-"published" event rendered fine yet 404'd on register.) is_public is the
+ * organizer's real visibility switch; unpublishing the page closes both.
  */
 export async function resolvePublicSlug(slug: string): Promise<ResolvedPublicEvent | null> {
   const admin = createAdminClient();
@@ -27,7 +28,6 @@ export async function resolvePublicSlug(slug: string): Promise<ResolvedPublicEve
     .select('event_id, title, events!inner(id, slug, name, status)')
     .eq('custom_slug', slug)
     .eq('is_public', true)
-    .eq('events.status', 'published')
     .single();
 
   if (byCustom) {
@@ -35,7 +35,7 @@ export async function resolvePublicSlug(slug: string): Promise<ResolvedPublicEve
     return { eventId: byCustom.event_id, eventPageTitle: byCustom.title, event };
   }
 
-  // 2. Fallback: find event by slug, then its event_pages row
+  // 2. Fallback: find event by slug, then its public event_pages row
   const { data: eventRow } = await admin
     .from('events')
     .select('id, slug, name, status')
@@ -44,7 +44,7 @@ export async function resolvePublicSlug(slug: string): Promise<ResolvedPublicEve
 
   if (!eventRow) return null;
 
-  if (eventRow.status === 'published') {
+  {
     const { data: page } = await admin
       .from('event_pages')
       .select('event_id, title')

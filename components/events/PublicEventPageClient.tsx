@@ -215,7 +215,7 @@ function TicketList({
         )}
       </div>
 
-      <div className="px-6 pt-4 pb-2">
+      <div className="px-6 pt-4 pb-6">
         {tickets.map(ticket => {
           const soldOut = isSoldOut(ticket);
           const selected = selectedTicket === ticket.id;
@@ -555,63 +555,80 @@ export function PublicEventPageClient({
           )}
           <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(10,20,14,0.92) 0%, rgba(10,20,14,0.4) 45%, transparent 75%)' }} />
 
-          {(page.category || seriesSlug) && (
-            <span className="absolute top-5 left-5 z-10 px-3 py-[6px] rounded-full text-[12.5px] font-semibold uppercase tracking-[0.06em]"
-              style={{ background: '#E8C57E', color: '#0F1F18' }}>
-              {seriesSlug && seriesName ? `Series: ${seriesName}` : page.category}
-            </span>
-          )}
+          {/* Foreground: a flex column so top controls and the title never
+              overlap on any screen (mobile bug: badge + actions used to sit
+              on top of a tall title). Top row holds badge + actions; the
+              title/meta block is pinned to the bottom. */}
+          <div className="absolute inset-0 z-10 flex flex-col justify-between p-5 sm:p-6 lg:px-9 lg:py-7">
 
-          <div className="absolute top-[18px] right-[18px] z-10 flex gap-2.5">
-            {saveToast && (
-              <div className="absolute top-0 right-[92px] whitespace-nowrap px-3 py-1.5 rounded-lg text-[12px] font-medium pointer-events-none"
-                style={{ background: 'rgba(15,31,24,0.85)', color: '#FAF6EE', backdropFilter: 'blur(8px)' }}>
-                {saveToast}
+            {/* Top row: category badge (desktop) + save/share actions */}
+            <div className="flex items-start justify-between gap-3">
+              {(page.category || seriesSlug) ? (
+                <span className="hidden sm:inline-flex shrink-0 px-3 py-[6px] rounded-full text-[12.5px] font-semibold uppercase tracking-[0.06em]"
+                  style={{ background: '#E8C57E', color: '#0F1F18' }}>
+                  {seriesSlug && seriesName ? `Series: ${seriesName}` : page.category}
+                </span>
+              ) : <span />}
+
+              <div className="relative flex gap-2.5 shrink-0 ml-auto">
+                {saveToast && (
+                  <div className="absolute top-0 right-[92px] whitespace-nowrap px-3 py-1.5 rounded-lg text-[12px] font-medium pointer-events-none"
+                    style={{ background: 'rgba(15,31,24,0.85)', color: '#FAF6EE', backdropFilter: 'blur(8px)' }}>
+                    {saveToast}
+                  </div>
+                )}
+                <button onClick={handleToggleSave} disabled={saveBusy}
+                  className="w-[42px] h-[42px] rounded-full flex items-center justify-center transition hover:scale-110 active:scale-95 disabled:opacity-60"
+                  style={{ background: 'rgba(250,246,238,0.92)' }}
+                  aria-label={savedHeart ? 'Unsave event' : 'Save event'}>
+                  <svg viewBox="0 0 24 24" className="w-[18px] h-[18px]" fill={savedHeart ? '#B8423C' : 'none'} stroke={savedHeart ? '#B8423C' : '#3A4A42'} strokeWidth="1.9">
+                    <path d="M12 21s-8-5.3-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 10c0 5.7-8 11-8 11z"/>
+                  </svg>
+                </button>
+                <button onClick={handleShare}
+                  className="w-[42px] h-[42px] rounded-full flex items-center justify-center transition hover:scale-110 active:scale-95"
+                  style={{ background: 'rgba(250,246,238,0.92)' }}
+                  aria-label="Share event">
+                  <svg viewBox="0 0 24 24" className="w-[18px] h-[18px]" fill="none" stroke="#3A4A42" strokeWidth="1.9">
+                    <path d="M4 12v8a1 1 0 001 1h14a1 1 0 001-1v-8M16 6l-4-4-4 4M12 2v14"/>
+                  </svg>
+                </button>
               </div>
-            )}
-            <button onClick={handleToggleSave} disabled={saveBusy}
-              className="w-[42px] h-[42px] rounded-full flex items-center justify-center transition hover:scale-110 active:scale-95 disabled:opacity-60"
-              style={{ background: 'rgba(250,246,238,0.92)' }}
-              aria-label={savedHeart ? 'Unsave event' : 'Save event'}>
-              <svg viewBox="0 0 24 24" className="w-[18px] h-[18px]" fill={savedHeart ? '#B8423C' : 'none'} stroke={savedHeart ? '#B8423C' : '#3A4A42'} strokeWidth="1.9">
-                <path d="M12 21s-8-5.3-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 10c0 5.7-8 11-8 11z"/>
-              </svg>
-            </button>
-            <button onClick={handleShare}
-              className="w-[42px] h-[42px] rounded-full flex items-center justify-center transition hover:scale-110 active:scale-95"
-              style={{ background: 'rgba(250,246,238,0.92)' }}
-              aria-label="Share event">
-              <svg viewBox="0 0 24 24" className="w-[18px] h-[18px]" fill="none" stroke="#3A4A42" strokeWidth="1.9">
-                <path d="M4 12v8a1 1 0 001 1h14a1 1 0 001-1v-8M16 6l-4-4-4 4M12 2v14"/>
-              </svg>
-            </button>
-          </div>
+            </div>
 
-          <div className="absolute bottom-0 left-0 right-0 z-10 px-9 pb-8">
-            <h1 className="font-title font-extrabold leading-[1.02] text-white"
-              style={{ fontSize: 'clamp(30px,5vw,52px)', letterSpacing: '-0.035em', maxWidth: 760 }}>
-              {page.title}
-            </h1>
-            <div className="flex flex-wrap items-center gap-5 mt-4">
-              {dateStr && (
-                <span className="flex items-center gap-2 text-[14px]" style={{ color: 'rgba(255,255,255,0.9)' }}>
-                  <svg viewBox="0 0 24 24" className="w-4 h-4 shrink-0" fill="none" stroke="#E8C57E" strokeWidth="1.9">
-                    <rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/>
-                  </svg>
-                  {dateStr}{timeStr ? ` · ${timeStr}` : ''}{endTimeStr ? ` – ${endTimeStr}` : ''}
+            {/* Bottom: category badge (mobile, in normal flow) + title + meta */}
+            <div className="min-w-0">
+              {(page.category || seriesSlug) && (
+                <span className="sm:hidden inline-flex mb-3 px-2.5 py-[5px] rounded-full text-[11.5px] font-semibold uppercase tracking-[0.06em]"
+                  style={{ background: '#E8C57E', color: '#0F1F18' }}>
+                  {seriesSlug && seriesName ? `Series: ${seriesName}` : page.category}
                 </span>
               )}
-              {locationLine && (
-                <span className="flex items-center gap-2 text-[14px]" style={{ color: 'rgba(255,255,255,0.9)' }}>
-                  <svg viewBox="0 0 24 24" className="w-4 h-4 shrink-0" fill="none" stroke="#E8C57E" strokeWidth="1.9">
-                    {page.is_online
-                      ? <><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 010 18a14 14 0 010-18z"/></>
-                      : <><path d="M12 21s-6-5.2-6-10a6 6 0 0112 0c0 4.8-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/></>
-                    }
-                  </svg>
-                  {locationLine}
-                </span>
-              )}
+              <h1 className="font-title font-extrabold leading-[1.02] text-white"
+                style={{ fontSize: 'clamp(28px,5vw,52px)', letterSpacing: '-0.035em', maxWidth: 760 }}>
+                {page.title}
+              </h1>
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 mt-4">
+                {dateStr && (
+                  <span className="flex items-center gap-2 text-[14px]" style={{ color: 'rgba(255,255,255,0.9)' }}>
+                    <svg viewBox="0 0 24 24" className="w-4 h-4 shrink-0" fill="none" stroke="#E8C57E" strokeWidth="1.9">
+                      <rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/>
+                    </svg>
+                    {dateStr}{timeStr ? ` · ${timeStr}` : ''}{endTimeStr ? ` – ${endTimeStr}` : ''}
+                  </span>
+                )}
+                {locationLine && (
+                  <span className="flex items-center gap-2 text-[14px]" style={{ color: 'rgba(255,255,255,0.9)' }}>
+                    <svg viewBox="0 0 24 24" className="w-4 h-4 shrink-0" fill="none" stroke="#E8C57E" strokeWidth="1.9">
+                      {page.is_online
+                        ? <><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 010 18a14 14 0 010-18z"/></>
+                        : <><path d="M12 21s-6-5.2-6-10a6 6 0 0112 0c0 4.8-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/></>
+                      }
+                    </svg>
+                    {locationLine}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
 
@@ -636,7 +653,7 @@ export function PublicEventPageClient({
       {visibleTabs.length > 1 && (
         <div
           className="sticky z-30"
-          style={{ top: 65, background: 'rgba(250,246,238,0.95)', backdropFilter: 'blur(12px)', borderBottom: '1px solid #E5E0D4' }}
+          style={{ top: 65, background: '#FAF6EE', borderBottom: '1px solid #E5E0D4' }}
         >
           <div
             className="mx-auto px-6 lg:px-10 flex items-center gap-1 overflow-x-auto"

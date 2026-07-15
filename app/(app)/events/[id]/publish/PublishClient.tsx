@@ -117,9 +117,15 @@ function compositeQrMark(rawDataUrl: string): Promise<string> {
       const mark = size * 0.16;     // forest tile side
       ctx.fillStyle = '#FFFFFF';
       roundRect(ctx, cx - plate, cy - plate, plate * 2, plate * 2, plate * 0.42); ctx.fill();
-      ctx.fillStyle = '#1F4D3A';
+      // Match the real Eventera app icon (app/apple-icon.tsx): forest→gold
+      // gradient tile with a cream "E", not a flat green tile with a gold E.
+      const g = ctx.createLinearGradient(cx - mark / 2, cy - mark / 2, cx + mark / 2, cy + mark / 2);
+      g.addColorStop(0, '#1F4D3A');
+      g.addColorStop(0.6, '#2A6A50');
+      g.addColorStop(1, '#E8C57E');
+      ctx.fillStyle = g;
       roundRect(ctx, cx - mark / 2, cy - mark / 2, mark, mark, mark * 0.24); ctx.fill();
-      ctx.fillStyle = '#E8C57E';
+      ctx.fillStyle = '#FAF6EE';
       ctx.font = `700 ${mark * 0.62}px "Plus Jakarta Sans", system-ui, sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
@@ -140,10 +146,14 @@ function injectMarkIntoSvg(svg: string): string {
   const c = vb / 2;
   const plate = vb * 0.115;
   const mark = vb * 0.16;
+  // Match the real Eventera app icon: forest→gold gradient tile + cream "E".
   const overlay =
+    `<defs><linearGradient id="evMark" x1="0" y1="0" x2="1" y2="1">` +
+    `<stop offset="0" stop-color="#1F4D3A"/><stop offset="0.6" stop-color="#2A6A50"/><stop offset="1" stop-color="#E8C57E"/>` +
+    `</linearGradient></defs>` +
     `<rect x="${c - plate}" y="${c - plate}" width="${plate * 2}" height="${plate * 2}" rx="${plate * 0.42}" fill="#FFFFFF"/>` +
-    `<rect x="${c - mark / 2}" y="${c - mark / 2}" width="${mark}" height="${mark}" rx="${mark * 0.24}" fill="#1F4D3A"/>` +
-    `<text x="${c}" y="${c}" font-family="Plus Jakarta Sans, system-ui, sans-serif" font-weight="700" font-size="${mark * 0.64}" fill="#E8C57E" text-anchor="middle" dominant-baseline="central">E</text>`;
+    `<rect x="${c - mark / 2}" y="${c - mark / 2}" width="${mark}" height="${mark}" rx="${mark * 0.24}" fill="url(#evMark)"/>` +
+    `<text x="${c}" y="${c}" font-family="Plus Jakarta Sans, system-ui, sans-serif" font-weight="700" font-size="${mark * 0.64}" fill="#FAF6EE" text-anchor="middle" dominant-baseline="central">E</text>`;
   return svg.replace('</svg>', `${overlay}</svg>`);
 }
 

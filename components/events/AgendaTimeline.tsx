@@ -157,7 +157,11 @@ function DayGrid({ daySessions, tracks, dateKey, onSlotClick, onSessionClick }: 
   // never overlap the next one. This is what stops a dense day from collapsing
   // into a stack of overlapping bars. Each card still shows its exact time.
   const GAP = 6;
-  const MIN_H = 44;
+  // Minimum card height must fit the content (time line + up-to-2-line title),
+  // or short back-to-back sessions clip their titles. Push-down (below) keeps
+  // these content-sized cards from overlapping. Readability wins over strict
+  // proportionality for a dense agenda.
+  const MIN_H = 78;
   type Laid = { session: Session; subCol: number; totalCols: number; top: number; height: number };
 
   function layoutColumn(colSessions: Session[]): Laid[] {
@@ -328,7 +332,7 @@ function DayGrid({ daySessions, tracks, dateKey, onSlotClick, onSessionClick }: 
                     .filter(Boolean)
                     .join(', ') ?? '';
                   const timeRange = fmtTimeRange(session);
-                  const showMeta = height > 52;
+                  const showMeta = height > 108;
                   const pct = 100 / totalCols;
                   const gap = totalCols > 1 ? 2 : 0;
 
