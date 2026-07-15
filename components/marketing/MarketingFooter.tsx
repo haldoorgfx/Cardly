@@ -59,7 +59,7 @@ const FOOTER_COLS = [
 
 export function MarketingFooter() {
   return (
-    <footer style={{ background: '#163828', color: 'rgba(250,246,238,0.85)' }}>
+    <footer style={{ background: '#0F1F18', color: 'rgba(250,246,238,0.85)' }}>
       <div className="mx-auto max-w-[1200px] px-5 lg:px-10 pt-16 lg:pt-20 pb-8">
 
         {/* Main grid */}
