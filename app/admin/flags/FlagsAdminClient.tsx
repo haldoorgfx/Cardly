@@ -52,10 +52,10 @@ export function FlagsAdminClient({ initialFlags }: Props) {
                 <div
                   className="h-9 w-9 rounded-xl grid place-items-center shrink-0"
                   style={{
-                    background: flag.enabled ? 'rgba(31,77,58,0.08)' : '#F5F5F0',
+                    background: flag.enabled ? 'rgba(31,77,58,0.08)' : 'rgba(107,122,114,0.10)',
                   }}
                 >
-                  <Flag size={15} strokeWidth={1.8} color={flag.enabled ? '#1F4D3A' : '#9CA3AF'} />
+                  <Flag size={15} strokeWidth={1.8} color={flag.enabled ? '#1F4D3A' : '#6B7A72'} />
                 </div>
 
                 {/* Info */}

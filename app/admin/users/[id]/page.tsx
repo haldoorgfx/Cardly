@@ -59,7 +59,7 @@ export default async function UserDetailPage({ params }: { params: { id: string 
   const planStyle =
     profile.plan === 'studio' ? { bg: 'rgba(31,77,58,0.12)', color: '#1F4D3A' } :
     profile.plan === 'pro'    ? { bg: 'rgba(232,197,126,0.15)', color: '#C9A45E' } :
-                                 { bg: '#F5F5F4', color: '#6B7A72' };
+                                 { bg: 'rgba(107,122,114,0.10)', color: '#6B7A72' };
 
   const roleStyle =
     profile.role === 'super_admin' ? { bg: 'rgba(184,66,60,0.10)', color: '#B8423C' } :

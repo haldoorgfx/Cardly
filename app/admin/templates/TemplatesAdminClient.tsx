@@ -9,7 +9,7 @@ type Template = Database['public']['Tables']['templates']['Row'];
 type MinPlan = 'free' | 'pro' | 'studio';
 
 const MIN_PLAN_STYLES: Record<MinPlan, { bg: string; color: string }> = {
-  free:   { bg: '#F5F5F4',               color: '#6B7A72' },
+  free:   { bg: 'rgba(107,122,114,0.10)', color: '#6B7A72' },
   pro:    { bg: 'rgba(232,197,126,0.15)', color: '#C9A45E' },
   studio: { bg: 'rgba(31,77,58,0.12)',   color: '#1F4D3A' },
 };
@@ -59,7 +59,7 @@ function TemplateModal({
           <h2 className="font-display font-semibold text-[17px] text-[#0F1F18]">
             {initial.name ? 'Edit template' : 'New template'}
           </h2>
-          <button onClick={onClose} aria-label="Close" className="h-8 w-8 rounded-lg grid place-items-center hover:bg-[#F5F5F4] transition-colors">
+          <button onClick={onClose} aria-label="Close" className="h-8 w-8 rounded-lg grid place-items-center hover:bg-[#FAF6EE] transition-colors">
             <X size={15} strokeWidth={2} className="text-[#6B7A72]" />
           </button>
         </div>
@@ -354,7 +354,7 @@ export function TemplatesAdminClient({ initialTemplates }: { initialTemplates: T
           <button
             disabled={bulkBusy}
             onClick={() => setBulkConfirm('publish')}
-            className="h-8 px-3 rounded-lg text-[12px] font-medium border border-[#E5E0D4] bg-white text-emerald-700 hover:bg-emerald-50 transition-colors disabled:opacity-50"
+            className="h-8 px-3 rounded-lg text-[12px] font-medium border border-[#E5E0D4] bg-white text-[#2D7A4F] hover:bg-[rgba(45,122,79,0.10)] transition-colors disabled:opacity-50"
           >
             Publish
           </button>
@@ -461,7 +461,7 @@ export function TemplatesAdminClient({ initialTemplates }: { initialTemplates: T
                       onClick={() => togglePublished(t)}
                       disabled={isBusy}
                       title={t.published ? 'Unpublish' : 'Publish'}
-                      className={`h-8 w-8 rounded-lg border border-[#E5E0D4] grid place-items-center transition-colors disabled:opacity-50 ${t.published ? 'text-emerald-600 hover:bg-emerald-50' : 'text-[#6B7A72] hover:bg-[#FAF6EE]'}`}
+                      className={`h-8 w-8 rounded-lg border border-[#E5E0D4] grid place-items-center transition-colors disabled:opacity-50 ${t.published ? 'text-[#2D7A4F] hover:bg-[rgba(45,122,79,0.10)]' : 'text-[#6B7A72] hover:bg-[#FAF6EE]'}`}
                     >
                       {isBusy ? (
                         <Loader2 size={12} strokeWidth={2} className="animate-spin" />
@@ -475,7 +475,7 @@ export function TemplatesAdminClient({ initialTemplates }: { initialTemplates: T
                       onClick={() => setConfirmDelete(t)}
                       disabled={isBusy}
                       title="Delete"
-                      className="h-8 w-8 rounded-lg border border-[#E5E0D4] grid place-items-center text-[#B8423C] hover:bg-red-50 transition-colors disabled:opacity-50"
+                      className="h-8 w-8 rounded-lg border border-[#E5E0D4] grid place-items-center text-[#B8423C] hover:bg-[rgba(184,66,60,0.08)] transition-colors disabled:opacity-50"
                     >
                       <Trash2 size={12} strokeWidth={2} />
                     </button>
@@ -503,7 +503,7 @@ export function TemplatesAdminClient({ initialTemplates }: { initialTemplates: T
           <div className="absolute inset-0 bg-black/40" onClick={() => setConfirmDelete(null)} />
           <div className="relative bg-white rounded-2xl shadow-lift border border-[#E5E0D4] p-6 max-w-sm w-full">
             <div className="flex items-start gap-3 mb-5">
-              <div className="w-9 h-9 rounded-full bg-red-50 flex items-center justify-center shrink-0">
+              <div className="w-9 h-9 rounded-full bg-[rgba(184,66,60,0.08)] flex items-center justify-center shrink-0">
                 <AlertTriangle size={16} strokeWidth={1.8} className="text-[#B8423C]" />
               </div>
               <div>
@@ -527,7 +527,7 @@ export function TemplatesAdminClient({ initialTemplates }: { initialTemplates: T
           <div className="absolute inset-0 bg-black/40" onClick={() => setBulkConfirm(null)} />
           <div className="relative bg-white rounded-2xl shadow-lift border border-[#E5E0D4] p-6 max-w-sm w-full">
             <div className="flex items-start gap-3 mb-5">
-              <div className="w-9 h-9 rounded-full bg-red-50 flex items-center justify-center shrink-0">
+              <div className="w-9 h-9 rounded-full bg-[rgba(184,66,60,0.08)] flex items-center justify-center shrink-0">
                 <AlertTriangle size={16} strokeWidth={1.8} className="text-[#B8423C]" />
               </div>
               <div>

@@ -7,7 +7,7 @@ import type { BillingUserRow } from './page';
 import { toast } from '@/hooks/use-toast';
 
 const PLAN_STYLES: Record<string, { bg: string; color: string }> = {
-  free:   { bg: '#F5F5F4',               color: '#6B7A72' },
+  free:   { bg: 'rgba(107,122,114,0.10)', color: '#6B7A72' },
   pro:    { bg: 'rgba(232,197,126,0.15)', color: '#C9A45E' },
   studio: { bg: 'rgba(31,77,58,0.12)',   color: '#1F4D3A' },
 };
@@ -18,7 +18,7 @@ const SUB_STYLES: Record<string, { bg: string; color: string }> = {
   past_due:   { bg: 'rgba(201,122,45,0.12)', color: '#C97A2D' },
   canceled:   { bg: 'rgba(107,122,114,0.10)', color: '#6B7A72' },
   incomplete: { bg: 'rgba(184,66,60,0.10)', color: '#B8423C' },
-  none:       { bg: '#F5F5F4',              color: '#6B7A72' },
+  none:       { bg: 'rgba(107,122,114,0.10)', color: '#6B7A72' },
 };
 
 interface Invoice {
@@ -94,7 +94,7 @@ function CompModal({
       <div className="relative bg-white rounded-2xl shadow-lift border border-[#E5E0D4] p-6 max-w-sm w-full">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-semibold text-[15px] text-[#0F1F18]">Comp plan</h3>
-          <button onClick={onClose} className="h-7 w-7 grid place-items-center rounded-lg hover:bg-[#F5F5F4] transition-colors">
+          <button onClick={onClose} className="h-7 w-7 grid place-items-center rounded-lg hover:bg-[#FAF6EE] transition-colors">
             <X size={13} strokeWidth={2} className="text-[#6B7A72]" />
           </button>
         </div>
@@ -206,7 +206,7 @@ function InvoicesPanel({ user, onClose }: { user: BillingUserRow; onClose: () =>
             <h3 className="font-semibold text-[15px] text-[#0F1F18]">Invoices</h3>
             <p className="text-[12px] text-[#6B7A72] mt-0.5">{user.email}</p>
           </div>
-          <button onClick={onClose} className="h-7 w-7 grid place-items-center rounded-lg hover:bg-[#F5F5F4] transition-colors">
+          <button onClick={onClose} className="h-7 w-7 grid place-items-center rounded-lg hover:bg-[#FAF6EE] transition-colors">
             <X size={13} strokeWidth={2} className="text-[#6B7A72]" />
           </button>
         </div>
@@ -234,7 +234,7 @@ function InvoicesPanel({ user, onClose }: { user: BillingUserRow; onClose: () =>
                     </div>
                     <div className="text-right">
                       <div className="font-semibold text-[14px] text-[#0F1F18]">{formatAmount(inv.amount, inv.currency)}</div>
-                      <span className={`text-[12px] px-1.5 py-0.5 rounded-full ${inv.status === 'paid' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}>
+                      <span className={`text-[12px] px-1.5 py-0.5 rounded-full ${inv.status === 'paid' ? 'bg-[rgba(45,122,79,0.10)] text-[#2D7A4F]' : 'bg-[rgba(201,122,45,0.10)] text-[#C97A2D]'}`}>
                         {inv.status}
                       </span>
                     </div>
@@ -259,7 +259,7 @@ function InvoicesPanel({ user, onClose }: { user: BillingUserRow; onClose: () =>
                         <button
                           onClick={() => issueRefund(inv.id, inv.amount)}
                           disabled={refunding === inv.id}
-                          className="flex items-center gap-1 h-8 px-2.5 rounded-lg border border-[#E5E0D4] text-[12.5px] text-[#B8423C] hover:bg-red-50 transition-colors disabled:opacity-50"
+                          className="flex items-center gap-1 h-8 px-2.5 rounded-lg border border-[#E5E0D4] text-[12.5px] text-[#B8423C] hover:bg-[rgba(184,66,60,0.08)] transition-colors disabled:opacity-50"
                         >
                           {refunding === inv.id ? <Loader2 size={10} strokeWidth={2} className="animate-spin" /> : <RotateCcw size={10} strokeWidth={2} />}
                           Refund

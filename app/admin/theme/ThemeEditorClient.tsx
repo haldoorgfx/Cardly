@@ -116,7 +116,7 @@ function LogoUploadCard({
           {url && (
             <button
               onClick={onRemove}
-              className="inline-flex items-center gap-1 h-8 px-2.5 rounded-lg border text-[12px] transition hover:border-red-300 hover:text-red-500 bg-white"
+              className="inline-flex items-center gap-1 h-8 px-2.5 rounded-lg border text-[12px] transition hover:border-[#B8423C]/40 hover:text-[#B8423C] bg-white"
               style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}
             >
               <X size={11} strokeWidth={2} /> Remove
@@ -124,12 +124,12 @@ function LogoUploadCard({
           )}
         </div>
         {state === 'done' && (
-          <div className="flex items-center gap-1 text-[12.5px] text-emerald-600">
+          <div className="flex items-center gap-1 text-[12.5px] text-[#2D7A4F]">
             <Check size={11} strokeWidth={2.5} /> Uploaded — save to apply
           </div>
         )}
         {state === 'error' && (
-          <div className="flex items-center gap-1 text-[12.5px] text-red-500">
+          <div className="flex items-center gap-1 text-[12.5px] text-[#B8423C]">
             <AlertCircle size={11} strokeWidth={2} /> {error}
           </div>
         )}
@@ -319,20 +319,20 @@ export function ThemeEditorClient({ settings }: Props) {
       {/* Save bar */}
       <div
         className="sticky bottom-6 flex items-center justify-between gap-4 px-5 py-3.5 rounded-2xl shadow-lift"
-        style={{ background: '#0F1F18', border: '1px solid rgba(255,255,255,0.08)' }}
+        style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}
       >
-        <div className="text-[13px] text-white/60">
+        <div className="text-[13px] text-[#6B7A72]">
           Changes apply live across the whole product.
         </div>
         <div className="flex items-center gap-3">
           {saveState === 'error' && (
-            <div className="flex items-center gap-1.5 text-[12px] text-red-400">
+            <div className="flex items-center gap-1.5 text-[12px] text-[#B8423C]">
               <AlertCircle size={13} strokeWidth={2} />
               {errorMsg}
             </div>
           )}
           {saveState === 'saved' && (
-            <div className="flex items-center gap-1.5 text-[12px] text-green-400">
+            <div className="flex items-center gap-1.5 text-[12px] text-[#2D7A4F]">
               <Check size={13} strokeWidth={2.5} />
               Saved
             </div>

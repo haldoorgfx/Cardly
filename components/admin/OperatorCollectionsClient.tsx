@@ -116,14 +116,14 @@ export function OperatorCollectionsClient({ collections, promoted: dbPromoted }:
 
         {notice && (
           <div className="mb-4 rounded-xl px-4 py-3 flex items-start justify-between gap-3 text-[13px]" role="status"
-            style={{ background: '#E8EFEB', border: '1px solid #C9E0D4', color: '#1F4D3A' }}>
+            style={{ background: '#E8EFEB', border: '1px solid rgba(31,77,58,0.18)', color: '#1F4D3A' }}>
             <span>{notice}</span>
             <button onClick={() => setNotice('')} className="shrink-0 text-[12.5px] underline">Dismiss</button>
           </div>
         )}
 
         {/* Tabs */}
-        <div className="flex gap-1 p-1 rounded-xl mb-6 w-fit" style={{ background: '#EDE9E0' }}>
+        <div className="flex gap-1 p-1 rounded-xl mb-6 w-fit" style={{ background: '#E5E0D4' }}>
           {[
             { key: 'collections', label: 'Collections', icon: LayoutGrid },
             { key: 'review', label: `Pending review ${promoted.length > 0 ? `(${promoted.length})` : ''}`, icon: List },
@@ -192,7 +192,7 @@ export function OperatorCollectionsClient({ collections, promoted: dbPromoted }:
             ))}
 
             {/* Feed rules card */}
-            <div className="rounded-2xl p-5" style={{ background: '#E8EFEB', border: '1px solid #C9E0D4' }}>
+            <div className="rounded-2xl p-5" style={{ background: '#E8EFEB', border: '1px solid rgba(31,77,58,0.18)' }}>
               <div className="flex items-center gap-2 mb-2">
                 <AlertCircle size={15} style={{ color: '#6B7A72' }} />
                 <span className="font-semibold text-[13px]" style={{ color: '#0F1F18' }}>Feed rules</span>
@@ -240,7 +240,7 @@ export function OperatorCollectionsClient({ collections, promoted: dbPromoted }:
                 <button
                   disabled={bulkBusy}
                   onClick={() => runBulk('reject')}
-                  className="h-8 px-3 rounded-lg text-[12px] font-medium border border-[#E5E0D4] bg-white text-[#B8423C] hover:bg-red-50 transition-colors disabled:opacity-50"
+                  className="h-8 px-3 rounded-lg text-[12px] font-medium border border-[#E5E0D4] bg-white text-[#B8423C] hover:bg-[rgba(184,66,60,0.08)] transition-colors disabled:opacity-50"
                 >
                   Reject
                 </button>
@@ -347,7 +347,7 @@ export function OperatorCollectionsClient({ collections, promoted: dbPromoted }:
                           disabled={processingId === p.id}
                           onClick={() => handleAction(p.id, 'reject')}
                           className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-[13px] font-semibold transition hover:opacity-90 disabled:opacity-50"
-                          style={{ background: '#FEF2F2', color: '#B8423C', border: '1px solid #FECACA' }}>
+                          style={{ background: 'rgba(184,66,60,0.08)', color: '#B8423C', border: '1px solid rgba(184,66,60,0.25)' }}>
                           <XCircle size={14} /> Reject
                         </button>
                       </div>

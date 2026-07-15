@@ -47,7 +47,7 @@ function ChangesExpander({ changes }: { changes: AuditEntry['changes'] }) {
       {open && (
         <pre
           className="font-sans mt-2 p-3 rounded-lg text-[12.5px] leading-relaxed overflow-x-auto"
-          style={{ background: '#F5F5F4', border: '1px solid #E5E0D4', color: '#3A4A42', maxWidth: 420 }}
+          style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#3A4A42', maxWidth: 420 }}
         >
           {JSON.stringify(changes, null, 2)}
         </pre>

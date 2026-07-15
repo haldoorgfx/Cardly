@@ -128,7 +128,7 @@ export function ChangelogForm({ entry, onSave, onCancel }: Props) {
 
           {/* Title */}
           <div>
-            <label className="block text-[12px] font-medium text-[#3A4A42] mb-1">Title <span className="text-red-500">*</span></label>
+            <label className="block text-[12px] font-medium text-[#3A4A42] mb-1">Title <span className="text-[#B8423C]">*</span></label>
             <input
               value={form.title}
               onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
@@ -141,7 +141,7 @@ export function ChangelogForm({ entry, onSave, onCancel }: Props) {
 
           {/* Description */}
           <div>
-            <label className="block text-[12px] font-medium text-[#3A4A42] mb-1">Description <span className="text-red-500">*</span></label>
+            <label className="block text-[12px] font-medium text-[#3A4A42] mb-1">Description <span className="text-[#B8423C]">*</span></label>
             <textarea
               value={form.description}
               onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
@@ -154,7 +154,7 @@ export function ChangelogForm({ entry, onSave, onCancel }: Props) {
           </div>
 
           {error && (
-            <p className="text-[12px] text-red-500">{error}</p>
+            <p className="text-[12px] text-[#B8423C]">{error}</p>
           )}
 
           <div className="flex items-center justify-end gap-3 pt-1">

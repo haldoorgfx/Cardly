@@ -163,7 +163,7 @@ export function ChangelogAdminClient({ initialEntries }: { initialEntries: Chang
           <button
             disabled={bulkBusy}
             onClick={() => runBulk('publish')}
-            className="h-8 px-3 rounded-lg text-[12px] font-medium border border-[#E5E0D4] bg-white text-[#2D7A4F] hover:bg-emerald-50 transition-colors disabled:opacity-50"
+            className="h-8 px-3 rounded-lg text-[12px] font-medium border border-[#E5E0D4] bg-white text-[#2D7A4F] hover:bg-[rgba(45,122,79,0.10)] transition-colors disabled:opacity-50"
           >
             Publish
           </button>
@@ -277,7 +277,7 @@ export function ChangelogAdminClient({ initialEntries }: { initialEntries: Chang
                   onClick={() => deleteEntry(entry.id)}
                   disabled={deleting === entry.id}
                   title="Delete"
-                  className="h-8 w-8 rounded-lg grid place-items-center transition border hover:bg-red-50 text-[#6B7A72] hover:text-[#B8423C] hover:border-red-200"
+                  className="h-8 w-8 rounded-lg grid place-items-center transition border hover:bg-[rgba(184,66,60,0.08)] text-[#6B7A72] hover:text-[#B8423C] hover:border-[#B8423C]/30"
                   style={{ borderColor: '#E5E0D4' }}
                 >
                   {deleting === entry.id
