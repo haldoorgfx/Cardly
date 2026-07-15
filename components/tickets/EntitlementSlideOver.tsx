@@ -82,13 +82,13 @@ export function EntitlementSlideOver({ open, onClose, ticketTypes, initial, save
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50">
-      <style>{`@keyframes slideOverIn{from{transform:translateX(100%)}to{transform:translateX(0)}}@keyframes fadeIn{from{opacity:0}to{opacity:1}}`}</style>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <style>{`@keyframes fadeIn{from{opacity:0}to{opacity:1}}@keyframes modalIn{from{opacity:0;transform:scale(0.97) translateY(6px)}to{opacity:1;transform:scale(1) translateY(0)}}`}</style>
       <div className="absolute inset-0 bg-black/40" style={{ animation: 'fadeIn 0.15s ease-out' }} onClick={onClose} />
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="absolute top-0 right-0 h-full w-full max-w-[460px] flex flex-col"
-        style={{ background: 'white', boxShadow: '-8px 0 40px rgba(15,31,24,0.18)', animation: 'slideOverIn 0.2s ease-out' }}
+        className="relative w-full max-w-[460px] max-h-[90vh] flex flex-col rounded-2xl"
+        style={{ background: 'white', border: '1px solid #E5E0D4', boxShadow: '0 8px 40px rgba(15,31,24,0.18)', animation: 'modalIn 0.18s ease-out' }}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 shrink-0" style={{ borderBottom: '1px solid #E5E0D4' }}>
