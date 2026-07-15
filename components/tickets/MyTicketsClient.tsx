@@ -45,7 +45,7 @@ interface Props {
 
 const FOREST = '#1F4D3A';
 const FOREST_DARK = '#163828';
-const CREAM_SOFT = '#F5F1E8';
+const CREAM_SOFT = '#EDE9E0'; // matches the shared SegmentedTabs track color (components/dash/index.tsx)
 const CANVAS = '#FAF6EE';      // page background — used for perforation notch "bites"
 const SURFACE = '#FFFFFF';
 const GOLD = '#E8C57E';

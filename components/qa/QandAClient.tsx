@@ -112,12 +112,12 @@ export default function QandAClient({ eventId, registrationId, initialQuestions,
         </div>
       ) : (
         <div className="space-y-3">
-          {filtered.map((q, i) => (
+          {filtered.map((q) => (
             <div
               key={q.id}
               className="rounded-xl p-4 flex gap-4"
               style={{
-                background: i === 0 && !sessionFilter ? '#FBF3E2' : 'white',
+                background: 'white',
                 border: `1px solid ${q.is_featured ? '#E8C57E' : '#E5E0D4'}`,
                 borderLeft: q.is_featured ? '3px solid #E8C57E' : undefined,
                 opacity: q.status === 'answered' ? 0.6 : 1,
@@ -127,17 +127,19 @@ export default function QandAClient({ eventId, registrationId, initialQuestions,
               <button
                 onClick={() => handleUpvote(q.id)}
                 disabled={!registrationId || upvoting === q.id}
-                className="flex flex-col items-center gap-1 shrink-0 w-10"
-                style={{ color: upvotedIds.has(q.id) ? '#1F4D3A' : '#6B7A72' }}
+                aria-label={upvotedIds.has(q.id) ? 'Remove upvote' : 'Upvote this question'}
+                aria-pressed={upvotedIds.has(q.id)}
+                className="flex flex-col items-center gap-1 shrink-0 w-10 rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                style={{ color: upvotedIds.has(q.id) ? '#1F4D3A' : '#6B7A72', outlineColor: '#1F4D3A' }}
               >
                 <ChevronUp size={20} strokeWidth={upvotedIds.has(q.id) ? 2.5 : 1.8} />
-                <span className=" text-[14px] font-semibold">{q.upvotes_count}</span>
+                <span className="text-[14px] font-semibold">{q.upvotes_count}</span>
               </button>
 
               {/* Content */}
               <div className="flex-1 min-w-0">
                 {q.is_featured && (
-                  <div className="text-[11px] font-medium mb-1" style={{ color: '#C79A3E' }}>★ Featured by moderator</div>
+                  <div className="text-[11px] font-medium mb-1" style={{ color: '#C97A2D' }}>★ Featured by moderator</div>
                 )}
                 <p className="text-[15px]" style={{ color: '#0F1F18' }}>{q.question}</p>
                 <div className="flex items-center gap-3 mt-1.5">
@@ -162,19 +164,28 @@ export default function QandAClient({ eventId, registrationId, initialQuestions,
               value={askText}
               onChange={e => setAskText(e.target.value)}
               placeholder="Ask a question…"
+              aria-label="Your question"
               rows={2}
               className="w-full rounded-xl px-3 py-2.5 text-[14px] resize-none outline-none mb-3"
               style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#0F1F18' }}
             />
             <div className="flex items-center justify-between">
               <label className="flex items-center gap-2 cursor-pointer">
-                <div
-                  className="w-9 h-5 rounded-full transition-colors"
-                  style={{ background: isAnon ? '#1F4D3A' : '#E5E0D4' }}
-                  onClick={() => setIsAnon(v => !v)}
-                >
-                  <div className="w-4 h-4 rounded-full bg-white m-0.5 transition-transform" style={{ transform: isAnon ? 'translateX(16px)' : 'none' }} />
-                </div>
+                <span className="relative inline-flex w-9 h-5 shrink-0">
+                  <input
+                    type="checkbox"
+                    checked={isAnon}
+                    onChange={e => setIsAnon(e.target.checked)}
+                    className="peer sr-only"
+                  />
+                  <span
+                    aria-hidden="true"
+                    className="absolute inset-0 rounded-full transition-colors peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2"
+                    style={{ background: isAnon ? '#1F4D3A' : '#E5E0D4', outlineColor: '#1F4D3A' }}
+                  >
+                    <span className="block w-4 h-4 rounded-full bg-white m-0.5 transition-transform" style={{ transform: isAnon ? 'translateX(16px)' : 'none' }} />
+                  </span>
+                </span>
                 <span className="text-[12px]" style={{ color: '#6B7A72' }}>Post anonymously</span>
               </label>
               <button

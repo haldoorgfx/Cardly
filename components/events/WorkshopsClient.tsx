@@ -46,13 +46,13 @@ function ConfirmModal({ session, onClose, onConfirm, confirming }: { session: Se
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
       style={{ background: 'rgba(15,31,24,0.45)' }} onClick={onClose}>
-      <div className="w-full max-w-sm rounded-2xl overflow-hidden" style={{ background: '#FFFFFF' }} onClick={e => e.stopPropagation()}>
+      <div role="dialog" aria-modal="true" aria-labelledby="workshop-confirm-title" className="w-full max-w-sm rounded-2xl overflow-hidden" style={{ background: '#FFFFFF' }} onClick={e => e.stopPropagation()}>
         {/* Cover/header */}
         <div className="px-5 pt-6 pb-4" style={{ borderBottom: '1px solid #F0EDE6' }}>
           <div className="w-10 h-10 rounded-full flex items-center justify-center mb-3" style={{ background: '#E8EFEB' }}>
             <CheckCircle2 size={20} style={{ color: '#3A4A42' }} />
           </div>
-          <h3 className="font-display font-semibold text-[18px] mb-1" style={{ color: '#0F1F18', letterSpacing: '-0.01em' }}>
+          <h3 id="workshop-confirm-title" className="font-display font-semibold text-[18px] mb-1" style={{ color: '#0F1F18', letterSpacing: '-0.01em' }}>
             Book your seat
           </h3>
           <p className="font-semibold text-[15px]" style={{ color: '#0F1F18' }}>{session.title}</p>
@@ -185,7 +185,7 @@ export function WorkshopsClient({ eventId, eventSlug, sessions, bookedIds: initi
                       {/* Action */}
                       <div className="shrink-0">
                         {isBooked ? (
-                          <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-[12px] font-semibold whitespace-nowrap"
+                          <div className="min-h-[40px] flex items-center gap-1.5 px-3 py-2 rounded-xl text-[12px] font-semibold whitespace-nowrap"
                             style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
                             <CheckCircle2 size={13} />
                             {isSuccess ? 'Booked!' : 'In your agenda'}
@@ -193,8 +193,8 @@ export function WorkshopsClient({ eventId, eventSlug, sessions, bookedIds: initi
                         ) : isFull ? (
                           <button
                             onClick={() => registrationId && bookSeat(s)}
-                            className="px-3 py-2 rounded-xl text-[12px] font-semibold transition hover:opacity-80 whitespace-nowrap"
-                            style={{ background: '#FEF9EC', color: '#C97A2D', border: '1px solid #F5D89A' }}>
+                            className="min-h-[40px] flex items-center justify-center px-3 py-2 rounded-xl text-[12px] font-semibold transition hover:opacity-80 whitespace-nowrap"
+                            style={{ background: 'rgba(201,122,45,0.10)', color: '#C97A2D', border: '1px solid rgba(201,122,45,0.35)' }}>
                             <Users size={12} className="inline mr-1" />
                             Join waitlist
                           </button>
@@ -202,7 +202,7 @@ export function WorkshopsClient({ eventId, eventSlug, sessions, bookedIds: initi
                           <button
                             onClick={() => setConfirmSession(s)}
                             disabled={!registrationId}
-                            className="px-3 py-2 rounded-xl text-[12px] font-semibold transition hover:opacity-90 disabled:opacity-40 whitespace-nowrap"
+                            className="min-h-[40px] flex items-center justify-center px-3 py-2 rounded-xl text-[12px] font-semibold transition hover:opacity-90 disabled:opacity-40 whitespace-nowrap"
                             style={{ background: '#1F4D3A', color: '#FAF6EE' }}>
                             Book seat
                           </button>
@@ -225,7 +225,7 @@ export function WorkshopsClient({ eventId, eventSlug, sessions, bookedIds: initi
 
         {!registrationId && (
           <div className="mt-4 rounded-xl px-4 py-3 flex items-center gap-2 text-[13px]"
-            style={{ background: '#FEF9EC', border: '1px solid #F5D89A', color: '#C97A2D' }}>
+            style={{ background: 'rgba(201,122,45,0.10)', border: '1px solid rgba(201,122,45,0.35)', color: '#C97A2D' }}>
             <X size={13} />
             <span>Register for the event first to book workshop seats — </span>
             <a href={`/e/${eventSlug}/register`} className="font-semibold underline" style={{ color: '#C97A2D' }}>Register</a>

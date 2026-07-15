@@ -32,7 +32,7 @@ function StarIcon({ filled }: { filled: boolean }) {
       height="100%"
       viewBox="0 0 24 24"
       fill={filled ? '#E8C57E' : 'none'}
-      stroke={filled ? '#E8C57E' : '#C9C3B1'}
+      stroke={filled ? '#E8C57E' : '#6B7A72'}
       strokeWidth="1.5"
     >
       <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
@@ -47,7 +47,7 @@ function SmallStarIcon({ filled }: { filled: boolean }) {
       height="100%"
       viewBox="0 0 24 24"
       fill={filled ? '#E8C57E' : 'none'}
-      stroke={filled ? '#E8C57E' : '#C9C3B1'}
+      stroke={filled ? '#E8C57E' : '#6B7A72'}
       strokeWidth="1.5"
     >
       <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
@@ -151,16 +151,19 @@ export default function FeedbackClient({ eventId, eventTitle, registrationId, at
 
       {/* Overall rating */}
       <section className="space-y-3">
-        <p className="text-[15px] font-medium" style={{ color: '#0F1F18' }}>Overall rating</p>
-        <div className="flex gap-2">
+        <p id="overall-rating-label" className="text-[15px] font-medium" style={{ color: '#0F1F18' }}>Overall rating</p>
+        <div className="flex gap-2" role="radiogroup" aria-labelledby="overall-rating-label">
           {[1, 2, 3, 4, 5].map((star) => (
             <button
               key={star}
+              type="button"
               onClick={() => setOverallRating(star)}
               onMouseEnter={() => setHoverRating(star)}
               onMouseLeave={() => setHoverRating(0)}
               className="w-10 h-10 transition-transform hover:scale-110"
-              aria-label={`${star} star`}
+              role="radio"
+              aria-checked={overallRating === star}
+              aria-label={`${star} star${star > 1 ? 's' : ''}`}
             >
               <StarIcon filled={star <= (hoverRating || overallRating)} />
             </button>
@@ -169,8 +172,9 @@ export default function FeedbackClient({ eventId, eventTitle, registrationId, at
 
         {overallRating > 0 && (
           <div className="space-y-1.5">
-            <p className="text-[13px]" style={{ color: '#6B7A72' }}>Tell us more (optional)</p>
+            <label htmlFor="feedback-comment" className="block text-[13px]" style={{ color: '#6B7A72' }}>Tell us more (optional)</label>
             <textarea
+              id="feedback-comment"
               className="w-full border rounded-xl px-4 py-3 text-[15px] resize-none"
               style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}
               rows={3}
@@ -189,7 +193,9 @@ export default function FeedbackClient({ eventId, eventTitle, registrationId, at
           {HIGHLIGHTS.map((h) => (
             <button
               key={h}
+              type="button"
               onClick={() => toggleHighlight(h)}
+              aria-pressed={selectedHighlights.includes(h)}
               className="px-4 py-2 rounded-full text-sm font-medium border transition-colors"
               style={
                 selectedHighlights.includes(h)
@@ -206,7 +212,7 @@ export default function FeedbackClient({ eventId, eventTitle, registrationId, at
       {/* Per-session ratings */}
       {attendedSessions.length > 0 && (
         <section className="space-y-4">
-          <p className="text-[15px] font-medium" style={{ color: '#0F1F18' }}>Sessions you attended</p>
+          <p className="text-[15px] font-medium" style={{ color: '#0F1F18' }}>Sessions on your agenda</p>
           <div className="space-y-4">
             {attendedSessions.map((session) => {
               if (!session.id || !session.title) return null;
@@ -216,15 +222,20 @@ export default function FeedbackClient({ eventId, eventTitle, registrationId, at
                   <p className="text-[15px] font-medium flex-1 min-w-0 truncate" style={{ color: '#0F1F18' }}>
                     {session.title}
                   </p>
-                  <div className="flex gap-1 shrink-0">
+                  <div className="flex gap-0.5 shrink-0" role="radiogroup" aria-label={`Rate ${session.title}`}>
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
                         key={star}
+                        type="button"
                         onClick={() => rateSession(session.id!, star)}
-                        className="w-5 h-5 transition-transform hover:scale-110"
-                        aria-label={`${star} star`}
+                        className="w-10 h-10 flex items-center justify-center transition-transform hover:scale-110"
+                        role="radio"
+                        aria-checked={rating === star}
+                        aria-label={`${star} star${star > 1 ? 's' : ''}`}
                       >
-                        <SmallStarIcon filled={star <= rating} />
+                        <span className="w-5 h-5 block">
+                          <SmallStarIcon filled={star <= rating} />
+                        </span>
                       </button>
                     ))}
                   </div>
@@ -237,7 +248,7 @@ export default function FeedbackClient({ eventId, eventTitle, registrationId, at
 
       {/* Error */}
       {error && (
-        <p className="text-sm px-3 py-2 rounded-lg bg-red-50" style={{ color: '#B8423C' }}>{error}</p>
+        <p role="alert" className="text-sm px-3 py-2 rounded-lg" style={{ color: '#B8423C', background: 'rgba(184,66,60,0.08)' }}>{error}</p>
       )}
 
       {/* Submit */}

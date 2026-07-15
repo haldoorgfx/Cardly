@@ -42,6 +42,10 @@ export function LeaderboardView({ leaderboard, myRegistrationId, myEntry }: Prop
 
   return (
     <>
+      <p className="text-[13px] text-center mb-6" style={{ color: '#6B7A72' }}>
+        Earn points by asking questions, voting in polls, and connecting with people.
+      </p>
+
       {/* Podium — top 3 */}
       {top3.length > 0 && (
         <div className="flex items-end justify-center gap-4 mb-8">
@@ -54,7 +58,7 @@ export function LeaderboardView({ leaderboard, myRegistrationId, myEntry }: Prop
                 {isFirst && <Star size={20} strokeWidth={1.8} fill="#E8C57E" style={{ color: '#E8C57E' }} />}
                 <div
                   className="rounded-full flex items-center justify-center font-display font-semibold text-white"
-                  style={{ width: size, height: size, background: 'linear-gradient(135deg, #1F4D3A, #2A6A50)', border: isFirst ? '2px solid #E8C57E' : 'none', fontSize: isFirst ? 22 : 17 }}
+                  style={{ width: size, height: size, background: '#1F4D3A', border: isFirst ? '2px solid #E8C57E' : 'none', fontSize: isFirst ? 22 : 17 }}
                 >
                   {initials(entry.attendee_name)}
                 </div>

@@ -197,7 +197,7 @@ export default function MessagingClient({ eventId, registrationId, embedded = fa
       {/* Left: inbox */}
       <aside className="max-h-[50vh] lg:max-h-full" style={{ borderRight: '1px solid #E5E0D4', display: 'flex', flexDirection: 'column', background: 'white' }}>
         <div className="flex items-center justify-between px-5 py-4 shrink-0" style={{ borderBottom: '1px solid #E5E0D4' }}>
-          <span className="font-display font-medium text-[16px]" style={{ color: '#0F1F18' }}>Messages</span>
+          <h1 className="font-display font-medium text-[16px]" style={{ color: '#0F1F18' }}>Messages</h1>
         </div>
 
         <div className="flex-1 overflow-y-auto">
@@ -219,15 +219,15 @@ export default function MessagingClient({ eventId, registrationId, embedded = fa
                 <button
                   key={t.id}
                   onClick={() => switchThread(t.id)}
-                  className="w-full flex items-center gap-3 px-5 py-4 transition-colors text-left relative"
-                  style={{ background: isActive ? '#E8EFEB' : 'transparent', borderBottom: '1px solid #F0EBE3' }}
+                  className="w-full flex items-center gap-3 px-5 py-4 transition-colors text-left relative focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px]"
+                  style={{ background: isActive ? '#E8EFEB' : 'transparent', borderBottom: '1px solid #E5E0D4', outlineColor: '#1F4D3A' }}
                 >
                   {unread && (
                     <div className="absolute left-2 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full" style={{ background: '#1F4D3A' }} />
                   )}
                   <div
                     className="w-11 h-11 rounded-full flex items-center justify-center text-white text-[13px] font-display font-semibold shrink-0"
-                    style={{ background: 'linear-gradient(135deg, #1F4D3A, #2A6A50)' }}
+                    style={{ background: '#1F4D3A' }}
                   >
                     {initials(t.other_participant_name)}
                   </div>
@@ -262,13 +262,13 @@ export default function MessagingClient({ eventId, registrationId, embedded = fa
             <div className="h-16 flex items-center gap-3 px-6 shrink-0" style={{ borderBottom: '1px solid #E5E0D4', background: 'white' }}>
               <div
                 className="w-10 h-10 rounded-full flex items-center justify-center text-white text-[12px] font-display font-semibold shrink-0"
-                style={{ background: 'linear-gradient(135deg, #1F4D3A, #2A6A50)' }}
+                style={{ background: '#1F4D3A' }}
               >
                 {initials(activeThread.other_participant_name)}
               </div>
-              <div className="font-display font-medium text-[17px]" style={{ color: '#0F1F18' }}>
+              <h2 className="font-display font-medium text-[17px]" style={{ color: '#0F1F18' }}>
                 {activeThread.other_participant_name}
-              </div>
+              </h2>
             </div>
 
             <div className="flex-1 overflow-y-auto px-6 py-4 flex flex-col gap-3">
@@ -313,14 +313,16 @@ export default function MessagingClient({ eventId, registrationId, embedded = fa
                 onChange={e => setNewMsg(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && send()}
                 placeholder="Send a message…"
+                aria-label={`Message to ${activeThread.other_participant_name}`}
                 className="flex-1 rounded-full px-5 py-3 text-[14px] outline-none transition"
                 style={{ border: '1px solid #E5E0D4', background: '#FAF6EE', color: '#0F1F18' }}
               />
               <button
                 onClick={send}
                 disabled={sending || !newMsg.trim()}
-                className="w-11 h-11 rounded-full flex items-center justify-center shrink-0 transition-opacity"
-                style={{ background: '#1F4D3A', opacity: sending || !newMsg.trim() ? 0.5 : 1 }}
+                aria-label="Send message"
+                className="w-11 h-11 rounded-full flex items-center justify-center shrink-0 transition-opacity focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                style={{ background: '#1F4D3A', opacity: sending || !newMsg.trim() ? 0.5 : 1, outlineColor: '#1F4D3A' }}
               >
                 <Send size={17} color="white" />
               </button>

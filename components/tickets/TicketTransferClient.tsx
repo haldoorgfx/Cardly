@@ -79,30 +79,32 @@ export function TicketTransferClient({ registration: reg }: Props) {
 
           <div className="space-y-4 mb-6">
             <div>
-              <label className="block text-[12px] font-medium mb-1.5" style={{ color: '#3A4A42' }}>Recipient&apos;s name</label>
+              <label htmlFor="recipient-name" className="block text-[12px] font-medium mb-1.5" style={{ color: '#3A4A42' }}>Recipient&apos;s name</label>
               <input
+                id="recipient-name"
                 value={recipientName}
                 onChange={e => setRecipientName(e.target.value)}
                 placeholder="Fatima Ali"
-                className="w-full px-4 py-3 rounded-xl border text-[15px] outline-none"
+                className="w-full px-4 py-3 rounded-xl border text-[15px] outline-none focus-visible:ring-2 focus-visible:ring-[#1F4D3A]/30"
                 style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}
               />
             </div>
             <div>
-              <label className="block text-[12px] font-medium mb-1.5" style={{ color: '#3A4A42' }}>Recipient&apos;s email</label>
+              <label htmlFor="recipient-email" className="block text-[12px] font-medium mb-1.5" style={{ color: '#3A4A42' }}>Recipient&apos;s email</label>
               <input
+                id="recipient-email"
                 type="email"
                 value={recipientEmail}
                 onChange={e => setRecipientEmail(e.target.value)}
                 placeholder="fatima@example.com"
-                className="w-full px-4 py-3 rounded-xl border text-[15px] outline-none"
+                className="w-full px-4 py-3 rounded-xl border text-[15px] outline-none focus-visible:ring-2 focus-visible:ring-[#1F4D3A]/30"
                 style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}
               />
             </div>
           </div>
 
           {error && (
-            <div className="mb-4 px-4 py-3 rounded-xl text-[13px]" style={{ background: '#FEF2F2', color: '#B8423C', border: '1px solid #FECACA' }}>
+            <div className="mb-4 px-4 py-3 rounded-xl text-[13px]" style={{ background: 'rgba(184,66,60,0.06)', color: '#B8423C', border: '1px solid rgba(184,66,60,0.15)' }}>
               {error}
             </div>
           )}

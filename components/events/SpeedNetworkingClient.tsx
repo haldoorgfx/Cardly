@@ -307,7 +307,7 @@ export function SpeedNetworkingClient({ eventId, eventName, eventSlug, registrat
                   ) : (
                     <div
                       className="w-24 h-24 rounded-full flex items-center justify-center font-display font-semibold text-[30px]"
-                      style={{ background: 'linear-gradient(135deg,#1F4D3A,#2A6A50)', color: '#E8C57E' }}
+                      style={{ background: '#1F4D3A', color: '#E8C57E' }}
                     >
                       {initials(current.attendee_name)}
                     </div>

@@ -31,8 +31,8 @@ function initials(name: string | undefined) {
 
 function AvatarBubble({ name, size = 32 }: { name: string; size?: number }) {
   return (
-    <div className="rounded-full flex items-center justify-center font-bold shrink-0"
-      style={{ width: size, height: size, background: 'linear-gradient(135deg, #1F4D3A, #2A6A50)', color: '#FAF6EE', fontSize: size * 0.35 }}>
+    <div aria-hidden="true" className="rounded-full flex items-center justify-center font-bold shrink-0"
+      style={{ width: size, height: size, background: '#1F4D3A', color: '#FAF6EE', fontSize: size * 0.35 }}>
       {initials(name)}
     </div>
   );
@@ -101,7 +101,7 @@ export function CommunityChatClient({ eventId, eventName, channels, initialMessa
     return (
       <div className="flex items-center justify-center text-center px-6" style={{ height: embedded ? 480 : 'calc(100vh - 56px)' }}>
         <div>
-          <Hash size={30} style={{ color: '#C9C3B1' }} className="mx-auto mb-3" />
+          <Hash size={30} style={{ color: '#6B7A72' }} className="mx-auto mb-3" />
           <div className="font-display font-semibold text-[17px] mb-1" style={{ color: '#0F1F18' }}>
             No community channels yet
           </div>
@@ -143,7 +143,9 @@ export function CommunityChatClient({ eventId, eventName, channels, initialMessa
           </div>
           {channels.map((ch: Channel) => (
             <button key={ch.id}
+              type="button"
               onClick={() => loadChannel(ch.id)}
+              aria-current={ch.id === activeChannelId ? 'true' : undefined}
               className="w-full flex items-center gap-2 px-3 py-2 rounded-lg mx-1 text-left transition"
               style={{
                 background: ch.id === activeChannelId ? 'rgba(255,255,255,0.1)' : 'transparent',
@@ -163,7 +165,13 @@ export function CommunityChatClient({ eventId, eventName, channels, initialMessa
         {/* Channel header */}
         <div className="flex items-center gap-3 px-4 py-3 border-b"
           style={{ background: '#FFFFFF', borderColor: '#E5E0D4' }}>
-          <button className="lg:hidden mr-1" onClick={() => setSidebarOpen(true)} style={{ color: '#6B7A72' }}>
+          <button
+            type="button"
+            className="lg:hidden -ml-1 w-10 h-10 flex items-center justify-center shrink-0"
+            onClick={() => setSidebarOpen(true)}
+            aria-label="Open channel list"
+            style={{ color: '#6B7A72' }}
+          >
             <Menu size={18} />
           </button>
           <Hash size={16} style={{ color: '#6B7A72' }} />
@@ -183,11 +191,11 @@ export function CommunityChatClient({ eventId, eventName, channels, initialMessa
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4" style={{ background: '#FAF6EE' }}>
+        <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4" role="log" aria-live="polite" aria-label="Chat messages" style={{ background: '#FAF6EE' }}>
           {/* Pinned message */}
           {pinned.length > 0 && (
             <div className="rounded-xl px-4 py-3 flex items-start gap-3 mb-2"
-              style={{ background: '#E8EFEB', border: '1px solid #C9E0D4' }}>
+              style={{ background: '#E8EFEB', border: '1px solid #E5E0D4' }}>
               <Pin size={13} style={{ color: '#1F4D3A', marginTop: 2 }} />
               <div>
                 <div className="text-[12.5px] font-semibold mb-0.5" style={{ color: '#6B7A72' }}>Pinned message</div>
@@ -198,7 +206,7 @@ export function CommunityChatClient({ eventId, eventName, channels, initialMessa
 
           {messages.length === 0 && (
             <div className="flex flex-col items-center justify-center text-center py-16">
-              <Hash size={26} style={{ color: '#C9C3B1' }} className="mb-2" />
+              <Hash size={26} style={{ color: '#6B7A72' }} className="mb-2" />
               <div className="font-medium text-[14px]" style={{ color: '#0F1F18' }}>No messages yet</div>
               <div className="text-[12.5px] mt-0.5" style={{ color: '#6B7A72' }}>
                 Be the first to say something in #{activeChannel?.name ?? 'general'}.
@@ -214,7 +222,7 @@ export function CommunityChatClient({ eventId, eventName, channels, initialMessa
                 <div className="flex-1 min-w-0">
                   <div className="flex items-baseline gap-2 mb-0.5">
                     <span className="font-semibold text-[13px]" style={{ color: '#0F1F18' }}>{name}</span>
-                    <span className="text-[12.5px]" style={{ color: '#C9C3B1' }}>{fmtTime(msg.created_at)}</span>
+                    <span className="text-[12.5px]" style={{ color: '#6B7A72' }}>{fmtTime(msg.created_at)}</span>
                     {msg.is_pinned && <Pin size={10} style={{ color: '#1F4D3A' }} />}
                   </div>
                   <p className="text-[14px]" style={{ color: '#3A4A42', lineHeight: 1.5 }}>{msg.content}</p>
@@ -234,18 +242,20 @@ export function CommunityChatClient({ eventId, eventName, channels, initialMessa
               onChange={e => setInput(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), sendMessage())}
               placeholder={registrationId ? `Message #${activeChannel?.name ?? 'general'}` : 'Message'}
+              aria-label={registrationId ? `Message #${activeChannel?.name ?? 'general'}` : 'Message input, register to post'}
               disabled={!registrationId || sending}
               className="flex-1 bg-transparent text-[14px] outline-none disabled:opacity-60"
               style={{ color: '#0F1F18' }}
             />
-            <button onClick={sendMessage} disabled={!input.trim() || sending || !registrationId}
-              className="w-8 h-8 rounded-xl flex items-center justify-center transition hover:opacity-80 disabled:opacity-30"
+            <button type="button" onClick={sendMessage} disabled={!input.trim() || sending || !registrationId}
+              aria-label="Send message"
+              className="w-10 h-10 rounded-xl flex items-center justify-center transition hover:opacity-80 disabled:opacity-30 shrink-0"
               style={{ background: '#1F4D3A', color: '#FAF6EE' }}>
               <Send size={14} />
             </button>
           </div>
           {!registrationId && (
-            <p className="text-[12.5px] text-center mt-2" style={{ color: '#C9C3B1' }}>
+            <p className="text-[12.5px] text-center mt-2" style={{ color: '#6B7A72' }}>
               Register for the event to post messages
             </p>
           )}

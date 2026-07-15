@@ -364,7 +364,7 @@ export default function TicketDetailClient({ reg, scannedByName, variant }: Prop
 
             {/* Meta */}
             <div className="absolute bottom-3.5 left-4 right-4">
-              <div className="font-display font-bold text-[19px] leading-tight text-white" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', letterSpacing: '-0.015em' }}>{eventName}</div>
+              <h1 className="font-display font-bold text-[19px] leading-tight text-white m-0" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', letterSpacing: '-0.015em' }}>{eventName}</h1>
               {venue && (
                 <div className="flex items-center gap-1.5 mt-1 text-[12.5px]" style={{ color: 'rgba(250,246,238,0.92)' }}>
                   <MapPin size={13} style={{ color: GOLD }} />

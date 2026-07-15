@@ -108,7 +108,7 @@ export default function PersonalAgendaClient({ sessions: initialSessions, regist
                 {conflict && (
                   <div
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg mb-1 text-[12px] font-medium"
-                    style={{ background: '#FEF3C7', color: '#C97A2D' }}
+                    style={{ background: 'rgba(201,122,45,0.12)', color: '#C97A2D' }}
                   >
                     <AlertTriangle size={13} />
                     Conflict with previous session
@@ -119,7 +119,7 @@ export default function PersonalAgendaClient({ sessions: initialSessions, regist
                   {/* Time + connector */}
                   <div className="w-16 shrink-0 flex flex-col items-center pt-4">
                     <span
-                      className=" text-[15px] font-medium"
+                      className="text-[15px] font-medium"
                       style={{ color: '#0F1F18' }}
                     >
                       {formatTime(session.starts_at)}
@@ -163,12 +163,14 @@ export default function PersonalAgendaClient({ sessions: initialSessions, regist
                       <button
                         onClick={() => handleRemove(session.id)}
                         disabled={removingId === session.id}
-                        className="p-1.5 rounded-lg hover:bg-red-50 shrink-0 disabled:opacity-40 transition-colors group"
+                        aria-label={`Remove ${session.title} from agenda`}
                         title="Remove from agenda"
+                        className="flex items-center justify-center rounded-lg shrink-0 disabled:opacity-40 transition-colors group hover:bg-[#B8423C1A] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                        style={{ width: 40, height: 40, outlineColor: '#1F4D3A' }}
                       >
                         <X
                           size={15}
-                          className="group-hover:text-red-500"
+                          className="group-hover:text-[#B8423C]"
                           style={{ color: '#6B7A72' }}
                         />
                       </button>
