@@ -100,17 +100,19 @@ function fmtTicketPrice(price: number, currency?: string | null): string {
   }
 }
 
-function fmtSessionTime(iso: string) {
+// Session times/days must render in the EVENT's timezone, not the server's —
+// otherwise a 9 AM Djibouti session shows as 6 AM (UTC) to everyone.
+function fmtSessionTime(iso: string, tz: string) {
   try {
-    return new Date(iso).toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit', hour12: false });
+    return new Date(iso).toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: tz || 'UTC' });
   } catch {
     return '';
   }
 }
 
-function fmtSessionDay(iso: string) {
+function fmtSessionDay(iso: string, tz: string) {
   try {
-    return new Date(iso).toLocaleDateString('en', { weekday: 'long', month: 'long', day: 'numeric' });
+    return new Date(iso).toLocaleDateString('en', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric', timeZone: tz || 'UTC' });
   } catch {
     return '';
   }
@@ -498,7 +500,7 @@ export function PublicEventPageClient({
 
   // Group sessions by day for schedule tab
   const sessionsByDay = sessions.reduce<{ day: string; sessions: Session[] }[]>((acc, s) => {
-    const day = fmtSessionDay(s.starts_at);
+    const day = fmtSessionDay(s.starts_at, page.timezone || 'UTC');
     const existing = acc.find(g => g.day === day);
     if (existing) existing.sessions.push(s);
     else acc.push({ day, sessions: [s] });
@@ -792,7 +794,7 @@ export function PublicEventPageClient({
                           borderBottom: i < arr.length - 1 ? '1px solid #E5E0D4' : 'none',
                         }}>
                         <span className="font-medium text-[13px]" style={{ color: '#C9A45E' }}>
-                          {fmtSessionTime(s.starts_at)}
+                          {fmtSessionTime(s.starts_at, page.timezone || 'UTC')}
                         </span>
                         <div>
                           <div className="font-title font-semibold text-[15px]" style={{ color: '#0F1F18' }}>{s.title}</div>
@@ -1015,9 +1017,9 @@ export function PublicEventPageClient({
                           background: '#FFFFFF',
                         }}>
                         <div>
-                          <div className="font-medium text-[13px]" style={{ color: '#C9A45E' }}>{fmtSessionTime(s.starts_at)}</div>
+                          <div className="font-medium text-[13px]" style={{ color: '#C9A45E' }}>{fmtSessionTime(s.starts_at, page.timezone || 'UTC')}</div>
                           {s.ends_at && (
-                            <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>{fmtSessionTime(s.ends_at)}</div>
+                            <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>{fmtSessionTime(s.ends_at, page.timezone || 'UTC')}</div>
                           )}
                         </div>
                         <div>
