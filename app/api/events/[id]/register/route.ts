@@ -7,6 +7,7 @@ import { isWaafiPayCurrency } from '@/lib/payments/waafipay';
 import { splitTicketAmount, type FeeBearer } from '@/lib/billing/fees';
 import { onRegistrationConfirmed } from '@/lib/integrations/dispatch';
 import type { Plan } from '@/lib/billing/plans';
+import { canRegisterForEvent } from '@/lib/billing/can';
 import { createNotification, notifyOrganizerNewRegistration } from '@/lib/notifications';
 import { allowedNeedsTags } from '@/lib/registration/needs-options';
 import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
@@ -182,6 +183,15 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     if ((count ?? 0) >= eventPage.max_capacity) {
       return NextResponse.json({ error: 'EVENT_FULL', detail: 'This event is at capacity' }, { status: 409 });
     }
+  }
+
+  // 4b. Free-tier plan cap (CLAUDE.md: Free = 1 event, 50 registrations).
+  //     Independent of the organizer's own max_capacity setting above.
+  if (!(await canRegisterForEvent(params.id))) {
+    return NextResponse.json({
+      error: 'EVENT_FULL',
+      detail: 'This event has reached the registration limit for the organizer\'s current plan',
+    }, { status: 409 });
   }
 
   // 5. Guard against duplicate registrations:

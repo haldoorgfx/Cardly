@@ -35,7 +35,7 @@ export async function PATCH(
 
   const { data: before } = await adminClient
     .from('registrations')
-    .select('id, event_id, attendee_email, status')
+    .select('id, event_id, attendee_email, status, ticket_type_id')
     .eq('id', params.id)
     .single();
 
@@ -57,6 +57,16 @@ export async function PATCH(
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  // Cancelling/refunding releases the ticket-type slot this registration was
+  // holding, but only if it had actually reached confirmed/checked_in.
+  if (
+    (status === 'cancelled' || status === 'refunded') &&
+    (before.status === 'confirmed' || before.status === 'checked_in') &&
+    before.ticket_type_id
+  ) {
+    await adminClient.rpc('decrement_ticket_quantity_sold', { ticket_id: before.ticket_type_id, qty: 1 });
+  }
 
   await logAudit(user, `registration.status.${status}`, 'registration', params.id, {
     before: { status: before.status, attendee_email: before.attendee_email },
@@ -80,7 +90,7 @@ export async function DELETE(
 
   const { data: before } = await adminClient
     .from('registrations')
-    .select('id, event_id, attendee_email, attendee_name, status')
+    .select('id, event_id, attendee_email, attendee_name, status, ticket_type_id')
     .eq('id', params.id)
     .single();
 
@@ -92,6 +102,10 @@ export async function DELETE(
     .eq('id', params.id);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  if ((before.status === 'confirmed' || before.status === 'checked_in') && before.ticket_type_id) {
+    await adminClient.rpc('decrement_ticket_quantity_sold', { ticket_id: before.ticket_type_id, qty: 1 });
+  }
 
   await logAudit(user, 'registration.deleted', 'registration', params.id, {
     before: {

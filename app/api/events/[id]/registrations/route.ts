@@ -171,6 +171,11 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   const patch: Record<string, unknown> = { updated_at: new Date().toISOString() };
   if (eventera_card_url !== undefined) patch.eventera_card_url = eventera_card_url;
   if (eventera_card_zone_data !== undefined) patch.eventera_card_zone_data = eventera_card_zone_data;
+
+  // Captured before the update when a status change might release a ticket
+  // slot, so we know what it's transitioning FROM (see decrement below).
+  let priorForRelease: { status: string; ticket_type_id: string | null } | null = null;
+
   if (status !== undefined) {
     const VALID_STATUSES = ['pending', 'confirmed', 'checked_in', 'cancelled', 'refunded'];
     if (!VALID_STATUSES.includes(status)) return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
@@ -183,6 +188,16 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
         if ((confirmedCount ?? 0) >= epPatch.max_capacity) {
           return NextResponse.json({ error: 'Cannot confirm — the event is at full capacity' }, { status: 409 });
         }
+      }
+    }
+
+    // Cancelling/refunding releases the ticket-type slot this registration
+    // was holding — but only if it had actually reached confirmed/checked_in
+    // (a still-pending registration never incremented quantity_sold).
+    if (status === 'cancelled' || status === 'refunded') {
+      const { data: prior } = await admin.from('registrations').select('status, ticket_type_id').eq('id', registrationId).eq('event_id', params.id).maybeSingle();
+      if (prior && (prior.status === 'confirmed' || prior.status === 'checked_in')) {
+        priorForRelease = prior;
       }
     }
 
@@ -205,6 +220,13 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  // Release the ticket-type slot this registration was holding, now that the
+  // status update above has actually landed.
+  if (priorForRelease?.ticket_type_id) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (admin as any).rpc('decrement_ticket_quantity_sold', { ticket_id: priorForRelease.ticket_type_id, qty: 1 });
+  }
 
   // Roles write-path: if this update promoted the registration to a confirmed/
   // checked-in state, upsert the 'attendee' role (best-effort). Only fires when
@@ -231,7 +253,17 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
   const regId = searchParams.get('regId');
   if (!regId) return NextResponse.json({ error: 'regId required' }, { status: 400 });
 
+  // Captured before the delete so we know whether it was holding a
+  // ticket-type slot to release (see decrement below).
+  const { data: priorForRelease } = await admin.from('registrations').select('status, ticket_type_id').eq('id', regId).eq('event_id', params.id).maybeSingle();
+
   const { error } = await admin.from('registrations').delete().eq('id', regId).eq('event_id', params.id);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  if (priorForRelease?.ticket_type_id && (priorForRelease.status === 'confirmed' || priorForRelease.status === 'checked_in')) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (admin as any).rpc('decrement_ticket_quantity_sold', { ticket_id: priorForRelease.ticket_type_id, qty: 1 });
+  }
+
   return NextResponse.json({ ok: true });
 }

@@ -33,9 +33,20 @@ function fmtPrice(price: number, currency: string) {
   catch { return `${currency} ${price}`; }
 }
 
+function newClientUuid() {
+  return typeof crypto !== 'undefined' && 'randomUUID' in crypto
+    ? crypto.randomUUID()
+    : `walkin-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
 export function WalkInClient({ eventId, eventSlug, eventName, tickets, checkedIn, walkInsToday, maxCapacity, confirmedCount = 0 }: Props) {
   const [step, setStep] = useState<Step>('info');
   const [form, setForm] = useState<WalkInForm>({ name: '', email: '', phone: '', ticketId: tickets[0]?.id ?? '', payment: 'card' });
+  // Stable per-attempt idempotency key: generated once when a sale starts,
+  // sent on every retry of the SAME sale so a lost response / double-tap
+  // can't charge twice. Only regenerated in reset(), i.e. once this sale
+  // succeeds or the organizer explicitly starts a new one.
+  const [clientUuid, setClientUuid] = useState(newClientUuid);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [result, setResult] = useState<{ name: string; ticketName: string; ticketNumber: string } | null>(null);
@@ -58,7 +69,7 @@ export function WalkInClient({ eventId, eventSlug, eventName, tickets, checkedIn
     const res = await fetch(`/api/events/${eventId}/walk-in`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
+      body: JSON.stringify({ ...form, clientUuid }),
     });
     if (res.ok) {
       const data = await res.json();
@@ -79,6 +90,7 @@ export function WalkInClient({ eventId, eventSlug, eventName, tickets, checkedIn
 
   function reset() {
     setForm({ name: '', email: '', phone: '', ticketId: tickets[0]?.id ?? '', payment: 'card' });
+    setClientUuid(newClientUuid());
     setStep('info');
     setResult(null);
   }

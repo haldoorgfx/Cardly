@@ -64,6 +64,28 @@ export async function canCreateEvent(userId: string): Promise<boolean> {
   return (count ?? 0) < limit;
 }
 
+/**
+ * Free-tier events are capped at PLANS.free.registrationsPerEvent confirmed/
+ * checked-in registrations (CLAUDE.md: "Free: 1 event, 50 registrations").
+ * Checked against the EVENT OWNER's plan, since the caller registering is
+ * usually an anonymous attendee, not the organizer.
+ */
+export async function canRegisterForEvent(eventId: string): Promise<boolean> {
+  const plan = await getEventOwnerPlan(eventId);
+  if (!plan) return true; // event owner not resolvable — don't block on our own lookup failure
+  const limit = PLANS[plan].registrationsPerEvent;
+  if (limit === null) return true;
+
+  const admin = createAdminClient();
+  const { count } = await admin
+    .from('registrations')
+    .select('id', { count: 'exact', head: true })
+    .eq('event_id', eventId)
+    .in('status', ['confirmed', 'checked_in']);
+
+  return (count ?? 0) < limit;
+}
+
 export async function canCreateVariant(userId: string, eventId: string): Promise<boolean> {
   const plan = await getUserPlan(userId);
   const limit = PLANS[plan].variants;

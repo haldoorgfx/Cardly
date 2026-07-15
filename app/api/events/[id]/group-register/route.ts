@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createAdminClient, createClient } from '@/lib/supabase/server';
 import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
+import { getUserPlan } from '@/lib/billing/can';
+import { PLANS } from '@/lib/billing/plans';
 
 interface Params { params: Promise<{ id: string }> }
 
@@ -65,6 +67,21 @@ export async function POST(req: NextRequest, { params }: Params) {
     if (seats.length > remaining) {
       return NextResponse.json({
         error: `Not enough capacity. Registering ${seats.length} people but only ${remaining} spot${remaining === 1 ? '' : 's'} remain${remaining === 1 ? 's' : ''}.`,
+      }, { status: 409 });
+    }
+  }
+
+  // Free-tier plan cap (CLAUDE.md: Free = 1 event, 50 registrations).
+  const plan = await getUserPlan(user.id);
+  const planLimit = PLANS[plan].registrationsPerEvent;
+  if (planLimit !== null) {
+    const { count: planCount } = await admin.from('registrations').select('id', { count: 'exact', head: true }).eq('event_id', eventId).in('status', ['confirmed', 'checked_in']);
+    const planRemaining = planLimit - (planCount ?? 0);
+    if (seats.length > planRemaining) {
+      return NextResponse.json({
+        error: planRemaining <= 0
+          ? 'This event has reached the registration limit for your current plan. Upgrade to add more attendees.'
+          : `Your plan allows ${planRemaining} more registration${planRemaining === 1 ? '' : 's'} for this event. Upgrade to add more.`,
       }, { status: 409 });
     }
   }

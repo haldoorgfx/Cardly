@@ -3,6 +3,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { humanizeError } from '@/lib/errors';
 import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
 import { hasCheckInAccess } from '@/lib/rbac/ownership';
+import { canRegisterForEvent } from '@/lib/billing/can';
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -24,8 +25,11 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     }
   }
 
-  const body = await req.json() as { name: string; email: string; phone?: string; ticketId?: string };
-  const { name, email, phone, ticketId } = body;
+  const body = await req.json() as {
+    name: string; email: string; phone?: string; ticketId?: string;
+    payment?: 'card' | 'cash'; clientUuid?: string;
+  };
+  const { name, email, phone, ticketId, payment, clientUuid } = body;
   if (!name || !email) return NextResponse.json({ error: 'Please enter a name and email.' }, { status: 400 });
 
   const emailLc = email.toLowerCase().trim();
@@ -66,16 +70,63 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     });
   }
 
-  // Generate QR token
-  const qr = Math.random().toString(36).slice(2, 10).toUpperCase();
+  // Free-tier plan cap (CLAUDE.md: Free = 1 event, 50 registrations) — only
+  // applies here, not to the check-in-an-existing-registration branch above.
+  if (!(await canRegisterForEvent(id))) {
+    return NextResponse.json({
+      error: 'This event has reached the registration limit for the organizer\'s current plan.',
+    }, { status: 409 });
+  }
 
+  // New registration, with a selected ticket type: go through
+  // create_walkin_registration (migration 090) so the price is looked up
+  // server-side (the client never supplies an amount), the sale is linked to
+  // the seller's cash shift, and a repeated/double-tapped submit is
+  // idempotent on clientUuid instead of charging twice. This RPC runs under
+  // the caller's own session (not the service-role client) since it reads
+  // auth.uid() internally.
+  if (ticketId) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: rpcResult, error: rpcError } = await (supabase as any).rpc('create_walkin_registration', {
+      p_event_id: id,
+      p_ticket_type_id: ticketId,
+      p_name: name,
+      p_email: emailLc,
+      p_phone: phone ?? null,
+      p_payment_method: payment === 'card' ? 'card' : 'cash',
+      p_client_uuid: clientUuid ?? null,
+    });
+
+    if (rpcError) return NextResponse.json({ error: humanizeError(rpcError) }, { status: 500 });
+    const result = rpcResult as {
+      status: 'ok' | 'already' | 'error';
+      message?: string;
+      registration_id?: string;
+      qr_code_token?: string;
+    };
+    if (result.status === 'error') {
+      return NextResponse.json({ error: result.message ?? 'Registration failed' }, { status: 409 });
+    }
+
+    // Roles write-path: new checked-in walk-in → 'attendee' role (best-effort, by email).
+    {
+      const attendeeAccountId = await resolveAccountIdByEmail(emailLc);
+      if (attendeeAccountId) await upsertEventRole({ userId: attendeeAccountId, eventId: id, role: 'attendee' });
+    }
+
+    return NextResponse.json({ id: result.registration_id, ticket_number: result.qr_code_token });
+  }
+
+  // No ticket type selected (shouldn't happen from the walk-in UI, which
+  // requires picking one before payment) — fall back to a free general entry.
+  const qr = Math.random().toString(36).slice(2, 10).toUpperCase();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: reg, error } = await (admin as any).from('registrations').insert({
     event_id: id,
     attendee_name: name,
     attendee_email: emailLc,
     attendee_phone: phone ?? null,
-    ticket_type_id: ticketId ?? null,
+    ticket_type_id: null,
     status: 'checked_in',
     qr_code_token: qr,
     amount_paid: 0,
