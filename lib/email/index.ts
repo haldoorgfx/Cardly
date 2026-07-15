@@ -38,8 +38,8 @@ function wrap(content: string): string {
 <tr><td align="center">
   <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px">
     <!-- Header -->
-    <tr><td style="background:linear-gradient(135deg,#1F4D3A,#2A6A50);border-radius:16px 16px 0 0;padding:24px 32px">
-      <span style="font-family:Georgia,serif;font-size:22px;font-weight:700;color:#FAF6EE;letter-spacing:-0.02em">Eventera</span>
+    <tr><td style="background:#1F4D3A;border-radius:16px 16px 0 0;padding:24px 32px">
+      <span style="font-family:'Plus Jakarta Sans',Arial,sans-serif;font-size:22px;font-weight:700;color:#FAF6EE;letter-spacing:-0.02em">Eventera</span>
     </td></tr>
     <!-- Body -->
     <tr><td style="background:#FFFFFF;padding:32px;border:1px solid #E5E0D4;border-top:none;border-bottom:none">
@@ -47,7 +47,7 @@ function wrap(content: string): string {
     </td></tr>
     <!-- Footer -->
     <tr><td style="background:#FAF6EE;padding:20px 32px;border:1px solid #E5E0D4;border-top:none;border-radius:0 0 16px 16px;text-align:center">
-      <p style="margin:0;font-size:11px;color:#9CA3AF">You&apos;re receiving this because you have email notifications enabled in your Eventera account.<br>
+      <p style="margin:0;font-size:11px;color:#6B7A72">You&apos;re receiving this because you have email notifications enabled in your Eventera account.<br>
       <a href="${process.env.NEXT_PUBLIC_APP_URL}/settings" style="color:#1F4D3A">Manage preferences</a></p>
     </td></tr>
   </table>
@@ -136,7 +136,7 @@ export async function sendWelcomeEmail(opts: {
 
       ${btn(dashboardUrl, 'Create your first event →')}
 
-      <p style="margin:24px 0 0;font-size:13px;color:#9CA3AF;line-height:1.6">
+      <p style="margin:24px 0 0;font-size:13px;color:#6B7A72;line-height:1.6">
         Questions? Reply to this email — a real person reads every response.
       </p>
     `),
@@ -176,7 +176,7 @@ export async function maybeSendDownloadMilestone(opts: {
       <table cellpadding="0" cellspacing="0" style="width:100%;border-radius:12px;overflow:hidden;border:1px solid #E5E0D4">
         <tr>
           <td style="padding:16px 20px;background:#FAF6EE">
-            <span style="font-family:monospace;font-size:11px;color:#6B7A72;text-transform:uppercase;letter-spacing:0.1em">Downloads</span>
+            <span style="font-family:Inter,Arial,sans-serif;font-size:11px;font-weight:600;color:#6B7A72;text-transform:uppercase;letter-spacing:0.1em">Downloads</span>
             <div style="font-size:36px;font-weight:700;color:#1F4D3A;margin-top:4px">${count}</div>
           </td>
         </tr>
@@ -231,7 +231,7 @@ export async function sendEventPublishedEmail(opts: {
         <strong style="color:#0F1F18">${opts.eventName}</strong> is now published and accepting
         attendee registrations. Share the link below to start collecting cards.
       </p>
-      <div style="background:#FAF6EE;border:1px solid #E5E0D4;border-radius:10px;padding:14px 16px;font-family:monospace;font-size:13px;color:#1F4D3A;word-break:break-all">
+      <div style="background:#FAF6EE;border:1px solid #E5E0D4;border-radius:10px;padding:14px 16px;font-family:Inter,Arial,sans-serif;font-size:13px;color:#1F4D3A;word-break:break-all">
         ${opts.publicUrl}
       </div>
       ${btn(opts.publicUrl, 'Preview attendee page →')}

@@ -52,7 +52,7 @@ export default function EventDetailError({
           </Link>
         </div>
         {error.digest && (
-          <p className="mt-6 text-[12.5px]" style={{ color: '#9CA3AF' }}>
+          <p className="mt-6 text-[12.5px]" style={{ color: '#6B7A72' }}>
             ref: {error.digest}
           </p>
         )}
