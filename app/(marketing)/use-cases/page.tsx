@@ -142,7 +142,7 @@ function UseCaseCard({ uc }: { uc: UseCase }) {
 
       {/* Body */}
       <div className="p-6 flex flex-col flex-1 gap-3">
-        <h3 className="font-display text-[18px] font-semibold text-[#1F4D3A] tracking-tight">
+        <h3 className="font-display text-[18px] font-semibold text-[#0F1F18] tracking-tight">
           {uc.title}
         </h3>
         <p className="text-[#3A4A42] text-[14px] leading-[1.55]">{uc.body}</p>

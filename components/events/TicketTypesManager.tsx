@@ -826,7 +826,7 @@ function TicketCard({
         </div>
 
         {/* Price */}
-        <div className="shrink-0 text-[14px] font-medium min-w-[48px] text-right" style={{ fontFamily: 'Inter, system-ui, sans-serif', color: isFree ? '#2D7A4F' : '#1F4D3A' }}>
+        <div className="shrink-0 text-[14px] font-medium min-w-[48px] text-right" style={{ fontFamily: 'Inter, system-ui, sans-serif', color: isFree ? '#2D7A4F' : '#0F1F18' }}>
           {isFree ? 'Free' : `${ticket.currency} ${ticket.price}`}
         </div>
 

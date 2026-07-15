@@ -227,7 +227,7 @@ export function ChangelogAdminClient({ initialEntries }: { initialEntries: Chang
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   {entry.version && (
-                    <span className=" text-[12.5px] font-bold text-[#1F4D3A]">{entry.version}</span>
+                    <span className=" text-[12.5px] font-bold text-[#0F1F18]">{entry.version}</span>
                   )}
                   <span className="font-display font-semibold text-[14px] text-[#0F1F18] leading-snug">
                     {entry.title}

@@ -96,7 +96,7 @@ function PhoneScannerModal({ eventId, onClose }: { eventId: string; onClose: () 
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: '1px solid #E5E0D4' }}>
           <div className="flex items-center gap-2">
-            <Smartphone size={16} strokeWidth={1.8} style={{ color: '#1F4D3A' }} />
+            <Smartphone size={16} strokeWidth={1.8} style={{ color: '#6B7A72' }} />
             <span className="font-display text-[15px] font-semibold" style={{ color: '#0F1F18' }}>Scan with phone</span>
           </div>
           <button onClick={onClose} className="h-7 w-7 rounded-lg grid place-items-center hover:bg-[#F5F3EE]"
@@ -599,7 +599,7 @@ export default function CheckInDashboard({
                   <div className="w-8 h-8 rounded-lg grid place-items-center mb-3" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
                     {s.icon}
                   </div>
-                  <div className=" text-[22px] tracking-tight leading-none" style={{ color: '#1F4D3A' }}>{s.value}</div>
+                  <div className=" text-[22px] tracking-tight leading-none" style={{ color: '#0F1F18' }}>{s.value}</div>
                   <div className=" text-[12px] tracking-[0.1em] uppercase mt-1.5" style={{ color: '#6B7A72' }}>{s.label}</div>
                 </div>
               ))}
@@ -609,7 +609,7 @@ export default function CheckInDashboard({
             <div className="bg-white border rounded-2xl px-5 py-4" style={{ borderColor: '#E5E0D4' }}>
               <div className="flex items-center justify-between mb-2">
                 <span className="text-[13px]" style={{ color: '#3A4A42' }}>Arrivals progress</span>
-                <span className=" text-[12px]" style={{ color: '#1F4D3A' }}>{checkedIn} / {totalRegistrations}</span>
+                <span className=" text-[12px]" style={{ color: '#0F1F18' }}>{checkedIn} / {totalRegistrations}</span>
               </div>
               <div className="h-2.5 rounded-full overflow-hidden" style={{ background: '#E5E0D4' }}>
                 <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, background: '#1F4D3A' }} />

@@ -65,7 +65,7 @@ export default async function PublicSponsorPage({ params }: Props) {
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={sponsor.logo_url} alt={sponsor.company_name} className="w-full h-full object-contain p-2" />
               ) : (
-                <Store size={26} strokeWidth={1.6} style={{ color: '#1F4D3A' }} />
+                <Store size={26} strokeWidth={1.6} style={{ color: '#6B7A72' }} />
               )}
             </div>
             <div className="min-w-0">

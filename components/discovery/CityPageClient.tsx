@@ -53,7 +53,7 @@ export function CityPageClient({ city, events }: Props) {
           <span style={{ color: '#0F1F18' }}>{city}</span>
         </div>
         <div className="flex items-center gap-3 mb-2">
-          <MapPin size={22} style={{ color: '#1F4D3A' }} />
+          <MapPin size={22} style={{ color: '#6B7A72' }} />
           <h1 className="font-title font-bold text-[32px]" style={{ color: '#0F1F18' }}>
             Events in {city}
           </h1>
@@ -133,7 +133,7 @@ export function CityPageClient({ city, events }: Props) {
                         {ep.is_online ? <Globe size={10} /> : <MapPin size={10} />}
                         <span className="truncate">{ep.is_online ? 'Online' : ep.venue_name ?? ep.city}</span>
                       </div>
-                      <span className="font-semibold text-[11px]" style={{ color: '#1F4D3A' }}>{fmtPrice(ep.price_from)}</span>
+                      <span className="font-semibold text-[11px]" style={{ color: '#0F1F18' }}>{fmtPrice(ep.price_from)}</span>
                     </div>
                   </div>
                 </Link>
@@ -155,7 +155,7 @@ export function CityPageClient({ city, events }: Props) {
           style={{ background: '#E8EFEB', border: '1px solid #C9E0D4' }}>
           <CalendarDays size={24} style={{ color: '#1F4D3A' }} />
           <div className="flex-1 min-w-0">
-            <p className="font-semibold text-[14px]" style={{ color: '#1F4D3A' }}>
+            <p className="font-semibold text-[14px]" style={{ color: '#0F1F18' }}>
               Never miss events in {city}
             </p>
             <p className="text-[12px]" style={{ color: '#3A4A42' }}>

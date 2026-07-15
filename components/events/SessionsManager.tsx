@@ -653,7 +653,7 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
                   className="bg-white border border-[#E5E0D4] rounded-2xl px-5 py-4 flex items-center gap-5 hover:border-[#1F4D3A]/40 transition-colors"
                 >
                   <div className="text-center shrink-0 w-[52px]">
-                    {startTime && <div className=" text-[15px] tracking-tight" style={{ color: '#1F4D3A' }}>{startTime}</div>}
+                    {startTime && <div className=" text-[15px] tracking-tight" style={{ color: '#0F1F18' }}>{startTime}</div>}
                     {duration && <div className=" text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>{duration}</div>}
                   </div>
                   <span className="w-1 self-stretch rounded-full shrink-0" style={{ background: track?.color ?? '#E5E0D4', minHeight: 32 }} />

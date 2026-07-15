@@ -196,7 +196,7 @@ export function GroupRegistrationClient({ eventId, eventName, eventSlug, tickets
             </span>
           )}
           {totalTickets > 0 && (
-            <span className="flex items-center gap-1 text-[13px] font-semibold" style={{ color: '#1F4D3A' }}>
+            <span className="flex items-center gap-1 text-[13px] font-semibold" style={{ color: '#0F1F18' }}>
               <Users size={14} /> {totalTickets} seat{totalTickets !== 1 ? 's' : ''}
             </span>
           )}
@@ -250,7 +250,7 @@ export function GroupRegistrationClient({ eventId, eventName, eventSlug, tickets
                       <div className="font-semibold text-[15px]" style={{ color: '#0F1F18' }}>{t.name}</div>
                       {t.description && <div className="text-[12px] mt-0.5 truncate" style={{ color: '#6B7A72' }}>{t.description}</div>}
                     </div>
-                    <div className="text-[14px] font-semibold mr-2" style={{ color: '#1F4D3A' }}>
+                    <div className="text-[14px] font-semibold mr-2" style={{ color: '#0F1F18' }}>
                       {fmt(t.price, t.currency)}
                     </div>
                     {/* Qty controls */}
@@ -360,7 +360,7 @@ export function GroupRegistrationClient({ eventId, eventName, eventSlug, tickets
                 <div className="flex items-center justify-between pt-3 border-t mb-4"
                   style={{ borderColor: '#E5E0D4' }}>
                   <span className="font-semibold text-[14px]" style={{ color: '#0F1F18' }}>Total</span>
-                  <span className="font-display font-bold text-[20px]" style={{ color: '#1F4D3A', letterSpacing: '-0.02em' }}>
+                  <span className="font-display font-bold text-[20px]" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
                     {totalPrice === 0 ? 'Free' : fmt(totalPrice, primaryCurrency)}
                   </span>
                 </div>

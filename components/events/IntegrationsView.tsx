@@ -102,7 +102,7 @@ export function IntegrationsView({ eventId }: Props) {
         subtitle={
           <>
             Connect Eventera to your stack ·{' '}
-            <span style={{ color: '#1F4D3A', fontWeight: 500 }}>{builtinCount} of {totalCount}</span> built-in
+            <span style={{ color: '#0F1F18', fontWeight: 500 }}>{builtinCount} of {totalCount}</span> built-in
           </>
         }
         actions={

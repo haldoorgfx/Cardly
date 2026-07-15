@@ -41,7 +41,7 @@ function StatCard({ label, value }: { label: string; value: string | number }) {
   return (
     <div className="bg-white rounded-2xl p-5" style={{ border: '1px solid #E5E0D4' }}>
       <div className=" text-[11.5px] tracking-[0.14em] uppercase mb-2" style={{ color: '#6B7A72' }}>{label}</div>
-      <div className=" text-[24px] leading-none tracking-tight" style={{ color: '#1F4D3A' }}>{value}</div>
+      <div className=" text-[24px] leading-none tracking-tight" style={{ color: '#0F1F18' }}>{value}</div>
     </div>
   );
 }
@@ -295,7 +295,7 @@ export function ReportsClient({ eventId, eventName, totalRevenue, regCount, chec
                         <td className="py-2.5 px-3" style={{ color: '#3A4A42' }}>
                           {ticketTypes.find(t => t.id === r.ticket_type_id)?.name ?? '—'}
                         </td>
-                        <td className="py-2.5 px-3  text-[12px]" style={{ color: '#1F4D3A' }}>
+                        <td className="py-2.5 px-3  text-[12px]" style={{ color: '#0F1F18' }}>
                           {fmtCurrency(r.amount_paid ?? 0, r.currency)}
                         </td>
                         <td className="py-2.5 px-3 whitespace-nowrap" style={{ color: '#6B7A72' }}>

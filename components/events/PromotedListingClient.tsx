@@ -109,7 +109,7 @@ export function PromotedListingClient({ eventId, eventName, campaign }: Props) {
           <div className="mb-5">
             <div className="flex items-center justify-between mb-2">
               <label className="text-[13px] font-semibold" style={{ color: '#3A4A42' }}>Daily budget</label>
-              <span className="font-display font-bold text-[20px]" style={{ color: '#1F4D3A', letterSpacing: '-0.02em' }}>
+              <span className="font-display font-bold text-[20px]" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
                 ${budget}/day
               </span>
             </div>
@@ -190,7 +190,7 @@ export function PromotedListingClient({ eventId, eventName, campaign }: Props) {
         {/* ROI estimate */}
         <div className="flex flex-col gap-4">
           <div className="rounded-2xl p-5" style={{ background: '#E8EFEB', border: '1px solid #C9E0D4' }}>
-            <h3 className="font-semibold text-[14px] mb-3" style={{ color: '#1F4D3A' }}>Estimated reach</h3>
+            <h3 className="font-semibold text-[14px] mb-3" style={{ color: '#0F1F18' }}>Estimated reach</h3>
             <div className="flex flex-col gap-2">
               {[
                 { label: 'Total spend', val: `$${totalSpend}` },
@@ -200,7 +200,7 @@ export function PromotedListingClient({ eventId, eventName, campaign }: Props) {
               ].map(row => (
                 <div key={row.label} className="flex items-center justify-between text-[13px]">
                   <span style={{ color: '#3A4A42' }}>{row.label}</span>
-                  <span className="font-semibold" style={{ color: '#1F4D3A', fontFamily: 'Inter, system-ui, sans-serif' }}>{row.val}</span>
+                  <span className="font-semibold" style={{ color: '#0F1F18', fontFamily: 'Inter, system-ui, sans-serif' }}>{row.val}</span>
                 </div>
               ))}
             </div>

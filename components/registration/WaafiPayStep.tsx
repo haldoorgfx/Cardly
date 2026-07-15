@@ -95,7 +95,7 @@ export function WaafiPayStep({ registrationId, qrToken, amount, currency, eventT
         <span className="text-[14px] font-medium" style={{ color: '#0F1F18' }}>{ticketName}</span>
         <span
           className="text-[17px] font-semibold"
-          style={{ fontFamily: 'Inter, system-ui, sans-serif', color: '#1F4D3A' }}
+          style={{ fontFamily: 'Inter, system-ui, sans-serif', color: '#0F1F18' }}
         >
           {formattedAmount}
         </span>

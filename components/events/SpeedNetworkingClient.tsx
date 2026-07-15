@@ -126,7 +126,7 @@ export function SpeedNetworkingClient({ eventId, eventName, eventSlug, registrat
           </h1>
           <p className="text-[13px] mt-1.5" style={{ color: '#6B7A72' }}>
             Skip or connect. Connected{' '}
-            <strong style={{ color: '#1F4D3A' }}>{connectedCount}</strong> so far.
+            <strong style={{ color: '#0F1F18' }}>{connectedCount}</strong> so far.
           </p>
         </div>
 
@@ -202,7 +202,7 @@ export function SpeedNetworkingClient({ eventId, eventName, eventSlug, registrat
             </div>
             <h2
               className="font-display font-normal text-[22px] mb-2"
-              style={{ color: '#1F4D3A', letterSpacing: '-0.02em' }}
+              style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}
             >
               That&rsquo;s everyone
             </h2>

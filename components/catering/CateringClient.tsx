@@ -177,7 +177,7 @@ export function CateringClient({ eventSlug, meals, loadError }: Props) {
                         style={{ background: '#FAF6EE', border: '1px solid #E5E0D4' }}
                       >
                         <span className="text-[13.5px] font-medium" style={{ color: '#3A4A42' }}>{d.tag}</span>
-                        <span className="text-[14px] font-semibold" style={{ color: '#1F4D3A' }}>{d.count}</span>
+                        <span className="text-[14px] font-semibold" style={{ color: '#0F1F18' }}>{d.count}</span>
                       </div>
                     ))}
                   </div>

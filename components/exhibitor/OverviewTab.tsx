@@ -175,7 +175,7 @@ function Stat({ label, value, sub, accent }: { label: string; value: string | nu
       }
     >
       <div className=" text-[9.5px] tracking-[0.14em] uppercase mb-2" style={{ color: '#6B7A72' }}>{label}</div>
-      <div className=" text-[26px] tracking-tight leading-none" style={{ color: '#1F4D3A' }}>{value}</div>
+      <div className=" text-[26px] tracking-tight leading-none" style={{ color: '#0F1F18' }}>{value}</div>
       {sub && <div className=" text-[11px] mt-2" style={{ color: '#2D7A4F' }}>{sub}</div>}
     </div>
   );

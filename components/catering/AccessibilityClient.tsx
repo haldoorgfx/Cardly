@@ -77,7 +77,7 @@ export function AccessibilityClient({ eventSlug, data, loadError }: Props) {
         {/* Private notice — this is personal data, handled with care */}
         <div className="flex items-start gap-3 rounded-xl px-4 py-3 mb-6" style={{ background: '#E8EFEB', border: '1px solid rgba(31,77,58,0.16)' }}>
           <ShieldCheck size={16} strokeWidth={2} className="mt-0.5 shrink-0" style={{ color: '#1F4D3A' }} />
-          <p className="text-[13px]" style={{ color: '#1F4D3A', lineHeight: 1.5 }}>
+          <p className="text-[13px]" style={{ color: '#3A4A42', lineHeight: 1.5 }}>
             Private to your organizing team. Share only with the people preparing for the event, and only what they need to know.
           </p>
         </div>
@@ -119,7 +119,7 @@ export function AccessibilityClient({ eventSlug, data, loadError }: Props) {
             {/* Total + by-tag */}
             <div className="bg-white rounded-2xl border p-5 mb-4" style={{ borderColor: '#E5E0D4' }}>
               <div className="flex items-baseline gap-2 mb-4">
-                <span className="font-display font-semibold text-[26px]" style={{ color: '#1F4D3A' }}>{data!.total_with_needs}</span>
+                <span className="font-display font-semibold text-[26px]" style={{ color: '#0F1F18' }}>{data!.total_with_needs}</span>
                 <span className="text-[14px]" style={{ color: '#6B7A72' }}>
                   {data!.total_with_needs === 1 ? 'attendee shared a need' : 'attendees shared a need'}
                 </span>
@@ -133,7 +133,7 @@ export function AccessibilityClient({ eventSlug, data, loadError }: Props) {
                       style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#3A4A42' }}
                     >
                       {t.tag}
-                      <span className="font-semibold" style={{ color: '#1F4D3A' }}>{t.count}</span>
+                      <span className="font-semibold" style={{ color: '#0F1F18' }}>{t.count}</span>
                     </span>
                   ))}
                 </div>

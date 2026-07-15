@@ -233,7 +233,7 @@ export default function AttendeeAuth() {
   if (state === 'otp') {
     return (
       <form onSubmit={handleVerify}>
-        <h1 style={{ fontFamily: 'var(--font-display, "Plus Jakarta Sans", sans-serif)', fontWeight: 400, fontSize: 28, letterSpacing: '-0.02em', color: '#1F4D3A' }}>
+        <h1 style={{ fontFamily: 'var(--font-display, "Plus Jakarta Sans", sans-serif)', fontWeight: 400, fontSize: 28, letterSpacing: '-0.02em', color: '#0F1F18' }}>
           Check your email
         </h1>
         <p className="text-[14px] mt-2 leading-relaxed" style={{ color: '#6B7A72' }}>
@@ -314,7 +314,7 @@ export default function AttendeeAuth() {
   if (state === 'setPassword') {
     return (
       <form onSubmit={handleSetPassword}>
-        <h1 style={{ fontFamily: 'var(--font-display, "Plus Jakarta Sans", sans-serif)', fontWeight: 400, fontSize: 28, letterSpacing: '-0.02em', color: '#1F4D3A' }}>
+        <h1 style={{ fontFamily: 'var(--font-display, "Plus Jakarta Sans", sans-serif)', fontWeight: 400, fontSize: 28, letterSpacing: '-0.02em', color: '#0F1F18' }}>
           Set a password
         </h1>
         <p className="text-[14px] mt-2 leading-relaxed" style={{ color: '#6B7A72' }}>
@@ -372,7 +372,7 @@ export default function AttendeeAuth() {
   // ── Email + password screen (default) ────────────────────────────────────
   return (
     <form onSubmit={handlePasswordSignIn}>
-      <h1 style={{ fontFamily: 'var(--font-display, "Plus Jakarta Sans", sans-serif)', fontWeight: 400, fontSize: 28, letterSpacing: '-0.02em', color: '#1F4D3A' }}>
+      <h1 style={{ fontFamily: 'var(--font-display, "Plus Jakarta Sans", sans-serif)', fontWeight: 400, fontSize: 28, letterSpacing: '-0.02em', color: '#0F1F18' }}>
         Welcome back
       </h1>
       <p className="text-[14px] mt-2 leading-relaxed" style={{ color: '#6B7A72' }}>

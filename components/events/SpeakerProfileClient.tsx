@@ -80,7 +80,7 @@ export default function SpeakerProfileClient({ speaker, sessions, eventSlug }: P
             Speakers
           </Link>
           <svg viewBox="0 0 24 24" className="w-3 h-3 shrink-0" fill="none" stroke="#C9C3B1" strokeWidth="2.5"><path d="M9 18l6-6-6-6" /></svg>
-          <span className="font-medium truncate" style={{ color: '#1F4D3A' }}>{speaker.name}</span>
+          <span className="font-medium truncate" style={{ color: '#0F1F18' }}>{speaker.name}</span>
         </nav>
 
         {/* Profile header card */}

@@ -234,14 +234,14 @@ export default function EventCard({ event, regCount, revenue, currency, checkinP
 
         {/* Stats */}
         <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1  text-[12px] text-[#6B7A72]">
-          <span><span className="text-[#1F4D3A] font-semibold">{regCount}</span> registered</span>
+          <span><span className="text-[#0F1F18] font-semibold">{regCount}</span> registered</span>
           {!isDraft && revenue > 0 && currency && (
             <><span className="text-[#E5E0D4]">·</span>
-            <span><span className="text-[#1F4D3A] font-semibold">{fmtRevenue(revenue, currency)}</span></span></>
+            <span><span className="text-[#0F1F18] font-semibold">{fmtRevenue(revenue, currency)}</span></span></>
           )}
           {checkinPct > 0 && (
             <><span className="text-[#E5E0D4]">·</span>
-            <span><span className="text-[#1F4D3A] font-semibold">{checkinPct}%</span> check-in</span></>
+            <span><span className="text-[#0F1F18] font-semibold">{checkinPct}%</span> check-in</span></>
           )}
         </div>
 

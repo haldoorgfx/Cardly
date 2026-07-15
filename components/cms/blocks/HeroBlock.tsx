@@ -105,7 +105,7 @@ export function HeroBlock({ content }: { content: HeroContent }) {
             <div className="mt-8 grid grid-cols-3 gap-px rounded-2xl overflow-hidden border border-[#E5E0D4] max-w-[440px]" style={{ background: '#E5E0D4' }}>
               {statsStrip.map((s) => (
                 <div key={s.label} className="px-4 py-3.5" style={{ background: '#FAF6EE' }}>
-                  <div className="font-display font-bold text-[#1F4D3A] text-[22px] tracking-[-0.03em] leading-none">{s.value}</div>
+                  <div className="font-display font-bold text-[#0F1F18] text-[22px] tracking-[-0.03em] leading-none">{s.value}</div>
                   <div className="mt-1.5  text-[9px] tracking-[0.16em] uppercase text-[#6B7A72]">{s.label}</div>
                 </div>
               ))}

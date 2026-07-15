@@ -217,12 +217,12 @@ export function PromoterLinksManager({ eventId, eventSlug, initialCodes, appUrl 
                   {/* Stats */}
                   <div className="flex items-center gap-5 shrink-0 sm:border-l sm:pl-5" style={{ borderColor: '#F0EDE6' }}>
                     <div className="text-center">
-                      <div className="font-title font-bold text-[20px] leading-none" style={{ color: c.uses > 0 ? '#1F4D3A' : '#C9C3B1' }}>{c.uses}</div>
+                      <div className="font-title font-bold text-[20px] leading-none" style={{ color: c.uses > 0 ? '#0F1F18' : '#C9C3B1' }}>{c.uses}</div>
                       <div className="text-[12px] uppercase tracking-[0.1em] mt-1" style={{ color: '#6B7A72' }}>sign-ups</div>
                     </div>
                     {c.revenue > 0 && (
                       <div className="text-center">
-                        <div className="font-title font-bold text-[20px] leading-none flex items-center gap-1" style={{ color: '#1F4D3A' }}>
+                        <div className="font-title font-bold text-[20px] leading-none flex items-center gap-1" style={{ color: '#0F1F18' }}>
                           <TrendingUp size={13} strokeWidth={2.2} />{fmt(c.revenue)}
                         </div>
                         <div className="text-[12px] uppercase tracking-[0.1em] mt-1" style={{ color: '#6B7A72' }}>revenue</div>

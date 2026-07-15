@@ -186,7 +186,7 @@ export function RevenueView({ registrations }: Props) {
               >
                 <span className="font-medium text-[14px]" style={{ color: '#0F1F18' }}>{t.name}</span>
                 <span className="text-right  text-[14px]" style={{ color: '#3A4A42' }}>{t.count}</span>
-                <span className="text-right  font-semibold text-[14px]" style={{ color: '#1F4D3A' }}>
+                <span className="text-right  font-semibold text-[14px]" style={{ color: '#0F1F18' }}>
                   {t.revenue > 0 ? fmt(t.revenue, t.currency) : <span style={{ color: '#6B7A72', fontWeight: 400 }}>Free</span>}
                 </span>
               </div>
@@ -196,7 +196,7 @@ export function RevenueView({ registrations }: Props) {
               <div className="grid grid-cols-3 px-4 py-3.5 items-center" style={{ borderTop: '2px solid #E5E0D4', background: '#F9F6F0' }}>
                 <span className="font-semibold text-[13px]" style={{ color: '#3A4A42' }}>Total</span>
                 <span className="text-right  font-semibold text-[14px]" style={{ color: '#0F1F18' }}>{totalCount}</span>
-                <span className="text-right  font-semibold text-[14px]" style={{ color: '#1F4D3A' }}>{fmt(totalRevenue, primaryCurrency)}</span>
+                <span className="text-right  font-semibold text-[14px]" style={{ color: '#0F1F18' }}>{fmt(totalRevenue, primaryCurrency)}</span>
               </div>
             )}
           </>
@@ -218,7 +218,7 @@ export function RevenueView({ registrations }: Props) {
                   {p.code}
                 </span>
                 <span className="text-right  text-[14px]" style={{ color: '#3A4A42' }}>{p.count}</span>
-                <span className="text-right  font-semibold text-[14px]" style={{ color: '#1F4D3A' }}>
+                <span className="text-right  font-semibold text-[14px]" style={{ color: '#0F1F18' }}>
                   {p.revenue > 0 ? fmt(p.revenue, p.currency) : <span style={{ color: '#6B7A72', fontWeight: 400 }}>—</span>}
                 </span>
               </div>
@@ -242,7 +242,7 @@ export function RevenueView({ registrations }: Props) {
                   {s.source}
                 </span>
                 <span className="text-right  text-[14px]" style={{ color: '#3A4A42' }}>{s.count}</span>
-                <span className="text-right  font-semibold text-[14px]" style={{ color: '#1F4D3A' }}>
+                <span className="text-right  font-semibold text-[14px]" style={{ color: '#0F1F18' }}>
                   {s.revenue > 0 ? fmt(s.revenue, s.currency) : <span style={{ color: '#6B7A72', fontWeight: 400 }}>—</span>}
                 </span>
               </div>

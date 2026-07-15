@@ -155,7 +155,7 @@ export function AttendanceGrid({ eventSlug, days, attendees, cells, perDay, erro
             </div>
             {perDay.map((s) => (
               <div key={s.day_index} className="px-3 py-3 text-center" style={{ borderLeft: '1px solid #F0EDE6' }}>
-                <div className="text-[14px] font-display font-semibold" style={{ color: '#1F4D3A' }}>
+                <div className="text-[14px] font-display font-semibold" style={{ color: '#0F1F18' }}>
                   {s.checkedIn}
                   <span className="text-[12.5px] font-normal" style={{ color: '#6B7A72' }}> / {s.entitled}</span>
                 </div>

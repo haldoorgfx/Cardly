@@ -479,7 +479,7 @@ export default async function AnalyticsPage({
                       <span className="text-[13px]" style={{ color: '#3A4A42', maxWidth: '70%', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
                         {ev.name}
                       </span>
-                      <span className=" text-[13px] font-semibold" style={{ color: '#1F4D3A' }}>{ev.pct}%</span>
+                      <span className=" text-[13px] font-semibold" style={{ color: '#0F1F18' }}>{ev.pct}%</span>
                     </div>
                     <div className="h-2.5 rounded-full overflow-hidden" style={{ background: '#E8EFEB' }}>
                       <div className="h-full rounded-full transition-all" style={{ width: `${ev.pct}%`, background: '#1F4D3A' }} />

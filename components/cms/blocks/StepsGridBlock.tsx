@@ -51,7 +51,7 @@ export function StepsGridBlock({ content }: { content: StepsGridContent }) {
                 <div style={{ direction: 'ltr' }} className="hidden lg:flex items-center justify-center">
                   <div className="w-40 h-40 rounded-full grid place-items-center border-2 border-[#E5E0D4]"
                     style={{ background: 'linear-gradient(135deg, #FAF6EE 0%, #E8EFEB 100%)' }}>
-                    <span className="font-display font-bold text-[#1F4D3A] text-[56px] tracking-tight leading-none">
+                    <span className="font-display font-bold text-[#0F1F18] text-[56px] tracking-tight leading-none">
                       {String(step.step).padStart(2, '0')}
                     </span>
                   </div>

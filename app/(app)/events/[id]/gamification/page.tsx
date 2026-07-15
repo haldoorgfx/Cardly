@@ -127,7 +127,7 @@ export default async function GamificationPage({ params }: Props) {
                     <span className="text-[13px] w-8" style={{ color: '#6B7A72' }}>#{entry.rank}</span>
                     <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-[12px] font-display font-semibold shrink-0" style={{ background: '#1F4D3A' }}>{initials(entry.attendee_name)}</div>
                     <span className="flex-1 text-[14px] font-medium" style={{ color: '#0F1F18' }}>{entry.attendee_name}</span>
-                    <span className="text-[14px] font-semibold" style={{ color: '#1F4D3A' }}>{entry.total_points}pts</span>
+                    <span className="text-[14px] font-semibold" style={{ color: '#0F1F18' }}>{entry.total_points}pts</span>
                   </div>
                 ))}
               </div>

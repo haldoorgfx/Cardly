@@ -73,7 +73,7 @@ export function BadgesClient({ eventName, ticketTypes, regCount }: Props) {
         ].map(s => (
           <div key={s.label} className="bg-white rounded-2xl p-5" style={{ border: '1px solid #E5E0D4' }}>
             <div className=" text-[11.5px] tracking-[0.14em] uppercase mb-2" style={{ color: '#6B7A72' }}>{s.label}</div>
-            <div className=" text-[24px] leading-none" style={{ color: '#1F4D3A' }}>{s.value}</div>
+            <div className=" text-[24px] leading-none" style={{ color: '#0F1F18' }}>{s.value}</div>
           </div>
         ))}
       </div>

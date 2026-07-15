@@ -183,7 +183,7 @@ export function OperatorCollectionsClient({ collections, promoted: dbPromoted }:
 
                 {/* Count */}
                 <div className="text-right shrink-0">
-                  <div className="font-bold text-[20px]" style={{ color: '#1F4D3A', fontFamily: 'Inter, system-ui, sans-serif' }}>
+                  <div className="font-bold text-[20px]" style={{ color: '#0F1F18', fontFamily: 'Inter, system-ui, sans-serif' }}>
                     {col.event_count ?? 0}
                   </div>
                   <div className="text-[12.5px]" style={{ color: '#6B7A72' }}>events</div>
@@ -194,8 +194,8 @@ export function OperatorCollectionsClient({ collections, promoted: dbPromoted }:
             {/* Feed rules card */}
             <div className="rounded-2xl p-5" style={{ background: '#E8EFEB', border: '1px solid #C9E0D4' }}>
               <div className="flex items-center gap-2 mb-2">
-                <AlertCircle size={15} style={{ color: '#1F4D3A' }} />
-                <span className="font-semibold text-[13px]" style={{ color: '#1F4D3A' }}>Feed rules</span>
+                <AlertCircle size={15} style={{ color: '#6B7A72' }} />
+                <span className="font-semibold text-[13px]" style={{ color: '#0F1F18' }}>Feed rules</span>
               </div>
               <p className="text-[12px]" style={{ color: '#3A4A42' }}>
                 Collections with <strong>Live</strong> status appear on the marketplace homepage. Events are sorted by starts_at. Each collection can hold up to 50 events. Promoted listings appear at the top of relevant collections after operator approval.

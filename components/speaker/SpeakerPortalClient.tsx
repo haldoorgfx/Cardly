@@ -385,7 +385,7 @@ function HomeTab({ speaker, event, sessions, onTab }: { speaker: Speaker; event:
                   <div key={i} className="flex items-start justify-between gap-2">
                     <span className="text-[13px]" style={{ color: '#3A4A42' }}>{d.label}</span>
                     <span className="text-[12px] font-medium shrink-0 text-right"
-                      style={{ color: '#1F4D3A', fontFamily: 'Inter, system-ui, sans-serif' }}>
+                      style={{ color: '#0F1F18', fontFamily: 'Inter, system-ui, sans-serif' }}>
                       {d.value}
                     </span>
                   </div>

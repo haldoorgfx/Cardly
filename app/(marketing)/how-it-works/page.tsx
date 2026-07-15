@@ -243,7 +243,7 @@ export default function HowItWorksPage() {
                   </div>
 
                   {/* Step title */}
-                  <h3 className="font-display text-[18px] font-semibold text-[#1F4D3A] leading-tight tracking-tight">
+                  <h3 className="font-display text-[18px] font-semibold text-[#0F1F18] leading-tight tracking-tight">
                     {s.title}
                   </h3>
 

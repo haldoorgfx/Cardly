@@ -248,7 +248,7 @@ export default function OnboardingClient() {
             {/* Step 0 — Welcome */}
             {step === 0 && (
               <div>
-                <h1 className="font-display text-[30px] font-semibold tracking-[-0.025em]" style={{ color: '#1F4D3A' }}>
+                <h1 className="font-display text-[30px] font-semibold tracking-[-0.025em]" style={{ color: '#0F1F18' }}>
                   Welcome to Eventera 👋
                 </h1>
                 <p className="mt-3 text-[15px] leading-[1.6]" style={{ color: '#3A4A42' }}>
@@ -285,7 +285,7 @@ export default function OnboardingClient() {
             {/* Step 1 — Organization */}
             {step === 1 && (
               <div>
-                <h1 className="font-display text-[28px] font-semibold tracking-[-0.025em]" style={{ color: '#1F4D3A' }}>
+                <h1 className="font-display text-[28px] font-semibold tracking-[-0.025em]" style={{ color: '#0F1F18' }}>
                   Set up your organization
                 </h1>
                 <p className="mt-3 text-[15px] leading-[1.6]" style={{ color: '#3A4A42' }}>
@@ -356,7 +356,7 @@ export default function OnboardingClient() {
             {/* Step 2 — Brand */}
             {step === 2 && (
               <div>
-                <h1 className="font-display text-[28px] font-semibold tracking-[-0.025em]" style={{ color: '#1F4D3A' }}>
+                <h1 className="font-display text-[28px] font-semibold tracking-[-0.025em]" style={{ color: '#0F1F18' }}>
                   Pick your brand look
                 </h1>
                 <p className="mt-3 text-[15px] leading-[1.6]" style={{ color: '#3A4A42' }}>
@@ -439,7 +439,7 @@ export default function OnboardingClient() {
             {/* Step 3 — First event */}
             {step === 3 && (
               <div>
-                <h1 className="font-display text-[28px] font-semibold tracking-[-0.025em]" style={{ color: '#1F4D3A' }}>
+                <h1 className="font-display text-[28px] font-semibold tracking-[-0.025em]" style={{ color: '#0F1F18' }}>
                   Create your first event
                 </h1>
                 <p className="mt-3 text-[15px] leading-[1.6]" style={{ color: '#3A4A42' }}>
@@ -471,7 +471,7 @@ export default function OnboardingClient() {
             {/* Step 4 — Invite team */}
             {step === 4 && (
               <div>
-                <h1 className="font-display text-[28px] font-semibold tracking-[-0.025em]" style={{ color: '#1F4D3A' }}>
+                <h1 className="font-display text-[28px] font-semibold tracking-[-0.025em]" style={{ color: '#0F1F18' }}>
                   Invite your team
                 </h1>
                 <p className="mt-3 text-[15px] leading-[1.6]" style={{ color: '#3A4A42' }}>
@@ -521,7 +521,7 @@ export default function OnboardingClient() {
                 >
                   <Check size={30} strokeWidth={2} />
                 </div>
-                <h1 className="font-display text-[30px] font-semibold tracking-[-0.025em]" style={{ color: '#1F4D3A' }}>
+                <h1 className="font-display text-[30px] font-semibold tracking-[-0.025em]" style={{ color: '#0F1F18' }}>
                   You&apos;re all set{orgName ? `, ${orgName.split(' ')[0]}` : ''}.
                 </h1>
                 <p className="mt-3 text-[15px] leading-[1.6] max-w-[420px] mx-auto" style={{ color: '#3A4A42' }}>

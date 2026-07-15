@@ -60,7 +60,7 @@ export function LeaderboardView({ leaderboard, myRegistrationId, myEntry }: Prop
                 </div>
                 <div className="text-center">
                   <div className="font-display font-medium text-[13px] truncate max-w-[80px]" style={{ color: isYou(entry.registration_id) ? '#1F4D3A' : '#0F1F18' }}>{isYou(entry.registration_id) ? 'You' : entry.attendee_name.split(' ')[0]}</div>
-                  <div className=" text-[13px] font-semibold" style={{ color: isFirst ? '#E8C57E' : '#1F4D3A' }}>{entry.total_points}pts</div>
+                  <div className=" text-[13px] font-semibold" style={{ color: isFirst ? '#E8C57E' : '#0F1F18' }}>{entry.total_points}pts</div>
                   <div className=" text-[12.5px]" style={{ color: '#6B7A72' }}>#{entry.rank}</div>
                 </div>
               </div>
@@ -79,7 +79,7 @@ export function LeaderboardView({ leaderboard, myRegistrationId, myEntry }: Prop
                 <span className=" text-[13px] w-8" style={{ color: you ? '#1F4D3A' : '#6B7A72' }}>#{entry.rank}</span>
                 <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-[12px] font-display font-semibold shrink-0" style={{ background: '#1F4D3A' }}>{initials(entry.attendee_name)}</div>
                 <span className="flex-1 text-[14px] font-medium" style={{ color: you ? '#1F4D3A' : '#0F1F18' }}>{you ? 'You' : entry.attendee_name}</span>
-                <span className=" text-[14px] font-semibold" style={{ color: '#1F4D3A' }}>{entry.total_points}pts</span>
+                <span className=" text-[14px] font-semibold" style={{ color: '#0F1F18' }}>{entry.total_points}pts</span>
               </div>
             );
           })}

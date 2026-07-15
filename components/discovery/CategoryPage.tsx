@@ -88,7 +88,7 @@ export function CategoryPage({ category, events, savedIds, cityCounts }: Categor
           </nav>
           <h1
             className="font-display font-semibold mb-2"
-            style={{ fontSize: 'clamp(24px,4vw,40px)', color: '#1F4D3A', letterSpacing: '-0.025em' }}
+            style={{ fontSize: 'clamp(24px,4vw,40px)', color: '#0F1F18', letterSpacing: '-0.025em' }}
           >
             {category} events
           </h1>

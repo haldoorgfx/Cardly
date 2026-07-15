@@ -200,7 +200,7 @@ export default async function SponsoringPage() {
                     { icon: <Briefcase size={14} strokeWidth={1.9} />, value: card.resources, label: 'Resources' },
                   ].map((stat, i) => (
                     <div key={i} className="px-4 py-4 text-center border-l first:border-l-0" style={{ borderColor: '#F0EDE6' }}>
-                      <div className="inline-flex items-center gap-1.5 text-[18px] font-semibold" style={{ color: '#1F4D3A' }}>
+                      <div className="inline-flex items-center gap-1.5 text-[18px] font-semibold" style={{ color: '#0F1F18' }}>
                         <span style={{ color: '#3A4A42' }}>{stat.icon}</span>
                         {stat.value}
                       </div>

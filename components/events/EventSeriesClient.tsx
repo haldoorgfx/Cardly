@@ -205,7 +205,7 @@ export function EventSeriesClient({ eventId, eventName, eventSlug, series }: Pro
 
       {/* Attendee-facing preview */}
       <div className="rounded-2xl p-5" style={{ background: '#E8EFEB', border: '1px solid #C9E0D4' }}>
-        <p className="text-[12px] font-semibold mb-3" style={{ color: '#1F4D3A' }}>How attendees see it</p>
+        <p className="text-[12px] font-semibold mb-3" style={{ color: '#6B7A72' }}>How attendees see it</p>
         <div className="rounded-xl p-4" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
           <div className="font-semibold text-[14px] mb-0.5" style={{ color: '#0F1F18' }}>{eventName}</div>
           <div className="text-[12px] mb-2" style={{ color: '#6B7A72' }}>Recurring series · {FREQ_OPTIONS.find(f => f.key === freq)?.label}</div>

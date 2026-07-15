@@ -35,7 +35,7 @@ export default async function MyAgendaPage({ params, searchParams }: Props) {
     <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
       <div className="max-w-[700px] mx-auto px-5 py-10">
         <div className="mb-8">
-          <h1 className="font-display font-normal text-[28px]" style={{ color: '#1F4D3A', letterSpacing: '-0.02em' }}>
+          <h1 className="font-display font-normal text-[28px]" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
             My Agenda
           </h1>
           <p className="text-[15px] mt-1" style={{ color: '#6B7A72' }}>

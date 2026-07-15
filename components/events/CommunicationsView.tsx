@@ -99,7 +99,7 @@ function ComposeModal({
               )}
 
               <div className="px-4 py-2.5 rounded-xl text-[12.5px] flex items-center gap-2" style={{ background: '#F5F7F5', border: '1px solid #E5E0D4' }}>
-                <Bell size={13} strokeWidth={2} style={{ color: '#1F4D3A', flexShrink: 0 }} />
+                <Bell size={13} strokeWidth={2} style={{ color: '#6B7A72', flexShrink: 0 }} />
                 <span style={{ color: '#3A4A42' }}>
                   To: <strong>{registrantCount} confirmed attendee{registrantCount !== 1 ? 's' : ''}</strong>
                 </span>
@@ -353,7 +353,7 @@ export function CommunicationsView({ eventId, eventName, registrantCount, plan =
 
       {/* Info note */}
       <div className="flex items-start gap-2.5 px-4 py-3 rounded-xl text-[12.5px]" style={{ background: '#F5F7F5', border: '1px solid #E5E0D4' }}>
-        <CheckCircle2 size={14} strokeWidth={2} style={{ color: '#1F4D3A', flexShrink: 0, marginTop: 1 }} />
+        <CheckCircle2 size={14} strokeWidth={2} style={{ color: '#6B7A72', flexShrink: 0, marginTop: 1 }} />
         <span style={{ color: '#3A4A42' }}>
           Confirmation and reminder emails are sent automatically.
           Use <strong>Compose</strong> to send a custom update to all confirmed attendees.
@@ -404,7 +404,7 @@ function CommStat({ label, value, sub, icon, accent }: {
         <span className="text-[12.5px] font-medium" style={{ color: '#6B7A72' }}>{label}</span>
         <span style={{ color: accent ? '#1F4D3A' : '#6B7A72' }}>{icon}</span>
       </div>
-      <p className="text-[22px] font-bold" style={{ color: accent ? '#1F4D3A' : '#0F1F18' }}>{value}</p>
+      <p className="text-[22px] font-bold" style={{ color: '#0F1F18' }}>{value}</p>
       {sub && <p className="text-[12.5px] mt-0.5" style={{ color: '#6B7A72' }}>{sub}</p>}
     </div>
   );

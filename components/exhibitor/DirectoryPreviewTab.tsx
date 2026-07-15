@@ -139,7 +139,7 @@ export function DirectoryPreviewTab({ sponsor, products }: Props) {
             {(sponsor.booth_location || sponsor.booth_hours) && (
               <div>
                 {sponsor.booth_location && (
-                  <div className="text-[15px] font-medium" style={{ color: '#1F4D3A' }}>{sponsor.booth_location}</div>
+                  <div className="text-[15px] font-medium" style={{ color: '#0F1F18' }}>{sponsor.booth_location}</div>
                 )}
                 {sponsor.booth_hours && (
                   <div className="text-[12.5px] mt-0.5" style={{ color: '#6B7A72' }}>Open: {sponsor.booth_hours}</div>

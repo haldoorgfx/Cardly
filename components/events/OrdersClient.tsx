@@ -172,7 +172,7 @@ export function OrdersClient({ eventId, orders: initialOrders }: Props) {
         ].map(s => (
           <div key={s.label} className="bg-white rounded-2xl p-5" style={{ border: '1px solid #E5E0D4' }}>
             <div className=" text-[11.5px] tracking-[0.14em] uppercase mb-2" style={{ color: '#6B7A72' }}>{s.label}</div>
-            <div className=" text-[22px] leading-none tracking-tight" style={{ color: '#1F4D3A' }}>{s.value}</div>
+            <div className=" text-[22px] leading-none tracking-tight" style={{ color: '#0F1F18' }}>{s.value}</div>
           </div>
         ))}
       </div>
@@ -217,7 +217,7 @@ export function OrdersClient({ eventId, orders: initialOrders }: Props) {
                       </div>
                     </div>
                     <div className="text-right shrink-0">
-                      <div className=" text-[13.5px]" style={{ color: '#1F4D3A' }}>{fmtAmount(o.amount_paid, o.currency)}</div>
+                      <div className=" text-[13.5px]" style={{ color: '#0F1F18' }}>{fmtAmount(o.amount_paid, o.currency)}</div>
                       <span className="inline-flex items-center text-[12.5px] font-medium px-2 py-0.5 rounded-full border mt-0.5 whitespace-nowrap"
                         style={{ background: ss.bg, color: ss.color, borderColor: ss.border }}>
                         {statusLabel(o.status)}
@@ -283,7 +283,7 @@ export function OrdersClient({ eventId, orders: initialOrders }: Props) {
                     </div>
                     <div className="flex items-center justify-between text-[13px] mt-1.5">
                       <span style={{ color: '#6B7A72' }}>Total spent</span>
-                      <span style={{ color: '#1F4D3A' }}>{fmtMoney(customerSpent, selectedOrder.currency)}</span>
+                      <span style={{ color: '#0F1F18' }}>{fmtMoney(customerSpent, selectedOrder.currency)}</span>
                     </div>
                   </div>
                 )}

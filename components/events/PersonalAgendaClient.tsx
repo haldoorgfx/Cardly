@@ -120,7 +120,7 @@ export default function PersonalAgendaClient({ sessions: initialSessions, regist
                   <div className="w-16 shrink-0 flex flex-col items-center pt-4">
                     <span
                       className=" text-[15px] font-medium"
-                      style={{ color: '#1F4D3A' }}
+                      style={{ color: '#0F1F18' }}
                     >
                       {formatTime(session.starts_at)}
                     </span>

@@ -122,7 +122,7 @@ export default function FeedbackClient({ eventId, eventTitle, registrationId, at
         >
           ✓
         </div>
-        <h2 className="font-display text-[22px] font-normal" style={{ color: '#1F4D3A' }}>
+        <h2 className="font-display text-[22px] font-normal" style={{ color: '#0F1F18' }}>
           Thank you for your feedback!
         </h2>
         <p className="text-[15px]" style={{ color: '#6B7A72' }}>

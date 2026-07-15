@@ -126,7 +126,7 @@ function TicketTypeRow({ t, sold }: { t: TicketRow; sold: number }) {
       </div>
 
       {/* Price */}
-      <div className=" text-[15px] font-semibold shrink-0" style={{ color: '#1F4D3A' }}>
+      <div className=" text-[15px] font-semibold shrink-0" style={{ color: '#0F1F18' }}>
         {priceStr}
       </div>
     </div>

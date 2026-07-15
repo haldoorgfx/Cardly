@@ -166,7 +166,7 @@ export function CommunityChatClient({ eventId, eventName, channels, initialMessa
           <button className="lg:hidden mr-1" onClick={() => setSidebarOpen(true)} style={{ color: '#6B7A72' }}>
             <Menu size={18} />
           </button>
-          <Hash size={16} style={{ color: '#1F4D3A' }} />
+          <Hash size={16} style={{ color: '#6B7A72' }} />
           <span className="font-semibold text-[15px]" style={{ color: '#0F1F18' }}>
             {activeChannel?.name ?? 'general'}
           </span>
@@ -190,7 +190,7 @@ export function CommunityChatClient({ eventId, eventName, channels, initialMessa
               style={{ background: '#E8EFEB', border: '1px solid #C9E0D4' }}>
               <Pin size={13} style={{ color: '#1F4D3A', marginTop: 2 }} />
               <div>
-                <div className="text-[12.5px] font-semibold mb-0.5" style={{ color: '#1F4D3A' }}>Pinned message</div>
+                <div className="text-[12.5px] font-semibold mb-0.5" style={{ color: '#6B7A72' }}>Pinned message</div>
                 <div className="text-[13px]" style={{ color: '#0F1F18' }}>{pinned[0].content}</div>
               </div>
             </div>

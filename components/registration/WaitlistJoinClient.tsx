@@ -68,12 +68,12 @@ export default function WaitlistJoinClient({ slug, title, coverUrl, startsAt, ci
           <div className="flex flex-wrap gap-x-4 gap-y-1 text-[13px]" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
             {dateStr && (
               <span className="flex items-center gap-1.5">
-                <Calendar size={11} style={{ color: '#1F4D3A' }} /> {dateStr}
+                <Calendar size={11} style={{ color: '#6B7A72' }} /> {dateStr}
               </span>
             )}
             {city && (
               <span className="flex items-center gap-1.5">
-                <MapPin size={11} style={{ color: '#1F4D3A' }} /> {city}
+                <MapPin size={11} style={{ color: '#6B7A72' }} /> {city}
               </span>
             )}
           </div>
@@ -103,7 +103,7 @@ export default function WaitlistJoinClient({ slug, title, coverUrl, startsAt, ci
           </p>
           <div
             className="text-[42px] font-medium mb-4"
-            style={{ color: '#1F4D3A', fontFamily: 'Inter, system-ui, sans-serif', lineHeight: 1.1 }}
+            style={{ color: '#0F1F18', fontFamily: 'Inter, system-ui, sans-serif', lineHeight: 1.1 }}
           >
             #{position}
           </div>
@@ -130,7 +130,7 @@ export default function WaitlistJoinClient({ slug, title, coverUrl, startsAt, ci
               className="flex items-center gap-2.5 rounded-xl px-4 py-3 mb-6 text-[13px]"
               style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#6B7A72' }}
             >
-              <Users size={14} style={{ color: '#1F4D3A' }} />
+              <Users size={14} style={{ color: '#6B7A72' }} />
               <span>
                 <span className="font-medium" style={{ color: '#0F1F18', fontFamily: 'Inter, system-ui, sans-serif' }}>
                   {currentCount}

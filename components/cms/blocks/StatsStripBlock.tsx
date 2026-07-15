@@ -14,7 +14,7 @@ export function StatsStripBlock({ content }: StatsStripBlockProps) {
           <div key={i} className="flex flex-col items-center gap-1">
             <span
               className="font-display font-bold text-[32px] leading-none tracking-tight"
-              style={{ color: '#1F4D3A' }}
+              style={{ color: '#0F1F18' }}
             >
               {stat.value}
             </span>
@@ -57,7 +57,7 @@ export function StatsStripBlock({ content }: StatsStripBlockProps) {
             >
               <span
                 className="font-display font-bold text-[32px] leading-none tracking-tight"
-                style={{ color: isDark ? '#FAF6EE' : '#1F4D3A' }}
+                style={{ color: isDark ? '#FAF6EE' : '#0F1F18' }}
               >
                 {stat.value}
               </span>

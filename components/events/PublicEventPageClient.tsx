@@ -205,7 +205,7 @@ function TicketList({
       <div className="flex items-baseline justify-between px-6 py-5" style={{ borderBottom: '1px solid #E5E0D4' }}>
         <div>
           <div className="text-[12px]" style={{ color: '#6B7A72' }}>From</div>
-          <div className="font-title font-extrabold text-[30px] leading-none mt-0.5" style={{ color: '#1F4D3A', letterSpacing: '-0.03em' }}>
+          <div className="font-title font-extrabold text-[30px] leading-none mt-0.5" style={{ color: '#0F1F18', letterSpacing: '-0.03em' }}>
             {selectedObj ? fmtTicketPrice(selectedObj.price, selectedObj.currency) : minPrice}
             <span className="font-sans font-normal text-[13px] ml-1" style={{ color: '#6B7A72' }}>/ ticket</span>
           </div>
@@ -263,7 +263,7 @@ function TicketList({
         {hasTickets && (
           <div className="flex items-center justify-between pt-4 mt-2 mb-4" style={{ borderTop: '1px solid #E5E0D4' }}>
             <span className="font-title font-semibold text-[15px]" style={{ color: '#0F1F18' }}>Total</span>
-            <span className="font-title font-extrabold text-[24px]" style={{ color: '#1F4D3A', letterSpacing: '-0.02em' }}>{total}</span>
+            <span className="font-title font-extrabold text-[24px]" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>{total}</span>
           </div>
         )}
 
@@ -290,7 +290,7 @@ function TicketList({
         )}
 
         <div className="flex items-center justify-center gap-1.5 mt-3 text-[12.5px]" style={{ color: '#6B7A72' }}>
-          <svg viewBox="0 0 24 24" className="w-3 h-3 shrink-0" fill="none" stroke="#1F4D3A" strokeWidth="2">
+          <svg viewBox="0 0 24 24" className="w-3 h-3 shrink-0" fill="none" stroke="#6B7A72" strokeWidth="2">
             <path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6l8-4z"/>
           </svg>
           Secure checkout · QR ticket + Eventera Card to your phone
@@ -540,7 +540,7 @@ export function PublicEventPageClient({
               </svg>
             </>
           )}
-          <span className="font-medium truncate max-w-[260px]" style={{ color: '#1F4D3A' }}>{page.title}</span>
+          <span className="font-medium truncate max-w-[260px]" style={{ color: '#0F1F18' }}>{page.title}</span>
         </nav>
 
         {/* Hero banner */}
@@ -1004,7 +1004,7 @@ export function PublicEventPageClient({
             <div className="space-y-10">
               {sessionsByDay.map(({ day, sessions: daySessions }) => (
                 <div key={day}>
-                  <div className="font-title font-bold text-[18px] mb-4 pb-3" style={{ color: '#1F4D3A', borderBottom: '2px solid #E8C57E', letterSpacing: '-0.01em' }}>
+                  <div className="font-title font-bold text-[18px] mb-4 pb-3" style={{ color: '#0F1F18', borderBottom: '2px solid #E8C57E', letterSpacing: '-0.01em' }}>
                     {day}
                   </div>
                   <div className="overflow-hidden rounded-2xl" style={{ border: '1px solid #E5E0D4' }}>
@@ -1162,7 +1162,7 @@ export function PublicEventPageClient({
       <div className="fixed bottom-0 left-0 right-0 lg:hidden flex items-center gap-3 px-5 py-3 z-50"
         style={{ background: '#FFFFFF', borderTop: '1px solid #E5E0D4', boxShadow: '0 -4px 20px rgba(15,31,24,0.08)' }}>
         <div className="flex-1 min-w-0">
-          <div className="font-title font-extrabold text-[20px]" style={{ color: '#1F4D3A', letterSpacing: '-0.02em' }}>
+          <div className="font-title font-extrabold text-[20px]" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
             {totalPrice}
             <small className="font-sans font-normal text-[12px] ml-1" style={{ color: '#6B7A72' }}>· per ticket</small>
           </div>

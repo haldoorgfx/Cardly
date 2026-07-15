@@ -389,7 +389,7 @@ export function SponsorsClient({ eventId, sponsors: initial }: Props) {
           ].map(s => (
             <div key={s.label} className="bg-white rounded-2xl p-5" style={{ border: '1px solid #E5E0D4' }}>
               <div className="text-[12px] tracking-[0.12em] uppercase mb-2" style={{ color: '#6B7A72' }}>{s.label}</div>
-              <div className="text-[26px] leading-none tracking-tight" style={{ color: s.accent ? '#C9A45E' : '#1F4D3A' }}>{s.value}</div>
+              <div className="text-[26px] leading-none tracking-tight" style={{ color: s.accent ? '#C9A45E' : '#0F1F18' }}>{s.value}</div>
             </div>
           ))}
         </div>
@@ -528,7 +528,7 @@ export function SponsorsClient({ eventId, sponsors: initial }: Props) {
                     {/* Actions — full width on mobile so nothing clips at 375px */}
                     <div className="flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto sm:ml-auto justify-end shrink-0">
                       <div className="text-center shrink-0 hidden sm:block">
-                        <div className="text-[15px]" style={{ color: '#1F4D3A' }}>{sponsor.lead_count}</div>
+                        <div className="text-[15px]" style={{ color: '#0F1F18' }}>{sponsor.lead_count}</div>
                         <div className="text-[11.5px] tracking-[0.1em] uppercase" style={{ color: '#6B7A72' }}>leads</div>
                       </div>
 

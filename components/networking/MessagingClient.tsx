@@ -138,7 +138,7 @@ export default function MessagingClient({ eventId, registrationId, initialThread
         {!activeThread ? (
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center">
-              <div className="text-[20px] font-display font-medium mb-2" style={{ color: '#1F4D3A' }}>Your messages</div>
+              <div className="text-[20px] font-display font-medium mb-2" style={{ color: '#0F1F18' }}>Your messages</div>
               <div className="text-[14px]" style={{ color: '#6B7A72' }}>Select a conversation to read it.</div>
             </div>
           </div>

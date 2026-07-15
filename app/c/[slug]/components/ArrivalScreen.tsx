@@ -278,7 +278,7 @@ export default function ArrivalScreen({
                   border: '1px solid #E5E0D4',
                   borderRadius: 12,
                 }}>
-                  <div style={{ color: '#1F4D3A', marginBottom: 6 }}>{card.icon}</div>
+                  <div style={{ color: '#6B7A72', marginBottom: 6 }}>{card.icon}</div>
                   <div style={{
                     fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, fontSize: 13,
                     color: '#0F1F18', marginBottom: 2,

@@ -120,7 +120,7 @@ export default async function RevenuePrintPage({ params }: Props) {
             <tr style={{ borderTop: '2px solid #0F1F18', background: 'rgba(31,77,58,0.04)' }}>
               <td colSpan={2} style={{ padding: '10px 10px', fontWeight: 700, color: '#0F1F18', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>TOTAL</td>
               <td style={{ padding: '10px 10px', fontWeight: 700, color: '#0F1F18' }}>{confirmed.length}</td>
-              <td style={{ padding: '10px 10px', fontWeight: 700, color: '#1F4D3A', fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 15 }}>
+              <td style={{ padding: '10px 10px', fontWeight: 700, color: '#0F1F18', fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 15 }}>
                 {fmtCurrency(totalRev, currency)}
               </td>
             </tr>

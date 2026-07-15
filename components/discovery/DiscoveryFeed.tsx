@@ -192,7 +192,7 @@ function TrendCard({ ep }: { ep: DiscoveryEvent }) {
             </div>
           )}
           <div className="flex items-center justify-between mt-3.5 pt-3.5" style={{ borderTop: '1px solid #E5E0D4' }}>
-            <span className="text-[13px] font-medium" style={{ color: '#1F4D3A' }}>{price ?? 'Register'}</span>
+            <span className="text-[13px] font-medium" style={{ color: '#0F1F18' }}>{price ?? 'Register'}</span>
             <div className="w-8 h-8 rounded-[8px] flex items-center justify-center" style={{ border: '1px solid #E5E0D4' }}>
               <svg viewBox="0 0 24 24" className="w-[15px] h-[15px]" fill="none" stroke="#6B7A72" strokeWidth="1.8">
                 <path d="M6 3h12a1 1 0 011 1v17l-7-4-7 4V4a1 1 0 011-1z"/>

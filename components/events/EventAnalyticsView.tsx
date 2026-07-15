@@ -87,7 +87,7 @@ function HorizontalBar({ label, value, max, currency }: { label: string; value: 
       <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: '#E5E0D4' }}>
         <div className="h-full rounded-full" style={{ width: `${pct}%`, background: '#1F4D3A' }} />
       </div>
-      <div className="font-title font-semibold text-[13px] min-w-[60px] text-right" style={{ color: value === 0 ? '#2D7A4F' : '#1F4D3A' }}>
+      <div className="font-title font-semibold text-[13px] min-w-[60px] text-right" style={{ color: value === 0 ? '#2D7A4F' : '#0F1F18' }}>
         {value === 0 ? 'Free' : formatCurrency(value, currency)}
       </div>
     </div>
@@ -137,7 +137,7 @@ export function EventAnalyticsView({
             { value: `${cardRate}%`, label: 'cards downloaded' },
           ].map((s, i) => (
             <span key={i}>
-              <span className="font-title font-bold text-[20px]" style={{ color: '#1F4D3A' }}>{s.value}</span>
+              <span className="font-title font-bold text-[20px]" style={{ color: '#0F1F18' }}>{s.value}</span>
               <span className="text-[13px] ml-1.5" style={{ color: '#6B7A72' }}>{s.label}</span>
               {i < 3 && <span className="mx-3 text-[13px]" style={{ color: '#E5E0D4' }}>·</span>}
             </span>
@@ -147,7 +147,7 @@ export function EventAnalyticsView({
 
       {/* ── Registrations over time ───────────────────────────── */}
       <div className="rounded-2xl px-6 py-5" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
-        <h2 className="font-display font-medium text-[18px] mb-4" style={{ color: '#1F4D3A' }}>
+        <h2 className="font-display font-medium text-[18px] mb-4" style={{ color: '#0F1F18' }}>
           Registrations over time
         </h2>
         {dailyRegistrations.length < 2 ? (
@@ -162,7 +162,7 @@ export function EventAnalyticsView({
       {/* ── Revenue by ticket type ────────────────────────────── */}
       {ticketRevenue.length > 0 && (
         <div className="rounded-2xl px-6 py-5" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
-          <h2 className="font-display font-medium text-[18px] mb-4" style={{ color: '#1F4D3A' }}>Revenue by ticket type</h2>
+          <h2 className="font-display font-medium text-[18px] mb-4" style={{ color: '#0F1F18' }}>Revenue by ticket type</h2>
           <div className="space-y-3">
             {ticketRevenue.map(t => (
               <HorizontalBar key={t.name} label={t.name} value={t.revenue} max={maxRevenue} currency={t.currency} />
@@ -170,7 +170,7 @@ export function EventAnalyticsView({
           </div>
           <div className="mt-4 pt-4 flex justify-between" style={{ borderTop: '1px solid #E5E0D4' }}>
             <span className="text-[13px]" style={{ color: '#6B7A72' }}>Total revenue</span>
-            <span className="font-title font-semibold text-[15px]" style={{ color: '#1F4D3A' }}>
+            <span className="font-title font-semibold text-[15px]" style={{ color: '#0F1F18' }}>
               {formatCurrency(totalRevenue, revenueCurrency)}
             </span>
           </div>
@@ -184,7 +184,7 @@ export function EventAnalyticsView({
           { label: 'Eventera Card downloads', value: cardDownloadCount, total: totalRegistrations, pct: cardRate, note: `${cardDownloadCount} of ${totalRegistrations} attendees downloaded their card` },
         ].map(s => (
           <div key={s.label} className="rounded-2xl px-6 py-5" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
-            <div className="font-display font-medium text-[16px] mb-3" style={{ color: '#1F4D3A' }}>{s.label}</div>
+            <div className="font-display font-medium text-[16px] mb-3" style={{ color: '#0F1F18' }}>{s.label}</div>
             <div className="font-title font-bold text-[32px]" style={{ color: '#0F1F18' }}>{s.pct}%</div>
             <div className="w-full h-2 rounded-full overflow-hidden mt-3 mb-2" style={{ background: '#E5E0D4' }}>
               <div className="h-full rounded-full" style={{ width: `${s.pct}%`, background: '#1F4D3A' }} />

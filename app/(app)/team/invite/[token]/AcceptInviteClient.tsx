@@ -58,7 +58,7 @@ export function AcceptInviteClient({ token, teamName, inviteEmail, role, userEma
           </h1>
           <p className="text-[14px] text-[#6B7A72] text-center mb-6">
             Join <span className="font-semibold text-[#0F1F18]">{teamName}</span> as a{' '}
-            <span className="font-medium text-[#1F4D3A]">{role}</span>.
+            <span className="font-medium text-[#0F1F18]">{role}</span>.
           </p>
 
           {/* Email mismatch warning */}

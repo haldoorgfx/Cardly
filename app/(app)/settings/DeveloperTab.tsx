@@ -128,7 +128,7 @@ function ApiKeysSection({ plan }: { plan: string }) {
       {/* Base URL strip */}
       <div className="flex items-center gap-3 flex-wrap py-4 mb-2" style={{ borderBottom: '1px solid #E5E0D4' }}>
         <span className="text-[13px]" style={{ color: '#6B7A72' }}>Base URL:</span>
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full  text-[13px]" style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#1F4D3A' }}>
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full  text-[13px]" style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#0F1F18' }}>
           {BASE_URL}
           <CopyBtn text={BASE_URL} />
         </div>
@@ -140,7 +140,7 @@ function ApiKeysSection({ plan }: { plan: string }) {
       {/* New key revealed modal */}
       {newKey && (
         <div className="mb-5 rounded-2xl p-5" style={{ background: 'white', border: '1px solid #E5E0D4', boxShadow: '0 4px 12px rgba(15,31,24,0.08)' }}>
-          <div className="font-display font-medium text-[18px] mb-1" style={{ color: '#1F4D3A' }}>Your new API key</div>
+          <div className="font-display font-medium text-[18px] mb-1" style={{ color: '#0F1F18' }}>Your new API key</div>
           <div className="text-[13px] mb-4" style={{ color: '#6B7A72' }}>Copy this key now — it won&apos;t be shown again.</div>
           <div className="rounded-xl px-4 py-3  text-[14px] break-all mb-4" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
             {newKey}
@@ -166,7 +166,7 @@ function ApiKeysSection({ plan }: { plan: string }) {
 
       {/* Create form */}
       <div className="rounded-2xl p-5 mb-5" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
-        <div className="font-display font-medium text-[16px] mb-4" style={{ color: '#1F4D3A' }}>Create API key</div>
+        <div className="font-display font-medium text-[16px] mb-4" style={{ color: '#0F1F18' }}>Create API key</div>
         <form onSubmit={create}>
           <div className="grid gap-3 grid-cols-1 sm:grid-cols-[1fr_1fr_auto]">
             <div>
@@ -212,7 +212,7 @@ function ApiKeysSection({ plan }: { plan: string }) {
       </div>
 
       {/* Keys table */}
-      <div className="font-display font-medium text-[16px] mb-3" style={{ color: '#1F4D3A' }}>Active keys</div>
+      <div className="font-display font-medium text-[16px] mb-3" style={{ color: '#0F1F18' }}>Active keys</div>
       {loading ? (
         <div className="text-[13px] text-[#6B7A72]">Loading…</div>
       ) : keys.length === 0 ? (
@@ -240,10 +240,10 @@ function ApiKeysSection({ plan }: { plan: string }) {
                   style={{ borderBottom: i < keys.length - 1 ? '1px solid #F0EBE3' : 'none', background: 'white' }}
                 >
                   <td className="px-4 py-3">
-                    <span className="font-display font-medium text-[14px]" style={{ color: '#1F4D3A' }}>{k.name}</span>
+                    <span className="font-display font-medium text-[14px]" style={{ color: '#0F1F18' }}>{k.name}</span>
                   </td>
                   <td className="px-4 py-3">
-                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full  text-[12px] w-fit" style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#1F4D3A' }}>
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full  text-[12px] w-fit" style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#0F1F18' }}>
                       {k.key_prefix}…
                       <CopyBtn text={k.key_prefix} />
                     </div>
@@ -288,7 +288,7 @@ function ApiKeysSection({ plan }: { plan: string }) {
             {keys.map(k => (
               <div key={k.id} className="p-4" style={{ background: 'white' }}>
                 <div className="flex items-start justify-between gap-3">
-                  <span className="font-display font-medium text-[14px]" style={{ color: '#1F4D3A' }}>{k.name}</span>
+                  <span className="font-display font-medium text-[14px]" style={{ color: '#0F1F18' }}>{k.name}</span>
                   <div className="flex items-center gap-3 shrink-0 whitespace-nowrap">
                     <button onClick={() => rotate(k.id)} className="text-[13px] font-medium" style={{ color: '#3A4A42' }}>
                       Rotate
@@ -298,7 +298,7 @@ function ApiKeysSection({ plan }: { plan: string }) {
                     </button>
                   </div>
                 </div>
-                <div className="flex items-center gap-1.5 px-2.5 py-1 mt-2.5 rounded-full text-[12px] w-fit" style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#1F4D3A' }}>
+                <div className="flex items-center gap-1.5 px-2.5 py-1 mt-2.5 rounded-full text-[12px] w-fit" style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#0F1F18' }}>
                   {k.key_prefix}…
                   <CopyBtn text={k.key_prefix} />
                 </div>

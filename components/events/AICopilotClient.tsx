@@ -121,7 +121,7 @@ export function AICopilotClient({ eventId, eventName, stats }: Props) {
         {/* Live stats */}
         <div className="ml-auto flex items-center gap-4">
           <div className="hidden sm:flex items-center gap-1.5 text-[13px]" style={{ color: '#6B7A72' }}>
-            <Users size={13} style={{ color: '#1F4D3A' }} />
+            <Users size={13} style={{ color: '#6B7A72' }} />
             <span className="font-semibold" style={{ color: '#0F1F18', fontFamily: 'Inter, system-ui, sans-serif' }}>{stats.registrations.toLocaleString()}</span>
             <span>regs</span>
           </div>

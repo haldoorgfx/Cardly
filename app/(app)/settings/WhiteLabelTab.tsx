@@ -128,7 +128,7 @@ export function WhiteLabelTab({ plan }: { plan: string }) {
         >
           Studio plan feature
         </div>
-        <p className="font-display font-normal text-[20px] mb-2" style={{ color: '#1F4D3A' }}>White Label</p>
+        <p className="font-display font-normal text-[20px] mb-2" style={{ color: '#0F1F18' }}>White Label</p>
         <p className="text-[14px] mb-6 max-w-[340px] mx-auto" style={{ color: '#6B7A72' }}>
           Replace Eventera branding with your own — custom domain, brand name, logo, and colors.
         </p>
@@ -161,7 +161,7 @@ export function WhiteLabelTab({ plan }: { plan: string }) {
         <div className="space-y-8">
           {/* Brand Identity */}
           <div className="rounded-2xl p-6" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
-            <h3 className="font-display font-medium text-[17px] mb-5" style={{ color: '#1F4D3A' }}>Brand Identity</h3>
+            <h3 className="font-display font-medium text-[17px] mb-5" style={{ color: '#0F1F18' }}>Brand Identity</h3>
 
             <div className="space-y-4">
               <div>
@@ -209,7 +209,7 @@ export function WhiteLabelTab({ plan }: { plan: string }) {
 
           {/* Custom Domain */}
           <div className="rounded-2xl p-6" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
-            <h3 className="font-display font-medium text-[17px] mb-5" style={{ color: '#1F4D3A' }}>Custom Domain</h3>
+            <h3 className="font-display font-medium text-[17px] mb-5" style={{ color: '#0F1F18' }}>Custom Domain</h3>
 
             <div>
               <label className="block text-[12px] mb-1.5" style={{ color: '#6B7A72' }}>Domain</label>
@@ -271,7 +271,7 @@ export function WhiteLabelTab({ plan }: { plan: string }) {
 
           {/* Emails */}
           <div className="rounded-2xl p-6" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
-            <h3 className="font-display font-medium text-[17px] mb-5" style={{ color: '#1F4D3A' }}>Emails</h3>
+            <h3 className="font-display font-medium text-[17px] mb-5" style={{ color: '#0F1F18' }}>Emails</h3>
 
             <div className="space-y-4">
               <div>
@@ -334,7 +334,7 @@ export function WhiteLabelTab({ plan }: { plan: string }) {
         {/* Right: live preview */}
         <aside className="sticky" style={{ top: 88 }}>
           <div className="rounded-2xl p-5" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
-            <div className="font-display font-medium text-[15px] mb-4" style={{ color: '#1F4D3A' }}>Preview</div>
+            <div className="font-display font-medium text-[15px] mb-4" style={{ color: '#0F1F18' }}>Preview</div>
 
             {/* Mock event page */}
             <div className="rounded-xl overflow-hidden" style={{ border: '1px solid #E5E0D4' }}>

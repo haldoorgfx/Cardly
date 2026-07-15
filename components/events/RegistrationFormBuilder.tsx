@@ -166,7 +166,7 @@ export function RegistrationFormBuilder({ eventId, initialFields }: Props) {
         style={{ background: 'rgba(31,77,58,0.06)', border: '1px solid rgba(31,77,58,0.12)' }}
       >
         <div className="mt-0.5 shrink-0 w-1.5 h-1.5 rounded-full mt-2" style={{ background: '#1F4D3A' }} />
-        <p className="text-[13px]" style={{ color: '#1F4D3A', lineHeight: 1.5 }}>
+        <p className="text-[13px]" style={{ color: '#3A4A42', lineHeight: 1.5 }}>
           <strong>Name</strong> and <strong>Email</strong> are always collected. Add custom fields below for anything extra — company, dietary needs, city, etc.
         </p>
       </div>

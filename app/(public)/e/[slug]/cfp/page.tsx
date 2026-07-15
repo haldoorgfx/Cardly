@@ -26,7 +26,7 @@ export default async function CFPPage({ params }: Props) {
     return (
       <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
         <div className="max-w-[680px] mx-auto px-4 sm:px-10 py-16 text-center">
-          <h1 className="font-display font-normal text-[32px] mb-4" style={{ color: '#1F4D3A', letterSpacing: '-0.025em' }}>
+          <h1 className="font-display font-normal text-[32px] mb-4" style={{ color: '#0F1F18', letterSpacing: '-0.025em' }}>
             Call for papers is closed
           </h1>
           <p className="text-[15px]" style={{ color: '#6B7A72' }}>
@@ -49,7 +49,7 @@ export default async function CFPPage({ params }: Props) {
     <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
 
       <div className="max-w-[680px] mx-auto px-4 sm:px-10 py-10 pb-24">
-        <h1 className="font-display font-normal text-[32px]" style={{ color: '#1F4D3A', letterSpacing: '-0.025em' }}>
+        <h1 className="font-display font-normal text-[32px]" style={{ color: '#0F1F18', letterSpacing: '-0.025em' }}>
           Submit your abstract
         </h1>
         <p className="text-[15px] mt-1 mb-2" style={{ color: '#6B7A72' }}>{eventPageTitle}</p>
@@ -59,7 +59,7 @@ export default async function CFPPage({ params }: Props) {
           className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-[14px] mt-3 mb-8"
           style={{ background: 'white', border: '1px solid #E5E0D4' }}
         >
-          <b className=" font-medium" style={{ color: '#1F4D3A' }}>Deadline: {deadline}</b>
+          <b className=" font-medium" style={{ color: '#0F1F18' }}>Deadline: {deadline}</b>
           {daysLeft > 0 && (
             <span style={{ color: '#6B7A72' }}>· {daysLeft} day{daysLeft !== 1 ? 's' : ''} remaining</span>
           )}

@@ -62,7 +62,7 @@ export default async function DashboardPage() {
           <div className="inline-grid place-items-center w-14 h-14 rounded-2xl mb-6 text-[#1F4D3A]" style={{ background: '#E8EFEB' }}>
             <CalendarDays size={26} strokeWidth={1.7} />
           </div>
-          <h1 className="font-display text-[30px] font-semibold text-[#1F4D3A] tracking-[-0.02em]">Create your first event</h1>
+          <h1 className="font-display text-[30px] font-semibold text-[#0F1F18] tracking-[-0.02em]">Create your first event</h1>
           <p className="mt-3 text-[#6B7A72] text-[15px] leading-[1.6] max-w-[480px] mx-auto">
             Set up your event page, add tickets, build your agenda, and get a personalized Eventera Card ready for every attendee.
           </p>
@@ -164,7 +164,7 @@ export default async function DashboardPage() {
           ].map((s, i) => (
             <div key={i} className="flex items-center gap-5">
               <div>
-                <span className="font-title font-bold text-[20px] text-[#1F4D3A] tracking-tight">{s.value}</span>
+                <span className="font-title font-bold text-[20px] text-[#0F1F18] tracking-tight">{s.value}</span>
                 <span className="ml-2 text-[13px] text-[#6B7A72]">{s.label}</span>
               </div>
               {!s.last && <span className="text-[#E5E0D4] hidden sm:inline">·</span>}

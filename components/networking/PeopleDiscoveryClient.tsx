@@ -362,7 +362,7 @@ export default function PeopleDiscoveryClient({ eventId, eventSlug, registration
             {/* Incoming */}
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <Inbox size={15} style={{ color: '#1F4D3A' }} />
+                <Inbox size={15} style={{ color: '#6B7A72' }} />
                 <span className="text-[11px] font-semibold uppercase tracking-[0.12em]" style={{ color: '#6B7A72' }}>
                   Incoming · {incoming.length}
                 </span>

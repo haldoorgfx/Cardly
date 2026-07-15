@@ -158,7 +158,7 @@ export function SavedFollowingClient({ saved: dbSaved, following: dbFollowing, e
                       {ep.is_online ? <Globe size={11} /> : <MapPin size={11} />}
                       <span>{ep.is_online ? 'Online' : ep.city ?? 'TBA'}</span>
                     </div>
-                    <span className="font-semibold text-[12px]" style={{ color: '#1F4D3A' }}>{fmtPrice(ep.price_from)}</span>
+                    <span className="font-semibold text-[12px]" style={{ color: '#0F1F18' }}>{fmtPrice(ep.price_from)}</span>
                   </div>
                 </div>
               </Link>

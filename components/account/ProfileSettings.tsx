@@ -343,7 +343,7 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
       {/* Header — suppressed when embedded (organizer Settings supplies its own) */}
       {!embedded && (
         <div>
-          <h1 className="font-normal text-[32px]" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', letterSpacing: '-0.025em', color: '#1F4D3A' }}>
+          <h1 className="font-normal text-[32px]" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', letterSpacing: '-0.025em', color: '#0F1F18' }}>
             Profile &amp; preferences
           </h1>
           <p className="mt-2 text-[14px]" style={{ color: '#6B7A72' }}>

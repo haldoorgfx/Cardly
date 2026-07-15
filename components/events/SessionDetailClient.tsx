@@ -91,7 +91,7 @@ export default function SessionDetailClient({ session, relatedSessions, registra
           {/* Title */}
           <h1
             className="font-display font-normal"
-            style={{ fontSize: 32, color: '#1F4D3A', letterSpacing: '-0.025em', lineHeight: 1.2 }}
+            style={{ fontSize: 32, color: '#0F1F18', letterSpacing: '-0.025em', lineHeight: 1.2 }}
           >
             {session.title}
           </h1>
@@ -214,14 +214,14 @@ export default function SessionDetailClient({ session, relatedSessions, registra
           >
             <div className="bg-white border rounded-2xl p-5 space-y-4" style={{ borderColor: '#E5E0D4' }}>
               <div>
-                <p className="font-display text-[15px] font-semibold" style={{ color: '#1F4D3A' }}>
+                <p className="font-display text-[15px] font-semibold" style={{ color: '#0F1F18' }}>
                   {formatDate(session.starts_at)}
                 </p>
               </div>
               <div>
                 <p
                   className=""
-                  style={{ fontSize: 22, color: '#1F4D3A', fontWeight: 500 }}
+                  style={{ fontSize: 22, color: '#0F1F18', fontWeight: 500 }}
                 >
                   {formatTime(session.starts_at)}
                 </p>

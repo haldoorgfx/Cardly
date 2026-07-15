@@ -1134,7 +1134,7 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
         ].map((s, i, arr) => (
           <div key={s.label} className="flex items-center gap-5">
             <div>
-              <span className=" text-[20px] font-medium" style={{ color: '#1F4D3A' }}>{s.value}</span>
+              <span className=" text-[20px] font-medium" style={{ color: '#0F1F18' }}>{s.value}</span>
               <span className="ml-2 text-[13px]" style={{ color: '#6B7A72' }}>{s.label}</span>
             </div>
             {i < arr.length - 1 && <span className="hidden sm:inline" style={{ color: '#E5E0D4' }}>·</span>}
@@ -1320,7 +1320,7 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
                     <td className="px-5 py-3.5 text-[13px]" style={{ color: '#3A4A42' }}>
                       {reg.ticket_types?.name ?? 'General'}
                     </td>
-                    <td className="px-5 py-3.5  text-[13px]" style={{ color: '#1F4D3A' }}>
+                    <td className="px-5 py-3.5  text-[13px]" style={{ color: '#0F1F18' }}>
                       {formatCurrency(reg.amount_paid, reg.currency)}
                     </td>
                     <td className="px-5 py-3.5">
@@ -1344,7 +1344,7 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
                     <td className="px-5 py-3.5  text-[12px] whitespace-nowrap" style={{ color: '#6B7A72' }}>
                       {new Date(reg.created_at).toLocaleDateString()}
                     </td>
-                    <td className="px-5 py-3.5  text-[12px] whitespace-nowrap" style={{ color: reg.checked_in_at ? '#1F4D3A' : '#C9C3B1' }}>
+                    <td className="px-5 py-3.5  text-[12px] whitespace-nowrap" style={{ color: reg.checked_in_at ? '#0F1F18' : '#C9C3B1' }}>
                       {reg.checked_in_at ? new Date(reg.checked_in_at).toLocaleTimeString() : '—'}
                     </td>
                     <td className="px-5 py-3.5 whitespace-nowrap">
@@ -1398,13 +1398,13 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
                   <div className="flex items-center gap-2 flex-wrap mt-3">
                     <StatusPill status={reg.status} />
                     <span className="text-[12px]" style={{ color: '#3A4A42' }}>{reg.ticket_types?.name ?? 'General'}</span>
-                    <span className="text-[12px] font-medium" style={{ color: '#1F4D3A' }}>· {formatCurrency(reg.amount_paid, reg.currency)}</span>
+                    <span className="text-[12px] font-medium" style={{ color: '#0F1F18' }}>· {formatCurrency(reg.amount_paid, reg.currency)}</span>
                   </div>
 
                   <div className="flex items-center gap-x-3 gap-y-1 flex-wrap mt-2.5 text-[12px]" style={{ color: '#6B7A72' }}>
                     <span>Registered {new Date(reg.created_at).toLocaleDateString()}</span>
                     {reg.checked_in_at && (
-                      <span style={{ color: '#1F4D3A' }}>· Checked in {new Date(reg.checked_in_at).toLocaleTimeString()}</span>
+                      <span style={{ color: '#0F1F18' }}>· Checked in {new Date(reg.checked_in_at).toLocaleTimeString()}</span>
                     )}
                     {reg.eventera_card_url ? (
                       <a href={reg.eventera_card_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1" style={{ color: '#1F4D3A' }}>

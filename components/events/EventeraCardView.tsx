@@ -339,7 +339,7 @@ function StatCard({
         <span className="text-[12.5px] font-medium" style={{ color: '#6B7A72', letterSpacing: '0.03em' }}>{label}</span>
         <span style={{ color: accent ? '#1F4D3A' : '#6B7A72' }}>{icon}</span>
       </div>
-      <p className="text-[26px] font-bold leading-none" style={{ color: accent ? '#1F4D3A' : '#0F1F18' }}>{value}</p>
+      <p className="text-[26px] font-bold leading-none" style={{ color: '#0F1F18' }}>{value}</p>
       {sub && <p className="text-[12px] mt-1.5" style={{ color: '#6B7A72' }}>{sub}</p>}
     </div>
   );

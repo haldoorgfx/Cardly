@@ -186,7 +186,7 @@ export default async function SessionDetailPage({ params }: Props) {
               <div className="bg-white rounded-2xl p-5" style={{ border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
                 <div className="font-display text-[14.5px] font-semibold mb-4" style={{ color: '#0F1F18', letterSpacing: '-0.01em' }}>Attendance</div>
                 <div className="text-center py-1">
-                  <div className=" text-[30px] font-medium leading-none tracking-tight" style={{ color: '#1F4D3A' }}>
+                  <div className=" text-[30px] font-medium leading-none tracking-tight" style={{ color: '#0F1F18' }}>
                     {session.registrations_count}
                   </div>
                   <div className=" text-[12px] tracking-[0.12em] uppercase mt-1.5" style={{ color: '#6B7A72' }}>

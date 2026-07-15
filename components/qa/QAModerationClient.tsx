@@ -109,7 +109,7 @@ export default function QAModerationClient({ eventId, eventSlug, initialQuestion
       <aside className="max-h-[50vh] lg:max-h-full" style={{ borderRight: '1px solid #E5E0D4', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         {/* Queue header */}
         <div className="px-6 pt-5 pb-3 shrink-0">
-          <div className="font-display font-medium text-[18px]" style={{ color: '#1F4D3A' }}>Q&amp;A Moderation</div>
+          <div className="font-display font-medium text-[18px]" style={{ color: '#0F1F18' }}>Q&amp;A Moderation</div>
           <div className=" text-[12px] mt-1" style={{ color: '#6B7A72' }}>
             {questions.length} question{questions.length !== 1 ? 's' : ''} · sorted by votes
           </div>
@@ -165,7 +165,7 @@ export default function QAModerationClient({ eventId, eventSlug, initialQuestion
                     {/* Vote count */}
                     <span
                       className=" font-semibold text-[17px] w-7 text-right shrink-0 pt-0.5"
-                      style={{ color: '#1F4D3A' }}
+                      style={{ color: '#0F1F18' }}
                     >
                       {q.upvotes_count}
                     </span>
@@ -273,7 +273,7 @@ export default function QAModerationClient({ eventId, eventSlug, initialQuestion
               className="rounded-xl p-4 text-center"
               style={{ background: 'white', border: '1px solid #E5E0D4' }}
             >
-              <div className=" font-semibold text-[24px]" style={{ color: '#1F4D3A' }}>{s.value}</div>
+              <div className=" font-semibold text-[24px]" style={{ color: '#0F1F18' }}>{s.value}</div>
               <div className="text-[12px] mt-1" style={{ color: '#6B7A72' }}>{s.label}</div>
             </div>
           ))}
@@ -285,7 +285,7 @@ export default function QAModerationClient({ eventId, eventSlug, initialQuestion
             <div className="text-[10px] font-semibold uppercase tracking-widest mb-2" style={{ color: '#E8C57E' }}>
               ● Active poll
             </div>
-            <div className="font-display font-medium text-[15px] mb-4" style={{ color: '#1F4D3A' }}>
+            <div className="font-display font-medium text-[15px] mb-4" style={{ color: '#0F1F18' }}>
               {activePoll.question}
             </div>
             <div className="space-y-2.5">
@@ -298,7 +298,7 @@ export default function QAModerationClient({ eventId, eventSlug, initialQuestion
                     <div key={opt.id}>
                       <div className="flex justify-between text-[12px] mb-1" style={{ color: '#3A4A42' }}>
                         <span>{opt.text}</span>
-                        <span className=" font-medium" style={{ color: '#1F4D3A' }}>{pct}%</span>
+                        <span className=" font-medium" style={{ color: '#0F1F18' }}>{pct}%</span>
                       </div>
                       <div className="h-1.5 rounded-full overflow-hidden" style={{ background: '#E8EFEB' }}>
                         <div

@@ -648,7 +648,7 @@ export default function RegistrationClient({
           <div className="mx-auto mb-4 flex items-center justify-center rounded-full" style={{ width: 44, height: 44, background: '#E8EFEB', color: '#1F4D3A' }}>
             <Check size={22} strokeWidth={2.2} />
           </div>
-          <h1 className="font-display font-semibold text-[22px] mb-1.5" style={{ color: '#1F4D3A', letterSpacing: '-0.02em' }}>
+          <h1 className="font-display font-semibold text-[22px] mb-1.5" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
             You&apos;re already registered
           </h1>
           <p className="text-[14px] mb-6" style={{ color: '#6B7A72' }}>
@@ -723,7 +723,7 @@ export default function RegistrationClient({
           {/* Step 0: Ticket */}
           {step === 0 && (
             <div>
-              <h2 className="font-display font-normal text-[28px] mb-1.5" style={{ color: '#1F4D3A', letterSpacing: '-0.02em' }}>
+              <h2 className="font-display font-normal text-[28px] mb-1.5" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
                 Choose your ticket
               </h2>
               <p className="text-[14px] mb-6" style={{ color: '#6B7A72' }}>{eventSubtitle}</p>
@@ -846,7 +846,7 @@ export default function RegistrationClient({
           {/* Step 1: Details */}
           {step === 1 && (
             <div>
-              <h2 className="font-display font-normal text-[28px] mb-1.5" style={{ color: '#1F4D3A', letterSpacing: '-0.02em' }}>
+              <h2 className="font-display font-normal text-[28px] mb-1.5" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
                 Your details
               </h2>
               <p className="text-[14px] mb-6" style={{ color: '#6B7A72' }}>
@@ -1045,7 +1045,7 @@ export default function RegistrationClient({
           {/* Step 2: Review / Confirm */}
           {step === 2 && (
             <div>
-              <h2 className="font-display font-normal text-[28px] mb-1.5" style={{ color: '#1F4D3A', letterSpacing: '-0.02em' }}>
+              <h2 className="font-display font-normal text-[28px] mb-1.5" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
                 {effectivePrice === 0 ? 'Confirm registration' : 'Review & pay'}
               </h2>
               <p className="text-[14px] mb-5" style={{ color: '#6B7A72' }}>
@@ -1109,7 +1109,7 @@ export default function RegistrationClient({
 
                 <div className="flex items-center justify-between pt-3 mt-1 text-[16px] font-bold" style={{ borderTop: '1px solid #E5E0D4' }}>
                   <span style={{ color: '#0F1F18' }}>Total</span>
-                  <span style={{ color: '#1F4D3A' }}>{fmt(total, ccy)}</span>
+                  <span style={{ color: '#0F1F18' }}>{fmt(total, ccy)}</span>
                 </div>
               </div>
 
@@ -1194,7 +1194,7 @@ export default function RegistrationClient({
           {/* Step 3: Your card */}
           {step === 3 && activeVariant && (
             <div>
-              <h2 className="font-display font-normal text-[28px] mb-1.5" style={{ color: '#1F4D3A', letterSpacing: '-0.02em' }}>
+              <h2 className="font-display font-normal text-[28px] mb-1.5" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
                 Design your Eventera Card
               </h2>
               <p className="text-[14px] mb-6" style={{ color: '#6B7A72' }}>
@@ -1287,7 +1287,7 @@ export default function RegistrationClient({
                     )}
                     <div className="flex justify-between items-baseline pt-3 mt-1" style={{ borderTop: '1px solid #E5E0D4' }}>
                       <span className="font-display font-medium text-[15px]" style={{ color: '#0F1F18' }}>Total</span>
-                      <span className="font-title font-bold text-[22px]" style={{ color: '#1F4D3A' }}>{fmt(total, selectedTicket.currency)}</span>
+                      <span className="font-title font-bold text-[22px]" style={{ color: '#0F1F18' }}>{fmt(total, selectedTicket.currency)}</span>
                     </div>
                   </>
                 )}
@@ -1335,7 +1335,7 @@ export default function RegistrationClient({
                   )}
                   <div className="flex justify-between items-baseline pt-3 mt-1" style={{ borderTop: '1px solid #E5E0D4' }}>
                     <span className="font-display font-medium text-[15px]" style={{ color: '#0F1F18' }}>Total</span>
-                    <span className="font-title font-bold text-[22px]" style={{ color: '#1F4D3A' }}>{fmt(total, selectedTicket.currency)}</span>
+                    <span className="font-title font-bold text-[22px]" style={{ color: '#0F1F18' }}>{fmt(total, selectedTicket.currency)}</span>
                   </div>
                 </>
               )}
