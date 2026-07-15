@@ -456,7 +456,7 @@ export default function OnboardingWizard({
                   <select value={field.value ?? ''} onChange={field.onChange}
                     className="w-full h-[50px] px-3.5 rounded-lg outline-none text-[15px] appearance-none"
                     style={{
-                      background: `${SURFACE} url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%236B7A72' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center`,
+                      background: `${SURFACE} url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%2365736B' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center`,
                       border: `1px solid ${BORDER}`, color: field.value ? INK : MUTED, fontFamily: BODY,
                     }}>
                     <option value="">Choose an industry</option>
