@@ -56,7 +56,7 @@ function LeadModal({ token, onClose, onAdded }: { token: string; onClose: () => 
         {/* Modal header */}
         <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: '#E5E0D4' }}>
           <div className="font-display text-[15px] font-semibold" style={{ color: '#0F1F18' }}>Capture lead</div>
-          <button onClick={onClose} className="w-7 h-7 grid place-items-center rounded-lg transition-colors" style={{ color: '#6B7A72' }}>
+          <button onClick={onClose} aria-label="Close" className="w-7 h-7 grid place-items-center rounded-lg transition-colors" style={{ color: '#6B7A72' }}>
             <svg width={15} height={15} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -69,7 +69,7 @@ function LeadModal({ token, onClose, onAdded }: { token: string; onClose: () => 
             <div>
               <div className=" text-[9.5px] tracking-[0.14em] uppercase mb-1" style={{ color: '#6B7A72' }}>Name *</div>
               <input
-                type="text" placeholder="Jane Smith" value={form.attendee_name} onChange={e => set('attendee_name')(e.target.value)}
+                type="text" aria-label="Name" placeholder="Jane Smith" value={form.attendee_name} onChange={e => set('attendee_name')(e.target.value)}
                 className="w-full border rounded-lg px-3 py-2 text-[13.5px] outline-none focus:ring-2 bg-white"
                 style={{ borderColor: '#E5E0D4', color: '#0F1F18', '--tw-ring-color': 'rgba(31,77,58,0.15)' } as React.CSSProperties}
               />
@@ -77,7 +77,7 @@ function LeadModal({ token, onClose, onAdded }: { token: string; onClose: () => 
             <div>
               <div className=" text-[9.5px] tracking-[0.14em] uppercase mb-1" style={{ color: '#6B7A72' }}>Email</div>
               <input
-                type="email" placeholder="jane@…" value={form.attendee_email} onChange={e => set('attendee_email')(e.target.value)}
+                type="email" aria-label="Email" placeholder="jane@…" value={form.attendee_email} onChange={e => set('attendee_email')(e.target.value)}
                 className="w-full border rounded-lg px-3 py-2 text-[13.5px] outline-none focus:ring-2 bg-white"
                 style={{ borderColor: '#E5E0D4', color: '#0F1F18', '--tw-ring-color': 'rgba(31,77,58,0.15)' } as React.CSSProperties}
               />
@@ -89,7 +89,7 @@ function LeadModal({ token, onClose, onAdded }: { token: string; onClose: () => 
             <div>
               <div className=" text-[9.5px] tracking-[0.14em] uppercase mb-1" style={{ color: '#6B7A72' }}>Company</div>
               <input
-                type="text" placeholder="Acme Corp" value={form.company} onChange={e => set('company')(e.target.value)}
+                type="text" aria-label="Company" placeholder="Acme Corp" value={form.company} onChange={e => set('company')(e.target.value)}
                 className="w-full border rounded-lg px-3 py-2 text-[13.5px] outline-none focus:ring-2 bg-white"
                 style={{ borderColor: '#E5E0D4', color: '#0F1F18', '--tw-ring-color': 'rgba(31,77,58,0.15)' } as React.CSSProperties}
               />
@@ -97,7 +97,7 @@ function LeadModal({ token, onClose, onAdded }: { token: string; onClose: () => 
             <div>
               <div className=" text-[9.5px] tracking-[0.14em] uppercase mb-1" style={{ color: '#6B7A72' }}>Role</div>
               <input
-                type="text" placeholder="CTO" value={form.role} onChange={e => set('role')(e.target.value)}
+                type="text" aria-label="Role" placeholder="CTO" value={form.role} onChange={e => set('role')(e.target.value)}
                 className="w-full border rounded-lg px-3 py-2 text-[13.5px] outline-none focus:ring-2 bg-white"
                 style={{ borderColor: '#E5E0D4', color: '#0F1F18', '--tw-ring-color': 'rgba(31,77,58,0.15)' } as React.CSSProperties}
               />
@@ -130,7 +130,7 @@ function LeadModal({ token, onClose, onAdded }: { token: string; onClose: () => 
           <div>
             <div className=" text-[9.5px] tracking-[0.14em] uppercase mb-1" style={{ color: '#6B7A72' }}>Notes</div>
             <textarea
-              rows={2} placeholder="What did you discuss…" value={form.note} onChange={e => set('note')(e.target.value)}
+              rows={2} aria-label="Notes" placeholder="What did you discuss…" value={form.note} onChange={e => set('note')(e.target.value)}
               className="w-full border rounded-lg px-3 py-2 text-[13.5px] outline-none focus:ring-2 resize-none bg-white"
               style={{ borderColor: '#E5E0D4', color: '#0F1F18', '--tw-ring-color': 'rgba(31,77,58,0.15)' } as React.CSSProperties}
             />

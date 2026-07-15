@@ -105,7 +105,7 @@ function LeadPanel({
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid #E5E0D4' }}>
           <div className="font-display text-[15px] font-semibold" style={{ color: '#0F1F18' }}>Lead detail</div>
-          <button onClick={onClose} className="w-7 h-7 rounded-lg grid place-items-center hover:bg-[#F5F3EE]" style={{ color: '#6B7A72' }}>
+          <button onClick={onClose} aria-label="Close" className="w-7 h-7 rounded-lg grid place-items-center hover:bg-[#F5F3EE]" style={{ color: '#6B7A72' }}>
             <svg width={14} height={14} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -162,6 +162,7 @@ function LeadPanel({
               value={note}
               onChange={e => setNote(e.target.value)}
               rows={3}
+              aria-label="Note"
               placeholder="Add a note about this lead…"
               className="w-full rounded-xl px-3 py-2.5 text-[13.5px] outline-none resize-none"
               style={{ border: '1px solid #E5E0D4', background: '#FAF6EE', color: '#0F1F18' }}
@@ -258,6 +259,7 @@ export function LeadsTab({ leads: initialLeads, token }: Props) {
           type="search"
           value={search}
           onChange={e => setSearch(e.target.value)}
+          aria-label="Search leads"
           placeholder="Search leads…"
           className="w-full rounded-lg px-3 py-2 text-[13.5px] border outline-none focus:ring-2"
           style={{ borderColor: '#E5E0D4', background: '#FAF6EE', color: '#0F1F18', '--tw-ring-color': 'rgba(31,77,58,0.15)' } as React.CSSProperties}

@@ -35,6 +35,7 @@ function Field({ label, value, onChange, area, readOnly }: {
           onChange={e => onChange?.(e.target.value)}
           rows={4}
           readOnly={readOnly}
+          aria-label={label}
           className="w-full border rounded-lg px-3 py-2.5 text-[13.5px] leading-relaxed outline-none focus:ring-2 resize-none"
           style={{ background: readOnly ? 'rgba(250,246,238,0.5)' : 'white', borderColor: '#E5E0D4', color: '#0F1F18', '--tw-ring-color': 'rgba(31,77,58,0.15)' } as React.CSSProperties}
         />
@@ -44,6 +45,7 @@ function Field({ label, value, onChange, area, readOnly }: {
           value={value}
           onChange={e => onChange?.(e.target.value)}
           readOnly={readOnly}
+          aria-label={label}
           className="w-full border rounded-lg px-3 py-2.5 text-[13.5px] outline-none focus:ring-2"
           style={{ background: readOnly ? 'rgba(250,246,238,0.5)' : 'white', borderColor: '#E5E0D4', color: readOnly ? '#3A4A42' : '#0F1F18', '--tw-ring-color': 'rgba(31,77,58,0.15)' } as React.CSSProperties}
         />

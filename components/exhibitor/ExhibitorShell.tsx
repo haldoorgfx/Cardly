@@ -129,7 +129,7 @@ export function ExhibitorShell({ token, companyName, tier, boothNumber, logoUrl,
               </div>
               <h1 className="font-display text-[28px] font-bold tracking-[-0.02em]" style={{ color: '#FAF6EE' }}>{companyName}</h1>
               <p className="text-[14px] mt-1.5" style={{ color: 'rgba(250,246,238,0.75)' }}>
-                Welcome back. Here&apos;s how your presence is performing.
+                Here&apos;s how your presence is performing.
               </p>
             </div>
             {/* Logo display in hero */}

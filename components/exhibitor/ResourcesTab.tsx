@@ -89,12 +89,12 @@ export function ResourcesTab({ resources: initial, token }: Props) {
       {showAdd && (
         <div className="px-5 py-4 border-b grid gap-3" style={{ borderColor: 'rgba(229,224,212,0.7)', background: 'rgba(250,246,238,0.5)' }}>
           <input
-            type="text" placeholder="Resource name" value={name} onChange={e => setName(e.target.value)}
+            type="text" aria-label="Resource name" placeholder="Resource name" value={name} onChange={e => setName(e.target.value)}
             className="w-full border rounded-lg px-3 py-2.5 text-[13.5px] outline-none focus:ring-2 bg-white"
             style={{ borderColor: '#E5E0D4', color: '#0F1F18', '--tw-ring-color': 'rgba(31,77,58,0.15)' } as React.CSSProperties}
           />
           <input
-            type="url" placeholder="https://…" value={url} onChange={e => setUrl(e.target.value)}
+            type="url" aria-label="Resource URL" placeholder="https://…" value={url} onChange={e => setUrl(e.target.value)}
             className="w-full border rounded-lg px-3 py-2.5 text-[13.5px] outline-none focus:ring-2 bg-white"
             style={{ borderColor: '#E5E0D4', color: '#0F1F18', '--tw-ring-color': 'rgba(31,77,58,0.15)' } as React.CSSProperties}
           />

@@ -77,7 +77,7 @@ function ProductModal({
           <div className="font-display text-[15px] font-semibold" style={{ color: '#0F1F18' }}>
             {product ? 'Edit product' : 'Add product'}
           </div>
-          <button onClick={onClose} className="w-7 h-7 rounded-lg grid place-items-center hover:bg-[#F5F3EE]" style={{ color: '#6B7A72' }}>
+          <button onClick={onClose} aria-label="Close" className="w-7 h-7 rounded-lg grid place-items-center hover:bg-[#F5F3EE]" style={{ color: '#6B7A72' }}>
             <svg width={14} height={14} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -90,6 +90,7 @@ function ProductModal({
             <input
               value={name}
               onChange={e => setName(e.target.value)}
+              aria-label="Product name"
               placeholder="e.g. Payouts API"
               className="w-full rounded-xl px-3 py-2.5 text-[13.5px] outline-none"
               style={{ border: '1px solid #E5E0D4', background: '#FAF6EE', color: '#0F1F18' }}
@@ -103,6 +104,7 @@ function ProductModal({
               value={description}
               onChange={e => setDescription(e.target.value)}
               rows={3}
+              aria-label="Product description"
               placeholder="Developer platform · live demo"
               className="w-full rounded-xl px-3 py-2.5 text-[13.5px] outline-none resize-none"
               style={{ border: '1px solid #E5E0D4', background: '#FAF6EE', color: '#0F1F18' }}
@@ -115,6 +117,7 @@ function ProductModal({
             <input
               value={imageUrl}
               onChange={e => setImageUrl(e.target.value)}
+              aria-label="Product image URL"
               placeholder="https://…"
               className="w-full rounded-xl px-3 py-2.5 text-[13.5px] outline-none"
               style={{ border: '1px solid #E5E0D4', background: '#FAF6EE', color: '#0F1F18' }}

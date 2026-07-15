@@ -526,8 +526,9 @@ function ProfileTab({ speaker, onSaved }: { speaker: Speaker; onSaved: (s: Parti
               { label: 'Company / Organisation', key: 'company', placeholder: 'e.g. Paystack' },
             ].map(({ label, key, placeholder }) => (
               <div key={key}>
-                <label className="block text-[12px] font-medium mb-1.5" style={{ color: '#3A4A42' }}>{label}</label>
+                <label htmlFor={`speaker-${key}`} className="block text-[12px] font-medium mb-1.5" style={{ color: '#3A4A42' }}>{label}</label>
                 <input
+                  id={`speaker-${key}`}
                   value={form[key as keyof typeof form]}
                   onChange={e => setField(key, e.target.value)}
                   placeholder={placeholder}
@@ -539,8 +540,9 @@ function ProfileTab({ speaker, onSaved }: { speaker: Speaker; onSaved: (s: Parti
               </div>
             ))}
             <div>
-              <label className="block text-[12px] font-medium mb-1.5" style={{ color: '#3A4A42' }}>Bio</label>
+              <label htmlFor="speaker-bio" className="block text-[12px] font-medium mb-1.5" style={{ color: '#3A4A42' }}>Bio</label>
               <textarea
+                id="speaker-bio"
                 value={form.bio}
                 onChange={e => setField('bio', e.target.value)}
                 placeholder="A short bio visible to attendees…"
@@ -562,8 +564,9 @@ function ProfileTab({ speaker, onSaved }: { speaker: Speaker; onSaved: (s: Parti
               { label: 'Website', key: 'website_url', placeholder: 'https://yoursite.com' },
             ].map(({ label, key, placeholder }) => (
               <div key={key}>
-                <label className="block text-[12px] font-medium mb-1.5" style={{ color: '#3A4A42' }}>{label}</label>
+                <label htmlFor={`speaker-${key}`} className="block text-[12px] font-medium mb-1.5" style={{ color: '#3A4A42' }}>{label}</label>
                 <input
+                  id={`speaker-${key}`}
                   value={form[key as keyof typeof form]}
                   onChange={e => setField(key, e.target.value)}
                   placeholder={placeholder}

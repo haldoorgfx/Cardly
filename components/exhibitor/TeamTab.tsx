@@ -119,12 +119,12 @@ export function TeamTab({ members: initial, token }: Props) {
       {showInvite && (
         <div className="px-5 py-4 border-b grid gap-3" style={{ borderColor: 'rgba(229,224,212,0.7)', background: 'rgba(250,246,238,0.5)' }}>
           <input
-            type="email" placeholder="colleague@company.com" value={email} onChange={e => setEmail(e.target.value)}
+            type="email" aria-label="Colleague email" placeholder="colleague@company.com" value={email} onChange={e => setEmail(e.target.value)}
             className="w-full border rounded-lg px-3 py-2.5 text-[13.5px] outline-none focus:ring-2 bg-white"
             style={{ borderColor: '#E5E0D4', color: '#0F1F18', '--tw-ring-color': 'rgba(31,77,58,0.15)' } as React.CSSProperties}
           />
           <input
-            type="text" placeholder="Role (e.g. Sales)" value={role} onChange={e => setRole(e.target.value)}
+            type="text" aria-label="Role" placeholder="Role (e.g. Sales)" value={role} onChange={e => setRole(e.target.value)}
             className="w-full border rounded-lg px-3 py-2.5 text-[13.5px] outline-none focus:ring-2 bg-white"
             style={{ borderColor: '#E5E0D4', color: '#0F1F18', '--tw-ring-color': 'rgba(31,77,58,0.15)' } as React.CSSProperties}
           />
