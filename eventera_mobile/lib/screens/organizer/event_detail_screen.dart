@@ -7,6 +7,7 @@ import '../../organize/organizer_api.dart';
 import '../../theme.dart';
 import '../../roles/staff/event_control_screen.dart';
 import 'catering_screen.dart';
+import 'communications_screen.dart';
 import 'entitlements_screen.dart';
 import 'event_days_screen.dart';
 import 'manage_tickets_screen.dart';
@@ -304,6 +305,16 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
           onTap: () => Navigator.of(context).push(
             MaterialPageRoute(
               builder: (_) => CateringScreen(eventId: e.id, eventName: e.name),
+            ),
+          ),
+        ),
+        _actionTile(
+          icon: Icons.mail_outline,
+          title: 'Communications',
+          subtitle: 'Email a custom update to all confirmed attendees',
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => CommunicationsScreen(eventId: e.id, eventName: e.name),
             ),
           ),
         ),

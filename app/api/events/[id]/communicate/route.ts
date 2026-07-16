@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { Resend } from 'resend';
+import { wrap, esc } from '@/lib/email';
 
 // RESEND_FROM_EMAIL is a BARE address; the display name comes from
 // RESEND_FROM_NAME. Build `from` here so it never double-wraps.
@@ -15,7 +16,22 @@ function getResend(): Resend | null {
 // POST — send a broadcast email to all confirmed/checked-in attendees
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
   const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  let { data: { user } } = await supabase.auth.getUser();
+
+  // Mobile has no Next.js cookie session — it sends its Supabase JWT as a
+  // Bearer header instead (see eventera_mobile/lib/net.dart's apiPost).
+  // createClient() only ever reads cookies, so fall back to verifying that
+  // token directly when there's no cookie session, exactly like the web
+  // cookie path: an independent, equally-strong identity check, not a
+  // weaker one.
+  if (!user) {
+    const authHeader = req.headers.get('authorization');
+    const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
+    if (token) {
+      const { data } = await supabase.auth.getUser(token);
+      user = data.user;
+    }
+  }
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const admin = createAdminClient();
@@ -49,8 +65,6 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     // Email isn't configured — don't crash; report zero sent.
     return NextResponse.json({ error: 'Email is not configured on this server', sent: 0 }, { status: 503 });
   }
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? '';
-
   // Resend batch API — max 100 per call.
   // Track sent vs failed per-batch so a mid-loop failure returns partial success
   // (200 with { sent, failed }) instead of throwing a bodyless 500 that would
@@ -71,7 +85,6 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
             eventName: event.name,
             subject: subject.trim(),
             message: message.trim(),
-            appUrl,
           }),
         }))
       );
@@ -86,44 +99,20 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 }
 
 function buildBroadcastHtml({
-  attendeeName, eventName, subject, message, appUrl,
+  attendeeName, eventName, subject, message,
 }: {
   attendeeName: string;
   eventName: string;
   subject: string;
   message: string;
-  appUrl: string;
 }) {
-  // Preserve line breaks in message
-  const messageHtml = message
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/\n/g, '<br>');
+  // Preserve line breaks in the organizer's plain-text message.
+  const messageHtml = esc(message).replace(/\n/g, '<br>');
 
-  return `<!DOCTYPE html>
-<html>
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;padding:0;font-family:Inter,system-ui,sans-serif;background:#FAF6EE;color:#0F1F18;">
-  <div style="max-width:560px;margin:0 auto;padding:32px 20px;">
-    <div style="background:#1F4D3A;border-radius:12px;padding:24px 28px;margin-bottom:24px;">
-      <div style="font-family:'DM Sans',system-ui,sans-serif;font-size:18px;font-weight:600;color:white;">
-        Eventer<span style="color:#E8C57E;">a</span>
-      </div>
-      <p style="color:rgba(255,255,255,0.75);font-size:13px;margin:6px 0 0;">Message from ${eventName}</p>
-    </div>
-
-    <h1 style="font-family:'DM Sans',system-ui,sans-serif;font-size:22px;font-weight:600;letter-spacing:-0.02em;margin:0 0 16px;">${subject}</h1>
-    <p style="font-size:14px;color:#65736B;margin:0 0 16px;">Hi ${attendeeName},</p>
-    <div style="font-size:15px;color:#3A4A42;line-height:1.6;margin-bottom:28px;">${messageHtml}</div>
-
-    <div style="text-align:center;padding:20px 0;border-top:1px solid #E5E0D4;">
-      <p style="font-size:12px;color:#9BA8A1;margin:0;">
-        You received this because you registered for ${eventName}.<br>
-        Powered by <a href="${appUrl}" style="color:#1F4D3A;text-decoration:none;">Eventera</a>
-      </p>
-    </div>
-  </div>
-</body>
-</html>`;
+  return wrap(`
+    <p style="margin:0 0 4px;font-size:12px;color:#65736B;text-transform:uppercase;letter-spacing:0.08em;">Message from ${esc(eventName)}</p>
+    <h1 style="font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-size:22px;font-weight:700;letter-spacing:-0.02em;margin:8px 0 16px;">${esc(subject)}</h1>
+    <p style="font-size:14px;color:#65736B;margin:0 0 16px;">Hi ${esc(attendeeName)},</p>
+    <div style="font-size:15px;color:#3A4A42;line-height:1.6;">${messageHtml}</div>
+  `, { preheader: `${subject} — a message from ${eventName}` });
 }

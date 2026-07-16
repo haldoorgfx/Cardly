@@ -38,7 +38,7 @@ const APP_URL_BASE = process.env.NEXT_PUBLIC_APP_URL ?? '';
 const LOGO_WHITE_URL = `${APP_URL_BASE}/eventera-logo-white.png`;
 const LOGO_COLOR_URL = `${APP_URL_BASE}/eventera-logo.png`;
 
-function wrap(content: string, opts?: { preheader?: string }): string {
+export function wrap(content: string, opts?: { preheader?: string }): string {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -80,7 +80,7 @@ function btn(href: string, text: string): string {
   return `<a href="${href}" style="display:inline-block;margin-top:20px;padding:12px 26px;background:#1F4D3A;color:#FFFFFF;text-decoration:none;border-radius:10px;font-size:14px;font-weight:600;font-family:'Plus Jakarta Sans',Inter,Arial,sans-serif">${text}</a>`;
 }
 
-function esc(s: string): string {
+export function esc(s: string): string {
   return s
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
