@@ -166,7 +166,9 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
   }
 
   void _openFullscreen() {
-    if (widget.qrToken.isEmpty || _ts == TicketStatus.pending) return;
+    if (widget.qrToken.isEmpty ||
+        _ts == TicketStatus.pending ||
+        _transferred) return;
     Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => FullscreenQrScreen(
         qrData: _qrData,
@@ -306,7 +308,12 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
             eventTitle: widget.eventName,
             coverUrl: widget.coverUrl,
             subtitle: widget.venue ?? '',
-            status: _ts,
+            // Visual only: once transferred, the token the screen was built
+            // with is already dead server-side (transfer rotates it) — show
+            // the same greyed/locked treatment as a cancelled ticket rather
+            // than a bright, seemingly-still-valid QR. The green banner below
+            // spells out what actually happened.
+            status: _transferred ? TicketStatus.cancelled : _ts,
             qr: (widget.qrToken.isNotEmpty)
                 ? QrBlock(data: _qrData, size: 168)
                 : const SizedBox(width: 168, height: 168),

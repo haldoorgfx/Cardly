@@ -699,8 +699,9 @@ class _ApprovalSheet extends StatelessWidget {
   }
 }
 
-/// Walk-in / at-the-door registration sheet — adds a confirmed registration
-/// straight to the list (or reports a duplicate). Mirrors the web walk-in flow.
+/// Walk-in / at-the-door registration sheet — adds an already-checked-in
+/// registration straight to the list (or reports a duplicate). Mirrors the
+/// web walk-in flow.
 class _WalkInSheet extends StatefulWidget {
   final String eventId;
   final OrganizerApi org;
@@ -753,6 +754,13 @@ class _WalkInSheetState extends State<_WalkInSheet> {
         phone: _phone.text,
       );
       if (mounted) Navigator.of(context).pop(res);
+    } on WalkInBlockedException catch (e) {
+      if (mounted) {
+        setState(() {
+          _busy = false;
+          _error = e.message;
+        });
+      }
     } catch (_) {
       if (mounted) {
         setState(() {
@@ -772,8 +780,8 @@ class _WalkInSheetState extends State<_WalkInSheet> {
         Text('Add a walk-in', style: AppText.h3),
         const SizedBox(height: 6),
         Text(
-          'Register someone at the door. They\'re added as confirmed and ready '
-          'to check in.',
+          'Register someone at the door. They\'re added and checked in '
+          'right away.',
           style: AppText.bodySm,
         ),
         const SizedBox(height: 16),

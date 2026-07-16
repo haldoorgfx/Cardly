@@ -1744,6 +1744,9 @@ Widget _speakerAvatar(SpeakerSummary sp, double size) {
         child: Image.network(
           url,
           fit: BoxFit.cover,
+          loadingBuilder: (ctx, child, progress) => progress == null
+              ? child
+              : Avatar(name: sp.name, size: size),
           errorBuilder: (_, __, ___) =>
               Avatar(name: sp.name, size: size),
         ),

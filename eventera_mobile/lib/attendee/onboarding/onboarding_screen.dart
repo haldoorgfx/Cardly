@@ -459,7 +459,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       alignment: Alignment.center,
                       child: (_avatarUrl != null && _avatarUrl!.isNotEmpty)
                           ? Image.network(_avatarUrl!,
-                              width: 84, height: 84, fit: BoxFit.cover)
+                              width: 84,
+                              height: 84,
+                              fit: BoxFit.cover,
+                              loadingBuilder: (ctx, child, progress) =>
+                                  progress == null
+                                      ? child
+                                      : const Icon(Icons.person_outline,
+                                          size: 34, color: AppColors.forest),
+                              errorBuilder: (_, __, ___) => const Icon(
+                                  Icons.person_outline,
+                                  size: 34,
+                                  color: AppColors.forest))
                           : const Icon(Icons.person_outline,
                               size: 34, color: AppColors.forest),
                     ),

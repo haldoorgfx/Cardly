@@ -8,6 +8,7 @@ import 'package:http_parser/http_parser.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'app_config.dart';
+import 'billing_can.dart';
 import 'models.dart';
 
 /// Thrown for friendly, user-facing failures.
@@ -102,6 +103,14 @@ class EventeraApi {
     if (uid == null) throw EventeraException('Please sign in first.');
     final trimmed = name.trim();
     if (trimmed.isEmpty) throw EventeraException('Give your event a name.');
+
+    // Free-tier event cap (CLAUDE.md: Free = 1 event) — check before the
+    // upload so a blocked organizer isn't left waiting through it for nothing.
+    if (!(await canCreateEvent())) {
+      throw EventeraException(
+          'Your current plan is limited to $kFreeEventLimit event. '
+          'Upgrade to create more.');
+    }
 
     final ext = contentType.contains('png') ? 'png' : 'jpg';
     final path = '$uid/${DateTime.now().millisecondsSinceEpoch}.$ext';

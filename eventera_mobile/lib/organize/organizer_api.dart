@@ -1,6 +1,18 @@
 import 'dart:math';
 
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../billing_can.dart';
 import '../net.dart';
+
+/// Thrown by [OrganizerApi.addWalkIn] for a user-facing reason the walk-in
+/// couldn't be added (event ended, at capacity, plan limit) — distinct from a
+/// plain network/exception so the sheet can show the real reason instead of
+/// a generic "check your connection" message.
+class WalkInBlockedException implements Exception {
+  final String message;
+  const WalkInBlockedException(this.message);
+}
 
 /// Direct-Supabase writes for the Organize shell that the shared
 /// [EventeraApi] doesn't cover. Mobile talks to Supabase under RLS
@@ -55,8 +67,9 @@ class OrganizerApi {
   }
 
   /// Register a walk-in / at-the-door attendee straight into `registrations`
-  /// (status `confirmed`), mirroring the web `/api/events/[id]/walk-in` route
-  /// but via the RLS `public_insert` policy instead of the cookie-authed API.
+  /// (status `checked_in` — they're standing right there), mirroring the web
+  /// `/api/events/[id]/walk-in` route but via the RLS `public_insert` policy
+  /// instead of the cookie-authed API.
   ///
   /// If the email is already on the list we don't create a duplicate — we
   /// report it back so the organizer can just check that person in.
@@ -69,6 +82,35 @@ class OrganizerApi {
   }) async {
     final nm = name.trim();
     final emailLc = email.toLowerCase().trim();
+
+    // Mirrors the web walk-in route's ordering: event-ended, then capacity,
+    // then the duplicate-email check, then the plan cap (which only applies
+    // to a genuinely new registration, not checking an existing one in).
+    final ep = await supa
+        .from('event_pages')
+        .select('ends_at, max_capacity')
+        .eq('event_id', eventId)
+        .maybeSingle();
+    final endsAt = ep?['ends_at'] != null
+        ? DateTime.tryParse(ep!['ends_at'].toString())
+        : null;
+    if (endsAt != null && endsAt.isBefore(DateTime.now())) {
+      throw const WalkInBlockedException(
+          'This event has already ended — walk-in registration is not available.');
+    }
+    final maxCapacity = ep?['max_capacity'] as int?;
+    if (maxCapacity != null) {
+      final count = await supa
+          .from('registrations')
+          .select('id')
+          .eq('event_id', eventId)
+          .inFilter('status', ['confirmed', 'checked_in'])
+          .count(CountOption.exact);
+      if (count.count >= maxCapacity) {
+        throw const WalkInBlockedException(
+            'This event is at full capacity — walk-in cannot be added.');
+      }
+    }
 
     // Owner RLS lets the organizer read their own event's rows, so we can
     // detect a pre-existing registration before inserting.
@@ -87,6 +129,13 @@ class OrganizerApi {
       );
     }
 
+    // Free-tier registration cap (CLAUDE.md: Free = 50/event) — only applies
+    // to a new registration, not the check-in-an-existing-one branch above.
+    if (!(await canRegisterForEvent(eventId))) {
+      throw const WalkInBlockedException(
+          'This event has reached the registration limit for your current plan.');
+    }
+
     await supa.from('registrations').insert({
       'event_id': eventId,
       'attendee_name': nm,
@@ -95,10 +144,14 @@ class OrganizerApi {
         'attendee_phone': phone.trim(),
       if (ticketTypeId != null && ticketTypeId.isNotEmpty)
         'ticket_type_id': ticketTypeId,
-      'status': 'confirmed',
+      // A walk-in is by definition already at the door — check them in
+      // immediately, same as the web walk-in route's fallback path, instead
+      // of leaving them as merely "confirmed" pending a second manual tap.
+      'status': 'checked_in',
       'qr_code_token': _token(),
       'amount_paid': 0,
       'source': 'walk_in',
+      'checked_in_at': DateTime.now().toUtc().toIso8601String(),
     });
 
     return WalkInResult(created: true, name: nm, alreadyCheckedIn: false);

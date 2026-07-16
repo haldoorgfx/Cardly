@@ -292,6 +292,11 @@ class _MapEventCard extends StatelessWidget {
                 child: (event.coverUrl.isNotEmpty)
                     ? Image.network(event.coverUrl,
                         fit: BoxFit.cover,
+                        loadingBuilder: (ctx, child, progress) =>
+                            progress == null
+                                ? child
+                                : PhotoPlaceholder(
+                                    hue: hueFromString(event.slug)),
                         errorBuilder: (_, __, ___) =>
                             PhotoPlaceholder(hue: hueFromString(event.slug)))
                     : PhotoPlaceholder(hue: hueFromString(event.slug)),
