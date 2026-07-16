@@ -94,7 +94,7 @@ export interface RegistrationConfirmEmailParams {
 
 export async function sendRegistrationConfirmEmail(params: RegistrationConfirmEmailParams) {
   const brand = await resolveBrand(params.eventId);
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://eventera.so';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? '';
   await send(brand, {
     to: params.to,
     subject: `You're registered for ${params.eventTitle}`,
@@ -122,6 +122,11 @@ export async function sendRegistrationReminderEmail(params: RegistrationReminder
 }
 
 function buildConfirmationHtml(p: RegistrationConfirmEmailParams, appUrl: string, brand: EmailBrand) {
+  const eventTitle = escapeHtml(p.eventTitle);
+  const attendeeName = escapeHtml(p.attendeeName);
+  const eventDate = escapeHtml(p.eventDate);
+  const eventVenue = escapeHtml(p.eventVenue);
+  const ticketType = escapeHtml(p.ticketType);
   return `<!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
@@ -130,17 +135,17 @@ function buildConfirmationHtml(p: RegistrationConfirmEmailParams, appUrl: string
     ${emailHeader(brand, "You're registered!")}
 
     <h1 style="font-family:'DM Sans',system-ui,sans-serif;font-size:26px;font-weight:600;letter-spacing:-0.02em;margin:0 0 8px;">
-      See you at ${p.eventTitle}
+      See you at ${eventTitle}
     </h1>
-    <p style="font-size:15px;color:#3A4A42;margin:0 0 24px;">Hi ${p.attendeeName}, your spot is confirmed.</p>
+    <p style="font-size:15px;color:#3A4A42;margin:0 0 24px;">Hi ${attendeeName}, your spot is confirmed.</p>
 
     <div style="background:white;border:1px solid #E5E0D4;border-radius:12px;padding:20px;margin-bottom:20px;">
       <div style="font-size:12px;font-family:Inter,sans-serif;color:#65736B;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;">Event details</div>
-      <div style="font-weight:600;font-size:16px;margin-bottom:6px;">${p.eventTitle}</div>
-      <div style="font-size:14px;color:#3A4A42;margin-bottom:4px;">${p.eventDate}</div>
-      <div style="font-size:14px;color:#3A4A42;margin-bottom:12px;">${p.eventVenue}</div>
+      <div style="font-weight:600;font-size:16px;margin-bottom:6px;">${eventTitle}</div>
+      <div style="font-size:14px;color:#3A4A42;margin-bottom:4px;">${eventDate}</div>
+      <div style="font-size:14px;color:#3A4A42;margin-bottom:12px;">${eventVenue}</div>
       <div style="font-size:12px;font-family:Inter,sans-serif;color:${brand.primary};background:#E8EFEB;padding:4px 10px;border-radius:4px;display:inline-block;">
-        ${p.ticketType}
+        ${ticketType}
       </div>
     </div>
 
@@ -184,7 +189,7 @@ export interface WaitlistConfirmEmailParams {
 
 export async function sendWaitlistConfirmEmail(params: WaitlistConfirmEmailParams) {
   const brand = await resolveBrand(params.eventId);
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://eventera.so';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? '';
   await send(brand, {
     to: params.to,
     subject: `You're #${params.position} on the waitlist for ${params.eventTitle}`,
@@ -205,7 +210,7 @@ export interface WaitlistInviteEmailParams {
 
 export async function sendWaitlistInviteEmail(params: WaitlistInviteEmailParams) {
   const brand = await resolveBrand(params.eventId);
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://eventera.so';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? '';
   await send(brand, {
     to: params.to,
     subject: `A spot opened up — register now for ${params.eventTitle}`,
@@ -214,6 +219,10 @@ export async function sendWaitlistInviteEmail(params: WaitlistInviteEmailParams)
 }
 
 function buildWaitlistConfirmHtml(p: WaitlistConfirmEmailParams, appUrl: string, brand: EmailBrand) {
+  const eventTitle = escapeHtml(p.eventTitle);
+  const name = escapeHtml(p.name);
+  const eventDate = escapeHtml(p.eventDate);
+  const city = p.city ? escapeHtml(p.city) : null;
   return `<!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
@@ -224,13 +233,13 @@ function buildWaitlistConfirmHtml(p: WaitlistConfirmEmailParams, appUrl: string,
     <h1 style="font-family:'DM Sans',system-ui,sans-serif;font-size:26px;font-weight:600;letter-spacing:-0.02em;margin:0 0 8px;">
       You&apos;re #<span style="color:#E8C57E;font-family:Inter,sans-serif;">${p.position}</span> in line
     </h1>
-    <p style="font-size:15px;color:#3A4A42;margin:0 0 24px;">Hi ${p.name}, we&apos;ve added you to the waitlist for ${p.eventTitle}.</p>
+    <p style="font-size:15px;color:#3A4A42;margin:0 0 24px;">Hi ${name}, we&apos;ve added you to the waitlist for ${eventTitle}.</p>
 
     <div style="background:white;border:1px solid #E5E0D4;border-radius:12px;padding:20px;margin-bottom:20px;">
       <div style="font-size:12px;font-family:Inter,sans-serif;color:#65736B;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;">Event details</div>
-      <div style="font-weight:600;font-size:16px;margin-bottom:6px;">${p.eventTitle}</div>
-      ${p.eventDate ? `<div style="font-size:14px;color:#3A4A42;margin-bottom:4px;">${p.eventDate}</div>` : ''}
-      ${p.city ? `<div style="font-size:14px;color:#3A4A42;">${p.city}</div>` : ''}
+      <div style="font-weight:600;font-size:16px;margin-bottom:6px;">${eventTitle}</div>
+      ${eventDate ? `<div style="font-size:14px;color:#3A4A42;margin-bottom:4px;">${eventDate}</div>` : ''}
+      ${city ? `<div style="font-size:14px;color:#3A4A42;">${city}</div>` : ''}
     </div>
 
     <p style="font-size:14px;color:#65736B;text-align:center;margin:0 0 20px;">
@@ -246,6 +255,9 @@ function buildWaitlistConfirmHtml(p: WaitlistConfirmEmailParams, appUrl: string,
 }
 
 function buildWaitlistInviteHtml(p: WaitlistInviteEmailParams, appUrl: string, brand: EmailBrand) {
+  const eventTitle = escapeHtml(p.eventTitle);
+  const name = escapeHtml(p.name);
+  const eventDate = escapeHtml(p.eventDate);
   return `<!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
@@ -254,14 +266,14 @@ function buildWaitlistInviteHtml(p: WaitlistInviteEmailParams, appUrl: string, b
     ${emailHeader(brand, 'A spot opened up!')}
 
     <h1 style="font-family:'DM Sans',system-ui,sans-serif;font-size:26px;font-weight:600;letter-spacing:-0.02em;margin:0 0 8px;">
-      Good news, ${p.name}
+      Good news, ${name}
     </h1>
-    <p style="font-size:15px;color:#3A4A42;margin:0 0 24px;">A spot just opened for <strong>${p.eventTitle}</strong>. You&apos;re invited to register — act fast, this may not last long.</p>
+    <p style="font-size:15px;color:#3A4A42;margin:0 0 24px;">A spot just opened for <strong>${eventTitle}</strong>. You&apos;re invited to register — act fast, this may not last long.</p>
 
     <div style="background:white;border:1px solid #E5E0D4;border-radius:12px;padding:20px;margin-bottom:24px;">
       <div style="font-size:12px;font-family:Inter,sans-serif;color:#65736B;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;">Event</div>
-      <div style="font-weight:600;font-size:16px;margin-bottom:6px;">${p.eventTitle}</div>
-      ${p.eventDate ? `<div style="font-size:14px;color:#3A4A42;">${p.eventDate}</div>` : ''}
+      <div style="font-weight:600;font-size:16px;margin-bottom:6px;">${eventTitle}</div>
+      ${eventDate ? `<div style="font-size:14px;color:#3A4A42;">${eventDate}</div>` : ''}
     </div>
 
     <div style="text-align:center;margin-bottom:20px;">
@@ -291,19 +303,22 @@ export interface ApprovalEmailParams {
 
 export async function sendPendingApprovalEmail(params: ApprovalEmailParams) {
   const brand = await resolveBrand(params.eventId);
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://eventera.so';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? '';
+  const eventTitle = escapeHtml(params.eventTitle);
+  const name = escapeHtml(params.name);
+  const eventDate = escapeHtml(params.eventDate);
   await send(brand, {
     to: params.to,
     subject: `Your registration for ${params.eventTitle} is pending approval`,
     html: `<!DOCTYPE html><html><body style="margin:0;padding:0;font-family:Inter,system-ui,sans-serif;background:#FAF6EE;color:#0F1F18;">
   <div style="max-width:560px;margin:0 auto;padding:32px 20px;">
     ${emailHeader(brand, 'Registration received')}
-    <h1 style="font-family:'DM Sans',system-ui,sans-serif;font-size:24px;font-weight:600;letter-spacing:-0.02em;margin:0 0 8px;">Hi ${params.name},</h1>
-    <p style="font-size:15px;color:#3A4A42;margin:0 0 16px;">We received your registration for <strong>${params.eventTitle}</strong>. The organiser reviews applications manually — you&apos;ll hear back by email once a decision is made.</p>
+    <h1 style="font-family:'DM Sans',system-ui,sans-serif;font-size:24px;font-weight:600;letter-spacing:-0.02em;margin:0 0 8px;">Hi ${name},</h1>
+    <p style="font-size:15px;color:#3A4A42;margin:0 0 16px;">We received your registration for <strong>${eventTitle}</strong>. The organiser reviews applications manually — you&apos;ll hear back by email once a decision is made.</p>
     <div style="background:white;border:1px solid #E5E0D4;border-radius:12px;padding:16px 20px;margin-bottom:20px;">
       <div style="font-size:12px;font-family:Inter,sans-serif;color:#65736B;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;">Event</div>
-      <div style="font-weight:600;">${params.eventTitle}</div>
-      ${params.eventDate ? `<div style="font-size:14px;color:#3A4A42;margin-top:4px;">${params.eventDate}</div>` : ''}
+      <div style="font-weight:600;">${eventTitle}</div>
+      ${eventDate ? `<div style="font-size:14px;color:#3A4A42;margin-top:4px;">${eventDate}</div>` : ''}
     </div>
     <div style="text-align:center;padding:20px 0;border-top:1px solid #E5E0D4;">
       <a href="${appUrl}/e/${params.eventSlug}" style="font-size:13px;color:${brand.primary};text-decoration:none;">View event page →</a>
@@ -315,15 +330,17 @@ export async function sendPendingApprovalEmail(params: ApprovalEmailParams) {
 
 export async function sendApprovedEmail(params: ApprovalEmailParams & { qrCodeUrl: string }) {
   const brand = await resolveBrand(params.eventId);
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://eventera.so';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? '';
+  const eventTitle = escapeHtml(params.eventTitle);
+  const name = escapeHtml(params.name);
   await send(brand, {
     to: params.to,
     subject: `You're approved — see you at ${params.eventTitle}!`,
     html: `<!DOCTYPE html><html><body style="margin:0;padding:0;font-family:Inter,system-ui,sans-serif;background:#FAF6EE;color:#0F1F18;">
   <div style="max-width:560px;margin:0 auto;padding:32px 20px;">
     ${emailHeader(brand, "You're approved!")}
-    <h1 style="font-family:'DM Sans',system-ui,sans-serif;font-size:24px;font-weight:600;letter-spacing:-0.02em;margin:0 0 8px;">Great news, ${params.name}!</h1>
-    <p style="font-size:15px;color:#3A4A42;margin:0 0 16px;">Your registration for <strong>${params.eventTitle}</strong> has been approved. Your spot is confirmed.</p>
+    <h1 style="font-family:'DM Sans',system-ui,sans-serif;font-size:24px;font-weight:600;letter-spacing:-0.02em;margin:0 0 8px;">Great news, ${name}!</h1>
+    <p style="font-size:15px;color:#3A4A42;margin:0 0 16px;">Your registration for <strong>${eventTitle}</strong> has been approved. Your spot is confirmed.</p>
     <div style="text-align:center;background:white;border:1px solid #E5E0D4;border-radius:12px;padding:20px;margin-bottom:20px;">
       <div style="font-size:12px;font-family:Inter,sans-serif;color:#65736B;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:12px;">Your check-in QR code</div>
       <img src="${params.qrCodeUrl}" alt="QR code" width="160" height="160" style="border-radius:8px;" />
@@ -339,15 +356,17 @@ export async function sendApprovedEmail(params: ApprovalEmailParams & { qrCodeUr
 
 export async function sendDeniedEmail(params: ApprovalEmailParams) {
   const brand = await resolveBrand(params.eventId);
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://eventera.so';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? '';
+  const eventTitle = escapeHtml(params.eventTitle);
+  const name = escapeHtml(params.name);
   await send(brand, {
     to: params.to,
     subject: `Update on your registration for ${params.eventTitle}`,
     html: `<!DOCTYPE html><html><body style="margin:0;padding:0;font-family:Inter,system-ui,sans-serif;background:#FAF6EE;color:#0F1F18;">
   <div style="max-width:560px;margin:0 auto;padding:32px 20px;">
     ${emailHeader(brand)}
-    <h1 style="font-family:'DM Sans',system-ui,sans-serif;font-size:24px;font-weight:600;letter-spacing:-0.02em;margin:0 0 8px;">Hi ${params.name},</h1>
-    <p style="font-size:15px;color:#3A4A42;margin:0 0 16px;">Thank you for applying to <strong>${params.eventTitle}</strong>. Unfortunately, the organiser wasn&apos;t able to offer you a spot this time.</p>
+    <h1 style="font-family:'DM Sans',system-ui,sans-serif;font-size:24px;font-weight:600;letter-spacing:-0.02em;margin:0 0 8px;">Hi ${name},</h1>
+    <p style="font-size:15px;color:#3A4A42;margin:0 0 16px;">Thank you for applying to <strong>${eventTitle}</strong>. Unfortunately, the organiser wasn&apos;t able to offer you a spot this time.</p>
     <div style="text-align:center;padding:20px 0;border-top:1px solid #E5E0D4;">
       <a href="${appUrl}/e/${params.eventSlug}" style="font-size:13px;color:${brand.primary};text-decoration:none;">View event page →</a>
     </div>
@@ -360,15 +379,17 @@ export async function sendDeniedEmail(params: ApprovalEmailParams) {
 
 export async function sendTransferEmail(params: { to: string; name: string; eventTitle: string; eventSlug: string; qrCodeUrl: string; eventId?: string }) {
   const brand = await resolveBrand(params.eventId);
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://eventera.so';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? '';
+  const eventTitle = escapeHtml(params.eventTitle);
+  const name = escapeHtml(params.name);
   await send(brand, {
     to: params.to,
     subject: `You've received a ticket for ${params.eventTitle}`,
     html: `<!DOCTYPE html><html><body style="margin:0;padding:0;font-family:Inter,system-ui,sans-serif;background:#FAF6EE;color:#0F1F18;">
   <div style="max-width:560px;margin:0 auto;padding:32px 20px;">
     ${emailHeader(brand, 'Ticket transferred to you')}
-    <h1 style="font-family:'DM Sans',system-ui,sans-serif;font-size:24px;font-weight:600;letter-spacing:-0.02em;margin:0 0 8px;">Hi ${params.name},</h1>
-    <p style="font-size:15px;color:#3A4A42;margin:0 0 16px;">Someone transferred their ticket for <strong>${params.eventTitle}</strong> to you. Your spot is confirmed.</p>
+    <h1 style="font-family:'DM Sans',system-ui,sans-serif;font-size:24px;font-weight:600;letter-spacing:-0.02em;margin:0 0 8px;">Hi ${name},</h1>
+    <p style="font-size:15px;color:#3A4A42;margin:0 0 16px;">Someone transferred their ticket for <strong>${eventTitle}</strong> to you. Your spot is confirmed.</p>
     <div style="text-align:center;background:white;border:1px solid #E5E0D4;border-radius:12px;padding:20px;margin-bottom:20px;">
       <div style="font-size:12px;font-family:Inter,sans-serif;color:#65736B;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:12px;">Your check-in QR code</div>
       <img src="${params.qrCodeUrl}" alt="QR code" width="160" height="160" style="border-radius:8px;" />
@@ -382,15 +403,19 @@ export async function sendTransferEmail(params: { to: string; name: string; even
 }
 
 function buildReminderHtml(p: RegistrationReminderEmailParams) {
+  const eventTitle = escapeHtml(p.eventTitle);
+  const attendeeName = escapeHtml(p.attendeeName);
+  const eventDate = escapeHtml(p.eventDate);
+  const eventVenue = escapeHtml(p.eventVenue);
   return `<!DOCTYPE html>
 <html>
 <body style="margin:0;padding:0;font-family:Inter,system-ui,sans-serif;background:#FAF6EE;color:#0F1F18;">
   <div style="max-width:560px;margin:0 auto;padding:32px 20px;">
     <h1 style="font-family:'DM Sans',system-ui,sans-serif;font-size:24px;font-weight:600;letter-spacing:-0.02em;">
-      ${p.eventTitle} is tomorrow
+      ${eventTitle} is tomorrow
     </h1>
-    <p style="font-size:15px;color:#3A4A42;">Hi ${p.attendeeName}, just a quick reminder!</p>
-    <p style="font-size:14px;color:#3A4A42;">${p.eventDate} · ${p.eventVenue}</p>
+    <p style="font-size:15px;color:#3A4A42;">Hi ${attendeeName}, just a quick reminder!</p>
+    <p style="font-size:14px;color:#3A4A42;">${eventDate} · ${eventVenue}</p>
   </div>
 </body>
 </html>`;

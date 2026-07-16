@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { updateWebhook, deleteWebhook } from '@/lib/webhooks';
+import { validateWebhookUrl } from '@/lib/webhooks/ssrf';
 import type { WebhookEvent } from '@/lib/webhooks';
 
 const VALID_EVENTS: WebhookEvent[] = ['card.generated', 'event.published', 'event.viewed'];
@@ -18,10 +19,19 @@ export async function PATCH(
   const patch: Parameters<typeof updateWebhook>[2] = {};
 
   if (typeof body.url === 'string') {
-    try { new URL(body.url.trim()); } catch {
+    const trimmed = body.url.trim();
+    try { new URL(trimmed); } catch {
       return NextResponse.json({ error: 'Invalid URL.' }, { status: 400 });
     }
-    patch.url = body.url.trim();
+    // Same SSRF guard POST uses — without it, a webhook could be created
+    // against a benign URL and then repointed at an internal/metadata
+    // endpoint via update. fireWebhooks() re-validates at send time too,
+    // but this closes the gap at the source instead of relying only on that.
+    const urlCheck = await validateWebhookUrl(trimmed);
+    if (!urlCheck.ok) {
+      return NextResponse.json({ error: urlCheck.reason }, { status: 400 });
+    }
+    patch.url = trimmed;
   }
   if (Array.isArray(body.events)) {
     const invalid = body.events.filter((e: string) => !VALID_EVENTS.includes(e as WebhookEvent));

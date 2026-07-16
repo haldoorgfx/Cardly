@@ -109,7 +109,7 @@ export async function sendWelcomeEmail(opts: {
     `Welcome to Eventera, ${firstName} 👋`,
     wrap(`
       <h1 style="margin:0 0 8px;font-size:26px;font-weight:700;letter-spacing:-0.02em">
-        Welcome to Eventera, ${firstName} 👋
+        Welcome to Eventera, ${esc(firstName)} 👋
       </h1>
       <p style="margin:0 0 16px;font-size:14px;color:#65736B;line-height:1.6">
         We&apos;re glad you&apos;re here. Eventera helps event organisers create
@@ -169,7 +169,7 @@ export async function maybeSendDownloadMilestone(opts: {
         ${count} cards downloaded 🎉
       </h1>
       <p style="margin:0 0 16px;font-size:14px;color:#65736B;line-height:1.6">
-        Your event <strong style="color:#0F1F18">${opts.eventName}</strong> just hit
+        Your event <strong style="color:#0F1F18">${esc(opts.eventName)}</strong> just hit
         <strong style="color:#1F4D3A">${count} downloads</strong>. Attendees are sharing
         their personalised cards across social media.
       </p>
@@ -228,7 +228,7 @@ export async function sendEventPublishedEmail(opts: {
         Your event is live ✅
       </h1>
       <p style="margin:0 0 16px;font-size:14px;color:#65736B;line-height:1.6">
-        <strong style="color:#0F1F18">${opts.eventName}</strong> is now published and accepting
+        <strong style="color:#0F1F18">${esc(opts.eventName)}</strong> is now published and accepting
         attendee registrations. Share the link below to start collecting cards.
       </p>
       <div style="background:#FAF6EE;border:1px solid #E5E0D4;border-radius:10px;padding:14px 16px;font-family:Inter,Arial,sans-serif;font-size:13px;color:#1F4D3A;word-break:break-all">
@@ -255,9 +255,9 @@ export async function sendTeamInviteEmail(opts: {
         You&apos;ve been invited
       </h1>
       <p style="margin:0 0 16px;font-size:14px;color:#65736B;line-height:1.6">
-        <strong style="color:#0F1F18">${opts.inviterName}</strong> has invited you to join
-        <strong style="color:#0F1F18">${opts.teamName}</strong> on Eventera as a
-        <strong style="color:#1F4D3A">${opts.role}</strong>.
+        <strong style="color:#0F1F18">${esc(opts.inviterName)}</strong> has invited you to join
+        <strong style="color:#0F1F18">${esc(opts.teamName)}</strong> on Eventera as a
+        <strong style="color:#1F4D3A">${esc(opts.role)}</strong>.
       </p>
       <p style="margin:0 0 16px;font-size:13px;color:#65736B">
         This invite expires in 7 days.
@@ -289,9 +289,9 @@ export async function sendConnectionRequestEmail(opts: {
         New connection request
       </h1>
       <p style="margin:0 0 16px;font-size:14px;color:#65736B;line-height:1.6">
-        Hi ${opts.recipientName},<br><br>
-        <strong style="color:#0F1F18">${opts.requesterName}</strong> wants to connect with you
-        at <strong style="color:#0F1F18">${opts.eventName}</strong>.
+        Hi ${esc(opts.recipientName)},<br><br>
+        <strong style="color:#0F1F18">${esc(opts.requesterName)}</strong> wants to connect with you
+        at <strong style="color:#0F1F18">${esc(opts.eventName)}</strong>.
         Visit the People tab to accept or ignore.
       </p>
       ${btn(peopleUrl, 'View connection request →')}
@@ -317,9 +317,9 @@ export async function sendConnectionAcceptedEmail(opts: {
         You&apos;re connected!
       </h1>
       <p style="margin:0 0 16px;font-size:14px;color:#65736B;line-height:1.6">
-        Hi ${opts.requesterName},<br><br>
-        <strong style="color:#0F1F18">${opts.acceptorName}</strong> accepted your connection
-        request at <strong style="color:#0F1F18">${opts.eventName}</strong>.
+        Hi ${esc(opts.requesterName)},<br><br>
+        <strong style="color:#0F1F18">${esc(opts.acceptorName)}</strong> accepted your connection
+        request at <strong style="color:#0F1F18">${esc(opts.eventName)}</strong>.
         Send them a message to start the conversation.
       </p>
       ${btn(messagesUrl, 'Send a message →')}
@@ -338,7 +338,8 @@ export async function sendNewMessageEmail(opts: {
   preview: string;
 }): Promise<void> {
   const messagesUrl = `${APP_URL}/e/${opts.eventSlug}/messages?reg=${opts.registrationId}`;
-  const preview = opts.preview.length > 120 ? opts.preview.slice(0, 117) + '…' : opts.preview;
+  const previewRaw = opts.preview.length > 120 ? opts.preview.slice(0, 117) + '…' : opts.preview;
+  const preview = esc(previewRaw);
   await sendEmail(
     opts.to,
     `New message from ${opts.senderName} at ${opts.eventName}`,
@@ -347,9 +348,9 @@ export async function sendNewMessageEmail(opts: {
         New message
       </h1>
       <p style="margin:0 0 16px;font-size:14px;color:#65736B;line-height:1.6">
-        Hi ${opts.recipientName},<br><br>
-        <strong style="color:#0F1F18">${opts.senderName}</strong> sent you a message
-        at <strong style="color:#0F1F18">${opts.eventName}</strong>.
+        Hi ${esc(opts.recipientName)},<br><br>
+        <strong style="color:#0F1F18">${esc(opts.senderName)}</strong> sent you a message
+        at <strong style="color:#0F1F18">${esc(opts.eventName)}</strong>.
       </p>
       <div style="background:#FAF6EE;border-left:3px solid #1F4D3A;border-radius:4px;padding:14px 16px;font-size:13.5px;color:#3A4A42;line-height:1.6;margin-bottom:4px">
         ${preview}
@@ -369,7 +370,8 @@ export async function sendQAAnsweredEmail(opts: {
   registrationId: string;
 }): Promise<void> {
   const qaUrl = `${APP_URL}/e/${opts.eventSlug}/q-and-a?reg=${opts.registrationId}`;
-  const questionPreview = opts.question.length > 140 ? opts.question.slice(0, 137) + '…' : opts.question;
+  const questionPreviewRaw = opts.question.length > 140 ? opts.question.slice(0, 137) + '…' : opts.question;
+  const questionPreview = esc(questionPreviewRaw);
   await sendEmail(
     opts.to,
     `Your question was answered at ${opts.eventName}`,
@@ -378,9 +380,9 @@ export async function sendQAAnsweredEmail(opts: {
         Your question was answered ✅
       </h1>
       <p style="margin:0 0 16px;font-size:14px;color:#65736B;line-height:1.6">
-        Hi ${opts.attendeeName},<br><br>
+        Hi ${esc(opts.attendeeName)},<br><br>
         The organiser has answered your question at
-        <strong style="color:#0F1F18">${opts.eventName}</strong>.
+        <strong style="color:#0F1F18">${esc(opts.eventName)}</strong>.
       </p>
       <div style="background:#FAF6EE;border-left:3px solid #1F4D3A;border-radius:4px;padding:14px 16px;font-size:13.5px;color:#3A4A42;line-height:1.6;margin-bottom:4px">
         &ldquo;${questionPreview}&rdquo;
