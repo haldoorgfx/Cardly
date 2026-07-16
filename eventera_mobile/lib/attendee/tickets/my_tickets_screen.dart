@@ -32,6 +32,7 @@ class _Ticket {
   final String? coverUrl;
   final double? amount;
   final String? currency;
+  final String? cardUrl;
 
   _Ticket({
     required this.id,
@@ -47,6 +48,7 @@ class _Ticket {
     required this.coverUrl,
     required this.amount,
     required this.currency,
+    required this.cardUrl,
   });
 }
 
@@ -97,7 +99,7 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
           .from('registrations')
           .select('''
             id, attendee_name, attendee_email, status, qr_code_token, created_at,
-            amount_paid, currency,
+            amount_paid, currency, eventera_card_url,
             ticket_types(name, price),
             events(id, name, slug, event_pages(title, cover_image_url, starts_at, ends_at, venue_name, city, is_online, timezone))
           ''')
@@ -167,6 +169,9 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
           : asString(page!['cover_image_url']),
       amount: j['amount_paid'] == null ? null : asDouble(j['amount_paid']),
       currency: j['currency'] == null ? null : asString(j['currency']),
+      cardUrl: j['eventera_card_url'] == null
+          ? null
+          : asString(j['eventera_card_url']),
     );
   }
 
@@ -292,6 +297,7 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
           startsAt: t.startsAt,
           amount: t.amount,
           currency: t.currency,
+          cardUrl: t.cardUrl,
         ),
       )),
     );

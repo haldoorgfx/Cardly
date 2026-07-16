@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../app_config.dart';
 import '../../ics_export.dart';
@@ -29,6 +30,11 @@ class TicketDetailScreen extends StatefulWidget {
   final double? amount;
   final String? currency;
 
+  /// The Eventera Card generated for this registration, if any — set
+  /// server-side by /api/render on the first successful render (web or
+  /// mobile) so it's visible across devices, not just the one it was made on.
+  final String? cardUrl;
+
   const TicketDetailScreen({
     super.key,
     required this.registrationId,
@@ -43,6 +49,7 @@ class TicketDetailScreen extends StatefulWidget {
     this.startsAt,
     this.amount,
     this.currency,
+    this.cardUrl,
   });
 
   @override
@@ -208,6 +215,18 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
     }
   }
 
+  Future<void> _openCard() async {
+    final url = widget.cardUrl;
+    if (url == null || url.isEmpty) return;
+    final uri = Uri.tryParse(url);
+    if (uri == null) return;
+    try {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (_) {
+      if (mounted) showToast(context, "Couldn't open your card. Please try again.");
+    }
+  }
+
   void _openReceipt() {
     Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => _ReceiptScreen(
@@ -242,6 +261,11 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
             Navigator.pop(context);
             _shareTicket();
           }),
+          if (widget.cardUrl != null && widget.cardUrl!.isNotEmpty)
+            _action(Icons.badge_outlined, 'View your card', () {
+              Navigator.pop(context);
+              _openCard();
+            }),
           if (canTransfer)
             _action(Icons.send_outlined, 'Transfer ticket', () {
               Navigator.pop(context);
