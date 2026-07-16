@@ -130,8 +130,9 @@ export function ContentAdminClient({ initialPages, blockCounts = {} }: { initial
         </div>
       )}
 
-      <div className="border border-[#E5E0D4] rounded-2xl overflow-hidden bg-white">
-        <div className="grid grid-cols-[auto_1fr_auto_auto_auto] px-5 py-3 bg-[#FAF6EE] border-b border-[#E5E0D4] items-center gap-x-4">
+      {/* ── Desktop table (md and up) ──────────────────────────── */}
+      <div className="hidden md:block border border-[#E5E0D4] rounded-2xl overflow-hidden bg-white overflow-x-auto">
+        <div className="grid grid-cols-[auto_1fr_auto_auto_auto] px-5 py-3 bg-[#FAF6EE] border-b border-[#E5E0D4] items-center gap-x-4" style={{ minWidth: 640 }}>
           <input
             type="checkbox"
             aria-label="Select all pages"
@@ -148,6 +149,7 @@ export function ContentAdminClient({ initialPages, blockCounts = {} }: { initial
           <div
             key={page.id}
             className={`grid grid-cols-[auto_1fr_auto_auto_auto] px-5 py-4 border-b border-[#E5E0D4] last:border-b-0 transition-colors items-center gap-x-4 ${selected.has(page.id) ? 'bg-[#E8EFEB]/50' : 'hover:bg-[#FAF6EE]'}`}
+            style={{ minWidth: 640 }}
           >
             <input
               type="checkbox"
@@ -167,6 +169,53 @@ export function ContentAdminClient({ initialPages, blockCounts = {} }: { initial
               <StatusBadge status={page.status} />
             </div>
             <div className="flex items-center gap-2">
+              <Link
+                href={`/admin/content/${page.id}/edit`}
+                className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-[#1F4D3A] text-white text-[12px] hover:bg-[#163828] transition-colors"
+              >
+                <Pencil size={12} /> Edit
+              </Link>
+              <Link
+                href={`/admin/content/${page.id}/preview`}
+                className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg border border-[#E5E0D4] text-[12px] text-[#3A4A42] hover:bg-[#FAF6EE] transition-colors"
+              >
+                <Eye size={12} /> Preview
+              </Link>
+              <Link
+                href={`/${page.slug === 'home' ? '' : page.slug}`}
+                target="_blank"
+                className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg border border-[#E5E0D4] text-[12px] text-[#3A4A42] hover:bg-[#FAF6EE] transition-colors"
+              >
+                <Globe size={12} /> Live
+              </Link>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* ── Mobile cards (below md) ────────────────────────────── */}
+      <div className="md:hidden space-y-2.5">
+        {pages.map((page) => (
+          <div
+            key={page.id}
+            className={`rounded-xl border p-3.5 ${selected.has(page.id) ? 'border-[#1F4D3A]/30 bg-[#E8EFEB]/40' : 'border-[#E5E0D4] bg-white'}`}
+          >
+            <div className="flex items-start gap-2.5">
+              <input
+                type="checkbox"
+                aria-label={`Select ${page.title}`}
+                checked={selected.has(page.id)}
+                onChange={() => toggleOne(page.id)}
+                className="h-4 w-4 mt-1 rounded border-[#E5E0D4] accent-[#1F4D3A] cursor-pointer shrink-0"
+              />
+              <div className="flex-1 min-w-0">
+                <div className="font-medium text-[14px] text-[#0F1F18] truncate">{page.title}</div>
+                <div className="text-[12.5px] text-[#65736B] mt-0.5">/{page.slug}</div>
+              </div>
+              <StatusBadge status={page.status} />
+            </div>
+            <div className="mt-2.5 text-[12px] text-[#65736B]">{blockCounts[page.id] ?? 0} blocks</div>
+            <div className="flex items-center gap-2 flex-wrap mt-3">
               <Link
                 href={`/admin/content/${page.id}/edit`}
                 className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-[#1F4D3A] text-white text-[12px] hover:bg-[#163828] transition-colors"

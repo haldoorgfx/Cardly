@@ -206,7 +206,7 @@ export function ThemeEditorClient({ settings }: Props) {
           Upload two variants — one for light backgrounds (front page), one for dark backgrounds (sidebar). Use transparent PNG or SVG.
         </p>
 
-        <div className="flex gap-4">
+        <div className="flex flex-col sm:flex-row gap-4">
           <LogoUploadCard
             label="Colored logo"
             description="Shown on the front page and marketing nav (light cream background)."

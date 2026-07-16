@@ -203,49 +203,51 @@ export function ChangelogAdminClient({ initialEntries }: { initialEntries: Chang
           {entries.map(entry => (
             <div
               key={entry.id}
-              className="bg-white rounded-xl border p-4 flex items-start gap-4"
+              className="bg-white rounded-xl border p-4 flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4"
               style={{ borderColor: selected.has(entry.id) ? '#1F4D3A' : '#E5E0D4' }}
             >
-              {/* Select checkbox */}
-              <input
-                type="checkbox"
-                aria-label={`Select ${entry.title}`}
-                checked={selected.has(entry.id)}
-                onChange={() => toggleOne(entry.id)}
-                className="mt-1 h-4 w-4 rounded border-[#E5E0D4] accent-[#1F4D3A] cursor-pointer shrink-0"
-              />
+              <div className="flex items-start gap-3 min-w-0 flex-1">
+                {/* Select checkbox */}
+                <input
+                  type="checkbox"
+                  aria-label={`Select ${entry.title}`}
+                  checked={selected.has(entry.id)}
+                  onChange={() => toggleOne(entry.id)}
+                  className="mt-1 h-4 w-4 rounded border-[#E5E0D4] accent-[#1F4D3A] cursor-pointer shrink-0"
+                />
 
-              {/* Type badge */}
-              <span
-                className="mt-0.5 inline-flex items-center px-2 py-0.5 rounded-full  text-[11.5px] tracking-[0.14em] uppercase shrink-0"
-                style={TYPE_STYLES[entry.type]}
-              >
-                {entry.type}
-              </span>
+                {/* Type badge */}
+                <span
+                  className="mt-0.5 inline-flex items-center px-2 py-0.5 rounded-full  text-[11.5px] tracking-[0.14em] uppercase shrink-0"
+                  style={TYPE_STYLES[entry.type]}
+                >
+                  {entry.type}
+                </span>
 
-              {/* Content */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  {entry.version && (
-                    <span className=" text-[12.5px] font-bold text-[#0F1F18]">{entry.version}</span>
-                  )}
-                  <span className="font-display font-semibold text-[14px] text-[#0F1F18] leading-snug">
-                    {entry.title}
-                  </span>
-                </div>
-                <p className="mt-1 text-[12px] text-[#65736B] leading-relaxed line-clamp-2">
-                  {entry.description}
-                </p>
-                <div className="mt-1.5 flex items-center gap-3 text-[12.5px] text-[#65736B]/70">
-                  <span>{formatDate(entry.created_at)}</span>
-                  {entry.published && entry.published_at && (
-                    <span className="text-[#2D7A4F]">Published {formatDate(entry.published_at)}</span>
-                  )}
+                {/* Content */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {entry.version && (
+                      <span className=" text-[12.5px] font-bold text-[#0F1F18]">{entry.version}</span>
+                    )}
+                    <span className="font-display font-semibold text-[14px] text-[#0F1F18] leading-snug">
+                      {entry.title}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-[12px] text-[#65736B] leading-relaxed line-clamp-2">
+                    {entry.description}
+                  </p>
+                  <div className="mt-1.5 flex items-center gap-3 text-[12.5px] text-[#65736B]/70">
+                    <span>{formatDate(entry.created_at)}</span>
+                    {entry.published && entry.published_at && (
+                      <span className="text-[#2D7A4F]">Published {formatDate(entry.published_at)}</span>
+                    )}
+                  </div>
                 </div>
               </div>
 
               {/* Actions */}
-              <div className="flex items-center gap-1.5 shrink-0">
+              <div className="flex items-center gap-1.5 shrink-0 self-end sm:self-auto">
                 {/* Publish / unpublish */}
                 <button
                   onClick={() => togglePublish(entry)}

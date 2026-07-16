@@ -111,7 +111,7 @@ export default function EventDetailActions({ eventId, eventName, status }: Props
 
   if (renaming) {
     return (
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <input
           ref={inputRef}
           value={nameVal}
@@ -122,7 +122,7 @@ export default function EventDetailActions({ eventId, eventName, status }: Props
             if (e.key === 'Escape') { setRenaming(false); setNameVal(eventName); }
           }}
           aria-label="Event name"
-          className="font-display font-semibold text-[22px] text-[#FAF6EE] placeholder-[#FAF6EE]/50 bg-white/10 border border-white/30 rounded-xl px-3 py-1.5 outline-none focus:ring-2 focus:ring-white/30 min-w-[240px]"
+          className="font-display font-semibold text-[22px] text-[#FAF6EE] placeholder-[#FAF6EE]/50 bg-white/10 border border-white/30 rounded-xl px-3 py-1.5 outline-none focus:ring-2 focus:ring-white/30 w-full sm:w-auto sm:min-w-[240px]"
         />
         <button
           onClick={doRename}

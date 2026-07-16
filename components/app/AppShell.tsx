@@ -254,6 +254,11 @@ const USER_NAV_GROUPS: NavGroup[] = [
   ]},
 ];
 
+// The 'admin' group's own items, reused for the stark admin-mode sidebar
+// (see UserNavContent) — kept as a plain lookup so admin mode doesn't have to
+// re-derive it from USER_NAV_GROUPS every render.
+const ADMIN_NAV_ITEMS = USER_NAV_GROUPS.find(g => g.key === 'admin')!.items;
+
 
 // ─── Shared nav item ──────────────────────────────────────────────────────────
 
@@ -296,6 +301,11 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
   // access never disappears if the roles fetch is slow or errors.
   const isAdmin = sections.admin || profile?.role === 'admin' || profile?.role === 'super_admin';
   const isSuperAdmin = profile?.role === 'super_admin';
+  // Admin is a distinct MODE, not just another sidebar section: while inside
+  // /admin the sidebar shows only the admin nav (plus a way back), and the
+  // normal dashboard only ever shows a single "Enter Admin" entry point —
+  // never the full admin route list mixed in with Organizing/Attending.
+  const isAdminRoute = pathname.startsWith('/admin');
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
@@ -353,11 +363,42 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
         )}
       </div>
 
+      {isAdminRoute ? (
+        // ── Admin mode: a distinct panel, not just another sidebar section.
+        // Only the admin nav + a way back — Organizing/Attending/etc. are
+        // hidden while in this mode, matching the "separate admin panel"
+        // request rather than mixing 13 admin links into the normal sidebar.
+        <>
+          <div className="px-3 pt-3 shrink-0">
+            <Link href="/dashboard" onClick={onNavigate}
+              className="flex items-center gap-2 px-2.5 py-2 mb-2 rounded-lg text-[13.5px] font-medium transition-colors hover:bg-[#F5F3EE]"
+              style={{ color: '#3A4A42' }}>
+              <ArrowLeft size={14} strokeWidth={2} />
+              Back to dashboard
+            </Link>
+            <div className="flex items-center gap-1.5 px-2.5 mb-2 text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: '#C97A2D' }}>
+              <ShieldCheck size={12} strokeWidth={2.2} />
+              Admin mode
+            </div>
+          </div>
+          <nav className="flex-1 px-3 pb-3 overflow-y-auto">
+            <ul className="space-y-1">
+              {ADMIN_NAV_ITEMS.filter(leaf => !leaf.superAdminOnly || isSuperAdmin).map(leaf => {
+                const active = pathname === leaf.href || pathname.startsWith(leaf.href + '/');
+                return (
+                  <NavItem key={leaf.href + leaf.label} href={leaf.href} icon={leaf.icon}
+                    label={leaf.label} active={active} onNavigate={onNavigate} />
+                );
+              })}
+            </ul>
+          </nav>
+        </>
+      ) : (
+      <>
       {/* Nav — grouped, collapsible by intent */}
       <nav className="flex-1 px-3 py-3 overflow-y-auto space-y-3">
-        {USER_NAV_GROUPS.map(group => {
-          const groupVisible = group.flag === 'always'
-            || (group.flag === 'admin' ? isAdmin : sections[group.flag]);
+        {USER_NAV_GROUPS.filter(g => g.key !== 'admin').map(group => {
+          const groupVisible = group.flag === 'always' || sections[group.flag];
           if (!groupVisible) return null;
           const items = group.items.filter(leaf => {
             if (leaf.superAdminOnly && !isSuperAdmin) return false;
@@ -412,6 +453,20 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
         })}
       </nav>
 
+      {/* Single entry point into admin mode — never the full admin route
+          list mixed into the normal sidebar. */}
+      {isAdmin && (
+        <div className="px-3 pb-2 shrink-0">
+          <Link href="/admin/analytics" onClick={onNavigate}
+            className="flex items-center justify-center gap-2 w-full px-3 py-2.5 rounded-xl text-[13.5px] font-semibold transition-colors hover:bg-[#F6ECD4]"
+            style={{ background: '#FBF4E4', color: '#1F4D3A', border: '1px solid #E8C57E' }}>
+            <ShieldCheck size={15} strokeWidth={2.2} style={{ color: '#C97A2D' }} />
+            <span>Enter Admin</span>
+            <ArrowRight size={14} strokeWidth={2.2} />
+          </Link>
+        </div>
+      )}
+
       {/* Plan + events usage — one compact block */}
       <div className="px-3 pt-1 pb-2.5 shrink-0">
         {upgrade ? (
@@ -443,8 +498,10 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
             style={{ width: `${planPct}%`, background: planPct >= 90 ? '#C97A2D' : '#1F4D3A' }} />
         </div>
       </div>
+      </>
+      )}
 
-      {/* Settings + Sign out */}
+      {/* Settings + Sign out — shared by both modes */}
       <div className="px-3 py-1.5 shrink-0 border-t space-y-0.5" style={{ borderColor: '#E5E0D4' }}>
         <Link href="/settings" onClick={onNavigate}
           className={`w-full flex items-center gap-3 px-2.5 py-[6px] rounded-lg text-[14.5px] transition-colors ${
