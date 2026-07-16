@@ -5,6 +5,7 @@ import '../attendee/hub/session_detail_screen.dart';
 import '../net.dart';
 import '../roles/role_widgets.dart';
 import '../roles/speaker/speaker_tools_screen.dart';
+import '../tz.dart';
 import '../ui/components.dart';
 import '../ui/tokens.dart';
 import 'speaker_profile_edit_screen.dart';
@@ -52,7 +53,7 @@ class _SpeakingScreenState extends State<SpeakingScreen> {
         final eventRows = await supa
             .from('events')
             .select(
-                'id, name, slug, status, event_pages(cover_image_url, starts_at, venue_name, city, country, is_online)')
+                'id, name, slug, status, event_pages(cover_image_url, starts_at, venue_name, city, country, is_online, timezone)')
             .inFilter('id', ids);
         final byId = <String, _SpeakingEvent>{};
         for (final r in (eventRows as List).whereType<Map>()) {
@@ -256,6 +257,7 @@ class _SpeakingEvent {
   final DateTime? startsAt;
   final String location;
   final String coverUrl;
+  final String? timezone;
   final List<_SpeakerSession> sessions = [];
   // The account's speaker row id at this event, resolved by email in
   // _attachSessions. Empty until resolved (or if no match). Used to target the
@@ -268,6 +270,7 @@ class _SpeakingEvent {
     required this.startsAt,
     required this.location,
     required this.coverUrl,
+    required this.timezone,
   });
 
   factory _SpeakingEvent.fromRow(Map<String, dynamic> r) {
@@ -295,6 +298,7 @@ class _SpeakingEvent {
       startsAt: asDate(page['starts_at']),
       location: location(),
       coverUrl: asString(page['cover_image_url']).trim(),
+      timezone: asString(page['timezone']).trim(),
     );
   }
 }
@@ -341,7 +345,8 @@ class _EventBlock extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final sub = [
-      if (event.startsAt != null) _fmtDate(event.startsAt!),
+      if (event.startsAt != null)
+        _fmtDate(toEventZone(event.startsAt, event.timezone)!),
       if (event.location.isNotEmpty) event.location,
     ].join(' · ');
     final count = event.sessions.length;
@@ -422,7 +427,10 @@ class _EventBlock extends StatelessWidget {
           )
         else
           for (final s in event.sessions) ...[
-            _SessionRow(session: s, onTap: () => onOpenSession(s)),
+            _SessionRow(
+                session: s,
+                timezone: event.timezone,
+                onTap: () => onOpenSession(s)),
             const SizedBox(height: 8),
           ],
         // ── Speaker tools + profile ───────────────────────────────────────
@@ -444,25 +452,30 @@ class _EventBlock extends StatelessWidget {
     );
   }
 
+  // Reads the fields straight off [d] — caller must pass an already
+  // event-zone-converted DateTime (see toEventZone in lib/tz.dart).
   static String _fmtDate(DateTime d) {
     const months = [
       'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
       'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
     ];
-    final l = d.toLocal();
-    return '${months[l.month - 1]} ${l.day}, ${l.year}';
+    return '${months[d.month - 1]} ${d.day}, ${d.year}';
   }
 }
 
 /// A single session the speaker is on — time + title + room, tappable.
 class _SessionRow extends StatelessWidget {
   final _SpeakerSession session;
+  final String? timezone;
   final VoidCallback onTap;
-  const _SessionRow({required this.session, required this.onTap});
+  const _SessionRow(
+      {required this.session, required this.timezone, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    final time = _fmtTimeRange(session.startsAt, session.endsAt);
+    final time = _fmtTimeRange(
+        toEventZone(session.startsAt, timezone),
+        toEventZone(session.endsAt, timezone));
     final meta = [
       if (time.isNotEmpty) time,
       if (session.room.isNotEmpty) session.room,
@@ -508,10 +521,10 @@ class _SessionRow extends StatelessWidget {
     );
   }
 
+  // start/end must already be event-zone-converted (see toEventZone).
   static String _fmtTimeRange(DateTime? start, DateTime? end) {
     if (start == null) return '';
-    String t(DateTime dt) {
-      final d = dt.toLocal();
+    String t(DateTime d) {
       final ampm = d.hour < 12 ? 'AM' : 'PM';
       var h = d.hour % 12;
       if (h == 0) h = 12;

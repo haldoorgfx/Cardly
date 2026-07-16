@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../net.dart';
+import '../../tz.dart';
 import '../../ui/components.dart';
 import '../../ui/tokens.dart';
 import '_shared.dart';
@@ -99,6 +100,7 @@ class _AgendaScreenState extends State<AgendaScreen> {
   final Set<String> _busy = {}; // session ids with in-flight action
   int _dayIndex = 0;
   String? _rid;
+  String? _timezone;
 
   @override
   void initState() {
@@ -119,6 +121,18 @@ class _AgendaScreenState extends State<AgendaScreen> {
       _error = null;
     });
     try {
+      // Sessions run in the event's venue timezone, not the viewer's device
+      // timezone. Best-effort — never blocks the agenda from loading.
+      try {
+        final page = await supa
+            .from('event_pages')
+            .select('timezone')
+            .eq('event_id', widget.eventId)
+            .maybeSingle();
+        _timezone = page == null ? null : asString(page['timezone']).trim();
+      } catch (_) {
+        _timezone = null;
+      }
       final rows = await supa
           .from('sessions')
           .select(
@@ -229,7 +243,9 @@ class _AgendaScreenState extends State<AgendaScreen> {
   List<String> get _days {
     final seen = <String>[];
     for (final s in _sessions) {
-      final key = s.startsAt == null ? 'TBA' : fmtDayLabel(s.startsAt!);
+      final key = s.startsAt == null
+          ? 'TBA'
+          : fmtDayLabel(toEventZone(s.startsAt, _timezone)!);
       if (!seen.contains(key)) seen.add(key);
     }
     return seen;
@@ -241,7 +257,9 @@ class _AgendaScreenState extends State<AgendaScreen> {
         ? null
         : days[_dayIndex];
     return _sessions.where((s) {
-      final key = s.startsAt == null ? 'TBA' : fmtDayLabel(s.startsAt!);
+      final key = s.startsAt == null
+          ? 'TBA'
+          : fmtDayLabel(toEventZone(s.startsAt, _timezone)!);
       final dayMatch = day == null || key == day;
       final agendaMatch = !_myOnly || _myAgenda.contains(s.id);
       return dayMatch && agendaMatch;
@@ -304,7 +322,9 @@ class _AgendaScreenState extends State<AgendaScreen> {
         ? null
         : days[_dayIndex];
     return _sessions.where((s) {
-      final key = s.startsAt == null ? 'TBA' : fmtDayLabel(s.startsAt!);
+      final key = s.startsAt == null
+          ? 'TBA'
+          : fmtDayLabel(toEventZone(s.startsAt, _timezone)!);
       return day == null || key == day;
     }).length;
   }
@@ -370,7 +390,9 @@ class _AgendaScreenState extends State<AgendaScreen> {
         children: [
           Padding(
             padding: const EdgeInsets.only(bottom: AppSpace.sm),
-            child: Text(fmtTimeRange(s.startsAt, s.endsAt),
+            child: Text(
+                fmtTimeRange(toEventZone(s.startsAt, _timezone),
+                    toEventZone(s.endsAt, _timezone)),
                 style: AppText.numSm.copyWith(color: AppColors.inkMuted)),
           ),
           Container(

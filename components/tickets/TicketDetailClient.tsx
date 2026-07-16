@@ -24,6 +24,7 @@ type EventPage = {
   country: string | null;
   is_online: boolean;
   features: Record<string, boolean> | null;
+  timezone?: string | null;
 };
 
 type Registration = {
@@ -73,13 +74,14 @@ const FOREST_SOFT = '#E8EFEB';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function fmtWhen(iso: string | null | undefined): string {
+function fmtWhen(iso: string | null | undefined, tz?: string | null): string {
   if (!iso) return 'Date TBA';
   const d = new Date(iso);
-  const weekday = d.toLocaleDateString(undefined, { weekday: 'short' });
-  const day = d.getDate();
-  const month = d.toLocaleDateString(undefined, { month: 'short' });
-  const time = d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+  const timeZone = tz || undefined;
+  const weekday = d.toLocaleDateString(undefined, { weekday: 'short', timeZone });
+  const day = d.toLocaleDateString(undefined, { day: 'numeric', timeZone });
+  const month = d.toLocaleDateString(undefined, { month: 'short', timeZone });
+  const time = d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', timeZone });
   return `${weekday} ${day} ${month} · ${time}`;
 }
 
@@ -447,7 +449,7 @@ export default function TicketDetailClient({ reg, scannedByName, variant }: Prop
             </div>
             <div>
               <div className="text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: MUTED }}>When</div>
-              <div className="font-display font-medium text-[14px] mt-1" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: INK }}>{fmtWhen(ep?.starts_at)}</div>
+              <div className="font-display font-medium text-[14px] mt-1" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: INK }}>{fmtWhen(ep?.starts_at, ep?.timezone)}</div>
             </div>
             {isPendingPayment ? (
               <div>

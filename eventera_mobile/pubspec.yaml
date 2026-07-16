@@ -84,6 +84,13 @@ dependencies:
   firebase_messaging: ^16.4.1
   add_2_calendar: ^3.1.1
 
+  # IANA timezone conversion for event/agenda/ticket times — events store an
+  # absolute UTC instant + an organizer-picked zone (e.g. Africa/Djibouti,
+  # Europe/London); Dart's core DateTime has no IANA database, so without this
+  # every non-UTC event showed the raw UTC clock digits instead of the venue's
+  # actual local time.
+  timezone: ^0.10.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

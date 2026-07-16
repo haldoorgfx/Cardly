@@ -26,7 +26,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
       id, attendee_name, attendee_email, status, payment_status, amount_paid, currency,
       qr_code_token, checked_in_at, checked_in_by, eventera_card_url, created_at,
       ticket_types(name, price, currency),
-      events(id, name, slug, event_pages(id, title, cover_image_url, starts_at, ends_at, venue_name, venue_address, city, country, is_online, features, variant_id))
+      events(id, name, slug, event_pages(id, title, cover_image_url, starts_at, ends_at, venue_name, venue_address, city, country, is_online, features, variant_id, timezone))
     `)
     .eq('id', id)
     .or(registrationOwnershipFilter(user.id, user.email))

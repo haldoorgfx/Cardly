@@ -4,6 +4,7 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../net.dart';
 import '../../screens/open_event_screen.dart';
+import '../../tz.dart';
 import '../../ui/components.dart';
 import '../../ui/tokens.dart';
 import '../auth/attendee_auth_screen.dart';
@@ -784,10 +785,11 @@ class _EventHubScreenState extends State<EventHubScreen> {
   List<Widget> _overviewWidgets(EventPageModel page) {
     final w = <Widget>[];
 
-    // Date row (with timezone)
+    // Date row (with timezone) — converted from the stored UTC instant into
+    // the event's own zone, so it reads as the venue's actual local time.
     w.add(_InfoRow(
       icon: Icons.calendar_today_outlined,
-      title: HubDates.longDate(page.startsAt),
+      title: HubDates.longDate(toEventZone(page.startsAt, page.timezone)),
       subtitle: _timeLine(page),
     ));
     w.add(const SizedBox(height: 12));
@@ -855,6 +857,7 @@ class _EventHubScreenState extends State<EventHubScreen> {
       w.add(const SizedBox(height: 10));
       w.add(_SchedulePreview(
         sessions: _sessions.take(3).toList(),
+        timezone: page.timezone,
         onTap: (s) => _openSession(s.id, page.eventId),
       ));
     }
@@ -971,8 +974,8 @@ class _EventHubScreenState extends State<EventHubScreen> {
   String? _timeLine(EventPageModel page) {
     final tz = (page.timezone ?? '').trim();
     // Prefer just the time portion + timezone if we can split it.
-    final start = HubDates.time(page.startsAt);
-    final end = HubDates.time(page.endsAt);
+    final start = HubDates.time(toEventZone(page.startsAt, tz));
+    final end = HubDates.time(toEventZone(page.endsAt, tz));
     String base;
     if (start.isEmpty) {
       base = '';
@@ -1006,6 +1009,7 @@ class _EventHubScreenState extends State<EventHubScreen> {
       final s = _sessions[i];
       w.add(_ScheduleCard(
         session: s,
+        timezone: page.timezone,
         accentGold: i.isEven,
         onTap: () => _openSession(s.id, page.eventId),
       ));
@@ -1494,8 +1498,10 @@ class _SectionHeader extends StatelessWidget {
 
 class _SchedulePreview extends StatelessWidget {
   final List<SessionSummary> sessions;
+  final String? timezone;
   final void Function(SessionSummary) onTap;
-  const _SchedulePreview({required this.sessions, required this.onTap});
+  const _SchedulePreview(
+      {required this.sessions, required this.timezone, required this.onTap});
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -1523,7 +1529,8 @@ class _SchedulePreview extends StatelessWidget {
                     SizedBox(
                       width: 44,
                       child: Text(
-                        HubDates.time(sessions[i].startsAt),
+                        HubDates.time(
+                            toEventZone(sessions[i].startsAt, timezone)),
                         style: AppText.numSm.copyWith(
                             color: AppColors.inkMuted, fontSize: 12),
                       ),
@@ -1569,13 +1576,17 @@ class _SchedulePreview extends StatelessWidget {
 
 class _ScheduleCard extends StatelessWidget {
   final SessionSummary session;
+  final String? timezone;
   final bool accentGold;
   final VoidCallback onTap;
   const _ScheduleCard(
-      {required this.session, required this.accentGold, required this.onTap});
+      {required this.session,
+      required this.timezone,
+      required this.accentGold,
+      required this.onTap});
   @override
   Widget build(BuildContext context) {
-    final when = HubDates.time(session.startsAt);
+    final when = HubDates.time(toEventZone(session.startsAt, timezone));
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(AppRadius.card),

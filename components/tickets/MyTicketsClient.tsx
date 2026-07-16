@@ -31,6 +31,7 @@ type Registration = {
       city: string | null;
       is_online: boolean;
       features: Record<string, boolean> | null;
+      timezone?: string | null;
     }>;
   } | null;
 };
@@ -137,9 +138,10 @@ function statusTag(reg: Registration, isPast: boolean): StatusTag {
 
 function TicketStub({ reg, isPast, onShowQR }: { reg: Registration; isPast: boolean; onShowQR: () => void }) {
   const ep = reg.events?.event_pages?.[0];
+  const tz = ep?.timezone || undefined;
   const start = ep?.starts_at ? new Date(ep.starts_at) : null;
-  const monthStr = start ? start.toLocaleDateString(undefined, { month: 'short' }).toUpperCase() : null;
-  const dayStr = start ? start.getDate() : null;
+  const monthStr = start ? start.toLocaleDateString(undefined, { month: 'short', timeZone: tz }).toUpperCase() : null;
+  const dayStr = start ? start.toLocaleDateString(undefined, { day: 'numeric', timeZone: tz }) : null;
   const ticketName = reg.ticket_types?.name ?? 'General Admission';
   const tag = statusTag(reg, isPast);
   const locked = isPendingPayment(reg);
@@ -236,7 +238,7 @@ function TicketStub({ reg, isPast, onShowQR }: { reg: Registration; isPast: bool
 
 // ── Next-up hub ─────────────────────────────────────────────────────────────
 
-function countdownLabel(iso: string | null | undefined): string | null {
+function countdownLabel(iso: string | null | undefined, tz?: string | null): string | null {
   if (!iso) return null;
   const diff = new Date(iso).getTime() - Date.now();
   if (diff < -12 * 3600_000) return null;               // well past — no countdown
@@ -245,14 +247,14 @@ function countdownLabel(iso: string | null | undefined): string | null {
   if (days <= 0) return 'Today';
   if (days === 1) return 'Tomorrow';
   if (days <= 30) return `In ${days} days`;
-  return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric', timeZone: tz || undefined });
 }
 
 function NextUpHub({ reg, onShowQR }: { reg: Registration; onShowQR: () => void }) {
   const ep = reg.events?.event_pages?.[0];
   const slug = reg.events?.slug ?? '';
   const title = reg.events?.name ?? ep?.title ?? 'Event';
-  const cd = countdownLabel(ep?.starts_at);
+  const cd = countdownLabel(ep?.starts_at, ep?.timezone);
   const venue = ep?.is_online ? 'Online event' : [ep?.venue_name, ep?.city].filter(Boolean).join(' · ') || null;
   const features = ep?.features ?? {};
   const locked = isPendingPayment(reg);

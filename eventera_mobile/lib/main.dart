@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:timezone/data/latest_all.dart' as tz_data;
 
 import 'deep_link_handler.dart';
 import 'push_service.dart';
@@ -13,6 +14,10 @@ final GlobalKey<NavigatorState> appNavigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // IANA timezone database — event times are converted from their stored UTC
+  // instant into the event's own zone (e.g. Africa/Djibouti) via lib/tz.dart.
+  tz_data.initializeTimeZones();
 
   // Firebase — needed for FCM push. On Android it auto-reads
   // android/app/google-services.json. Guarded so a missing/half config (e.g.

@@ -42,15 +42,18 @@ const _weekdays = [
   'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun',
 ];
 
-/// "Mon, Jun 12" — local time.
+/// "Mon, Jun 12" — reads the fields straight off [dt], so the caller must
+/// pass an already event-zone-converted DateTime (see `toEventZone` in
+/// `lib/tz.dart`) rather than a raw UTC instant. Sessions run in the venue's
+/// own timezone, not the viewer's device timezone.
 String fmtDayLabel(DateTime dt) {
-  final d = dt.toLocal();
-  return '${_weekdays[d.weekday - 1]}, ${_months[d.month - 1]} ${d.day}';
+  return '${_weekdays[dt.weekday - 1]}, ${_months[dt.month - 1]} ${dt.day}';
 }
 
-/// "9:05 AM" — local time.
+/// "9:05 AM" — same contract as [fmtDayLabel]: pass an event-zone-converted
+/// DateTime, not a raw UTC instant.
 String fmtTime(DateTime dt) {
-  final d = dt.toLocal();
+  final d = dt;
   final h24 = d.hour;
   final ampm = h24 < 12 ? 'AM' : 'PM';
   var h = h24 % 12;

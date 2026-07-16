@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../net.dart';
+import '../../tz.dart';
 import '../../ui/components.dart';
 import '../../ui/tokens.dart';
 import '../engage/qa_screen.dart';
@@ -40,6 +41,7 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
   bool _saved = false;
   bool _savingBusy = false;
   String? _streamUrl;
+  String? _timezone;
 
   @override
   void initState() {
@@ -132,6 +134,18 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
         }
       }
       final stream = asString(map['stream_url']).trim();
+      // Sessions have no zone of their own — they run in the event's venue
+      // timezone. Best-effort: never blocks the session itself from showing.
+      try {
+        final page = await supa
+            .from('event_pages')
+            .select('timezone')
+            .eq('event_id', widget.eventId)
+            .maybeSingle();
+        _timezone = page == null ? null : asString(page['timezone']).trim();
+      } catch (_) {
+        _timezone = null;
+      }
       setState(() {
         _session = map;
         _streamUrl = stream.isEmpty ? null : stream;
@@ -230,8 +244,8 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
     final title = asString(s['title'], 'Untitled session');
     final desc = asString(s['description']).trim();
     final room = asString(s['room']).trim();
-    final start = asDate(s['starts_at']);
-    final end = asDate(s['ends_at']);
+    final start = toEventZone(asDate(s['starts_at']), _timezone);
+    final end = toEventZone(asDate(s['ends_at']), _timezone);
     final tracks = s['tracks'];
     String? trackName;
     if (tracks is Map) {

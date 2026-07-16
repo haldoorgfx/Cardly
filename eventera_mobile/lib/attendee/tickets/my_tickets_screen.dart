@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../net.dart';
+import '../../tz.dart';
 import '../../ui/components.dart';
 import '../../ui/tokens.dart';
 import '../app_shell.dart';
@@ -26,6 +27,7 @@ class _Ticket {
   final String eventName;
   final String? eventSlug;
   final DateTime? startsAt;
+  final String? timezone;
   final String? venue;
   final String? coverUrl;
   final double? amount;
@@ -40,6 +42,7 @@ class _Ticket {
     required this.eventName,
     required this.eventSlug,
     required this.startsAt,
+    required this.timezone,
     required this.venue,
     required this.coverUrl,
     required this.amount,
@@ -96,7 +99,7 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
             id, attendee_name, attendee_email, status, qr_code_token, created_at,
             amount_paid, currency,
             ticket_types(name, price),
-            events(id, name, slug, event_pages(title, cover_image_url, starts_at, ends_at, venue_name, city, is_online))
+            events(id, name, slug, event_pages(title, cover_image_url, starts_at, ends_at, venue_name, city, is_online, timezone))
           ''')
           .or(orFilter)
           // Show every ticket the user owns except clearly-dead ones, instead of
@@ -157,6 +160,7 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
       eventName: ev == null ? 'Event' : asString(ev['name'], 'Event'),
       eventSlug: ev == null ? null : asString(ev['slug']),
       startsAt: page == null ? null : asDate(page['starts_at']),
+      timezone: page == null ? null : asString(page['timezone']).trim(),
       venue: venue,
       coverUrl: page?['cover_image_url'] == null
           ? null
@@ -260,7 +264,9 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
 
   Widget _stub(_Ticket t) {
     final past = _seg == 1;
-    final when = t.startsAt != null ? _formatDate(t.startsAt!) : 'Date TBA';
+    final when = t.startsAt != null
+        ? _formatDate(toEventZone(t.startsAt, t.timezone)!)
+        : 'Date TBA';
     return WalletTicketStub(
       title: t.eventName,
       coverUrl: t.coverUrl,
@@ -291,15 +297,15 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
     );
   }
 
+  // d must already be event-zone-converted (see toEventZone in lib/tz.dart).
   static String _formatDate(DateTime d) {
     const months = [
       'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
       'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
     ];
-    final l = d.toLocal();
-    final h = l.hour % 12 == 0 ? 12 : l.hour % 12;
-    final m = l.minute.toString().padLeft(2, '0');
-    final ap = l.hour < 12 ? 'AM' : 'PM';
-    return '${months[l.month - 1]} ${l.day}, ${l.year} · $h:$m $ap';
+    final h = d.hour % 12 == 0 ? 12 : d.hour % 12;
+    final m = d.minute.toString().padLeft(2, '0');
+    final ap = d.hour < 12 ? 'AM' : 'PM';
+    return '${months[d.month - 1]} ${d.day}, ${d.year} · $h:$m $ap';
   }
 }
