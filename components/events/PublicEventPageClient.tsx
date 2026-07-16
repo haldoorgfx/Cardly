@@ -308,7 +308,7 @@ function TicketList({
 
 /* ─── ERA Q&A widget ────────────────────────────────────────────── */
 
-function ERAQandA({ page, dateStr }: { page: EventPageRow; dateStr: string }) {
+function ERAQandA({ page }: { page: EventPageRow }) {
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState('');
   const [loading, setLoading] = useState(false);
@@ -327,13 +327,6 @@ function ERAQandA({ page, dateStr }: { page: EventPageRow; dateStr: string }) {
         body: JSON.stringify({
           question: q,
           eventId: page.event_id,
-          event: {
-            name: page.title,
-            description: page.description ?? '',
-            date: dateStr,
-            venue: page.is_online ? 'Online' : (page.venue_name ?? page.venue_address ?? 'TBD'),
-            agenda: undefined,
-          },
         }),
       });
       const data = await res.json() as { result?: string; error?: string };
@@ -955,7 +948,7 @@ export function PublicEventPageClient({
               )}
 
               {/* ERA Q&A */}
-              <ERAQandA page={page} dateStr={dateStr} />
+              <ERAQandA page={page} />
 
               {/* Mobile ticket panel */}
               <div className="lg:hidden mt-9">

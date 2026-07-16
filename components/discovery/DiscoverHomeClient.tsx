@@ -346,6 +346,20 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents, ban
     }
   }
 
+  // The on-page list is a fixed batch of the 48 soonest-starting events,
+  // filtered client-side — a real text search can easily miss a match that
+  // exists beyond that window with no indication why. Route an actual text
+  // search to the server-side /events/search instead of just scrolling to
+  // the capped local list; keep the scroll behavior for filter-only browsing
+  // (city/date/category/format with no typed query), where the local list is fine.
+  function runSearch() {
+    if (query.trim()) {
+      goToMap();
+    } else {
+      scrollToResults();
+    }
+  }
+
   function goToMap() {
     const p = new URLSearchParams();
     if (query) p.set('q', query);
@@ -397,7 +411,7 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents, ban
             <div className="flex items-center gap-3 px-4" style={{ height: 56, borderBottom: '1px solid #E5E0D4' }}>
               <Search size={20} style={{ color: '#65736B', flexShrink: 0 }} />
               <input value={query} onChange={e => setQuery(e.target.value)}
-                onKeyDown={e => { if (e.key === 'Enter') scrollToResults(); }}
+                onKeyDown={e => { if (e.key === 'Enter') runSearch(); }}
                 placeholder="Search events, topics, organizers or venues"
                 aria-label="Search events, topics, organizers or venues"
                 className="flex-1 bg-transparent text-[16px] outline-none" style={{ color: '#0F1F18' }} />
@@ -428,7 +442,7 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents, ban
                 options={FORMAT_OPTIONS.map(f => ({ value: f.value, label: f.label }))}
               />
               {/* Search button */}
-              <button onClick={scrollToResults}
+              <button onClick={runSearch}
                 className="col-span-2 lg:col-span-1 h-[46px] px-6 rounded-xl font-semibold text-[14px] flex items-center justify-center gap-2 transition hover:opacity-90"
                 style={{ background: '#1F4D3A', color: '#FFFFFF', boxShadow: '0 4px 12px rgba(31,77,58,0.25)' }}>
                 Find events <ArrowRight size={16} />
