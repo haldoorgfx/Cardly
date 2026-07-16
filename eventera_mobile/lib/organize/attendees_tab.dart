@@ -149,12 +149,49 @@ class _OrganizerAttendeesTabState extends State<OrganizerAttendeesTab> {
 
   int get _checkedCount => _attendees.where((a) => a.checkedIn).length;
 
-  // Walk-in / at-the-door registration — direct Supabase insert (status
-  // confirmed), then refresh the list so the new person is checkable.
-  Future<void> _openWalkIn() async {
+  // Entry point for the AppBar's add icon — a small choice between adding
+  // one walk-in or a whole group at once, instead of crowding the toolbar
+  // with a second icon.
+  Future<void> _openAddMenu() async {
     final id = _selectedId;
     if (id == null) return;
     HapticFeedback.selectionClick();
+    final choice = await showMSheet<String>(
+      context,
+      Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text('Add attendees', style: AppText.h3),
+          const SizedBox(height: 6),
+          Text('Register one person at the door, or confirm a whole group at once.',
+              style: AppText.bodySm),
+          const SizedBox(height: 16),
+          MButton('Add a walk-in',
+              icon: Icons.person_add_alt_1,
+              onTap: () => Navigator.of(context).pop('walk_in')),
+          const SizedBox(height: 10),
+          MButton('Add a group',
+              kind: MBtnKind.sec,
+              icon: Icons.groups_outlined,
+              onTap: () => Navigator.of(context).pop('group')),
+          const SizedBox(height: 4),
+          MButton('Cancel',
+              kind: MBtnKind.text, onTap: () => Navigator.of(context).pop()),
+        ],
+      ),
+    );
+    if (!mounted || choice == null) return;
+    if (choice == 'walk_in') {
+      await _openWalkIn(id);
+    } else if (choice == 'group') {
+      await _openGroupAdd(id);
+    }
+  }
+
+  // Walk-in / at-the-door registration — direct Supabase insert (status
+  // confirmed), then refresh the list so the new person is checkable.
+  Future<void> _openWalkIn(String id) async {
     final res = await showMSheet<WalkInResult>(
       context,
       _WalkInSheet(eventId: id, org: _org),
@@ -167,6 +204,19 @@ class _OrganizerAttendeesTabState extends State<OrganizerAttendeesTab> {
     } else {
       showToast(context, '${res.name} is already on the list.');
     }
+    await _loadList(id);
+  }
+
+  // Group/bulk registration — mirrors web's group-register tool for
+  // confirming a whole company/party at once (payment already collected
+  // out-of-band; this just creates the confirmed registrations).
+  Future<void> _openGroupAdd(String id) async {
+    final count = await showMSheet<int>(
+      context,
+      _GroupAddSheet(eventId: id, org: _org),
+    );
+    if (count == null || !mounted) return;
+    showToast(context, '$count ${count == 1 ? 'seat' : 'seats'} registered ✓');
     await _loadList(id);
   }
 
@@ -272,7 +322,7 @@ class _OrganizerAttendeesTabState extends State<OrganizerAttendeesTab> {
         actions: [
           if (canWalkIn)
             AppBarAction(Icons.person_add_alt_1,
-                color: AppColors.forest, onTap: _openWalkIn),
+                color: AppColors.forest, onTap: _openAddMenu),
         ],
       ),
       body: _body(),
@@ -830,6 +880,274 @@ class _WalkInSheetState extends State<_WalkInSheet> {
             kind: MBtnKind.text,
             onTap: _busy ? null : () => Navigator.of(context).pop()),
       ],
+    );
+  }
+}
+
+/// Group/bulk registration sheet — confirm a whole company/party at once.
+/// Mirrors web's GroupRegistrationClient, simplified to one ticket type per
+/// batch (run it again for a second ticket type) since this is an organizer
+/// admin tool, not the full public checkout web offers.
+class _GroupAddSheet extends StatefulWidget {
+  final String eventId;
+  final OrganizerApi org;
+  const _GroupAddSheet({required this.eventId, required this.org});
+
+  @override
+  State<_GroupAddSheet> createState() => _GroupAddSheetState();
+}
+
+class _SeatFields {
+  final name = TextEditingController();
+  final email = TextEditingController();
+  void dispose() {
+    name.dispose();
+    email.dispose();
+  }
+}
+
+class _GroupAddSheetState extends State<_GroupAddSheet> {
+  bool _loadingTypes = true;
+  List<Map<String, dynamic>> _ticketTypes = [];
+  String? _ticketTypeId;
+  final List<_SeatFields> _seats = [];
+  bool _busy = false;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTicketTypes();
+  }
+
+  @override
+  void dispose() {
+    for (final s in _seats) {
+      s.dispose();
+    }
+    super.dispose();
+  }
+
+  Future<void> _loadTicketTypes() async {
+    try {
+      final rows = await supa
+          .from('ticket_types')
+          .select('id, name, price, currency')
+          .eq('event_id', widget.eventId)
+          .order('position');
+      final types = asMapList(rows);
+      if (!mounted) return;
+      setState(() {
+        _ticketTypes = types;
+        _ticketTypeId = types.isNotEmpty ? asString(types.first['id']) : null;
+        _loadingTypes = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _error = 'Could not load ticket types.';
+        _loadingTypes = false;
+      });
+    }
+  }
+
+  void _setSeatCount(int next) {
+    setState(() {
+      while (_seats.length < next) {
+        _seats.add(_SeatFields());
+      }
+      while (_seats.length > next) {
+        _seats.removeLast().dispose();
+      }
+    });
+  }
+
+  bool _validEmail(String e) => e.contains('@') && e.contains('.') && e.length >= 5;
+
+  Future<void> _submit() async {
+    FocusScope.of(context).unfocus();
+    final ticketTypeId = _ticketTypeId;
+    if (ticketTypeId == null) {
+      setState(() => _error = 'This event has no ticket types to register against.');
+      return;
+    }
+    if (_seats.isEmpty) {
+      setState(() => _error = 'Add at least one seat.');
+      return;
+    }
+    final seats = <GroupSeat>[];
+    for (var i = 0; i < _seats.length; i++) {
+      final name = _seats[i].name.text.trim();
+      final email = _seats[i].email.text.trim();
+      if (name.isEmpty || !_validEmail(email)) {
+        setState(() => _error = 'Seat ${i + 1} needs a name and a valid email.');
+        return;
+      }
+      seats.add(GroupSeat(ticketTypeId: ticketTypeId, name: name, email: email));
+    }
+
+    HapticFeedback.lightImpact();
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    try {
+      final count = await widget.org.addGroup(widget.eventId, seats: seats);
+      if (mounted) Navigator.of(context).pop(count);
+    } on GroupRegisterBlockedException catch (e) {
+      if (mounted) setState(() { _busy = false; _error = e.message; });
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _busy = false;
+          _error = "That didn't go through. Check your connection and try again.";
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text('Add a group', style: AppText.h3),
+        const SizedBox(height: 6),
+        Text(
+          'Confirm a company or party at once — each seat gets its own QR '
+          'ticket by email. Payment is assumed already collected.',
+          style: AppText.bodySm,
+        ),
+        const SizedBox(height: 16),
+        if (_loadingTypes)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 24),
+            child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+          )
+        else if (_ticketTypes.isEmpty)
+          Text('This event has no ticket types yet.',
+              style: AppText.bodySm.copyWith(color: AppColors.danger))
+        else ...[
+          Text('Ticket type', style: AppText.bodyStrong.copyWith(fontSize: 13)),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: _ticketTypes.map((t) {
+              final id = asString(t['id']);
+              return MChip(asString(t['name'], 'Ticket'),
+                  selected: _ticketTypeId == id,
+                  onTap: () => setState(() => _ticketTypeId = id));
+            }).toList(),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Text('Seats', style: AppText.bodyStrong.copyWith(fontSize: 13)),
+              const Spacer(),
+              _StepperButton(
+                icon: Icons.remove,
+                onTap: _seats.isEmpty ? null : () => _setSeatCount(_seats.length - 1),
+              ),
+              SizedBox(
+                width: 32,
+                child: Text('${_seats.length}',
+                    textAlign: TextAlign.center, style: AppText.h3.copyWith(fontSize: 16)),
+              ),
+              _StepperButton(
+                icon: Icons.add,
+                onTap: _seats.length >= 50 ? null : () => _setSeatCount(_seats.length + 1),
+              ),
+            ],
+          ),
+          if (_seats.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            ConstrainedBox(
+              constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.35),
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    for (var i = 0; i < _seats.length; i++) ...[
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            width: 20,
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 14),
+                              child: Text('${i + 1}',
+                                  style: AppText.caption.copyWith(color: AppColors.inkMuted)),
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Column(
+                              children: [
+                                MInput(hint: 'Full name', controller: _seats[i].name),
+                                const SizedBox(height: 8),
+                                MInput(
+                                  hint: 'Email address',
+                                  controller: _seats[i].email,
+                                  keyboardType: TextInputType.emailAddress,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (i != _seats.length - 1) const SizedBox(height: 12),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ],
+        if (_error != null) ...[
+          const SizedBox(height: 12),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(Icons.error_outline, color: AppColors.danger, size: 18),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(_error!, style: AppText.bodySm.copyWith(color: AppColors.danger)),
+              ),
+            ],
+          ),
+        ],
+        const SizedBox(height: 18),
+        MButton('Register ${_seats.length} seat${_seats.length == 1 ? '' : 's'}',
+            icon: Icons.groups_outlined,
+            loading: _busy,
+            onTap: (_busy || _seats.isEmpty) ? null : _submit),
+        const SizedBox(height: 4),
+        MButton('Cancel',
+            kind: MBtnKind.text, onTap: _busy ? null : () => Navigator.of(context).pop()),
+      ],
+    );
+  }
+}
+
+class _StepperButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback? onTap;
+  const _StepperButton({required this.icon, this.onTap});
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 32,
+        height: 32,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: onTap == null ? AppColors.creamSoft : AppColors.forestSoft,
+          shape: BoxShape.circle,
+        ),
+        child: Icon(icon, size: 16, color: onTap == null ? AppColors.inkMuted : AppColors.forest),
+      ),
     );
   }
 }

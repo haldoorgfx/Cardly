@@ -14,6 +14,27 @@ class WalkInBlockedException implements Exception {
   const WalkInBlockedException(this.message);
 }
 
+/// Thrown by [OrganizerApi.addGroup] for a user-facing reason the batch
+/// couldn't be added (event ended, at capacity, plan limit, bad input).
+class GroupRegisterBlockedException implements Exception {
+  final String message;
+  const GroupRegisterBlockedException(this.message);
+}
+
+/// One seat in a group/bulk registration.
+class GroupSeat {
+  final String ticketTypeId;
+  final String name;
+  final String email;
+  final String? whatsapp;
+  const GroupSeat({
+    required this.ticketTypeId,
+    required this.name,
+    required this.email,
+    this.whatsapp,
+  });
+}
+
 /// Direct-Supabase writes for the Organize shell that the shared
 /// [EventeraApi] doesn't cover. Mobile talks to Supabase under RLS
 /// (owner / own-row / public-insert policies) — never the cookie-authed
@@ -155,6 +176,98 @@ class OrganizerApi {
     });
 
     return WalkInResult(created: true, name: nm, alreadyCheckedIn: false);
+  }
+
+  /// Bulk-confirm a list of attendees in one go — mirrors the web
+  /// `/api/events/[id]/group-register` route (organizer-only tool for
+  /// registering a company/group at once, not a public attendee checkout —
+  /// the caller has already collected payment out-of-band; every seat is
+  /// inserted `confirmed` with no payment processing here). Ticket types are
+  /// trusted to belong to this event (the sheet only offers ones it fetched
+  /// for this event). Returns how many seats were created.
+  Future<int> addGroup(String eventId, {required List<GroupSeat> seats}) async {
+    if (seats.isEmpty) {
+      throw const GroupRegisterBlockedException('Add at least one seat.');
+    }
+    if (seats.length > 50) {
+      throw const GroupRegisterBlockedException('Max 50 seats at a time.');
+    }
+
+    final ep = await supa
+        .from('event_pages')
+        .select('ends_at, max_capacity')
+        .eq('event_id', eventId)
+        .maybeSingle();
+    final endsAt = ep?['ends_at'] != null
+        ? DateTime.tryParse(ep!['ends_at'].toString())
+        : null;
+    if (endsAt != null && endsAt.isBefore(DateTime.now())) {
+      throw const GroupRegisterBlockedException(
+          'This event has already ended — group registration is not available.');
+    }
+
+    final maxCapacity = ep?['max_capacity'] as int?;
+    if (maxCapacity != null) {
+      final count = await supa
+          .from('registrations')
+          .select('id')
+          .eq('event_id', eventId)
+          .inFilter('status', ['confirmed', 'checked_in'])
+          .count(CountOption.exact);
+      final remaining = maxCapacity - count.count;
+      if (seats.length > remaining) {
+        throw GroupRegisterBlockedException(
+            'Not enough capacity. Registering ${seats.length} people but only '
+            '$remaining spot${remaining == 1 ? '' : 's'} remain${remaining == 1 ? 's' : ''}.');
+      }
+    }
+
+    // Free-tier plan cap (CLAUDE.md: Free = 50 registrations/event) — batch
+    // version of the single-seat check in [canRegisterForEvent].
+    final plan = await myPlan();
+    if (plan == 'free') {
+      final planCount = await supa
+          .from('registrations')
+          .select('id')
+          .eq('event_id', eventId)
+          .inFilter('status', ['confirmed', 'checked_in'])
+          .count(CountOption.exact);
+      final planRemaining = kFreeRegistrationLimit - planCount.count;
+      if (seats.length > planRemaining) {
+        throw GroupRegisterBlockedException(planRemaining <= 0
+            ? 'This event has reached the registration limit for your current plan. Upgrade to add more attendees.'
+            : 'Your plan allows $planRemaining more registration${planRemaining == 1 ? '' : 's'} for this event. Upgrade to add more.');
+      }
+    }
+
+    final rows = seats
+        .map((s) => {
+              'event_id': eventId,
+              'ticket_type_id': s.ticketTypeId,
+              'attendee_name': s.name.trim(),
+              'attendee_email': s.email.toLowerCase().trim(),
+              'attendee_data':
+                  (s.whatsapp != null && s.whatsapp!.trim().isNotEmpty)
+                      ? {'whatsapp': s.whatsapp!.trim()}
+                      : {},
+              'status': 'confirmed',
+              'source': 'group_registration',
+            })
+        .toList();
+
+    await supa.from('registrations').insert(rows);
+
+    // Increment quantity_sold per ticket type (same RPC the web route uses).
+    final qtyCounts = <String, int>{};
+    for (final s in seats) {
+      qtyCounts[s.ticketTypeId] = (qtyCounts[s.ticketTypeId] ?? 0) + 1;
+    }
+    await Future.wait(qtyCounts.entries.map((e) => supa.rpc(
+          'increment_ticket_quantity_sold',
+          params: {'ticket_id': e.key, 'qty': e.value},
+        )));
+
+    return seats.length;
   }
 
   static String _token() {
