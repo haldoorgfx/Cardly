@@ -6,6 +6,7 @@ import '../../models.dart';
 import '../../organize/organizer_api.dart';
 import '../../theme.dart';
 import '../../roles/staff/event_control_screen.dart';
+import 'entitlements_screen.dart';
 import 'event_days_screen.dart';
 import 'manage_tickets_screen.dart';
 import 'share_screen.dart';
@@ -282,6 +283,16 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
           onTap: () => Navigator.of(context).push(
             MaterialPageRoute(
               builder: (_) => EventDaysScreen(eventId: e.id, eventName: e.name),
+            ),
+          ),
+        ),
+        _actionTile(
+          icon: Icons.workspace_premium_outlined,
+          title: 'Entitlements',
+          subtitle: 'Meals, merch, sessions — what attendees can redeem',
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => EntitlementsScreen(eventId: e.id, eventName: e.name),
             ),
           ),
         ),

@@ -366,6 +366,120 @@ class OrganizerApi {
     await supa.from('event_days').delete().eq('id', dayId);
   }
 
+  // ── Entitlements management ────────────────────────────────────────────
+  // Direct-Supabase equivalent of the web server actions in
+  // app/(app)/events/[id]/entitlements/page.tsx (entitlements +
+  // ticket_type_entitlements, same owner-gated RLS as everything else here).
+
+  Future<List<Map<String, dynamic>>> loadEntitlements(String eventId) async {
+    final rows = await supa
+        .from('entitlements')
+        .select('*')
+        .eq('event_id', eventId)
+        .order('created_at');
+    return asMapList(rows);
+  }
+
+  Future<List<Map<String, dynamic>>> loadTicketTypesLite(String eventId) async {
+    final rows = await supa
+        .from('ticket_types')
+        .select('id, name')
+        .eq('event_id', eventId)
+        .order('position');
+    return asMapList(rows);
+  }
+
+  Future<Map<String, List<String>>> loadEntitlementTicketTypeLinks(
+      List<String> entitlementIds) async {
+    if (entitlementIds.isEmpty) return {};
+    final rows = await supa
+        .from('ticket_type_entitlements')
+        .select('ticket_type_id, entitlement_id')
+        .inFilter('entitlement_id', entitlementIds);
+    final map = <String, List<String>>{};
+    for (final r in asMapList(rows)) {
+      final entId = asString(r['entitlement_id']);
+      map.putIfAbsent(entId, () => []).add(asString(r['ticket_type_id']));
+    }
+    return map;
+  }
+
+  Future<String> createEntitlement(
+    String eventId, {
+    required String name,
+    required String type,
+    int? quantity,
+    DateTime? validFrom,
+    DateTime? validUntil,
+    required String redemptionLimit,
+    required List<String> ticketTypeIds,
+  }) async {
+    final row = await supa
+        .from('entitlements')
+        .insert({
+          'event_id': eventId,
+          'name': name,
+          'type': type,
+          'quantity': quantity,
+          'valid_from': validFrom?.toUtc().toIso8601String(),
+          'valid_until': validUntil?.toUtc().toIso8601String(),
+          'redemption_limit': redemptionLimit,
+        })
+        .select('id')
+        .single();
+    final entId = asString(row['id']);
+    if (ticketTypeIds.isNotEmpty) {
+      await supa.from('ticket_type_entitlements').insert(
+            ticketTypeIds
+                .map((ticketTypeId) => {
+                      'ticket_type_id': ticketTypeId,
+                      'entitlement_id': entId,
+                    })
+                .toList(),
+          );
+    }
+    return entId;
+  }
+
+  Future<void> updateEntitlement(
+    String entitlementId, {
+    required String name,
+    required String type,
+    int? quantity,
+    DateTime? validFrom,
+    DateTime? validUntil,
+    required String redemptionLimit,
+    required List<String> ticketTypeIds,
+  }) async {
+    await supa.from('entitlements').update({
+      'name': name,
+      'type': type,
+      'quantity': quantity,
+      'valid_from': validFrom?.toUtc().toIso8601String(),
+      'valid_until': validUntil?.toUtc().toIso8601String(),
+      'redemption_limit': redemptionLimit,
+    }).eq('id', entitlementId);
+
+    await supa
+        .from('ticket_type_entitlements')
+        .delete()
+        .eq('entitlement_id', entitlementId);
+    if (ticketTypeIds.isNotEmpty) {
+      await supa.from('ticket_type_entitlements').insert(
+            ticketTypeIds
+                .map((ticketTypeId) => {
+                      'ticket_type_id': ticketTypeId,
+                      'entitlement_id': entitlementId,
+                    })
+                .toList(),
+          );
+    }
+  }
+
+  Future<void> deleteEntitlement(String entitlementId) async {
+    await supa.from('entitlements').delete().eq('id', entitlementId);
+  }
+
   static String _token() {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     final r = Random.secure();
