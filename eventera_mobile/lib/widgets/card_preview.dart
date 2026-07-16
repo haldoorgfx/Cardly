@@ -119,9 +119,20 @@ class VariantChooser extends StatelessWidget {
               clipBehavior: Clip.antiAlias,
               child: v.backgroundUrl == null
                   ? const ColoredBox(color: Brand.cream)
-                  : Image.network(v.backgroundUrl!, fit: BoxFit.cover,
+                  : Image.network(
+                      v.backgroundUrl!,
+                      fit: BoxFit.cover,
+                      // Without this, the thumbnail is a blank/transparent gap
+                      // (no background color behind it) for however long the
+                      // image takes to download — jarring when several
+                      // thumbnails load at once on first entering this screen.
+                      loadingBuilder: (ctx, child, progress) {
+                        if (progress == null) return child;
+                        return const ColoredBox(color: Brand.cream);
+                      },
                       errorBuilder: (_, __, ___) =>
-                          const ColoredBox(color: Brand.cream)),
+                          const ColoredBox(color: Brand.cream),
+                    ),
             ),
           );
         },
