@@ -189,7 +189,7 @@ export default async function AttendeeEntitlementsPage({ params }: Props) {
   async function searchTargets(query: string): Promise<TransferTarget[]> {
     'use server';
     if (!(await verifyEventOwner(id))) return [];
-    const q = String(query ?? '').trim();
+    const q = String(query ?? '').trim().replace(/[(),*:%]/g, '');
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const admin = createAdminClient() as any;
     let sel = admin.from('registrations')

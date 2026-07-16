@@ -45,7 +45,7 @@ export default async function RegistrationsAdminPage({
       { count: 'exact' },
     );
 
-  const q = searchParams.q?.trim();
+  const q = searchParams.q?.trim().replace(/[(),*:%]/g, '');
   if (q) {
     query = query.or(`attendee_name.ilike.%${q}%,attendee_email.ilike.%${q}%`);
   }

@@ -54,8 +54,9 @@ export async function listUsers(opts: UserListOptions = {}): Promise<UserListRes
     .from('profiles')
     .select('*', { count: 'exact' });
 
-  if (search) {
-    query = query.or(`email.ilike.%${search}%,full_name.ilike.%${search}%`);
+  const safeSearch = search?.replace(/[(),*:%]/g, '');
+  if (safeSearch) {
+    query = query.or(`email.ilike.%${safeSearch}%,full_name.ilike.%${safeSearch}%`);
   }
   if (role) {
     query = query.eq('role', role as import('@/types/database').UserRole);

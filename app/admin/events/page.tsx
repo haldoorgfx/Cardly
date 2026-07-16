@@ -35,8 +35,9 @@ export default async function EventsOversightPage({
       { count: 'exact' }
     );
 
-  if (searchParams.q?.trim()) {
-    query = query.or(`name.ilike.%${searchParams.q.trim()}%,slug.ilike.%${searchParams.q.trim()}%`);
+  const q = searchParams.q?.trim().replace(/[(),*:%]/g, '');
+  if (q) {
+    query = query.or(`name.ilike.%${q}%,slug.ilike.%${q}%`);
   }
   if (searchParams.status) {
     query = query.eq('status', searchParams.status as EventStatus);

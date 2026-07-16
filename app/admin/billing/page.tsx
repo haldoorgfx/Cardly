@@ -34,8 +34,9 @@ export default async function BillingAdminPage({
       { count: 'exact' }
     );
 
-  if (searchParams.q?.trim()) {
-    query = query.or(`email.ilike.%${searchParams.q.trim()}%,full_name.ilike.%${searchParams.q.trim()}%`);
+  const q = searchParams.q?.trim().replace(/[(),*:%]/g, '');
+  if (q) {
+    query = query.or(`email.ilike.%${q}%,full_name.ilike.%${q}%`);
   }
   if (searchParams.plan) {
     query = query.eq('plan', searchParams.plan as Plan);

@@ -10,7 +10,7 @@ export async function GET(request: Request) {
   if ('error' in result) return result.error;
 
   const url = new URL(request.url);
-  const search = url.searchParams.get('q')?.trim() ?? '';
+  const search = (url.searchParams.get('q')?.trim() ?? '').replace(/[(),*:%]/g, '');
   const status = url.searchParams.get('status') ?? '';
   const moderation = url.searchParams.get('moderation') ?? '';
   const page = Math.max(1, parseInt(url.searchParams.get('page') ?? '1', 10));

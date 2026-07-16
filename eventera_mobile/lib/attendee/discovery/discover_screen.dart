@@ -139,7 +139,11 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
       if (_city != null && _city!.isNotEmpty) q = q.ilike('city', _city!);
       if (_format == 'online') q = q.eq('is_online', true);
       if (_format == 'inperson') q = q.eq('is_online', false);
-      final query = _query.trim().replaceAll(',', ' ');
+      // Strip characters that break the PostgREST `.or()` filter grammar —
+      // otherwise a stray comma/paren 400s the query, and the catch block below
+      // keeps whatever was on screen instead of showing "no results", silently
+      // passing off stale results as matches for the new search.
+      final query = _query.trim().replaceAll(RegExp(r'[(),*:%]'), ' ').trim();
       if (query.isNotEmpty) {
         q = q.or(
             'title.ilike.%$query%,city.ilike.%$query%,venue_name.ilike.%$query%,organizer_name.ilike.%$query%');

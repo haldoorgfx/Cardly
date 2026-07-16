@@ -9,7 +9,7 @@ export async function GET(request: Request) {
   if ('error' in result) return result.error;
 
   const url = new URL(request.url);
-  const search = url.searchParams.get('q')?.trim() ?? '';
+  const search = (url.searchParams.get('q')?.trim() ?? '').replace(/[(),*:%]/g, '');
   const plan   = url.searchParams.get('plan') ?? '';
   const page   = Math.max(1, parseInt(url.searchParams.get('page') ?? '1', 10));
   const PAGE_SIZE = 50;
