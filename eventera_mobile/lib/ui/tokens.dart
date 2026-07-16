@@ -27,7 +27,7 @@ class AppColors {
   // Ink
   static const ink = Color(0xFF0F1F18);
   static const inkSoft = Color(0xFF3A4A42);
-  static const inkMuted = Color(0xFF6B7A72);
+  static const inkMuted = Color(0xFF65736B);
 
   // Status
   static const success = Color(0xFF2D7A4F);
@@ -80,7 +80,7 @@ class AppSpace {
   static const xxxl = 32.0;
 }
 
-/// Type scale. DM Sans (display), Inter (body), JetBrains Mono (numbers).
+/// Type scale. Plus Jakarta Sans (display), Inter (body + numbers). No monospace.
 class AppText {
   // Headings — Plus Jakarta Sans (modern geometric sans).
   static TextStyle _dm(double size, FontWeight w,
@@ -108,7 +108,7 @@ class AppText {
           letterSpacing: 0,
           color: c ?? AppColors.ink);
 
-  // Display / headings (DM Sans) — mobile-first: larger + bolder hierarchy.
+  // Display / headings (Plus Jakarta Sans) — mobile-first: larger + bolder hierarchy.
   static TextStyle get h1 => _dm(30, FontWeight.w800, h: 1.05);
   static TextStyle get h2 => _dm(23, FontWeight.w700);
   static TextStyle get h3 => _dm(18, FontWeight.w700, ls: -0.01);

@@ -69,7 +69,7 @@ dependencies:
   # QR scanning — organizer check-in + sponsor/exhibitor lead retrieval.
   mobile_scanner: ^5.2.3
 
-  # Brand fonts: DM Sans (display), Inter (body), JetBrains Mono (numbers).
+  # Brand fonts: Plus Jakarta Sans (display), Inter (body + numbers).
   google_fonts: ^6.2.1
 
   # Biometric unlock (fingerprint / Face ID) gating a returning user's session.
