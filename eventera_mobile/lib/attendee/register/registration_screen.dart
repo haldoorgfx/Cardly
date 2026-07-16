@@ -132,8 +132,28 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     super.initState();
     if (isSignedIn) {
       _emailCtrl.text = currentUserEmail ?? '';
+      _prefillName();
     }
     _load();
+  }
+
+  /// Pre-fill from the signed-in profile (parity with the web registration
+  /// form) — most useful right after the sign-in-recommendation prompt, so
+  /// the attendee lands here with their name already in place.
+  Future<void> _prefillName() async {
+    final uid = currentUserId;
+    if (uid == null) return;
+    try {
+      final row = await supa
+          .from('profiles')
+          .select('full_name')
+          .eq('id', uid)
+          .maybeSingle();
+      final name = (row?['full_name'] as String?)?.trim() ?? '';
+      if (name.isNotEmpty && mounted) _nameCtrl.text = name;
+    } catch (_) {
+      // Non-fatal — the attendee can just type their name.
+    }
   }
 
   @override

@@ -4,6 +4,7 @@ import '../net.dart';
 import '../ui/components.dart';
 import 'hub/event_hub_screen.dart';
 import 'register/registration_screen.dart';
+import 'sign_in_prompt_sheet.dart';
 
 /// Entry point for one event. Resolves the event by slug, then hands off to the
 /// full attendee event page (`EventHubScreen`) — hero, overview, section nav,
@@ -81,9 +82,18 @@ class _EventLandingScreenState extends State<EventLandingScreen> {
     }
   }
 
-  void _openRegister() {
+  Future<void> _openRegister() async {
     final id = _eventId;
     if (id == null) return;
+    // Registering never requires an account (guest checkout, same as web) —
+    // but recommend signing in first so the ticket/QR/card end up tied to an
+    // account instead of just this device. Dismissing the prompt cancels;
+    // either choice below continues straight into registration.
+    if (!isSignedIn) {
+      final choice = await showSignInPromptSheet(context);
+      if (!mounted || choice == null) return;
+    }
+    if (!mounted) return;
     Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => RegistrationScreen(
           eventId: id, slug: widget.slug, eventName: _name),
