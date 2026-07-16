@@ -270,6 +270,102 @@ class OrganizerApi {
     return seats.length;
   }
 
+  // ── Multi-day events ───────────────────────────────────────────────────
+  // Direct-Supabase equivalent of the web server actions in
+  // app/(app)/events/[id]/settings/days/page.tsx — same tables
+  // (event_days, event_day_entitlements), same owner-gated RLS
+  // (can_manage_event()), just called from the authenticated client instead
+  // of a server action running under the service role.
+
+  Future<List<Map<String, dynamic>>> loadEventDays(String eventId) async {
+    final rows = await supa
+        .from('event_days')
+        .select('id, day_index, date, checkin_enabled, capacity')
+        .eq('event_id', eventId)
+        .order('day_index');
+    return asMapList(rows);
+  }
+
+  Future<List<Map<String, dynamic>>> loadEventEntitlements(String eventId) async {
+    final rows = await supa
+        .from('entitlements')
+        .select('id, name, type')
+        .eq('event_id', eventId)
+        .order('type')
+        .order('name');
+    return asMapList(rows);
+  }
+
+  Future<Map<String, List<String>>> loadDayEntitlementLinks(
+      List<String> dayIds) async {
+    if (dayIds.isEmpty) return {};
+    final rows = await supa
+        .from('event_day_entitlements')
+        .select('event_day_id, entitlement_id')
+        .inFilter('event_day_id', dayIds);
+    final map = <String, List<String>>{};
+    for (final r in asMapList(rows)) {
+      final dayId = asString(r['event_day_id']);
+      map.putIfAbsent(dayId, () => []).add(asString(r['entitlement_id']));
+    }
+    return map;
+  }
+
+  /// Insert a new day at the next index. Mirrors web's addDay() — bare row,
+  /// the organizer fills in date/capacity/entitlements after.
+  Future<String> addEventDay(String eventId) async {
+    final existing = await supa
+        .from('event_days')
+        .select('day_index')
+        .eq('event_id', eventId)
+        .order('day_index', ascending: false)
+        .limit(1);
+    final list = asMapList(existing);
+    final nextIndex = list.isEmpty ? 0 : asInt(list.first['day_index']) + 1;
+    final row = await supa
+        .from('event_days')
+        .insert({
+          'event_id': eventId,
+          'day_index': nextIndex,
+          'checkin_enabled': true,
+        })
+        .select('id')
+        .single();
+    return asString(row['id']);
+  }
+
+  /// Save a day's fields and re-sync its entitlement links (drop all,
+  /// re-insert the selected set — same approach web's saveDay() uses).
+  Future<void> saveEventDay(
+    String dayId, {
+    required String? date,
+    required bool checkinEnabled,
+    required int? capacity,
+    required List<String> entitlementIds,
+  }) async {
+    await supa.from('event_days').update({
+      'date': date,
+      'checkin_enabled': checkinEnabled,
+      'capacity': capacity,
+    }).eq('id', dayId);
+
+    await supa.from('event_day_entitlements').delete().eq('event_day_id', dayId);
+    if (entitlementIds.isNotEmpty) {
+      await supa.from('event_day_entitlements').insert(
+            entitlementIds
+                .map((entitlementId) => {
+                      'event_day_id': dayId,
+                      'entitlement_id': entitlementId,
+                    })
+                .toList(),
+          );
+    }
+  }
+
+  Future<void> deleteEventDay(String dayId) async {
+    await supa.from('event_days').delete().eq('id', dayId);
+  }
+
   static String _token() {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     final r = Random.secure();

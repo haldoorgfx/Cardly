@@ -6,6 +6,7 @@ import '../../models.dart';
 import '../../organize/organizer_api.dart';
 import '../../theme.dart';
 import '../../roles/staff/event_control_screen.dart';
+import 'event_days_screen.dart';
 import 'manage_tickets_screen.dart';
 import 'share_screen.dart';
 import 'zone_editor_screen.dart';
@@ -273,6 +274,16 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
             );
             if (changed == true) _changed = true;
           },
+        ),
+        _actionTile(
+          icon: Icons.calendar_view_day_outlined,
+          title: 'Event days',
+          subtitle: 'Turn this into a multi-day event with per-day capacity',
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => EventDaysScreen(eventId: e.id, eventName: e.name),
+            ),
+          ),
         ),
         _actionTile(
           icon: Icons.qr_code_scanner,
