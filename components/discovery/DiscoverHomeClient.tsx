@@ -89,6 +89,17 @@ function initials(name: string) {
 function priceLabel(p?: number | null) {
   return p ? `$${p % 1 === 0 ? p : p.toFixed(2)}` : 'Free';
 }
+// The feed keeps ongoing/multi-day events visible until ends_at passes,
+// sorted by starts_at — so an already-started event can still be "featured".
+// Without a cue, that reads as a stale date rather than a live event.
+function isLiveNow(ep: EventPage): boolean {
+  if (!ep?.starts_at) return false;
+  const now = Date.now();
+  const starts = new Date(ep.starts_at).getTime();
+  if (!(starts < now)) return false;
+  if (!ep.ends_at) return true;
+  return !(new Date(ep.ends_at).getTime() < now);
+}
 
 function matchesWhen(iso: string | null | undefined, when: string): boolean {
   if (when === 'any') return true;
@@ -470,7 +481,15 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents, ban
             <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(10,20,14,0.85) 0%, rgba(10,20,14,0.15) 55%, transparent 100%)' }} />
             <div className="absolute bottom-0 left-0 right-0 px-6 sm:px-8 pb-7 flex items-end justify-between flex-wrap gap-4">
               <div className="min-w-0">
-                <div className="text-[11px] font-bold tracking-[0.16em] mb-2" style={{ color: '#E8C57E' }}>FEATURED EVENT</div>
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="text-[11px] font-bold tracking-[0.16em]" style={{ color: '#E8C57E' }}>FEATURED EVENT</div>
+                  {isLiveNow(featured) && (
+                    <div className="inline-flex items-center gap-1.5 text-[11px] font-bold tracking-[0.1em]" style={{ color: '#EC6A5E' }}>
+                      <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#EC6A5E' }} aria-hidden />
+                      HAPPENING NOW
+                    </div>
+                  )}
+                </div>
                 <h2 className="font-title font-bold text-[26px] sm:text-[34px] mb-2" style={{ color: '#FAF6EE', letterSpacing: '-0.025em', lineHeight: 1.05 }}>
                   {featured.title}
                 </h2>

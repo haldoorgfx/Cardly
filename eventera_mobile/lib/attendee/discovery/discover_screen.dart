@@ -1193,6 +1193,12 @@ class _FeaturedCard extends StatelessWidget {
                 children: [
                   _cover(event, BoxFit.cover),
                   const ScrimBottom(),
+                  if (event.isLiveNow)
+                    const Positioned(
+                        top: 14,
+                        left: 14,
+                        child: Tag('Happening now',
+                            kind: TagKind.danger, dot: true)),
                   Positioned(
                     left: 16,
                     right: 16,
@@ -1271,9 +1277,15 @@ class _CompactCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: AppText.bodySm.copyWith(color: AppColors.inkMuted),
                 ),
-                if (event.category.isNotEmpty) ...[
+                if (event.isLiveNow || event.category.isNotEmpty) ...[
                   const SizedBox(height: 8),
-                  Tag(event.category, kind: TagKind.forest),
+                  Wrap(spacing: 6, runSpacing: 6, children: [
+                    if (event.isLiveNow)
+                      const Tag('Happening now',
+                          kind: TagKind.danger, dot: true),
+                    if (event.category.isNotEmpty)
+                      Tag(event.category, kind: TagKind.forest),
+                  ]),
                 ],
               ],
             ),
@@ -1358,6 +1370,7 @@ class _DiscoverEvent {
   final String title;
   final String coverImageUrl;
   final DateTime? startsAt;
+  final DateTime? endsAt;
   final bool isOnline;
   final String venueName;
   final String city;
@@ -1371,6 +1384,7 @@ class _DiscoverEvent {
     required this.title,
     required this.coverImageUrl,
     required this.startsAt,
+    required this.endsAt,
     required this.isOnline,
     required this.venueName,
     required this.city,
@@ -1380,6 +1394,20 @@ class _DiscoverEvent {
     required this.lat,
     required this.lng,
   });
+
+  /// True when the event has already started but hasn't ended yet. The feed
+  /// (mirroring web) keeps multi-day/ongoing events visible until `ends_at`
+  /// passes, sorted by `starts_at` — so an event that started yesterday can
+  /// still rank above events starting next week. Without a visible cue, that
+  /// reads as a stale/wrong date; this flags it as intentional and current.
+  bool get isLiveNow {
+    final s = startsAt;
+    if (s == null) return false;
+    final now = DateTime.now();
+    if (!s.isBefore(now)) return false;
+    final e = endsAt;
+    return e == null || e.isAfter(now);
+  }
 
   factory _DiscoverEvent.fromRow(Map<String, dynamic> r) {
     final events = r['events'];
@@ -1392,6 +1420,7 @@ class _DiscoverEvent {
       title: asString(r['title'], 'Untitled event'),
       coverImageUrl: asString(r['cover_image_url']).trim(),
       startsAt: asDate(r['starts_at']),
+      endsAt: asDate(r['ends_at']),
       isOnline: asBool(r['is_online']),
       venueName: asString(r['venue_name']).trim(),
       city: asString(r['city']).trim(),

@@ -58,6 +58,17 @@ function resolveSlug(page: DiscoveryEvent): string {
   return page.custom_slug ?? (page.events?.slug ?? page.event_id);
 }
 
+// The feed keeps ongoing/multi-day events visible (sorted by starts_at) until
+// ends_at passes, so an event that started yesterday can still rank above
+// events starting next week. Without a cue, that reads as a stale date.
+function isLiveNow(page: DiscoveryEvent): boolean {
+  const now = Date.now();
+  const starts = new Date(page.starts_at).getTime();
+  if (!(starts < now)) return false;
+  const ends = new Date(page.ends_at).getTime();
+  return !(ends < now);
+}
+
 export function EventCard({
   page,
   saved: initialSaved = false,
@@ -174,8 +185,21 @@ export function EventCard({
           </button>
         )}
 
-        {/* Trend badge — bottom left */}
-        {trendBadge && (
+        {/* Happening now / trend badge — bottom left */}
+        {isLiveNow(page) ? (
+          <div
+            className="absolute bottom-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold"
+            style={{
+              background: 'rgba(10,20,14,0.6)',
+              backdropFilter: 'blur(8px)',
+              color: '#EC6A5E',
+              fontFamily: 'Inter, system-ui, sans-serif',
+            }}
+          >
+            <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#EC6A5E' }} aria-hidden />
+            Happening now
+          </div>
+        ) : trendBadge ? (
           <div
             className="absolute bottom-3 left-3 px-2.5 py-1 rounded-lg text-[11px] font-medium"
             style={{
@@ -187,7 +211,7 @@ export function EventCard({
           >
             {trendBadge}
           </div>
-        )}
+        ) : null}
       </div>
 
       {/* Card body */}
