@@ -87,6 +87,10 @@ class _LeadDetailScreenState extends State<LeadDetailScreen> {
               : (m['created_at'] != null
                   ? DateTime.tryParse(m['created_at'].toString())
                   : null);
+          // `consent` is only present once migration 077 is live (see
+          // SponsorApi._withConsentFallback) — treat its absence as "unknown",
+          // never as "consent given". Only an explicit `true` may claim consent.
+          final consent = m['consent'] == true;
           final subtitle = [
             if (role.isNotEmpty) role,
             if (company.isNotEmpty) company,
@@ -157,12 +161,18 @@ class _LeadDetailScreenState extends State<LeadDetailScreen> {
               ],
               const SizedBox(height: 20),
               Row(children: [
-                const Icon(Icons.verified_user_outlined,
-                    size: 16, color: AppColors.success),
+                Icon(
+                    consent
+                        ? Icons.verified_user_outlined
+                        : Icons.warning_amber_outlined,
+                    size: 16,
+                    color: consent ? AppColors.success : AppColors.warning),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Consent recorded at capture — attendee agreed to be contacted by ${widget.boothName}.',
+                    consent
+                        ? 'Consent recorded at capture — attendee agreed to be contacted by ${widget.boothName}.'
+                        : 'No consent on file for this lead — confirm with the attendee before reaching out.',
                     style: const TextStyle(
                         color: AppColors.inkSoft, fontSize: 12.5, height: 1.4),
                   ),

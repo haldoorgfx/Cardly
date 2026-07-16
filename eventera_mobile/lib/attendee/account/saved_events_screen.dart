@@ -159,6 +159,10 @@ class _SavedEventsScreenState extends State<SavedEventsScreen> {
                     ? Image.network(
                         s.coverUrl!,
                         fit: BoxFit.cover,
+                        loadingBuilder: (ctx, child, progress) =>
+                            progress == null
+                                ? child
+                                : PhotoPlaceholder(hue: hueFromString(s.title)),
                         errorBuilder: (_, __, ___) =>
                             PhotoPlaceholder(hue: hueFromString(s.title)),
                       )

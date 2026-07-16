@@ -245,7 +245,10 @@ class _ZoneEditorScreenState extends State<ZoneEditorScreen> {
                       child: widget.event.backgroundUrl == null
                           ? const SizedBox()
                           : Image.network(widget.event.backgroundUrl!,
-                              fit: BoxFit.fill),
+                              fit: BoxFit.fill,
+                              errorBuilder: (_, __, ___) => const Center(
+                                  child: Text('Could not load design',
+                                      style: TextStyle(color: Brand.muted)))),
                     ),
                   ),
                   for (final z in _zones) _zoneBox(z, scale),

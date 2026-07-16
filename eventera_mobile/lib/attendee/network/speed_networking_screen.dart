@@ -213,6 +213,11 @@ class _SpeedNetworkingScreenState extends State<SpeedNetworkingScreen> {
                               ? Image.network(
                                   a.avatarUrl!,
                                   fit: BoxFit.cover,
+                                  loadingBuilder: (ctx, child, progress) =>
+                                      progress == null
+                                          ? child
+                                          : PhotoPlaceholder(
+                                              hue: hueFromString(a.id)),
                                   errorBuilder: (_, __, ___) =>
                                       PhotoPlaceholder(
                                           hue: hueFromString(a.id)),

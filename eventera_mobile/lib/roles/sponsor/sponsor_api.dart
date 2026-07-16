@@ -45,25 +45,41 @@ class SponsorApi {
 
   // ── Leads ──────────────────────────────────────────────────────────────────
 
+  static const _leadColumnsBase =
+      'id, attendee_name, attendee_email, company, role, rating, note, created_at, captured_at';
+  static const _leadColumnsWithConsent = '$_leadColumnsBase, consent, consent_at';
+
+  // `consent`/`consent_at` (migration 077) may not be live on every environment
+  // yet — fall back to the base column list rather than let a missing-column
+  // error break the whole leads list (same resilience pattern as captureLead's
+  // PGRST202 fallback below).
+  static Future<T> _withConsentFallback<T>(
+      Future<T> Function(String columns) query) async {
+    try {
+      return await query(_leadColumnsWithConsent);
+    } on PostgrestException catch (e) {
+      if (e.code == '42703') return await query(_leadColumnsBase);
+      rethrow;
+    }
+  }
+
   static Future<List<Map<String, dynamic>>> fetchLeads(String sponsorId) async {
-    final rows = await supa
+    final rows = await _withConsentFallback((columns) => supa
         .from('sponsor_leads')
-        .select(
-            'id, attendee_name, attendee_email, company, role, rating, note, created_at, captured_at')
+        .select(columns)
         .eq('sponsor_id', sponsorId)
-        .order('created_at', ascending: false);
+        .order('created_at', ascending: false));
     return (rows as List)
         .map((r) => Map<String, dynamic>.from(r as Map))
         .toList();
   }
 
   static Future<Map<String, dynamic>?> fetchLead(String id) async {
-    final row = await supa
+    final row = await _withConsentFallback((columns) => supa
         .from('sponsor_leads')
-        .select(
-            'id, attendee_name, attendee_email, company, role, rating, note, created_at, captured_at')
+        .select(columns)
         .eq('id', id)
-        .maybeSingle();
+        .maybeSingle());
     return row == null ? null : Map<String, dynamic>.from(row);
   }
 

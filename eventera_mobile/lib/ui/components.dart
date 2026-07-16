@@ -544,6 +544,11 @@ class Avatar extends StatelessWidget {
         child: (imageUrl != null && imageUrl!.isNotEmpty)
             ? Image.network(imageUrl!,
                 fit: BoxFit.cover,
+                // Without this the avatar is a blank/transparent gap for
+                // however long the photo takes to download, then pops in —
+                // show the same initial/glyph fallback meanwhile.
+                loadingBuilder: (ctx, child, progress) =>
+                    progress == null ? child : _fallback(hasName),
                 errorBuilder: (_, __, ___) => _fallback(hasName))
             : _fallback(hasName),
       ),
