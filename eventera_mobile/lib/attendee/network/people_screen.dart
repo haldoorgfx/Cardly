@@ -6,15 +6,19 @@ import '../../ui/components.dart';
 import '../engage/_shared.dart';
 import 'thread_screen.dart';
 
-/// Attendee directory + AI matches for an event.
+/// Attendee directory + AI matches + connection requests for an event.
 ///
-/// Verified against the web app:
+/// Verified against the web app (components/networking/PeopleDiscoveryClient.tsx):
 ///  - GET /api/events/[id]/people?reg=<registration_id> returns confirmed /
 ///    checked_in `registrations` with { id, attendee_name, attendee_email,
 ///    ticket_type_id, custom_fields, eventera_card_url, ticket_types(name),
 ///    connection_status }.
 ///  - POST /api/events/[id]/connections { requester_id, recipient_id } creates
 ///    an `attendee_connections` row (status 'pending').
+///  - GET /api/events/[id]/connections/requests?reg=<registration_id> returns
+///    { incoming: [{connection_id, person_id, name, created_at}], sent: [...] }.
+///  - PATCH /api/events/[id]/connections { connection_id, action: 'accept'|
+///    'decline', registration_id } responds to an incoming request.
 ///  - GET /api/events/[id]/matches?registration_id=<id> returns
 ///    { matches: [{ matched_registration_id, score, reason,
 ///      registration: { id, attendee_name, custom_fields } }] }.
@@ -34,6 +38,8 @@ class PeopleScreen extends StatefulWidget {
   State<PeopleScreen> createState() => _PeopleScreenState();
 }
 
+enum _Filter { all, connected, requests, suggested }
+
 class _PeopleScreenState extends State<PeopleScreen> {
   bool _loading = true;
   String? _error;
@@ -41,17 +47,36 @@ class _PeopleScreenState extends State<PeopleScreen> {
   List<_Match> _matches = [];
   String? _rid;
 
+  final _searchCtrl = TextEditingController();
+  String _query = '';
+  _Filter _filter = _Filter.all;
+
+  List<_ConnRequest> _incoming = [];
+  List<_ConnRequest> _sent = [];
+  bool _loadingRequests = false;
+  bool _requestsLoaded = false;
+  String? _respondingTo;
+
   bool get _canNetwork => _rid != null && _rid!.isNotEmpty;
 
   @override
   void initState() {
     super.initState();
     _rid = widget.registrationId;
+    _searchCtrl.addListener(() {
+      setState(() => _query = _searchCtrl.text);
+    });
     if (_canNetwork) {
       _load();
     } else {
       _resolveRegThenLoad();
     }
+  }
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
   }
 
   Future<void> _resolveRegThenLoad() async {
@@ -125,6 +150,7 @@ class _PeopleScreenState extends State<PeopleScreen> {
       setState(() {
         p.connectionStatus = 'pending';
         p.connecting = false;
+        _requestsLoaded = false; // let the Requests tab re-fetch the new sent request
       });
       showToast(context, 'Connection request sent');
     } on ApiException catch (e) {
@@ -153,6 +179,7 @@ class _PeopleScreenState extends State<PeopleScreen> {
       setState(() {
         m.connectionStatus = 'pending';
         m.connecting = false;
+        _requestsLoaded = false;
       });
       showToast(context, 'Connection request sent');
     } on ApiException catch (e) {
@@ -164,6 +191,71 @@ class _PeopleScreenState extends State<PeopleScreen> {
       setState(() => m.connecting = false);
       showToast(context, 'Could not send request');
     }
+  }
+
+  Future<void> _loadRequests() async {
+    if (!_canNetwork) return;
+    setState(() => _loadingRequests = true);
+    try {
+      final data = await apiGet(
+          '/api/events/${widget.eventId}/connections/requests',
+          query: {'reg': _rid});
+      final incoming =
+          asMapList(data is Map ? data['incoming'] : null).map(_ConnRequest.fromRow).toList();
+      final sent =
+          asMapList(data is Map ? data['sent'] : null).map(_ConnRequest.fromRow).toList();
+      if (!mounted) return;
+      setState(() {
+        _incoming = incoming;
+        _sent = sent;
+        _loadingRequests = false;
+        _requestsLoaded = true;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _incoming = [];
+        _sent = [];
+        _loadingRequests = false;
+        _requestsLoaded = true;
+      });
+    }
+  }
+
+  Future<void> _respond(_ConnRequest r, String action) async {
+    if (!_canNetwork || _respondingTo != null) return;
+    setState(() => _respondingTo = r.connectionId);
+    try {
+      await apiPatch('/api/events/${widget.eventId}/connections', {
+        'connection_id': r.connectionId,
+        'action': action,
+        'registration_id': _rid,
+      });
+      if (!mounted) return;
+      setState(() {
+        _incoming.removeWhere((i) => i.connectionId == r.connectionId);
+        _respondingTo = null;
+        if (action == 'accept') {
+          final match = _people.where((p) => p.id == r.personId);
+          if (match.isNotEmpty) match.first.connectionStatus = 'accepted';
+        }
+      });
+      showToast(context,
+          action == 'accept' ? 'You\'re now connected' : 'Request declined');
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      setState(() => _respondingTo = null);
+      showToast(context, e.message);
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _respondingTo = null);
+      showToast(context, 'Could not update the request');
+    }
+  }
+
+  void _selectFilter(_Filter f) {
+    setState(() => _filter = f);
+    if (f == _Filter.requests && !_requestsLoaded) _loadRequests();
   }
 
   void _openThread(String otherId, String otherName) {
@@ -255,31 +347,75 @@ class _PeopleScreenState extends State<PeopleScreen> {
                   ? ErrorStateView(message: _error!, onRetry: _load)
                   : RefreshIndicator(
                       color: AppColors.forest,
-                      onRefresh: _load,
-                      child: _buildList(),
+                      onRefresh: _filter == _Filter.requests ? _loadRequests : _load,
+                      child: _buildBody(),
                     ),
     );
   }
 
-  Widget _buildList() {
-    if (_people.isEmpty && _matches.isEmpty) {
-      return ListView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        children: const [
-          SizedBox(height: 100),
-          EmptyState(
-            icon: Icons.groups_outlined,
-            title: 'No one here yet',
-            message: 'No other attendees have joined yet. Check back soon.',
-          ),
-        ],
-      );
-    }
+  List<_Person> get _filteredPeople {
+    return _people.where((p) {
+      final matchesQuery =
+          _query.isEmpty || p.name.toLowerCase().contains(_query.toLowerCase());
+      final matchesFilter =
+          _filter == _Filter.connected ? p.connectionStatus == 'accepted' : true;
+      return matchesQuery && matchesFilter;
+    }).toList();
+  }
+
+  Widget _buildBody() {
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.fromLTRB(AppSpace.lg, AppSpace.base, AppSpace.lg, 40),
       children: [
-        if (_matches.isNotEmpty) ...[
+        MInput(
+          controller: _searchCtrl,
+          icon: Icons.search,
+          hint: 'Search by name…',
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          height: 34,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            children: [
+              MChip('All',
+                  selected: _filter == _Filter.all,
+                  onTap: () => _selectFilter(_Filter.all)),
+              const SizedBox(width: 8),
+              MChip('Connected',
+                  selected: _filter == _Filter.connected,
+                  onTap: () => _selectFilter(_Filter.connected)),
+              const SizedBox(width: 8),
+              MChip('Requests${_incoming.isNotEmpty ? ' · ${_incoming.length}' : ''}',
+                  selected: _filter == _Filter.requests,
+                  icon: Icons.inbox_outlined,
+                  onTap: () => _selectFilter(_Filter.requests)),
+              const SizedBox(width: 8),
+              MChip('Suggested',
+                  selected: _filter == _Filter.suggested,
+                  icon: Icons.auto_awesome,
+                  onTap: () => _selectFilter(_Filter.suggested)),
+            ],
+          ),
+        ),
+        const SizedBox(height: 18),
+        if (_filter == _Filter.requests)
+          _buildRequestsTab()
+        else if (_filter == _Filter.suggested)
+          _buildSuggestedTab()
+        else
+          _buildDirectoryTab(),
+      ],
+    );
+  }
+
+  Widget _buildDirectoryTab() {
+    final people = _filteredPeople;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (_filter == _Filter.all && _matches.isNotEmpty) ...[
           Row(
             children: [
               const Icon(Icons.auto_awesome, size: 15, color: AppColors.goldHover),
@@ -292,10 +428,179 @@ class _PeopleScreenState extends State<PeopleScreen> {
           ..._matches.map(_buildMatchCard),
           const SizedBox(height: 22),
         ],
-        SectionLabel('All attendees · ${_people.length}'),
+        SectionLabel('All attendees · ${people.length}'),
         const SizedBox(height: 4),
-        ..._people.map(_buildPersonRow),
+        if (people.isEmpty)
+          const Padding(
+            padding: EdgeInsets.only(top: 60),
+            child: EmptyState(
+              icon: Icons.groups_outlined,
+              title: 'No one here yet',
+              message: 'No attendees match right now. Check back soon.',
+            ),
+          )
+        else
+          ...people.map(_buildPersonRow),
       ],
+    );
+  }
+
+  Widget _buildSuggestedTab() {
+    if (_matches.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.only(top: 60),
+        child: EmptyState(
+          icon: Icons.auto_awesome,
+          title: 'No suggestions yet',
+          message: 'Check back once more attendees have registered.',
+        ),
+      );
+    }
+    return Column(children: _matches.map(_buildMatchCard).toList());
+  }
+
+  Widget _buildRequestsTab() {
+    if (_loadingRequests && !_requestsLoaded) {
+      return const Padding(
+        padding: EdgeInsets.only(top: 60),
+        child: LoadingState(),
+      );
+    }
+    if (_incoming.isEmpty && _sent.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.only(top: 60),
+        child: EmptyState(
+          icon: Icons.inbox_outlined,
+          title: 'No pending requests',
+          message: 'Requests you send or receive will appear here.',
+        ),
+      );
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(Icons.inbox_outlined, size: 15, color: AppColors.inkMuted),
+            const SizedBox(width: 7),
+            Text('INCOMING · ${_incoming.length}',
+                style: AppText.seclab.copyWith(color: AppColors.inkMuted)),
+          ],
+        ),
+        const SizedBox(height: 10),
+        if (_incoming.isEmpty)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 4),
+            child: Text('No incoming requests right now.',
+                style: AppText.bodySm.copyWith(color: AppColors.inkMuted)),
+          )
+        else
+          ..._incoming.map(_buildIncomingCard),
+        const SizedBox(height: 22),
+        Row(
+          children: [
+            const Icon(Icons.send_outlined, size: 15, color: AppColors.inkMuted),
+            const SizedBox(width: 7),
+            Text('SENT · ${_sent.length}',
+                style: AppText.seclab.copyWith(color: AppColors.inkMuted)),
+          ],
+        ),
+        const SizedBox(height: 10),
+        if (_sent.isEmpty)
+          Text('You haven\'t sent any requests yet.',
+              style: AppText.bodySm.copyWith(color: AppColors.inkMuted))
+        else
+          ..._sent.map(_buildSentRow),
+      ],
+    );
+  }
+
+  Widget _buildIncomingCard(_ConnRequest r) {
+    final busy = _respondingTo == r.connectionId;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppRadius.card),
+        border: Border.all(color: AppColors.border),
+        boxShadow: AppShadow.soft,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Avatar(name: r.name, size: 48),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(r.name, style: AppText.h3.copyWith(fontSize: 15)),
+                    Text('Wants to connect', style: AppText.caption),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: MButton(
+                  'Accept',
+                  small: true,
+                  icon: Icons.check,
+                  loading: busy,
+                  onTap: busy ? null : () => _respond(r, 'accept'),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: MButton(
+                  'Decline',
+                  kind: MBtnKind.sec,
+                  small: true,
+                  icon: Icons.close,
+                  onTap: busy ? null : () => _respond(r, 'decline'),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSentRow(_ConnRequest r) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppRadius.card),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Row(
+        children: [
+          Avatar(name: r.name, size: 44),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(r.name,
+                    style: AppText.h3.copyWith(fontSize: 15),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis),
+                Text('Request sent', style: AppText.caption),
+              ],
+            ),
+          ),
+          _statusTag('pending'),
+        ],
+      ),
     );
   }
 
@@ -548,6 +853,26 @@ class _Match {
       subtitle: subtitle,
       scorePct: pct,
       reason: asString(r['reason']).trim(),
+    );
+  }
+}
+
+class _ConnRequest {
+  final String connectionId;
+  final String personId;
+  final String name;
+
+  _ConnRequest({
+    required this.connectionId,
+    required this.personId,
+    required this.name,
+  });
+
+  factory _ConnRequest.fromRow(Map<String, dynamic> r) {
+    return _ConnRequest(
+      connectionId: asString(r['connection_id']),
+      personId: asString(r['person_id']),
+      name: asString(r['name'], 'Attendee'),
     );
   }
 }

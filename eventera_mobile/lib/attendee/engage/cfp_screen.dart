@@ -36,6 +36,7 @@ class _CfpScreenState extends State<CfpScreen> {
   final _authorEmail = TextEditingController();
   final _affiliation = TextEditingController();
   bool _presenting = true;
+  final List<_CoAuthorRow> _coAuthors = [];
 
   // ── Submit state
   bool _submitting = false;
@@ -61,7 +62,18 @@ class _CfpScreenState extends State<CfpScreen> {
     _authorName.dispose();
     _authorEmail.dispose();
     _affiliation.dispose();
+    for (final row in _coAuthors) {
+      row.dispose();
+    }
     super.dispose();
+  }
+
+  void _addCoAuthor() => setState(() => _coAuthors.add(_CoAuthorRow()));
+
+  void _removeCoAuthor(int i) {
+    setState(() {
+      _coAuthors.removeAt(i).dispose();
+    });
   }
 
   Future<void> _load() async {
@@ -144,7 +156,7 @@ class _CfpScreenState extends State<CfpScreen> {
           'affiliation': affiliation,
         },
         'presenting': _presenting,
-        'coAuthors': <Map<String, dynamic>>[],
+        'coAuthors': _coAuthors.map((r) => r.toJson()).toList(),
       });
       if (mounted) setState(() => _done = true);
     } catch (e) {
@@ -314,7 +326,35 @@ class _CfpScreenState extends State<CfpScreen> {
           hint: 'Company, university, or team',
           controller: _affiliation,
         ),
-        const SizedBox(height: AppSpace.lg),
+        const SizedBox(height: AppSpace.xxl),
+
+        // ── Co-authors
+        Row(
+          children: [
+            const Expanded(child: SectionLabel('Co-authors (optional)')),
+            GestureDetector(
+              onTap: _addCoAuthor,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.add_circle_outline, size: 16, color: AppColors.forest),
+                  const SizedBox(width: 5),
+                  Text('Add', style: AppText.bodyStrong.copyWith(color: AppColors.forest, fontSize: 13)),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: AppSpace.md),
+        if (_coAuthors.isEmpty)
+          Text('Credit anyone who worked on this with you.',
+              style: AppText.bodySm.copyWith(color: AppColors.inkMuted))
+        else
+          for (int i = 0; i < _coAuthors.length; i++) ...[
+            _coAuthorFields(i),
+            const SizedBox(height: AppSpace.base),
+          ],
+        const SizedBox(height: AppSpace.xs),
         _presentToggle(),
 
         if (_submitError != null) ...[
@@ -322,6 +362,40 @@ class _CfpScreenState extends State<CfpScreen> {
           _errorBox(_submitError!),
         ],
       ],
+    );
+  }
+
+  Widget _coAuthorFields(int i) {
+    final row = _coAuthors[i];
+    return Container(
+      padding: const EdgeInsets.all(AppSpace.base),
+      decoration: engageCard(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text('Co-author ${i + 1}', style: AppText.bodyStrong),
+              ),
+              GestureDetector(
+                onTap: () => _removeCoAuthor(i),
+                child: const Icon(Icons.close, size: 18, color: AppColors.inkMuted),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpace.md),
+          MInput(label: 'Name', controller: row.name),
+          const SizedBox(height: AppSpace.sm),
+          MInput(
+            label: 'Email',
+            controller: row.email,
+            keyboardType: TextInputType.emailAddress,
+          ),
+          const SizedBox(height: AppSpace.sm),
+          MInput(label: 'Affiliation (optional)', controller: row.affiliation),
+        ],
+      ),
     );
   }
 
@@ -379,4 +453,23 @@ class _CfpScreenState extends State<CfpScreen> {
     );
   }
 }
-     
+
+/// One co-author's editable fields — mirrors web's `Author` shape
+/// ({name, email, affiliation}) sent in the `coAuthors` array.
+class _CoAuthorRow {
+  final name = TextEditingController();
+  final email = TextEditingController();
+  final affiliation = TextEditingController();
+
+  void dispose() {
+    name.dispose();
+    email.dispose();
+    affiliation.dispose();
+  }
+
+  Map<String, dynamic> toJson() => {
+        'name': name.text.trim(),
+        'email': email.text.trim(),
+        'affiliation': affiliation.text.trim(),
+      };
+}
