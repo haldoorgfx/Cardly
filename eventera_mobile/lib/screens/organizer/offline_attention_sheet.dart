@@ -78,6 +78,8 @@ class _AttentionRow extends StatelessWidget {
         return (label: 'Not entitled', kind: TagKind.danger);
       case 'outside_window':
         return (label: 'Outside window', kind: TagKind.danger);
+      case 'error':
+        return (label: 'Could not sync', kind: TagKind.danger);
       default:
         return (label: 'Needs review', kind: TagKind.warning);
     }

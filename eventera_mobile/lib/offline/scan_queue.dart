@@ -252,14 +252,23 @@ class ScanQueue extends ChangeNotifier {
           notifyListeners();
         } else if (status == 'already' ||
             status == 'not_entitled' ||
-            status == 'outside_window') {
+            status == 'outside_window' ||
+            status == 'error') {
+          // A clean RPC response (not a thrown exception — those are handled
+          // above and correctly kept for retry) means the server evaluated the
+          // request and rejected it for a business reason: entitlement/
+          // registration deleted, not authorised, session expired. Retrying
+          // this exact item will never succeed, and leaving it in `_pending`
+          // would block every OTHER queued scan behind it on every future
+          // sync attempt. Flag it and keep draining the rest of the queue.
           _pending.remove(item);
           _attention.add(item.withAttention(status));
           flagged++;
           await _save();
           notifyListeners();
         } else {
-          // 'error' or an unknown status — keep the item, stop the pass.
+          // A genuinely unrecognised status string — keep the item, stop the
+          // pass rather than guess.
           break;
         }
       }
