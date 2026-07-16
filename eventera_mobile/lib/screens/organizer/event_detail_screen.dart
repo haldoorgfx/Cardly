@@ -6,6 +6,7 @@ import '../../models.dart';
 import '../../organize/organizer_api.dart';
 import '../../theme.dart';
 import '../../roles/staff/event_control_screen.dart';
+import 'catering_screen.dart';
 import 'entitlements_screen.dart';
 import 'event_days_screen.dart';
 import 'manage_tickets_screen.dart';
@@ -293,6 +294,16 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
           onTap: () => Navigator.of(context).push(
             MaterialPageRoute(
               builder: (_) => EntitlementsScreen(eventId: e.id, eventName: e.name),
+            ),
+          ),
+        ),
+        _actionTile(
+          icon: Icons.restaurant_outlined,
+          title: 'Catering & accessibility',
+          subtitle: 'Meal counts, dietary needs, and accessibility requests',
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => CateringScreen(eventId: e.id, eventName: e.name),
             ),
           ),
         ),

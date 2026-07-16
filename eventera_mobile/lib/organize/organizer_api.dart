@@ -480,6 +480,26 @@ class OrganizerApi {
     await supa.from('entitlements').delete().eq('id', entitlementId);
   }
 
+  // ── Catering + accessibility ───────────────────────────────────────────
+  // Both are read-only aggregate RPCs (catering_counts, accessibility_summary)
+  // that authorise on auth.uid() internally (SECURITY DEFINER) — call them
+  // straight from the authenticated client, same as web's server component
+  // does with its session client (not the admin client).
+
+  /// Returns the raw `{ meals: [...] }` map from `catering_counts`, or throws
+  /// on a genuine failure. A `PostgrestException` with code P0001 and a
+  /// NOT_AUTHORISED message means the caller isn't this event's owner/staff.
+  Future<Map<String, dynamic>> loadCateringCounts(String eventId) async {
+    final data = await supa.rpc('catering_counts', params: {'p_event_id': eventId});
+    return data is Map ? Map<String, dynamic>.from(data) : {};
+  }
+
+  Future<Map<String, dynamic>> loadAccessibilitySummary(String eventId) async {
+    final data =
+        await supa.rpc('accessibility_summary', params: {'p_event_id': eventId});
+    return data is Map ? Map<String, dynamic>.from(data) : {};
+  }
+
   static String _token() {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     final r = Random.secure();
