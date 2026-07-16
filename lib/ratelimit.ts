@@ -133,6 +133,9 @@ const ROUTE_TIER_PATTERNS: Array<{ pattern: RegExp; tier: LimiterTier }> = [
   { pattern: /^\/api\/events\/[^/]+\/unlock(\/|$)/,     tier: 'strict' },
   { pattern: /^\/api\/events\/[^/]+\/check-email(\/|$)/, tier: 'strict' },
   { pattern: /^\/api\/events\/[^/]+\/apply(\/|$)/,      tier: 'strict' },
+  // Valid/invalid oracle over a short, human-chosen code — same brute-force
+  // shape as check-email/unlock above.
+  { pattern: /^\/api\/events\/[^/]+\/promo\/validate(\/|$)/, tier: 'strict' },
   // Storage-writing upload routes.
   { pattern: /^\/api\/sessions\/[^/]+\/slides(\/|$)/,  tier: 'render' },
 ];

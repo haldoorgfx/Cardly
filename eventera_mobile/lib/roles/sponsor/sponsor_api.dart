@@ -253,6 +253,31 @@ class SponsorApi {
           .maybeSingle();
       name = (p?['full_name'])?.toString();
     }
+
+    // meeting_requests has no unique constraint or rate limit backing it —
+    // its RLS insert policy only binds requester_email to the caller's own
+    // profile, not how often they can insert. Mobile writes here go straight
+    // to Supabase (no Next.js route, so lib/ratelimit.ts never sees this).
+    // Best-effort per-sponsor throttle so one attendee can't flood a booth's
+    // lead queue; a determined raw-REST caller could still bypass this, same
+    // limitation as the rest of the app-layer checks in this codebase.
+    if (email != null) {
+      final since = DateTime.now()
+          .subtract(const Duration(minutes: 10))
+          .toUtc()
+          .toIso8601String();
+      final recent = await supa
+          .from('meeting_requests')
+          .select('id')
+          .eq('sponsor_id', sponsorId)
+          .eq('requester_email', email)
+          .gte('created_at', since);
+      if ((recent as List).length >= 3) {
+        throw Exception(
+            'You\'ve already sent a few requests to this booth recently. Please wait a bit before sending another.');
+      }
+    }
+
     await supa.from('meeting_requests').insert({
       'sponsor_id': sponsorId,
       'event_id': eventId,

@@ -352,6 +352,46 @@ class _TicketEditorScreenState extends State<_TicketEditorScreen> {
       return;
     }
 
+    // Mirrors the web ticket-editor's capacity check (app/api/events/[id]/
+    // tickets/route.ts) — without it, mobile could allocate ticket types
+    // whose combined quantity oversells the event's stated max_capacity.
+    // Best-effort: a lookup failure doesn't block saving (fail open, same as
+    // the rest of this screen's error handling), it just skips the check.
+    if (qty != null) {
+      try {
+        final page = await _db
+            .from('event_pages')
+            .select('max_capacity')
+            .eq('event_id', widget.eventId)
+            .maybeSingle();
+        final maxCapacity = (page == null || page['max_capacity'] == null)
+            ? null
+            : asInt(page['max_capacity']);
+        if (maxCapacity != null) {
+          final others = await _db
+              .from('ticket_types')
+              .select('id, quantity')
+              .eq('event_id', widget.eventId);
+          final otherTotal = (others as List)
+              .whereType<Map>()
+              .where((t) => asString(t['id']) != widget.existing?.id)
+              .fold<int>(
+                  0,
+                  (sum, t) =>
+                      sum + (t['quantity'] == null ? 0 : asInt(t['quantity'])));
+          final available = maxCapacity - otherTotal;
+          if (qty > available) {
+            setState(() => _error = available <= 0
+                ? 'Event capacity ($maxCapacity) is already fully allocated across other ticket types.'
+                : 'Quantity ($qty) exceeds available capacity. You can allocate at most $available more tickets.');
+            return;
+          }
+        }
+      } catch (_) {
+        // Non-fatal — see comment above.
+      }
+    }
+
     setState(() {
       _saving = true;
       _error = null;

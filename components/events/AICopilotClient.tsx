@@ -38,8 +38,21 @@ const INITIAL_MESSAGES: Message[] = [
   },
 ];
 
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+// Escape untrusted content (the assistant's reply — itself fed the event's
+// own organizer-authored description as context — and the organizer's own
+// typed message) BEFORE building the handful of tags this renders itself,
+// so a `<script>`/`<img onerror>` embedded in either can never execute.
 function renderContent(content: string) {
-  return content
+  return escapeHtml(content)
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     .replace(/\n---\n/g, '<hr style="border-color:#E5E0D4;margin:8px 0"/>')
     .replace(/\n\n/g, '<br><br>')

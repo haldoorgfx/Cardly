@@ -26,9 +26,19 @@ const RespondSchema = z.object({
 // networking: excludes the caller and anyone they've already sent a request to
 // (or connected with). Directory opt-outs are respected.
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
-  const admin = createAdminClient();
   const { searchParams } = new URL(req.url);
   const regId = searchParams.get('reg');
+
+  // This returns every confirmed/checked-in attendee's name + registration id
+  // for the event — require the caller to hold a valid registration first,
+  // same identity check POST/PATCH already use, instead of handing that list
+  // to anyone who calls the route with no `reg` at all.
+  const identity = await assertOwnsRegistration(params.id, regId);
+  if (!identity.ok) {
+    return NextResponse.json({ error: identity.error }, { status: identity.status });
+  }
+
+  const admin = createAdminClient();
 
   const { data: people, error } = await admin
     .from('registrations')
