@@ -45,13 +45,28 @@ const RegisterSchema = z.object({
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
   const admin = createAdminClient();
 
-  // Capture attendee user_id if they're logged in (optional — guests register without an account)
-  let attendeeUserId: string | null = null;
+  // Capture attendee user_id if they're logged in AND the email they typed into
+  // this registration is their own account's email (optional — guests register
+  // without an account). Without the email check, a signed-in user registering
+  // a different person (e.g. "let me sign my colleague up") would silently
+  // attach their own account to that stranger's ticket — visible forever in
+  // the signer's My Tickets, and ALSO visible to the real attendee the moment
+  // they create an account with that email (registrationOwnershipFilter
+  // matches by user_id OR attendee_email), with neither side having consented
+  // to that shared custody. The existing ticket-transfer flow is the product's
+  // real mechanism for "this belongs to someone else" (it reassigns
+  // attendee_email and clears user_id) — this just stops a mismatched
+  // registration from being auto-attached in the first place.
+  let sessionUserId: string | null = null;
+  let sessionEmail: string | null = null;
   try {
     const { createClient } = await import('@/lib/supabase/server');
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    if (user) attendeeUserId = user.id;
+    if (user) {
+      sessionUserId = user.id;
+      sessionEmail = (user.email ?? '').toLowerCase();
+    }
   } catch { /* not authenticated — fine */ }
 
   let raw: unknown;
@@ -70,6 +85,9 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   }
 
   const { attendee_name, attendee_email, ticket_type_id, attendee_phone, custom_fields, chosen_price, access_code, referral_code, utm_source, promo_code, preferred_processor, dietary, dietary_note, accessibility, accessibility_note } = parsed.data;
+
+  const attendeeUserId =
+    sessionUserId && sessionEmail === attendee_email.trim().toLowerCase() ? sessionUserId : null;
 
   // 1. Verify event exists and is publicly accessible.
   //    Accept if events.status = 'published' OR event_pages.is_public = true —
