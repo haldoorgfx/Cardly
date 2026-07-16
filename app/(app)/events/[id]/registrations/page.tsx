@@ -56,11 +56,15 @@ export default async function RegistrationsPage({ params }: Props) {
       .select('id', { count: 'exact', head: true })
       .eq('event_id', id)
       .eq('status', 'pending'),
-    // Revenue: only pull amount+currency for paid registrations
+    // Revenue: only pull amount+currency for paid, confirmed registrations —
+    // a pending row already has amount_paid populated at checkout initiation
+    // (before the payment webhook confirms it), so excluding pending here is
+    // what keeps this in sync with the Dashboard/Overview revenue totals.
     admin
       .from('registrations')
       .select('amount_paid, currency')
       .eq('event_id', id)
+      .in('status', ['confirmed', 'checked_in'])
       .gt('amount_paid', 0),
   ]);
 

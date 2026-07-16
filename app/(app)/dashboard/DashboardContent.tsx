@@ -3,8 +3,7 @@
 import { useState } from 'react';
 import { Search, Plus } from 'lucide-react';
 import Link from 'next/link';
-import EventCard from './EventCard';
-import { type EventRowData } from './EventRow';
+import EventCard, { type Event as EventRowData } from './EventCard';
 
 type Filter  = 'all' | 'active' | 'draft' | 'archived';
 type SortKey = 'recent' | 'registrations' | 'revenue';

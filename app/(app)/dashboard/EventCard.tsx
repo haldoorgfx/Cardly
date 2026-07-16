@@ -8,7 +8,7 @@ import { MoreVertical, Pencil, ChevronRight, Link as LinkIcon, RotateCcw, Archiv
 import type { Database } from '@/types/database';
 
 type EventRowType = Database['public']['Tables']['events']['Row'];
-type Event = Pick<EventRowType, 'id' | 'name' | 'slug' | 'status' | 'view_count' | 'download_count' | 'updated_at'> & {
+export type Event = Pick<EventRowType, 'id' | 'name' | 'slug' | 'status' | 'view_count' | 'download_count' | 'updated_at'> & {
   event_pages?: Array<{ starts_at: string | null; venue_name: string | null }> | null;
   event_variants?: Array<{ id: string; background_url: string | null; position: number }> | null;
 };

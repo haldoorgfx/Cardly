@@ -53,8 +53,13 @@ export default async function EventAnalyticsPage({ params }: Props) {
     .map(([date, count]) => ({ date, count }));
 
   // ── Revenue by ticket type ─────────────────────────────────────────────────
+  // Revenue must only count confirmed/checked_in rows — a pending registration
+  // already has amount_paid populated at checkout initiation (before the
+  // payment webhook confirms it), so including it here would show money that
+  // was never actually collected and disagree with the Dashboard/Overview totals.
+  const paidRegs = allRegs.filter(r => r.status === 'confirmed' || r.status === 'checked_in');
   const revenueMap = new Map<string, { name: string; revenue: number; count: number; currency: string }>();
-  for (const r of allRegs) {
+  for (const r of paidRegs) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const ticket = (r.ticket_types as any) as { name: string; currency: string } | null;
     const key = r.ticket_type_id ?? 'free';
@@ -66,8 +71,8 @@ export default async function EventAnalyticsPage({ params }: Props) {
   }
   const ticketRevenue = Array.from(revenueMap.values()).sort((a, b) => b.revenue - a.revenue);
 
-  const totalRevenue = allRegs.reduce((s, r) => s + Number(r.amount_paid ?? 0), 0);
-  const revenueCurrency = allRegs.find(r => r.amount_paid > 0)?.currency ?? 'USD';
+  const totalRevenue = paidRegs.reduce((s, r) => s + Number(r.amount_paid ?? 0), 0);
+  const revenueCurrency = paidRegs.find(r => r.amount_paid > 0)?.currency ?? 'USD';
   const checkInCount    = allRegs.filter(r => r.status === 'checked_in').length;
   const cardDownloaded  = allRegs.filter(r => r.eventera_card_url).length;
 

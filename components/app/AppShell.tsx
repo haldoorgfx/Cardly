@@ -371,7 +371,7 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
         <>
           <div className="px-3 pt-3 shrink-0">
             <Link href="/dashboard" onClick={onNavigate}
-              className="flex items-center gap-2 px-2.5 py-2 mb-2 rounded-lg text-[13.5px] font-medium transition-colors hover:bg-[#F5F3EE]"
+              className="flex items-center gap-2 h-10 px-2.5 mb-2 rounded-lg text-[13.5px] font-medium transition-colors hover:bg-[#F5F3EE]"
               style={{ color: '#3A4A42' }}>
               <ArrowLeft size={14} strokeWidth={2} />
               Back to dashboard
@@ -458,7 +458,7 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
       {isAdmin && (
         <div className="px-3 pb-2 shrink-0">
           <Link href="/admin/analytics" onClick={onNavigate}
-            className="flex items-center justify-center gap-2 w-full px-3 py-2.5 rounded-xl text-[13.5px] font-semibold transition-colors hover:bg-[#F6ECD4]"
+            className="flex items-center justify-center gap-2 w-full h-10 px-3 rounded-xl text-[13.5px] font-semibold transition-colors hover:bg-[#F6ECD4]"
             style={{ background: '#FBF4E4', color: '#1F4D3A', border: '1px solid #E8C57E' }}>
             <ShieldCheck size={15} strokeWidth={2.2} style={{ color: '#C97A2D' }} />
             <span>Enter Admin</span>
@@ -1180,16 +1180,18 @@ export function AppShell({ children, initialSections, initialProfile, initialEve
         {/* Main column */}
         <main className="flex-1 min-w-0 flex flex-col">
           {impersonating && (
-            <div className="w-full flex items-center justify-between gap-3 px-4 py-2.5 shrink-0 z-50"
+            <div className="w-full flex flex-wrap items-center justify-between gap-2 sm:gap-3 px-4 py-2.5 shrink-0 z-50"
               style={{ background: '#C97A2D', color: 'white' }}>
-              <div className="flex items-center gap-2 text-[14px] font-medium">
-                <Eye size={14} strokeWidth={2} />
-                Viewing as <strong>{impersonating.full_name ?? impersonating.email}</strong>
-                <span className="opacity-70 text-[12px]">({impersonating.email})</span>
+              <div className="flex items-center gap-2 text-[14px] font-medium min-w-0 flex-1">
+                <Eye size={14} strokeWidth={2} className="shrink-0" />
+                <span className="truncate">
+                  Viewing as <strong>{impersonating.full_name ?? impersonating.email}</strong>{' '}
+                  <span className="opacity-70 text-[12px]">({impersonating.email})</span>
+                </span>
               </div>
               <button
                 onClick={exitImpersonation}
-                className="inline-flex items-center gap-1.5 h-7 px-3 text-[13px] font-semibold rounded-lg bg-white/20 hover:bg-white/30 transition"
+                className="inline-flex items-center gap-1.5 h-10 px-3 text-[13px] font-semibold rounded-lg bg-white/20 hover:bg-white/30 transition shrink-0"
               >
                 <X size={11} strokeWidth={2.5} /> Exit
               </button>
