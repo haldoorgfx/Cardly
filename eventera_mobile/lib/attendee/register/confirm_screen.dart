@@ -26,6 +26,11 @@ class ConfirmScreen extends StatelessWidget {
   final DateTime? eventEnd;
   final String? venue;
 
+  /// True when the organizer requires manual approval and this registration
+  /// is still `pending_approval` — no ticket exists yet, so the QR/card CTA
+  /// must not read as if the attendee is already confirmed.
+  final bool isPendingApproval;
+
   const ConfirmScreen({
     super.key,
     required this.qrToken,
@@ -37,6 +42,7 @@ class ConfirmScreen extends StatelessWidget {
     this.eventStart,
     this.eventEnd,
     this.venue,
+    this.isPendingApproval = false,
   });
 
   /// The web QR encodes the check-in URL, not the bare token, so scans work in
@@ -85,27 +91,36 @@ class ConfirmScreen extends StatelessWidget {
           child: Column(
             children: [
               const SizedBox(height: 8),
-              // Success check.
+              // Success check (or a pending clock while awaiting approval).
               Container(
                 width: 60,
                 height: 60,
                 decoration: BoxDecoration(
-                  color: AppColors.success.withValues(alpha: 0.25),
+                  color: (isPendingApproval
+                          ? AppColors.gold
+                          : AppColors.success)
+                      .withValues(alpha: 0.25),
                   shape: BoxShape.circle,
                   border:
                       Border.all(color: AppColors.gold.withValues(alpha: 0.4)),
                 ),
-                child: const Icon(Icons.check_rounded,
-                    color: AppColors.gold, size: 30),
+                child: Icon(
+                    isPendingApproval
+                        ? Icons.hourglass_top_rounded
+                        : Icons.check_rounded,
+                    color: AppColors.gold,
+                    size: 30),
               ),
               const SizedBox(height: 16),
-              Text("You're in.",
+              Text(isPendingApproval ? 'Request sent.' : "You're in.",
                   style: AppText.h1.copyWith(color: Colors.white, fontSize: 24)),
               const SizedBox(height: 6),
               Text(
-                attendeeName != null && attendeeName!.isNotEmpty
-                    ? '$eventName confirmed'
-                    : 'Your ticket is ready',
+                isPendingApproval
+                    ? 'The organizer reviews registrations for $eventName manually — you\'ll get an email once it\'s approved.'
+                    : (attendeeName != null && attendeeName!.isNotEmpty
+                        ? '$eventName confirmed'
+                        : 'Your ticket is ready'),
                 textAlign: TextAlign.center,
                 style: AppText.bodySm
                     .copyWith(color: Colors.white.withValues(alpha: 0.72)),
@@ -128,15 +143,19 @@ class ConfirmScreen extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    if (qrToken.isNotEmpty)
+                    // Never show a scannable-looking QR before the organizer
+                    // has actually approved the registration.
+                    if (qrToken.isNotEmpty && !isPendingApproval)
                       QrBlock(data: _qrData, size: 200)
                     else
-                      const Padding(
-                        padding: EdgeInsets.all(24),
+                      Padding(
+                        padding: const EdgeInsets.all(24),
                         child: Text(
-                          'QR code will appear here once confirmed.',
+                          isPendingApproval
+                              ? 'Your QR code will appear here once the organizer approves you.'
+                              : 'QR code will appear here once confirmed.',
                           textAlign: TextAlign.center,
-                          style: TextStyle(color: AppColors.inkMuted),
+                          style: const TextStyle(color: AppColors.inkMuted),
                         ),
                       ),
                     const SizedBox(height: 16),

@@ -42,8 +42,10 @@ export default function ScheduleClient({ sessions, tracks, registrationId, saved
   const [activeTrackId, setActiveTrackId] = useState<string | 'all'>('all');
   const [saved, setSaved] = useState<Set<string>>(() => new Set(savedSessionIds));
   const [savingId, setSavingId] = useState<string | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
 
   const activeDay = days[activeDayIdx];
+  const eventId = sessions[0]?.event_id ?? null;
 
   const visibleSessions = useMemo(() => {
     if (!activeDay) return [];
@@ -63,11 +65,28 @@ export default function ScheduleClient({ sessions, tracks, registrationId, saved
       return next;
     });
     try {
-      await fetch(`/api/sessions/${sessionId}/agenda`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ registration_id: registrationId, action: isAdding ? 'add' : 'remove' }),
-      });
+      if (isAdding && eventId) {
+        // Booking (not just plain removal) must go through the capacity-aware
+        // endpoint — the plain agenda upsert route has no waitlist logic and
+        // lets a capped session oversell silently.
+        const res = await fetch(`/api/events/${eventId}/sessions/${sessionId}/book`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ registrationId }),
+        });
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        if (data.waitlisted) {
+          setToast('Session is full — you’re on the waitlist.');
+          setTimeout(() => setToast(null), 4000);
+        }
+      } else {
+        await fetch(`/api/sessions/${sessionId}/agenda`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ registration_id: registrationId, action: 'remove' }),
+        });
+      }
     } catch {
       // revert on error
       setSaved((prev) => {
@@ -227,6 +246,16 @@ export default function ScheduleClient({ sessions, tracks, registrationId, saved
               </div>
             );
           })}
+        </div>
+      )}
+
+      {toast && (
+        <div
+          className="fixed bottom-5 left-1/2 -translate-x-1/2 z-[60] px-4 py-2.5 rounded-xl text-white text-[13px] font-medium shadow-lg"
+          style={{ background: '#1F4D3A' }}
+          role="status"
+        >
+          {toast}
         </div>
       )}
     </div>

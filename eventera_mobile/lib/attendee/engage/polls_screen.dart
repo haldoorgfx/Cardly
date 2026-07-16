@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../net.dart';
@@ -56,18 +58,64 @@ class _PollsScreenState extends State<PollsScreen> {
   final Map<String, String> _myVotes = {}; // pollId -> optionId
   final Set<String> _busy = {}; // pollIds voting
   String? _rid;
+  Timer? _refreshTimer;
 
   @override
   void initState() {
     super.initState();
     _rid = widget.registrationId;
     _resolveRegThenLoad();
+    // Live results while a session is active — mirrors the web PollsClient's
+    // 10s poll-results refresh so mobile attendees see other votes land too,
+    // not just their own.
+    _refreshTimer =
+        Timer.periodic(const Duration(seconds: 10), (_) => _silentRefresh());
+  }
+
+  @override
+  void dispose() {
+    _refreshTimer?.cancel();
+    super.dispose();
   }
 
   Future<void> _resolveRegThenLoad() async {
     _rid = await effectiveRegId(widget.registrationId, widget.eventId);
     if (!mounted) return;
     _load();
+  }
+
+  /// Re-fetches vote counts in place, without the full-screen loading state
+  /// or disturbing an in-flight vote — a background tick, not a user action.
+  Future<void> _silentRefresh() async {
+    if (!mounted || _loading || _busy.isNotEmpty) return;
+    try {
+      final rows = await supa
+          .from('polls')
+          .select('id, poll_options(id, votes_count)')
+          .eq('event_id', widget.eventId);
+      final counts = <String, Map<String, int>>{};
+      for (final r in (rows as List).whereType<Map>()) {
+        final map = Map<String, dynamic>.from(r);
+        final pollId = asString(map['id']);
+        final byOption = <String, int>{};
+        for (final o in asMapList(map['poll_options'])) {
+          byOption[asString(o['id'])] = asInt(o['votes_count']);
+        }
+        counts[pollId] = byOption;
+      }
+      if (!mounted) return;
+      setState(() {
+        for (final poll in _polls) {
+          final byOption = counts[poll.id];
+          if (byOption == null) continue;
+          for (final o in poll.options) {
+            if (byOption.containsKey(o.id)) o.votes = byOption[o.id]!;
+          }
+        }
+      });
+    } catch (_) {
+      // Silent by design — a missed background refresh isn't worth surfacing.
+    }
   }
 
   Future<void> _load() async {

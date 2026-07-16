@@ -419,6 +419,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       }
 
       final paymentRequired = asBool(map['payment_required']);
+      final awaitingApproval = asBool(map['awaiting_approval']);
       final processor = asString(map['payment_processor']);
       final redirectUrl = map['redirect_url'] == null
           ? null
@@ -495,7 +496,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         return;
       }
 
-      _goToConfirm(qrToken, ticket.name);
+      _goToConfirm(qrToken, ticket.name, isPendingApproval: awaitingApproval);
       return;
     } on ApiException catch (e) {
       if (mounted) {
@@ -516,7 +517,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     }
   }
 
-  void _goToConfirm(String? qrToken, String ticketName) {
+  void _goToConfirm(String? qrToken, String ticketName,
+      {bool isPendingApproval = false}) {
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
         builder: (_) => ConfirmScreen(
@@ -525,7 +527,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           slug: widget.slug,
           attendeeName: _nameCtrl.text.trim(),
           ticketType: ticketName,
-          cardEventSlug: widget.slug,
+          // The card is a graphic gated on a real registration — don't offer
+          // it before the organizer has actually approved the attendee.
+          cardEventSlug: isPendingApproval ? null : widget.slug,
+          isPendingApproval: isPendingApproval,
         ),
       ),
     );
