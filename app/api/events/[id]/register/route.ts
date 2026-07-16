@@ -102,7 +102,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (admin as any)
       .from('event_pages')
-      .select('id, event_id, title, starts_at, ends_at, timezone, venue_name, venue_address, is_online, variant_id, organizer_name, registration_deadline, max_capacity, payment_processor, payment_processors, is_public')
+      .select('id, event_id, title, starts_at, ends_at, timezone, venue_name, venue_address, is_online, variant_id, organizer_name, registration_deadline, max_capacity, payment_processor, payment_processors, is_public, cover_image_url')
       .eq('event_id', params.id)
       .maybeSingle(),
   ]);
@@ -556,6 +556,8 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       eventeraCardUrl: null, eventId: params.id,
       eventSlug,
       ticketType: ticket.name,
+      coverImageUrl: eventPage.cover_image_url ?? null,
+      organizerName: eventPage.organizer_name ?? null,
     }).catch(() => {});
 
     // In-app notification for the attendee (only if they have an account)

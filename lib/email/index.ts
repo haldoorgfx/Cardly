@@ -29,26 +29,46 @@ async function sendEmail(to: string, subject: string, html: string): Promise<voi
 
 // ─── Shared HTML shell ────────────────────────────────────────────────────────
 
-function wrap(content: string): string {
+const APP_URL_BASE = process.env.NEXT_PUBLIC_APP_URL ?? '';
+// The real brand marks, not a CSS-styled text wordmark — served from /public,
+// so they're stable absolute URLs any email client can load. Two variants
+// because email-client CSS support for filters/blend-modes is too spotty to
+// rely on recoloring one image — white-on-green for the header, the
+// standard forest-on-transparent mark for the light cream footer.
+const LOGO_WHITE_URL = `${APP_URL_BASE}/eventera-logo-white.png`;
+const LOGO_COLOR_URL = `${APP_URL_BASE}/eventera-logo.png`;
+
+function wrap(content: string, opts?: { preheader?: string }): string {
   return `<!DOCTYPE html>
 <html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;padding:0;background:#FAF6EE;font-family:Inter,Arial,sans-serif;color:#0F1F18">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="supported-color-schemes" content="light">
+</head>
+<body style="margin:0;padding:0;background:#FAF6EE;font-family:Inter,'Helvetica Neue',Arial,sans-serif;color:#0F1F18">
+${opts?.preheader ? `<div style="display:none;max-height:0;overflow:hidden;opacity:0;mso-hide:all">${esc(opts.preheader)}</div>` : ''}
 <table width="100%" cellpadding="0" cellspacing="0" style="background:#FAF6EE;padding:40px 16px">
 <tr><td align="center">
   <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px">
     <!-- Header -->
-    <tr><td style="background:#1F4D3A;border-radius:16px 16px 0 0;padding:24px 32px">
-      <span style="font-family:'Plus Jakarta Sans',Arial,sans-serif;font-size:22px;font-weight:700;color:#FAF6EE;letter-spacing:-0.02em">Eventera</span>
+    <tr><td style="background:linear-gradient(135deg,#1F4D3A 0%,#2A6A50 60%,#E8C57E 130%);border-radius:16px 16px 0 0;padding:26px 32px">
+      <img src="${LOGO_WHITE_URL}" alt="Eventera" width="126" height="26" style="display:block;height:26px;width:auto;border:0" />
     </td></tr>
     <!-- Body -->
     <tr><td style="background:#FFFFFF;padding:32px;border:1px solid #E5E0D4;border-top:none;border-bottom:none">
       ${content}
     </td></tr>
     <!-- Footer -->
-    <tr><td style="background:#FAF6EE;padding:20px 32px;border:1px solid #E5E0D4;border-top:none;border-radius:0 0 16px 16px;text-align:center">
-      <p style="margin:0;font-size:11px;color:#65736B">You&apos;re receiving this because you have email notifications enabled in your Eventera account.<br>
-      <a href="${process.env.NEXT_PUBLIC_APP_URL}/settings" style="color:#1F4D3A">Manage preferences</a></p>
+    <tr><td style="background:#FAF6EE;padding:24px 32px;border:1px solid #E5E0D4;border-top:none;border-radius:0 0 16px 16px;text-align:center">
+      <img src="${LOGO_COLOR_URL}" alt="" width="70" height="14" style="display:inline-block;height:14px;width:auto;opacity:0.5;margin-bottom:10px" />
+      <p style="margin:0;font-size:11px;line-height:1.6;color:#65736B">
+        You&apos;re receiving this because you have email notifications enabled in your Eventera account.<br>
+        <a href="${APP_URL_BASE}/settings" style="color:#1F4D3A;text-decoration:underline">Manage preferences</a>
+        &nbsp;·&nbsp;
+        <a href="${APP_URL_BASE}" style="color:#1F4D3A;text-decoration:underline">eventera.so</a>
+      </p>
     </td></tr>
   </table>
 </td></tr>
@@ -57,7 +77,7 @@ function wrap(content: string): string {
 }
 
 function btn(href: string, text: string): string {
-  return `<a href="${href}" style="display:inline-block;margin-top:20px;padding:12px 24px;background:#1F4D3A;color:#FFFFFF;text-decoration:none;border-radius:10px;font-size:14px;font-weight:600">${text}</a>`;
+  return `<a href="${href}" style="display:inline-block;margin-top:20px;padding:12px 26px;background:#1F4D3A;color:#FFFFFF;text-decoration:none;border-radius:10px;font-size:14px;font-weight:600;font-family:'Plus Jakarta Sans',Inter,Arial,sans-serif">${text}</a>`;
 }
 
 function esc(s: string): string {
@@ -90,7 +110,7 @@ export async function sendNotificationEmail(opts: {
     <h1 style="margin:0 0 12px;font-size:20px;font-weight:700;color:#0F1F18">${esc(opts.title)}</h1>
     ${opts.body ? `<p style="margin:0;font-size:14px;line-height:1.6;color:#3A4A42">${esc(opts.body)}</p>` : ''}
     ${btn(href, opts.actionLabel ?? 'Open Eventera')}
-  `);
+  `, { preheader: opts.body ?? opts.title });
   await sendEmail(opts.to, opts.title, html);
 }
 
@@ -139,7 +159,7 @@ export async function sendWelcomeEmail(opts: {
       <p style="margin:24px 0 0;font-size:13px;color:#65736B;line-height:1.6">
         Questions? Reply to this email — a real person reads every response.
       </p>
-    `),
+    `, { preheader: `We're glad you're here — here's how to create your first event on Eventera.` }),
   );
 }
 
@@ -182,7 +202,7 @@ export async function maybeSendDownloadMilestone(opts: {
         </tr>
       </table>
       ${btn(eventUrl, 'View event analytics →')}
-    `),
+    `, { preheader: `${opts.eventName} just hit ${count} card downloads.` }),
   );
 }
 
@@ -209,7 +229,7 @@ export async function sendCapReachedEmail(opts: {
         <strong style="color:#1F4D3A">Studio</strong> for a higher limit.
       </p>
       ${btn(upgradeUrl, 'Upgrade plan →')}
-    `),
+    `, { preheader: 'Your event has hit its monthly card limit — upgrade for more.' }),
   );
 }
 
@@ -235,7 +255,7 @@ export async function sendEventPublishedEmail(opts: {
         ${opts.publicUrl}
       </div>
       ${btn(opts.publicUrl, 'Preview attendee page →')}
-    `),
+    `, { preheader: `${opts.eventName} is now live and accepting registrations.` }),
   );
 }
 
@@ -263,7 +283,7 @@ export async function sendTeamInviteEmail(opts: {
         This invite expires in 7 days.
       </p>
       ${btn(opts.acceptUrl, 'Accept invitation →')}
-    `),
+    `, { preheader: `${opts.inviterName} invited you to join ${opts.teamName} as a ${opts.role}.` }),
   );
 }
 
@@ -295,7 +315,7 @@ export async function sendConnectionRequestEmail(opts: {
         Visit the People tab to accept or ignore.
       </p>
       ${btn(peopleUrl, 'View connection request →')}
-    `),
+    `, { preheader: `${opts.requesterName} wants to connect with you at ${opts.eventName}.` }),
   );
 }
 
@@ -323,7 +343,7 @@ export async function sendConnectionAcceptedEmail(opts: {
         Send them a message to start the conversation.
       </p>
       ${btn(messagesUrl, 'Send a message →')}
-    `),
+    `, { preheader: `${opts.acceptorName} accepted your connection request at ${opts.eventName}.` }),
   );
 }
 
@@ -356,7 +376,7 @@ export async function sendNewMessageEmail(opts: {
         ${preview}
       </div>
       ${btn(messagesUrl, 'Reply →')}
-    `),
+    `, { preheader: `${opts.senderName}: ${previewRaw}` }),
   );
 }
 
@@ -388,6 +408,6 @@ export async function sendQAAnsweredEmail(opts: {
         &ldquo;${questionPreview}&rdquo;
       </div>
       ${btn(qaUrl, 'See the answer →')}
-    `),
+    `, { preheader: `The organiser answered your question at ${opts.eventName}.` }),
   );
 }
