@@ -1081,9 +1081,15 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
     }
   }, [eventId, rows.length, query, statusFilter]);
 
-  // Prefer server-computed aggregates (correct for any event size) over client-side row counts
-  const checkedInCount = serverCheckedInCount ?? rows.filter(r => r.status === 'checked_in').length;
-  const pendingCount   = serverPendingCount   ?? rows.filter(r => r.status === 'pending').length;
+  // `rows` is complete (not just the current page) for the common case of a
+  // small-to-medium event — in that case it's the live source of truth and
+  // reflects check-ins/deletes immediately. Only fall back to the
+  // server-computed aggregate (a snapshot from page load, so it goes stale
+  // after any local action until a reload) when rows are genuinely paginated
+  // and an exact client-side count isn't possible.
+  const rowsComplete   = rows.length >= total;
+  const checkedInCount = rowsComplete ? rows.filter(r => r.status === 'checked_in').length : (serverCheckedInCount ?? rows.filter(r => r.status === 'checked_in').length);
+  const pendingCount   = rowsComplete ? rows.filter(r => r.status === 'pending').length     : (serverPendingCount   ?? rows.filter(r => r.status === 'pending').length);
   // Cards downloaded: prefer server-provided count, fallback to per-row check
   const cardDownloaded = totalCardsGenerated ?? rows.filter(r => r.eventera_card_url || cardEmailSet.has(r.attendee_email)).length;
   // Revenue: prefer server aggregate, fallback to per-row computation from current page
@@ -1203,7 +1209,7 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
             requiresStudio
             wrapperClassName=""
             onFetch={async () => {
-              const checkedIn = serverCheckedInCount ?? rows.filter(r => r.status === 'checked_in').length;
+              const checkedIn = checkedInCount;
               const cards = totalCardsGenerated ?? rows.filter(r => r.eventera_card_url).length;
               const res = await fetch('/api/era/generate-report', {
                 method: 'POST',
