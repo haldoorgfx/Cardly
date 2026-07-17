@@ -950,7 +950,7 @@ class QrBlock extends StatelessWidget {
   }
 }
 
-enum ToastType { success, error, info }
+enum ToastType { success, error, info, warning }
 
 OverlayEntry? _activeToast;
 
@@ -1050,9 +1050,13 @@ class _ToastHostState extends State<_ToastHost>
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).padding.bottom;
+    // Light tints of the real semantic color (not raw AppColors.success/danger)
+    // so the icon stays legible on the near-black forestDark chip — but each
+    // type now reads as what it actually is (success = green, not gold).
     final (IconData icon, Color accent) = switch (widget.type) {
-      ToastType.success => (Icons.check_circle, AppColors.gold),
+      ToastType.success => (Icons.check_circle, const Color(0xFF8FD6A8)),
       ToastType.error => (Icons.error_outline, const Color(0xFFF3A3A0)),
+      ToastType.warning => (Icons.warning_amber_rounded, const Color(0xFFF0C48A)),
       ToastType.info => (Icons.info_outline, Colors.white),
     };
     // Slide UP from just below its resting spot near the bottom of the screen.
@@ -1218,30 +1222,180 @@ class EmptyState extends StatelessWidget {
   }
 }
 
-class ErrorStateView extends StatelessWidget {
+/// Why a status state is being shown — drives which icon/color/default copy
+/// [StatusState] picks, so screens can say the REAL reason ("you don't have
+/// access", "check your connection") instead of a blanket "couldn't load".
+enum StatusReason { network, notFound, permission, plan, validation, generic }
+
+/// Turns a caught error into a specific, plain-language sentence a user can
+/// act on, instead of swallowing it into a generic "couldn't load" message.
+///
+/// This app's own exception types (EventeraException, ApiException,
+/// WalkInBlockedException, GroupRegisterBlockedException, ...) already
+/// override `toString()` to return a clean, specific message ('Event not
+/// found.', 'This event is at full capacity...') — those pass through as-is.
+/// Only genuinely noisy/raw error output (a bare SocketException, a
+/// PostgrestException's field dump, a timeout) gets translated here.
+String describeError(Object? error, {String context = 'this'}) {
+  if (error == null) {
+    return 'Something went wrong loading $context. Please try again.';
+  }
+  final raw = error.toString();
+  final lower = raw.toLowerCase();
+
+  if (lower.contains('socketexception') ||
+      lower.contains('failed host lookup') ||
+      lower.contains('network is unreachable') ||
+      lower.contains('connection refused') ||
+      lower.contains('connection closed') ||
+      lower.contains('handshake')) {
+    return "We couldn't reach the server. Check your connection and try again.";
+  }
+  if (lower.contains('timeoutexception') || lower.contains('timed out')) {
+    return 'That took too long to respond. Please try again.';
+  }
+  if (lower.contains('postgrestexception')) {
+    final code = RegExp(r"code:\s*'?([a-zA-Z0-9]+)'?").firstMatch(raw)?.group(1);
+    if (code == 'PGRST116') {
+      return "That wasn't found — it may have been deleted or you no longer have access.";
+    }
+    if (code == '42501') return "You don't have permission to do that.";
+    final m = RegExp(r'message:\s*([^,}]+)').firstMatch(raw)?.group(1)?.trim();
+    if (m != null) {
+      final cleaned = m.replaceAll(RegExp(r'''^['"]|['"]$'''), '');
+      if (cleaned.isNotEmpty) return cleaned;
+    }
+    return 'Something went wrong loading $context. Please try again.';
+  }
+  // Our own exception types' toString() IS already the clean message — use it
+  // directly rather than a generic fallback, but guard against a bare
+  // `Instance of 'SomeType'` (no toString override) or an unbounded stack dump.
+  if (raw.isNotEmpty && !raw.contains('Instance of') && raw.length < 200) {
+    return raw;
+  }
+  return 'Something went wrong loading $context. Please try again.';
+}
+
+(IconData, Color) _statusVisual(StatusKind kind, StatusReason reason) {
+  switch (kind) {
+    case StatusKind.success:
+      return (Icons.check_circle_outline, AppColors.success);
+    case StatusKind.warning:
+      return (Icons.warning_amber_rounded, AppColors.warning);
+    case StatusKind.info:
+      return (Icons.info_outline, AppColors.forest);
+    case StatusKind.empty:
+      return (Icons.inbox_outlined, AppColors.forest);
+    case StatusKind.error:
+      switch (reason) {
+        case StatusReason.network:
+          return (Icons.wifi_off_rounded, AppColors.danger);
+        case StatusReason.notFound:
+          return (Icons.search_off_rounded, AppColors.danger);
+        case StatusReason.permission:
+          return (Icons.lock_outline_rounded, AppColors.danger);
+        case StatusReason.plan:
+          return (Icons.auto_awesome_rounded, AppColors.gold);
+        case StatusReason.validation:
+        case StatusReason.generic:
+          return (Icons.error_outline_rounded, AppColors.danger);
+      }
+  }
+}
+
+enum StatusKind { error, warning, success, info, empty }
+
+/// The one full-block status/empty/error component for the whole app —
+/// consistent icon-in-circle treatment, a title, a specific message, and up
+/// to two actions. Superset of the old bare-icon [ErrorStateView] and the
+/// existing [EmptyState] (kept separately for its own call sites, but shares
+/// the same visual language).
+class StatusState extends StatelessWidget {
+  final StatusKind kind;
+  final StatusReason reason;
+  final IconData? icon;
+  final String? title;
   final String message;
-  final VoidCallback? onRetry;
-  const ErrorStateView({super.key, required this.message, this.onRetry});
+  final String? primaryLabel;
+  final VoidCallback? onPrimary;
+  final String? secondaryLabel;
+  final VoidCallback? onSecondary;
+  const StatusState({
+    super.key,
+    required this.kind,
+    this.reason = StatusReason.generic,
+    this.icon,
+    this.title,
+    required this.message,
+    this.primaryLabel,
+    this.onPrimary,
+    this.secondaryLabel,
+    this.onSecondary,
+  });
+
   @override
   Widget build(BuildContext context) {
+    final (defaultIcon, color) = _statusVisual(kind, reason);
+    final resolvedIcon = icon ?? defaultIcon;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.error_outline, color: AppColors.danger, size: 40),
-            const SizedBox(height: 14),
+            Container(
+              width: 64,
+              height: 64,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.1), shape: BoxShape.circle),
+              child: Icon(resolvedIcon, color: color, size: 28),
+            ),
+            const SizedBox(height: 16),
+            if (title != null) ...[
+              Text(title!, textAlign: TextAlign.center, style: AppText.h3),
+              const SizedBox(height: 6),
+            ],
             Text(message,
                 textAlign: TextAlign.center,
-                style: AppText.body.copyWith(color: AppColors.inkSoft)),
-            if (onRetry != null) ...[
+                style: AppText.bodySm.copyWith(color: AppColors.inkMuted)),
+            if (primaryLabel != null || secondaryLabel != null) ...[
               const SizedBox(height: 18),
-              MButton('Try again', fullWidth: false, onTap: onRetry),
+              if (primaryLabel != null)
+                MButton(primaryLabel!, fullWidth: false, onTap: onPrimary),
+              if (secondaryLabel != null) ...[
+                const SizedBox(height: 4),
+                MButton(secondaryLabel!,
+                    kind: MBtnKind.text, fullWidth: false, onTap: onSecondary),
+              ],
             ],
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Back-compat wrapper — most call sites just have a message + retry. New
+/// screens should reach for [StatusState] directly so they can pass a real
+/// [StatusReason] instead of the generic default.
+class ErrorStateView extends StatelessWidget {
+  final String message;
+  final VoidCallback? onRetry;
+  final StatusReason reason;
+  const ErrorStateView(
+      {super.key,
+      required this.message,
+      this.onRetry,
+      this.reason = StatusReason.generic});
+  @override
+  Widget build(BuildContext context) {
+    return StatusState(
+      kind: StatusKind.error,
+      reason: reason,
+      message: message,
+      primaryLabel: onRetry != null ? 'Try again' : null,
+      onPrimary: onRetry,
     );
   }
 }

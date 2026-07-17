@@ -5,6 +5,7 @@ import '../../eventera_api.dart';
 import '../../models.dart';
 import '../../organize/organizer_api.dart';
 import '../../theme.dart';
+import '../../ui/components.dart';
 import '../../roles/staff/event_control_screen.dart';
 import 'catering_screen.dart';
 import 'communications_screen.dart';
@@ -174,24 +175,26 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                 );
               }
               if (snap.hasError || !snap.hasData) {
-                return Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(28),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.error_outline,
-                            color: Brand.danger, size: 34),
-                        const SizedBox(height: 12),
-                        const Text("Couldn't load this event.",
-                            style: TextStyle(color: Brand.inkSoft)),
-                        const SizedBox(height: 16),
-                        FilledButton(
-                            onPressed: _reload,
-                            child: const Text('Try again')),
-                      ],
-                    ),
-                  ),
+                // Surface the REAL reason (not found, no design yet, offline,
+                // ...) instead of a blanket "couldn't load" — loadOwnEvent()
+                // already throws specific EventeraException messages for each
+                // case; describeError() only has to translate raw/noisy
+                // exceptions (network, Postgrest) that aren't already clean.
+                final msg = describeError(snap.error, context: 'this event');
+                final reason = msg.toLowerCase().contains("couldn't reach the server")
+                    ? StatusReason.network
+                    : (msg.toLowerCase().contains('not found') ||
+                            msg.toLowerCase().contains('no design yet'))
+                        ? StatusReason.notFound
+                        : StatusReason.generic;
+                return StatusState(
+                  kind: StatusKind.error,
+                  reason: reason,
+                  message: msg,
+                  primaryLabel: 'Try again',
+                  onPrimary: _reload,
+                  secondaryLabel: 'Go back',
+                  onSecondary: () => Navigator.of(context).pop(_changed),
                 );
               }
               return _content(snap.data!);
