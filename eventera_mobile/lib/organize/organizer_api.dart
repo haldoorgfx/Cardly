@@ -175,6 +175,18 @@ class OrganizerApi {
       'checked_in_at': DateTime.now().toUtc().toIso8601String(),
     });
 
+    // Decrement remaining ticket inventory, same as addGroup() and every web
+    // registration route (register / group-register / registrations). Without
+    // this a walk-in added from mobile never reduced quantity_sold, so a
+    // capped ticket could be over-sold. Best-effort: the attendee is already
+    // inserted + checked in, so a counter hiccup must not fail the door flow.
+    if (ticketTypeId != null && ticketTypeId.isNotEmpty) {
+      try {
+        await supa.rpc('increment_ticket_quantity_sold',
+            params: {'ticket_id': ticketTypeId, 'qty': 1});
+      } catch (_) {/* inventory count is non-critical to the check-in */}
+    }
+
     return WalkInResult(created: true, name: nm, alreadyCheckedIn: false);
   }
 
