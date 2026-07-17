@@ -127,6 +127,28 @@ export default async function BillingPage({
   const isActive = status === 'active' || isTrialing;
   const hasPortal = !!profile?.stripe_customer_id;
 
+  // When Stripe isn't wired up (no secret key), the plan/checkout/portal actions
+  // can't work — say so intentionally instead of letting the buttons look broken.
+  const stripeConfigured = !!process.env.STRIPE_SECRET_KEY;
+  const stripeBanner = !stripeConfigured ? (
+    <div
+      className="mb-6 rounded-2xl border px-5 py-4 flex items-start gap-3"
+      style={{ borderColor: 'rgba(31,77,58,0.18)', background: 'rgba(31,77,58,0.05)' }}
+      role="status"
+    >
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F4D3A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 mt-0.5" aria-hidden>
+        <circle cx="12" cy="12" r="10" /><path d="M12 16v-4M12 8h.01" />
+      </svg>
+      <div>
+        <p className="text-[14px] font-semibold text-[#1F4D3A]">Billing isn’t switched on yet</p>
+        <p className="text-[13px] text-[#3A4A42] mt-0.5 leading-relaxed">
+          Payment features are still being set up for this workspace. Plan changes, cards and invoices
+          will be available here once billing is connected.
+        </p>
+      </div>
+    </div>
+  ) : null;
+
   const periodEnd = profile?.current_period_end
     ? new Date(profile.current_period_end).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
     : null;
@@ -156,6 +178,7 @@ export default async function BillingPage({
             <h1 className="font-display font-semibold text-[24px] text-[#0F1F18] tracking-tight">Billing</h1>
             <p className="text-[14px] text-[#65736B] mt-1">Manage your plan and payment method</p>
           </div>
+          {stripeBanner}
           {checkout === 'success' && (
             <div className="mb-6 rounded-2xl border border-[#A8D5B5] bg-[#F0FAF4] px-5 py-4 flex items-center gap-3">
               <span className="h-2 w-2 rounded-full bg-[#2D7A4F] shrink-0" />
@@ -186,6 +209,7 @@ export default async function BillingPage({
         {plan !== 'studio' && <UpgradeStudioButton />}
       </div>
 
+      {stripeBanner}
       {checkout === 'success' && (
         <div className="mb-6 rounded-2xl border border-[#A8D5B5] bg-[#F0FAF4] px-5 py-4 flex items-center gap-3">
           <span className="h-2 w-2 rounded-full bg-[#2D7A4F] shrink-0" />
