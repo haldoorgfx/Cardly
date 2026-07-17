@@ -45,10 +45,18 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   });
   if (transferError) return NextResponse.json({ error: 'Failed to log transfer' }, { status: 500 });
 
+  // Rotate the QR token so the previous owner's saved QR can no longer scan in.
+  // (Matches app/api/tickets/[id]/transfer — the canonical transfer route the
+  // web + mobile clients actually call. Without this, a transferred-away ticket
+  // stays scannable by the old holder AND the new holder shares the same token.)
+  const newToken = crypto.randomUUID().replace(/-/g, '');
+
   // Update the registration
-  const { error: updateError } = await admin.from('registrations').update({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error: updateError } = await (admin as any).from('registrations').update({
     attendee_name: to_name,
     attendee_email: to_email,
+    qr_code_token: newToken,
     user_id: null,
     updated_at: new Date().toISOString(),
   }).eq('id', params.id);
@@ -64,7 +72,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     name: to_name,
     eventTitle: ep?.title ?? '',
     eventSlug,
-    qrCodeUrl: `${appUrl}/api/qr/${reg.qr_code_token}`,
+    qrCodeUrl: `${appUrl}/api/qr/${newToken}`,
   }).catch(() => {});
 
   return NextResponse.json({ ok: true });

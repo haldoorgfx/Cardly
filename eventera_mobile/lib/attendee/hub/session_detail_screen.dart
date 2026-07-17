@@ -167,9 +167,18 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
   }
 
   Future<void> _rate(int rating) async {
+    // The rate route requires the caller's own registration_id (it upserts on
+    // registration_id,session_id) — without it the POST 400s every time. Match
+    // the agenda screen's contract: gate on a registration, then send both.
+    final rid = EventContext.regIdFor(widget.eventId);
+    if (rid == null) {
+      showToast(context, 'Register for this event to rate sessions.');
+      return;
+    }
     setState(() => _myRating = rating);
     try {
       await apiPost('/api/sessions/${widget.sessionId}/rate', {
+        'registration_id': rid,
         'rating': rating,
       });
       if (!mounted) return;

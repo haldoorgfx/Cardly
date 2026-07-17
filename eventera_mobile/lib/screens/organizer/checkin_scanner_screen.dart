@@ -448,6 +448,26 @@ class _ResultScreen extends StatelessWidget {
               : null,
           nextLabel: 'Scan next',
         );
+      case 'error':
+        // A server/auth/network failure is NOT an invalid ticket. Showing the red
+        // "INVALID CODE — Ticket not found" screen here would tell door staff a
+        // legitimate attendee's ticket is bad and get them wrongly turned away.
+        // Amber "couldn't check in — try again" keeps the ticket's status unknown.
+        return _shell(
+          context,
+          glow: AppColors.warning,
+          badgeIcon: Icons.wifi_off_outlined,
+          badgeColor: const Color(0xFFFFD9A8),
+          status: "COULDN'T CHECK IN",
+          statusColor: const Color(0xFFFFD9A8),
+          name: 'Try again',
+          sub: result.message.isNotEmpty
+              ? result.message
+              : "We couldn't complete the check-in. This isn't a problem with "
+                  'their ticket — try scanning again.',
+          showAvatar: false,
+          nextLabel: 'Try again',
+        );
       default:
         return _shell(
           context,

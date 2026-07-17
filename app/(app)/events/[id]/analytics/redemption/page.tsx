@@ -65,7 +65,7 @@ export default async function RedemptionDashboardPage({ params }: Props) {
           .in('action', ['granted', 'revoked', 'transferred'])
           .limit(20000),
         db.from('entitlement_redemptions')
-          .select('entitlement_id, registration_id, action, status, redeemed_at, registrations(attendee_name)')
+          .select('entitlement_id, registration_id, action, status, redeemed_at, superseded_by, registrations(attendee_name)')
           .eq('event_id', id)
           .in('action', ['redeemed', 'un_redeemed'])
           .order('redeemed_at', { ascending: false })
@@ -81,6 +81,7 @@ export default async function RedemptionDashboardPage({ params }: Props) {
         action: string;
         status: string;
         redeemed_at: string;
+        superseded_by: string | null;
         registrations: { attendee_name: string | null } | null;
       }) => ({
         entitlement_id: r.entitlement_id,
@@ -88,6 +89,7 @@ export default async function RedemptionDashboardPage({ params }: Props) {
         action: r.action,
         status: r.status,
         redeemed_at: r.redeemed_at,
+        superseded_by: r.superseded_by,
         attendee_name: r.registrations?.attendee_name ?? null,
       }));
 

@@ -40,6 +40,7 @@ export interface RedemptionLedgerRow {
   status: string; // redeemed | already | ...
   redeemed_at: string;
   attendee_name: string | null;
+  superseded_by?: string | null; // set when this row lost an offline conflict (083)
 }
 
 export interface RedemptionStatRow {
@@ -142,7 +143,10 @@ export function computeRedemptionStats(
   const netRedeemed = new Map<string, number>();
   const lastByEnt = new Map<string, { name: string; at: string }>();
   for (const r of redemptionLedger) {
-    if (r.action === 'redeemed' && r.status === 'redeemed') {
+    // Skip rows that lost an offline conflict (superseded_by set) — the same
+    // exclusion the entitlements badge + catering_counts RPC apply, so the
+    // dashboard's "redeemed" total and "last" scan never over-count a duplicate.
+    if (r.action === 'redeemed' && r.status === 'redeemed' && !r.superseded_by) {
       netRedeemed.set(r.entitlement_id, (netRedeemed.get(r.entitlement_id) ?? 0) + 1);
       if (!lastByEnt.has(r.entitlement_id)) {
         lastByEnt.set(r.entitlement_id, { name: r.attendee_name ?? 'Attendee', at: r.redeemed_at });
