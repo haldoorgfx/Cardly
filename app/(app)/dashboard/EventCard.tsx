@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useState, useRef, useEffect } from 'react';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { MoreVertical, Pencil, Send, Link as LinkIcon, RotateCcw, Archive, Trash2, ScanLine, ExternalLink, ArrowRight, Calendar, MapPin, Users } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
 import type { Database } from '@/types/database';
 
 type EventRowType = Database['public']['Tables']['events']['Row'];
@@ -49,13 +50,11 @@ export default function EventCard({ event, regCount, revenue, currency, checkinP
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [busy,          setBusy]          = useState(false);
   const [deleteErr,     setDeleteErr]     = useState('');
-  const [copied,        setCopied]        = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   function copyLink() {
     navigator.clipboard.writeText(`${window.location.origin}/e/${event.slug}`).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      toast({ title: 'Link copied', description: 'Event link is on your clipboard.', variant: 'success' });
     });
   }
 
@@ -191,13 +190,6 @@ export default function EventCard({ event, regCount, revenue, currency, checkinP
   return (
     <div className={`group bg-white border rounded-2xl overflow-hidden transition-colors hover:border-[#1F4D3A]/40 flex flex-col ${isArchived ? 'opacity-70' : ''}`}
       style={{ borderColor: '#E5E0D4' }}>
-
-      {copied && (
-        <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-[60] inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-white text-[13px] font-medium shadow-lg"
-          style={{ background: '#1F4D3A' }} role="status">
-          <LinkIcon size={13} strokeWidth={2} /> Link copied
-        </div>
-      )}
 
       {/* ── Cover ── */}
       <div className="relative h-[132px] overflow-hidden"

@@ -30,8 +30,15 @@ export function Toaster() {
         const Icon = VARIANT_ICON[(variant as keyof typeof VARIANT_ICON) ?? "default"]
         return (
           <Toast key={id} variant={variant} {...props}>
-            {Icon && <Icon data-toast-icon className="w-5 h-5 shrink-0" />}
-            <div className="grid gap-1 flex-1">
+            {Icon && (
+              <span
+                data-toast-iconwrap
+                className="grid place-items-center h-[26px] w-[26px] rounded-lg shrink-0 mt-px"
+              >
+                <Icon data-toast-icon className="w-[15px] h-[15px]" strokeWidth={2.4} />
+              </span>
+            )}
+            <div className="grid gap-0.5 flex-1 min-w-0 py-0.5">
               {title && <ToastTitle>{title}</ToastTitle>}
               {description && (
                 <ToastDescription>{description}</ToastDescription>

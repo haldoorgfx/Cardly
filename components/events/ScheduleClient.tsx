@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { Bookmark, BookmarkCheck } from 'lucide-react';
+import { toast as showToast } from '@/hooks/use-toast';
 import type { Session, Track } from '@/types/database';
 
 interface Props {
@@ -42,7 +43,6 @@ export default function ScheduleClient({ sessions, tracks, registrationId, saved
   const [activeTrackId, setActiveTrackId] = useState<string | 'all'>('all');
   const [saved, setSaved] = useState<Set<string>>(() => new Set(savedSessionIds));
   const [savingId, setSavingId] = useState<string | null>(null);
-  const [toast, setToast] = useState<string | null>(null);
 
   const activeDay = days[activeDayIdx];
   const eventId = sessions[0]?.event_id ?? null;
@@ -77,8 +77,7 @@ export default function ScheduleClient({ sessions, tracks, registrationId, saved
         if (!res.ok) throw new Error();
         const data = await res.json();
         if (data.waitlisted) {
-          setToast('Session is full — you’re on the waitlist.');
-          setTimeout(() => setToast(null), 4000);
+          showToast({ title: 'Added to the waitlist', description: 'This session is full — we’ll hold your spot if one opens.', variant: 'warning' });
         }
       } else {
         await fetch(`/api/sessions/${sessionId}/agenda`, {
@@ -249,15 +248,6 @@ export default function ScheduleClient({ sessions, tracks, registrationId, saved
         </div>
       )}
 
-      {toast && (
-        <div
-          className="fixed bottom-5 left-1/2 -translate-x-1/2 z-[60] px-4 py-2.5 rounded-xl text-white text-[13px] font-medium shadow-lg"
-          style={{ background: '#1F4D3A' }}
-          role="status"
-        >
-          {toast}
-        </div>
-      )}
     </div>
   );
 }

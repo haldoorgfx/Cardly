@@ -1,6 +1,7 @@
 'use client';
 
 import { useTransition } from 'react';
+import { toast } from '@/hooks/use-toast';
 
 export function BillingPortalButton({
   label,
@@ -13,9 +14,23 @@ export function BillingPortalButton({
 
   function open() {
     startTransition(async () => {
-      const res = await fetch('/api/billing/create-portal', { method: 'POST' });
-      const data = await res.json();
-      if (data.url) window.location.href = data.url;
+      try {
+        const res = await fetch('/api/billing/create-portal', { method: 'POST' });
+        const data = await res.json().catch(() => ({}));
+        if (data.url) { window.location.href = data.url; return; }
+        // No silent dead button — say what's actually wrong.
+        toast({
+          title: 'Billing isn’t available yet',
+          description: data.error ?? 'Could not open the billing portal. Please try again.',
+          variant: 'destructive',
+        });
+      } catch {
+        toast({
+          title: 'Couldn’t reach billing',
+          description: 'Check your connection and try again.',
+          variant: 'destructive',
+        });
+      }
     });
   }
 
