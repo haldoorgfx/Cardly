@@ -35,6 +35,7 @@ class CommunicationsScreen extends StatefulWidget {
 class _CommunicationsScreenState extends State<CommunicationsScreen> {
   bool _loading = true;
   String? _error;
+  StatusReason _errorReason = StatusReason.generic;
   int _registrantCount = 0;
 
   @override
@@ -60,10 +61,14 @@ class _CommunicationsScreenState extends State<CommunicationsScreen> {
         _registrantCount = count.count;
         _loading = false;
       });
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
+      final msg = describeError(e, context: 'your attendee count');
       setState(() {
-        _error = 'Could not load attendee count.';
+        _error = msg;
+        _errorReason = msg.toLowerCase().contains("couldn't reach the server")
+            ? StatusReason.network
+            : StatusReason.generic;
         _loading = false;
       });
     }
@@ -104,7 +109,10 @@ class _CommunicationsScreenState extends State<CommunicationsScreen> {
 
   Widget _body() {
     if (_loading) return const LoadingState();
-    if (_error != null) return ErrorStateView(message: _error!, onRetry: _load);
+    if (_error != null) {
+      return ErrorStateView(
+          message: _error!, onRetry: _load, reason: _errorReason);
+    }
 
     return RefreshIndicator(
       color: AppColors.forest,
@@ -251,11 +259,11 @@ class _ComposeSheetState extends State<_ComposeSheet> {
       }
     } on ApiException catch (e) {
       if (mounted) setState(() { _sending = false; _error = e.message; });
-    } catch (_) {
+    } catch (e) {
       if (mounted) {
         setState(() {
           _sending = false;
-          _error = 'Something went wrong. Check your connection and try again.';
+          _error = describeError(e, context: 'that email');
         });
       }
     }

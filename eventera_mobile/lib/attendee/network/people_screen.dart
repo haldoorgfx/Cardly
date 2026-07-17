@@ -43,6 +43,7 @@ enum _Filter { all, connected, requests, suggested }
 class _PeopleScreenState extends State<PeopleScreen> {
   bool _loading = true;
   String? _error;
+  StatusReason _errorReason = StatusReason.generic;
   List<_Person> _people = [];
   List<_Match> _matches = [];
   String? _rid;
@@ -55,6 +56,8 @@ class _PeopleScreenState extends State<PeopleScreen> {
   List<_ConnRequest> _sent = [];
   bool _loadingRequests = false;
   bool _requestsLoaded = false;
+  String? _requestsError;
+  StatusReason _requestsErrorReason = StatusReason.generic;
   String? _respondingTo;
 
   bool get _canNetwork => _rid != null && _rid!.isNotEmpty;
@@ -113,17 +116,13 @@ class _PeopleScreenState extends State<PeopleScreen> {
         _matches = results[1] as List<_Match>;
         _loading = false;
       });
-    } on ApiException catch (e) {
+    } catch (e) {
       if (!mounted) return;
+      final msg = describeError(e, context: 'the directory');
       setState(() {
         _loading = false;
-        _error = e.message;
-      });
-    } catch (_) {
-      if (!mounted) return;
-      setState(() {
-        _loading = false;
-        _error = 'Something went wrong loading the directory.';
+        _error = msg;
+        _errorReason = _reasonFor(e, msg);
       });
     }
   }
@@ -152,15 +151,12 @@ class _PeopleScreenState extends State<PeopleScreen> {
         p.connecting = false;
         _requestsLoaded = false; // let the Requests tab re-fetch the new sent request
       });
-      showToast(context, 'Connection request sent');
-    } on ApiException catch (e) {
+      showToast(context, 'Connection request sent', type: ToastType.success);
+    } catch (e) {
       if (!mounted) return;
       setState(() => p.connecting = false);
-      showToast(context, e.message);
-    } catch (_) {
-      if (!mounted) return;
-      setState(() => p.connecting = false);
-      showToast(context, 'Could not send request');
+      showToast(context, describeError(e, context: 'this request'),
+          type: ToastType.error);
     }
   }
 
@@ -181,21 +177,21 @@ class _PeopleScreenState extends State<PeopleScreen> {
         m.connecting = false;
         _requestsLoaded = false;
       });
-      showToast(context, 'Connection request sent');
-    } on ApiException catch (e) {
+      showToast(context, 'Connection request sent', type: ToastType.success);
+    } catch (e) {
       if (!mounted) return;
       setState(() => m.connecting = false);
-      showToast(context, e.message);
-    } catch (_) {
-      if (!mounted) return;
-      setState(() => m.connecting = false);
-      showToast(context, 'Could not send request');
+      showToast(context, describeError(e, context: 'this request'),
+          type: ToastType.error);
     }
   }
 
   Future<void> _loadRequests() async {
     if (!_canNetwork) return;
-    setState(() => _loadingRequests = true);
+    setState(() {
+      _loadingRequests = true;
+      _requestsError = null;
+    });
     try {
       final data = await apiGet(
           '/api/events/${widget.eventId}/connections/requests',
@@ -211,13 +207,16 @@ class _PeopleScreenState extends State<PeopleScreen> {
         _loadingRequests = false;
         _requestsLoaded = true;
       });
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
+      final msg = describeError(e, context: 'your requests');
       setState(() {
         _incoming = [];
         _sent = [];
         _loadingRequests = false;
         _requestsLoaded = true;
+        _requestsError = msg;
+        _requestsErrorReason = _reasonFor(e, msg);
       });
     }
   }
@@ -241,15 +240,13 @@ class _PeopleScreenState extends State<PeopleScreen> {
         }
       });
       showToast(context,
-          action == 'accept' ? 'You\'re now connected' : 'Request declined');
-    } on ApiException catch (e) {
+          action == 'accept' ? 'You\'re now connected' : 'Request declined',
+          type: ToastType.success);
+    } catch (e) {
       if (!mounted) return;
       setState(() => _respondingTo = null);
-      showToast(context, e.message);
-    } catch (_) {
-      if (!mounted) return;
-      setState(() => _respondingTo = null);
-      showToast(context, 'Could not update the request');
+      showToast(context, describeError(e, context: 'this request'),
+          type: ToastType.error);
     }
   }
 
@@ -344,7 +341,8 @@ class _PeopleScreenState extends State<PeopleScreen> {
           : _loading
               ? const LoadingState()
               : _error != null
-                  ? ErrorStateView(message: _error!, onRetry: _load)
+                  ? ErrorStateView(
+                      message: _error!, onRetry: _load, reason: _errorReason)
                   : RefreshIndicator(
                       color: AppColors.forest,
                       onRefresh: _filter == _Filter.requests ? _loadRequests : _load,
@@ -464,6 +462,16 @@ class _PeopleScreenState extends State<PeopleScreen> {
       return const Padding(
         padding: EdgeInsets.only(top: 60),
         child: LoadingState(),
+      );
+    }
+    if (_requestsError != null) {
+      return Padding(
+        padding: const EdgeInsets.only(top: 40),
+        child: ErrorStateView(
+          message: _requestsError!,
+          onRetry: _loadRequests,
+          reason: _requestsErrorReason,
+        ),
       );
     }
     if (_incoming.isEmpty && _sent.isEmpty) {
@@ -758,6 +766,29 @@ class _PeopleScreenState extends State<PeopleScreen> {
         );
     }
   }
+}
+
+/// Classifies a caught load error into a [StatusReason] so [ErrorStateView]
+/// shows the right icon/copy — network for connectivity, and the
+/// ApiException status code for anything the server told us. Connections and
+/// messaging are Pro-plan-gated features, so a 402 here (e.g. "Networking
+/// requires the organizer to be on the Pro plan.") is a plan reason, not a
+/// generic one.
+StatusReason _reasonFor(Object? error, String message) {
+  if (message.toLowerCase().contains("couldn't reach the server")) {
+    return StatusReason.network;
+  }
+  if (error is ApiException) {
+    switch (error.status) {
+      case 402:
+        return StatusReason.plan;
+      case 403:
+        return StatusReason.permission;
+      case 404:
+        return StatusReason.notFound;
+    }
+  }
+  return StatusReason.generic;
 }
 
 // ─── models ───────────────────────────────────────────────────────────────

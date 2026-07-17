@@ -2,10 +2,14 @@
 
 import { useState } from 'react';
 import { ArrowRight, Check } from 'lucide-react';
+import { describeError } from '@/components/ui/status-state';
+import { useToast } from '@/hooks/use-toast';
 
 export function NewsletterForm() {
+  const { toast } = useToast();
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'done' | 'error'>('idle');
+  const [errorMsg, setErrorMsg] = useState('');
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -17,8 +21,18 @@ export function NewsletterForm() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, source: 'whats-new' }),
       });
-      setStatus(res.ok ? 'done' : 'error');
-    } catch {
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        throw new Error(j.error ?? 'That email could not be subscribed.');
+      }
+      setStatus('done');
+      toast({
+        title: 'Subscribed',
+        description: "You're on the list — we'll email you release notes.",
+        variant: 'success',
+      });
+    } catch (err) {
+      setErrorMsg(describeError(err, 'your subscription'));
       setStatus('error');
     }
   }
@@ -44,7 +58,7 @@ export function NewsletterForm() {
         type="email"
         required
         value={email}
-        onChange={e => { setEmail(e.target.value); if (status === 'error') setStatus('idle'); }}
+        onChange={e => { setEmail(e.target.value); if (status === 'error') { setStatus('idle'); setErrorMsg(''); } }}
         placeholder="your@email.com"
         className="flex-1 px-4 py-3 rounded-xl text-[14px] text-ink placeholder:text-muted outline-none"
         style={{ background: '#FFFFFF', border: '1px solid transparent' }}
@@ -57,8 +71,8 @@ export function NewsletterForm() {
         {status === 'loading' ? 'Subscribing…' : <>Subscribe <ArrowRight size={14} strokeWidth={2} /></>}
       </button>
       {status === 'error' && (
-        <p className="w-full text-center sm:text-left text-[12px] text-danger">
-          Something went wrong. Please try again.
+        <p role="alert" className="w-full text-center sm:text-left text-[12px] text-danger">
+          {errorMsg}
         </p>
       )}
     </form>

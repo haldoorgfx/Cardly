@@ -39,6 +39,7 @@ class _EventsMapScreenState extends State<EventsMapScreen> {
   final _map = MapController();
   bool _loading = true;
   String? _error;
+  StatusReason _errorReason = StatusReason.generic;
   final List<_MapEvent> _events = [];
   _MapEvent? _selected;
 
@@ -92,11 +93,15 @@ class _EventsMapScreenState extends State<EventsMapScreen> {
       setState(() => _loading = false);
       // Fit to events after first frame.
       WidgetsBinding.instance.addPostFrameCallback((_) => _fitToEvents());
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
+      final msg = describeError(e, context: 'the map');
       setState(() {
         _loading = false;
-        _error = 'Could not load the map.';
+        _error = msg;
+        _errorReason = msg.toLowerCase().contains("couldn't reach the server")
+            ? StatusReason.network
+            : StatusReason.generic;
       });
     }
   }
@@ -138,13 +143,19 @@ class _EventsMapScreenState extends State<EventsMapScreen> {
       }
       if (perm == LocationPermission.denied ||
           perm == LocationPermission.deniedForever) {
-        if (mounted) showToast(context, 'Location permission is off.');
+        if (mounted) {
+          showToast(context, 'Location permission is off.',
+              type: ToastType.warning);
+        }
         return;
       }
       final pos = await Geolocator.getCurrentPosition();
       _map.move(LatLng(pos.latitude, pos.longitude), 12);
-    } catch (_) {
-      if (mounted) showToast(context, 'Could not get your location.');
+    } catch (e) {
+      if (mounted) {
+        showToast(context, describeError(e, context: 'your location'),
+            type: ToastType.error);
+      }
     }
   }
 
@@ -155,7 +166,8 @@ class _EventsMapScreenState extends State<EventsMapScreen> {
       body: _loading
           ? const LoadingState()
           : _error != null
-              ? ErrorStateView(message: _error!, onRetry: _load)
+              ? ErrorStateView(
+                  message: _error!, onRetry: _load, reason: _errorReason)
               : Stack(
                   children: [
                     // Positioned.fill forces the map to take the full stack

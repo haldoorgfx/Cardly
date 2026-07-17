@@ -261,9 +261,9 @@ class _AttendeeAuthScreenState extends State<AttendeeAuthScreen> {
         setState(() => _error =
             'That password didn\'t work. If you\'ve never set one, tap "Email me a code instead".');
       }
-    } catch (_) {
+    } catch (e) {
       if (mounted) {
-        setState(() => _error = 'Could not sign in. Please try again.');
+        setState(() => _error = describeError(e, context: 'your sign-in'));
       }
     } finally {
       if (mounted) {
@@ -297,9 +297,9 @@ class _AttendeeAuthScreenState extends State<AttendeeAuthScreen> {
       _startResendCountdown();
     } on AuthException catch (e) {
       if (mounted) setState(() => _error = e.message);
-    } catch (_) {
+    } catch (e) {
       if (mounted) {
-        setState(() => _error = 'Could not send the code. Please try again.');
+        setState(() => _error = describeError(e, context: 'your code'));
       }
     } finally {
       if (mounted) {
@@ -357,10 +357,10 @@ class _AttendeeAuthScreenState extends State<AttendeeAuthScreen> {
           _step = _Step.code;
         });
       }
-    } catch (_) {
+    } catch (e) {
       if (mounted) {
         setState(() {
-          _error = 'That code isn\'t right. Try again or resend.';
+          _error = describeError(e, context: 'your code');
           _step = _Step.code;
         });
       }
@@ -503,10 +503,11 @@ class _AttendeeAuthScreenState extends State<AttendeeAuthScreen> {
         _avatarUrl = '$url?t=${DateTime.now().millisecondsSinceEpoch}';
         _uploadingAvatar = false;
       });
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
       setState(() => _uploadingAvatar = false);
-      showToast(context, 'Could not upload your photo');
+      showToast(context, describeError(e, context: 'your photo'),
+          type: ToastType.error);
     }
   }
 

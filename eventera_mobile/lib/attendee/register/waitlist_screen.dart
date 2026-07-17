@@ -78,16 +78,10 @@ class _WaitlistScreenState extends State<WaitlistScreen> {
         _joined = true;
         _submitting = false;
       });
-    } on ApiException catch (e) {
+    } catch (e) {
       if (!mounted) return;
       setState(() {
-        _error = e.message;
-        _submitting = false;
-      });
-    } catch (_) {
-      if (!mounted) return;
-      setState(() {
-        _error = 'Something went wrong. Please try again.';
+        _error = describeError(e, context: 'the waitlist');
         _submitting = false;
       });
     }

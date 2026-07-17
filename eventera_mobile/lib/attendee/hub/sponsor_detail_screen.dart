@@ -26,6 +26,7 @@ class SponsorDetailScreen extends StatefulWidget {
 class _SponsorDetailScreenState extends State<SponsorDetailScreen> {
   bool _loading = true;
   String? _error;
+  StatusReason _errorReason = StatusReason.generic;
   Map<String, dynamic>? _sponsor;
 
   @override
@@ -52,6 +53,7 @@ class _SponsorDetailScreenState extends State<SponsorDetailScreen> {
         setState(() {
           _loading = false;
           _error = 'This sponsor could not be found.';
+          _errorReason = StatusReason.notFound;
         });
         return;
       }
@@ -59,17 +61,15 @@ class _SponsorDetailScreenState extends State<SponsorDetailScreen> {
         _sponsor = Map<String, dynamic>.from(row);
         _loading = false;
       });
-    } on ApiException catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _loading = false;
-        _error = e.message;
-      });
     } catch (e) {
       if (!mounted) return;
+      final msg = describeError(e, context: 'this sponsor');
       setState(() {
         _loading = false;
-        _error = 'Something went wrong loading this sponsor.';
+        _error = msg;
+        _errorReason = msg.toLowerCase().contains("couldn't reach the server")
+            ? StatusReason.network
+            : StatusReason.generic;
       });
     }
   }
@@ -95,7 +95,8 @@ class _SponsorDetailScreenState extends State<SponsorDetailScreen> {
     if (_error != null) {
       return MScaffold(
         appBar: const MAppBar(title: 'Booth'),
-        body: ErrorStateView(message: _error!, onRetry: _load),
+        body: ErrorStateView(
+            message: _error!, onRetry: _load, reason: _errorReason),
       );
     }
     return _buildBody();
@@ -283,14 +284,14 @@ class _SponsorDetailScreenState extends State<SponsorDetailScreen> {
   Future<void> _openUrl(BuildContext context, String url) async {
     final uri = Uri.tryParse(url);
     if (uri == null) {
-      showToast(context, 'Could not open link');
+      showToast(context, 'Could not open link', type: ToastType.error);
       return;
     }
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
       if (!context.mounted) return;
-      showToast(context, 'Could not open link');
+      showToast(context, 'Could not open link', type: ToastType.error);
     }
   }
 
@@ -300,7 +301,7 @@ class _SponsorDetailScreenState extends State<SponsorDetailScreen> {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
       if (!context.mounted) return;
-      showToast(context, 'Could not open link');
+      showToast(context, 'Could not open link', type: ToastType.error);
     }
   }
 

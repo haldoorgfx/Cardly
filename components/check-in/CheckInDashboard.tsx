@@ -5,6 +5,7 @@ import { ScanLine, Check, Users, Clock, Search, X, CheckCircle2, Smartphone, QrC
 import Link from 'next/link';
 import { QRScanner } from './QRScanner';
 import type { RecentCheckin } from '@/app/(app)/events/[id]/check-in/page';
+import { StatusState, describeError } from '@/components/ui/status-state';
 
 interface DashboardSearchResult {
   id: string;
@@ -173,11 +174,11 @@ function AttendeeModal({ reg, eventId, onClose, onCheckedIn }: {
         setStatus('done');
         onCheckedIn(reg.id);
       } else {
-        setErrorMsg(data.message ?? data.error ?? 'Something went wrong. Try again.');
+        setErrorMsg(data.message ?? data.error ?? "Couldn't check in this attendee. Try again.");
         setStatus('error');
       }
-    } catch {
-      setErrorMsg('Network error — check your connection and try again.');
+    } catch (e) {
+      setErrorMsg(describeError(e, 'this check-in'));
       setStatus('error');
     }
   }
@@ -248,7 +249,7 @@ function AttendeeModal({ reg, eventId, onClose, onCheckedIn }: {
           {status === 'error' && (
             <div className="px-4 py-3 rounded-xl text-[13px] mb-3"
               style={{ background: '#FEF2F2', color: '#B8423C', border: '1px solid #FECACA' }}>
-              {errorMsg ?? 'Something went wrong. Try again.'}
+              {errorMsg ?? "Couldn't check in this attendee. Try again."}
             </div>
           )}
 
@@ -621,9 +622,12 @@ export default function CheckInDashboard({
               </div>
 
               {feed.length === 0 ? (
-                <div className="px-5 py-8 text-center">
-                  <p className="text-[13px]" style={{ color: '#65736B' }}>No check-ins yet. Open the scanner to start.</p>
-                </div>
+                <StatusState
+                  kind="empty"
+                  icon={ScanLine}
+                  compact
+                  message="No check-ins yet. Open the scanner to start."
+                />
               ) : (
                 <div className="max-h-[320px] overflow-y-auto divide-y" style={{ borderColor: 'rgba(229,224,212,0.6)' }}>
                   {feed.map((entry) => (

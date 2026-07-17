@@ -58,6 +58,7 @@ class _Question {
 class _QaScreenState extends State<QaScreen> {
   bool _loading = true;
   String? _error;
+  StatusReason _errorReason = StatusReason.generic;
   List<_Question> _questions = [];
   final Set<String> _myUpvotes = {};
   final Set<String> _busy = {};
@@ -133,8 +134,12 @@ class _QaScreenState extends State<QaScreen> {
       });
     } catch (e) {
       if (!mounted) return;
+      final msg = describeError(e, context: 'the questions');
       setState(() {
-        _error = e is ApiException ? e.message : e.toString();
+        _error = msg;
+        _errorReason = msg.toLowerCase().contains("couldn't reach the server")
+            ? StatusReason.network
+            : StatusReason.generic;
         _loading = false;
       });
     }
@@ -143,7 +148,8 @@ class _QaScreenState extends State<QaScreen> {
   Future<void> _upvote(_Question q) async {
     final rid = _rid;
     if (rid == null) {
-      showEngageSnack(context, 'Register for this event to upvote', error: true);
+      showToast(context, 'Register for this event to upvote',
+          type: ToastType.error);
       return;
     }
     if (_busy.contains(q.id)) return;
@@ -189,9 +195,8 @@ class _QaScreenState extends State<QaScreen> {
             q.upvotes = (q.upvotes - 1).clamp(0, 1 << 30);
           }
         });
-        showEngageSnack(context,
-            e is ApiException ? e.message : 'Could not upvote',
-            error: true);
+        showToast(context, describeError(e, context: 'your upvote'),
+            type: ToastType.error);
       }
     } finally {
       if (mounted) setState(() => _busy.remove(q.id));
@@ -220,8 +225,8 @@ class _QaScreenState extends State<QaScreen> {
 
   Future<void> _openComposer() async {
     if (_rid == null) {
-      showEngageSnack(context, 'Register for this event to ask a question',
-          error: true);
+      showToast(context, 'Register for this event to ask a question',
+          type: ToastType.error);
       return;
     }
     final result =
@@ -235,13 +240,15 @@ class _QaScreenState extends State<QaScreen> {
         'is_anonymous': result.anonymous,
         if (widget.sessionId != null) 'session_id': widget.sessionId,
       });
-      if (mounted) showToast(context, 'Your question was submitted');
+      if (mounted) {
+        showToast(context, 'Your question was submitted',
+            type: ToastType.success);
+      }
       await _load();
     } catch (e) {
       if (mounted) {
-        showEngageSnack(context,
-            e is ApiException ? e.message : 'Could not submit your question',
-            error: true);
+        showToast(context, describeError(e, context: 'your question'),
+            type: ToastType.error);
       }
     } finally {
       if (mounted) setState(() => _submitting = false);
@@ -302,7 +309,8 @@ class _QaScreenState extends State<QaScreen> {
   Widget _body() {
     if (_loading) return const LoadingState();
     if (_error != null) {
-      return ErrorStateView(message: _error!, onRetry: _load);
+      return ErrorStateView(
+          message: _error!, onRetry: _load, reason: _errorReason);
     }
     final visible = _visible;
     return RefreshIndicator(

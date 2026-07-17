@@ -3,9 +3,10 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Download, RotateCw, UtensilsCrossed, Accessibility } from 'lucide-react';
+import { ArrowLeft, Download, UtensilsCrossed, Accessibility } from 'lucide-react';
 import { EntitlementIcon } from '@/components/tickets/EntitlementIcon';
 import { PageShell, PageHeader } from '@/components/dash';
+import { StatusState } from '@/components/ui/status-state';
 
 export interface DietaryCount {
   tag: string;
@@ -108,43 +109,26 @@ export function CateringClient({ eventSlug, meals, loadError }: Props) {
         </Link>
 
         {loadError ? (
-          <div className="bg-white rounded-2xl border p-10 text-center" style={{ borderColor: '#E5E0D4' }}>
-            <p className="font-display text-[17px] font-semibold" style={{ color: '#0F1F18' }}>
-              {loadError === 'auth' ? 'You can’t manage this event' : 'Couldn’t load catering counts'}
-            </p>
-            <p className="text-[14px] mt-1.5 mb-5" style={{ color: '#65736B' }}>
-              {loadError === 'auth'
+          <div className="bg-white rounded-2xl border" style={{ borderColor: '#E5E0D4' }}>
+            <StatusState
+              kind="error"
+              reason={loadError === 'auth' ? 'permission' : 'network'}
+              title={loadError === 'auth' ? 'You can’t manage this event' : 'Couldn’t load catering counts'}
+              message={loadError === 'auth'
                 ? 'Only the event owner or its staff can see catering counts.'
-                : 'Something went wrong fetching the counts.'}
-            </p>
-            {loadError === 'generic' && (
-              <button
-                onClick={() => router.refresh()}
-                className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-[14px] font-medium text-white transition hover:bg-[#163828]"
-                style={{ background: '#1F4D3A' }}
-              >
-                <RotateCw size={15} strokeWidth={2} /> Retry
-              </button>
-            )}
+                : 'We couldn’t reach the database to fetch the counts. Please try again.'}
+              primaryAction={loadError === 'generic' ? { label: 'Try again', onClick: () => router.refresh() } : undefined}
+            />
           </div>
         ) : !hasMeals ? (
-          <div className="bg-white rounded-2xl border p-10 text-center" style={{ borderColor: '#E5E0D4' }}>
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
-              <UtensilsCrossed size={22} strokeWidth={1.9} />
-            </div>
-            <p className="font-display text-[18px] font-semibold" style={{ color: '#0F1F18' }}>
-              No meal entitlements yet
-            </p>
-            <p className="text-[14px] mt-1.5 mb-5" style={{ color: '#65736B' }}>
-              Add a meal entitlement and attach it to your ticket types. Once meals are scanned at check-in, their counts and dietary breakdown appear here.
-            </p>
-            <Link
-              href={`/events/${eventSlug}/entitlements`}
-              className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-[14px] font-medium text-white transition hover:bg-[#163828]"
-              style={{ background: '#1F4D3A' }}
-            >
-              Set up entitlements
-            </Link>
+          <div className="bg-white rounded-2xl border" style={{ borderColor: '#E5E0D4' }}>
+            <StatusState
+              kind="empty"
+              icon={UtensilsCrossed}
+              title="No meal entitlements yet"
+              message="Add a meal entitlement and attach it to your ticket types. Once meals are scanned at check-in, their counts and dietary breakdown appear here."
+              primaryAction={{ label: 'Set up entitlements', href: `/events/${eventSlug}/entitlements` }}
+            />
           </div>
         ) : (
           <div className="space-y-4">

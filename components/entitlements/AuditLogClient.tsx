@@ -3,11 +3,12 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, ShieldAlert, RotateCw, ClipboardList, X, Filter } from 'lucide-react';
+import { ArrowLeft, ClipboardList, X, Filter } from 'lucide-react';
 import { AuditTable } from './AuditTable';
 import { AUDIT_ACTIONS, AUDIT_STATUSES, type AuditRow, type AuditFilters, type StaffOption } from './audit-model';
 import type { EntitlementType } from '@/components/tickets/EntitlementIcon';
 import { PageShell, PageHeader } from '@/components/dash';
+import { StatusState } from '@/components/ui/status-state';
 
 interface EntOption { id: string; name: string; type: EntitlementType }
 
@@ -80,22 +81,16 @@ export function AuditLogClient({ eventSlug, rows, loadError, entitlements, staff
       />
 
       {loadError ? (
-          <div className="bg-white rounded-2xl border p-10 text-center" style={{ borderColor: '#E5E0D4' }}>
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl" style={{ background: 'rgba(184,66,60,0.10)', color: '#B8423C' }}>
-              <ShieldAlert size={22} strokeWidth={1.9} />
-            </div>
-            <p className="font-display text-[17px] font-semibold" style={{ color: '#0F1F18' }}>
-              {loadError === 'auth' ? 'You can’t view this audit log' : 'Couldn’t load the audit log'}
-            </p>
-            <p className="text-[14px] mt-1.5 mb-5" style={{ color: '#65736B' }}>
-              {loadError === 'auth' ? 'Only the event owner or its staff can view the entitlement audit log.' : 'Something went wrong fetching the audit trail.'}
-            </p>
-            {loadError === 'generic' && (
-              <button onClick={() => router.refresh()}
-                className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-[14px] font-medium text-white transition hover:bg-[#163828]" style={{ background: '#1F4D3A' }}>
-                <RotateCw size={15} strokeWidth={2} /> Retry
-              </button>
-            )}
+          <div className="bg-white rounded-2xl border" style={{ borderColor: '#E5E0D4' }}>
+            <StatusState
+              kind="error"
+              reason={loadError === 'auth' ? 'permission' : 'network'}
+              title={loadError === 'auth' ? 'You can’t view this audit log' : 'Couldn’t load the audit log'}
+              message={loadError === 'auth'
+                ? 'Only the event owner or its staff can view the entitlement audit log.'
+                : 'We couldn’t reach the database to fetch the audit trail. Please try again.'}
+              primaryAction={loadError === 'generic' ? { label: 'Try again', onClick: () => router.refresh() } : undefined}
+            />
           </div>
         ) : (
           <>
@@ -158,18 +153,16 @@ export function AuditLogClient({ eventSlug, rows, loadError, entitlements, staff
             </p>
 
             {filtered.length === 0 ? (
-              <div className="bg-white rounded-2xl border p-10 text-center" style={{ borderColor: '#E5E0D4' }}>
-                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
-                  <ClipboardList size={22} strokeWidth={1.9} />
-                </div>
-                <p className="font-display text-[17px] font-semibold" style={{ color: '#0F1F18' }}>
-                  {rows && rows.length > 0 ? 'No entries match your filters' : 'No audit activity yet'}
-                </p>
-                <p className="text-[14px] mt-1.5" style={{ color: '#65736B' }}>
-                  {rows && rows.length > 0
+              <div className="bg-white rounded-2xl border" style={{ borderColor: '#E5E0D4' }}>
+                <StatusState
+                  kind="empty"
+                  icon={ClipboardList}
+                  title={rows && rows.length > 0 ? 'No entries match your filters' : 'No audit activity yet'}
+                  message={rows && rows.length > 0
                     ? 'Try widening the date range or clearing a filter.'
                     : 'Entitlement actions will appear here as they happen — redeems, grants, transfers and more.'}
-                </p>
+                  primaryAction={rows && rows.length > 0 ? { label: 'Clear all filters', onClick: clearAll } : undefined}
+                />
               </div>
             ) : (
               <AuditTable rows={filtered} />

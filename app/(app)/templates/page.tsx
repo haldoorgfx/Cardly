@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Search, Heart, Plus, Loader2, Star } from 'lucide-react';
 import { buildSVG, TEMPLATE_CONFIGS, OVERLAY, W, H } from '@/lib/templates/svgs';
 import { PageShell, PageHeader } from '@/components/dash';
+import { StatusState, describeError } from '@/components/ui/status-state';
 
 /* ─────────────────────────────────────────────────────────────
    PERSON PLACEHOLDER DATA
@@ -268,10 +269,10 @@ export default function TemplatesPage() {
       const data = await res.json() as { id?:string; error?:string; plan?:string; limit?:number };
       if (res.status === 402 && data.error === 'PLAN_LIMIT')
         throw new Error(`You've reached the ${data.limit}-event limit on the ${data.plan ?? 'free'} plan. Upgrade for more.`);
-      if (!res.ok) throw new Error(data.error ?? 'Something went wrong');
+      if (!res.ok) throw new Error(data.error ?? 'Could not open this template');
       router.push(`/events/${data.id}/edit`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong');
+      setError(describeError(err, 'this template'));
       setLoading(null);
     }
   };
@@ -414,10 +415,12 @@ export default function TemplatesPage() {
         </div>
 
         {filtered.length === 0 && (
-          <div className="text-center py-16">
-            <div className="text-[14px] text-[#0F1F18]/40">No templates match your search.</div>
-            <button onClick={() => { setSearch(''); setActiveCategory('all'); }} className="mt-3 text-[13px] text-[#1F4D3A] hover:underline">Clear filters</button>
-          </div>
+          <StatusState
+            kind="empty"
+            title="No templates match"
+            message="Try a different search term or category."
+            primaryAction={{ label: 'Clear filters', onClick: () => { setSearch(''); setActiveCategory('all'); } }}
+          />
         )}
 
         {/* ── Platform templates (DB-backed) ──────────────────── */}

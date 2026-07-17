@@ -28,6 +28,7 @@ class NotificationsScreen extends StatefulWidget {
 class _NotificationsScreenState extends State<NotificationsScreen> {
   bool _loading = true;
   String? _error;
+  StatusReason _errorReason = StatusReason.generic;
   List<_Notif> _items = [];
   RealtimeChannel? _channel;
 
@@ -93,17 +94,15 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         _items = asMapList(rows).map(_Notif.fromRow).toList();
         _loading = false;
       });
-    } on ApiException catch (e) {
+    } catch (e) {
       if (!mounted) return;
+      final msg = describeError(e, context: 'your notifications');
       setState(() {
         _loading = false;
-        _error = e.message;
-      });
-    } catch (_) {
-      if (!mounted) return;
-      setState(() {
-        _loading = false;
-        _error = 'Something went wrong loading your notifications.';
+        _error = msg;
+        _errorReason = msg.toLowerCase().contains("couldn't reach the server")
+            ? StatusReason.network
+            : StatusReason.generic;
       });
     }
   }
@@ -116,9 +115,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           .from('notifications')
           .update({'read_at': DateTime.now().toUtc().toIso8601String()})
           .eq('id', n.id);
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
       setState(() => n.read = false);
+      showToast(context, describeError(e, context: 'this notification'),
+          type: ToastType.error);
     }
   }
 
@@ -171,8 +172,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           .update({'read_at': DateTime.now().toUtc().toIso8601String()})
           .eq('user_id', currentUserId ?? '')
           .isFilter('read_at', null);
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
+      showToast(context, describeError(e, context: 'your notifications'),
+          type: ToastType.error);
       // Best-effort: reload to reflect true server state.
       _load();
     }
@@ -206,7 +209,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           : _loading
               ? const LoadingState()
               : _error != null
-                  ? ErrorStateView(message: _error!, onRetry: _load)
+                  ? ErrorStateView(
+                      message: _error!, onRetry: _load, reason: _errorReason)
                   : RefreshIndicator(
                       color: AppColors.forest,
                       onRefresh: _load,

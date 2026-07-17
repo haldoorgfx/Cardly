@@ -50,6 +50,7 @@ class _SpeakerProfileEditScreenState extends State<SpeakerProfileEditScreen> {
   bool _loading = true;
   bool _saving = false;
   String? _error;
+  StatusReason _errorReason = StatusReason.generic;
 
   String _speakerId = '';
   String _photoUrl = '';
@@ -83,6 +84,7 @@ class _SpeakerProfileEditScreenState extends State<SpeakerProfileEditScreen> {
     setState(() {
       _loading = true;
       _error = null;
+      _errorReason = StatusReason.generic;
     });
     try {
       final row = await SpeakerApi.resolveSpeaker(
@@ -94,6 +96,7 @@ class _SpeakerProfileEditScreenState extends State<SpeakerProfileEditScreen> {
       if (row == null) {
         setState(() {
           _loading = false;
+          _errorReason = StatusReason.notFound;
           _error =
               'We could not find your speaker profile for this event. The '
               'organizer adds you as a speaker before you can edit your details.';
@@ -115,11 +118,18 @@ class _SpeakerProfileEditScreenState extends State<SpeakerProfileEditScreen> {
       _websiteCtl.text = asString(row['website_url']);
 
       setState(() => _loading = false);
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
+      final msg = describeError(e, context: 'your speaker profile');
+      final lower = msg.toLowerCase();
       setState(() {
         _loading = false;
-        _error = 'Something went wrong loading your speaker profile.';
+        _error = msg;
+        _errorReason = lower.contains("couldn't reach the server")
+            ? StatusReason.network
+            : lower.contains('permission')
+                ? StatusReason.permission
+                : StatusReason.generic;
       });
     }
   }
@@ -158,7 +168,8 @@ class _SpeakerProfileEditScreenState extends State<SpeakerProfileEditScreen> {
       body: _loading
           ? const LoadingState()
           : _error != null
-              ? ErrorStateView(message: _error!, onRetry: _load)
+              ? ErrorStateView(
+                  message: _error!, onRetry: _load, reason: _errorReason)
               : _buildForm(),
     );
   }

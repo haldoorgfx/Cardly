@@ -105,6 +105,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
   bool _loading = true;
   String? _loadError;
+  StatusReason _loadErrorReason = StatusReason.generic;
   bool _submitting = false;
   String? _submitError;
 
@@ -240,10 +241,12 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         _selectedTicketId = tickets.isNotEmpty ? tickets.first.id : null;
         _loading = false;
       });
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
+      final msg = describeError(e, context: 'tickets for this event');
       setState(() {
-        _loadError = 'Could not load tickets. Please try again.';
+        _loadError = msg;
+        _loadErrorReason = _reasonFor(e, msg);
         _loading = false;
       });
     }
@@ -279,12 +282,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         setState(() =>
             _promoError = asString(map['error'], 'That code isn’t valid.'));
       }
-    } on ApiException catch (e) {
+    } catch (e) {
       if (!mounted) return;
-      setState(() => _promoError = e.message);
-    } catch (_) {
-      if (!mounted) return;
-      setState(() => _promoError = 'Could not check that code.');
+      setState(() => _promoError = describeError(e, context: 'that code'));
     } finally {
       if (mounted) setState(() => _promoChecking = false);
     }
@@ -498,19 +498,11 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
       _goToConfirm(qrToken, ticket.name, isPendingApproval: awaitingApproval);
       return;
-    } on ApiException catch (e) {
+    } catch (e) {
       if (mounted) {
         setState(() {
           _submitting = false;
-          _submitError = e.message;
-        });
-      }
-      return;
-    } catch (_) {
-      if (mounted) {
-        setState(() {
-          _submitting = false;
-          _submitError = 'Something went wrong. Please try again.';
+          _submitError = describeError(e, context: 'your registration');
         });
       }
       return;
@@ -550,7 +542,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   Widget _body() {
     if (_loading) return const LoadingState();
     if (_loadError != null) {
-      return ErrorStateView(message: _loadError!, onRetry: _load);
+      return ErrorStateView(
+          message: _loadError!, onRetry: _load, reason: _loadErrorReason);
     }
     if (_tickets.isEmpty) {
       return const EmptyState(
@@ -1136,6 +1129,24 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       ),
     );
   }
+}
+
+/// Classifies a caught load error into a [StatusReason] so [ErrorStateView]
+/// shows the right icon/copy — network for connectivity, and the
+/// ApiException status code for anything the server told us.
+StatusReason _reasonFor(Object? error, String message) {
+  if (message.toLowerCase().contains("couldn't reach the server")) {
+    return StatusReason.network;
+  }
+  if (error is ApiException) {
+    switch (error.status) {
+      case 403:
+        return StatusReason.permission;
+      case 404:
+        return StatusReason.notFound;
+    }
+  }
+  return StatusReason.generic;
 }
 
 /// A form-integrated text field styled like [MInput] (which wraps a bare

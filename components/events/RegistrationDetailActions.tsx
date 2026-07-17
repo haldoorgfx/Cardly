@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { X, Pencil } from 'lucide-react';
+import { describeError } from '@/components/ui/status-state';
 
 type Status = 'pending' | 'pending_approval' | 'confirmed' | 'checked_in' | 'cancelled' | 'refunded';
 
@@ -47,8 +48,8 @@ function EditAttendeeModal({
       });
       if (!res.ok) { const d = await res.json(); setError(d.error ?? 'Failed to save'); return; }
       onSaved();
-    } catch {
-      setError('Something went wrong. Try again.');
+    } catch (e) {
+      setError(describeError(e, 'this attendee'));
     } finally {
       setSaving(false);
     }
@@ -122,8 +123,8 @@ export function RegistrationDetailActions({
         const data = await res.json() as { error?: string };
         setStatusError(data.error ?? 'Action failed. Please try again.');
       }
-    } catch {
-      setStatusError('Something went wrong. Try again.');
+    } catch (e) {
+      setStatusError(describeError(e, 'this registration'));
     } finally {
       setLoading(false);
     }

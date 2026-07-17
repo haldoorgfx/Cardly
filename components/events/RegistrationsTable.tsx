@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Search, Download, CheckCircle2, XCircle, RotateCcw, ExternalLink, UserPlus, X, MoreHorizontal, Upload, AlertCircle, CheckCircle, ChevronDown, Pencil, Copy, Sparkles } from 'lucide-react';
 import { ERAButton } from '@/components/ai/ERAButton';
 import { toast } from '@/hooks/use-toast';
+import { StatusState, describeError } from '@/components/ui/status-state';
 
 type Status = 'pending' | 'confirmed' | 'checked_in' | 'cancelled' | 'refunded' | 'pending_approval';
 type PaymentStatus = 'free' | 'pending' | 'paid' | 'refunded' | 'failed';
@@ -169,10 +170,10 @@ function EditAttendeeModal({ reg, eventId, ticketTypes, onClose, onSaved }: {
         attendee_phone: phone.trim() || null,
         ticket_type_id: ticketId || null,
       });
-      toast({ title: 'Attendee updated', description: name.trim() });
+      toast({ title: 'Attendee updated', description: name.trim(), variant: 'success' });
       onClose();
-    } catch {
-      setApiError('Something went wrong.');
+    } catch (e) {
+      setApiError(describeError(e, 'this attendee'));
     } finally {
       setSaving(false);
     }
@@ -346,10 +347,11 @@ function RowActionsMenu({
         const data = await res.json() as { registration?: Registration };
         onStatusChange(reg.id, status, data.registration?.checked_in_at);
       } else {
-        toast({ title: 'Something went wrong', description: 'Could not update status. Try again.', variant: 'destructive' });
+        const data = await res.json().catch(() => ({})) as { error?: string };
+        toast({ title: 'Could not update status', description: data.error || 'Please try again.', variant: 'destructive' });
       }
-    } catch {
-      toast({ title: 'Something went wrong', description: 'Could not update status. Try again.', variant: 'destructive' });
+    } catch (e) {
+      toast({ title: 'Could not update status', description: describeError(e, 'this registration'), variant: 'destructive' });
     } finally {
       setLoading(false);
     }
@@ -363,11 +365,13 @@ function RowActionsMenu({
       const res = await fetch(`/api/events/${eventId}/registrations?regId=${reg.id}`, { method: 'DELETE' });
       if (res.ok) {
         onDeleted(reg.id);
+        toast({ title: 'Registration deleted', description: reg.attendee_name, variant: 'success' });
       } else {
-        toast({ title: 'Something went wrong', description: 'Could not delete this registration. Try again.', variant: 'destructive' });
+        const data = await res.json().catch(() => ({})) as { error?: string };
+        toast({ title: 'Could not delete this registration', description: data.error || 'Please try again.', variant: 'destructive' });
       }
-    } catch {
-      toast({ title: 'Something went wrong', description: 'Could not delete this registration. Try again.', variant: 'destructive' });
+    } catch (e) {
+      toast({ title: 'Could not delete this registration', description: describeError(e, 'this registration'), variant: 'destructive' });
     } finally {
       setLoading(false);
     }
@@ -375,8 +379,8 @@ function RowActionsMenu({
 
   function handleCopyEmail() {
     navigator.clipboard.writeText(reg.attendee_email)
-      .then(() => toast({ title: 'Email copied' }))
-      .catch(() => toast({ title: 'Something went wrong', description: 'Could not copy the email.', variant: 'destructive' }));
+      .then(() => toast({ title: 'Email copied', variant: 'success' }))
+      .catch(() => toast({ title: 'Could not copy the email', description: 'Your browser blocked clipboard access.', variant: 'destructive' }));
     setOpen(false);
   }
 
@@ -573,8 +577,8 @@ function ImportCSVModal({ eventId, ticketTypes, onClose, onImported }: {
       if (!res.ok) { setApiError(data.error ?? 'Import failed'); return; }
       setResult({ imported: data.imported ?? 0, skipped: data.skipped ?? 0, invalid: data.invalid ?? 0 });
       onImported(data.imported ?? 0);
-    } catch {
-      setApiError('Something went wrong. Check your connection and try again.');
+    } catch (e) {
+      setApiError(describeError(e, 'this import'));
     } finally {
       setImporting(false);
     }
@@ -771,10 +775,10 @@ function AddManuallyModal({
       if (!res.ok) { setApiError(data.error ?? 'Failed to add registration'); return; }
       if (!data.registration) { setApiError('Unexpected response from server'); return; }
       onAdded(data.registration);
-      toast({ title: 'Attendee added', description: name.trim() });
+      toast({ title: 'Attendee added', description: name.trim(), variant: 'success' });
       onClose();
-    } catch {
-      setApiError('Something went wrong. Check your connection and try again.');
+    } catch (e) {
+      setApiError(describeError(e, 'this attendee'));
     } finally {
       setSaving(false);
     }
@@ -1003,14 +1007,15 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
         setRows(originalRows);
         setRefreshCounter(c => c + 1);
         toast({
-          title: 'Something went wrong',
-          description: `${failedCount} update${failedCount !== 1 ? 's' : ''} failed. The list has been refreshed.`,
+          title: 'Some updates failed',
+          description: `${failedCount} of ${ids.length} registration${failedCount !== 1 ? 's' : ''} could not be updated. The list has been refreshed.`,
           variant: 'destructive',
         });
       }
-    } catch {
+    } catch (e) {
       setRows(originalRows);
       setRefreshCounter(c => c + 1);
+      toast({ title: 'Could not update registrations', description: describeError(e, 'these registrations'), variant: 'destructive' });
     } finally {
       setBulkBusy(false);
       clearSelection();
@@ -1028,8 +1033,8 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
       if (!res.ok) throw new Error('Failed to fetch registrations');
       const data = await res.json() as { registrations: Registration[] };
       exportCSV(data.registrations, eventSlug, formFields);
-    } catch {
-      toast({ title: 'Something went wrong', description: 'Export failed. Please try again.', variant: 'destructive' });
+    } catch (e) {
+      toast({ title: 'Export failed', description: describeError(e, 'the export'), variant: 'destructive' });
     } finally {
       setExportingAll(false);
     }
@@ -1298,10 +1303,17 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
             <div className="text-[14px]" style={{ color: '#65736B' }}>Searching…</div>
           </div>
         ) : rows.length === 0 ? (
-          <div className="py-16 text-center" style={{ background: 'white', minWidth: 320 }}>
-            <div className="text-[14px]" style={{ color: '#65736B' }}>
-              {query || statusFilter !== 'all' ? 'No registrations match your filter' : 'No registrations yet'}
-            </div>
+          <div style={{ background: 'white', minWidth: 320 }}>
+            <StatusState
+              kind="empty"
+              compact
+              title={query || statusFilter !== 'all' ? 'No registrations match your filter' : 'No registrations yet'}
+              message={
+                query || statusFilter !== 'all'
+                  ? 'Try a different search term or clear the status filter.'
+                  : 'Attendees will show up here once people start registering.'
+              }
+            />
           </div>
         ) : (
           <>

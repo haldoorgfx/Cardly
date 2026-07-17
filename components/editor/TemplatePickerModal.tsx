@@ -14,6 +14,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Upload, Loader2, Search, X } from 'lucide-react';
 import { buildSVG, TEMPLATE_CONFIGS, W, H } from '@/lib/templates/svgs';
 import type { Variant } from '@/types/database';
+import { StatusState, describeError } from '@/components/ui/status-state';
 
 interface Props {
   eventId: string;
@@ -115,10 +116,10 @@ export default function TemplatePickerModal({ eventId, onVariantCreated, onUploa
         body: JSON.stringify({ templateId }),
       });
       const data = await res.json() as Variant & { error?: string };
-      if (!res.ok) throw new Error(data.error ?? 'Failed to apply template');
+      if (!res.ok) throw new Error(data.error ?? 'Could not apply this template');
       onVariantCreated(data);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Something went wrong');
+      setError(describeError(e, 'this template'));
     } finally {
       setLoading(null);
     }
@@ -236,8 +237,13 @@ export default function TemplatePickerModal({ eventId, onVariantCreated, onUploa
             })}
 
             {filtered.length === 0 && (
-              <div className="col-span-5 text-center py-12 text-[13px] text-[#65736B]">
-                No templates match your search.
+              <div className="col-span-3 sm:col-span-4 md:col-span-5">
+                <StatusState
+                  kind="empty"
+                  compact
+                  message="No templates match your search."
+                  primaryAction={{ label: 'Clear filters', onClick: () => { setSearch(''); setCat('all'); } }}
+                />
               </div>
             )}
           </div>

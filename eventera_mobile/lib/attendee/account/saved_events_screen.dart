@@ -27,6 +27,7 @@ class SavedEventsScreen extends StatefulWidget {
 class _SavedEventsScreenState extends State<SavedEventsScreen> {
   bool _loading = true;
   String? _error;
+  StatusReason _errorReason = StatusReason.generic;
   List<_Saved> _items = [];
 
   @override
@@ -57,17 +58,15 @@ class _SavedEventsScreenState extends State<SavedEventsScreen> {
         _items = asMapList(rows).map(_Saved.fromRow).toList();
         _loading = false;
       });
-    } on ApiException catch (e) {
+    } catch (e) {
       if (!mounted) return;
+      final msg = describeError(e, context: 'your saved events');
       setState(() {
         _loading = false;
-        _error = e.message;
-      });
-    } catch (_) {
-      if (!mounted) return;
-      setState(() {
-        _loading = false;
-        _error = 'Something went wrong loading your saved events.';
+        _error = msg;
+        _errorReason = msg.toLowerCase().contains("couldn't reach the server")
+            ? StatusReason.network
+            : StatusReason.generic;
       });
     }
   }
@@ -79,11 +78,12 @@ class _SavedEventsScreenState extends State<SavedEventsScreen> {
     try {
       await supa.from('saved_events').delete().eq('id', s.id);
       if (!mounted) return;
-      showToast(context, 'Removed from saved');
-    } catch (_) {
+      showToast(context, 'Removed from saved', type: ToastType.success);
+    } catch (e) {
       if (!mounted) return;
       setState(() => _items.insert(index.clamp(0, _items.length), s));
-      showToast(context, 'Could not remove that event');
+      showToast(context, describeError(e, context: 'that event'),
+          type: ToastType.error);
     }
   }
 
@@ -98,7 +98,8 @@ class _SavedEventsScreenState extends State<SavedEventsScreen> {
           : _loading
               ? const LoadingState()
               : _error != null
-                  ? ErrorStateView(message: _error!, onRetry: _load)
+                  ? ErrorStateView(
+                      message: _error!, onRetry: _load, reason: _errorReason)
                   : RefreshIndicator(
                       color: AppColors.forest,
                       onRefresh: _load,

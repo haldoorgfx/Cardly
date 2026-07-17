@@ -60,8 +60,10 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
             : 'image/jpeg';
         _error = null;
       });
-    } catch (_) {
-      if (mounted) setState(() => _error = 'Could not load that image.');
+    } catch (e) {
+      if (mounted) {
+        setState(() => _error = describeError(e, context: 'that image'));
+      }
     }
   }
 
@@ -146,9 +148,9 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
       showToast(context, 'Event created — it\'s in your events as a draft.');
     } on EventeraException catch (e) {
       if (mounted) setState(() => _error = e.message);
-    } catch (_) {
+    } catch (e) {
       if (mounted) {
-        setState(() => _error = 'Something went wrong. Please try again.');
+        setState(() => _error = describeError(e, context: 'the event'));
       }
     } finally {
       if (mounted) setState(() => _busy = false);

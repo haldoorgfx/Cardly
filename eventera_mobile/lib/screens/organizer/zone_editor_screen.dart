@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import '../../eventera_api.dart';
 import '../../models.dart';
 import '../../theme.dart';
+import '../../ui/components.dart' show describeError, showToast, ToastType;
 
 /// One editable area on the card, in BACKGROUND pixel coordinates.
 class EditorZone {
@@ -160,12 +161,11 @@ class _ZoneEditorScreenState extends State<ZoneEditorScreen> {
       await _api.saveZones(
           widget.event.variantId, _zones.map((z) => z.toMap()).toList());
       if (mounted) Navigator.of(context).pop(true);
-    } catch (_) {
+    } catch (e) {
       if (mounted) {
         setState(() => _saving = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not save. Please try again.')),
-        );
+        showToast(context, describeError(e, context: 'these fields'),
+            type: ToastType.error);
       }
     }
   }

@@ -2,8 +2,9 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { RotateCw, CalendarDays, Users, Check } from 'lucide-react';
+import { CalendarDays, Users, Check } from 'lucide-react';
 import type { CellState, DaySummary } from '@/lib/multiday/attendance';
+import { StatusState } from '@/components/ui/status-state';
 
 interface DayCol {
   day_index: number;
@@ -61,45 +62,41 @@ export function AttendanceGrid({ eventSlug, days, attendees, cells, perDay, erro
 
   if (error) {
     return (
-      <div className="bg-white rounded-2xl border border-[#E5E0D4] p-10 text-center">
-        <p className="font-display text-[17px] font-semibold" style={{ color: '#0F1F18' }}>Couldn&apos;t load attendance</p>
-        <p className="text-[14px] mt-1.5 mb-5" style={{ color: '#65736B' }}>Something went wrong fetching the attendance data.</p>
-        <button onClick={() => router.refresh()}
-          className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-[14px] font-medium text-white" style={{ background: '#1F4D3A' }}>
-          <RotateCw size={15} strokeWidth={2} /> Retry
-        </button>
+      <div className="bg-white rounded-2xl border border-[#E5E0D4]">
+        <StatusState
+          kind="error"
+          reason="network"
+          title="Couldn't load attendance"
+          message="We couldn't fetch the attendance data. Check your connection and try again."
+          primaryAction={{ label: 'Retry', onClick: () => router.refresh() }}
+        />
       </div>
     );
   }
 
   if (days.length === 0) {
     return (
-      <div className="bg-white rounded-2xl border border-[#E5E0D4] p-10 text-center">
-        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
-          <CalendarDays size={22} strokeWidth={1.9} />
-        </div>
-        <p className="font-display text-[17px] font-semibold" style={{ color: '#0F1F18' }}>No days set up yet</p>
-        <p className="text-[14px] mt-1.5 mb-5" style={{ color: '#65736B' }}>
-          Attendance by day appears once this event has days. Set up days to track who shows up when.
-        </p>
-        <Link href={`/events/${eventSlug}/settings/days`}
-          className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-[14px] font-semibold text-white" style={{ background: '#1F4D3A' }}>
-          <CalendarDays size={15} strokeWidth={2} /> Set up days
-        </Link>
+      <div className="bg-white rounded-2xl border border-[#E5E0D4]">
+        <StatusState
+          kind="empty"
+          icon={CalendarDays}
+          title="No days set up yet"
+          message="Attendance by day appears once this event has days. Set up days to track who shows up when."
+          primaryAction={{ label: 'Set up days', href: `/events/${eventSlug}/settings/days` }}
+        />
       </div>
     );
   }
 
   if (attendees.length === 0) {
     return (
-      <div className="bg-white rounded-2xl border border-[#E5E0D4] p-10 text-center">
-        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
-          <Users size={22} strokeWidth={1.9} />
-        </div>
-        <p className="font-display text-[17px] font-semibold" style={{ color: '#0F1F18' }}>No attendees yet</p>
-        <p className="text-[14px] mt-1.5" style={{ color: '#65736B' }}>
-          Once people register, their day-by-day attendance shows here as they check in.
-        </p>
+      <div className="bg-white rounded-2xl border border-[#E5E0D4]">
+        <StatusState
+          kind="empty"
+          icon={Users}
+          title="No attendees yet"
+          message="Once people register, their day-by-day attendance shows here as they check in."
+        />
       </div>
     );
   }

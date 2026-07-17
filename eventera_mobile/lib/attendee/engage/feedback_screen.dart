@@ -67,7 +67,8 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
     final rid = _rid;
     if (rid == null) return;
     if (_rating == 0 && _selected.isEmpty && _comment.text.trim().isEmpty) {
-      showEngageSnack(context, 'Add a rating or a comment first', error: true);
+      showToast(context, 'Add a rating or a comment first',
+          type: ToastType.error);
       return;
     }
     setState(() => _submitting = true);
@@ -81,9 +82,8 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
       if (mounted) setState(() => _done = true);
     } catch (e) {
       if (mounted) {
-        showEngageSnack(context,
-            e is ApiException ? e.message : 'Could not submit feedback',
-            error: true);
+        showToast(context, describeError(e, context: 'your feedback'),
+            type: ToastType.error);
       }
     } finally {
       if (mounted) setState(() => _submitting = false);

@@ -6,6 +6,7 @@ import { Search, Loader2, AlertTriangle, Trash2, X, Download, ExternalLink } fro
 import Link from 'next/link';
 import type { RegistrationRow } from './page';
 import { toast } from '@/hooks/use-toast';
+import { StatusState, describeError } from '@/components/ui/status-state';
 
 // Registration status enum (types/database.ts → RegistrationStatus)
 const STATUS_OPTIONS = ['pending', 'confirmed', 'checked_in', 'cancelled', 'refunded', 'pending_approval'] as const;
@@ -182,12 +183,13 @@ export function RegistrationsAdminClient({
       });
       if (res.ok) {
         setRows(prev => prev.map(r => r.id === id ? { ...r, status } : r));
-        toast({ title: 'Status updated', description: `Set to ${status.replace('_', ' ')}.` });
+        toast({ title: 'Status updated', description: `Set to ${status.replace('_', ' ')}.`, variant: 'success' });
       } else {
-        toast({ title: 'Something went wrong', description: 'Could not update the status.', variant: 'destructive' });
+        const data = await res.json().catch(() => ({}));
+        toast({ title: 'Could not update the status', description: data.error || 'Please try again.', variant: 'destructive' });
       }
-    } catch {
-      toast({ title: 'Something went wrong', description: 'Could not update the status.', variant: 'destructive' });
+    } catch (e) {
+      toast({ title: 'Could not update the status', description: describeError(e, 'the status change'), variant: 'destructive' });
     } finally {
       setChanging(null);
     }
@@ -201,12 +203,13 @@ export function RegistrationsAdminClient({
       const res = await fetch(`/api/admin/registrations/${row.id}`, { method: 'DELETE' });
       if (res.ok) {
         setRows(prev => prev.filter(r => r.id !== row.id));
-        toast({ title: 'Registration deleted', description: row.attendee_email });
+        toast({ title: 'Registration deleted', description: row.attendee_email, variant: 'success' });
       } else {
-        toast({ title: 'Something went wrong', description: 'Could not delete the registration.', variant: 'destructive' });
+        const data = await res.json().catch(() => ({}));
+        toast({ title: 'Could not delete the registration', description: data.error || 'Please try again.', variant: 'destructive' });
       }
-    } catch {
-      toast({ title: 'Something went wrong', description: 'Could not delete the registration.', variant: 'destructive' });
+    } catch (e) {
+      toast({ title: 'Could not delete the registration', description: describeError(e, 'this registration'), variant: 'destructive' });
     } finally {
       setBusy(null);
     }
@@ -245,14 +248,15 @@ export function RegistrationsAdminClient({
         toast({
           title: `${verb} ${okIds.length} registration${okIds.length === 1 ? '' : 's'}`,
           description: failed > 0 ? `${failed} could not be processed.` : undefined,
+          variant: 'success',
         });
       }
       if (okIds.length === 0 && ids.length > 0) {
-        toast({ title: 'Something went wrong', description: `None of the ${ids.length} registrations could be processed.`, variant: 'destructive' });
+        toast({ title: 'Could not process the registrations', description: `None of the ${ids.length} registrations could be processed.`, variant: 'destructive' });
       }
       clearSelection();
-    } catch {
-      toast({ title: 'Something went wrong', description: 'The bulk action failed. Refresh and try again.', variant: 'destructive' });
+    } catch (e) {
+      toast({ title: 'Could not process the registrations', description: describeError(e, 'the bulk update'), variant: 'destructive' });
     } finally {
       setBulkBusy(false);
     }
@@ -447,7 +451,12 @@ export function RegistrationsAdminClient({
 
       {/* ── Table ────────────────────────────────────────────── */}
       {rows.length === 0 ? (
-        <div className="py-16 text-center text-[14px] text-[#65736B]">No registrations match these filters.</div>
+        <StatusState
+          kind="empty"
+          title="No registrations match these filters"
+          message={hasActiveFilters ? 'Try a different search, or clear the filters to see everyone.' : 'No one has registered for anything yet.'}
+          secondaryAction={hasActiveFilters ? { label: 'Clear filters', onClick: clearFilters } : undefined}
+        />
       ) : (
         <>
           {/* ── Desktop table (md+) ────────────────────────────── */}

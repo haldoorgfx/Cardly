@@ -97,9 +97,9 @@ class _PersonalizeScreenState extends State<PersonalizeScreen> {
         _photoPreviews[zone.id] = bytes;
         _errors.remove(zone.id);
       });
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
-      setState(() => _errors[zone.id] = 'Could not load that photo.');
+      setState(() => _errors[zone.id] = describeError(e, context: 'that photo'));
     }
   }
 
@@ -211,9 +211,9 @@ class _PersonalizeScreenState extends State<PersonalizeScreen> {
     } on EventeraException catch (e) {
       if (!mounted) return;
       setState(() => _generateError = e.message);
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
-      setState(() => _generateError = 'Something went wrong. Please try again.');
+      setState(() => _generateError = describeError(e, context: 'your card'));
     } finally {
       if (mounted) setState(() => _generating = false);
     }

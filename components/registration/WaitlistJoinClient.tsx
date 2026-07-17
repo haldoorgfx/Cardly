@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { Users, Calendar, MapPin } from 'lucide-react';
+import { describeError } from '@/components/ui/status-state';
 
 interface Props {
   slug: string;
@@ -37,10 +38,13 @@ export default function WaitlistJoinClient({ slug, title, coverUrl, startsAt, ci
         body: JSON.stringify({ name: name.trim(), email: email.trim() }),
       });
       const data = await res.json();
-      if (!res.ok) { setError(data.error ?? 'Something went wrong.'); return; }
+      if (!res.ok) {
+        setError(data.error ?? describeError(new Error(res.statusText || `status ${res.status}`), 'the waitlist'));
+        return;
+      }
       setPosition(data.position);
-    } catch {
-      setError('Network error. Please try again.');
+    } catch (err) {
+      setError(describeError(err, 'the waitlist'));
     } finally {
       setLoading(false);
     }

@@ -5,6 +5,7 @@ import { Bell, BarChart2, ExternalLink, Plus, CheckCircle2, Send, Copy, Check, X
 import { Modal } from '@/components/ui/Modal';
 import { ERAButton } from '@/components/ai/ERAButton';
 import { PageShell, PageHeader } from '@/components/dash';
+import { StatusState, describeError } from '@/components/ui/status-state';
 
 interface Props {
   eventId: string;
@@ -49,8 +50,8 @@ function ComposeModal({
       const data = await res.json() as { sent?: number; error?: string };
       if (!res.ok) { setError(data.error ?? 'Failed to send'); return; }
       setSent(true);
-    } catch {
-      setError('Something went wrong. Check your connection and try again.');
+    } catch (e) {
+      setError(describeError(e, 'this email'));
     } finally {
       setSending(false);
     }
@@ -80,15 +81,12 @@ function ComposeModal({
       )}
     >
         {sent ? (
-          <div className="py-6 text-center">
-            <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: '#E8EFEB' }}>
-              <CheckCircle2 size={22} strokeWidth={2} style={{ color: '#1F4D3A' }} />
-            </div>
-            <h4 className="font-display text-[18px] font-semibold mb-1" style={{ color: '#0F1F18' }}>Email sent!</h4>
-            <p className="text-[14px]" style={{ color: '#65736B' }}>
-              Your message was delivered to {registrantCount} attendee{registrantCount !== 1 ? 's' : ''}.
-            </p>
-          </div>
+          <StatusState
+            kind="success"
+            compact
+            title="Email sent!"
+            message={`Your message was delivered to ${registrantCount} attendee${registrantCount !== 1 ? 's' : ''}.`}
+          />
         ) : (
           <>
             <div className="space-y-4">

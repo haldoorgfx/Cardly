@@ -55,6 +55,7 @@ class _Ticket {
 class _MyTicketsScreenState extends State<MyTicketsScreen> {
   bool _loading = true;
   String? _error;
+  StatusReason _errorReason = StatusReason.generic;
   List<_Ticket> _tickets = [];
   int _seg = 0; // 0 = Upcoming, 1 = Past
 
@@ -115,10 +116,14 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
         _tickets = tickets;
         _loading = false;
       });
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
+      final msg = describeError(e, context: 'your tickets');
       setState(() {
-        _error = 'Could not load your tickets. Please try again.';
+        _error = msg;
+        _errorReason = msg.toLowerCase().contains("couldn't reach the server")
+            ? StatusReason.network
+            : StatusReason.generic;
         _loading = false;
       });
     }
@@ -200,7 +205,10 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
       );
     }
     if (_loading) return const LoadingState();
-    if (_error != null) return ErrorStateView(message: _error!, onRetry: _load);
+    if (_error != null) {
+      return ErrorStateView(
+          message: _error!, onRetry: _load, reason: _errorReason);
+    }
     if (_tickets.isEmpty) return _emptyWallet();
 
     final now = DateTime.now();

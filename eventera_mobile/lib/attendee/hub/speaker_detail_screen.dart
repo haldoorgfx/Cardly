@@ -27,6 +27,7 @@ class SpeakerDetailScreen extends StatefulWidget {
 class _SpeakerDetailScreenState extends State<SpeakerDetailScreen> {
   bool _loading = true;
   String? _error;
+  StatusReason _errorReason = StatusReason.generic;
   Map<String, dynamic>? _speaker;
 
   static final RegExp _uuid = RegExp(
@@ -62,6 +63,7 @@ class _SpeakerDetailScreenState extends State<SpeakerDetailScreen> {
         setState(() {
           _loading = false;
           _error = 'This speaker could not be found.';
+          _errorReason = StatusReason.notFound;
         });
         return;
       }
@@ -69,17 +71,15 @@ class _SpeakerDetailScreenState extends State<SpeakerDetailScreen> {
         _speaker = Map<String, dynamic>.from(row);
         _loading = false;
       });
-    } on ApiException catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _loading = false;
-        _error = e.message;
-      });
     } catch (e) {
       if (!mounted) return;
+      final msg = describeError(e, context: 'this speaker');
       setState(() {
         _loading = false;
-        _error = 'Something went wrong loading this speaker.';
+        _error = msg;
+        _errorReason = msg.toLowerCase().contains("couldn't reach the server")
+            ? StatusReason.network
+            : StatusReason.generic;
       });
     }
   }
@@ -92,7 +92,8 @@ class _SpeakerDetailScreenState extends State<SpeakerDetailScreen> {
     if (_error != null) {
       return MScaffold(
         appBar: const MAppBar(),
-        body: ErrorStateView(message: _error!, onRetry: _load),
+        body: ErrorStateView(
+            message: _error!, onRetry: _load, reason: _errorReason),
       );
     }
     return Scaffold(
@@ -221,14 +222,14 @@ class _SpeakerDetailScreenState extends State<SpeakerDetailScreen> {
   Future<void> _open(BuildContext context, String url) async {
     final uri = Uri.tryParse(url);
     if (uri == null) {
-      showToast(context, 'Could not open link');
+      showToast(context, 'Could not open link', type: ToastType.error);
       return;
     }
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
       if (!context.mounted) return;
-      showToast(context, 'Could not open link');
+      showToast(context, 'Could not open link', type: ToastType.error);
     }
   }
 
@@ -238,7 +239,7 @@ class _SpeakerDetailScreenState extends State<SpeakerDetailScreen> {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
       if (!context.mounted) return;
-      showToast(context, 'Could not open link');
+      showToast(context, 'Could not open link', type: ToastType.error);
     }
   }
 }

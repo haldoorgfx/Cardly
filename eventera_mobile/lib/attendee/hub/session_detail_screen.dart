@@ -35,6 +35,7 @@ class SessionDetailScreen extends StatefulWidget {
 class _SessionDetailScreenState extends State<SessionDetailScreen> {
   bool _loading = true;
   String? _error;
+  StatusReason _errorReason = StatusReason.generic;
   Map<String, dynamic>? _session;
   final List<SpeakerSummary> _speakers = [];
   int _myRating = 0;
@@ -69,7 +70,8 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
   Future<void> _toggleSaved() async {
     final rid = EventContext.regIdFor(widget.eventId);
     if (rid == null) {
-      showToast(context, 'Register for this event to build your agenda.');
+      showToast(context, 'Register for this event to build your agenda.',
+          type: ToastType.error);
       return;
     }
     if (_savingBusy) return;
@@ -91,11 +93,12 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
       if (!mounted) return;
       setState(() => _saved = !wasSaved);
       showToast(context,
-          wasSaved ? 'Removed from your agenda' : 'Added to your agenda');
+          wasSaved ? 'Removed from your agenda' : 'Added to your agenda',
+          type: ToastType.success);
     } catch (e) {
       if (!mounted) return;
-      showToast(context,
-          e is ApiException ? e.message : 'Could not update your agenda');
+      showToast(context, describeError(e, context: 'your agenda'),
+          type: ToastType.error);
     } finally {
       _savingBusy = false;
     }
@@ -121,6 +124,7 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
         setState(() {
           _loading = false;
           _error = 'This session could not be found.';
+          _errorReason = StatusReason.notFound;
         });
         return;
       }
@@ -151,17 +155,15 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
         _streamUrl = stream.isEmpty ? null : stream;
         _loading = false;
       });
-    } on ApiException catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _loading = false;
-        _error = e.message;
-      });
     } catch (e) {
       if (!mounted) return;
+      final msg = describeError(e, context: 'this session');
       setState(() {
         _loading = false;
-        _error = 'Something went wrong loading this session.';
+        _error = msg;
+        _errorReason = msg.toLowerCase().contains("couldn't reach the server")
+            ? StatusReason.network
+            : StatusReason.generic;
       });
     }
   }
@@ -172,7 +174,8 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
     // the agenda screen's contract: gate on a registration, then send both.
     final rid = EventContext.regIdFor(widget.eventId);
     if (rid == null) {
-      showToast(context, 'Register for this event to rate sessions.');
+      showToast(context, 'Register for this event to rate sessions.',
+          type: ToastType.error);
       return;
     }
     setState(() => _myRating = rating);
@@ -182,11 +185,12 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
         'rating': rating,
       });
       if (!mounted) return;
-      showToast(context, 'Thanks for rating this session');
+      showToast(context, 'Thanks for rating this session',
+          type: ToastType.success);
     } catch (e) {
       if (!mounted) return;
-      showToast(context,
-          e is ApiException ? e.message : 'Could not submit rating');
+      showToast(context, describeError(e, context: 'your rating'),
+          type: ToastType.error);
     }
   }
 
@@ -207,7 +211,7 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
       if (!mounted) return;
-      showToast(context, 'Could not open the stream');
+      showToast(context, 'Could not open the stream', type: ToastType.error);
     }
   }
 
@@ -228,7 +232,8 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
       body: _loading
           ? const LoadingState()
           : _error != null
-              ? ErrorStateView(message: _error!, onRetry: _load)
+              ? ErrorStateView(
+                  message: _error!, onRetry: _load, reason: _errorReason)
               : _buildBody(),
     );
   }

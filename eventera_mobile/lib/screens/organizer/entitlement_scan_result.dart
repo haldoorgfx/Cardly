@@ -322,7 +322,7 @@ class EntitlementScanResultView extends StatelessWidget {
       default:
         final msg = (result.message ?? '').trim();
         return [
-          Text(msg.isEmpty ? 'Something went wrong' : msg,
+          Text(msg.isEmpty ? "That scan couldn't be completed. Try again." : msg,
               textAlign: TextAlign.center,
               style: AppText.body.copyWith(color: Colors.white)),
         ];

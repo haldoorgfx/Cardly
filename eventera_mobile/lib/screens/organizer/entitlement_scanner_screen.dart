@@ -179,10 +179,10 @@ class _EntitlementScannerScreenState extends State<EntitlementScannerScreen> {
       if (cache != null && cache.entitlementMaps.isNotEmpty) {
         await _buildFromCache(cache);
       } else {
+        final msg = describeError(e, context: 'entitlements');
         setState(() {
           _loading = false;
-          _loadError =
-              'Could not load entitlements. Download offline data while you have signal.';
+          _loadError = '$msg Download offline data while you have signal.';
         });
       }
     }
@@ -463,7 +463,7 @@ class _EntitlementScannerScreenState extends State<EntitlementScannerScreen> {
         _sync.markOffline();
         await _handleOffline(token, entitlement, clientUuid, scannedAt);
       } else {
-        _show(EntitlementScanResult.error('Could not reach the server. Try again.'));
+        _show(EntitlementScanResult.error(describeError(e, context: 'that scan')));
       }
     }
   }

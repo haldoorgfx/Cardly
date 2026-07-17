@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ExternalLink, LayoutGrid, CalendarDays, Mic, Store, Users, MapPin, Sparkles } from 'lucide-react';
 import type { Database } from '@/types/database';
+import { describeError } from '@/components/ui/status-state';
 import { AddToCalendarButton } from './AddToCalendarButton';
 import SpeakerDirectoryClient from './SpeakerDirectoryClient';
 import PeopleDiscoveryClient from '@/components/networking/PeopleDiscoveryClient';
@@ -335,8 +336,8 @@ function ERAQandA({ page }: { page: EventPageRow }) {
       } else {
         setAnswer(data.result);
       }
-    } catch {
-      setError('Something went wrong. Please try again.');
+    } catch (err) {
+      setError(describeError(err, 'your question'));
     } finally {
       setLoading(false);
     }
@@ -475,7 +476,13 @@ export function PublicEventPageClient({
         setSavedHeart(next);
         setSaveToast(next ? 'Saved!' : 'Removed from saved');
         setTimeout(() => setSaveToast(null), 2000);
+      } else {
+        setSaveToast(next ? "Couldn't save this event" : "Couldn't remove this event");
+        setTimeout(() => setSaveToast(null), 2500);
       }
+    } catch {
+      setSaveToast("Couldn't reach the server — check your connection");
+      setTimeout(() => setSaveToast(null), 2500);
     } finally {
       setSaveBusy(false);
     }

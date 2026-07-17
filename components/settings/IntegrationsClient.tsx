@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { BrandLogo } from '@/components/settings/BrandLogos';
+import { describeError } from '@/components/ui/status-state';
 
 type Provider = 'slack' | 'zapier' | 'google_sheets' | 'mailchimp' | 'hubspot';
 
@@ -118,8 +119,8 @@ export function IntegrationsClient() {
       const body = await res.json().catch(() => ({}));
       if (res.ok && body.url) { window.location.href = body.url; return; }
       setBanner({ kind: 'error', text: body.error ?? 'Could not start Stripe onboarding.' });
-    } catch {
-      setBanner({ kind: 'error', text: 'Could not reach Stripe. Please try again.' });
+    } catch (e) {
+      setBanner({ kind: 'error', text: describeError(e, 'Stripe') });
     } finally {
       setStripeBusy(false);
     }
@@ -137,8 +138,8 @@ export function IntegrationsClient() {
         return;
       }
       await load();
-    } catch {
-      setBanner({ kind: 'error', text: 'Could not disconnect Stripe. Please try again.' });
+    } catch (e) {
+      setBanner({ kind: 'error', text: describeError(e, 'Stripe') });
     } finally {
       setStripeBusy(false);
     }
@@ -270,22 +271,32 @@ function ConnectModal({ meta, state, onClose, onChanged }: {
 
   async function save() {
     setBusy('save'); setError(''); setOk('');
-    const res = await fetch(`/api/integrations/${meta.provider}`, {
-      method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(values),
-    });
-    const body = await res.json().catch(() => ({}));
-    setBusy(null);
-    if (!res.ok) { setError(body.error ?? 'Could not save.'); return; }
-    onChanged();
+    try {
+      const res = await fetch(`/api/integrations/${meta.provider}`, {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(values),
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) { setError(body.error ?? 'Could not save.'); return; }
+      onChanged();
+    } catch (e) {
+      setError(describeError(e, meta.name));
+    } finally {
+      setBusy(null);
+    }
   }
 
   async function test() {
     setBusy('test'); setError(''); setOk('');
-    const res = await fetch(`/api/integrations/${meta.provider}/test`, { method: 'POST' });
-    const body = await res.json().catch(() => ({}));
-    setBusy(null);
-    if (!res.ok) { setError(body.error ?? 'Test failed.'); return; }
-    setOk('Test sent — check your tool.');
+    try {
+      const res = await fetch(`/api/integrations/${meta.provider}/test`, { method: 'POST' });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) { setError(body.error ?? 'Test failed.'); return; }
+      setOk('Test sent — check your tool.');
+    } catch (e) {
+      setError(describeError(e, meta.name));
+    } finally {
+      setBusy(null);
+    }
   }
 
   async function disconnect() {
@@ -299,8 +310,8 @@ function ConnectModal({ meta, state, onClose, onChanged }: {
         return;
       }
       onChanged();
-    } catch {
-      setError('Could not disconnect. Please try again.');
+    } catch (e) {
+      setError(describeError(e, meta.name));
     } finally {
       setBusy(null);
     }

@@ -143,11 +143,11 @@ class _DirectoryPreviewScreenState extends State<DirectoryPreviewScreen> {
                             showToast(context,
                                 'Meeting request sent to ${widget.boothName}.');
                           }
-                        } catch (_) {
+                        } catch (e) {
                           setSheet(() => sending = false);
                           if (ctx.mounted) {
                             showToast(ctx,
-                                "Couldn't send that request. Try again.");
+                                describeError(e, context: 'that request'));
                           }
                         }
                       }),
@@ -241,9 +241,10 @@ class _DirectoryPreviewScreenState extends State<DirectoryPreviewScreen> {
                       );
                     }
                     if (snap.hasError) {
-                      return const Text('Products could not be loaded.',
-                          style: TextStyle(
-                              color: AppColors.inkMuted, fontSize: 13));
+                      return Text(
+                          describeError(snap.error, context: 'products'),
+                          style: const TextStyle(
+                              color: AppColors.danger, fontSize: 13));
                     }
                     final products = snap.data ?? [];
                     if (products.isEmpty) {

@@ -155,8 +155,11 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
             widget.ticketType == null ? null : 'Ticket: ${widget.ticketType}',
         url: _eventUrl,
       );
-    } catch (_) {
-      if (mounted) showToast(context, 'Could not add to calendar.');
+    } catch (e) {
+      if (mounted) {
+        showToast(context, describeError(e, context: 'the calendar event'),
+            type: ToastType.error);
+      }
     }
   }
 
@@ -167,8 +170,11 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
         : 'I\'m going to ${widget.eventName}';
     try {
       await Share.share(msg, subject: widget.eventName);
-    } catch (_) {
-      if (mounted) showToast(context, 'Could not open share sheet.');
+    } catch (e) {
+      if (mounted) {
+        showToast(context, describeError(e, context: 'the share sheet'),
+            type: ToastType.error);
+      }
     }
   }
 
@@ -222,8 +228,11 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
     if (uri == null) return;
     try {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } catch (_) {
-      if (mounted) showToast(context, "Couldn't open your card. Please try again.");
+    } catch (e) {
+      if (mounted) {
+        showToast(context, describeError(e, context: 'your card'),
+            type: ToastType.error);
+      }
     }
   }
 
@@ -619,9 +628,9 @@ class _TransferSheetState extends State<_TransferSheet> {
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => _error = e.message);
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
-      setState(() => _error = 'Could not send the transfer. Please try again.');
+      setState(() => _error = describeError(e, context: 'this transfer'));
     } finally {
       if (mounted) setState(() => _busy = false);
     }

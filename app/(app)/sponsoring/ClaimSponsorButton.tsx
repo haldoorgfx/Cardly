@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { RefreshCw, Check } from 'lucide-react';
+import { describeError } from '@/components/ui/status-state';
 
 /**
  * "Claim sponsor access" — for a logged-in user whose account isn't yet linked
@@ -13,6 +14,7 @@ import { RefreshCw, Check } from 'lucide-react';
 export function ClaimSponsorButton() {
   const router = useRouter();
   const [state, setState] = useState<'idle' | 'loading' | 'none' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState('');
 
   async function claim() {
     setState('loading');
@@ -23,8 +25,14 @@ export function ClaimSponsorButton() {
         router.refresh();
         return;
       }
-      setState(res.ok ? 'none' : 'error');
-    } catch {
+      if (!res.ok) {
+        setErrorMessage(describeError(data.error ?? `Request failed (${res.status})`, 'sponsor access'));
+        setState('error');
+        return;
+      }
+      setState('none');
+    } catch (e) {
+      setErrorMessage(describeError(e, 'sponsor access'));
       setState('error');
     }
   }
@@ -52,7 +60,7 @@ export function ClaimSponsorButton() {
         )}
         {state === 'error' && (
           <p className="text-[12.5px]" style={{ color: '#B8423C' }} role="alert">
-            Something went wrong. Please try again.
+            {errorMessage}
           </p>
         )}
       </div>

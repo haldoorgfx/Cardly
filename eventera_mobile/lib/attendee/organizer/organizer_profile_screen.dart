@@ -29,6 +29,7 @@ class OrganizerProfileScreen extends StatefulWidget {
 class _OrganizerProfileScreenState extends State<OrganizerProfileScreen> {
   bool _loading = true;
   String? _error;
+  StatusReason _errorReason = StatusReason.generic;
 
   String _name = 'Organizer';
   String? _avatarUrl;
@@ -123,11 +124,13 @@ class _OrganizerProfileScreenState extends State<OrganizerProfileScreen> {
         _following = following;
         _loading = false;
       });
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
+      final msg = describeError(e, context: 'this organizer');
       setState(() {
         _loading = false;
-        _error = 'Could not load this organizer.';
+        _error = msg;
+        _errorReason = _reasonFor(e, msg);
       });
     }
   }
@@ -163,8 +166,11 @@ class _OrganizerProfileScreenState extends State<OrganizerProfileScreen> {
             .eq('follower_id', currentUserId ?? '')
             .eq('organizer_id', widget.organizerId);
       }
-      if (mounted) showToast(context, want ? 'Following $_name' : 'Unfollowed');
-    } catch (_) {
+      if (mounted) {
+        showToast(context, want ? 'Following $_name' : 'Unfollowed',
+            type: ToastType.success);
+      }
+    } catch (e) {
       // Revert.
       if (!mounted) return;
       setState(() {
@@ -172,7 +178,8 @@ class _OrganizerProfileScreenState extends State<OrganizerProfileScreen> {
         _followers += want ? -1 : 1;
         if (_followers < 0) _followers = 0;
       });
-      showToast(context, 'Could not update follow.');
+      showToast(context, describeError(e, context: 'that follow'),
+          type: ToastType.error);
     } finally {
       if (mounted) setState(() => _busyFollow = false);
     }
@@ -193,7 +200,8 @@ class _OrganizerProfileScreenState extends State<OrganizerProfileScreen> {
       body: _loading
           ? const LoadingState()
           : _error != null
-              ? ErrorStateView(message: _error!, onRetry: _load)
+              ? ErrorStateView(
+                  message: _error!, onRetry: _load, reason: _errorReason)
               : RefreshIndicator(
                   color: AppColors.forest,
                   onRefresh: _load,
@@ -362,6 +370,24 @@ class _OrganizerProfileScreenState extends State<OrganizerProfileScreen> {
     final l = d.toLocal();
     return '${months[l.month - 1]} ${l.day}, ${l.year}';
   }
+}
+
+/// Classifies a caught load error into a [StatusReason] so [ErrorStateView]
+/// shows the right icon/copy — network for connectivity, and the
+/// ApiException status code for anything the server told us.
+StatusReason _reasonFor(Object? error, String message) {
+  if (message.toLowerCase().contains("couldn't reach the server")) {
+    return StatusReason.network;
+  }
+  if (error is ApiException) {
+    switch (error.status) {
+      case 403:
+        return StatusReason.permission;
+      case 404:
+        return StatusReason.notFound;
+    }
+  }
+  return StatusReason.generic;
 }
 
 class _MiniEvent {

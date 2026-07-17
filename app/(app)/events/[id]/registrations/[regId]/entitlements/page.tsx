@@ -35,10 +35,33 @@ async function verifyEventOwner(eventId: string): Promise<boolean> {
 // Map an RPC jsonb return into an ActionResult. The RPCs return
 // { status:'ok' | 'error', message? } — never trust the client, surface theirs.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function rpcResult(data: any, error: { message?: string } | null): ActionResult {
-  if (error) return { error: 'Something went wrong. Try again.' };
+function rpcResult(data: any, error: { message?: string; code?: string } | null, action = 'complete this action'): ActionResult {
+  if (error) return { error: describeRpcError(error, action) };
   if (data && data.status === 'error') return { error: String(data.message ?? 'Action failed') };
   return { ok: true };
+}
+
+// Turns a Postgres/RPC error into a plain-language sentence for the client.
+// Mirrors components/ui/status-state's describeError() in spirit, but that
+// helper lives in a 'use client' module and can't be imported into these
+// server actions — same intent here: never a blanket "went wrong" when the
+// error object actually tells us why.
+function describeRpcError(error: { message?: string; code?: string } | null, action: string): string {
+  if (!error) return `Couldn't ${action}. Please try again.`;
+  const msg = String(error.message ?? '').toLowerCase();
+  if (msg.includes('permission denied') || msg.includes('rls') || error.code === '42501') {
+    return "You don't have permission to do that.";
+  }
+  if (msg.includes('violates') && msg.includes('constraint')) {
+    return `Couldn't ${action} — that conflicts with existing data.`;
+  }
+  if (msg.includes('timeout') || msg.includes('timed out')) {
+    return 'That took too long to respond. Please try again.';
+  }
+  if (error.message && error.message.trim() && error.message.length < 200) {
+    return error.message;
+  }
+  return `Couldn't ${action}. Please try again.`;
 }
 
 export default async function AttendeeEntitlementsPage({ params }: Props) {
@@ -144,7 +167,7 @@ export default async function AttendeeEntitlementsPage({ params }: Props) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const s = createClient() as any;
     const { data, error } = await s.rpc('revoke_entitlement', { p_entitlement_id: entitlementId, p_registration_id: regId, p_reason: reason || null });
-    const res = rpcResult(data, error);
+    const res = rpcResult(data, error, 'revoke this entitlement');
     if ('ok' in res) revalidatePath(`/events/${id}/registrations/${regId}/entitlements`);
     return res;
   }
@@ -157,7 +180,7 @@ export default async function AttendeeEntitlementsPage({ params }: Props) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const s = createClient() as any;
     const { data, error } = await s.rpc('unredeem_entitlement', { p_redemption_id: redemptionId, p_reason: reason.trim() });
-    const res = rpcResult(data, error);
+    const res = rpcResult(data, error, 'un-redeem this entitlement');
     if ('ok' in res) revalidatePath(`/events/${id}/registrations/${regId}/entitlements`);
     return res;
   }
@@ -168,7 +191,7 @@ export default async function AttendeeEntitlementsPage({ params }: Props) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const s = createClient() as any;
     const { data, error } = await s.rpc('grant_entitlement', { p_entitlement_id: entitlementId, p_registration_id: regId });
-    const res = rpcResult(data, error);
+    const res = rpcResult(data, error, 'grant this entitlement');
     if ('ok' in res) revalidatePath(`/events/${id}/registrations/${regId}/entitlements`);
     return res;
   }
@@ -181,7 +204,7 @@ export default async function AttendeeEntitlementsPage({ params }: Props) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const s = createClient() as any;
     const { data, error } = await s.rpc('extend_validity', { p_entitlement_id: entitlementId, p_valid_until: d.toISOString() });
-    const res = rpcResult(data, error);
+    const res = rpcResult(data, error, 'extend the validity');
     if ('ok' in res) revalidatePath(`/events/${id}/registrations/${regId}/entitlements`);
     return res;
   }
@@ -226,7 +249,7 @@ export default async function AttendeeEntitlementsPage({ params }: Props) {
     const { data, error } = await s.rpc('transfer_entitlement', {
       p_entitlement_id: entitlementId, p_from_registration: regId, p_to_registration: toRegistrationId,
     });
-    if (error) return { error: 'Couldn’t transfer this entitlement. Try again.' };
+    if (error) return { error: describeRpcError(error, 'transfer this entitlement') };
     if (data?.status === 'already_redeemed') return { blocked: 'already_redeemed' };
     if (data?.status === 'error') return { error: String(data.message ?? 'Transfer failed') };
 

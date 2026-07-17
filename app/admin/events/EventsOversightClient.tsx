@@ -5,6 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { Search, Loader2, Flag, Trash2, RotateCcw, ExternalLink, X, Download } from 'lucide-react';
 import type { EventRow } from './page';
 import { toast } from '@/hooks/use-toast';
+import { StatusState, describeError } from '@/components/ui/status-state';
 
 const STATUS_STYLES: Record<string, { bg: string; color: string }> = {
   draft:     { bg: 'rgba(232,197,126,0.15)', color: '#C9A45E' },
@@ -59,11 +60,15 @@ export function EventsOversightClient({ events: initialEvents, total, page, tota
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: v }),
       });
-      if (!res.ok) throw new Error('Update failed');
-      toast({ title: 'Event name updated' });
-    } catch {
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'Update failed');
+      }
+      toast({ title: 'Event name updated', variant: 'success' });
+    } catch (e) {
       /* optimistic */
-      toast({ title: 'Something went wrong', description: 'Could not rename the event. Refresh to see the current value.', variant: 'destructive' });
+      const reason = describeError(e, 'the rename');
+      toast({ title: 'Could not rename the event', description: `${reason} Refresh to see the current value.`, variant: 'destructive' });
     }
   };
 
@@ -116,14 +121,15 @@ export function EventsOversightClient({ events: initialEvents, total, page, tota
         toast({
           title: `${verb} ${okIds.length} event${okIds.length === 1 ? '' : 's'}`,
           description: failed > 0 ? `${failed} could not be updated.` : undefined,
+          variant: 'success',
         });
       } else if (ids.length > 0) {
-        toast({ title: 'Something went wrong', description: `None of the ${ids.length} events could be updated.`, variant: 'destructive' });
+        toast({ title: 'Could not update the events', description: `None of the ${ids.length} events could be updated.`, variant: 'destructive' });
       }
       clearSelection();
       router.refresh();
-    } catch {
-      toast({ title: 'Something went wrong', description: 'The bulk action failed. Refresh and try again.', variant: 'destructive' });
+    } catch (e) {
+      toast({ title: 'Could not update the events', description: describeError(e, 'the bulk update'), variant: 'destructive' });
     } finally {
       setBulkBusy(false);
     }
@@ -162,16 +168,17 @@ export function EventsOversightClient({ events: initialEvents, total, page, tota
             : e
         ));
         const verb = status === 'removed' ? 'removed from the marketplace' : status === 'flagged' ? 'flagged' : 'restored';
-        toast({ title: `Event ${verb}`, description: event.name });
+        toast({ title: `Event ${verb}`, description: event.name, variant: 'success' });
       } else {
         const data = await res.json().catch(() => ({}));
-        const msg = data.error ?? 'Could not update this event — please try again.';
+        const msg = data.error || 'Could not update this event — please try again.';
         setActionError(msg);
-        toast({ title: 'Something went wrong', description: msg, variant: 'destructive' });
+        toast({ title: 'Could not update the event', description: msg, variant: 'destructive' });
       }
-    } catch {
-      setActionError('Network error — please try again.');
-      toast({ title: 'Something went wrong', description: 'Network error — please try again.', variant: 'destructive' });
+    } catch (e) {
+      const msg = describeError(e, 'this event');
+      setActionError(msg);
+      toast({ title: 'Could not update the event', description: msg, variant: 'destructive' });
     } finally {
       setBusy(null);
     }
@@ -337,10 +344,14 @@ export function EventsOversightClient({ events: initialEvents, total, page, tota
       </div>
 
       {actionError && (
-        <div className="mb-4 rounded-xl px-4 py-3 flex items-center justify-between gap-3 text-[13px]" role="alert"
-          style={{ background: 'rgba(184,66,60,0.08)', border: '1px solid rgba(184,66,60,0.25)', color: '#B8423C' }}>
-          <span>{actionError}</span>
-          <button onClick={() => setActionError('')} className="shrink-0 text-[12.5px] underline">Dismiss</button>
+        <div className="mb-4 rounded-xl border border-danger/25 bg-danger/5">
+          <StatusState
+            kind="error"
+            reason="generic"
+            compact
+            message={actionError}
+            secondaryAction={{ label: 'Dismiss', onClick: () => setActionError('') }}
+          />
         </div>
       )}
 
@@ -391,7 +402,12 @@ export function EventsOversightClient({ events: initialEvents, total, page, tota
 
       {/* Table */}
       {events.length === 0 ? (
-        <div className="py-16 text-center text-[14px] text-[#65736B]">No events match these filters.</div>
+        <StatusState
+          kind="empty"
+          title="No events match these filters"
+          message={hasActiveFilters ? 'Try a different search, or clear the filters to see everything.' : 'No events have been created yet.'}
+          secondaryAction={hasActiveFilters ? { label: 'Clear filters', onClick: clearFilters } : undefined}
+        />
       ) : (
         <>
           {/* ── Desktop table (md+) ────────────────────────────── */}

@@ -31,6 +31,7 @@ class _AttendeeProfileScreenState extends State<AttendeeProfileScreen> {
   bool _saving = false;
   bool _uploadingAvatar = false;
   String? _error;
+  StatusReason _errorReason = StatusReason.generic;
 
   final _nameCtl = TextEditingController();
   final _cityCtl = TextEditingController();
@@ -107,6 +108,7 @@ class _AttendeeProfileScreenState extends State<AttendeeProfileScreen> {
               ? "Couldn't confirm — please try again."
               : 'Set up a fingerprint or face in your phone settings first, '
                   'then enable this.',
+          type: ToastType.error,
         );
         return;
       }
@@ -120,7 +122,8 @@ class _AttendeeProfileScreenState extends State<AttendeeProfileScreen> {
     if (!mounted) return;
     setState(() => _biometricEnabled = enable);
     showToast(context,
-        enable ? 'Biometric unlock enabled' : 'Biometric unlock disabled');
+        enable ? 'Biometric unlock enabled' : 'Biometric unlock disabled',
+        type: ToastType.success);
   }
 
   @override
@@ -177,17 +180,15 @@ class _AttendeeProfileScreenState extends State<AttendeeProfileScreen> {
       _language = asString(_prefs['language'], 'English');
 
       setState(() => _loading = false);
-    } on ApiException catch (e) {
+    } catch (e) {
       if (!mounted) return;
+      final msg = describeError(e, context: 'your profile');
       setState(() {
         _loading = false;
-        _error = e.message;
-      });
-    } catch (_) {
-      if (!mounted) return;
-      setState(() {
-        _loading = false;
-        _error = 'Something went wrong loading your profile.';
+        _error = msg;
+        _errorReason = msg.toLowerCase().contains("couldn't reach the server")
+            ? StatusReason.network
+            : StatusReason.generic;
       });
     }
   }
@@ -240,15 +241,12 @@ class _AttendeeProfileScreenState extends State<AttendeeProfileScreen> {
       await supa.from('profiles').update(patch).eq('id', currentUserId ?? '');
       if (!mounted) return;
       setState(() => _saving = false);
-      showToast(context, 'Profile saved');
-    } on ApiException catch (e) {
+      showToast(context, 'Profile saved', type: ToastType.success);
+    } catch (e) {
       if (!mounted) return;
       setState(() => _saving = false);
-      showToast(context, e.message);
-    } catch (_) {
-      if (!mounted) return;
-      setState(() => _saving = false);
-      showToast(context, 'Could not save your profile');
+      showToast(context, describeError(e, context: 'your profile'),
+          type: ToastType.error);
     }
   }
 
@@ -286,15 +284,12 @@ class _AttendeeProfileScreenState extends State<AttendeeProfileScreen> {
         _avatarUrl = '$url?t=${DateTime.now().millisecondsSinceEpoch}';
         _uploadingAvatar = false;
       });
-      showToast(context, 'Photo updated');
-    } on ApiException catch (e) {
+      showToast(context, 'Photo updated', type: ToastType.success);
+    } catch (e) {
       if (!mounted) return;
       setState(() => _uploadingAvatar = false);
-      showToast(context, e.message);
-    } catch (_) {
-      if (!mounted) return;
-      setState(() => _uploadingAvatar = false);
-      showToast(context, 'Could not update your photo');
+      showToast(context, describeError(e, context: 'your photo'),
+          type: ToastType.error);
     }
   }
 
@@ -342,7 +337,8 @@ class _AttendeeProfileScreenState extends State<AttendeeProfileScreen> {
           : _loading
               ? const LoadingState()
               : _error != null
-                  ? ErrorStateView(message: _error!, onRetry: _load)
+                  ? ErrorStateView(
+                      message: _error!, onRetry: _load, reason: _errorReason)
                   : _buildForm(),
     );
   }
@@ -431,13 +427,14 @@ class _AttendeeProfileScreenState extends State<AttendeeProfileScreen> {
                 await supa.auth.updateUser(UserAttributes(email: email));
                 if (ctx.mounted) Navigator.of(ctx).pop();
                 if (mounted) {
-                  showToast(context, 'Check $email to confirm the change.');
+                  showToast(context, 'Check $email to confirm the change.',
+                      type: ToastType.success);
                 }
-              } catch (_) {
+              } catch (e) {
                 setSheet(() => busy = false);
                 if (mounted) {
-                  showToast(
-                      context, 'Could not update your email. Please try again.');
+                  showToast(context, describeError(e, context: 'your email'),
+                      type: ToastType.error);
                 }
               }
             }),
@@ -467,7 +464,8 @@ class _AttendeeProfileScreenState extends State<AttendeeProfileScreen> {
                   _prefs['language'] = l;
                 });
                 Navigator.of(context).maybePop();
-                showToast(context, 'Language set to $l — tap Save changes.');
+                showToast(context, 'Language set to $l — tap Save changes.',
+                    type: ToastType.success);
               },
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 14),
@@ -531,12 +529,15 @@ class _AttendeeProfileScreenState extends State<AttendeeProfileScreen> {
       await supa.auth.signOut();
       if (!mounted) return;
       Navigator.of(context).popUntil((r) => r.isFirst);
-      showToast(context, 'Your account has been deleted.');
+      showToast(context, 'Your account has been deleted.',
+          type: ToastType.success);
     } catch (_) {
       if (!mounted) return;
       setState(() => _saving = false);
-      showToast(context,
-          'We couldn\'t delete your account right now. Please contact support.');
+      showToast(
+          context,
+          'We couldn\'t delete your account right now. Please contact support.',
+          type: ToastType.error);
     }
   }
 

@@ -71,11 +71,11 @@ class _OfflinePrepareScreenState extends State<OfflinePrepareScreen> {
         _cache = cache;
         _phase = _Phase.ready;
       });
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
       setState(() {
         _phase = _Phase.error;
-        _error = 'Download interrupted. Check your connection and retry.';
+        _error = describeError(e, context: "this event's offline data");
       });
     }
   }

@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { ChevronLeft, ChevronRight, Check } from 'lucide-react';
+import { describeError } from '@/components/ui/status-state';
 import { CardZoneFill } from './CardZoneFill';
 import { PhotoCropModal } from './PhotoCropModal';
 import { StripePaymentStep } from './StripePaymentStep';
@@ -137,8 +138,8 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
         setSelectedTicketId(data.tickets[0].id);
         setAccessCodeVisible(false);
       }
-    } catch {
-      setAccessCodeError('Could not verify code. Try again.');
+    } catch (err) {
+      setAccessCodeError(describeError(err, 'that access code'));
     } finally {
       setUnlocking(false);
     }
@@ -191,7 +192,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
           });
           const data = await res.json();
           if (!res.ok) {
-            setSubmitError(data.detail ?? data.error ?? 'Registration failed');
+            setSubmitError(data.detail ?? data.error ?? describeError(new Error(res.statusText || `status ${res.status}`), 'your registration'));
             return;
           }
 
@@ -213,8 +214,8 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
           setPendingRegToken(data.qr_code_token);
           setPaymentAmount(data.amount ?? 0);
           setPaymentCurrency(data.currency ?? 'USD');
-        } catch {
-          setSubmitError('Could not set up payment. Please try again.');
+        } catch (err) {
+          setSubmitError(describeError(err, 'your payment'));
           return;
         } finally {
           setCreatingPayment(false);
@@ -270,8 +271,14 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
       });
       const regData = await regRes.json();
       if (!regRes.ok) {
-        const msg = regData.detail ?? regData.error ?? 'Registration failed';
-        setSubmitError(msg === 'TICKET_SOLD_OUT' ? 'Sorry, this ticket just sold out.' : msg);
+        // regData.detail carries the server's real, case-specific message (e.g.
+        // distinguishes "sold out" from "at capacity" from "Free-tier limit
+        // reached") — prefer it over the bare error code.
+        const msg = regData.detail
+          ?? (regData.error === 'TICKET_SOLD_OUT' ? 'Sorry, this ticket just sold out.' : undefined)
+          ?? regData.error
+          ?? describeError(new Error(regRes.statusText || `status ${regRes.status}`), 'your registration');
+        setSubmitError(msg);
         setSubmitting(false);
         return;
       }
@@ -337,7 +344,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
       // 3. Redirect to confirm page
       router.push(`/e/${eventSlug}/register/confirm?reg=${qr_code_token}`);
     } catch (err) {
-      setSubmitError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+      setSubmitError(describeError(err, 'your registration'));
       setSubmitting(false);
     }
   }
@@ -380,6 +387,20 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
             </div>
           ))}
         </div>
+
+        {/* Submit-level failure banner — covers steps 0/1 where a paid-ticket
+            payment setup can fail before there's a dedicated place to show it
+            (step 2's own error block only covers the free-ticket personalise step). */}
+        {submitError && step < 2 && (
+          <div
+            role="alert"
+            aria-live="assertive"
+            className="mb-6 px-4 py-3 rounded-xl text-[14px]"
+            style={{ background: 'rgba(184,66,60,0.08)', color: '#B8423C', border: '1px solid rgba(184,66,60,0.2)' }}
+          >
+            {submitError}
+          </div>
+        )}
 
         {/* Main grid */}
         <div className="flex flex-col lg:grid gap-6 lg:gap-8" style={{ gridTemplateColumns: 'minmax(0,1fr) 300px' }}>

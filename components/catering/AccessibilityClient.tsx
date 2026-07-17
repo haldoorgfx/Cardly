@@ -3,8 +3,9 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, RotateCw, ShieldCheck, HeartHandshake, Mail, Phone, Copy, Check } from 'lucide-react';
+import { ArrowLeft, ShieldCheck, HeartHandshake, Mail, Phone, Copy, Check } from 'lucide-react';
 import { PageShell, PageHeader } from '@/components/dash';
+import { StatusState } from '@/components/ui/status-state';
 
 export interface AccessTag {
   tag: string;
@@ -83,36 +84,25 @@ export function AccessibilityClient({ eventSlug, data, loadError }: Props) {
         </div>
 
         {loadError ? (
-          <div className="bg-white rounded-2xl border p-10 text-center" style={{ borderColor: '#E5E0D4' }}>
-            <p className="font-display text-[17px] font-semibold" style={{ color: '#0F1F18' }}>
-              {loadError === 'auth' ? 'You can’t manage this event' : 'Couldn’t load this summary'}
-            </p>
-            <p className="text-[14px] mt-1.5 mb-5" style={{ color: '#65736B' }}>
-              {loadError === 'auth'
+          <div className="bg-white rounded-2xl border" style={{ borderColor: '#E5E0D4' }}>
+            <StatusState
+              kind="error"
+              reason={loadError === 'auth' ? 'permission' : 'network'}
+              title={loadError === 'auth' ? 'You can’t manage this event' : 'Couldn’t load this summary'}
+              message={loadError === 'auth'
                 ? 'Only the event owner or its staff can see accessibility needs.'
-                : 'Something went wrong fetching the summary.'}
-            </p>
-            {loadError === 'generic' && (
-              <button
-                onClick={() => router.refresh()}
-                className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-[14px] font-medium text-white transition hover:bg-[#163828]"
-                style={{ background: '#1F4D3A' }}
-              >
-                <RotateCw size={15} strokeWidth={2} /> Retry
-              </button>
-            )}
+                : 'We couldn’t reach the database to fetch the summary. Please try again.'}
+              primaryAction={loadError === 'generic' ? { label: 'Try again', onClick: () => router.refresh() } : undefined}
+            />
           </div>
         ) : !hasNeeds ? (
-          <div className="bg-white rounded-2xl border p-10 text-center" style={{ borderColor: '#E5E0D4' }}>
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
-              <HeartHandshake size={22} strokeWidth={1.9} />
-            </div>
-            <p className="font-display text-[18px] font-semibold" style={{ color: '#0F1F18' }}>
-              No accessibility needs shared
-            </p>
-            <p className="text-[14px] mt-1.5" style={{ color: '#65736B' }}>
-              No one has shared an accessibility need yet. When they do, it’ll show here so you can prepare — with the total, a breakdown, and how to reach them.
-            </p>
+          <div className="bg-white rounded-2xl border" style={{ borderColor: '#E5E0D4' }}>
+            <StatusState
+              kind="empty"
+              icon={HeartHandshake}
+              title="No accessibility needs shared"
+              message="No one has shared an accessibility need yet. When they do, it’ll show here so you can prepare — with the total, a breakdown, and how to reach them."
+            />
           </div>
         ) : (
           <>

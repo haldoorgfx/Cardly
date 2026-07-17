@@ -5,6 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { Search, Loader2, Gift, FileText, RotateCcw, X } from 'lucide-react';
 import type { BillingUserRow } from './page';
 import { toast } from '@/hooks/use-toast';
+import { StatusState, describeError } from '@/components/ui/status-state';
 
 const PLAN_STYLES: Record<string, { bg: string; color: string }> = {
   free:   { bg: 'rgba(107,122,114,0.10)', color: '#65736B' },
@@ -75,14 +76,14 @@ function CompModal({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId: user.id, plan, reason }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? 'Failed');
-      toast({ title: 'Plan comped', description: `${user.email} is now on ${plan}.` });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Could not grant this plan.');
+      toast({ title: 'Plan comped', description: `${user.email} is now on ${plan}.`, variant: 'success' });
       onDone(plan);
     } catch (e) {
-      const msg = e instanceof Error ? e.message : 'Something went wrong';
+      const msg = describeError(e, 'the plan change');
       setError(msg);
-      toast({ title: 'Something went wrong', description: msg, variant: 'destructive' });
+      toast({ title: 'Could not comp the plan', description: msg, variant: 'destructive' });
     } finally {
       setSaving(false);
     }
@@ -146,6 +147,8 @@ function CompModal({
 function InvoicesPanel({ user, onClose }: { user: BillingUserRow; onClose: () => void }) {
   const [invoices, setInvoices] = useState<Invoice[] | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
   const [refunding, setRefunding] = useState<string | null>(null);
   // Per-invoice refund amount (was a single shared value that leaked across rows)
   const [refundAmounts, setRefundAmounts] = useState<Record<string, string>>({});
@@ -154,12 +157,14 @@ function InvoicesPanel({ user, onClose }: { user: BillingUserRow; onClose: () =>
   useEffect(() => {
     if (!user.stripe_customer_id) { setLoading(false); return; }
     let active = true;
+    setLoading(true);
+    setLoadError(null);
     fetch(`/api/admin/billing/invoices?customerId=${user.stripe_customer_id}`)
       .then(r => r.json())
       .then(d => { if (active) { setInvoices(d.invoices ?? []); setLoading(false); } })
-      .catch(() => { if (active) { setInvoices([]); setLoading(false); } });
+      .catch(e => { if (active) { setLoadError(describeError(e, 'invoices')); setInvoices(null); setLoading(false); } });
     return () => { active = false; };
-  }, [user.stripe_customer_id]);
+  }, [user.stripe_customer_id, reloadKey]);
 
   const issueRefund = async (paymentIntentId: string, maxAmount: number) => {
     const raw = refundAmounts[paymentIntentId] ?? '';
@@ -181,17 +186,19 @@ function InvoicesPanel({ user, onClose }: { user: BillingUserRow; onClose: () =>
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setRefundMsg({ id: paymentIntentId, type: 'error', text: data.error ?? 'Refund failed' });
-        toast({ title: 'Something went wrong', description: data.error ?? 'Refund failed', variant: 'destructive' });
+        const msg = data.error || 'The refund could not be processed.';
+        setRefundMsg({ id: paymentIntentId, type: 'error', text: msg });
+        toast({ title: 'Could not issue the refund', description: msg, variant: 'destructive' });
         return;
       }
       const refundText = `Refund of ${formatAmount(data.refund.amount, data.refund.currency)} issued.`;
       setRefundMsg({ id: paymentIntentId, type: 'success', text: refundText });
-      toast({ title: 'Refund issued', description: `${formatAmount(data.refund.amount, data.refund.currency)} to ${user.email}.` });
+      toast({ title: 'Refund issued', description: `${formatAmount(data.refund.amount, data.refund.currency)} to ${user.email}.`, variant: 'success' });
       setRefundAmounts(m => ({ ...m, [paymentIntentId]: '' }));
-    } catch {
-      setRefundMsg({ id: paymentIntentId, type: 'error', text: 'Network error — please try again.' });
-      toast({ title: 'Something went wrong', description: 'Network error — please try again.', variant: 'destructive' });
+    } catch (e) {
+      const msg = describeError(e, 'the refund');
+      setRefundMsg({ id: paymentIntentId, type: 'error', text: msg });
+      toast({ title: 'Could not issue the refund', description: msg, variant: 'destructive' });
     } finally {
       setRefunding(null);
     }
@@ -215,11 +222,20 @@ function InvoicesPanel({ user, onClose }: { user: BillingUserRow; onClose: () =>
           {loading && (
             <div className="py-10 flex justify-center"><Loader2 size={20} strokeWidth={1.8} className="animate-spin text-[#65736B]" /></div>
           )}
-          {!loading && !user.stripe_customer_id && (
-            <p className="text-[13px] text-[#65736B] text-center py-8">No Stripe customer ID — this user has never paid.</p>
+          {!loading && loadError && (
+            <StatusState
+              kind="error"
+              reason="network"
+              compact
+              message={loadError}
+              primaryAction={{ label: 'Try again', onClick: () => setReloadKey(k => k + 1) }}
+            />
           )}
-          {!loading && invoices?.length === 0 && user.stripe_customer_id && (
-            <p className="text-[13px] text-[#65736B] text-center py-8">No invoices found.</p>
+          {!loading && !loadError && !user.stripe_customer_id && (
+            <StatusState kind="empty" compact message="No Stripe customer ID — this user has never paid." />
+          )}
+          {!loading && !loadError && invoices?.length === 0 && user.stripe_customer_id && (
+            <StatusState kind="empty" compact message="No invoices found for this customer." />
           )}
           {invoices && invoices.length > 0 && (
             <div className="space-y-3">
@@ -388,7 +404,12 @@ export function BillingAdminClient({ users: initialUsers, total, page, totalPage
 
       {/* Table */}
       {users.length === 0 ? (
-        <div className="py-16 text-center text-[14px] text-[#65736B]">No users match these filters.</div>
+        <StatusState
+          kind="empty"
+          title="No users match these filters"
+          message={hasActiveFilters ? 'Try a different search, or clear the filters to see everyone.' : 'There are no billing accounts yet.'}
+          secondaryAction={hasActiveFilters ? { label: 'Clear filters', onClick: clearFilters } : undefined}
+        />
       ) : (
         <>
           {/* ── Desktop table (md+) ────────────────────────────── */}

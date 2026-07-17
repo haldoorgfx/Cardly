@@ -7,6 +7,8 @@ import type { Speaker, SpeakerType } from '@/types/database';
 import { ImportWizard } from '@/components/shared/ImportWizard';
 import { IMPORT_ENTITIES } from '@/lib/import/entities';
 import { Modal } from '@/components/ui/Modal';
+import { StatusState, describeError } from '@/components/ui/status-state';
+import { toast } from '@/hooks/use-toast';
 
 interface Props {
   eventId: string;
@@ -161,26 +163,28 @@ export default function SpeakersManager({ eventId, slug, initialSpeakers }: Prop
       }
       closeForm();
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Something went wrong.');
+      setError(describeError(e, 'this speaker'));
     } finally {
       setSaving(false);
     }
   }
 
-  async function handleDelete(speakerId: string) {
+  async function handleDelete(speaker: Speaker) {
     if (!confirm('Delete this speaker? This cannot be undone.')) return;
-    setDeletingId(speakerId);
-    setError(null);
+    setDeletingId(speaker.id);
     try {
-      const res = await fetch(`/api/events/${eventId}/speakers?speakerId=${speakerId}`, {
+      const res = await fetch(`/api/events/${eventId}/speakers?speakerId=${speaker.id}`, {
         method: 'DELETE',
       });
       if (!res.ok) {
-        const data = await res.json() as { error?: string };
-        setError(data.error ?? 'Failed to delete speaker');
+        const data = await res.json().catch(() => ({})) as { error?: string };
+        toast({ title: 'Could not delete this speaker', description: data.error || 'Please try again.', variant: 'destructive' });
         return;
       }
-      setSpeakers((prev) => prev.filter((s) => s.id !== speakerId));
+      setSpeakers((prev) => prev.filter((s) => s.id !== speaker.id));
+      toast({ title: 'Speaker deleted', description: speaker.name, variant: 'success' });
+    } catch (e) {
+      toast({ title: 'Could not delete this speaker', description: describeError(e, 'this speaker'), variant: 'destructive' });
     } finally {
       setDeletingId(null);
     }
@@ -408,17 +412,14 @@ export default function SpeakersManager({ eventId, slug, initialSpeakers }: Prop
       </Modal>
 
       {speakers.length === 0 && !showForm ? (
-        <div className="bg-white border rounded-2xl py-16 flex flex-col items-center gap-4 text-center" style={{ borderColor: '#E5E0D4' }}>
-          <div className="w-12 h-12 rounded-2xl grid place-items-center" style={{ background: '#E8EFEB' }}>
-            <Plus size={20} strokeWidth={1.8} style={{ color: '#1F4D3A' }} />
-          </div>
-          <div>
-            <div className="font-display text-[16px] font-semibold" style={{ color: '#0F1F18' }}>No speakers yet</div>
-            <p className="text-[13px] mt-1" style={{ color: '#65736B' }}>Add your first speaker — they&apos;ll appear on the event page.</p>
-          </div>
-          <button onClick={openAdd} className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-[13.5px] font-medium text-white" style={{ background: '#1F4D3A' }}>
-            <Plus size={15} strokeWidth={2} /> Add first speaker
-          </button>
+        <div className="bg-white border rounded-2xl" style={{ borderColor: '#E5E0D4' }}>
+          <StatusState
+            kind="empty"
+            icon={Plus}
+            title="No speakers yet"
+            message="Add your first speaker — they'll appear on the event page."
+            primaryAction={{ label: 'Add first speaker', onClick: openAdd }}
+          />
         </div>
       ) : speakers.length > 0 ? (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -478,7 +479,7 @@ export default function SpeakersManager({ eventId, slug, initialSpeakers }: Prop
                     <button onClick={() => openEdit(speaker)} className="w-10 h-10 grid place-items-center rounded-lg transition hover:bg-[#F5F3EE]" style={{ color: '#65736B' }} title="Edit">
                       <Pencil size={13} strokeWidth={1.8} />
                     </button>
-                    <button onClick={() => handleDelete(speaker.id)} disabled={deletingId === speaker.id} className="w-10 h-10 grid place-items-center rounded-lg transition hover:bg-red-50 disabled:opacity-40" title="Delete">
+                    <button onClick={() => handleDelete(speaker)} disabled={deletingId === speaker.id} className="w-10 h-10 grid place-items-center rounded-lg transition hover:bg-red-50 disabled:opacity-40" title="Delete">
                       <Trash2 size={13} strokeWidth={1.8} style={{ color: '#B8423C' }} />
                     </button>
                   </div>

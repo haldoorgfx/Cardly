@@ -27,6 +27,7 @@ class SpeedNetworkingScreen extends StatefulWidget {
 class _SpeedNetworkingScreenState extends State<SpeedNetworkingScreen> {
   bool _loading = true;
   String? _error;
+  StatusReason _errorReason = StatusReason.generic;
   List<_Attendee> _deck = [];
   int _index = 0;
   bool _connecting = false;
@@ -81,17 +82,13 @@ class _SpeedNetworkingScreenState extends State<SpeedNetworkingScreen> {
         _index = 0;
         _loading = false;
       });
-    } on ApiException catch (e) {
+    } catch (e) {
       if (!mounted) return;
+      final msg = describeError(e, context: 'attendees');
       setState(() {
         _loading = false;
-        _error = e.message;
-      });
-    } catch (_) {
-      if (!mounted) return;
-      setState(() {
-        _loading = false;
-        _error = 'Something went wrong loading attendees.';
+        _error = msg;
+        _errorReason = _reasonFor(e, msg);
       });
     }
   }
@@ -119,12 +116,13 @@ class _SpeedNetworkingScreenState extends State<SpeedNetworkingScreen> {
       });
       if (!mounted) return;
       setState(() => _connecting = false);
-      showToast(context, 'Connection request sent');
+      showToast(context, 'Connection request sent', type: ToastType.success);
       _advance();
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
       setState(() => _connecting = false);
-      showToast(context, 'Could not connect.');
+      showToast(context, describeError(e, context: 'this connection'),
+          type: ToastType.error);
     }
   }
 
@@ -146,7 +144,8 @@ class _SpeedNetworkingScreenState extends State<SpeedNetworkingScreen> {
     }
     if (_loading) return const LoadingState();
     if (_error != null) {
-      return ErrorStateView(message: _error!, onRetry: _load);
+      return ErrorStateView(
+          message: _error!, onRetry: _load, reason: _errorReason);
     }
     if (_deck.isEmpty) {
       return const EmptyState(
@@ -264,6 +263,27 @@ class _SpeedNetworkingScreenState extends State<SpeedNetworkingScreen> {
       ),
     );
   }
+}
+
+/// Classifies a caught load error into a [StatusReason] so [ErrorStateView]
+/// shows the right icon/copy — network for connectivity, and the
+/// ApiException status code for anything the server told us (402 plan-gated,
+/// 403 permission, 404 not found).
+StatusReason _reasonFor(Object? error, String message) {
+  if (message.toLowerCase().contains("couldn't reach the server")) {
+    return StatusReason.network;
+  }
+  if (error is ApiException) {
+    switch (error.status) {
+      case 402:
+        return StatusReason.plan;
+      case 403:
+        return StatusReason.permission;
+      case 404:
+        return StatusReason.notFound;
+    }
+  }
+  return StatusReason.generic;
 }
 
 // ─── model ──────────────────────────────────────────────────────────────────

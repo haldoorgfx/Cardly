@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { fetchWithRetry } from '@/lib/utils/fetch-retry';
 import { track } from '@/components/shared/PostHogProvider';
 import { PlacesAutocomplete, type PlaceResult } from '@/components/shared/PlacesAutocomplete';
+import { describeError } from '@/components/ui/status-state';
 import {
   ArrowLeft, ArrowRight, CalendarDays, Wifi,
   Image as ImageIcon, Plus, MapPin,
@@ -96,7 +97,7 @@ export default function NewEventPage() {
 
       router.push(dest);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Something went wrong');
+      setError(describeError(e, 'your event'));
       setLoading(false);
     }
   }

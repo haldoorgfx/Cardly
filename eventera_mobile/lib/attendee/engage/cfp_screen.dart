@@ -23,6 +23,7 @@ class _CfpScreenState extends State<CfpScreen> {
   // ── Load state
   bool _loading = true;
   String? _loadError;
+  StatusReason _loadErrorReason = StatusReason.generic;
   bool _open = false;
   String? _description;
   DateTime? _deadline;
@@ -96,8 +97,13 @@ class _CfpScreenState extends State<CfpScreen> {
       });
     } catch (e) {
       if (!mounted) return;
+      final msg = describeError(e, context: 'the call for papers');
       setState(() {
-        _loadError = e is ApiException ? e.message : 'Could not load the call for papers';
+        _loadError = msg;
+        _loadErrorReason =
+            msg.toLowerCase().contains("couldn't reach the server")
+                ? StatusReason.network
+                : StatusReason.generic;
         _loading = false;
       });
     }
@@ -161,8 +167,8 @@ class _CfpScreenState extends State<CfpScreen> {
       if (mounted) setState(() => _done = true);
     } catch (e) {
       if (mounted) {
-        setState(() => _submitError =
-            e is ApiException ? e.message : 'Could not submit your abstract');
+        setState(() =>
+            _submitError = describeError(e, context: 'your abstract'));
       }
     } finally {
       if (mounted) setState(() => _submitting = false);
@@ -171,7 +177,7 @@ class _CfpScreenState extends State<CfpScreen> {
 
   void _fail(String msg) {
     setState(() => _submitError = msg);
-    showEngageSnack(context, msg, error: true);
+    showToast(context, msg, type: ToastType.error);
   }
 
   @override
@@ -194,7 +200,8 @@ class _CfpScreenState extends State<CfpScreen> {
   Widget _body() {
     if (_loading) return const LoadingState();
     if (_loadError != null) {
-      return ErrorStateView(message: _loadError!, onRetry: _load);
+      return ErrorStateView(
+          message: _loadError!, onRetry: _load, reason: _loadErrorReason);
     }
     if (!_open) return _closed();
     if (_done) return _success();

@@ -6,6 +6,7 @@ import { Check, Lock, Unlock, ChevronDown, CreditCard, Smartphone, Layers } from
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Zone } from '@/types/database';
+import { StatusState, describeError } from '@/components/ui/status-state';
 import EventCardPreview from '@/app/c/[slug]/components/EventCardPreview';
 import { CardZoneFill } from './CardZoneFill';
 import { PhotoCropModal } from './PhotoCropModal';
@@ -365,8 +366,8 @@ export default function RegistrationClient({
       setSelectedTicket(newTickets[0]);
       setShowAccessCode(false);
       setAccessCodeInput('');
-    } catch {
-      setAccessCodeError('Something went wrong. Try again.');
+    } catch (err) {
+      setAccessCodeError(describeError(err, 'that access code'));
     } finally {
       setUnlocking(false);
     }
@@ -496,13 +497,21 @@ export default function RegistrationClient({
 
       if (!res.ok) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const rawError: string = (data as any).detail ?? data.error ?? 'Registration failed. Please try again.';
+        const detail: string | undefined = (data as any).detail;
         const errorMessages: Record<string, string> = {
           TICKET_SOLD_OUT: 'Sorry, this ticket just sold out.',
           EVENT_FULL: 'Sorry, this event just reached capacity.',
           DUPLICATE_REGISTRATION: 'You are already registered for this event.',
         };
-        setSubmitError(errorMessages[rawError] ?? rawError);
+        // Prefer the server's own detail (e.g. distinguishes "at capacity" from
+        // "Free-tier registration limit reached" for the same EVENT_FULL code),
+        // then the friendly map for known codes, then a generic-but-real fallback.
+        setSubmitError(
+          detail
+          ?? (data.error ? errorMessages[data.error] : undefined)
+          ?? data.error
+          ?? describeError(new Error(res.statusText || `status ${res.status}`), 'your registration'),
+        );
         return;
       }
 
@@ -553,8 +562,8 @@ export default function RegistrationClient({
       }
 
       router.push(`/e/${eventSlug}/register/confirm?reg=${token}`);
-    } catch {
-      setSubmitError('Something went wrong. Check your connection and try again.');
+    } catch (err) {
+      setSubmitError(describeError(err, 'your registration'));
     } finally {
       setSubmitting(false);
     }
@@ -627,19 +636,14 @@ export default function RegistrationClient({
   if (registrationsClosed) {
     return (
       <div className="min-h-screen flex items-center justify-center px-5 py-12" style={{ background: '#FAF6EE' }}>
-        <div className="w-full max-w-[420px] bg-white rounded-2xl border p-8 text-center" style={{ borderColor: '#E5E0D4' }}>
-          <div className="mx-auto mb-4 flex items-center justify-center rounded-full" style={{ width: 44, height: 44, background: '#FEF3C7', color: '#92400E' }}>
-            <Lock size={22} strokeWidth={2.2} />
-          </div>
-          <h1 className="font-display font-semibold text-[22px] mb-1.5" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
-            Registrations closed
-          </h1>
-          <p className="text-[14px] mb-6" style={{ color: '#65736B' }}>
-            Registration for {eventName} is no longer available.
-          </p>
-          <Link href={`/e/${eventSlug}`} className="inline-flex items-center justify-center h-11 rounded-xl text-[14px] font-medium border transition hover:border-[#1F4D3A]/40" style={{ borderColor: '#E5E0D4', color: '#3A4A42' }}>
-            Back to event
-          </Link>
+        <div className="w-full max-w-[420px] bg-white rounded-2xl border" style={{ borderColor: '#E5E0D4' }}>
+          <StatusState
+            kind="warning"
+            icon={Lock}
+            title="Registrations closed"
+            message={`Registration for ${eventName} is no longer available.`}
+            primaryAction={{ label: 'Back to event', href: `/e/${eventSlug}` }}
+          />
         </div>
       </div>
     );
@@ -651,28 +655,17 @@ export default function RegistrationClient({
   if (alreadyRegistered || guestAlreadyRegistered) {
     return (
       <div className="min-h-screen flex items-center justify-center px-5 py-12" style={{ background: '#FAF6EE' }}>
-        <div className="w-full max-w-[420px] bg-white rounded-2xl border p-8 text-center" style={{ borderColor: '#E5E0D4' }}>
-          <div className="mx-auto mb-4 flex items-center justify-center rounded-full" style={{ width: 44, height: 44, background: '#E8EFEB', color: '#1F4D3A' }}>
-            <Check size={22} strokeWidth={2.2} />
-          </div>
-          <h1 className="font-display font-semibold text-[22px] mb-1.5" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
-            You&apos;re already registered
-          </h1>
-          <p className="text-[14px] mb-6" style={{ color: '#65736B' }}>
-            You already have a ticket for {eventName}. Your Eventera Card and door QR are in My tickets.
-          </p>
-          <div className="flex flex-col gap-2.5">
-            <Link
-              href={existingTicketToken ? `/e/${eventSlug}/register/confirm?reg=${existingTicketToken}` : '/my-tickets'}
-              className="inline-flex items-center justify-center h-11 rounded-xl text-white text-[14px] font-medium transition hover:bg-[#163828]"
-              style={{ background: '#1F4D3A' }}
-            >
-              View my ticket
-            </Link>
-            <Link href={`/e/${eventSlug}`} className="inline-flex items-center justify-center h-11 rounded-xl text-[14px] font-medium border transition hover:border-[#1F4D3A]/40" style={{ borderColor: '#E5E0D4', color: '#3A4A42' }}>
-              Back to event
-            </Link>
-          </div>
+        <div className="w-full max-w-[420px] bg-white rounded-2xl border" style={{ borderColor: '#E5E0D4' }}>
+          <StatusState
+            kind="success"
+            title="You're already registered"
+            message={`You already have a ticket for ${eventName}. Your Eventera Card and door QR are in My tickets.`}
+            primaryAction={{
+              label: 'View my ticket',
+              href: existingTicketToken ? `/e/${eventSlug}/register/confirm?reg=${existingTicketToken}` : '/my-tickets',
+            }}
+            secondaryAction={{ label: 'Back to event', href: `/e/${eventSlug}` }}
+          />
         </div>
       </div>
     );

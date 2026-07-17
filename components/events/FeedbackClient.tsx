@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import type { Session } from '@/types/database';
+import { StatusState, describeError } from '@/components/ui/status-state';
 
 interface ExistingFeedback {
   overall_rating: number | null;
@@ -107,7 +108,7 @@ export default function FeedbackClient({ eventId, eventTitle, registrationId, at
       }
       setSubmitted(true);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Something went wrong.');
+      setError(describeError(e, 'your feedback'));
     } finally {
       setSubmitting(false);
     }
@@ -115,27 +116,12 @@ export default function FeedbackClient({ eventId, eventTitle, registrationId, at
 
   if (submitted) {
     return (
-      <div className="flex flex-col items-center py-20 gap-4">
-        <div
-          className="w-16 h-16 rounded-full flex items-center justify-center text-2xl"
-          style={{ background: '#E8EFEB' }}
-        >
-          ✓
-        </div>
-        <h2 className="font-display text-[22px] font-normal" style={{ color: '#0F1F18' }}>
-          Thank you for your feedback!
-        </h2>
-        <p className="text-[15px]" style={{ color: '#65736B' }}>
-          Your response has been recorded.
-        </p>
-        <button
-          onClick={() => setSubmitted(false)}
-          className="mt-2 px-5 py-2.5 rounded-full text-sm font-medium border transition-colors"
-          style={{ background: '#fff', color: '#1F4D3A', borderColor: '#E5E0D4' }}
-        >
-          Edit my feedback
-        </button>
-      </div>
+      <StatusState
+        kind="success"
+        title="Thank you for your feedback!"
+        message="Your response has been recorded."
+        primaryAction={{ label: 'Edit my feedback', onClick: () => setSubmitted(false) }}
+      />
     );
   }
 

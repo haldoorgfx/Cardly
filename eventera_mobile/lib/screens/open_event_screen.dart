@@ -20,6 +20,7 @@ class OpenEventScreen extends StatefulWidget {
 class _OpenEventScreenState extends State<OpenEventScreen> {
   final _api = EventeraApi();
   String? _error;
+  StatusReason _errorReason = StatusReason.generic;
 
   @override
   void initState() {
@@ -54,10 +55,19 @@ class _OpenEventScreenState extends State<OpenEventScreen> {
       ));
     } on EventeraException catch (e) {
       if (!mounted) return;
-      setState(() => _error = e.message);
-    } catch (_) {
+      setState(() {
+        _error = e.message;
+        _errorReason = StatusReason.notFound;
+      });
+    } catch (e) {
       if (!mounted) return;
-      setState(() => _error = 'Something went wrong opening this event.');
+      final msg = describeError(e, context: 'this event');
+      setState(() {
+        _error = msg;
+        _errorReason = msg.toLowerCase().contains("couldn't reach the server")
+            ? StatusReason.network
+            : StatusReason.generic;
+      });
     }
   }
 
@@ -77,7 +87,8 @@ class _OpenEventScreenState extends State<OpenEventScreen> {
           : Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                ErrorStateView(message: _error!, onRetry: _load),
+                ErrorStateView(
+                    message: _error!, onRetry: _load, reason: _errorReason),
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: MButton(

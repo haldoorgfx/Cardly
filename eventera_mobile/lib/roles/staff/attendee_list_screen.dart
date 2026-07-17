@@ -93,8 +93,10 @@ class _AttendeeListScreenState extends State<AttendeeListScreen> {
       } else if (mounted) {
         showToast(context, asString(m['message'], 'Could not check in'));
       }
-    } catch (_) {
-      if (mounted) showToast(context, 'Could not reach the server. Try again.');
+    } catch (e) {
+      if (mounted) {
+        showToast(context, describeError(e, context: 'that check-in'));
+      }
     } finally {
       if (mounted) setState(() => _busyId = null);
     }
@@ -140,8 +142,16 @@ class _AttendeeListScreenState extends State<AttendeeListScreen> {
             return const LoadingState();
           }
           if (snap.hasError) {
+            final msg = describeError(snap.error, context: 'the attendee list');
             return ErrorStateView(
-                message: "Couldn't load the attendee list.", onRetry: _refresh);
+              message: msg,
+              onRetry: _refresh,
+              reason: msg.toLowerCase().contains("couldn't reach the server")
+                  ? StatusReason.network
+                  : msg.toLowerCase().contains('permission')
+                      ? StatusReason.permission
+                      : StatusReason.generic,
+            );
           }
           if (_all.isEmpty) {
             return const EmptyState(

@@ -54,11 +54,15 @@ class _BoothTeamScreenState extends State<BoothTeamScreen> {
     setState(() => m.scanAccess = v);
     try {
       await SponsorApi.setScanAccess(m.id, v);
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
       setState(() => m.scanAccess = !v); // revert on failure
-      showToast(context,
-          "Couldn't update scan access. Only the event organizer can change the team.");
+      final msg = describeError(e, context: 'that change');
+      showToast(
+          context,
+          msg.toLowerCase().contains('permission')
+              ? "Only the event organizer can change the team."
+              : msg);
     }
   }
 
@@ -109,10 +113,14 @@ class _BoothTeamScreenState extends State<BoothTeamScreen> {
       if (!mounted) return;
       _reload();
       showToast(context, 'Invite added for $e.');
-    } catch (_) {
+    } catch (error) {
       if (!mounted) return;
-      showToast(context,
-          "Couldn't add that teammate. Only the event organizer can manage the team.");
+      final msg = describeError(error, context: 'that teammate');
+      showToast(
+          context,
+          msg.toLowerCase().contains('permission')
+              ? "Only the event organizer can manage the team."
+              : msg);
     }
   }
 
@@ -143,10 +151,14 @@ class _BoothTeamScreenState extends State<BoothTeamScreen> {
       if (!mounted) return;
       _reload();
       showToast(context, 'Removed ${m.email}.');
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
-      showToast(context,
-          "Couldn't remove that teammate. Only the event organizer can manage the team.");
+      final msg = describeError(e, context: 'that teammate');
+      showToast(
+          context,
+          msg.toLowerCase().contains('permission')
+              ? "Only the event organizer can manage the team."
+              : msg);
     }
   }
 
@@ -166,9 +178,15 @@ class _BoothTeamScreenState extends State<BoothTeamScreen> {
             return const LoadingState();
           }
           if (snap.hasError) {
+            final msg = describeError(snap.error, context: 'your booth team');
             return ErrorStateView(
-              message: "We couldn't load your booth team. Try again.",
+              message: msg,
               onRetry: _reload,
+              reason: msg.toLowerCase().contains("couldn't reach the server")
+                  ? StatusReason.network
+                  : msg.toLowerCase().contains('permission')
+                      ? StatusReason.permission
+                      : StatusReason.generic,
             );
           }
           final team = snap.data ?? [];

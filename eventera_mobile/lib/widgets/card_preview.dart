@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models.dart';
 import '../theme.dart';
+import '../ui/components.dart' show describeError;
 
 /// Shows a variant's background design at its true aspect ratio, with a soft
 /// frame. Used as the hero on the personalize screen so the attendee sees the
@@ -39,7 +40,8 @@ class CardPreview extends StatelessWidget {
                 ],
               ),
               child: url == null
-                  ? _placeholder('No design uploaded yet')
+                  ? _placeholder('No design uploaded yet',
+                      icon: Icons.image_outlined)
                   : Image.network(
                       url,
                       fit: BoxFit.cover,
@@ -47,8 +49,10 @@ class CardPreview extends StatelessWidget {
                         if (progress == null) return child;
                         return _placeholder(null, loading: true);
                       },
-                      errorBuilder: (ctx, _, __) =>
-                          _placeholder("Couldn't load the design"),
+                      errorBuilder: (ctx, error, _) => _placeholder(
+                          describeError(error, context: 'the design'),
+                          icon: Icons.wifi_off_rounded,
+                          isError: true),
                     ),
             ),
           ),
@@ -57,7 +61,9 @@ class CardPreview extends StatelessWidget {
     );
   }
 
-  Widget _placeholder(String? text, {bool loading = false}) {
+  Widget _placeholder(String? text,
+      {bool loading = false, IconData? icon, bool isError = false}) {
+    final color = isError ? Brand.danger : Brand.muted;
     return ColoredBox(
       color: Brand.cream,
       child: Center(
@@ -70,10 +76,19 @@ class CardPreview extends StatelessWidget {
               )
             : Padding(
                 padding: const EdgeInsets.all(16),
-                child: Text(
-                  text ?? '',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: Brand.muted, fontSize: 13),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (icon != null) ...[
+                      Icon(icon, color: color, size: 22),
+                      const SizedBox(height: 8),
+                    ],
+                    Text(
+                      text ?? '',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: color, fontSize: 13),
+                    ),
+                  ],
                 ),
               ),
       ),
@@ -130,8 +145,16 @@ class VariantChooser extends StatelessWidget {
                         if (progress == null) return child;
                         return const ColoredBox(color: Brand.cream);
                       },
-                      errorBuilder: (_, __, ___) =>
-                          const ColoredBox(color: Brand.cream),
+                      // Distinguish a genuinely-failed thumbnail from one
+                      // that's still loading, instead of both looking like
+                      // an identical blank tile.
+                      errorBuilder: (_, __, ___) => const ColoredBox(
+                        color: Brand.cream,
+                        child: Center(
+                          child: Icon(Icons.broken_image_outlined,
+                              color: Brand.muted, size: 18),
+                        ),
+                      ),
                     ),
             ),
           );

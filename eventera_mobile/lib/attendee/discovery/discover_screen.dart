@@ -34,6 +34,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
   bool _loadingMore = false;
   bool _hasMore = true;
   String? _error;
+  StatusReason _errorReason = StatusReason.generic;
   int _page = 0;
 
   final List<_DiscoverEvent> _events = [];
@@ -196,7 +197,11 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
         _loadingMore = false;
         // If we already have events on screen (e.g. a failed "load more"),
         // keep them and stay silent rather than blanking to an error.
-        if (_events.isEmpty) _error = e.message;
+        if (_events.isEmpty) {
+          final msg = describeError(e, context: 'events');
+          _error = msg;
+          _errorReason = _reasonFor(msg, e.status);
+        }
       });
     } catch (e, st) {
       // Log the real exception so the actual cause is never swallowed.
@@ -206,9 +211,23 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
       setState(() {
         _loading = false;
         _loadingMore = false;
-        if (_events.isEmpty) _error = 'Something went wrong loading events.';
+        if (_events.isEmpty) {
+          final msg = describeError(e, context: 'events');
+          _error = msg;
+          _errorReason = _reasonFor(msg, null);
+        }
       });
     }
+  }
+
+  // Classify a described error into a StatusReason so the error state shows the
+  // right icon/tone (network vs permission vs generic).
+  StatusReason _reasonFor(String msg, int? status) {
+    if (msg.toLowerCase().contains("couldn't reach the server")) {
+      return StatusReason.network;
+    }
+    if (status == 401 || status == 403) return StatusReason.permission;
+    return StatusReason.generic;
   }
 
   void _onSearchChanged(String v) {
@@ -469,7 +488,10 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
       body: _loading
           ? _loadingBody()
           : _error != null
-              ? ErrorStateView(message: _error!, onRetry: () => _fetch(reset: true))
+              ? ErrorStateView(
+                  message: _error!,
+                  onRetry: () => _fetch(reset: true),
+                  reason: _errorReason)
               : RefreshIndicator(
                   color: AppColors.forest,
                   onRefresh: () => _fetch(reset: true),

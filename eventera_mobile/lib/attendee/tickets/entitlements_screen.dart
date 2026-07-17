@@ -34,6 +34,7 @@ class EntitlementsScreen extends StatefulWidget {
 class _EntitlementsScreenState extends State<EntitlementsScreen> {
   bool _loading = true;
   String? _error;
+  StatusReason _errorReason = StatusReason.generic;
   List<EntComputed> _items = [];
 
   @override
@@ -100,10 +101,14 @@ class _EntitlementsScreenState extends State<EntitlementsScreen> {
         _items = computed;
         _loading = false;
       });
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
+      final msg = describeError(e, context: 'your passes');
       setState(() {
-        _error = 'Could not load your passes. Please try again.';
+        _error = msg;
+        _errorReason = msg.toLowerCase().contains("couldn't reach the server")
+            ? StatusReason.network
+            : StatusReason.generic;
         _loading = false;
       });
     }
@@ -141,7 +146,10 @@ class _EntitlementsScreenState extends State<EntitlementsScreen> {
 
   Widget _body() {
     if (_loading) return const _EntSkeleton();
-    if (_error != null) return ErrorStateView(message: _error!, onRetry: _load);
+    if (_error != null) {
+      return ErrorStateView(
+          message: _error!, onRetry: _load, reason: _errorReason);
+    }
     if (_items.isEmpty) {
       return const EmptyState(
         icon: Icons.confirmation_number_outlined,

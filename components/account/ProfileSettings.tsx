@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { describeError } from '@/components/ui/status-state';
 
 const LANGUAGES = ['English', 'Français', 'Soomaali', 'العربية'] as const;
 
@@ -205,7 +206,7 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
       if (error) throw error;
       setEmailNotice(`Check ${parsed.data} — your sign-in email changes only after you confirm via the link we sent.`);
       setNewEmail('');
-      toast({ title: 'Confirmation sent', description: `Check ${parsed.data} to finish changing your email.` });
+      toast({ title: 'Confirmation sent', description: `Check ${parsed.data} to finish changing your email.`, variant: 'success' });
     } catch (err) {
       console.error('Change email failed', err);
       // Surface the real reason instead of a blanket "try again" — the most
@@ -288,13 +289,16 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ avatar_url: publicUrl }),
       });
-      if (!res.ok) throw new Error('Could not save your new photo. Please try again.');
-      toast({ title: 'Photo updated' });
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error ?? errData.message ?? res.statusText ?? `status ${res.status}`);
+      }
+      toast({ title: 'Photo updated', variant: 'success' });
     } catch (err) {
       console.error('Photo upload failed', err);
-      const msg = err instanceof Error ? err.message : 'Upload failed. Please try again.';
+      const msg = describeError(err, 'your photo');
       setPhotoError(msg);
-      toast({ title: 'Something went wrong', description: msg, variant: 'destructive' });
+      toast({ title: 'Photo not saved', description: msg, variant: 'destructive' });
     } finally {
       setPhotoUploading(false);
     }
@@ -324,12 +328,16 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
           language,
         }),
       });
-      if (!res.ok) throw new Error('Save failed');
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error ?? errData.message ?? res.statusText ?? `status ${res.status}`);
+      }
       setSaved(true);
-      toast({ title: 'Preferences saved' });
+      toast({ title: 'Preferences saved', variant: 'success' });
       setTimeout(() => setSaved(false), 2500);
-    } catch {
-      toast({ title: 'Something went wrong', description: 'Could not save your preferences. Please try again.', variant: 'destructive' });
+    } catch (err) {
+      console.error('Save preferences failed', err);
+      toast({ title: 'Preferences not saved', description: describeError(err, 'your preferences'), variant: 'destructive' });
     } finally {
       setSaving(false);
     }

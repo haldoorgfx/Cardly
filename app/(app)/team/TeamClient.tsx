@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { Settings, Search, ChevronDown, Shield, Users, Lock, Flag, Pencil, BarChart2, Phone } from 'lucide-react';
 import type { Team, TeamMember, TeamInvite } from '@/lib/teams/queries';
 import { PageShell, PageHeader } from '@/components/dash';
+import { StatusState, describeError } from '@/components/ui/status-state';
+import { toast } from '@/hooks/use-toast';
 
 interface Props {
   userId: string;
@@ -164,8 +166,8 @@ function InviteModal({ teamId, onClose, onInvited }: { teamId: string; onClose: 
       if (!res.ok) { setError(json.error ?? 'Failed to send invite.'); return; }
       onInvited(json as TeamInvite);
       onClose();
-    } catch {
-      setError('Something went wrong.');
+    } catch (e) {
+      setError(describeError(e, 'this invite'));
     } finally {
       setLoading(false);
     }
@@ -248,7 +250,7 @@ function MemberSettingsModal({
       onRoleChanged(member.user_id, role);
       onClose();
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Could not update role.');
+      setError(describeError(e, 'this role change'));
     } finally {
       setSavingRole(false);
     }
@@ -261,7 +263,7 @@ function MemberSettingsModal({
       if (!res.ok) { const j = await res.json().catch(() => ({})); throw new Error(j.error ?? 'Could not remove member.'); }
       onRemoved(member.user_id);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Could not remove member.');
+      setError(describeError(e, 'this member'));
       setRemoving(false);
     }
   }
@@ -577,8 +579,17 @@ export function TeamClient({
                 title="Revoke invite"
                 onClick={async () => {
                   if (!initialTeam) return;
-                  await fetch(`/api/teams/${initialTeam.id}/invites/${inv.id}`, { method: 'DELETE' });
-                  setInvites(prev => prev.filter(i => i.id !== inv.id));
+                  try {
+                    const res = await fetch(`/api/teams/${initialTeam.id}/invites/${inv.id}`, { method: 'DELETE' });
+                    if (!res.ok) {
+                      const j = await res.json().catch(() => ({}));
+                      toast({ title: 'Could not revoke invite', description: j.error || 'Please try again.', variant: 'destructive' });
+                      return;
+                    }
+                    setInvites(prev => prev.filter(i => i.id !== inv.id));
+                  } catch (e) {
+                    toast({ title: 'Could not revoke invite', description: describeError(e, 'this invite'), variant: 'destructive' });
+                  }
                 }}
               >
                 <Settings size={14} strokeWidth={1.8} />
@@ -588,9 +599,12 @@ export function TeamClient({
         ))}
 
         {filteredMembers.length === 0 && invites.length === 0 && (
-          <div className="px-5 py-10 text-center text-[13px] text-[#65736B]">
-            No members found.
-          </div>
+          <StatusState
+            kind="empty"
+            compact
+            title="No members found"
+            message={search || roleFilter !== 'All roles' ? 'Try a different search term or role filter.' : 'Invite a teammate to get started.'}
+          />
         )}
       </div>
       </div>

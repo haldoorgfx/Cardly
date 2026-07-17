@@ -375,11 +375,11 @@ export function UsersAdminClient({
         toast({ title: `${verb} ${okIds.length} account${okIds.length === 1 ? '' : 's'}`, description: failed > 0 ? `${failed} could not be processed.` : undefined });
       }
       if (okIds.length === 0 && ids.length > 0) {
-        toast({ title: 'Something went wrong', description: `None of the ${ids.length} accounts could be processed.`, variant: 'destructive' });
+        toast({ title: `Could not ${action} any accounts`, description: `None of the ${ids.length} accounts could be processed. Please try again.`, variant: 'destructive' });
       }
       clearSelection();
-    } catch {
-      toast({ title: 'Something went wrong', description: 'The bulk action failed. Refresh and try again.', variant: 'destructive' });
+    } catch (e) {
+      toast({ title: `Could not ${action} the selected accounts`, description: describeError(e, 'the bulk action'), variant: 'destructive' });
     } finally {
       setBulkBusy(false);
     }

@@ -68,7 +68,8 @@ class _ManageTicketsScreenState extends State<ManageTicketsScreen> {
   final _db = Supabase.instance.client;
   List<_TicketRow>? _tickets;
   bool _loading = true;
-  bool _error = false;
+  String? _error;
+  StatusReason _errorReason = StatusReason.generic;
   bool _changed = false;
 
   @override
@@ -92,13 +93,17 @@ class _ManageTicketsScreenState extends State<ManageTicketsScreen> {
           for (final r in rows) _TicketRow.fromMap(Map<String, dynamic>.from(r))
         ];
         _loading = false;
-        _error = false;
+        _error = null;
       });
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
+      final msg = describeError(e, context: 'the tickets');
       setState(() {
         _loading = false;
-        _error = true;
+        _error = msg;
+        _errorReason = msg.toLowerCase().contains("couldn't reach the server")
+            ? StatusReason.network
+            : StatusReason.generic;
       });
     }
   }
@@ -130,11 +135,11 @@ class _ManageTicketsScreenState extends State<ManageTicketsScreen> {
           .from('ticket_types')
           .update({'is_visible': next}).eq('id', t.id);
       _changed = true;
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
       setState(() => t.isVisible = !next);
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Could not update visibility. Please try again.')));
+      showToast(context, describeError(e, context: 'that change'),
+          type: ToastType.error);
     }
   }
 
@@ -160,9 +165,10 @@ class _ManageTicketsScreenState extends State<ManageTicketsScreen> {
 
   Widget _body() {
     if (_loading) return const LoadingState();
-    if (_error) {
+    if (_error != null) {
       return ErrorStateView(
-        message: "We couldn't load the tickets. Check your connection and try again.",
+        message: _error!,
+        reason: _errorReason,
         onRetry: () {
           setState(() => _loading = true);
           _load();
@@ -421,11 +427,11 @@ class _TicketEditorScreenState extends State<_TicketEditorScreen> {
         });
       }
       if (mounted) Navigator.of(context).pop(true);
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
       setState(() {
         _saving = false;
-        _error = 'Could not save the ticket. Please try again.';
+        _error = describeError(e, context: 'this ticket');
       });
     }
   }
@@ -469,11 +475,11 @@ class _TicketEditorScreenState extends State<_TicketEditorScreen> {
           .delete()
           .eq('id', widget.existing!.id);
       if (mounted) Navigator.of(context).pop(true);
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
       setState(() {
         _saving = false;
-        _error = 'Could not delete the ticket. Please try again.';
+        _error = describeError(e, context: 'this ticket');
       });
     }
   }

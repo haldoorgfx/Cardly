@@ -14,6 +14,7 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { fetchWithRetry } from '@/lib/utils/fetch-retry';
+import { describeError } from '@/components/ui/status-state';
 import type { Zone } from '@/types/database';
 import type { Area } from 'react-easy-crop';
 
@@ -188,7 +189,12 @@ export default function AttendeeFlow({
         if (d.error === 'RENDER_FAILED') {
           throw new Error(d.detail ?? "We couldn't generate your card right now. Please try again in a moment.");
         }
-        throw new Error(errorMap[d.error] ?? d.detail ?? 'Something went wrong. Please try again.');
+        // Last resort: describe the HTTP failure itself (network/permission/etc.)
+        // instead of a blanket "Something went wrong" — statusText carries the
+        // real reason (e.g. "Unauthorized", "Not Found") when the API sent no body.
+        throw new Error(
+          errorMap[d.error] ?? d.detail ?? describeError(new Error(res.statusText || `status ${res.status}`), 'your card'),
+        );
       }
       const blob = await res.blob();
       // Read the card ID header before consuming the body
@@ -198,7 +204,7 @@ export default function AttendeeFlow({
       // Land on the celebratory reveal moment first.
       setScreen('reveal');
     } catch (e: unknown) {
-      setGenerateError(e instanceof Error ? e.message : 'Something went wrong.');
+      setGenerateError(e instanceof Error ? e.message : describeError(e, 'your card'));
     } finally {
       setIsGenerating(false);
     }

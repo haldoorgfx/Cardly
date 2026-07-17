@@ -2,11 +2,12 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { RotateCw, Radio } from 'lucide-react';
+import { Radio } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { EntitlementIcon, entitlementTypeLabel } from '@/components/tickets/EntitlementIcon';
 import type { RedemptionStatRow, RedemptionLimit } from '@/lib/entitlements/redemptionStats';
 import { PageShell, PageHeader } from '@/components/dash';
+import { StatusState } from '@/components/ui/status-state';
 
 const LIMIT_LABEL: Record<RedemptionLimit, string> = {
   once: 'Once',
@@ -143,28 +144,23 @@ export function RedemptionDashboard({ eventId, eventName, rows, error }: Props) 
       />
 
       {error ? (
-          <div className="bg-white rounded-2xl border border-[#E5E0D4] p-10 text-center">
-            <p className="font-display text-[17px] font-semibold" style={{ color: '#0F1F18' }}>Couldn&apos;t load redemptions</p>
-            <p className="text-[14px] mt-1.5 mb-5" style={{ color: '#65736B' }}>
-              Something went wrong fetching the redemption data.
-            </p>
-            <button
-              onClick={() => router.refresh()}
-              className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-[14px] font-medium text-white"
-              style={{ background: '#1F4D3A' }}
-            >
-              <RotateCw size={15} strokeWidth={2} /> Retry
-            </button>
+          <div className="bg-white rounded-2xl border border-[#E5E0D4]">
+            <StatusState
+              kind="error"
+              reason="network"
+              title="Couldn't load redemptions"
+              message="We couldn't reach the database to load the redemption data for this event. Your entitlements and check-ins are unaffected — try again."
+              primaryAction={{ label: 'Try again', onClick: () => router.refresh() }}
+            />
           </div>
         ) : data.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-[#E5E0D4] p-10 text-center">
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
-              <Radio size={22} strokeWidth={1.9} />
-            </div>
-            <p className="font-display text-[17px] font-semibold" style={{ color: '#0F1F18' }}>No redemptions yet</p>
-            <p className="text-[14px] mt-1.5" style={{ color: '#65736B' }}>
-              Redemptions appear here live as attendees scan in. Add entitlements to your ticket types to get started.
-            </p>
+          <div className="bg-white rounded-2xl border border-[#E5E0D4]">
+            <StatusState
+              kind="empty"
+              icon={Radio}
+              title="No redemptions yet"
+              message="Redemptions appear here live as attendees scan in. Add entitlements to your ticket types to get started."
+            />
           </div>
         ) : (
           <div className="space-y-4">

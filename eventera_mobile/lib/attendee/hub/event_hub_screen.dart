@@ -59,6 +59,7 @@ class EventHubScreen extends StatefulWidget {
 class _EventHubScreenState extends State<EventHubScreen> {
   bool _loading = true;
   String? _error;
+  StatusReason _errorReason = StatusReason.generic;
 
   EventPageModel? _page;
   final List<SessionSummary> _sessions = [];
@@ -110,6 +111,7 @@ class _EventHubScreenState extends State<EventHubScreen> {
         setState(() {
           _loading = false;
           _error = 'This event page could not be found.';
+          _errorReason = StatusReason.notFound;
         });
         return;
       }
@@ -165,17 +167,15 @@ class _EventHubScreenState extends State<EventHubScreen> {
         _navSections = _buildNav(page);
         _loading = false;
       });
-    } on ApiException catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _loading = false;
-        _error = e.message;
-      });
     } catch (e) {
       if (!mounted) return;
+      final msg = describeError(e, context: 'this event');
       setState(() {
         _loading = false;
-        _error = 'Something went wrong loading this event.';
+        _error = msg;
+        _errorReason = msg.toLowerCase().contains("couldn't reach the server")
+            ? StatusReason.network
+            : StatusReason.generic;
       });
     }
   }
@@ -445,9 +445,13 @@ class _EventHubScreenState extends State<EventHubScreen> {
       }
       if (!mounted) return;
       setState(() => _saved = !wasSaved);
-      showToast(context, wasSaved ? 'Removed' : 'Saved');
+      showToast(context, wasSaved ? 'Removed' : 'Saved',
+          type: ToastType.success);
     } catch (e) {
-      if (mounted) showToast(context, 'Could not update saved events.');
+      if (mounted) {
+        showToast(context, describeError(e, context: 'your saved events'),
+            type: ToastType.error);
+      }
     } finally {
       _savingBusy = false;
     }
@@ -476,7 +480,9 @@ class _EventHubScreenState extends State<EventHubScreen> {
     }
     final organizerId = _organizerId;
     if (organizerId == null) {
-      if (mounted) showToast(context, 'Organizer is unavailable.');
+      if (mounted) {
+        showToast(context, 'Organizer is unavailable.', type: ToastType.error);
+      }
       return;
     }
 
@@ -498,9 +504,13 @@ class _EventHubScreenState extends State<EventHubScreen> {
       }
       if (!mounted) return;
       setState(() => _following = !wasFollowing);
-      showToast(context, wasFollowing ? 'Unfollowed' : 'Following');
+      showToast(context, wasFollowing ? 'Unfollowed' : 'Following',
+          type: ToastType.success);
     } catch (e) {
-      if (mounted) showToast(context, 'Could not update follow.');
+      if (mounted) {
+        showToast(context, describeError(e, context: 'your follow'),
+            type: ToastType.error);
+      }
     } finally {
       _followBusy = false;
     }
@@ -525,7 +535,10 @@ class _EventHubScreenState extends State<EventHubScreen> {
     }
     final organizerId = _organizerId;
     if (organizerId == null) {
-      if (mounted) showToast(context, 'Organizer profile is unavailable.');
+      if (mounted) {
+        showToast(context, 'Organizer profile is unavailable.',
+            type: ToastType.error);
+      }
       return;
     }
     if (!mounted) return;
@@ -546,9 +559,12 @@ class _EventHubScreenState extends State<EventHubScreen> {
     try {
       await Clipboard.setData(ClipboardData(text: link));
       await Share.share(link);
-      if (mounted) showToast(context, 'Link copied');
+      if (mounted) showToast(context, 'Link copied', type: ToastType.success);
     } catch (e) {
-      if (mounted) showToast(context, 'Could not share link.');
+      if (mounted) {
+        showToast(context, describeError(e, context: 'the share link'),
+            type: ToastType.error);
+      }
     }
   }
 
@@ -685,7 +701,8 @@ class _EventHubScreenState extends State<EventHubScreen> {
     if (_error != null) {
       return MScaffold(
         appBar: const MAppBar(),
-        body: ErrorStateView(message: _error!, onRetry: _load),
+        body: ErrorStateView(
+            message: _error!, onRetry: _load, reason: _errorReason),
       );
     }
     return _buildContent();

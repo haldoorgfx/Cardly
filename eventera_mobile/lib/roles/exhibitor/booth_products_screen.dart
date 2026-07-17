@@ -153,8 +153,10 @@ class _BoothProductsScreenState extends State<BoothProductsScreen> {
         HapticFeedback.selectionClick();
         _reload();
         showToast(context, existing == null ? 'Product added.' : 'Product updated.');
-      } catch (_) {
-        if (mounted) showToast(context, "Couldn't save that product. Try again.");
+      } catch (e) {
+        if (mounted) {
+          showToast(context, describeError(e, context: 'that product'));
+        }
       }
     } else if (action == 'delete' && existing != null) {
       await _delete(existing);
@@ -187,8 +189,10 @@ class _BoothProductsScreenState extends State<BoothProductsScreen> {
       if (!mounted) return;
       _reload();
       showToast(context, 'Product deleted.');
-    } catch (_) {
-      if (mounted) showToast(context, "Couldn't delete that product. Try again.");
+    } catch (e) {
+      if (mounted) {
+        showToast(context, describeError(e, context: 'that product'));
+      }
     }
   }
 
@@ -258,9 +262,15 @@ class _BoothProductsScreenState extends State<BoothProductsScreen> {
             return const LoadingState();
           }
           if (snap.hasError) {
+            final msg = describeError(snap.error, context: 'your products');
             return ErrorStateView(
-              message: "We couldn't load your products. Try again.",
+              message: msg,
               onRetry: _reload,
+              reason: msg.toLowerCase().contains("couldn't reach the server")
+                  ? StatusReason.network
+                  : msg.toLowerCase().contains('permission')
+                      ? StatusReason.permission
+                      : StatusReason.generic,
             );
           }
           final products = snap.data ?? [];

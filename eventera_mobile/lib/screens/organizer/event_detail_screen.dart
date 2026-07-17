@@ -66,12 +66,18 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       _changed = true;
       _reload();
       if (mounted) {
-        _snack(publishing
-            ? 'Event published — share it now.'
-            : 'Event unpublished.');
+        showToast(
+            context,
+            publishing
+                ? 'Event published — share it now.'
+                : 'Event unpublished.',
+            type: ToastType.success);
       }
-    } catch (_) {
-      _snack('Could not update. Please try again.');
+    } catch (e) {
+      if (mounted) {
+        showToast(context, describeError(e, context: 'the event'),
+            type: ToastType.error);
+      }
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -127,15 +133,11 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     try {
       await _api.deleteEvent(e.id);
       if (mounted) Navigator.of(context).pop(true);
-    } catch (_) {
-      _snack('Could not delete. Please try again.');
-    }
-  }
-
-  void _snack(String m) {
-    if (mounted) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(m)));
+    } catch (e) {
+      if (mounted) {
+        showToast(context, describeError(e, context: 'this event'),
+            type: ToastType.error);
+      }
     }
   }
 
@@ -342,7 +344,9 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
               : 'Publish first to share',
           onTap: () {
             if (!e.isPublished) {
-              _snack('Publish the event first so attendees can open the link.');
+              showToast(context,
+                  'Publish the event first so attendees can open the link.',
+                  type: ToastType.warning);
               return;
             }
             Navigator.of(context).push(

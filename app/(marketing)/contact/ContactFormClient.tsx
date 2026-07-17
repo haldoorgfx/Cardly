@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { Send, Mail, Clock, Check, ArrowRight, Loader2 } from 'lucide-react';
+import { describeError } from '@/components/ui/status-state';
+import { useToast } from '@/hooks/use-toast';
 
 const TOPICS = [
   { value: 'General question',     label: 'General question' },
@@ -54,6 +56,7 @@ const INPUT_STYLE = {
 };
 
 export function ContactFormClient() {
+  const { toast } = useToast();
   const [form, setForm] = useState({ name: '', email: '', topic: '', message: '' });
   const [state, setState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
@@ -72,12 +75,17 @@ export function ContactFormClient() {
         body: JSON.stringify(form),
       });
       if (!res.ok) {
-        const j = await res.json();
-        throw new Error(j.error ?? 'Something went wrong');
+        const j = await res.json().catch(() => ({}));
+        throw new Error(j.error ?? 'Your message could not be sent.');
       }
       setState('sent');
+      toast({
+        title: 'Message sent',
+        description: "We'll get back to you within one business day.",
+        variant: 'success',
+      });
     } catch (err) {
-      setErrorMsg(err instanceof Error ? err.message : 'Something went wrong');
+      setErrorMsg(describeError(err, 'your message'));
       setState('error');
     }
   }

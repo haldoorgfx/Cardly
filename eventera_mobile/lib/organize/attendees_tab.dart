@@ -36,8 +36,10 @@ class _OrganizerAttendeesTabState extends State<OrganizerAttendeesTab> {
   List<_Attendee> _attendees = [];
   bool _loadingEvents = true;
   bool _loadingList = false;
-  bool _error = false;
-  bool _listError = false;
+  String? _error;
+  StatusReason _errorReason = StatusReason.generic;
+  String? _listError;
+  StatusReason _listErrorReason = StatusReason.generic;
   int _filter = 0; // 0 all · 1 checked-in · 2 pending
   String _q = '';
   String? _busyId;
@@ -70,15 +72,19 @@ class _OrganizerAttendeesTabState extends State<OrganizerAttendeesTab> {
           _events = events;
           _selectedId = pick?.id;
           _loadingEvents = false;
-          _error = false;
+          _error = null;
         });
       }
       if (pick != null) _loadList(pick.id);
-    } catch (_) {
+    } catch (e) {
       if (mounted) {
+        final msg = describeError(e, context: 'your events');
         setState(() {
           _loadingEvents = false;
-          _error = true;
+          _error = msg;
+          _errorReason = msg.toLowerCase().contains("couldn't reach the server")
+              ? StatusReason.network
+              : StatusReason.generic;
         });
       }
     }
@@ -87,7 +93,7 @@ class _OrganizerAttendeesTabState extends State<OrganizerAttendeesTab> {
   Future<void> _loadList(String eventId) async {
     setState(() {
       _loadingList = true;
-      _listError = false;
+      _listError = null;
     });
     try {
       final rows = await supa
@@ -109,13 +115,17 @@ class _OrganizerAttendeesTabState extends State<OrganizerAttendeesTab> {
           _loadingList = false;
         });
       }
-    } catch (_) {
+    } catch (e) {
       // Never dress an error up as "no attendees" — say what happened.
       if (mounted && _selectedId == eventId) {
+        final msg = describeError(e, context: 'the attendee list');
         setState(() {
           _attendees = [];
           _loadingList = false;
-          _listError = true;
+          _listError = msg;
+          _listErrorReason = msg.toLowerCase().contains("couldn't reach the server")
+              ? StatusReason.network
+              : StatusReason.generic;
         });
       }
     }
@@ -249,10 +259,14 @@ class _OrganizerAttendeesTabState extends State<OrganizerAttendeesTab> {
         }
       } else if (mounted) {
         showToast(context,
-            asString(m['message'], "That didn't go through. Try again."));
+            asString(m['message'], "That didn't go through. Try again."),
+            type: ToastType.error);
       }
-    } catch (_) {
-      if (mounted) showToast(context, "We couldn't reach the server. Try again.");
+    } catch (e) {
+      if (mounted) {
+        showToast(context, describeError(e, context: 'that approval'),
+            type: ToastType.error);
+      }
     } finally {
       if (mounted) setState(() => _busyId = null);
     }
@@ -300,11 +314,13 @@ class _OrganizerAttendeesTabState extends State<OrganizerAttendeesTab> {
         }
       } else if (mounted) {
         showToast(context,
-            asString(m['message'], "That didn't go through. Try again."));
+            asString(m['message'], "That didn't go through. Try again."),
+            type: ToastType.error);
       }
-    } catch (_) {
+    } catch (e) {
       if (mounted) {
-        showToast(context, "We couldn't reach the server. Try again.");
+        showToast(context, describeError(e, context: 'that check-in'),
+            type: ToastType.error);
       }
     } finally {
       if (mounted) setState(() => _busyId = null);
@@ -313,7 +329,7 @@ class _OrganizerAttendeesTabState extends State<OrganizerAttendeesTab> {
 
   @override
   Widget build(BuildContext context) {
-    final canWalkIn = _selectedId != null && !_loadingEvents && !_error;
+    final canWalkIn = _selectedId != null && !_loadingEvents && _error == null;
     return MScaffold(
       appBar: MAppBar(
         title: 'Attendees',
@@ -332,14 +348,14 @@ class _OrganizerAttendeesTabState extends State<OrganizerAttendeesTab> {
   Widget _body() {
     if (_loadingEvents) return const LoadingState();
 
-    if (_error) {
+    if (_error != null) {
       return ErrorStateView(
-        message: "We couldn't load your events right now. "
-            'Check your connection and try again.',
+        message: _error!,
+        reason: _errorReason,
         onRetry: () {
           setState(() {
             _loadingEvents = true;
-            _error = false;
+            _error = null;
           });
           _loadEvents();
         },
@@ -473,12 +489,12 @@ class _OrganizerAttendeesTabState extends State<OrganizerAttendeesTab> {
   Widget _list() {
     if (_loadingList) return const LoadingState();
 
-    if (_listError) {
+    if (_listError != null) {
       return ListView(children: [
         const SizedBox(height: 60),
         ErrorStateView(
-          message: "We couldn't load the attendee list for this event. "
-              'Check your connection and try again.',
+          message: _listError!,
+          reason: _listErrorReason,
           onRetry: () {
             final id = _selectedId;
             if (id != null) _loadList(id);
@@ -811,11 +827,11 @@ class _WalkInSheetState extends State<_WalkInSheet> {
           _error = e.message;
         });
       }
-    } catch (_) {
+    } catch (e) {
       if (mounted) {
         setState(() {
           _busy = false;
-          _error = "That didn't go through. Check your connection and try again.";
+          _error = describeError(e, context: 'that walk-in');
         });
       }
     }
@@ -942,10 +958,10 @@ class _GroupAddSheetState extends State<_GroupAddSheet> {
         _ticketTypeId = types.isNotEmpty ? asString(types.first['id']) : null;
         _loadingTypes = false;
       });
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
       setState(() {
-        _error = 'Could not load ticket types.';
+        _error = describeError(e, context: 'ticket types');
         _loadingTypes = false;
       });
     }
@@ -996,11 +1012,11 @@ class _GroupAddSheetState extends State<_GroupAddSheet> {
       if (mounted) Navigator.of(context).pop(count);
     } on GroupRegisterBlockedException catch (e) {
       if (mounted) setState(() { _busy = false; _error = e.message; });
-    } catch (_) {
+    } catch (e) {
       if (mounted) {
         setState(() {
           _busy = false;
-          _error = "That didn't go through. Check your connection and try again.";
+          _error = describeError(e, context: 'that group');
         });
       }
     }

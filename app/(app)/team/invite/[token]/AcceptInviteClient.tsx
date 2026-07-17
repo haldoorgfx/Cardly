@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Users } from 'lucide-react';
+import { describeError } from '@/components/ui/status-state';
 
 interface Props {
   token: string;
@@ -22,11 +23,15 @@ export function AcceptInviteClient({ token, teamName, inviteEmail, role, userEma
     setError('');
     try {
       const res = await fetch(`/api/teams/invites/${token}`, { method: 'POST' });
-      const json = await res.json();
-      if (!res.ok) { setError(json.error ?? 'Failed to accept invite.'); return; }
+      const json = await res.json().catch(() => ({}));
+      // The server already returns a specific reason (invite not found, already
+      // accepted, expired, session expired, etc.) — thread it through describeError
+      // so a raw "Unauthorized" still reads as a friendly sentence, while a message
+      // like "Invite has expired." passes through unchanged.
+      if (!res.ok) { setError(describeError(json.error ?? 'Failed to accept invite.', 'this invite')); return; }
       router.push('/team');
-    } catch {
-      setError('Something went wrong.');
+    } catch (e) {
+      setError(describeError(e, 'this invite'));
     } finally {
       setLoading(false);
     }

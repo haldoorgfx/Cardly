@@ -41,7 +41,8 @@ class _Attendee {
 
 class _EntitlementTransferSheetState extends State<EntitlementTransferSheet> {
   bool _loading = true;
-  bool _loadError = false;
+  String? _loadError;
+  StatusReason _loadErrorReason = StatusReason.generic;
   String _eventId = '';
   List<EntComputed> _candidates = [];
 
@@ -73,7 +74,7 @@ class _EntitlementTransferSheetState extends State<EntitlementTransferSheet> {
   Future<void> _load() async {
     setState(() {
       _loading = true;
-      _loadError = false;
+      _loadError = null;
     });
     try {
       final reg = await supa
@@ -127,10 +128,14 @@ class _EntitlementTransferSheetState extends State<EntitlementTransferSheet> {
         _candidates = candidates;
         _loading = false;
       });
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
+      final msg = describeError(e, context: 'these passes');
       setState(() {
-        _loadError = true;
+        _loadError = msg;
+        _loadErrorReason = msg.toLowerCase().contains("couldn't reach the server")
+            ? StatusReason.network
+            : StatusReason.generic;
         _loading = false;
       });
     }
@@ -170,9 +175,11 @@ class _EntitlementTransferSheetState extends State<EntitlementTransferSheet> {
         _results = list;
         _searching = false;
       });
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
       setState(() => _searching = false);
+      showToast(context, describeError(e, context: 'attendees'),
+          type: ToastType.error);
     }
   }
 
@@ -209,10 +216,10 @@ class _EntitlementTransferSheetState extends State<EntitlementTransferSheet> {
       }
       if (!mounted) return;
       Navigator.of(context).pop(true);
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
       setState(() {
-        _error = 'Could not transfer. Please try again.';
+        _error = describeError(e, context: 'this transfer');
         _busy = false;
       });
     }
@@ -250,9 +257,9 @@ class _EntitlementTransferSheetState extends State<EntitlementTransferSheet> {
         ]),
       );
     }
-    if (_loadError) {
+    if (_loadError != null) {
       return ErrorStateView(
-          message: 'Could not load passes.', onRetry: _load);
+          message: _loadError!, onRetry: _load, reason: _loadErrorReason);
     }
     if (_candidates.isEmpty) {
       return const EmptyState(

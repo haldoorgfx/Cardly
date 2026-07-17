@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Send, Sparkles, TrendingUp, Users, ScanLine, MessageSquare } from 'lucide-react';
+import { describeError } from '@/components/ui/status-state';
 
 interface Stats {
   registrations: number;
@@ -108,11 +109,11 @@ export function AICopilotClient({ eventId, eventName, stats }: Props) {
         setMessages(prev => prev.map(m => (m.id === assistantId ? { ...m, content: acc } : m)));
       }
     } catch (e) {
-      const msg = e instanceof Error ? e.message : 'Something went wrong.';
+      const msg = describeError(e, 'the AI service');
       setLoading(false);
       setMessages(prev => {
         const withoutEmpty = prev.filter(m => !(m.id === assistantId && m.content === ''));
-        return [...withoutEmpty, { id: `e-${Date.now()}`, role: 'assistant', content: `Sorry — I couldn't reach the AI service. ${msg}` }];
+        return [...withoutEmpty, { id: `e-${Date.now()}`, role: 'assistant', content: `Sorry — ${msg}` }];
       });
     }
   }

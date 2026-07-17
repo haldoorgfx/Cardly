@@ -25,6 +25,7 @@ class FollowingScreen extends StatefulWidget {
 class _FollowingScreenState extends State<FollowingScreen> {
   bool _loading = true;
   String? _error;
+  StatusReason _errorReason = StatusReason.generic;
   List<_Follow> _items = [];
   List<_Suggestion> _suggestions = [];
   final Set<String> _followingSuggestion = {};
@@ -80,17 +81,15 @@ class _FollowingScreenState extends State<FollowingScreen> {
       });
       // Suggestions are best-effort — never block or crash the screen.
       _loadSuggestions();
-    } on ApiException catch (e) {
+    } catch (e) {
       if (!mounted) return;
+      final msg = describeError(e, context: 'who you follow');
       setState(() {
         _loading = false;
-        _error = e.message;
-      });
-    } catch (_) {
-      if (!mounted) return;
-      setState(() {
-        _loading = false;
-        _error = 'Something went wrong loading who you follow.';
+        _error = msg;
+        _errorReason = msg.toLowerCase().contains("couldn't reach the server")
+            ? StatusReason.network
+            : StatusReason.generic;
       });
     }
   }
@@ -166,16 +165,17 @@ class _FollowingScreenState extends State<FollowingScreen> {
         'notify_new_events': true,
       });
       if (!mounted) return;
-      showToast(context, 'Following ${s.name}');
+      showToast(context, 'Following ${s.name}', type: ToastType.success);
       _followingSuggestion.remove(s.organizerId);
       await _load();
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
       setState(() {
         _followingSuggestion.remove(s.organizerId);
         _suggestions.insert(0, s);
       });
-      showToast(context, 'Could not follow ${s.name}');
+      showToast(context, describeError(e, context: 'this organizer'),
+          type: ToastType.error);
     }
   }
 
@@ -185,11 +185,12 @@ class _FollowingScreenState extends State<FollowingScreen> {
     try {
       await supa.from('organizer_follows').delete().eq('id', f.id);
       if (!mounted) return;
-      showToast(context, 'Unfollowed ${f.name}');
-    } catch (_) {
+      showToast(context, 'Unfollowed ${f.name}', type: ToastType.success);
+    } catch (e) {
       if (!mounted) return;
       setState(() => _items.insert(index.clamp(0, _items.length), f));
-      showToast(context, 'Could not unfollow');
+      showToast(context, describeError(e, context: 'this organizer'),
+          type: ToastType.error);
     }
   }
 
@@ -200,10 +201,11 @@ class _FollowingScreenState extends State<FollowingScreen> {
       await supa
           .from('organizer_follows')
           .update({'notify_new_events': next}).eq('id', f.id);
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
       setState(() => f.notify = !next);
-      showToast(context, 'Could not update notifications');
+      showToast(context, describeError(e, context: 'these notifications'),
+          type: ToastType.error);
     }
   }
 
@@ -218,7 +220,8 @@ class _FollowingScreenState extends State<FollowingScreen> {
           : _loading
               ? const LoadingState()
               : _error != null
-                  ? ErrorStateView(message: _error!, onRetry: _load)
+                  ? ErrorStateView(
+                      message: _error!, onRetry: _load, reason: _errorReason)
                   : RefreshIndicator(
                       color: AppColors.forest,
                       onRefresh: _load,

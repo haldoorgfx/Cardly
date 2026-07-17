@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Plug, Plus, Key, X, Trash2, Copy, Check, AlertTriangle } from 'lucide-react';
+import { Plug, Plus, Key, X, Trash2, Copy, Check } from 'lucide-react';
 import { PageShell, PageHeader } from '@/components/dash';
+import { StatusState, describeError } from '@/components/ui/status-state';
 
 interface Props {
   eventId: string;
@@ -57,7 +58,7 @@ export function WebhooksView(_props: Props) {
       const data = (await res.json()) as Webhook[];
       setHooks(Array.isArray(data) ? data : []);
     } catch (e) {
-      setLoadError(e instanceof Error ? e.message : 'Could not load webhooks');
+      setLoadError(describeError(e, 'webhooks'));
     } finally {
       setLoading(false);
     }
@@ -140,29 +141,25 @@ export function WebhooksView(_props: Props) {
           ))}
         </div>
       ) : loadError ? (
-        <div className="rounded-2xl px-5 py-6 flex items-center gap-3" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
-          <AlertTriangle size={16} style={{ color: '#B8423C' }} />
-          <span className="text-[13px] flex-1" style={{ color: '#3A4A42' }}>{loadError}</span>
-          <button onClick={load} className="text-[12.5px] font-medium px-3 py-1.5 rounded-lg border" style={{ borderColor: '#E5E0D4', color: '#1F4D3A' }}>
-            Retry
-          </button>
+        <div className="rounded-2xl" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
+          <StatusState
+            kind="error"
+            reason="network"
+            compact
+            title="Couldn't load webhooks"
+            message={loadError}
+            primaryAction={{ label: 'Retry', onClick: load }}
+          />
         </div>
       ) : hooks.length === 0 ? (
-        <div className="rounded-2xl border border-dashed py-12 px-6 text-center" style={{ borderColor: '#E5E0D4' }}>
-          <div className="mx-auto h-10 w-10 rounded-xl grid place-items-center mb-3" style={{ background: '#E8EFEB' }}>
-            <Plug size={16} strokeWidth={1.8} style={{ color: '#1F4D3A' }} />
-          </div>
-          <p className="text-[14px] font-medium" style={{ color: '#0F1F18' }}>No webhook endpoints yet</p>
-          <p className="text-[13px] mt-1 max-w-[360px] mx-auto" style={{ color: '#3A4A42' }}>
-            Add an endpoint to get a POST request whenever a card is generated or your event is published or viewed.
-          </p>
-          <button
-            onClick={() => setShowModal(true)}
-            className="inline-flex items-center gap-1.5 mt-4 px-4 py-2 rounded-lg text-white text-[12.5px] font-semibold transition hover:opacity-90"
-            style={{ background: '#1F4D3A' }}
-          >
-            <Plus size={13} strokeWidth={2.5} /> Add endpoint
-          </button>
+        <div className="rounded-2xl border border-dashed" style={{ borderColor: '#E5E0D4' }}>
+          <StatusState
+            kind="empty"
+            icon={Plug}
+            title="No webhook endpoints yet"
+            message="Add an endpoint to get a POST request whenever a card is generated or your event is published or viewed."
+            primaryAction={{ label: 'Add endpoint', onClick: () => setShowModal(true) }}
+          />
         </div>
       ) : (
         <div className="space-y-2.5">
@@ -270,8 +267,8 @@ function AddEndpointModal({ onClose, onCreated }: { onClose: () => void; onCreat
       if (!res.ok) { setError((data && data.error) || `Failed to create (${res.status})`); return; }
       setCreated(data as Webhook);
       onCreated(data as Webhook);
-    } catch {
-      setError('Something went wrong. Check your connection and try again.');
+    } catch (e) {
+      setError(describeError(e, 'this webhook'));
     } finally {
       setSaving(false);
     }

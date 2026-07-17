@@ -94,6 +94,7 @@ class _Session {
 class _AgendaScreenState extends State<AgendaScreen> {
   bool _loading = true;
   String? _error;
+  StatusReason _errorReason = StatusReason.generic;
   List<_Session> _sessions = [];
   final Set<String> _myAgenda = {}; // session ids
   bool _myOnly = false;
@@ -164,8 +165,12 @@ class _AgendaScreenState extends State<AgendaScreen> {
       });
     } catch (e) {
       if (!mounted) return;
+      final msg = describeError(e, context: 'the schedule');
       setState(() {
-        _error = e is ApiException ? e.message : e.toString();
+        _error = msg;
+        _errorReason = msg.toLowerCase().contains("couldn't reach the server")
+            ? StatusReason.network
+            : StatusReason.generic;
         _loading = false;
       });
     }
@@ -174,8 +179,8 @@ class _AgendaScreenState extends State<AgendaScreen> {
   Future<void> _toggleAgenda(_Session s) async {
     final rid = _rid;
     if (rid == null) {
-      showEngageSnack(context, 'Register for this event to build your agenda',
-          error: true);
+      showToast(context, 'Register for this event to build your agenda',
+          type: ToastType.error);
       return;
     }
     if (_busy.contains(s.id)) return;
@@ -197,17 +202,17 @@ class _AgendaScreenState extends State<AgendaScreen> {
         _myAgenda.add(s.id);
         if (!mounted) return;
         if (res is Map && res['waitlisted'] == true) {
-          showEngageSnack(context, 'Session is full — you\'re on the waitlist');
+          showToast(context, 'Session is full — you\'re on the waitlist',
+              type: ToastType.warning);
         } else {
-          showToast(context, 'Added to your agenda');
+          showToast(context, 'Added to your agenda', type: ToastType.success);
         }
       }
       if (mounted) setState(() {});
     } catch (e) {
       if (mounted) {
-        showEngageSnack(context,
-            e is ApiException ? e.message : 'Could not update agenda',
-            error: true);
+        showToast(context, describeError(e, context: 'your agenda'),
+            type: ToastType.error);
       }
     } finally {
       if (mounted) setState(() => _busy.remove(s.id));
@@ -217,8 +222,8 @@ class _AgendaScreenState extends State<AgendaScreen> {
   Future<void> _rate(_Session s) async {
     final rid = _rid;
     if (rid == null) {
-      showEngageSnack(context, 'Register for this event to rate sessions',
-          error: true);
+      showToast(context, 'Register for this event to rate sessions',
+          type: ToastType.error);
       return;
     }
     final rating = await showMSheet<int>(context, _RateSheet(title: s.title));
@@ -229,12 +234,12 @@ class _AgendaScreenState extends State<AgendaScreen> {
         'rating': rating,
       });
       if (!mounted) return;
-      showToast(context, 'Thanks for rating "${s.title}"');
+      showToast(context, 'Thanks for rating "${s.title}"',
+          type: ToastType.success);
     } catch (e) {
       if (mounted) {
-        showEngageSnack(context,
-            e is ApiException ? e.message : 'Could not submit rating',
-            error: true);
+        showToast(context, describeError(e, context: 'your rating'),
+            type: ToastType.error);
       }
     }
   }
@@ -332,7 +337,8 @@ class _AgendaScreenState extends State<AgendaScreen> {
   Widget _body() {
     if (_loading) return const LoadingState();
     if (_error != null) {
-      return ErrorStateView(message: _error!, onRetry: _load);
+      return ErrorStateView(
+          message: _error!, onRetry: _load, reason: _errorReason);
     }
     final visible = _visible;
     if (visible.isEmpty) {
