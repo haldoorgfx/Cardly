@@ -72,11 +72,13 @@ class _CateringScreenState extends State<CateringScreen> {
   int _seg = 0; // 0 = Meals, 1 = Accessibility
 
   bool _loadingMeals = true;
-  String? _mealsError; // 'auth' | 'generic'
+  String? _mealsError;
+  StatusReason _mealsErrorReason = StatusReason.generic;
   List<_Meal> _meals = [];
 
   bool _loadingAccess = true;
   String? _accessError;
+  StatusReason _accessErrorReason = StatusReason.generic;
   int _totalWithNeeds = 0;
   List<(String, int)> _byTag = [];
   List<_AccessAttendee> _attendees = [];
@@ -118,7 +120,13 @@ class _CateringScreenState extends State<CateringScreen> {
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _mealsError = _isAuthError(e) ? 'auth' : 'generic';
+        if (_isAuthError(e)) {
+          _mealsErrorReason = StatusReason.permission;
+          _mealsError = 'Only the event owner or its staff can see catering counts.';
+        } else {
+          _mealsErrorReason = StatusReason.generic;
+          _mealsError = describeError(e, context: 'catering counts');
+        }
         _loadingMeals = false;
       });
     }
@@ -155,7 +163,13 @@ class _CateringScreenState extends State<CateringScreen> {
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _accessError = _isAuthError(e) ? 'auth' : 'generic';
+        if (_isAuthError(e)) {
+          _accessErrorReason = StatusReason.permission;
+          _accessError = 'Only the event owner or its staff can see accessibility needs.';
+        } else {
+          _accessErrorReason = StatusReason.generic;
+          _accessError = describeError(e, context: 'this accessibility summary');
+        }
         _loadingAccess = false;
       });
     }
@@ -175,7 +189,19 @@ class _CateringScreenState extends State<CateringScreen> {
     if (uri == null) return;
     try {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } catch (_) {}
+    } catch (_) {
+      // launchUrl failing usually means there's no app installed to handle
+      // it (e.g. no mail client) — say so instead of doing nothing visibly.
+      if (mounted) {
+        showToast(
+          context,
+          scheme == 'mailto'
+              ? "Couldn't open a mail app. Is one installed?"
+              : "Couldn't open the phone dialer.",
+          type: ToastType.error,
+        );
+      }
+    }
   }
 
   @override
@@ -201,12 +227,16 @@ class _CateringScreenState extends State<CateringScreen> {
   Widget _mealsTab() {
     if (_loadingMeals) return const LoadingState();
     if (_mealsError != null) {
-      return _errorState(
-        title: _mealsError == 'auth' ? 'You can\'t manage this event' : 'Couldn\'t load catering counts',
-        message: _mealsError == 'auth'
-            ? 'Only the event owner or its staff can see catering counts.'
-            : 'Something went wrong fetching the counts.',
-        onRetry: _mealsError == 'generic' ? _loadMeals : null,
+      return StatusState(
+        kind: StatusKind.error,
+        reason: _mealsErrorReason,
+        title: _mealsErrorReason == StatusReason.permission
+            ? 'You can\'t manage this event'
+            : 'Couldn\'t load catering counts',
+        message: _mealsError!,
+        primaryLabel:
+            _mealsErrorReason == StatusReason.permission ? null : 'Try again',
+        onPrimary: _mealsErrorReason == StatusReason.permission ? null : _loadMeals,
       );
     }
     if (_meals.isEmpty) {
@@ -311,12 +341,17 @@ class _CateringScreenState extends State<CateringScreen> {
   Widget _accessTab() {
     if (_loadingAccess) return const LoadingState();
     if (_accessError != null) {
-      return _errorState(
-        title: _accessError == 'auth' ? 'You can\'t manage this event' : 'Couldn\'t load this summary',
-        message: _accessError == 'auth'
-            ? 'Only the event owner or its staff can see accessibility needs.'
-            : 'Something went wrong fetching the summary.',
-        onRetry: _accessError == 'generic' ? _loadAccessibility : null,
+      return StatusState(
+        kind: StatusKind.error,
+        reason: _accessErrorReason,
+        title: _accessErrorReason == StatusReason.permission
+            ? 'You can\'t manage this event'
+            : 'Couldn\'t load this summary',
+        message: _accessError!,
+        primaryLabel:
+            _accessErrorReason == StatusReason.permission ? null : 'Try again',
+        onPrimary:
+            _accessErrorReason == StatusReason.permission ? null : _loadAccessibility,
       );
     }
     final hasNeeds = _totalWithNeeds > 0 || _attendees.isNotEmpty;
@@ -522,29 +557,4 @@ class _CateringScreenState extends State<CateringScreen> {
     );
   }
 
-  Widget _errorState({
-    required String title,
-    required String message,
-    VoidCallback? onRetry,
-  }) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpace.xl),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(title, style: AppText.h3, textAlign: TextAlign.center),
-            const SizedBox(height: 6),
-            Text(message,
-                style: AppText.bodySm.copyWith(color: AppColors.inkMuted),
-                textAlign: TextAlign.center),
-            if (onRetry != null) ...[
-              const SizedBox(height: 16),
-              MButton('Retry', icon: Icons.refresh, fullWidth: false, onTap: onRetry),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
 }

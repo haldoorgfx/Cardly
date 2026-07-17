@@ -10,6 +10,7 @@ import Link from 'next/link';
 import type { UserRow } from './page';
 import type { UserRole } from '@/lib/auth/permissions';
 import { toast } from '@/hooks/use-toast';
+import { describeError } from '@/components/ui/status-state';
 
 const ROLE_STYLES: Record<string, { bg: string; color: string }> = {
   user:        { bg: 'rgba(107,122,114,0.10)', color: '#65736B' },
@@ -230,10 +231,14 @@ export function UsersAdminClient({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId, ...patch }),
       });
-      if (!res.ok) throw new Error('Update failed');
-      toast({ title: 'plan' in patch ? 'Plan updated' : 'Name updated' });
-    } catch {
-      toast({ title: 'Something went wrong', description: 'Could not save the change. Refresh to see the current value.', variant: 'destructive' });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'Update failed');
+      }
+      toast({ title: 'plan' in patch ? 'Plan updated' : 'Name updated', variant: 'success' });
+    } catch (e) {
+      const reason = e instanceof Error ? e.message : 'Update failed';
+      toast({ title: 'Could not save the change', description: `${reason} Refresh to see the current value.`, variant: 'destructive' });
     }
   };
 
@@ -249,12 +254,13 @@ export function UsersAdminClient({
       if (res.ok) {
         const { role } = await res.json();
         setUsers(prev => prev.map(u => u.id === userId ? { ...u, role } : u));
-        toast({ title: 'Role updated', description: `Now ${role}.` });
+        toast({ title: 'Role updated', description: `Now ${role}.`, variant: 'success' });
       } else {
-        toast({ title: 'Something went wrong', description: 'Could not change the role.', variant: 'destructive' });
+        const data = await res.json().catch(() => ({}));
+        toast({ title: 'Could not change the role', description: data.error || 'Please try again.', variant: 'destructive' });
       }
-    } catch {
-      toast({ title: 'Something went wrong', description: 'Could not change the role.', variant: 'destructive' });
+    } catch (e) {
+      toast({ title: 'Could not change the role', description: describeError(e, 'the role change'), variant: 'destructive' });
     } finally {
       setChanging(null);
     }
@@ -271,12 +277,13 @@ export function UsersAdminClient({
       });
       if (res.ok) {
         setUsers(prev => prev.map(u => u.id === targetUser.id ? { ...u, suspended: true, suspended_reason: reason ?? 'Suspended by administrator.' } : u));
-        toast({ title: 'Account suspended', description: targetUser.email ?? undefined });
+        toast({ title: 'Account suspended', description: targetUser.email ?? undefined, variant: 'success' });
       } else {
-        toast({ title: 'Something went wrong', description: 'Could not suspend the account.', variant: 'destructive' });
+        const data = await res.json().catch(() => ({}));
+        toast({ title: 'Could not suspend the account', description: data.error || 'Please try again.', variant: 'destructive' });
       }
-    } catch {
-      toast({ title: 'Something went wrong', description: 'Could not suspend the account.', variant: 'destructive' });
+    } catch (e) {
+      toast({ title: 'Could not suspend the account', description: describeError(e, 'this account'), variant: 'destructive' });
     } finally {
       setBusy(null);
     }
@@ -293,12 +300,13 @@ export function UsersAdminClient({
       });
       if (res.ok) {
         setUsers(prev => prev.map(u => u.id === targetUser.id ? { ...u, suspended: false, suspended_reason: null } : u));
-        toast({ title: 'Account unsuspended', description: targetUser.email ?? undefined });
+        toast({ title: 'Account unsuspended', description: targetUser.email ?? undefined, variant: 'success' });
       } else {
-        toast({ title: 'Something went wrong', description: 'Could not unsuspend the account.', variant: 'destructive' });
+        const data = await res.json().catch(() => ({}));
+        toast({ title: 'Could not unsuspend the account', description: data.error || 'Please try again.', variant: 'destructive' });
       }
-    } catch {
-      toast({ title: 'Something went wrong', description: 'Could not unsuspend the account.', variant: 'destructive' });
+    } catch (e) {
+      toast({ title: 'Could not unsuspend the account', description: describeError(e, 'this account'), variant: 'destructive' });
     } finally {
       setBusy(null);
     }
@@ -315,12 +323,13 @@ export function UsersAdminClient({
       });
       if (res.ok) {
         setUsers(prev => prev.filter(u => u.id !== targetUser.id));
-        toast({ title: 'Account deleted', description: targetUser.email ?? undefined });
+        toast({ title: 'Account deleted', description: targetUser.email ?? undefined, variant: 'success' });
       } else {
-        toast({ title: 'Something went wrong', description: 'Could not delete the account.', variant: 'destructive' });
+        const data = await res.json().catch(() => ({}));
+        toast({ title: 'Could not delete the account', description: data.error || 'Please try again.', variant: 'destructive' });
       }
-    } catch {
-      toast({ title: 'Something went wrong', description: 'Could not delete the account.', variant: 'destructive' });
+    } catch (e) {
+      toast({ title: 'Could not delete the account', description: describeError(e, 'this account'), variant: 'destructive' });
     } finally {
       setBusy(null);
     }

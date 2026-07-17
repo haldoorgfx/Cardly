@@ -89,6 +89,7 @@ class _EntitlementsScreenState extends State<EntitlementsScreen> {
   final _org = const OrganizerApi();
   bool _loading = true;
   String? _error;
+  StatusReason _errorReason = StatusReason.generic;
   List<_Entitlement> _entitlements = [];
   List<_TicketType> _ticketTypes = [];
 
@@ -128,10 +129,14 @@ class _EntitlementsScreenState extends State<EntitlementsScreen> {
             .toList();
         _loading = false;
       });
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
+      final msg = describeError(e, context: 'these entitlements');
       setState(() {
-        _error = 'Could not load entitlements.';
+        _error = msg;
+        _errorReason = msg.toLowerCase().contains("couldn't reach the server")
+            ? StatusReason.network
+            : StatusReason.generic;
         _loading = false;
       });
     }
@@ -182,7 +187,10 @@ class _EntitlementsScreenState extends State<EntitlementsScreen> {
 
   Widget _body() {
     if (_loading) return const LoadingState();
-    if (_error != null) return ErrorStateView(message: _error!, onRetry: _load);
+    if (_error != null) {
+      return ErrorStateView(
+          message: _error!, onRetry: _load, reason: _errorReason);
+    }
 
     return RefreshIndicator(
       color: AppColors.forest,
@@ -387,11 +395,11 @@ class _EntitlementEditSheetState extends State<_EntitlementEditSheet> {
         );
       }
       if (mounted) Navigator.of(context).pop(true);
-    } catch (_) {
+    } catch (e) {
       if (mounted) {
         setState(() {
           _busy = false;
-          _error = "That didn't save. Check your connection and try again.";
+          _error = describeError(e, context: 'this entitlement');
         });
       }
     }
@@ -404,11 +412,11 @@ class _EntitlementEditSheetState extends State<_EntitlementEditSheet> {
     try {
       await widget.org.deleteEntitlement(ent.id);
       if (mounted) Navigator.of(context).pop(true);
-    } catch (_) {
+    } catch (e) {
       if (mounted) {
         setState(() {
           _busy = false;
-          _error = "Couldn't delete. Please try again.";
+          _error = describeError(e, context: 'this entitlement');
         });
       }
     }

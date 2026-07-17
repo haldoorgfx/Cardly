@@ -63,8 +63,14 @@ class _LeadDetailScreenState extends State<LeadDetailScreen> {
             return const LoadingState();
           }
           if (snap.hasError) {
+            final msg = describeError(snap.error, context: 'this lead');
             return ErrorStateView(
-              message: "We couldn't load this lead. Try again.",
+              message: msg,
+              reason: msg.toLowerCase().contains("couldn't reach the server")
+                  ? StatusReason.network
+                  : msg.toLowerCase().contains('permission')
+                      ? StatusReason.permission
+                      : StatusReason.generic,
               onRetry: _reload,
             );
           }

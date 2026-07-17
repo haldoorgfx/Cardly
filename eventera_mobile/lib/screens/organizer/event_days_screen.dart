@@ -55,6 +55,7 @@ class _EventDaysScreenState extends State<EventDaysScreen> {
   final _org = const OrganizerApi();
   bool _loading = true;
   String? _error;
+  StatusReason _errorReason = StatusReason.generic;
   List<_EventDay> _days = [];
   List<_Entitlement> _entitlements = [];
 
@@ -96,10 +97,14 @@ class _EventDaysScreenState extends State<EventDaysScreen> {
             .toList();
         _loading = false;
       });
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
+      final msg = describeError(e, context: 'this event\'s days');
       setState(() {
-        _error = 'Could not load event days.';
+        _error = msg;
+        _errorReason = msg.toLowerCase().contains("couldn't reach the server")
+            ? StatusReason.network
+            : StatusReason.generic;
         _loading = false;
       });
     }
@@ -110,8 +115,11 @@ class _EventDaysScreenState extends State<EventDaysScreen> {
     try {
       await _org.addEventDay(widget.eventId);
       await _load();
-    } catch (_) {
-      if (mounted) showToast(context, "Couldn't add a day. Please try again.");
+    } catch (e) {
+      if (mounted) {
+        showToast(context, describeError(e, context: 'the new day'),
+            type: ToastType.error);
+      }
     }
   }
 
@@ -145,7 +153,10 @@ class _EventDaysScreenState extends State<EventDaysScreen> {
 
   Widget _body() {
     if (_loading) return const LoadingState();
-    if (_error != null) return ErrorStateView(message: _error!, onRetry: _load);
+    if (_error != null) {
+      return ErrorStateView(
+          message: _error!, onRetry: _load, reason: _errorReason);
+    }
 
     return RefreshIndicator(
       color: AppColors.forest,
@@ -341,11 +352,11 @@ class _DayEditSheetState extends State<_DayEditSheet> {
         entitlementIds: _selectedEntitlements.toList(),
       );
       if (mounted) Navigator.of(context).pop(true);
-    } catch (_) {
+    } catch (e) {
       if (mounted) {
         setState(() {
           _busy = false;
-          _error = "That didn't save. Check your connection and try again.";
+          _error = describeError(e, context: 'this day');
         });
       }
     }
@@ -382,11 +393,11 @@ class _DayEditSheetState extends State<_DayEditSheet> {
     try {
       await widget.org.deleteEventDay(widget.day.id);
       if (mounted) Navigator.of(context).pop(true);
-    } catch (_) {
+    } catch (e) {
       if (mounted) {
         setState(() {
           _busy = false;
-          _error = "Couldn't delete. Please try again.";
+          _error = describeError(e, context: 'this day');
         });
       }
     }
