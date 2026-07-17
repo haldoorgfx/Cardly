@@ -461,7 +461,7 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
             className="flex items-center justify-center gap-2 w-full h-10 px-3 rounded-xl text-[13.5px] font-semibold transition-colors hover:bg-[#F6ECD4]"
             style={{ background: '#FBF4E4', color: '#1F4D3A', border: '1px solid #E8C57E' }}>
             <ShieldCheck size={15} strokeWidth={2.2} style={{ color: '#C97A2D' }} />
-            <span>Enter Admin</span>
+            <span>Admin Panel</span>
             <ArrowRight size={14} strokeWidth={2.2} />
           </Link>
         </div>

@@ -52,7 +52,7 @@ export default async function EventsOversightPage({
   const totalPages = Math.ceil((count ?? 0) / PAGE_SIZE);
 
   return (
-    <PageShell width="wide">
+    <PageShell width="screen">
       <PageHeader
         eyebrow="Admin · Event Oversight"
         title="Event Oversight"

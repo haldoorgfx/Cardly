@@ -21,8 +21,11 @@ export async function PATCH(request: Request) {
   const { userId, full_name, plan } = body;
   if (!userId) return NextResponse.json({ error: 'Missing userId' }, { status: 400 });
 
+  // NOTE: `profiles` has no `updated_at` column (only `created_at`) — writing
+  // one here fails every update with Postgres 42703, which is what surfaced as
+  // "Could not save the change." Only ever set columns that actually exist.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const update: Record<string, any> = { updated_at: new Date().toISOString() };
+  const update: Record<string, any> = {};
 
   if (full_name !== undefined) {
     const trimmed = String(full_name).trim();
@@ -38,7 +41,7 @@ export async function PATCH(request: Request) {
     update.plan = plan;
   }
 
-  if (Object.keys(update).length === 1) {
+  if (Object.keys(update).length === 0) {
     return NextResponse.json({ error: 'Nothing to update' }, { status: 400 });
   }
 

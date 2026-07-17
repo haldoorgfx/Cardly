@@ -84,7 +84,7 @@ export default async function RegistrationsAdminPage({
   }));
 
   return (
-    <PageShell width="wide">
+    <PageShell width="screen">
       <PageHeader
         eyebrow="Admin · Registrations"
         title="Registrations"

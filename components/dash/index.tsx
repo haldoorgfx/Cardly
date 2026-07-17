@@ -29,7 +29,10 @@ export const dash = {
 
 /* ── PageShell — the standard content container ───────────────────────── */
 
-const WIDTHS = { narrow: 760, default: 900, wide: 1200, full: 1400 } as const;
+// `screen` is for dense data tables (admin lists) that should use the available
+// width instead of sitting in a narrow centred column with big empty margins on
+// large monitors. It still caps + centres on ultra-wide displays.
+const WIDTHS = { narrow: 760, default: 900, wide: 1200, full: 1400, screen: 1720 } as const;
 export type ShellWidth = keyof typeof WIDTHS;
 
 /** Standard page container: consistent max-width, gutters and vertical rhythm. */

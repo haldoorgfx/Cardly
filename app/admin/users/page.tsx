@@ -44,7 +44,7 @@ export default async function UsersAdminPage({
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
   return (
-    <PageShell width="wide">
+    <PageShell width="screen">
       <PageHeader
         eyebrow="Admin · Users"
         title="Accounts"
