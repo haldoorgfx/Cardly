@@ -4,7 +4,6 @@ import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Check, Lock, Unlock, ChevronDown, CreditCard, Smartphone, Layers } from 'lucide-react';
 import Image from 'next/image';
-import Link from 'next/link';
 import type { Zone } from '@/types/database';
 import { StatusState, describeError } from '@/components/ui/status-state';
 import EventCardPreview from '@/app/c/[slug]/components/EventCardPreview';

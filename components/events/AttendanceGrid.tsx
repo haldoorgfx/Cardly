@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { CalendarDays, Users, Check } from 'lucide-react';
 import type { CellState, DaySummary } from '@/lib/multiday/attendance';

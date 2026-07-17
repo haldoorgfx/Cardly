@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState, useRef, useEffect } from 'react';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
-import { MoreVertical, Pencil, ChevronRight, Link as LinkIcon, RotateCcw, Archive, Trash2, ScanLine, ExternalLink, ArrowRight, Calendar, MapPin } from 'lucide-react';
+import { MoreVertical, Pencil, Send, Link as LinkIcon, RotateCcw, Archive, Trash2, ScanLine, ExternalLink, ArrowRight, Calendar, MapPin, Users } from 'lucide-react';
 import type { Database } from '@/types/database';
 
 type EventRowType = Database['public']['Tables']['events']['Row'];
@@ -125,47 +125,62 @@ export default function EventCard({ event, regCount, revenue, currency, checkinP
         </button>
       </DropdownMenu.Trigger>
       <DropdownMenu.Portal>
-        <DropdownMenu.Content className="z-50 min-w-[176px] bg-white rounded-xl shadow-[0_4px_24px_rgba(15,31,24,0.12)] p-1 text-[13px]" style={{ border: '1px solid #E5E0D4' }} align="end" sideOffset={4}>
-          <DropdownMenu.Item className="flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer outline-none transition" style={{ color: '#3A4A42' }} onSelect={() => setRenaming(true)}
-            onMouseEnter={e => (e.currentTarget.style.background = '#FAF6EE')} onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
+        {/* Opens beside the trigger (to the right of the ⋮) so it never buries the
+            card's own title/stats/CTA; collision-flips near the viewport edge. */}
+        <DropdownMenu.Content
+          className="z-50 min-w-[184px] bg-white rounded-xl shadow-[0_4px_24px_rgba(15,31,24,0.12)] p-1 text-[13px]"
+          style={{ border: '1px solid #E5E0D4' }}
+          side="right" align="start" sideOffset={6} collisionPadding={12}
+        >
+          {/* One consistent highlight (pointer + keyboard) via Radix data-highlighted —
+              no item carries a persistent "selected" treatment. */}
+          <DropdownMenu.Item
+            className="flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer outline-none transition-colors text-[#3A4A42] data-[highlighted]:bg-[#FAF6EE]"
+            onSelect={() => setRenaming(true)}>
             <Pencil size={13} strokeWidth={1.8} /> Rename
           </DropdownMenu.Item>
-          {!isLive && (
+          {isDraft && (
             <DropdownMenu.Item asChild>
-              <Link href={`/events/${event.slug}/publish`} className="flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer outline-none font-medium transition" style={{ color: '#1F4D3A' }}
-                onMouseEnter={e => (e.currentTarget.style.background = '#E8EFEB')} onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
-                <ChevronRight size={13} strokeWidth={1.8} /> Publish
+              <Link href={`/events/${event.slug}/publish`}
+                className="flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer outline-none transition-colors text-[#3A4A42] data-[highlighted]:bg-[#FAF6EE]">
+                <Send size={13} strokeWidth={1.8} /> Publish
               </Link>
             </DropdownMenu.Item>
           )}
           {isLive && (
-            <DropdownMenu.Item className="flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer outline-none transition" style={{ color: '#3A4A42' }}
-              onSelect={copyLink}
-              onMouseEnter={e => (e.currentTarget.style.background = '#FAF6EE')} onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
+            <DropdownMenu.Item
+              className="flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer outline-none transition-colors text-[#3A4A42] data-[highlighted]:bg-[#FAF6EE]"
+              onSelect={copyLink}>
               <LinkIcon size={13} strokeWidth={1.8} /> Copy link
             </DropdownMenu.Item>
           )}
           <DropdownMenu.Separator className="my-1 h-px" style={{ background: '#E5E0D4' }} />
           {isLive && (
-            <DropdownMenu.Item className="flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer outline-none transition" style={{ color: '#65736B' }} onSelect={() => doStatus('draft')}
-              onMouseEnter={e => (e.currentTarget.style.background = '#FAF6EE')} onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
+            <DropdownMenu.Item
+              className="flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer outline-none transition-colors text-[#65736B] data-[highlighted]:bg-[#FAF6EE]"
+              onSelect={() => doStatus('draft')}>
               <RotateCcw size={13} strokeWidth={1.8} /> Unpublish
             </DropdownMenu.Item>
           )}
+          {/* Archived events surface only "Restore to draft" — republishing goes
+              through the normal draft → publish flow so stale dates get a review. */}
           {!isArchived ? (
-            <DropdownMenu.Item className="flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer outline-none transition" style={{ color: '#65736B' }} onSelect={() => doStatus('archived')}
-              onMouseEnter={e => (e.currentTarget.style.background = '#FAF6EE')} onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
+            <DropdownMenu.Item
+              className="flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer outline-none transition-colors text-[#65736B] data-[highlighted]:bg-[#FAF6EE]"
+              onSelect={() => doStatus('archived')}>
               <Archive size={13} strokeWidth={1.8} /> Archive
             </DropdownMenu.Item>
           ) : (
-            <DropdownMenu.Item className="flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer outline-none transition" style={{ color: '#3A4A42' }} onSelect={() => doStatus('draft')}
-              onMouseEnter={e => (e.currentTarget.style.background = '#FAF6EE')} onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
+            <DropdownMenu.Item
+              className="flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer outline-none transition-colors text-[#3A4A42] data-[highlighted]:bg-[#FAF6EE]"
+              onSelect={() => doStatus('draft')}>
               <RotateCcw size={13} strokeWidth={1.8} /> Restore to draft
             </DropdownMenu.Item>
           )}
           <DropdownMenu.Separator className="my-1 h-px" style={{ background: '#E5E0D4' }} />
-          <DropdownMenu.Item className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-red-600 cursor-pointer outline-none transition" onSelect={() => setConfirmDelete(true)}
-            onMouseEnter={e => (e.currentTarget.style.background = '#FEF2F2')} onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
+          <DropdownMenu.Item
+            className="flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer outline-none transition-colors text-red-600 data-[highlighted]:bg-[#FEF2F2]"
+            onSelect={() => setConfirmDelete(true)}>
             <Trash2 size={13} strokeWidth={1.8} /> Delete
           </DropdownMenu.Item>
         </DropdownMenu.Content>
@@ -185,19 +200,25 @@ export default function EventCard({ event, regCount, revenue, currency, checkinP
       )}
 
       {/* ── Cover ── */}
-      <div className="relative h-[88px] overflow-hidden"
+      <div className="relative h-[132px] overflow-hidden"
         style={coverImg
-          ? { backgroundImage: `url(${coverImg})`, backgroundSize: 'cover', backgroundPosition: 'center' }
-          : { background: '#E8EFEB' }}>
+          ? { backgroundImage: `url(${coverImg})`, backgroundSize: 'cover', backgroundPosition: 'center top' }
+          : { background: 'linear-gradient(135deg, #E8EFEB 0%, #D3E2D9 100%)' }}>
+        {/* Designed fallback when there's no cover — a calm branded monogram,
+            not a flat/broken-looking block. */}
         {!coverImg && (
-          <span aria-hidden className="absolute -bottom-3 right-3 font-display font-semibold leading-none select-none"
-            style={{ fontSize: 92, color: '#1F4D3A', opacity: 0.12, letterSpacing: '-0.04em' }}>
+          <span aria-hidden className="absolute inset-0 grid place-items-center font-display font-bold leading-none select-none"
+            style={{ fontSize: 52, color: '#1F4D3A', opacity: 0.22, letterSpacing: '-0.03em' }}>
             {initial}
           </span>
         )}
 
+        {/* Top scrim — keeps the status pill + menu legible over any cover art. */}
+        <div aria-hidden className="absolute inset-x-0 top-0 h-16 pointer-events-none"
+          style={{ background: 'linear-gradient(to bottom, rgba(15,31,24,0.22), transparent)' }} />
+
         {/* Status pill */}
-        <span className={`absolute top-3 left-3 inline-flex items-center gap-1.5 text-[11.5px] tracking-[0.1em] uppercase px-2 py-0.5 rounded-full border ${st.cls} bg-cream/95`}
+        <span className={`absolute top-3 left-3 inline-flex items-center gap-1.5 text-[11.5px] tracking-[0.1em] uppercase px-2 py-0.5 rounded-full border ${st.cls}`}
           style={{ background: 'rgba(250,246,238,0.95)' }}>
           <span className={`w-1.5 h-1.5 rounded-full ${st.pulse ? 'animate-pulse' : ''}`} style={{ background: st.dot }} />
           {st.label}
@@ -219,30 +240,33 @@ export default function EventCard({ event, regCount, revenue, currency, checkinP
             style={{ background: '#FAF6EE', border: '1px solid #E5E0D4' }} />
         ) : (
           <Link href={`/events/${event.slug}`}
-            className="font-display text-[15px] font-semibold text-[#0F1F18] tracking-tight leading-snug line-clamp-1 hover:text-[#1F4D3A] transition-colors">
+            className="font-display text-[16px] font-semibold text-[#0F1F18] tracking-tight leading-snug line-clamp-2 min-h-[42px] hover:text-[#1F4D3A] transition-colors">
             {event.name}
           </Link>
         )}
 
         {/* Date + venue */}
         {(eventDate || venue) && (
-          <div className="flex items-center gap-2 mt-1  text-[12px] text-[#65736B] flex-wrap">
+          <div className="flex items-center gap-2 mt-1.5 text-[12px] text-[#65736B] flex-wrap">
             {eventDate && <span className="inline-flex items-center gap-1"><Calendar size={12} strokeWidth={1.8} />{eventDate}</span>}
             {eventDate && venue && <span className="text-[#E5E0D4]">·</span>}
-            {venue && <span className="inline-flex items-center gap-1"><MapPin size={12} strokeWidth={1.8} />{venue}</span>}
+            {venue && <span className="inline-flex items-center gap-1 min-w-0"><MapPin size={12} strokeWidth={1.8} className="shrink-0" /><span className="truncate">{venue}</span></span>}
           </div>
         )}
 
-        {/* Stats */}
-        <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1  text-[12px] text-[#65736B]">
-          <span><span className="text-[#0F1F18] font-semibold">{regCount}</span> registered</span>
-          {!isDraft && revenue > 0 && currency && (
-            <><span className="text-[#E5E0D4]">·</span>
-            <span><span className="text-[#0F1F18] font-semibold">{fmtRevenue(revenue, currency)}</span></span></>
-          )}
+        {/* Stats — registered leads as the primary, icon-anchored stat */}
+        <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12.5px] text-[#65736B]">
+          <span className="inline-flex items-center gap-1.5">
+            <Users size={13} strokeWidth={1.8} className="text-[#1F4D3A]" />
+            <span className="text-[#0F1F18] font-semibold">{regCount}</span> registered
+          </span>
           {checkinPct > 0 && (
             <><span className="text-[#E5E0D4]">·</span>
-            <span><span className="text-[#0F1F18] font-semibold">{checkinPct}%</span> check-in</span></>
+            <span><span className="text-[#0F1F18] font-semibold">{checkinPct}%</span> checked in</span></>
+          )}
+          {!isDraft && revenue > 0 && currency && (
+            <><span className="text-[#E5E0D4]">·</span>
+            <span className="text-[#0F1F18] font-semibold">{fmtRevenue(revenue, currency)}</span></>
           )}
         </div>
 
