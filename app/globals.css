@@ -150,6 +150,20 @@ textarea:focus-visible {
   border-color: #1F4D3A;
   box-shadow: 0 0 0 3px rgba(31, 77, 58, 0.15);
 }
+/* Wrapped "icon + input" fields (search bars, input groups). The inner control
+   goes bg-transparent, so it must NOT paint the halo above — that would stack a
+   SECOND ring inside the wrapper's own border (the platform-wide double-border
+   bug). So: suppress the inner halo, and let the WRAPPER show one flush focus
+   ring via :has(). Fixes every wrapped field at once, no per-component CSS, and
+   keeps a visible focus indicator for keyboard users. */
+:where(input, select, textarea).bg-transparent:focus-visible {
+  box-shadow: none;
+  border-color: transparent;
+}
+:where(div, form, label, span):has(> :where(input, select, textarea).bg-transparent:focus-visible) {
+  border-color: #1F4D3A !important;
+  box-shadow: 0 0 0 3px rgba(31, 77, 58, 0.15);
+}
 /* Wrong / invalid — mark the field aria-invalid="true" */
 input[aria-invalid="true"], select[aria-invalid="true"], textarea[aria-invalid="true"] {
   border-color: #B8423C !important;

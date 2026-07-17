@@ -584,7 +584,7 @@ export function UsersAdminClient({
     <div>
       {/* ── Filter bar ───────────────────────────────────────── */}
       <div className="mb-4 flex flex-col sm:flex-row sm:items-center gap-2.5">
-        <div className="flex items-center gap-2 h-10 px-3.5 rounded-xl border border-[#E5E0D4] bg-white flex-1 sm:max-w-[320px] focus-within:ring-2 focus-within:ring-[#1F4D3A]/15 transition">
+        <div className="flex items-center gap-2 h-10 px-3.5 rounded-xl border border-[#E5E0D4] bg-white flex-1 sm:max-w-[320px] transition-shadow">
           <Search size={15} strokeWidth={2} className="text-[#65736B] shrink-0" />
           <input
             value={filters.q}

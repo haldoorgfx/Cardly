@@ -81,7 +81,7 @@ export default function DashboardContent({ events, atLimit, regsByEvent }: Props
 
         <div className="flex items-center gap-2 self-start sm:self-auto">
           {/* Search events by name */}
-          <div className="flex items-center gap-2 h-8 px-2.5 rounded-lg bg-white focus-within:ring-2 focus-within:ring-[#1F4D3A] focus-within:ring-offset-1" style={{ border: '1px solid #E5E0D4' }}>
+          <div className="flex items-center gap-2 h-8 px-2.5 rounded-lg bg-white transition-shadow" style={{ border: '1px solid #E5E0D4' }}>
             <Search size={13} strokeWidth={2} className="text-[#65736B] shrink-0" />
             <input
               value={query}
