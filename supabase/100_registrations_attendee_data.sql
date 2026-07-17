@@ -1,0 +1,33 @@
+-- ============================================================================
+-- 100_registrations_attendee_data.sql
+--
+-- WHAT THIS FIXES  (root-caused live: prod returns
+--   `42703 column registrations.attendee_data does not exist`)
+--
+--   A pile of app code reads/writes `registrations.attendee_data` — but no
+--   migration ever added that column to `registrations` (017 created the table
+--   with `custom_fields`; the only `attendee_data` in the whole schema is on
+--   `generated_cards`, 001). It was almost certainly lost in the 044–050 /
+--   080+ renumbering shuffle. Every one of these surfaces has therefore been
+--   failing in production with a hard PostgREST 400:
+--
+--     • Group registration insert  — app/api/events/[id]/group-register
+--                                     + eventera_mobile addGroup()  (THE reported bug)
+--     • Apply-to-event insert       — app/api/events/[id]/apply     (attendee_data: { answers })
+--     • Approvals list read         — app/(app)/events/[id]/approvals/page.tsx + /approvals route
+--     • CSV export read             — app/api/events/[id]/export
+--
+--   The code is consistent and correct about WANTING this column; the schema
+--   simply lost it. Adding it (rather than rewriting six call sites onto
+--   `custom_fields`, which the main register route uses for a different
+--   purpose — the registration form answers) restores the intended shape with
+--   zero code churn and unbreaks all four surfaces at once. Nullable + default
+--   '{}' so existing rows backfill cleanly and the null-coalescing readers
+--   (`attendee_data as Record | null`) keep working.
+--
+-- IDEMPOTENT: add column if not exists. Safe to re-run.
+--   HOW TO APPLY: paste into the Supabase SQL editor and Run.
+-- ============================================================================
+
+alter table public.registrations
+  add column if not exists attendee_data jsonb default '{}'::jsonb;
