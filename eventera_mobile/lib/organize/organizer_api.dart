@@ -240,6 +240,41 @@ class OrganizerApi {
       }
     }
 
+    // `registrations` has a case-insensitive unique index on
+    // (event_id, lower(attendee_email)) (047). A single duplicate anywhere in
+    // the batch — either two seats sharing an email, or an email already on the
+    // list — aborts the whole insert with a 23505 the organizer can't decode.
+    // Walk-in already guards its one email; do the same for the batch so the
+    // common "someone's already registered" case fails with a clear message
+    // instead of a generic "didn't go through".
+    final emails = seats.map((s) => s.email.toLowerCase().trim()).toList();
+
+    final dupeInBatch = <String>{};
+    final seen = <String>{};
+    for (final e in emails) {
+      if (!seen.add(e)) dupeInBatch.add(e);
+    }
+    if (dupeInBatch.isNotEmpty) {
+      throw GroupRegisterBlockedException(
+          'The same email is used more than once: ${dupeInBatch.join(', ')}. '
+          'Each seat needs a different email.');
+    }
+
+    final existingRows = await supa
+        .from('registrations')
+        .select('attendee_email')
+        .eq('event_id', eventId)
+        .inFilter('attendee_email', emails);
+    final already = asMapList(existingRows)
+        .map((r) => asString(r['attendee_email']).toLowerCase())
+        .toSet();
+    if (already.isNotEmpty) {
+      throw GroupRegisterBlockedException(already.length == 1
+          ? '${already.first} is already registered for this event.'
+          : '${already.length} of these people are already registered: '
+              '${already.join(', ')}.');
+    }
+
     final rows = seats
         .map((s) => {
               'event_id': eventId,
@@ -255,17 +290,35 @@ class OrganizerApi {
             })
         .toList();
 
-    await supa.from('registrations').insert(rows);
+    try {
+      await supa.from('registrations').insert(rows);
+    } on PostgrestException catch (e) {
+      // Surface the real reason (unique clash lost to a race, a missing
+      // column, an FK on ticket_type_id, …) instead of a blank failure, so
+      // it's diagnosable in the field where release-build logs are stripped.
+      if (e.code == '23505') {
+        throw const GroupRegisterBlockedException(
+            'One of these people was just registered by someone else. '
+            'Refresh the list and try the remaining seats.');
+      }
+      throw GroupRegisterBlockedException('Could not register the group: ${e.message}');
+    }
 
     // Increment quantity_sold per ticket type (same RPC the web route uses).
+    // Best-effort: the seats are already inserted, so a counter hiccup must not
+    // report the whole group as failed — the count self-corrects on next load.
     final qtyCounts = <String, int>{};
     for (final s in seats) {
       qtyCounts[s.ticketTypeId] = (qtyCounts[s.ticketTypeId] ?? 0) + 1;
     }
-    await Future.wait(qtyCounts.entries.map((e) => supa.rpc(
-          'increment_ticket_quantity_sold',
-          params: {'ticket_id': e.key, 'qty': e.value},
-        )));
+    try {
+      await Future.wait(qtyCounts.entries.map((e) => supa.rpc(
+            'increment_ticket_quantity_sold',
+            params: {'ticket_id': e.key, 'qty': e.value},
+          )));
+    } catch (_) {
+      // Non-fatal — registrations succeeded; quantity_sold is a derived counter.
+    }
 
     return seats.length;
   }

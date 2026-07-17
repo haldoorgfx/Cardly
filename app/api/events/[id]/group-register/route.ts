@@ -86,6 +86,32 @@ export async function POST(req: NextRequest, { params }: Params) {
     }
   }
 
+  // `registrations` has a case-insensitive unique index on
+  // (event_id, lower(attendee_email)) (047). One duplicate — two seats sharing
+  // an email, or an email already on the list — aborts the whole batch with a
+  // raw 23505. Pre-check so the organizer gets a plain-language reason and the
+  // request fails atomically before any partial work.
+  const normalized = seats.map(s => s.email.trim().toLowerCase());
+  const dupeInBatch = normalized.filter((e, i) => normalized.indexOf(e) !== i);
+  if (dupeInBatch.length) {
+    return NextResponse.json({
+      error: `The same email is used more than once: ${Array.from(new Set(dupeInBatch)).join(', ')}. Each seat needs a different email.`,
+    }, { status: 409 });
+  }
+  const { data: existing } = await admin
+    .from('registrations')
+    .select('attendee_email')
+    .eq('event_id', eventId)
+    .in('attendee_email', normalized);
+  const already = Array.from(new Set((existing ?? []).map(r => (r.attendee_email as string).toLowerCase())));
+  if (already.length) {
+    return NextResponse.json({
+      error: already.length === 1
+        ? `${already[0]} is already registered for this event.`
+        : `${already.length} of these people are already registered: ${already.join(', ')}.`,
+    }, { status: 409 });
+  }
+
   const rows = seats.map((s: Seat) => ({
     event_id: eventId,
     ticket_type_id: s.ticketTypeId,
@@ -101,7 +127,16 @@ export async function POST(req: NextRequest, { params }: Params) {
     .insert(rows)
     .select('id, attendee_name, attendee_email');
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) {
+    // A duplicate that slipped past the pre-check (a race) reads far better as
+    // a 409 than a raw Postgres 500.
+    if (error.code === '23505') {
+      return NextResponse.json({
+        error: 'One of these people was just registered by someone else. Refresh the list and retry the remaining seats.',
+      }, { status: 409 });
+    }
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
 
   // Increment quantity_sold per ticket type
   const qtyCounts: Record<string, number> = {};
