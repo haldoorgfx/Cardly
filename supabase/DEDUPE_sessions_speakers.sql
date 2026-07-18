@@ -114,22 +114,46 @@ with sp_ranked as (
 delete from public.speakers where id in (select id from sp_ranked where id <> keep_id);
 
 -- ---- SESSIONS ----------------------------------------------------------
--- Collect duplicate session ids, remove their child rows (these belong only to
--- the duplicates — the kept session keeps its own), then delete the dupes.
-create temp table _dup_sessions on commit drop as
-select id from (
-  select id, row_number() over (partition by event_id, title, starts_at, ends_at, coalesce(track_id::text,'')
-                                order by created_at asc, id asc) as rn
+-- Map each duplicate session to the kept (earliest) session in its group.
+create temp table _sess_map on commit drop as
+select id as dup_id, keep_id
+from (
+  select id,
+         first_value(id) over (partition by event_id, title, starts_at, ends_at, coalesce(track_id::text,'')
+                               order by created_at asc, id asc) as keep_id
   from public.sessions
-) t where rn > 1;
+) r
+where id <> keep_id;
 
-delete from public.session_speakers where session_id in (select id from _dup_sessions);
-delete from public.session_ratings  where session_id in (select id from _dup_sessions);
-delete from public.attendee_agendas where session_id in (select id from _dup_sessions);
-delete from public.session_checkins where session_id in (select id from _dup_sessions);
-delete from public.qa_questions     where session_id in (select id from _dup_sessions);
+-- PRESERVE attendee data: move ratings / agenda-adds / check-ins / speaker links
+-- / questions from the duplicate session onto the kept one. For each, re-point
+-- rows that WON'T collide, then drop the few leftovers that would duplicate a
+-- row the kept session already has (unique on registration/speaker).
+update public.session_ratings t set session_id = m.keep_id
+  from _sess_map m where t.session_id = m.dup_id
+  and not exists (select 1 from public.session_ratings x where x.session_id = m.keep_id and x.registration_id = t.registration_id);
+delete from public.session_ratings t using _sess_map m where t.session_id = m.dup_id;
 
-delete from public.sessions where id in (select id from _dup_sessions);
+update public.attendee_agendas t set session_id = m.keep_id
+  from _sess_map m where t.session_id = m.dup_id
+  and not exists (select 1 from public.attendee_agendas x where x.session_id = m.keep_id and x.registration_id = t.registration_id);
+delete from public.attendee_agendas t using _sess_map m where t.session_id = m.dup_id;
+
+update public.session_checkins t set session_id = m.keep_id
+  from _sess_map m where t.session_id = m.dup_id
+  and not exists (select 1 from public.session_checkins x where x.session_id = m.keep_id and x.registration_id = t.registration_id);
+delete from public.session_checkins t using _sess_map m where t.session_id = m.dup_id;
+
+update public.session_speakers t set session_id = m.keep_id
+  from _sess_map m where t.session_id = m.dup_id
+  and not exists (select 1 from public.session_speakers x where x.session_id = m.keep_id and x.speaker_id = t.speaker_id);
+delete from public.session_speakers t using _sess_map m where t.session_id = m.dup_id;
+
+-- Questions carry no per-attendee uniqueness — just re-point them to the kept session.
+update public.qa_questions t set session_id = m.keep_id from _sess_map m where t.session_id = m.dup_id;
+
+-- Finally remove the now-childless duplicate sessions.
+delete from public.sessions where id in (select dup_id from _sess_map);
 
 -- Review the row counts printed above. If they match the preview:
 commit;
