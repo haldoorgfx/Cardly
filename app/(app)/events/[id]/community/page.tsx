@@ -27,21 +27,26 @@ export default async function CommunityPage({ params }: { params: Promise<{ id: 
 
   if (!event) redirect('/dashboard');
 
-  // Fetch message counts per channel
+  // Fetch message counts per channel + the real count of distinct posters
   const msgCounts: Record<string, number> = {};
+  const posters = new Set<string>();
   if (channels && channels.length > 0) {
     for (const ch of channels) {
       const { count } = await db.from('community_messages').select('id', { count: 'exact', head: true }).eq('channel_id', ch.id);
       msgCounts[ch.id] = count ?? 0;
+      const { data: rows } = await db.from('community_messages').select('registration_id').eq('channel_id', ch.id);
+      (rows ?? []).forEach((r: { registration_id: string | null }) => { if (r.registration_id) posters.add(r.registration_id); });
     }
   }
 
   return (
     <OrganizerCommunityClient
+      eventId={id}
       eventName={event.name}
       eventSlug={event.slug}
       channels={channels ?? []}
       msgCounts={msgCounts}
+      activePosters={posters.size}
     />
   );
 }

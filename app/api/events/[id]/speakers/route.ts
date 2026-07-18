@@ -2,9 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
 import { z } from 'zod';
+import { slugifyBase } from '@/lib/slug';
 
 function speakerSlug(name: string, id: string): string {
-  const base = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40);
+  const base = slugifyBase(name, 40);
   return `${base}-${id.replace(/-/g, '').slice(0, 8)}`;
 }
 

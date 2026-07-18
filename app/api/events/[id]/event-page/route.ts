@@ -3,6 +3,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { createNotification } from '@/lib/notifications';
 import { isNotifAllowed } from '@/lib/notifications/prefs';
 import { z } from 'zod';
+import { slugifyBase } from '@/lib/slug';
 import type { Database } from '@/types/database';
 
 // ── Validation ────────────────────────────────────────────────────────────────
@@ -157,11 +158,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     if (!series_name) {
       resolvedSeriesId = null; // clear the series
     } else {
-      const slug = series_name
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-|-$/g, '')
-        .slice(0, 80) + '-' + Math.random().toString(36).slice(2, 6);
+      const slug = slugifyBase(series_name, 80) + '-' + Math.random().toString(36).slice(2, 6);
 
       // Try to find existing series by name + organizer
       const { data: existing } = await admin

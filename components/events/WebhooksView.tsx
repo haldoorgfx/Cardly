@@ -94,7 +94,7 @@ export function WebhooksView(_props: Props) {
   const atLimit = hooks.length >= 5;
 
   return (
-    <PageShell width="wide">
+    <PageShell width="default">
 
       {/* Header */}
       <PageHeader

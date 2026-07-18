@@ -8,20 +8,12 @@ import {
 
 /* ── Data ────────────────────────────────────────────────────────── */
 const CATEGORIES = [
-  { icon: <Zap size={20} strokeWidth={1.8} />, title: 'Getting started', articles: ['Creating your first event', 'Setting up your event page', 'Inviting your team', 'Publishing and sharing your event'] },
-  { icon: <Users size={20} strokeWidth={1.8} />, title: 'Registration & tickets', articles: ['Creating ticket types', 'Setting up promo codes', 'Managing registrations', 'Handling refunds'] },
-  { icon: <CalendarDays size={20} strokeWidth={1.8} />, title: 'Agenda & speakers', articles: ['Building your agenda', 'Adding speakers', 'Managing sessions', 'Speaker portal access'] },
-  { icon: <ScanLine size={20} strokeWidth={1.8} />, title: 'Check-in', articles: ['Setting up check-in', 'Using the QR scanner', 'Offline check-in', 'Check-in reports'] },
-  { icon: <CreditCard size={20} strokeWidth={1.8} />, title: 'The Eventera Card', articles: ['What is the Eventera Card?', 'Customising your card design', 'Sharing on social media', 'Downloading your card'] },
-  { icon: <HelpCircle size={20} strokeWidth={1.8} />, title: 'Billing & plans', articles: ['Plan comparison', 'Upgrading your plan', 'Downloading invoices', 'Cancelling a subscription'] },
-];
-
-const POPULAR = [
-  { title: 'How do I publish my event page?', category: 'Getting started' },
-  { title: 'Can attendees edit their Eventera Card after downloading?', category: 'Eventera Card' },
-  { title: 'How do I set up promo codes?', category: 'Registration' },
-  { title: 'How do I add a speaker to a session?', category: 'Agenda' },
-  { title: 'What payment methods are supported?', category: 'Billing' },
+  { icon: <Zap size={20} strokeWidth={1.8} />, title: 'Getting started', desc: 'Create, set up, and publish your first event.', href: '/faq' },
+  { icon: <Users size={20} strokeWidth={1.8} />, title: 'Registration & tickets', desc: 'Ticket types, promo codes, registrations, and refunds.', href: '/faq' },
+  { icon: <CalendarDays size={20} strokeWidth={1.8} />, title: 'Agenda & speakers', desc: 'Build your agenda and manage speakers and sessions.', href: '/faq' },
+  { icon: <ScanLine size={20} strokeWidth={1.8} />, title: 'Check-in', desc: 'QR scanning and on-site check-in on the day.', href: '/faq' },
+  { icon: <CreditCard size={20} strokeWidth={1.8} />, title: 'The Eventera Card', desc: 'Design, customise, download, and share your card.', href: '/faq' },
+  { icon: <HelpCircle size={20} strokeWidth={1.8} />, title: 'Billing & plans', desc: 'Plans, upgrades, invoices, and cancellation.', href: '/faq' },
 ];
 
 /* ── Help Center Tab ─────────────────────────────────────────────── */
@@ -30,7 +22,7 @@ function HelpCenter() {
   const filtered = query
     ? CATEGORIES.filter(c =>
         c.title.toLowerCase().includes(query.toLowerCase()) ||
-        c.articles.some(a => a.toLowerCase().includes(query.toLowerCase()))
+        c.desc.toLowerCase().includes(query.toLowerCase())
       )
     : CATEGORIES;
 
@@ -61,23 +53,18 @@ function HelpCenter() {
         <div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {filtered.map((cat) => (
-              <div key={cat.title} className="rounded-2xl p-6" style={{ background: '#fff', border: '1px solid #E5E0D4' }}>
+              <a key={cat.title} href={cat.href}
+                className="block rounded-2xl p-6 transition hover:-translate-y-0.5"
+                style={{ background: '#fff', border: '1px solid #E5E0D4' }}>
                 <div className="w-10 h-10 rounded-xl grid place-items-center mb-4" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
                   {cat.icon}
                 </div>
                 <div className="font-semibold text-[15px] mb-1" style={{ color: '#0F1F18' }}>{cat.title}</div>
-                <div className="text-[12px] mb-4" style={{ color: '#65736B' }}>Guides coming soon</div>
-                <ul className="space-y-1.5">
-                  {cat.articles.map(a => (
-                    <li key={a}>
-                      <span className="flex items-center gap-2 text-[12px]" style={{ color: '#3A4A42' }}>
-                        <ArrowRight size={11} strokeWidth={2} style={{ color: '#1F4D3A', flexShrink: 0 }} />
-                        {a}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+                <div className="text-[12.5px] mb-4" style={{ color: '#65736B', lineHeight: 1.5 }}>{cat.desc}</div>
+                <span className="inline-flex items-center gap-1.5 text-[12.5px] font-medium" style={{ color: '#1F4D3A' }}>
+                  Read the FAQ <ArrowRight size={12} strokeWidth={2} />
+                </span>
+              </a>
             ))}
           </div>
           {filtered.length === 0 && (
@@ -85,27 +72,19 @@ function HelpCenter() {
           )}
         </div>
 
-        {/* Popular */}
+        {/* Browse all FAQs */}
         {!query && (
-          <div>
-            <div className=" text-[10px] uppercase tracking-widest mb-4" style={{ color: '#65736B' }}>Popular questions</div>
-            <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid #E5E0D4', background: '#fff' }}>
-              {POPULAR.map((q, i) => (
-                <div
-                  key={i}
-                  className="flex items-center px-5 py-4"
-                  style={{ borderBottom: i < POPULAR.length - 1 ? '1px solid #E5E0D4' : 'none' }}
-                >
-                  <div className="flex items-center gap-3 flex-wrap">
-                    <span className="text-[10px] px-2 py-0.5 rounded-full " style={{ background: '#E8EFEB', color: '#1F4D3A' }}>{q.category}</span>
-                    <span className="text-[13px]" style={{ color: '#0F1F18' }}>{q.title}</span>
-                  </div>
-                </div>
-              ))}
+          <div className="rounded-2xl px-6 py-6 flex flex-col sm:flex-row sm:items-center gap-4 justify-between"
+            style={{ background: '#fff', border: '1px solid #E5E0D4' }}>
+            <div>
+              <div className="font-semibold text-[15px]" style={{ color: '#0F1F18' }}>Looking for a specific answer?</div>
+              <div className="text-[13px] mt-0.5" style={{ color: '#65736B' }}>Our FAQ covers the most common questions in detail.</div>
             </div>
-            <p className="mt-3 text-[12px]" style={{ color: '#65736B' }}>
-              Don&apos;t see your question? <a href="mailto:hello@eventera.so" className="underline" style={{ color: '#1F4D3A' }}>Email our team</a> and we&apos;ll help.
-            </p>
+            <a href="/faq"
+              className="inline-flex items-center gap-2 h-10 px-5 rounded-full text-[13px] font-medium shrink-0"
+              style={{ background: '#1F4D3A', color: '#FAF6EE' }}>
+              Browse all FAQs <ArrowRight size={13} />
+            </a>
           </div>
         )}
 

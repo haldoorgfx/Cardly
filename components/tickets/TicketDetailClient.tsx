@@ -6,7 +6,7 @@ import Link from 'next/link';
 import {
   ChevronLeft, MoreHorizontal, MapPin, Lock, Clock, CalendarPlus,
   ArrowLeftRight, Receipt, Share2, MessageSquare, X, ChevronRight, Check,
-  Download, IdCard,
+  Download, IdCard, ExternalLink,
 } from 'lucide-react';
 import { GetCardModal, type CardVariant } from './GetCardModal';
 
@@ -345,8 +345,10 @@ export default function TicketDetailClient({ reg, scannedByName, variant }: Prop
         </button>
       </div>
 
-      <div className="max-w-md mx-auto px-4 pt-4 pb-10">
-        {/* ── THE TICKET ── */}
+      <div className="mx-auto max-w-4xl px-4 pt-4 pb-10">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,400px)_1fr] lg:items-start">
+        {/* ── LEFT: THE TICKET ── */}
+        <div className="mx-auto w-full max-w-md lg:mx-0">
         <div className="overflow-hidden" style={{ background: '#fff', border: `1px solid ${BORDER}`, borderRadius: 18, boxShadow: '0 2px 4px rgba(15,31,24,0.05), 0 18px 48px rgba(31,77,58,0.10)' }}>
           {/* Cover */}
           <div className="relative" style={{ height: 150 }}>
@@ -469,6 +471,28 @@ export default function TicketDetailClient({ reg, scannedByName, variant }: Prop
             )}
           </div>
         </div>
+        </div>
+
+        {/* ── RIGHT: context panel ── */}
+        <div className="mx-auto w-full max-w-md space-y-4 lg:mx-0 lg:max-w-none">
+
+        {/* Event summary */}
+        <div className="rounded-2xl p-5" style={{ background: '#fff', border: `1px solid ${BORDER}` }}>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: MUTED }}>Your ticket</div>
+          <h2 className="font-display font-bold text-[18px] mt-1.5" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: INK, letterSpacing: '-0.015em' }}>{eventName}</h2>
+          {venue && (
+            <div className="flex items-center gap-1.5 mt-2 text-[13px]" style={{ color: INK_SOFT }}>
+              <MapPin size={14} style={{ color: FOREST }} />
+              {venue}
+            </div>
+          )}
+          {ep?.starts_at && (
+            <div className="flex items-center gap-1.5 mt-1.5 text-[13px]" style={{ color: INK_SOFT }}>
+              <Clock size={14} style={{ color: FOREST }} />
+              {fmtWhen(ep?.starts_at, ep?.timezone)}
+            </div>
+          )}
+        </div>
 
         {/* ── Per-state footer actions ── */}
         {isPendingPayment && (
@@ -560,6 +584,36 @@ export default function TicketDetailClient({ reg, scannedByName, variant }: Prop
           </div>
         )}
 
+        {/* ── Secondary actions ── */}
+        <div className="rounded-2xl px-4" style={{ background: '#fff', border: `1px solid ${BORDER}` }}>
+          <div className="divide-y" style={{ borderColor: BORDER }}>
+            <ActionRow
+              icon={<ExternalLink size={20} />}
+              label="View event page"
+              href={`/e/${slug}`}
+            />
+            <ActionRow
+              icon={<Receipt size={20} />}
+              label="View receipt"
+              onClick={() => setShowReceipt(true)}
+            />
+            <ActionRow
+              icon={<Share2 size={20} />}
+              label="Share ticket"
+              onClick={async () => {
+                const url = `${window.location.origin}/e/${slug}`;
+                if (navigator.share) {
+                  try { await navigator.share({ title: eventName, url }); } catch { /* dismissed */ }
+                } else {
+                  try { await navigator.clipboard.writeText(url); } catch { /* ignore */ }
+                }
+              }}
+            />
+          </div>
+        </div>
+
+        </div>
+        </div>
       </div>
 
       {/* ── QR fullscreen ── */}

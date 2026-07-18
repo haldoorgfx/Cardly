@@ -3,6 +3,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { createNotification } from '@/lib/notifications';
 import { isNotifAllowed } from '@/lib/notifications/prefs';
 import { fireWebhooks } from '@/lib/webhooks';
+import { slugifyBase } from '@/lib/slug';
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -46,8 +47,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
   // Normalize and guard slug changes
   if (typeof patch.slug === 'string') {
-    const normalized = patch.slug
-      .toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-').slice(0, 60);
+    const normalized = slugifyBase(patch.slug, 60);
     if (!normalized) return NextResponse.json({ error: 'Invalid slug' }, { status: 400 });
     patch.slug = normalized;
 

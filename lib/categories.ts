@@ -7,6 +7,8 @@
  * Alphabetical; `Other` is offered only at creation time (see below), never
  * as a browse target.
  */
+import { slugifyBase } from '@/lib/slug';
+
 export const EVENT_CATEGORIES = [
   'Arts',
   'Business',
@@ -49,10 +51,7 @@ export const CATEGORY_OPTIONS = [...EVENT_CATEGORIES, OTHER_CATEGORY];
 
 /** URL slug for a category label, e.g. `"Kids & Family"` → `"kids-family"`. */
 export function categorySlug(label: string): string {
-  return label
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
+  return slugifyBase(label);
 }
 
 const SLUG_TO_LABEL = new Map(EVENT_CATEGORIES.map(c => [categorySlug(c), c]));

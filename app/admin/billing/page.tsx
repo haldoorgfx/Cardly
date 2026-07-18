@@ -73,7 +73,7 @@ export default async function BillingAdminPage({
   };
 
   return (
-    <PageShell width="wide">
+    <PageShell width="screen">
       <PageHeader
         eyebrow="Admin · Billing"
         title="Revenue"

@@ -200,7 +200,7 @@ export function DownloadsHub({ eventId, eventSlug, eventName, regs, sessions, ti
   }
 
   return (
-    <PageShell width="wide">
+    <PageShell width="default">
       {/* Header */}
       <PageHeader title="Downloads" subtitle={eventName} />
 

@@ -11,10 +11,10 @@ import {
   BarChart2, FileText, Eye, X, ArrowLeft, ShieldCheck,
   ScrollText, Sliders,
   Home, Layout, CalendarDays, MessageSquare, Bell,
-  Ticket, ScanLine, User, Network, Trophy, Briefcase, Video, Palette,
-  UserCircle, HelpCircle, Zap, ShoppingCart, Handshake, Clock, IdCard, Heart,
+  Ticket, ScanLine, User, Network, Trophy, Briefcase, Palette,
+  UserCircle, HelpCircle, Zap, ShoppingCart, Clock, IdCard, Heart,
   Crown, Leaf, ArrowRight,
-  Tag, Plug, Globe, Download, Link2, Code2, UserCog, Share2, Images, Monitor,
+  Tag, Globe, Download, Link2, Code2, UserCog, Share2, Images, Monitor,
   RefreshCw, Megaphone, Bot, MessageCircle, Layers,
 } from 'lucide-react';
 
@@ -145,9 +145,7 @@ const EVENT_NAV_SECTIONS = [
   {
     title: 'Engage',
     items: [
-      { id: 'engagement',   label: 'Networking',   icon: <Network size={15} strokeWidth={1.8} />,       segment: 'engagement' },
-      { id: 'meetings',     label: '1:1 Meetings', icon: <Handshake size={15} strokeWidth={1.8} />,     segment: 'meetings' },
-      { id: 'polls',        label: 'Q&A & Polls',  icon: <MessageSquare size={15} strokeWidth={1.8} />, segment: 'q-and-a' },
+      { id: 'engagement',   label: 'Networking',   icon: <Network size={15} strokeWidth={1.8} />,       segment: 'engagement' },      { id: 'polls',        label: 'Q&A & Polls',  icon: <MessageSquare size={15} strokeWidth={1.8} />, segment: 'q-and-a' },
       { id: 'newsfeed',     label: 'Newsfeed',     icon: <ScrollText size={15} strokeWidth={1.8} />,    segment: 'newsfeed' },
       { id: 'community',    label: 'Community',    icon: <MessageCircle size={15} strokeWidth={1.8} />, segment: 'community' },
       { id: 'photos',       label: 'Photo wall',   icon: <Images size={15} strokeWidth={1.8} />,        segment: 'photos' },
@@ -165,9 +163,7 @@ const EVENT_NAV_SECTIONS = [
   {
     title: 'Partners',
     items: [
-      { id: 'sponsors', label: 'Sponsors', icon: <Briefcase size={15} strokeWidth={1.8} />, segment: 'sponsors' },
-      { id: 'virtual',  label: 'Virtual',  icon: <Video size={15} strokeWidth={1.8} />,     segment: 'virtual' },
-    ],
+      { id: 'sponsors', label: 'Sponsors', icon: <Briefcase size={15} strokeWidth={1.8} />, segment: 'sponsors' },    ],
   },
   {
     title: 'Insights',
@@ -184,9 +180,7 @@ const EVENT_NAV_SECTIONS = [
     items: [
       { id: 'settings',     label: 'Settings',      icon: <Sliders size={15} strokeWidth={1.8} />, segment: 'settings' },
       { id: 'staff',        label: 'Staff roles',   icon: <UserCog size={15} strokeWidth={1.8} />, segment: 'staff' },
-      { id: 'series',       label: 'Series',        icon: <RefreshCw size={15} strokeWidth={1.8} />, segment: 'series' },
-      { id: 'integrations', label: 'Integrations',  icon: <Plug size={15} strokeWidth={1.8} />,    segment: 'integrations' },
-      { id: 'webhooks',     label: 'Webhooks',      icon: <Globe size={15} strokeWidth={1.8} />,   segment: 'webhooks' },
+      { id: 'series',       label: 'Series',        icon: <RefreshCw size={15} strokeWidth={1.8} />, segment: 'series' },      { id: 'webhooks',     label: 'Webhooks',      icon: <Globe size={15} strokeWidth={1.8} />,   segment: 'webhooks' },
       { id: 'embed',        label: 'Embed widgets', icon: <Code2 size={15} strokeWidth={1.8} />,   segment: 'embed' },
     ],
   },

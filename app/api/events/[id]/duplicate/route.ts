@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { upsertEventRole } from '@/lib/rbac/assign';
+import { slugifyBase } from '@/lib/slug';
 
 export async function POST(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -21,11 +22,7 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
   if (srcErr || !src) return NextResponse.json({ error: 'Event not found' }, { status: 404 });
 
   // Generate new slug
-  const base = (src.name as string)
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '')
-    .slice(0, 40);
+  const base = slugifyBase(src.name as string, 40);
   const suffix = Math.random().toString(36).slice(2, 6);
   const newSlug = `${base}-${suffix}`;
   const newName = `${src.name} (copy)`;

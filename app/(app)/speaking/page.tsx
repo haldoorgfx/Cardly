@@ -250,7 +250,7 @@ export default async function SpeakingPage() {
   const isEmpty = groups.length === 0 && !hasCfpActivity;
 
   return (
-    <PageShell width="wide">
+    <PageShell width="default">
         <PageHeader title="Speaking" subtitle="The events you speak at and your sessions." />
 
         {isEmpty ? (

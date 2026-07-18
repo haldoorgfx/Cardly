@@ -19,9 +19,9 @@ const SERVICES = [
 ];
 
 const UPTIME = [
-  { label: 'API',      value: 'Operational', period: 'Live' },
-  { label: 'Payments', value: 'Operational', period: 'Live' },
-  { label: 'Storage',  value: 'Operational', period: 'Live' },
+  { label: 'API',      value: 'Operational', period: 'Manually updated' },
+  { label: 'Payments', value: 'Operational', period: 'Manually updated' },
+  { label: 'Storage',  value: 'Operational', period: 'Manually updated' },
 ];
 
 const INCIDENTS: { date: string; title: string; body: string; resolved: boolean }[] = [];

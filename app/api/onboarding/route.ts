@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { upsertEventRole } from '@/lib/rbac/assign';
+import { slugifyBase } from '@/lib/slug';
 
 export async function POST(req: NextRequest) {
   const supabase = createClient();
@@ -43,10 +44,7 @@ export async function POST(req: NextRequest) {
 
   // Create first event if name provided
   if (body.evName.trim()) {
-    const slug = body.evName.trim().toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .slice(0, 40) + '-' + Math.random().toString(36).slice(2, 6);
+    const slug = slugifyBase(body.evName, 40) + '-' + Math.random().toString(36).slice(2, 6);
 
     const { data: newEvent } = await admin.from('events').insert({
       user_id: user.id,

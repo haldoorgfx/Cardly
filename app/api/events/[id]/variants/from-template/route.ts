@@ -9,6 +9,7 @@ import {
 } from '@/lib/templates/svgs';
 import { injectSvgFonts } from '@/lib/templates/svg-fonts';
 import type { Zone } from '@/types/database';
+import { slugifyBase } from '@/lib/slug';
 
 /** Zone factory — positions match shared SVG constants */
 function getZones(accent: string, light: boolean): Zone[] {
@@ -100,7 +101,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   const nextPosition = (existingVariants?.[0]?.position ?? -1) + 1;
 
   const name = (variantName?.trim()) || config.name;
-  const slug = name.toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-').slice(0, 40)
+  const slug = slugifyBase(name, 40)
     + '-' + crypto.randomUUID().slice(0, 6);
 
   const zones = getZones(config.accent, config.light ?? false);

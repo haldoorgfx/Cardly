@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { canCreateVariant } from '@/lib/billing/can';
+import { slugifyBase } from '@/lib/slug';
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -63,8 +64,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
     if (!source) return NextResponse.json({ error: 'Source variant not found' }, { status: 404 });
 
-    const variantSlug = variantName
-      .toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-').slice(0, 40)
+    const variantSlug = slugifyBase(variantName, 40)
       + '-' + crypto.randomUUID().slice(0, 6);
 
     const { data: existingVariants } = await admin
@@ -101,12 +101,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   }
 
   // Generate a slug from the variant name
-  const variantSlug = variantName
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .trim()
-    .replace(/\s+/g, '-')
-    .slice(0, 40);
+  const variantSlug = slugifyBase(variantName, 40);
 
   // Upload background
   const ext = file.type === 'image/png' ? 'png' : 'jpg';

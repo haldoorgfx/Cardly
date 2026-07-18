@@ -43,9 +43,12 @@ export function TicketTransferClient({ registration: reg }: Props) {
   }
 
   return (
-    <div className="max-w-md mx-auto px-5 py-10">
+    <div className="mx-auto max-w-4xl px-5 py-10">
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,400px)_1fr] lg:items-start">
+      {/* ── LEFT: ticket summary ── */}
+      <div className="mx-auto w-full max-w-md lg:mx-0">
       {/* Ticket card */}
-      <div className="rounded-2xl overflow-hidden mb-8" style={{ border: '1px solid #E5E0D4', background: '#FFFFFF' }}>
+      <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid #E5E0D4', background: '#FFFFFF' }}>
         {ep?.cover_image_url && (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={ep.cover_image_url} alt="" className="w-full h-28 object-cover" />
@@ -65,6 +68,10 @@ export function TicketTransferClient({ registration: reg }: Props) {
           <div className="mt-3 text-[12px]" style={{ color: '#3A4A42' }}>#{ticketNum}</div>
         </div>
       </div>
+      </div>
+
+      {/* ── RIGHT: transfer form / success ── */}
+      <div className="mx-auto w-full max-w-md lg:mx-0 lg:max-w-none">
 
       {stage === 'form' && (
         <>
@@ -138,6 +145,8 @@ export function TicketTransferClient({ registration: reg }: Props) {
           </Link>
         </div>
       )}
+      </div>
+      </div>
     </div>
   );
 }
