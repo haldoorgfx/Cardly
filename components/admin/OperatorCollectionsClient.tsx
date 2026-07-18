@@ -1,8 +1,9 @@
 ﻿'use client';
 
 import { useState } from 'react';
-import { Plus, CheckCircle2, XCircle, Radio, Clock, LayoutGrid, List, AlertCircle, Loader2, X } from 'lucide-react';
+import { CheckCircle2, XCircle, Radio, Clock, LayoutGrid, List, AlertCircle, Loader2, X } from 'lucide-react';
 import { useConfirm } from '@/components/ui/ConfirmProvider';
+import { PageShell, PageHeader } from '@/components/dash';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Collection = any;
@@ -17,7 +18,6 @@ export function OperatorCollectionsClient({ collections, promoted: dbPromoted }:
   const [activeTab, setActiveTab] = useState<'collections' | 'review'>('collections');
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [actionError, setActionError] = useState<{ id: string; text: string } | null>(null);
-  const [notice, setNotice] = useState('');
 
   // Bulk selection (review queue)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -100,34 +100,12 @@ export function OperatorCollectionsClient({ collections, promoted: dbPromoted }:
   }
 
   return (
-    <div>
-      <div className="max-w-5xl mx-auto px-6 py-8">
-
-        {/* Header */}
-        <div className="flex items-center justify-between flex-wrap gap-3 mb-6">
-          <div>
-            <h1 className="font-display font-bold text-[28px]" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
-              Marketplace curation
-            </h1>
-            <p className="text-[14px] mt-1" style={{ color: '#65736B' }}>
-              Manage event collections and review promoted listing requests
-            </p>
-          </div>
-          <button
-            onClick={() => setNotice('Collection creation is managed server-side for now — new collections are seeded via migration. A create form is coming to this panel.')}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-semibold transition hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1F4D3A] shrink-0"
-            style={{ background: '#1F4D3A', color: '#FAF6EE' }}>
-            <Plus size={15} /> New collection
-          </button>
-        </div>
-
-        {notice && (
-          <div className="mb-4 rounded-xl px-4 py-3 flex items-start justify-between gap-3 text-[13px]" role="status"
-            style={{ background: '#E8EFEB', border: '1px solid rgba(31,77,58,0.18)', color: '#1F4D3A' }}>
-            <span>{notice}</span>
-            <button onClick={() => setNotice('')} className="shrink-0 text-[12.5px] underline">Dismiss</button>
-          </div>
-        )}
+    <PageShell width="wide">
+      <PageHeader
+        eyebrow="Admin · Marketplace"
+        title="Marketplace curation"
+        subtitle="Manage event collections and review promoted listing requests"
+      />
 
         {/* Tabs */}
         <div className="flex gap-1 p-1 rounded-xl mb-6 w-fit" style={{ background: '#E5E0D4' }}>
@@ -335,7 +313,6 @@ export function OperatorCollectionsClient({ collections, promoted: dbPromoted }:
             )}
           </div>
         )}
-      </div>
-    </div>
+    </PageShell>
   );
 }

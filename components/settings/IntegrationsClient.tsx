@@ -153,12 +153,7 @@ export function IntegrationsClient() {
   }
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-6">
-        <h1 className="font-display font-semibold text-[24px] tracking-tight" style={{ color: C.ink }}>Integrations</h1>
-        <p className="mt-1.5 text-[14px]" style={{ color: C.muted }}>Connect Eventera to your existing tools and workflows.</p>
-      </div>
-
+    <div className="max-w-[760px] mx-auto">
       {banner && (
         <div className="mb-5 rounded-xl px-4 py-3 text-[13px] font-medium"
           style={{

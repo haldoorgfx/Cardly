@@ -34,7 +34,6 @@ function fmtCurrency(amount: number, currency: string | null) {
 const TABS = [
   { id: 'roi',       label: 'ROI dashboard' },
   { id: 'builder',   label: 'Report builder' },
-  { id: 'scheduled', label: 'Scheduled' },
 ];
 
 function StatCard({ label, value }: { label: string; value: string | number }) {
@@ -317,19 +316,6 @@ export function ReportsClient({ eventId, eventName, totalRevenue, regCount, chec
               </div>
             )}
           </Panel>
-        </div>
-      )}
-
-      {/* Scheduled */}
-      {tab === 'scheduled' && (
-        <div className="bg-white rounded-2xl py-16 text-center" style={{ border: '1px solid #E5E0D4' }}>
-          <div className="w-12 h-12 rounded-2xl grid place-items-center mx-auto mb-3" style={{ background: '#E8EFEB' }}>
-            <svg width={20} height={20} fill="none" stroke="#1F4D3A" strokeWidth={1.5} viewBox="0 0 24 24">
-              <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
-            </svg>
-          </div>
-          <p className="text-[14px] font-medium mb-1" style={{ color: '#0F1F18' }}>Scheduled reports</p>
-          <p className="text-[13px]" style={{ color: '#65736B' }}>Set up automatic exports — daily, weekly, or post-event.</p>
         </div>
       )}
     </PageShell>
