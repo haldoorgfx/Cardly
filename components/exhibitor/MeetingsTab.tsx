@@ -24,16 +24,12 @@ function fmtDateTime(dt: string | null) {
   return d.toLocaleString(undefined, { weekday: 'short', hour: '2-digit', minute: '2-digit' });
 }
 
-function Avatar({ name, idx }: { name: string; idx: number }) {
+function Avatar({ name }: { name: string; idx: number }) {
   const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
-  const grads = [
-    'linear-gradient(135deg,#3E7E5E,#C9A45E)',
-    'linear-gradient(135deg,#1F4D3A,#2A6A50)',
-  ];
   return (
     <span
-      className="rounded-full grid place-items-center text-cream font-display font-semibold shrink-0 text-[13px]"
-      style={{ width: 40, height: 40, background: grads[idx % 2] }}
+      className="rounded-full grid place-items-center font-display font-semibold shrink-0 text-[13px]"
+      style={{ width: 40, height: 40, background: '#E8EFEB', color: '#1F4D3A' }}
     >
       {initials}
     </span>

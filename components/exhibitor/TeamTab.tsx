@@ -19,18 +19,12 @@ interface Props {
   token: string;
 }
 
-const GRADS = [
-  'linear-gradient(135deg,#1F4D3A,#2A6A50)',
-  'linear-gradient(135deg,#3E7E5E,#C9A45E)',
-  'linear-gradient(135deg,#163828,#3E7E5E)',
-];
-
-function Avatar({ name, idx }: { name: string; idx: number }) {
+function Avatar({ name }: { name: string; idx: number }) {
   const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
   return (
     <span
-      className="rounded-full grid place-items-center text-cream font-display font-semibold shrink-0 text-[13px]"
-      style={{ width: 38, height: 38, background: GRADS[idx % GRADS.length] }}
+      className="rounded-full grid place-items-center font-display font-semibold shrink-0 text-[13px]"
+      style={{ width: 38, height: 38, background: '#E8EFEB', color: '#1F4D3A' }}
     >
       {initials}
     </span>

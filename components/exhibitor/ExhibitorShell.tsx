@@ -44,11 +44,12 @@ function tabHref(token: string, id: string) {
 function Avatar({ initials, size = 36 }: { initials: string; size?: number }) {
   return (
     <span
-      className="rounded-full grid place-items-center text-white font-display font-semibold shrink-0"
+      className="rounded-full grid place-items-center font-display font-semibold shrink-0"
       style={{
         width: size, height: size,
         fontSize: size * 0.36,
-        background: 'linear-gradient(135deg,#1F4D3A,#2A6A50)',
+        background: '#E8EFEB',
+        color: '#1F4D3A',
       }}
     >
       {initials}

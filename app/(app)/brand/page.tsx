@@ -262,7 +262,7 @@ export default function BrandKitPage() {
                     className="text-[11.5px] tracking-widest uppercase"
                     style={{ color: 'rgba(232,197,126,0.8)' }}
                   >
-                    AFRICA TECH FEST
+                    YOUR EVENT · SAMPLE
                   </div>
                   <div
                     className="h-4 w-4 rounded-sm"
@@ -287,13 +287,13 @@ export default function BrandKitPage() {
 
                 {/* Name */}
                 <div className="font-display font-bold text-[18px] text-white leading-tight mb-1">
-                  Kwame Mensah
+                  Your Name
                 </div>
                 <div
                   className="text-[12px]"
                   style={{ color: 'rgba(250,246,238,0.6)' }}
                 >
-                  Product Engineer · Paystack
+                  Your role · Your company
                 </div>
               </div>
 
@@ -306,13 +306,13 @@ export default function BrandKitPage() {
                   className="text-[11.5px] tracking-widest uppercase"
                   style={{ color: 'rgba(250,246,238,0.45)' }}
                 >
-                  12 MAR · LAGOS
+                  DATE · CITY
                 </div>
               </div>
             </div>
 
             <p className="text-[12px] text-[#65736B] text-center mt-5 leading-relaxed">
-              Your brand kit is automatically applied to every attendee&apos;s Eventera Card.
+              A sample of the Eventera Card layout. Your uploaded logo is applied to your event&apos;s cards.
             </p>
           </div>
         </div>

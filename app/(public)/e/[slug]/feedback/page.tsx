@@ -36,7 +36,7 @@ export default async function FeedbackPage({ params, searchParams }: Props) {
 
   return (
     <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
-      <div className="max-w-[680px] mx-auto px-5 py-10">
+      <div className="px-5 py-10">
         <FeedbackClient
           eventId={event.id}
           eventTitle={eventPage.title}

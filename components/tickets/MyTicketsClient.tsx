@@ -138,6 +138,7 @@ function statusTag(reg: Registration, isPast: boolean): StatusTag {
 
 function TicketStub({ reg, isPast, onShowQR }: { reg: Registration; isPast: boolean; onShowQR: () => void }) {
   const ep = reg.events?.event_pages?.[0];
+  const hasCover = Boolean(ep?.cover_image_url);
   const tz = ep?.timezone || undefined;
   const start = ep?.starts_at ? new Date(ep.starts_at) : null;
   const monthStr = start ? start.toLocaleDateString(undefined, { month: 'short', timeZone: tz }).toUpperCase() : null;
@@ -181,21 +182,23 @@ function TicketStub({ reg, isPast, onShowQR }: { reg: Registration; isPast: bool
       >
         {/* Cover stub (left) — date badge / monogram over the cover */}
         <Link href={detailHref} aria-label={title} className="relative shrink-0 self-stretch grid place-items-center overflow-hidden" style={{ width: COVER, minHeight: 128 }}>
-          {ep?.cover_image_url ? (
-            <Image src={ep.cover_image_url} alt="" fill sizes="118px" className="object-cover" />
+          {hasCover ? (
+            <>
+              <Image src={ep!.cover_image_url!} alt="" fill sizes="118px" className="object-cover" />
+              {/* legibility wash for the date/monogram over the photo */}
+              <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, rgba(15,31,24,0.42) 0%, rgba(15,31,24,0.08) 60%)' }} />
+            </>
           ) : (
-            <div className="absolute inset-0" style={{ background: FOREST }} />
+            <div className="absolute inset-0" style={{ background: '#E8EFEB' }} />
           )}
-          {/* legibility wash for the date/monogram */}
-          <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, rgba(15,31,24,0.42) 0%, rgba(15,31,24,0.08) 60%)' }} />
 
           {start ? (
-            <div className="relative z-10 text-center text-white leading-none">
-              <div style={{ fontSize: 11, letterSpacing: '0.16em', fontWeight: 600, color: GOLD }}>{monthStr}</div>
+            <div className="relative z-10 text-center leading-none" style={{ color: hasCover ? '#fff' : INK }}>
+              <div style={{ fontSize: 11, letterSpacing: '0.16em', fontWeight: 600, color: hasCover ? GOLD : MUTED }}>{monthStr}</div>
               <div className="font-display" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', fontSize: 32, fontWeight: 700, marginTop: 4 }}>{dayStr}</div>
             </div>
           ) : (
-            <div className="relative z-10 font-display font-bold text-white" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', fontSize: 34, opacity: 0.92 }}>
+            <div className="relative z-10 font-display font-bold" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', fontSize: 34, opacity: 0.92, color: hasCover ? '#fff' : MUTED }}>
               {title.charAt(0).toUpperCase()}
             </div>
           )}

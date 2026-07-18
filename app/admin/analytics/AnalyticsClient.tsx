@@ -148,7 +148,7 @@ export function AnalyticsClient({ stats, userGrowth, cardGrowth, planDist }: Pro
               formatter={(v) => [v, 'cards']}
               cursor={{ fill: 'rgba(31,77,58,0.04)' }}
             />
-            <Bar dataKey="count" fill="#E8C57E" radius={[3, 3, 0, 0]} />
+            <Bar dataKey="count" fill="#1F4D3A" radius={[3, 3, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>

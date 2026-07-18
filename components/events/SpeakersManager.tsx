@@ -456,7 +456,7 @@ export default function SpeakersManager({ eventId, slug, initialSpeakers }: Prop
                     </div>
                   )}
                   {speaker.is_featured && (
-                    <span className="inline-flex items-center gap-1 text-[12px] font-medium px-2 py-0.5 rounded-full border" style={{ color: '#C9A45E', borderColor: 'rgba(201,164,94,0.4)', background: 'rgba(232,197,126,0.12)' }}>
+                    <span className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full border" style={{ color: '#65736B', borderColor: '#E5E0D4', background: '#FFFFFF' }}>
                       <Sparkles size={9} strokeWidth={2} /> Featured
                     </span>
                   )}

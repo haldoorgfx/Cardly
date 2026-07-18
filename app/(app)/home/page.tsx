@@ -158,9 +158,9 @@ export default async function HomePage() {
                           <div className="w-8 h-8 rounded-lg shrink-0" style={{ background: '#E8EFEB' }} />
                           <div className="min-w-0 flex-1">
                             <div className="text-[13px] font-medium truncate" style={{ color: '#0F1F18' }}>{item.name}</div>
-                            <div className="text-[13px]" style={{ color: '#B45309' }}>{item.reason}</div>
+                            <div className="text-[13px]" style={{ color: '#C97A2D' }}>{item.reason}</div>
                           </div>
-                          <ArrowRight size={14} strokeWidth={2.2} style={{ color: '#B45309' }} />
+                          <ArrowRight size={14} strokeWidth={2.2} style={{ color: '#C97A2D' }} />
                         </Link>
                       ))}
                     </div>

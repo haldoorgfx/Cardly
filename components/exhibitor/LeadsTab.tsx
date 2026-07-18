@@ -26,16 +26,12 @@ const RATING_STYLES: Record<string, { bg: string; color: string; border: string 
   cold: { bg: 'rgba(15,31,24,0.05)',   color: '#65736B', border: '#E5E0D4' },
 };
 
-function Avatar({ name, idx }: { name: string; idx: number }) {
+function Avatar({ name }: { name: string; idx: number }) {
   const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
-  const grads = [
-    'linear-gradient(135deg,#3E7E5E,#C9A45E)',
-    'linear-gradient(135deg,#1F4D3A,#2A6A50)',
-  ];
   return (
     <span
-      className="rounded-full grid place-items-center text-cream font-display font-semibold shrink-0 text-[13px]"
-      style={{ width: 38, height: 38, background: grads[idx % 2] }}
+      className="rounded-full grid place-items-center font-display font-semibold shrink-0 text-[13px]"
+      style={{ width: 38, height: 38, background: '#E8EFEB', color: '#1F4D3A' }}
     >
       {initials}
     </span>
