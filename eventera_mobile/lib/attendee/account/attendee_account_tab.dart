@@ -93,8 +93,14 @@ class _AttendeeAccountTabState extends State<AttendeeAccountTab> {
       count(() {
         final orParts = <String>['user_id.eq.$uid'];
         if (email.isNotEmpty) orParts.add('attendee_email.eq.$email');
-        return supa.from('registrations').select('id').or(orParts.join(',')).inFilter(
-            'status', ['confirmed', 'checked_in', 'pending', 'pending_approval']);
+        // Match the wallet's predicate (my_tickets_screen) exactly so the badge
+        // count and the ticket list can never disagree — count every ticket the
+        // user owns except clearly-dead ones, not a narrower whitelist.
+        return supa
+            .from('registrations')
+            .select('id')
+            .or(orParts.join(','))
+            .not('status', 'in', '("cancelled","refunded","failed")');
       }),
       count(() => supa.from('saved_events').select('id').eq('user_id', uid)),
       count(() =>

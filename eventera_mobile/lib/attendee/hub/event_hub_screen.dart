@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../app_config.dart';
 import '../../net.dart';
 import '../../screens/open_event_screen.dart';
 import '../../tz.dart';
@@ -555,7 +556,7 @@ class _EventHubScreenState extends State<EventHubScreen> {
     final slug = (page?.customSlug ?? '').isNotEmpty
         ? page!.customSlug!
         : widget.slug;
-    final link = 'https://eventera.so/e/$slug';
+    final link = '${AppConfig.renderBaseUrl}/e/$slug';
     try {
       await Clipboard.setData(ClipboardData(text: link));
       await Share.share(link);

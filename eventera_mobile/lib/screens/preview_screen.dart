@@ -163,26 +163,18 @@ class _PreviewScreenState extends State<PreviewScreen>
             ),
             const SizedBox(height: 16),
 
-            Row(
-              children: [
-                Expanded(
-                  child: _DarkGhostButton(
-                    icon: Icons.download_outlined,
-                    label: 'Save',
-                    loading: _sharing,
-                    onTap: _sharing ? null : _share,
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: MButton(
-                    'Share',
-                    kind: MBtnKind.gold,
-                    icon: Icons.ios_share,
-                    onTap: _sharing ? null : _share,
-                  ),
-                ),
-              ],
+            // One honest action: both old buttons called _share (the OS share
+            // sheet, where the user can Save to Photos) — a separate "Save"
+            // implied a direct gallery write it never did. Matches the
+            // "Save / Share" control on My Cards.
+            SizedBox(
+              width: double.infinity,
+              child: MButton(
+                'Save / Share',
+                kind: MBtnKind.gold,
+                icon: Icons.ios_share,
+                onTap: _sharing ? null : _share,
+              ),
             ),
             const SizedBox(height: 16),
             Center(
@@ -202,44 +194,3 @@ class _PreviewScreenState extends State<PreviewScreen>
   }
 }
 
-class _DarkGhostButton extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final bool loading;
-  final VoidCallback? onTap;
-  const _DarkGhostButton(
-      {required this.icon,
-      required this.label,
-      this.loading = false,
-      this.onTap});
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        height: 52,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.10),
-          borderRadius: BorderRadius.circular(AppRadius.btn),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
-        ),
-        child: loading
-            ? const SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(
-                    strokeWidth: 2.4, color: Colors.white),
-              )
-            : Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(icon, size: 19, color: Colors.white),
-                  const SizedBox(width: 9),
-                  Text(label, style: AppText.btn.copyWith(color: Colors.white)),
-                ],
-              ),
-      ),
-    );
-  }
-}
