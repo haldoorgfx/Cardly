@@ -7,7 +7,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { getMyTeam, getTeamMembers, getTeamInvites } from '@/lib/teams/queries';
+import { getMyTeam, getTeamMembers, getTeamInvites, createTeam } from '@/lib/teams/queries';
 import { TeamClient } from './TeamClient';
 
 export default async function TeamPage() {
@@ -37,6 +37,16 @@ export default async function TeamPage() {
 
   if (isStudio) {
     team = await getMyTeam(user.id);
+    // Auto-provision a team for a Studio owner who doesn't have one yet, so the
+    // page shows a working "Invite member" control (and the owner as a member)
+    // instead of a dead-end empty state that says "invite" with no button.
+    if (!team) {
+      try {
+        team = await createTeam(user.id, profile?.full_name?.trim() || 'My Team');
+      } catch {
+        team = null;
+      }
+    }
     if (team) {
       [members, invites] = await Promise.all([
         getTeamMembers(team.id),

@@ -161,10 +161,14 @@ export default function OnboardingClient() {
         fd.append('variant', 'light');
         await fetch('/api/brand/logo', { method: 'POST', body: fd }).catch(() => {});
       }
+      // Persist the chosen brand colour (the main colour of the selected accent,
+      // or the custom solid/gradient colour) so it isn't silently dropped.
+      const hexes = accent.grad.match(/#[0-9a-fA-F]{6}/g) ?? [];
+      const brandColor = hexes[1] ?? hexes[0] ?? accent.ring;
       const res = await fetch('/api/onboarding', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ evType, orgName, region, currency, accent: accentId, evName, evStart, evEnd, venue, inviteEmails: emails }),
+        body: JSON.stringify({ evType, orgName, region, currency, accent: accentId, brandColor, evName, evStart, evEnd, venue, inviteEmails: emails }),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));

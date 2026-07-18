@@ -14,6 +14,7 @@ export async function POST(req: NextRequest) {
     region: string;
     currency: string;
     accent: string;
+    brandColor?: string;
     evName: string;
     evStart: string;
     evEnd: string;
@@ -41,6 +42,18 @@ export async function POST(req: NextRequest) {
       onboarding_completed: true,
     })
     .eq('id', user.id);
+
+  // Persist the brand colour chosen during onboarding. white_label_settings is
+  // the brand-settings store (brand_name / primary_color / logo_url); upsert so
+  // the choice survives (and is ready if the user later enables white-label)
+  // instead of being silently discarded.
+  if (body.brandColor && /^#[0-9a-fA-F]{6}$/.test(body.brandColor)) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (admin as any).from('white_label_settings').upsert(
+      { user_id: user.id, primary_color: body.brandColor },
+      { onConflict: 'user_id' },
+    );
+  }
 
   // Create first event if name provided
   if (body.evName.trim()) {
