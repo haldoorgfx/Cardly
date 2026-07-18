@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { IdCard, Download, ArrowRight } from 'lucide-react';
 import { PageShell, PageHeader, EmptyState } from '@/components/dash';
 import { CardThumb } from '@/components/tickets/CardThumb';
+import { registrationOwnershipFilter } from '@/lib/registration/ownership';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = { title: 'My Eventera Cards' };
@@ -25,11 +26,14 @@ export default async function MyCardsPage() {
 
   const admin = createAdminClient();
   // Same identity matching as /my-tickets: by user_id or the account email.
+  // Use the shared helper — a naive `attendee_email.eq.${email}` becomes
+  // `attendee_email.eq.` for an account with no email and matches every
+  // blank-email card, leaking other people's cards.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: regs } = await (admin as any)
     .from('registrations')
     .select('id, attendee_name, eventera_card_url, created_at, events(id, name, slug)')
-    .or(`attendee_email.eq.${(user.email ?? '').toLowerCase()},user_id.eq.${user.id}`)
+    .or(registrationOwnershipFilter(user.id, user.email))
     .in('status', ['confirmed', 'checked_in', 'pending', 'pending_approval'])
     .not('eventera_card_url', 'is', null)
     .order('created_at', { ascending: false });

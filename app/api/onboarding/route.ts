@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { upsertEventRole } from '@/lib/rbac/assign';
 import { slugifyBase } from '@/lib/slug';
+import { getMyTeam, createTeam, getTeamMembers, getTeamInvites, createInvite } from '@/lib/teams/queries';
+import { sendTeamInviteEmail } from '@/lib/email';
+import { PLANS } from '@/lib/billing/plans';
 
 export async function POST(req: NextRequest) {
   const supabase = createClient();
@@ -66,6 +69,14 @@ export async function POST(req: NextRequest) {
       status: 'draft',
     }).select('id').single();
 
+    // Persist the currency the organizer chose during onboarding as this
+    // event's default (best-effort — a separate update so a missing column
+    // can never fail the event insert itself).
+    if (newEvent?.id && body.currency?.trim()) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (admin as any).from('events').update({ currency: body.currency.trim() }).eq('id', newEvent.id);
+    }
+
     // Create companion event_pages row so the event editor works immediately
     if (newEvent?.id) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -86,18 +97,44 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // Invite team members
+  // Invite team members — best-effort. The old code POSTed to /api/team/invite,
+  // a route that does not exist, so every invite was silently dropped. Wire it
+  // through the real team helpers instead: ensure a team exists, respect the
+  // plan's seat limit, create each invite, and email the accept link.
   if (body.inviteEmails?.length) {
-    // Queue invites — best-effort, don't block on errors
-    await Promise.allSettled(
-      body.inviteEmails.map(email =>
-        fetch(`${process.env.NEXT_PUBLIC_APP_URL ?? ''}/api/team/invite`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'x-internal': 'onboarding' },
-          body: JSON.stringify({ email, inviter_id: user.id }),
-        }).catch(() => null)
-      )
-    );
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: profile } = await (admin as any)
+        .from('profiles').select('plan, full_name, email').eq('id', user.id).single();
+      const plan = (profile?.plan ?? 'free') as 'free' | 'pro' | 'studio';
+      const seatLimit = PLANS[plan].teamSeats;
+
+      // Only provision a team + invites for plans that actually allow teammates.
+      if (seatLimit > 1) {
+        const team = (await getMyTeam(user.id))
+          ?? (await createTeam(user.id, `${body.orgName?.trim() || 'My'} Team`));
+        const members = await getTeamMembers(team.id);
+        const pending = (await getTeamInvites(team.id)).filter(i => !i.accepted_at).length;
+        let used = members.length + pending;
+        const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? '';
+
+        for (const raw of body.inviteEmails) {
+          const email = raw.trim().toLowerCase();
+          if (!email || used >= seatLimit) break;
+          try {
+            const invite = await createInvite(team.id, email, 'member', user.id);
+            used++;
+            sendTeamInviteEmail({
+              to: email,
+              teamName: team.name,
+              inviterName: profile?.full_name ?? profile?.email ?? 'Someone',
+              acceptUrl: `${appUrl}/team/invite/${invite.token}`,
+              role: 'member',
+            }).catch(() => {});
+          } catch { /* skip a duplicate/invalid email, keep going */ }
+        }
+      }
+    } catch { /* team invites are best-effort during onboarding */ }
   }
 
   return NextResponse.json({ ok: true });

@@ -60,18 +60,26 @@ export default function AttendeeAuth() {
   // ── Route the signed-in user to onboarding or their destination ──────────
   async function routeAfterAuth(userId: string) {
     const supabase = createClient();
-    const { data: profile } = await supabase
+    // `onboarding_completed` isn't in the generated types yet — cast to read it.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: profile } = await (supabase as any)
       .from('profiles')
-      .select('account_type, onboarding_done')
+      .select('account_type, onboarding_done, onboarding_completed')
       .eq('id', userId)
       .single();
 
-    if (profile?.account_type === 'organizer' && !profile.onboarding_done) {
+    // Organizer onboarding sets `onboarding_completed` (not `onboarding_done`),
+    // so an organizer who finished onboarding must count as done here — otherwise
+    // signing in via the attendee portal would wrongly downgrade them to
+    // 'attendee' and push them into attendee setup.
+    const isDone = Boolean(profile?.onboarding_done || profile?.onboarding_completed);
+
+    if (profile?.account_type === 'organizer' && !isDone) {
       await supabase.from('profiles').update({ account_type: 'attendee' }).eq('id', userId);
       router.push('/account/setup');
       return;
     }
-    if (profile?.account_type === 'attendee' && !profile.onboarding_done) {
+    if (profile?.account_type === 'attendee' && !isDone) {
       router.push('/account/setup');
       return;
     }
