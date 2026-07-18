@@ -9,6 +9,7 @@ import {
   Download, IdCard, ExternalLink,
 } from 'lucide-react';
 import { GetCardModal, type CardVariant } from './GetCardModal';
+import { cardDownloadUrl } from '@/lib/registration/cardImage';
 
 // ── Types ───────────────────────────────────────────────────────────────────
 
@@ -53,6 +54,8 @@ interface Props {
   reg: Registration;
   scannedByName: string | null;
   variant: CardVariant | null;
+  /** Resolved image URL when this registration already has a generated card. */
+  existingCardImageUrl?: string | null;
 }
 
 // ── Brand ────────────────────────────────────────────────────────────────────
@@ -270,14 +273,16 @@ function ReceiptModal({ reg, onClose }: { reg: Registration; onClose: () => void
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 
-export default function TicketDetailClient({ reg, scannedByName, variant }: Props) {
+export default function TicketDetailClient({ reg, scannedByName, variant, existingCardImageUrl = null }: Props) {
   const router = useRouter();
   const [showQR, setShowQR] = useState(false);
   const [showActions, setShowActions] = useState(false);
   const [showReceipt, setShowReceipt] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
   const [showCardModal, setShowCardModal] = useState(false);
-  const [cardDataUrl, setCardDataUrl] = useState<string | null>(null);
+  // Seed with the already-generated card so it renders on load (not just after
+  // a fresh in-session generation).
+  const [cardDataUrl, setCardDataUrl] = useState<string | null>(existingCardImageUrl);
 
   const ep = reg.events?.event_pages?.[0];
   const slug = reg.events?.slug ?? '';
@@ -556,7 +561,7 @@ export default function TicketDetailClient({ reg, scannedByName, variant }: Prop
                 <div className="text-[12px] mt-0.5" style={{ color: MUTED }}>Saved — you can find it in My Cards too.</div>
               </div>
               <a
-                href={cardDataUrl}
+                href={cardDownloadUrl(cardDataUrl) ?? cardDataUrl}
                 download={`eventera-card-${reg.attendee_name.replace(/\s+/g, '-').toLowerCase()}.png`}
                 className="shrink-0 flex items-center gap-1.5 h-9 px-3.5 rounded-full text-[12.5px] font-semibold transition hover:opacity-90"
                 style={{ background: FOREST_SOFT, color: FOREST }}

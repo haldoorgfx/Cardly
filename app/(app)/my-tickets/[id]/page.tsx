@@ -4,6 +4,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect, notFound } from 'next/navigation';
 import TicketDetailClient from '@/components/tickets/TicketDetailClient';
 import { registrationOwnershipFilter } from '@/lib/registration/ownership';
+import { resolveCardImageUrl } from '@/lib/registration/cardImage';
 import type { CardVariant } from '@/components/tickets/GetCardModal';
 import type { Zone } from '@/types/database';
 import type { Metadata } from 'next';
@@ -70,5 +71,18 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
     }
   }
 
-  return <TicketDetailClient reg={reg} scannedByName={scannedByName} variant={variant} />;
+  // A registration that already HAS a card needs its image resolved here, or the
+  // detail page shows nothing (variant is only loaded when there's no card yet).
+  const existingCardImageUrl = reg.eventera_card_url
+    ? await resolveCardImageUrl(admin, reg.eventera_card_url)
+    : null;
+
+  return (
+    <TicketDetailClient
+      reg={reg}
+      scannedByName={scannedByName}
+      variant={variant}
+      existingCardImageUrl={existingCardImageUrl}
+    />
+  );
 }

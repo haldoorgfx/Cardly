@@ -7,6 +7,7 @@ import { IdCard, Download, ArrowRight } from 'lucide-react';
 import { PageShell, PageHeader, EmptyState } from '@/components/dash';
 import { CardThumb } from '@/components/tickets/CardThumb';
 import { registrationOwnershipFilter } from '@/lib/registration/ownership';
+import { resolveCardImageUrl, cardDownloadUrl } from '@/lib/registration/cardImage';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = { title: 'My Eventera Cards' };
@@ -38,7 +39,14 @@ export default async function MyCardsPage() {
     .not('eventera_card_url', 'is', null)
     .order('created_at', { ascending: false });
 
-  const cards = (regs ?? []) as CardRow[];
+  // Resolve each raw eventera_card_url to a real image URL (some are page paths)
+  // + a working download URL, so thumbnails render and Download actually saves.
+  const cards = await Promise.all(
+    ((regs ?? []) as CardRow[]).map(async (c) => {
+      const imageUrl = await resolveCardImageUrl(admin, c.eventera_card_url);
+      return { ...c, imageUrl, downloadUrl: cardDownloadUrl(imageUrl) };
+    }),
+  );
 
   return (
     <PageShell>
@@ -63,8 +71,8 @@ export default async function MyCardsPage() {
           {cards.map((c) => (
             <div key={c.id} className="rounded-2xl overflow-hidden bg-white" style={{ border: '1px solid #E5E0D4' }}>
               <div className="relative" style={{ aspectRatio: '16 / 9', background: '#E8EFEB' }}>
-                {c.eventera_card_url && (
-                  <CardThumb src={c.eventera_card_url} alt={`Eventera Card — ${c.events?.name ?? ''}`} />
+                {c.imageUrl && (
+                  <CardThumb src={c.imageUrl} alt={`Eventera Card — ${c.events?.name ?? ''}`} />
                 )}
               </div>
               <div className="p-4 flex items-center gap-3">
@@ -72,9 +80,9 @@ export default async function MyCardsPage() {
                   <div className="font-medium text-[14px] truncate" style={{ color: '#0F1F18' }}>{c.events?.name ?? 'Event'}</div>
                   <div className="text-[12px] mt-0.5" style={{ color: '#65736B' }}>{c.attendee_name}</div>
                 </div>
-                {c.eventera_card_url && (
+                {c.downloadUrl && (
                   <a
-                    href={c.eventera_card_url}
+                    href={c.downloadUrl}
                     download
                     className="inline-flex items-center gap-1.5 h-8 px-3 rounded-full text-[12px] font-medium transition hover:opacity-75 shrink-0"
                     style={{ background: '#E8EFEB', color: '#1F4D3A' }}
