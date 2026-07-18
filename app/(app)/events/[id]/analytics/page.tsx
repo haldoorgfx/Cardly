@@ -31,12 +31,16 @@ export default async function EventAnalyticsPage({ params }: Props) {
 
   if (!event) redirect('/dashboard');
 
-  // Fetch all registrations for this event (for analytics we want full data, capped at 1000)
+  // Fetch registrations on the SAME confirmed basis that Reports and Check-in
+  // use (confirmed + checked_in), so the headline "registrations" count and
+  // check-in rate agree across every page. Including 'pending' here previously
+  // inflated the count (e.g. 13 vs 12) and deflated the check-in rate (85% vs
+  // 92%) because a not-yet-confirmed row sat in the denominator.
   const { data: regs } = await admin
     .from('registrations')
     .select('created_at, status, amount_paid, currency, eventera_card_url, ticket_type_id, ticket_types(name, currency)')
     .eq('event_id', id)
-    .in('status', ['confirmed', 'checked_in', 'pending'])
+    .in('status', ['confirmed', 'checked_in'])
     .order('created_at', { ascending: true })
     .limit(1000);
 

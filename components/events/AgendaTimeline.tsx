@@ -333,8 +333,15 @@ function DayGrid({ daySessions, tracks, dateKey, onSlotClick, onSessionClick }: 
                     .join(', ') ?? '';
                   const timeRange = fmtTimeRange(session);
                   const showMeta = height > 108;
-                  const pct = 100 / totalCols;
-                  const gap = totalCols > 1 ? 2 : 0;
+                  // Symmetric horizontal layout: a fixed inset on BOTH sides of the
+                  // column, minus the gaps between concurrent sub-columns, split
+                  // evenly. This guarantees the rightmost sub-column ends inside the
+                  // column (the old math overflowed the right edge by ~4px + the
+                  // 6px left inset, which clipped long titles off-screen).
+                  const INSET = 6;
+                  const COLGAP = totalCols > 1 ? 6 : 0;
+                  const reserved = INSET * 2 + (totalCols - 1) * COLGAP;
+                  const colW = `((100% - ${reserved}px) / ${totalCols})`;
 
                   return (
                     <div
@@ -343,8 +350,8 @@ function DayGrid({ daySessions, tracks, dateKey, onSlotClick, onSessionClick }: 
                       style={{
                         top,
                         height,
-                        left: `calc(6px + ${subCol * pct}% + ${gap}px)`,
-                        width: `calc(${pct}% - ${subCol > 0 ? gap * 2 : gap + 6}px)`,
+                        left: `calc(${INSET}px + ${subCol} * (${colW} + ${COLGAP}px))`,
+                        width: `calc(${colW})`,
                         borderRadius: 7,
                         background: cfg.bg,
                         borderLeft: `${cfg.solid ? 5 : 3}px solid ${cfg.borderColor}`,
