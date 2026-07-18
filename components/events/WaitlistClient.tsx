@@ -101,12 +101,11 @@ export function WaitlistClient({ eventId, eventName, waitlist, totalRegs, capaci
       )}
 
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         {[
           { label: 'On waitlist', value: list.length },
           { label: 'Capacity', value: capacity > 0 ? capacity : '—' },
           { label: 'Offers sent', value: released },
-          { label: 'Converted', value: '—' },
         ].map(s => (
           <div key={s.label} className="bg-white rounded-2xl p-5" style={{ border: '1px solid #E5E0D4' }}>
             <div className=" text-[11.5px] tracking-[0.14em] uppercase mb-2" style={{ color: '#65736B' }}>{s.label}</div>

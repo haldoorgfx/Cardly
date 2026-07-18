@@ -64,12 +64,11 @@ export function BadgesClient({ eventName, ticketTypes, regCount }: Props) {
       />
 
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         {[
           { label: 'Confirmed', value: regCount },
           { label: 'Ticket types', value: ticketTypes.length },
           { label: 'Badge size', value: size },
-          { label: 'Printed', value: '—' },
         ].map(s => (
           <div key={s.label} className="bg-white rounded-2xl p-5" style={{ border: '1px solid #E5E0D4' }}>
             <div className=" text-[11.5px] tracking-[0.14em] uppercase mb-2" style={{ color: '#65736B' }}>{s.label}</div>

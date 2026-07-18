@@ -64,7 +64,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const [{ count: totalRegs }, { count: confirmed }, { count: checkedIn }, { count: waitlisted }] =
     await Promise.all([
       adminAny.from('registrations').select('id', { count: 'exact', head: true }).eq('event_id', params.id),
-      adminAny.from('registrations').select('id', { count: 'exact', head: true }).eq('event_id', params.id).eq('status', 'confirmed'),
+      adminAny.from('registrations').select('id', { count: 'exact', head: true }).eq('event_id', params.id).in('status', ['confirmed', 'checked_in']),
       adminAny.from('registrations').select('id', { count: 'exact', head: true }).eq('event_id', params.id).eq('status', 'checked_in'),
       adminAny.from('registrations').select('id', { count: 'exact', head: true }).eq('event_id', params.id).eq('status', 'waitlisted'),
     ]);

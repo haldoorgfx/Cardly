@@ -5,6 +5,7 @@ import { useState } from 'react';
 interface Stats {
   leads: number;
   resources: number;
+  meetings: number;
   hot: number;
   warm: number;
   cold: number;
@@ -259,11 +260,10 @@ export function OverviewTab({ stats: initialStats, token }: Props) {
       </div>
 
       {/* Stat grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <Stat label="Leads captured"   value={stats.leads} />
-        <Stat label="Booth visits"     value="—" />
         <Stat label="Resources opened" value={stats.resources} />
-        <Stat label="Meetings booked"  value="—" accent />
+        <Stat label="Meetings booked"  value={stats.meetings} accent />
       </div>
 
       {/* Lead quality + sessions */}

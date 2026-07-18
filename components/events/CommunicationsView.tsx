@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Bell, BarChart2, ExternalLink, Plus, CheckCircle2, Send, Copy, Check, X, Sparkles } from 'lucide-react';
+import { Bell, Plus, CheckCircle2, Send, Copy, Check, X, Sparkles } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { ERAButton } from '@/components/ai/ERAButton';
 import { PageShell, PageHeader } from '@/components/dash';
@@ -225,10 +225,8 @@ export function CommunicationsView({ eventId, eventName, registrantCount, plan =
       />
 
       {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+      <div className="mb-6 sm:max-w-[280px]">
         <CommStat label="Attendees" value={registrantCount > 0 ? registrantCount.toString() : '—'} icon={<Bell size={15} strokeWidth={2} />} />
-        <CommStat label="Avg. open rate" value="—" sub="no data yet" icon={<BarChart2 size={15} strokeWidth={2} />} />
-        <CommStat label="Click rate" value="—" icon={<ExternalLink size={15} strokeWidth={2} />} />
       </div>
 
       {/* Automated campaigns panel */}

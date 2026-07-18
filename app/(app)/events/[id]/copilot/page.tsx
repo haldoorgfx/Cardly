@@ -33,7 +33,7 @@ export default async function CopilotPage({ params }: { params: Promise<{ id: st
 
   // Fetch key event stats for AI context
   const [{ count: regCount }, { count: checkInCount }] = await Promise.all([
-    adminAny.from('registrations').select('id', { count: 'exact', head: true }).eq('event_id', id).eq('status', 'confirmed'),
+    adminAny.from('registrations').select('id', { count: 'exact', head: true }).eq('event_id', id).in('status', ['confirmed', 'checked_in']),
     adminAny.from('registrations').select('id', { count: 'exact', head: true }).eq('event_id', id).eq('status', 'checked_in'),
   ]);
 

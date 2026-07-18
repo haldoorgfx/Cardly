@@ -17,9 +17,10 @@ export default async function SponsorWorkspacePage({
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = createAdminClient() as any;
-  const [{ count: leadCount }, { count: resourceCount }, { data: leads }] = await Promise.all([
+  const [{ count: leadCount }, { count: resourceCount }, { count: meetingCount }, { data: leads }] = await Promise.all([
     db.from('sponsor_leads').select('id', { count: 'exact', head: true }).eq('sponsor_id', sponsor.id),
     db.from('sponsor_resources').select('id', { count: 'exact', head: true }).eq('sponsor_id', sponsor.id),
+    db.from('meeting_requests').select('id', { count: 'exact', head: true }).eq('sponsor_id', sponsor.id).eq('status', 'scheduled'),
     db.from('sponsor_leads').select('rating').eq('sponsor_id', sponsor.id),
   ]);
 
@@ -27,6 +28,7 @@ export default async function SponsorWorkspacePage({
   const stats = {
     leads: leadCount ?? 0,
     resources: resourceCount ?? 0,
+    meetings: meetingCount ?? 0,
     hot: allLeads.filter(l => l.rating === 'hot').length,
     warm: allLeads.filter(l => l.rating === 'warm').length,
     cold: allLeads.filter(l => l.rating === 'cold').length,
