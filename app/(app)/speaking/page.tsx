@@ -110,20 +110,26 @@ export default async function SpeakingPage() {
   // the account holds an active 'speaker' role. Merge both so nothing is missed.
   const [byEmailRes, byEventRes] = await Promise.all([
     email
-      ? db.from('speakers').select('id, name, event_id').ilike('email', email)
+      ? db.from('speakers').select('id, name, event_id, email').ilike('email', email)
       : Promise.resolve({ data: [] }),
     roleEventIds.length > 0
-      ? db.from('speakers').select('id, name, event_id').in('event_id', roleEventIds)
+      ? db.from('speakers').select('id, name, event_id, email').in('event_id', roleEventIds)
       : Promise.resolve({ data: [] }),
   ]);
 
-  // Prefer email-matched speaker rows (they're the actual person); fall back to
-  // any speaker row on a role event so the section still renders.
+  // Keep only speaker rows this account actually OWNS — the exact rule the
+  // workspace uses (lib/rbac/ownership.ts#ownedSpeaker). The event-role path
+  // over-includes other speakers on the same event; linking to one whose email
+  // differs from ours would 404 (and could overwrite our own row in the map).
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const speakerRows: any[] = [];
   const seenSpeakerIds = new Set<string>();
   for (const row of [...((byEmailRes?.data) ?? []), ...((byEventRes?.data) ?? [])]) {
-    if (!seenSpeakerIds.has(row.id)) { seenSpeakerIds.add(row.id); speakerRows.push(row); }
+    if (seenSpeakerIds.has(row.id)) continue;
+    const se = (row.email as string | undefined)?.toLowerCase() ?? '';
+    const owned = se ? se === email : roleEventIds.includes(row.event_id as string);
+    if (!owned) continue;
+    seenSpeakerIds.add(row.id); speakerRows.push(row);
   }
 
   // Collect every relevant event id (from speaker rows + role events).
