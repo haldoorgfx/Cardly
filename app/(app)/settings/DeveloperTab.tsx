@@ -204,7 +204,6 @@ function ApiKeysSection({ plan }: { plan: string }) {
                 {SCOPE_OPTIONS.map(s => (
                   <option key={s.value} value={s.value}>{s.label}</option>
                 ))}
-                <option value="events:read, registrations:read">events:read, registrations:read</option>
               </select>
             </div>
             <div className="flex items-end">
