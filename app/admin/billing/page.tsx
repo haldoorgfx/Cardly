@@ -5,7 +5,7 @@ import { PageShell, PageHeader } from '@/components/dash';
 import { BillingAdminClient } from './BillingAdminClient';
 import type { Plan } from '@/types/database';
 
-export const metadata = { title: 'Revenue — Eventera Admin' };
+export const metadata = { title: 'Billing — Eventera Admin' };
 export const dynamic = 'force-dynamic';
 
 interface SearchParams {
@@ -76,7 +76,7 @@ export default async function BillingAdminPage({
     <PageShell width="screen">
       <PageHeader
         eyebrow="Admin · Billing"
-        title="Revenue"
+        title="Billing"
         subtitle="View subscriptions, comp plans (Stripe-bypassing), view invoices, and issue refunds. All billing mutations are audited."
       />
 

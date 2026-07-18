@@ -217,7 +217,18 @@ function HomeTab({ speaker, event, sessions, onTab }: { speaker: Speaker; event:
     return `Day ${diff + 1} · ${fmt(s.starts_at)}`;
   }
 
-  const checklistItems = [
+  type ChecklistItem = {
+    id: string;
+    label: string;
+    done: boolean;
+    action?: () => void;
+    actionLabel?: string;
+    // "waiting" = nothing for the speaker to do yet (e.g. organizer hasn't
+    // assigned sessions). Rendered muted, with no "Do it →" call-to-action.
+    waiting?: boolean;
+  };
+
+  const checklistItems: ChecklistItem[] = [
     {
       id: 'profile',
       label: 'Complete your profile',
@@ -225,20 +236,30 @@ function HomeTab({ speaker, event, sessions, onTab }: { speaker: Speaker; event:
       action: () => onTab('profile'),
       actionLabel: 'Do it →',
     },
-    {
-      id: 'sessions',
-      label: `Confirm your ${sessions.length} session${sessions.length !== 1 ? 's' : ''}`,
-      done: hasSessions,
-      action: () => onTab('sessions'),
-      actionLabel: 'Do it →',
-    },
-    {
-      id: 'slides',
-      label: sessions.length > 0 ? `Upload slides for your ${sessions[0]?.session_type || 'session'}` : 'Upload your slides',
-      done: hasSlides,
-      action: () => onTab('sessions'),
-      actionLabel: 'Do it →',
-    },
+    hasSessions
+      ? {
+          id: 'sessions',
+          label: `Review your ${sessions.length} session${sessions.length !== 1 ? 's' : ''}`,
+          done: true,
+          action: () => onTab('sessions'),
+          actionLabel: 'View →',
+        }
+      : {
+          id: 'sessions',
+          label: 'Sessions will be assigned by the organizer',
+          done: false,
+          waiting: true,
+        },
+    // Slides only make sense once there's a session to attach them to.
+    ...(hasSessions
+      ? [{
+          id: 'slides',
+          label: `Upload slides for your ${sessions[0]?.session_type || 'session'}`,
+          done: hasSlides,
+          action: () => onTab('sessions'),
+          actionLabel: 'Do it →',
+        } as ChecklistItem]
+      : []),
     {
       id: 'headshot',
       label: 'Add a headshot',
@@ -297,7 +318,8 @@ function HomeTab({ speaker, event, sessions, onTab }: { speaker: Speaker; event:
                 <button
                   key={item.id}
                   onClick={item.action}
-                  className="w-full flex items-center gap-3 px-5 py-4 rounded-xl text-left transition-colors hover:border-[#1F4D3A]/30"
+                  disabled={item.waiting || !item.action}
+                  className="w-full flex items-center gap-3 px-5 py-4 rounded-xl text-left transition-colors hover:border-[#1F4D3A]/30 disabled:cursor-default"
                   style={{
                     background: '#FFFFFF',
                     border: '1px solid #E5E0D4',
@@ -305,17 +327,23 @@ function HomeTab({ speaker, event, sessions, onTab }: { speaker: Speaker; event:
                 >
                   {item.done
                     ? <CheckCircle2 size={18} style={{ color: '#2D7A4F', flexShrink: 0 }} />
-                    : <Circle size={18} style={{ color: '#C9C3B1', flexShrink: 0 }} />
+                    : item.waiting
+                      ? <Clock size={18} style={{ color: '#C9C3B1', flexShrink: 0 }} />
+                      : <Circle size={18} style={{ color: '#C9C3B1', flexShrink: 0 }} />
                   }
                   <span className="flex-1 text-[13px] font-medium"
-                    style={{ color: item.done ? '#65736B' : '#0F1F18', textDecoration: item.done ? 'line-through' : 'none' }}>
+                    style={{ color: item.done || item.waiting ? '#65736B' : '#0F1F18', textDecoration: item.done ? 'line-through' : 'none' }}>
                     {item.label}
                   </span>
-                  {!item.done && (
+                  {item.waiting ? (
+                    <span className="text-[11px] font-medium shrink-0 px-2 py-0.5 rounded-full" style={{ color: '#65736B', background: '#F0ECE4' }}>
+                      Pending
+                    </span>
+                  ) : !item.done && item.actionLabel ? (
                     <span className="text-[12px] font-medium shrink-0" style={{ color: '#1F4D3A' }}>
                       {item.actionLabel}
                     </span>
-                  )}
+                  ) : null}
                 </button>
               ))}
             </div>

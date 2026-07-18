@@ -51,12 +51,12 @@ export default async function SponsoringPage() {
   const [byEmailRes, byEventRes] = await Promise.all([
     email
       ? db.from('sponsors')
-          .select('id, company_name, logo_url, tier, booth_location, invite_token, event_id')
+          .select('id, company_name, logo_url, tier, booth_location, invite_token, event_id, contact_email')
           .ilike('contact_email', email)
       : Promise.resolve({ data: [] }),
     roleEventIds.length > 0
       ? db.from('sponsors')
-          .select('id, company_name, logo_url, tier, booth_location, invite_token, event_id')
+          .select('id, company_name, logo_url, tier, booth_location, invite_token, event_id, contact_email')
           .in('event_id', roleEventIds)
       : Promise.resolve({ data: [] }),
   ]);
@@ -65,7 +65,15 @@ export default async function SponsoringPage() {
   const sponsorRows: any[] = [];
   const seen = new Set<string>();
   for (const row of [...((byEmailRes?.data) ?? []), ...((byEventRes?.data) ?? [])]) {
-    if (!seen.has(row.id)) { seen.add(row.id); sponsorRows.push(row); }
+    if (seen.has(row.id)) continue;
+    // Only surface booths this account can actually OPEN — the exact rule the
+    // workspace uses (lib/rbac/ownership.ts#ownedSponsor). The event-role path
+    // above over-includes other sponsors on the same event, whose contact_email
+    // differs from ours; showing their card would 404 on click.
+    const ce = (row.contact_email as string | undefined)?.toLowerCase() ?? '';
+    const owned = ce ? ce === email : roleEventIds.includes(row.event_id as string);
+    if (!owned) continue;
+    seen.add(row.id); sponsorRows.push(row);
   }
 
   let cards: SponsorCard[] = [];

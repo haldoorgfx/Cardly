@@ -262,15 +262,18 @@ export default async function BillingPage({
                   Events
                 </span>
                 <span className="text-[12px]" style={{ color: 'rgba(250,246,238,0.65)' }}>
-                  {eventsCount} / {limits.events === null ? '∞' : limits.events}
+                  {eventsCount} / {limits.events === null ? 'Unlimited' : limits.events}
                 </span>
               </div>
-              <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(250,246,238,0.12)' }}>
-                <div
-                  className="h-full rounded-full"
-                  style={{ width: `${eventPct}%`, background: '#E8C57E' }}
-                />
-              </div>
+              {/* No progress bar on unlimited plans — a bar toward ∞ is meaningless. */}
+              {eventPct !== null && (
+                <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(250,246,238,0.12)' }}>
+                  <div
+                    className="h-full rounded-full"
+                    style={{ width: `${eventPct}%`, background: '#E8C57E' }}
+                  />
+                </div>
+              )}
             </div>
 
             {/* Registrations (cards this month) */}
