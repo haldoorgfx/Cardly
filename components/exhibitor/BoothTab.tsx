@@ -206,12 +206,11 @@ export function BoothTab({ sponsor, token }: Props) {
           </div>
           <div className="p-5 flex items-center justify-between">
             <div>
-              <div className="text-[13px] font-medium" style={{ color: '#0F1F18' }}>Featured booth</div>
-              <div className="text-[11.5px] mt-0.5" style={{ color: '#65736B' }}>{tierLabel ?? 'Sponsor'} perk</div>
+              <div className="text-[13px] font-medium" style={{ color: '#0F1F18' }}>Sponsorship tier</div>
+              <div className="text-[11.5px] mt-0.5" style={{ color: '#65736B' }}>Set by the event organiser</div>
             </div>
-            <span className="inline-flex items-center gap-1.5 text-[11px] font-medium px-2.5 py-1 rounded-full border" style={{ background: 'rgba(45,122,79,0.08)', color: '#2D7A4F', borderColor: 'rgba(45,122,79,0.2)' }}>
-              <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#2D7A4F' }} />
-              On
+            <span className="inline-flex items-center text-[11px] font-medium px-2.5 py-1 rounded-full border whitespace-nowrap shrink-0" style={{ background: '#F0ECE4', color: '#65736B', borderColor: '#E5E0D4' }}>
+              {tierLabel ?? 'Standard'}
             </span>
           </div>
         </div>

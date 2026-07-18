@@ -27,7 +27,7 @@ const RATINGS = [
   { value: 'cold', label: 'Cold', desc: 'Browsing',     color: '#65736B', bg: 'rgba(107,122,114,0.08)', border: '#E5E0D4' },
 ] as const;
 
-function LeadModal({ token, onClose, onAdded }: { token: string; onClose: () => void; onAdded: () => void }) {
+function LeadModal({ token, onClose, onAdded }: { token: string; onClose: () => void; onAdded: (rating: string) => void }) {
   const [form, setForm] = useState({
     attendee_name: '', attendee_email: '', company: '', role: '', note: '', rating: 'warm' as string,
   });
@@ -47,7 +47,7 @@ function LeadModal({ token, onClose, onAdded }: { token: string; onClose: () => 
       body: JSON.stringify({ token, ...form }),
     });
     setSaving(false);
-    if (res.ok) { onAdded(); onClose(); }
+    if (res.ok) { onAdded(form.rating); onClose(); }
     else { const d = await res.json().catch(() => ({})); setError(d.error ?? 'Failed to save lead'); }
   }
 
@@ -212,9 +212,16 @@ export function OverviewTab({ stats: initialStats, token }: Props) {
     { ...QUALITY_BARS[2], count: stats.cold },
   ];
 
-  function handleLeadAdded() {
-    // Optimistically bump stats
-    setStats(s => ({ ...s, leads: s.leads + 1, warm: s.warm + 1 }));
+  function handleLeadAdded(rating: string) {
+    // Optimistically bump the total and the bucket matching the submitted rating,
+    // so the lead-quality bars stay accurate without a reload.
+    setStats(s => ({
+      ...s,
+      leads: s.leads + 1,
+      hot:  rating === 'hot'  ? s.hot + 1  : s.hot,
+      warm: rating === 'warm' ? s.warm + 1 : s.warm,
+      cold: rating === 'cold' ? s.cold + 1 : s.cold,
+    }));
   }
 
   return (
@@ -262,7 +269,7 @@ export function OverviewTab({ stats: initialStats, token }: Props) {
       {/* Stat grid */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <Stat label="Leads captured"   value={stats.leads} />
-        <Stat label="Resources opened" value={stats.resources} />
+        <Stat label="Resources"        value={stats.resources} />
         <Stat label="Meetings booked"  value={stats.meetings} accent />
       </div>
 

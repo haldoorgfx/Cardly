@@ -12,6 +12,8 @@ interface Props {
   eventId: string;
   eventName: string;
   sessionLabel: string;
+  /** Real, domain-derived link attendees use to submit a question. */
+  submitUrl: string;
   initialQuestions: Question[];
   activePoll: Poll | null;
 }
@@ -37,7 +39,7 @@ function useLiveClock() {
   return time;
 }
 
-export function LiveDisplayClient({ eventId, sessionLabel, initialQuestions, activePoll: initialActivePoll }: Props) {
+export function LiveDisplayClient({ eventId, sessionLabel, submitUrl, initialQuestions, activePoll: initialActivePoll }: Props) {
   const [mode, setMode] = useState<Mode>('qa');
   const [questions, setQuestions] = useState<Question[]>(initialQuestions);
   const [activePoll, setActivePoll] = useState<Poll | null>(initialActivePoll);
@@ -186,8 +188,8 @@ export function LiveDisplayClient({ eventId, sessionLabel, initialQuestions, act
           <div className="text-[12px] mb-0.5" style={{ color: 'rgba(255,255,255,0.5)', fontFamily: 'Inter, system-ui, sans-serif', letterSpacing: '0.08em' }}>
             SUBMIT YOUR QUESTION
           </div>
-          <div className="text-[20px] font-display font-bold" style={{ color: '#E8C57E' }}>
-            eventera.so/q
+          <div className="text-[20px] font-display font-bold break-all" style={{ color: '#E8C57E' }}>
+            {submitUrl}
           </div>
         </div>
         <div className="flex gap-2">

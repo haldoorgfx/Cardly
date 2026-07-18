@@ -20,10 +20,16 @@ export default async function LiveDisplayPage({ params }: { params: Promise<{ id
 
   const admin = createAdminClient();
   const [{ data: event }, { data: eventPage }] = await Promise.all([
-    admin.from('events').select('id, name').eq('id', id).eq('user_id', user.id).single(),
+    admin.from('events').select('id, name, slug').eq('id', id).eq('user_id', user.id).single(),
     admin.from('event_pages').select('title').eq('event_id', id).maybeSingle(),
   ]);
   if (!event) redirect('/dashboard');
+
+  // Real, working "submit a question" link for the projected screen — the app
+  // domain (never hardcoded) + the event's public Q&A page. Replaces the old
+  // hardcoded vanity "eventera.so/q", which was a dead link (no /q route).
+  const appHost = (process.env.NEXT_PUBLIC_APP_URL ?? '').replace(/^https?:\/\//, '').replace(/\/$/, '');
+  const submitUrl = appHost ? `${appHost}/e/${event.slug}/q-and-a` : `/e/${event.slug}/q-and-a`;
 
   // Fetch top Q&A questions by votes
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -72,6 +78,7 @@ export default async function LiveDisplayPage({ params }: { params: Promise<{ id
       eventId={id}
       eventName={event.name}
       sessionLabel={(eventPage as { title?: string } | null)?.title ?? event.name}
+      submitUrl={submitUrl}
       initialQuestions={questions ?? []}
       activePoll={activePoll}
     />

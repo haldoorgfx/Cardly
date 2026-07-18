@@ -188,12 +188,6 @@ export function TeamTab({ members: initial, token }: Props) {
                   );
                 })()}
                 {statusPill(m.status)}
-                {/* "You" pill — first active member */}
-                {i === 0 && m.status === 'active' && (
-                  <span className="inline-flex items-center text-[11px] font-medium px-2.5 py-1 rounded-full border whitespace-nowrap shrink-0" style={{ background: '#E8EFEB', color: '#1F4D3A', borderColor: 'rgba(31,77,58,0.2)' }}>
-                    You
-                  </span>
-                )}
                 <button
                   onClick={() => handleRemove(m.id)}
                   disabled={removingId === m.id}

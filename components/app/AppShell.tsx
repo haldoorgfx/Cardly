@@ -180,7 +180,10 @@ const EVENT_NAV_SECTIONS = [
     items: [
       { id: 'settings',     label: 'Settings',      icon: <Sliders size={15} strokeWidth={1.8} />, segment: 'settings' },
       { id: 'staff',        label: 'Staff roles',   icon: <UserCog size={15} strokeWidth={1.8} />, segment: 'staff' },
-      { id: 'series',       label: 'Series',        icon: <RefreshCw size={15} strokeWidth={1.8} />, segment: 'series' },      { id: 'webhooks',     label: 'Webhooks',      icon: <Globe size={15} strokeWidth={1.8} />,   segment: 'webhooks' },
+      { id: 'series',       label: 'Series',        icon: <RefreshCw size={15} strokeWidth={1.8} />, segment: 'series' },
+      // Webhooks are account-wide (not per-event) and live under Settings →
+      // Developer; they were removed from the per-event nav to end the
+      // duplication. The /events/[id]/webhooks route now redirects there.
       { id: 'embed',        label: 'Embed widgets', icon: <Code2 size={15} strokeWidth={1.8} />,   segment: 'embed' },
     ],
   },
