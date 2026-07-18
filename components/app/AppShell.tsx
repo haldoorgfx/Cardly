@@ -936,7 +936,7 @@ function getPageBreadcrumbs(pathname: string, eventName: string | null): { label
   if (pathname.startsWith('/admin'))                     return [{ label: 'Admin' }];
   if (pathname === '/events/new')                        return [{ label: 'New Event' }];
   if (pathname === '/my-tickets')                        return [{ label: 'My tickets' }];
-  if (pathname.startsWith('/my-tickets/'))               return [{ label: 'My tickets', href: '/my-tickets' }, { label: 'Transfer' }];
+  if (pathname.startsWith('/my-tickets/'))               return [{ label: 'My tickets', href: '/my-tickets' }, { label: pathname.endsWith('/transfer') ? 'Transfer' : 'Ticket' }];
   if (pathname === '/my-cards')                          return [{ label: 'My cards' }];
   if (pathname === '/saved')                             return [{ label: 'Saved & following' }];
   if (pathname.startsWith('/attending/'))                return [{ label: 'My tickets', href: '/my-tickets' }, { label: 'Event tools' }];

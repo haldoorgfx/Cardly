@@ -18,17 +18,18 @@ export default async function SpeakerProfilePage({ params }: Props) {
   const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   const speakerCol = UUID_RE.test(params.speakerId) ? 'id' : 'slug';
 
-  const [{ data: speaker }, { data: sessions }] = await Promise.all([
-    admin.from('speakers').select('*').eq(speakerCol, params.speakerId).eq('event_id', event.id).maybeSingle(),
-    admin.from('sessions')
-      .select('*, tracks(id,name,color), session_speakers!inner(speaker_id)')
-      .eq('event_id', event.id)
-      .eq('session_speakers.speaker_id', params.speakerId)
-      .eq('is_published', true)
-      .order('starts_at', { ascending: true }),
-  ]);
-
+  const { data: speaker } = await admin
+    .from('speakers').select('*').eq(speakerCol, params.speakerId).eq('event_id', event.id).maybeSingle();
   if (!speaker) notFound();
+
+  // Filter sessions by the RESOLVED speaker UUID. session_speakers.speaker_id is
+  // a UUID, so filtering by the slug (new-style links) always returned nothing.
+  const { data: sessions } = await admin.from('sessions')
+    .select('*, tracks(id,name,color), session_speakers!inner(speaker_id)')
+    .eq('event_id', event.id)
+    .eq('session_speakers.speaker_id', speaker.id)
+    .eq('is_published', true)
+    .order('starts_at', { ascending: true });
 
   return (
     <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
