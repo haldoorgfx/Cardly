@@ -118,9 +118,12 @@ const EVENT_NAV_SECTIONS = [
       { id: 'event-page', label: 'Event Page', icon: <Layout size={15} strokeWidth={1.8} />,       segment: 'event-page' },
       { id: 'tickets',    label: 'Tickets',    icon: <Ticket size={15} strokeWidth={1.8} />,       segment: 'tickets' },
       { id: 'form',       label: 'Reg. Form',  icon: <FileText size={15} strokeWidth={1.8} />,     segment: 'form' },
+      // "Agenda" is the full schedule + session builder (create/edit sessions,
+      // assign speakers & tracks on a timeline). The old separate "Sessions"
+      // item was a redirect to this same page — removed to end the duplicate.
+      // The /events/[id]/sessions route still redirects here for old links.
       { id: 'agenda',     label: 'Agenda',     icon: <CalendarDays size={15} strokeWidth={1.8} />, segment: 'agenda' },
       { id: 'speakers',   label: 'Speakers',   icon: <User size={15} strokeWidth={1.8} />,         segment: 'speakers' },
-      { id: 'sessions',   label: 'Sessions',   icon: <LayoutGrid size={15} strokeWidth={1.8} />,   segment: 'sessions' },
     ],
   },
   {

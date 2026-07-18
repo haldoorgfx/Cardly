@@ -346,18 +346,14 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents, ban
     }
   }
 
-  // The on-page list is a fixed batch of the 48 soonest-starting events,
-  // filtered client-side — a real text search can easily miss a match that
-  // exists beyond that window with no indication why. Route an actual text
-  // search to the server-side /events/search instead of just scrolling to
-  // the capped local list; keep the scroll behavior for filter-only browsing
-  // (city/date/category/format with no typed query), where the local list is fine.
+  // Results now render immediately under the search box the moment any query or
+  // filter is active (see `hasFilter` branch in the layout below), so a search
+  // shows its results in place instead of navigating away or scrolling past the
+  // promo bands. The on-page list is the loaded batch of soonest-starting
+  // events; the "Search all events" / "View on map" links route to the
+  // server-side /events/search for anything beyond that window.
   function runSearch() {
-    if (query.trim()) {
-      goToMap();
-    } else {
-      scrollToResults();
-    }
+    scrollToResults();
   }
 
   function goToMap() {
@@ -369,6 +365,59 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents, ban
     const qs = p.toString();
     router.push(`/events/search${qs ? `?${qs}` : ''}`);
   }
+
+  // The results header + grid — rendered either right under the search (when a
+  // query/filter is active) or in the browse layout further down.
+  const resultsContent = (
+    <>
+      <div ref={resultsRef} className="flex items-end justify-between gap-4 mb-5 scroll-mt-24">
+        <div>
+          <h2 className="font-title font-bold text-[22px] sm:text-[26px]" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
+            {hasFilter ? 'Results' : 'Upcoming events'}
+          </h2>
+          <p className="text-[13px] mt-1" style={{ color: '#65736B' }}>
+            {filtered.length} event{filtered.length !== 1 ? 's' : ''}
+            {city && ` in ${city}`}
+            {activeCat !== 'All' && ` · ${activeCat}`}
+            {when !== 'any' && ` · ${WHEN_OPTIONS.find(w => w.value === when)?.label}`}
+            {format !== 'all' && ` · ${FORMAT_OPTIONS.find(f => f.value === format)?.label}`}
+          </p>
+        </div>
+        <div className="flex items-center gap-3 shrink-0">
+          {hasFilter && (
+            <button onClick={() => { setQuery(''); setActiveCat('All'); setCity(''); setWhen('any'); setFormat('all'); }}
+              className="text-[13px] font-medium transition hover:opacity-70" style={{ color: '#65736B' }}>
+              Clear filters
+            </button>
+          )}
+          <button onClick={goToMap}
+            className="inline-flex items-center gap-1.5 h-9 px-4 rounded-full text-[13px] font-semibold transition hover:bg-[#E8EFEB]"
+            style={{ border: '1px solid #1F4D3A', color: '#1F4D3A', background: '#FFFFFF' }}>
+            <MapIcon size={14} /> View on map
+          </button>
+        </div>
+      </div>
+
+      {filtered.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+          {filtered.map((ep: EventPage) => (
+            <EventCard key={ep.id} page={ep} saved={saved.has(ep.id)} onSave={toggleSave} />
+          ))}
+        </div>
+      ) : (
+        <div className="rounded-2xl py-16 px-6 text-center" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
+          <Search size={28} style={{ color: '#C9C3B1' }} className="mx-auto mb-3" />
+          <p className="font-display font-semibold text-[16px]" style={{ color: '#0F1F18' }}>No events found here</p>
+          <p className="text-[13px] mt-1 mb-4" style={{ color: '#65736B' }}>Try a different search, or search across every event.</p>
+          <button onClick={goToMap}
+            className="inline-flex items-center gap-1.5 h-9 px-4 rounded-full text-[13px] font-semibold transition hover:opacity-90"
+            style={{ background: '#1F4D3A', color: '#FFFFFF' }}>
+            Search all events <ArrowRight size={14} />
+          </button>
+        </div>
+      )}
+    </>
+  );
 
   return (
     <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
@@ -452,6 +501,19 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents, ban
         </div>
       </section>
 
+      {/* When a search/filter is active, show results IMMEDIATELY under the
+          search box — no promo bands in between, so people see what they
+          searched for right away. */}
+      {hasFilter && (
+        <Band bg="#FAF6EE" divider={false}>
+          {resultsContent}
+        </Band>
+      )}
+
+      {/* The full browse landing (promo, categories, featured, cities, hosts)
+          shows only when NOT actively searching. */}
+      {!hasFilter && (
+      <>
       {/* ── Admin promo banner (hero) — from `promo_banners` ──── */}
       {promoBanner && (
         <Band bg="#FAF6EE" divider={false}>
@@ -539,48 +601,8 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents, ban
           <AppStoreBadges onDark size="sm" />
         </div>
 
-        {/* Results */}
-        <div ref={resultsRef} className="flex items-end justify-between gap-4 mb-5 scroll-mt-24">
-          <div>
-            <h2 className="font-title font-bold text-[22px] sm:text-[26px]" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
-              {hasFilter ? 'Results' : 'Upcoming events'}
-            </h2>
-            <p className="text-[13px] mt-1" style={{ color: '#65736B' }}>
-              {filtered.length} event{filtered.length !== 1 ? 's' : ''}
-              {city && ` in ${city}`}
-              {activeCat !== 'All' && ` · ${activeCat}`}
-              {when !== 'any' && ` · ${WHEN_OPTIONS.find(w => w.value === when)?.label}`}
-              {format !== 'all' && ` · ${FORMAT_OPTIONS.find(f => f.value === format)?.label}`}
-            </p>
-          </div>
-          <div className="flex items-center gap-3 shrink-0">
-            {hasFilter && (
-              <button onClick={() => { setQuery(''); setActiveCat('All'); setCity(''); setWhen('any'); setFormat('all'); }}
-                className="text-[13px] font-medium transition hover:opacity-70" style={{ color: '#65736B' }}>
-                Clear filters
-              </button>
-            )}
-            <button onClick={goToMap}
-              className="inline-flex items-center gap-1.5 h-9 px-4 rounded-full text-[13px] font-semibold transition hover:bg-[#E8EFEB]"
-              style={{ border: '1px solid #1F4D3A', color: '#1F4D3A', background: '#FFFFFF' }}>
-              <MapIcon size={14} /> View on map
-            </button>
-          </div>
-        </div>
-
-        {filtered.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-            {filtered.map((ep: EventPage) => (
-              <EventCard key={ep.id} page={ep} saved={saved.has(ep.id)} onSave={toggleSave} />
-            ))}
-          </div>
-        ) : (
-          <div className="rounded-2xl py-16 px-6 text-center" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
-            <Search size={28} style={{ color: '#C9C3B1' }} className="mx-auto mb-3" />
-            <p className="font-display font-semibold text-[16px]" style={{ color: '#0F1F18' }}>No events found</p>
-            <p className="text-[13px] mt-1" style={{ color: '#65736B' }}>Try a different search or clear your filters.</p>
-          </div>
-        )}
+        {/* Results (browse layout — "Upcoming events") */}
+        {resultsContent}
       </Band>
 
       {/* ── Browse by city ──────────────────────────────────── */}
@@ -635,6 +657,8 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents, ban
             ))}
           </div>
         </Band>
+      )}
+      </>
       )}
 
       {/* ── CTA — full-width forest band ──────────────────────── */}
