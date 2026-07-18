@@ -62,16 +62,47 @@ class OrganizerApi {
     String? city,
     bool? isPublic,
   }) async {
-    final payload = <String, dynamic>{
-      'event_id': eventId,
-      'title': title.trim().isEmpty ? 'Untitled event' : title.trim(),
-      if (startsAt != null) 'starts_at': startsAt.toUtc().toIso8601String(),
-      if (venueName != null && venueName.trim().isNotEmpty)
-        'venue_name': venueName.trim(),
-      if (city != null && city.trim().isNotEmpty) 'city': city.trim(),
-      'is_public': ?isPublic,
-    };
-    await supa.from('event_pages').upsert(payload, onConflict: 'event_id');
+    final cleanTitle = title.trim().isEmpty ? 'Untitled event' : title.trim();
+
+    // event_pages.starts_at / ends_at are NOT NULL with no default (migration
+    // 017). On the INSERT path (brand-new event) we MUST supply both, or the
+    // row fails with 23502 and the event ends up with no page — invisible in
+    // Discover (which inner-joins event_pages) and un-registerable. On the
+    // UPDATE path we only touch the fields we were actually given, so an
+    // existing date/venue is never clobbered (publish calls this with just
+    // title + isPublic, and ends_at is left to the multi-day editor).
+    final existing = await supa
+        .from('event_pages')
+        .select('id')
+        .eq('event_id', eventId)
+        .maybeSingle();
+
+    if (existing == null) {
+      final start = startsAt ?? DateTime.now().add(const Duration(days: 7));
+      final end = start.add(const Duration(hours: 2));
+      await supa.from('event_pages').insert({
+        'event_id': eventId,
+        'title': cleanTitle,
+        'starts_at': start.toUtc().toIso8601String(),
+        'ends_at': end.toUtc().toIso8601String(),
+        if (venueName != null && venueName.trim().isNotEmpty)
+          'venue_name': venueName.trim(),
+        if (city != null && city.trim().isNotEmpty) 'city': city.trim(),
+        'is_public': isPublic ?? false,
+      });
+      return;
+    }
+
+    final update = <String, dynamic>{'title': cleanTitle};
+    if (startsAt != null) {
+      update['starts_at'] = startsAt.toUtc().toIso8601String();
+    }
+    if (venueName != null && venueName.trim().isNotEmpty) {
+      update['venue_name'] = venueName.trim();
+    }
+    if (city != null && city.trim().isNotEmpty) update['city'] = city.trim();
+    if (isPublic != null) update['is_public'] = isPublic;
+    await supa.from('event_pages').update(update).eq('event_id', eventId);
   }
 
   /// Keep the public event page's visibility in step with the event's
@@ -157,23 +188,34 @@ class OrganizerApi {
           'This event has reached the registration limit for your current plan.');
     }
 
-    await supa.from('registrations').insert({
-      'event_id': eventId,
-      'attendee_name': nm,
-      'attendee_email': emailLc,
-      if (phone != null && phone.trim().isNotEmpty)
-        'attendee_phone': phone.trim(),
-      if (ticketTypeId != null && ticketTypeId.isNotEmpty)
-        'ticket_type_id': ticketTypeId,
-      // A walk-in is by definition already at the door — check them in
-      // immediately, same as the web walk-in route's fallback path, instead
-      // of leaving them as merely "confirmed" pending a second manual tap.
-      'status': 'checked_in',
-      'qr_code_token': _token(),
-      'amount_paid': 0,
-      'source': 'walk_in',
-      'checked_in_at': DateTime.now().toUtc().toIso8601String(),
-    });
+    try {
+      await supa.from('registrations').insert({
+        'event_id': eventId,
+        'attendee_name': nm,
+        'attendee_email': emailLc,
+        if (phone != null && phone.trim().isNotEmpty)
+          'attendee_phone': phone.trim(),
+        if (ticketTypeId != null && ticketTypeId.isNotEmpty)
+          'ticket_type_id': ticketTypeId,
+        // A walk-in is by definition already at the door — check them in
+        // immediately, same as the web walk-in route's fallback path, instead
+        // of leaving them as merely "confirmed" pending a second manual tap.
+        'status': 'checked_in',
+        'qr_code_token': _token(),
+        'amount_paid': 0,
+        'source': 'walk_in',
+        'checked_in_at': DateTime.now().toUtc().toIso8601String(),
+      });
+    } on PostgrestException catch (e) {
+      // A second door device adding the same new email, or an email registered
+      // in the gap between the duplicate check above and this insert, trips the
+      // (event_id, attendee_email) unique index. Treat it like the existing-row
+      // branch — they're already on the list — instead of a generic error.
+      if (e.code == '23505') {
+        return WalkInResult(created: false, name: nm, alreadyCheckedIn: false);
+      }
+      rethrow;
+    }
 
     // Decrement remaining ticket inventory, same as addGroup() and every web
     // registration route (register / group-register / registrations). Without

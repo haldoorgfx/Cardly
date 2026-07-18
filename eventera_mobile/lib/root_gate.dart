@@ -50,6 +50,15 @@ class _RootGateState extends State<RootGate> {
     // so it never nags again.
     _authSub = supa.auth.onAuthStateChange.listen((data) async {
       final session = data.session;
+      // supabase_flutter restores the persisted session asynchronously, so the
+      // synchronous restoreAppMode() in initState ran with signedIn:false and
+      // skipped Organize. Re-apply the saved mode now the session is live, so a
+      // returning organizer isn't dropped onto Attend on every cold launch.
+      if (session != null &&
+          (data.event == AuthChangeEvent.signedIn ||
+              data.event == AuthChangeEvent.initialSession)) {
+        restoreAppMode(signedIn: true);
+      }
       if (session != null &&
           (data.event == AuthChangeEvent.signedIn ||
               data.event == AuthChangeEvent.initialSession)) {
