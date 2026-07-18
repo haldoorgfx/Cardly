@@ -32,14 +32,30 @@ export default async function RevenuePage({ params }: Props) {
 
   if (!event) redirect('/dashboard');
 
-  // All paid/confirmed registrations
-  const { data: regs } = await admin
+  // All paid/confirmed registrations. The fee columns (platform_fee/
+  // organizer_net, migration 040) and promoter columns (referral_code/
+  // utm_source, migration 032) may not be applied in every environment — and a
+  // single missing column makes PostgREST fail the WHOLE select, which is what
+  // silently blanked this page to $0 while Reports showed real revenue. So try
+  // the full select, then fall back to guaranteed base columns on any error
+  // (RevenueView already defaults the optional fields).
+  const runRegQuery = (cols: string) => admin
     .from('registrations')
-    .select('id, amount_paid, platform_fee, organizer_net, currency, status, payment_status, created_at, referral_code, utm_source, ticket_types(name, price)')
+    .select(cols)
     .eq('event_id', id)
     .in('status', ['confirmed', 'checked_in', 'pending_approval'])
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .order('created_at', { ascending: false }) as any;
+    .order('created_at', { ascending: false });
+
+  let regsRes = await runRegQuery(
+    'id, amount_paid, platform_fee, organizer_net, currency, status, payment_status, created_at, referral_code, utm_source, ticket_types(name, price)',
+  );
+  if (regsRes.error) {
+    regsRes = await runRegQuery(
+      'id, amount_paid, currency, status, payment_status, created_at, ticket_types(name, price)',
+    );
+  }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const regs = (regsRes.data ?? []) as any;
 
   return (
     <PageShell width="wide">

@@ -102,8 +102,8 @@ export function OperatorCollectionsClient({ collections, promoted: dbPromoted }:
   return (
     <PageShell width="wide">
       <PageHeader
-        eyebrow="Admin · Marketplace"
-        title="Marketplace curation"
+        eyebrow="Admin · Collections"
+        title="Collections"
         subtitle="Manage event collections and review promoted listing requests"
       />
 

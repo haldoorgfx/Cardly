@@ -32,6 +32,7 @@ interface Invoice {
   created: number;
   pdf: string | null;
   hosted: string | null;
+  paymentIntent: string | null;
 }
 
 interface Filters { q: string; plan: string }
@@ -168,11 +169,17 @@ function InvoicesPanel({ user, onClose }: { user: BillingUserRow; onClose: () =>
     return () => { active = false; };
   }, [user.stripe_customer_id, reloadKey]);
 
-  const issueRefund = async (paymentIntentId: string, maxAmount: number) => {
-    const raw = refundAmounts[paymentIntentId] ?? '';
+  // `invoiceId` keys the per-row input/message state; `paymentIntentId` is the
+  // actual Stripe target the refund runs against (invoice ids can't be refunded).
+  const issueRefund = async (invoiceId: string, paymentIntentId: string | null, maxAmount: number) => {
+    if (!paymentIntentId) {
+      setRefundMsg({ id: invoiceId, type: 'error', text: 'This invoice has no payment to refund.' });
+      return;
+    }
+    const raw = refundAmounts[invoiceId] ?? '';
     const amountCents = raw ? Math.round(parseFloat(raw) * 100) : undefined;
     if (amountCents !== undefined && (Number.isNaN(amountCents) || amountCents <= 0 || amountCents > maxAmount)) {
-      setRefundMsg({ id: paymentIntentId, type: 'error', text: `Amount must be between $0.01 and ${formatAmount(maxAmount, 'usd')}` });
+      setRefundMsg({ id: invoiceId, type: 'error', text: `Amount must be between $0.01 and ${formatAmount(maxAmount, 'usd')}` });
       return;
     }
     const label = amountCents ? formatAmount(amountCents, 'usd') : 'the full amount';
@@ -183,7 +190,7 @@ function InvoicesPanel({ user, onClose }: { user: BillingUserRow; onClose: () =>
       danger: true,
     }))) return;
 
-    setRefunding(paymentIntentId);
+    setRefunding(invoiceId);
     setRefundMsg(null);
     try {
       const res = await fetch('/api/admin/billing/refund', {
@@ -194,17 +201,17 @@ function InvoicesPanel({ user, onClose }: { user: BillingUserRow; onClose: () =>
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         const msg = data.error || 'The refund could not be processed.';
-        setRefundMsg({ id: paymentIntentId, type: 'error', text: msg });
+        setRefundMsg({ id: invoiceId, type: 'error', text: msg });
         toast({ title: 'Could not issue the refund', description: msg, variant: 'destructive' });
         return;
       }
       const refundText = `Refund of ${formatAmount(data.refund.amount, data.refund.currency)} issued.`;
-      setRefundMsg({ id: paymentIntentId, type: 'success', text: refundText });
+      setRefundMsg({ id: invoiceId, type: 'success', text: refundText });
       toast({ title: 'Refund issued', description: `${formatAmount(data.refund.amount, data.refund.currency)} to ${user.email}.`, variant: 'success' });
-      setRefundAmounts(m => ({ ...m, [paymentIntentId]: '' }));
+      setRefundAmounts(m => ({ ...m, [invoiceId]: '' }));
     } catch (e) {
       const msg = describeError(e, 'the refund');
-      setRefundMsg({ id: paymentIntentId, type: 'error', text: msg });
+      setRefundMsg({ id: invoiceId, type: 'error', text: msg });
       toast({ title: 'Could not issue the refund', description: msg, variant: 'destructive' });
     } finally {
       setRefunding(null);
@@ -280,8 +287,9 @@ function InvoicesPanel({ user, onClose }: { user: BillingUserRow; onClose: () =>
                           className="h-8 w-32 border border-[#E5E0D4] rounded-lg px-2 text-[12.5px] outline-none focus:ring-2 focus:ring-[#1F4D3A]/20"
                         />
                         <button
-                          onClick={() => issueRefund(inv.id, inv.amount)}
-                          disabled={refunding === inv.id}
+                          onClick={() => issueRefund(inv.id, inv.paymentIntent, inv.amount)}
+                          disabled={refunding === inv.id || !inv.paymentIntent}
+                          title={!inv.paymentIntent ? 'No payment intent on this invoice to refund' : undefined}
                           className="flex items-center gap-1 h-8 px-2.5 rounded-lg border border-[#E5E0D4] text-[12.5px] text-[#B8423C] hover:bg-[rgba(184,66,60,0.08)] transition-colors disabled:opacity-50"
                         >
                           {refunding === inv.id ? <Loader2 size={10} strokeWidth={2} className="animate-spin" /> : <RotateCcw size={10} strokeWidth={2} />}

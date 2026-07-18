@@ -29,6 +29,13 @@ export async function GET(request: Request) {
       created:  inv.created,
       pdf:      inv.invoice_pdf,
       hosted:   inv.hosted_invoice_url,
+      // The refundable target is the invoice's payment intent, NOT the invoice
+      // id — refunds run against a PaymentIntent. May be null on $0/unpaid
+      // invoices, in which case the client disables the refund action.
+      paymentIntent:
+        typeof inv.payment_intent === 'string'
+          ? inv.payment_intent
+          : inv.payment_intent?.id ?? null,
     }));
 
     return NextResponse.json({ invoices: formatted });

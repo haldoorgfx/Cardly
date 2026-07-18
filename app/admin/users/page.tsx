@@ -47,7 +47,7 @@ export default async function UsersAdminPage({
     <PageShell width="screen">
       <PageHeader
         eyebrow="Admin · Users"
-        title="Accounts"
+        title="Users"
         subtitle="Search, filter, manage roles, suspend, and delete accounts."
       />
 

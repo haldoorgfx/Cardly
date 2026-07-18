@@ -48,7 +48,7 @@ export default async function AuditPage({
     <PageShell width="wide">
       <PageHeader
         eyebrow="Admin · Audit Log"
-        title="Activity Log"
+        title="Audit Log"
         subtitle="Every admin action, in order. Read-only."
       />
 

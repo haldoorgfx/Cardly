@@ -225,7 +225,7 @@ export function EventsOversightClient({ events: initialEvents, total, page, tota
       <div className="flex items-center gap-1 mt-0.5">
         <span className="text-[12.5px] text-[#65736B] truncate">/{ev.slug}</span>
         <a
-          href={`/c/${ev.slug}`}
+          href={`/e/${ev.slug}`}
           target="_blank"
           rel="noopener noreferrer"
           className="text-[#1F4D3A]/50 hover:text-[#1F4D3A] transition-colors shrink-0"
