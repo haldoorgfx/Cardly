@@ -6,6 +6,7 @@ import { Search, Loader2, Gift, FileText, RotateCcw, X } from 'lucide-react';
 import type { BillingUserRow } from './page';
 import { toast } from '@/hooks/use-toast';
 import { StatusState, describeError } from '@/components/ui/status-state';
+import { useConfirm } from '@/components/ui/ConfirmProvider';
 
 const PLAN_STYLES: Record<string, { bg: string; color: string }> = {
   free:   { bg: 'rgba(107,122,114,0.10)', color: '#65736B' },
@@ -145,6 +146,7 @@ function CompModal({
 // ── Invoices panel ────────────────────────────────────────────────────────────
 
 function InvoicesPanel({ user, onClose }: { user: BillingUserRow; onClose: () => void }) {
+  const confirm = useConfirm();
   const [invoices, setInvoices] = useState<Invoice[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -174,7 +176,12 @@ function InvoicesPanel({ user, onClose }: { user: BillingUserRow; onClose: () =>
       return;
     }
     const label = amountCents ? formatAmount(amountCents, 'usd') : 'the full amount';
-    if (!confirm(`Issue a refund of ${label} to ${user.email}?\n\nThis cannot be undone.`)) return;
+    if (!(await confirm({
+      title: 'Issue refund?',
+      body: `Refund ${label} to ${user.email}. This can’t be undone.`,
+      confirmLabel: 'Issue refund',
+      danger: true,
+    }))) return;
 
     setRefunding(paymentIntentId);
     setRefundMsg(null);

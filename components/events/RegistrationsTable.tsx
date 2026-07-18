@@ -7,6 +7,7 @@ import { Search, Download, CheckCircle2, XCircle, RotateCcw, ExternalLink, UserP
 import { ERAButton } from '@/components/ai/ERAButton';
 import { toast } from '@/hooks/use-toast';
 import { StatusState, describeError } from '@/components/ui/status-state';
+import { useConfirm } from '@/components/ui/ConfirmProvider';
 
 type Status = 'pending' | 'confirmed' | 'checked_in' | 'cancelled' | 'refunded' | 'pending_approval';
 type PaymentStatus = 'free' | 'pending' | 'paid' | 'refunded' | 'failed';
@@ -281,6 +282,7 @@ function RowActionsMenu({
   onDeleted: (id: string) => void;
   onEdited: (id: string, updates: Partial<Registration> & { ticket_type_id?: string | null }) => void;
 }) {
+  const confirm = useConfirm();
   const [open, setOpen]         = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [loading, setLoading]   = useState(false);
@@ -359,7 +361,12 @@ function RowActionsMenu({
 
   async function handleDelete() {
     setOpen(false);
-    if (!confirm(`Delete registration for ${reg.attendee_name}? This cannot be undone.`)) return;
+    if (!(await confirm({
+      title: 'Delete registration?',
+      body: `This deletes the registration for ${reg.attendee_name}. This can’t be undone.`,
+      confirmLabel: 'Delete',
+      danger: true,
+    }))) return;
     setLoading(true);
     try {
       const res = await fetch(`/api/events/${eventId}/registrations?regId=${reg.id}`, { method: 'DELETE' });
@@ -929,6 +936,7 @@ function ReportModal({ report, onClose }: { report: string; onClose: () => void 
 
 /* ── Main table ─────────────────────────────────────────────────────────────── */
 export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, totalCount, ticketTypes, formFields = [], cardEmails = [], totalCardsGenerated, serverCheckedInCount, serverPendingCount, serverRevenueByCurrency, plan = 'free', eventName }: Props) {
+  const confirm = useConfirm();
   const cardEmailSet = new Set(cardEmails);
   const [rows, setRows]               = useState(initialRegistrations);
   const [total, setTotal]             = useState(totalCount);
@@ -984,7 +992,12 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
   async function bulkStatus(status: Status) {
     const ids = Array.from(selected);
     if (ids.length === 0) return;
-    if (status === 'cancelled' && !confirm(`Cancel ${ids.length} registration${ids.length !== 1 ? 's' : ''}? This can be undone per-attendee later.`)) return;
+    if (status === 'cancelled' && !(await confirm({
+      title: `Cancel ${ids.length} registration${ids.length !== 1 ? 's' : ''}?`,
+      body: 'This can be undone per-attendee later.',
+      confirmLabel: 'Cancel registrations',
+      danger: true,
+    }))) return;
     setBulkBusy(true);
     const now = new Date().toISOString();
     // Save original rows for rollback

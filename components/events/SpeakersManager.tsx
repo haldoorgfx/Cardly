@@ -9,6 +9,7 @@ import { IMPORT_ENTITIES } from '@/lib/import/entities';
 import { Modal } from '@/components/ui/Modal';
 import { StatusState, describeError } from '@/components/ui/status-state';
 import { toast } from '@/hooks/use-toast';
+import { useConfirm } from '@/components/ui/ConfirmProvider';
 
 interface Props {
   eventId: string;
@@ -72,6 +73,7 @@ const EMPTY_FORM: FormState = {
 };
 
 export default function SpeakersManager({ eventId, slug, initialSpeakers }: Props) {
+  const confirm = useConfirm();
   const [speakers, setSpeakers] = useState<Speaker[]>(initialSpeakers);
   const [showForm, setShowForm] = useState(false);
   const [editingSpeaker, setEditingSpeaker] = useState<Speaker | null>(null);
@@ -170,7 +172,12 @@ export default function SpeakersManager({ eventId, slug, initialSpeakers }: Prop
   }
 
   async function handleDelete(speaker: Speaker) {
-    if (!confirm('Delete this speaker? This cannot be undone.')) return;
+    if (!(await confirm({
+      title: 'Delete this speaker?',
+      body: 'This can’t be undone.',
+      confirmLabel: 'Delete',
+      danger: true,
+    }))) return;
     setDeletingId(speaker.id);
     try {
       const res = await fetch(`/api/events/${eventId}/speakers?speakerId=${speaker.id}`, {

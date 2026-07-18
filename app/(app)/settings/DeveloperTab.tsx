@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Key, Webhook, Plus, Trash2, Copy, Check, ExternalLink } from 'lucide-react';
+import { useConfirm } from '@/components/ui/ConfirmProvider';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -63,6 +64,7 @@ function CopyBtn({ text }: { text: string }) {
 const BASE_URL = `${(process.env.NEXT_PUBLIC_APP_URL ?? '').replace(/\/$/, '')}/api/v1`;
 
 function ApiKeysSection({ plan }: { plan: string }) {
+  const confirm = useConfirm();
   const [keys, setKeys] = useState<ApiKey[]>([]);
   const [loading, setLoading] = useState(true);
   const [newName, setNewName] = useState('');
@@ -94,13 +96,23 @@ function ApiKeysSection({ plan }: { plan: string }) {
   }
 
   async function revoke(id: string) {
-    if (!confirm('Revoke this key? Any integrations using it will stop working.')) return;
+    if (!(await confirm({
+      title: 'Revoke this key?',
+      body: 'Any integrations using it will stop working immediately.',
+      confirmLabel: 'Revoke',
+      danger: true,
+    }))) return;
     await fetch(`/api/keys/${id}`, { method: 'DELETE' });
     setKeys(prev => prev.filter(k => k.id !== id));
   }
 
   async function rotate(id: string) {
-    if (!confirm('Rotate this key? The current key stops working immediately and a new one is issued.')) return;
+    if (!(await confirm({
+      title: 'Rotate this key?',
+      body: 'The current key stops working immediately and a new one is issued.',
+      confirmLabel: 'Rotate',
+      danger: true,
+    }))) return;
     const res = await fetch(`/api/keys/${id}`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'rotate' }),
     });
@@ -331,6 +343,7 @@ const ALL_EVENTS = [
 ];
 
 function WebhooksSection({ plan }: { plan: string }) {
+  const confirm = useConfirm();
   const [hooks, setHooks] = useState<WebhookRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [url, setUrl] = useState('');
@@ -369,7 +382,12 @@ function WebhooksSection({ plan }: { plan: string }) {
   }
 
   async function remove(id: string) {
-    if (!confirm('Delete this webhook?')) return;
+    if (!(await confirm({
+      title: 'Delete this webhook?',
+      body: 'It will stop receiving events immediately.',
+      confirmLabel: 'Delete',
+      danger: true,
+    }))) return;
     await fetch(`/api/webhooks/${id}`, { method: 'DELETE' });
     setHooks(prev => prev.filter(h => h.id !== id));
   }

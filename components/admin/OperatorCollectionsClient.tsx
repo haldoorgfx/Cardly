@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Plus, CheckCircle2, XCircle, Radio, Clock, LayoutGrid, List, AlertCircle, Loader2, X } from 'lucide-react';
+import { useConfirm } from '@/components/ui/ConfirmProvider';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Collection = any;
@@ -11,6 +12,7 @@ type Promoted = any;
 export function OperatorCollectionsClient({ collections, promoted: dbPromoted }: { collections: Collection[]; promoted: Promoted[] }) {
   // Real DB data only — no fabricated demo rows (admins must never see fiction
   // they can "approve"). Empty states below handle the no-data case honestly.
+  const confirm = useConfirm();
   const [promoted, setPromoted] = useState<Promoted[]>(dbPromoted);
   const [activeTab, setActiveTab] = useState<'collections' | 'review'>('collections');
   const [processingId, setProcessingId] = useState<string | null>(null);
@@ -36,7 +38,12 @@ export function OperatorCollectionsClient({ collections, promoted: dbPromoted }:
   // permission checks apply to every row. Rows drop as the batch resolves.
   async function runBulk(action: 'approve' | 'reject') {
     if (action === 'reject' &&
-        !confirm(`Reject ${selectedIds.size} promoted listing${selectedIds.size === 1 ? '' : 's'}? The organizer${selectedIds.size === 1 ? '' : 's'} will need to resubmit.`)) {
+        !(await confirm({
+          title: `Reject ${selectedIds.size} listing${selectedIds.size === 1 ? '' : 's'}?`,
+          body: `The organizer${selectedIds.size === 1 ? '' : 's'} will need to resubmit.`,
+          confirmLabel: 'Reject',
+          danger: true,
+        }))) {
       return;
     }
     setBulkBusy(true);
@@ -64,7 +71,12 @@ export function OperatorCollectionsClient({ collections, promoted: dbPromoted }:
   }
 
   async function handleAction(id: string, action: 'approve' | 'reject') {
-    if (action === 'reject' && !confirm('Reject this promoted listing? The organizer will need to resubmit.')) return;
+    if (action === 'reject' && !(await confirm({
+      title: 'Reject this listing?',
+      body: 'The organizer will need to resubmit.',
+      confirmLabel: 'Reject',
+      danger: true,
+    }))) return;
     setProcessingId(id);
     setActionError(null);
     try {

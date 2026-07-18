@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Modal } from '@/components/ui/Modal';
 import { PageShell, PageHeader } from '@/components/dash';
+import { toast } from '@/hooks/use-toast';
 
 interface Sponsor {
   id: string;
@@ -340,7 +341,7 @@ export function SponsorsClient({ eventId, sponsors: initial }: Props) {
         setShowAdd(false);
         router.refresh();
       } else {
-        alert(data.error || 'Failed to add sponsor');
+        toast({ title: 'Could not add sponsor', description: data.error || 'Please try again.', variant: 'destructive' });
       }
     });
   }

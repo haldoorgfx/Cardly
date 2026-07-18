@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, Eye, Plus, Trash2, GripVertical, ChevronDown, ChevronRight, Save, Globe, FileText, Loader2 } from 'lucide-react';
 import type { CmsPageWithBlocks, CmsBlock, BlockType } from '@/lib/cms/types';
 import { WysiwygEditor } from '@/components/cms/editor/WysiwygEditor';
+import { useConfirm } from '@/components/ui/ConfirmProvider';
 
 // ── Block type list ───────────────────────────────────────────────────────────
 
@@ -317,6 +318,7 @@ function getContentSummary(content: Record<string, unknown>): string {
 // ── Main editor ───────────────────────────────────────────────────────────────
 
 export function PageEditorClient({ page }: { page: CmsPageWithBlocks }) {
+  const confirm = useConfirm();
   const router = useRouter();
   const [, startTransition] = useTransition();
   const [blocks, setBlocks] = useState<CmsBlock[]>(
@@ -353,10 +355,15 @@ export function PageEditorClient({ page }: { page: CmsPageWithBlocks }) {
   };
 
   const handleDeleteBlock = useCallback(async (blockId: string) => {
-    if (!confirm('Delete this block?')) return;
+    if (!(await confirm({
+      title: 'Delete this block?',
+      body: 'This can’t be undone.',
+      confirmLabel: 'Delete',
+      danger: true,
+    }))) return;
     await fetch(`/api/admin/content/${page.id}/blocks/${blockId}`, { method: 'DELETE' });
     setBlocks(prev => prev.filter(b => b.id !== blockId));
-  }, [page.id]);
+  }, [page.id, confirm]);
 
   const handleUpdateBlock = useCallback((blockId: string, content: Record<string, unknown>) => {
     setBlocks(prev => prev.map(b => b.id === blockId
@@ -383,7 +390,12 @@ export function PageEditorClient({ page }: { page: CmsPageWithBlocks }) {
   };
 
   const handleDelete = async () => {
-    if (!confirm(`Delete the page "${title}"? This cannot be undone.`)) return;
+    if (!(await confirm({
+      title: 'Delete page?',
+      body: `This deletes the page "${title}". This can’t be undone.`,
+      confirmLabel: 'Delete',
+      danger: true,
+    }))) return;
     await fetch(`/api/admin/content/${page.id}`, { method: 'DELETE' });
     startTransition(() => router.push('/admin/content'));
   };

@@ -5,6 +5,7 @@ import { Plus, Trash2, Copy, Check, Pencil, Upload } from 'lucide-react';
 import { ImportWizard } from '@/components/shared/ImportWizard';
 import { IMPORT_ENTITIES } from '@/lib/import/entities';
 import { Modal } from '@/components/ui/Modal';
+import { useConfirm } from '@/components/ui/ConfirmProvider';
 
 export interface PromoCode {
   id: string;
@@ -55,6 +56,7 @@ function CopyCode({ code }: { code: string }) {
 }
 
 export function PromoCodesManager({ eventId, initialCodes, eventDates }: Props) {
+  const confirm = useConfirm();
   const eventEndMax = eventDates?.ends_at ? toDatetimeLocal(eventDates.ends_at) : undefined;
   const [codes, setCodes] = useState(initialCodes);
   const [showForm, setShowForm] = useState(false);
@@ -163,7 +165,12 @@ export function PromoCodesManager({ eventId, initialCodes, eventDates }: Props) 
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Delete this promo code?')) return;
+    if (!(await confirm({
+      title: 'Delete this promo code?',
+      body: 'This can’t be undone.',
+      confirmLabel: 'Delete',
+      danger: true,
+    }))) return;
     setDeleting(id);
     setDeleteError('');
     try {

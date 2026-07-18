@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { BrandLogo } from '@/components/settings/BrandLogos';
 import { describeError } from '@/components/ui/status-state';
+import { useConfirm } from '@/components/ui/ConfirmProvider';
 
 type Provider = 'slack' | 'zapier' | 'google_sheets' | 'mailchimp' | 'hubspot';
 
@@ -84,6 +85,7 @@ const C = {
 };
 
 export function IntegrationsClient() {
+  const confirm = useConfirm();
   const [data, setData] = useState<Record<Provider, PublicIntegration> | null>(null);
   const [stripe, setStripe] = useState<StripeStatus | null>(null);
   const [open, setOpen] = useState<Provider | null>(null);
@@ -127,7 +129,12 @@ export function IntegrationsClient() {
   }
 
   async function disconnectStripe() {
-    if (!confirm('Disconnect Stripe?\n\nYou will stop accepting card payments until you reconnect.')) return;
+    if (!(await confirm({
+      title: 'Disconnect Stripe?',
+      body: 'You will stop accepting card payments until you reconnect.',
+      confirmLabel: 'Disconnect',
+      danger: true,
+    }))) return;
     setBanner(null);
     setStripeBusy(true);
     try {
@@ -263,6 +270,7 @@ function StripePill({ stripe }: { stripe: StripeStatus | null }) {
 function ConnectModal({ meta, state, onClose, onChanged }: {
   meta: Meta; state: PublicIntegration | null; onClose: () => void; onChanged: () => void;
 }) {
+  const confirm = useConfirm();
   const [values, setValues] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState<'save' | 'test' | 'disconnect' | null>(null);
   const [error, setError] = useState('');
@@ -300,7 +308,12 @@ function ConnectModal({ meta, state, onClose, onChanged }: {
   }
 
   async function disconnect() {
-    if (!confirm(`Disconnect ${meta.name}?\n\nEventera will stop sending data to this integration until you reconnect.`)) return;
+    if (!(await confirm({
+      title: `Disconnect ${meta.name}?`,
+      body: 'Eventera will stop sending data to this integration until you reconnect.',
+      confirmLabel: 'Disconnect',
+      danger: true,
+    }))) return;
     setBusy('disconnect'); setError('');
     try {
       const res = await fetch(`/api/integrations/${meta.provider}`, { method: 'DELETE' });

@@ -6,6 +6,7 @@ import { Search, Loader2, Flag, Trash2, RotateCcw, ExternalLink, X, Download } f
 import type { EventRow } from './page';
 import { toast } from '@/hooks/use-toast';
 import { StatusState, describeError } from '@/components/ui/status-state';
+import { useConfirm } from '@/components/ui/ConfirmProvider';
 
 const STATUS_STYLES: Record<string, { bg: string; color: string }> = {
   draft:     { bg: 'rgba(232,197,126,0.15)', color: '#C9A45E' },
@@ -40,6 +41,7 @@ function formatDate(iso: string) {
 export function EventsOversightClient({ events: initialEvents, total, page, totalPages, defaultFilters }: Props) {
   const router   = useRouter();
   const pathname = usePathname();
+  const confirm  = useConfirm();
 
   const [events, setEvents] = useState<EventRow[]>(initialEvents);
   const [filters, setFilters] = useState<Filters>(defaultFilters);
@@ -92,7 +94,12 @@ export function EventsOversightClient({ events: initialEvents, total, page, tota
   const runBulkModeration = async (status: 'ok' | 'flagged' | 'removed') => {
     if (
       status === 'removed' &&
-      !confirm(`Remove ${selected.size} event${selected.size === 1 ? '' : 's'} from the marketplace?\n\nThey will no longer be publicly visible until restored.`)
+      !(await confirm({
+        title: `Remove ${selected.size} event${selected.size === 1 ? '' : 's'} from the marketplace?`,
+        body: 'They will no longer be publicly visible until restored.',
+        confirmLabel: 'Remove',
+        danger: true,
+      }))
     ) return;
     setBulkBusy(true);
     setActionError('');
@@ -151,7 +158,12 @@ export function EventsOversightClient({ events: initialEvents, total, page, tota
   };
 
   const setModeration = async (event: EventRow, status: 'ok' | 'flagged' | 'removed') => {
-    if (status === 'removed' && !confirm(`Remove "${event.name}" from the marketplace?\n\nIt will no longer be publicly visible until restored.`)) return;
+    if (status === 'removed' && !(await confirm({
+      title: `Remove "${event.name}" from the marketplace?`,
+      body: 'It will no longer be publicly visible until restored.',
+      confirmLabel: 'Remove',
+      danger: true,
+    }))) return;
     setBusy(event.id);
     setActionError('');
     try {

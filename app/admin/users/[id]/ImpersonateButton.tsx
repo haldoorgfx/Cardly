@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Eye } from 'lucide-react';
+import { useConfirm } from '@/components/ui/ConfirmProvider';
 
 interface Props {
   userId: string;
@@ -10,12 +11,17 @@ interface Props {
 }
 
 export function ImpersonateButton({ userId, userName }: Props) {
+  const confirm = useConfirm();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   async function start() {
-    if (!confirm(`View app as "${userName}"?\n\nA banner will appear so you can exit at any time.`)) return;
+    if (!(await confirm({
+      title: 'Impersonate this user?',
+      body: `You’ll view the app as "${userName}". A banner will appear so you can exit at any time.`,
+      confirmLabel: 'Impersonate',
+    }))) return;
     setLoading(true);
     setError('');
     try {

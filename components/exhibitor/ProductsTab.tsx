@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import { useConfirm } from '@/components/ui/ConfirmProvider';
 
 interface Product {
   id: string;
@@ -27,6 +28,7 @@ function ProductModal({
   onSaved: (p: Product) => void;
   onDeleted: (id: string) => void;
 }) {
+  const confirm = useConfirm();
   const [name, setName]               = useState(product?.name ?? '');
   const [description, setDescription] = useState(product?.description ?? '');
   const [imageUrl, setImageUrl]       = useState(product?.image_url ?? '');
@@ -58,9 +60,14 @@ function ProductModal({
     });
   }
 
-  function handleDelete() {
+  async function handleDelete() {
     if (!product) return;
-    if (!confirm('Delete this product? This cannot be undone.')) return;
+    if (!(await confirm({
+      title: 'Delete this product?',
+      body: 'This can’t be undone.',
+      confirmLabel: 'Delete',
+      danger: true,
+    }))) return;
     setDeleting(true);
     startTransition(async () => {
       await fetch(`/api/exhibitor/products?id=${product.id}&token=${token}`, { method: 'DELETE' });

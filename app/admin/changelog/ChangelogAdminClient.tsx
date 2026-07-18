@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Plus, Pencil, Trash2, Eye, EyeOff, Loader2, X } from 'lucide-react';
 import { ChangelogForm, type ChangelogEntry, type ChangelogType } from '@/components/admin/ChangelogForm';
+import { useConfirm } from '@/components/ui/ConfirmProvider';
 
 const TYPE_STYLES: Record<ChangelogType, { bg: string; color: string }> = {
   added:    { bg: 'rgba(31,77,58,0.10)',    color: '#1F4D3A' },
@@ -19,6 +20,7 @@ function formatDate(iso: string) {
 }
 
 export function ChangelogAdminClient({ initialEntries }: { initialEntries: ChangelogEntry[] }) {
+  const confirm = useConfirm();
   const [entries, setEntries]     = useState<ChangelogEntry[]>(initialEntries);
   const [showForm, setShowForm]   = useState(false);
   const [editEntry, setEditEntry] = useState<ChangelogEntry | null>(null);
@@ -44,7 +46,12 @@ export function ChangelogAdminClient({ initialEntries }: { initialEntries: Chang
   // checks + audit logging apply to every row. Rows update as the batch resolves.
   const runBulk = async (action: 'delete' | 'publish' | 'unpublish') => {
     if (action === 'delete' &&
-        !confirm(`Delete ${selected.size} changelog ${selected.size === 1 ? 'entry' : 'entries'}? This cannot be undone.`)) {
+        !(await confirm({
+          title: `Delete ${selected.size} ${selected.size === 1 ? 'entry' : 'entries'}?`,
+          body: 'This can’t be undone.',
+          confirmLabel: 'Delete',
+          danger: true,
+        }))) {
       return;
     }
     setBulkBusy(true);
@@ -110,7 +117,12 @@ export function ChangelogAdminClient({ initialEntries }: { initialEntries: Chang
   };
 
   const deleteEntry = async (id: string) => {
-    if (!confirm('Delete this changelog entry? This cannot be undone.')) return;
+    if (!(await confirm({
+      title: 'Delete this entry?',
+      body: 'This can’t be undone.',
+      confirmLabel: 'Delete',
+      danger: true,
+    }))) return;
     setDeleting(id);
     try {
       await fetch(`/api/admin/changelog?id=${id}`, { method: 'DELETE' });

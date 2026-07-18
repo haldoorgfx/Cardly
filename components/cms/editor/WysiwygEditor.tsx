@@ -73,6 +73,7 @@ export function WysiwygEditor({ value, onChange, placeholder = 'Start writing…
   }, [onChange]);
 
   const insertLink = useCallback(() => {
+    // TODO: replace prompt() with a branded input modal
     const url = window.prompt('Enter URL:', 'https://');
     if (url) exec('createLink', url);
   }, []);

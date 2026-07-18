@@ -8,6 +8,7 @@
 import { useRef, type ChangeEvent } from 'react';
 import { Eye, Pencil, Image as ImageIcon, AlertCircle, ChevronDown, ArrowLeft, Loader2 } from 'lucide-react';
 import type { Zone } from '@/types/database';
+import { toast } from '@/hooks/use-toast';
 import EventBrandStrip from './EventBrandStrip';
 import EventCardPreview from './EventCardPreview';
 
@@ -146,7 +147,7 @@ function PhotoInput({
     const file = e.target.files?.[0];
     if (!file) return;
     if (file.size > 10 * 1024 * 1024) {
-      alert('Photo is too large. Please choose an image under 10 MB.');
+      toast({ title: 'Photo is too large', description: 'Please choose an image under 10 MB.', variant: 'destructive' });
       e.target.value = '';
       return;
     }

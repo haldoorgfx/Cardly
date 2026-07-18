@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import { useConfirm } from '@/components/ui/ConfirmProvider';
 
 interface Resource {
   id: string;
@@ -39,6 +40,7 @@ function ExternalIcon({ size = 15 }: { size?: number }) {
 }
 
 export function ResourcesTab({ resources: initial, token }: Props) {
+  const confirm = useConfirm();
   const [resources, setResources] = useState(initial);
   const [showAdd, setShowAdd]     = useState(false);
   const [name, setName]           = useState('');
@@ -61,7 +63,13 @@ export function ResourcesTab({ resources: initial, token }: Props) {
     });
   }
 
-  function handleDelete(id: string) {
+  async function handleDelete(id: string) {
+    if (!(await confirm({
+      title: 'Delete resource?',
+      body: 'This can’t be undone.',
+      confirmLabel: 'Delete',
+      danger: true,
+    }))) return;
     startTransition(async () => {
       await fetch(`/api/exhibitor/resources?id=${id}&token=${token}`, { method: 'DELETE' });
       setResources(prev => prev.filter(r => r.id !== id));

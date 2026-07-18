@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Heart, Bell, BellOff, Calendar, MapPin, Globe, Users } from 'lucide-react';
 import { PublicNav } from '@/components/events/PublicNav';
 import { PageShell, PageHeader } from '@/components/dash';
+import { useConfirm } from '@/components/ui/ConfirmProvider';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type EventPage = any;
@@ -37,6 +38,7 @@ function initials(name: string) {
 }
 
 export function SavedFollowingClient({ saved: dbSaved, following: dbFollowing, embedded = false }: Props) {
+  const confirm = useConfirm();
   // Real data only — the demo fallbacks masked the real empty states.
   const [saved, setSaved] = useState<EventPage[]>(dbSaved);
   const [following, setFollowing] = useState<Follow[]>(dbFollowing);
@@ -89,7 +91,12 @@ export function SavedFollowingClient({ saved: dbSaved, following: dbFollowing, e
   // Unfollow — confirm (destructive) + optimistic (was a dead button).
   async function unfollow(f: Follow) {
     const label = f.profiles?.organization ?? f.profiles?.full_name ?? 'this organizer';
-    if (!confirm(`Unfollow ${label}?`)) return;
+    if (!(await confirm({
+      title: `Unfollow ${label}?`,
+      body: 'You will stop getting their new-event alerts.',
+      confirmLabel: 'Unfollow',
+      danger: true,
+    }))) return;
     if (busy.has(f.organizer_id)) return;
     setBusy(b => new Set(b).add(f.organizer_id));
     const prev = following;

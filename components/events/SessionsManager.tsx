@@ -6,6 +6,7 @@ import type { Session, Track, SessionType } from '@/types/database';
 import { ImportWizard } from '@/components/shared/ImportWizard';
 import { IMPORT_ENTITIES } from '@/lib/import/entities';
 import { Modal } from '@/components/ui/Modal';
+import { useConfirm } from '@/components/ui/ConfirmProvider';
 
 interface SpeakerOption {
   id: string;
@@ -92,6 +93,7 @@ function groupByDate(sessions: Session[]): [string, Session[]][] {
 
 export default function SessionsManager({ eventId, initialSessions, speakers, initialTracks, eventDates, onSessionsChange, defaultEditSessionId }: Props) {
   const ev = eventDates ?? { starts_at: null, ends_at: null };
+  const confirm = useConfirm();
 
   const [sessions, setSessions] = useState<Session[]>(initialSessions);
   const [tracks, setTracks] = useState<Track[]>(initialTracks);
@@ -159,7 +161,12 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
   }
 
   async function handleDeleteTrack(trackId: string) {
-    if (!confirm('Delete track? Sessions will be unassigned.')) return;
+    if (!(await confirm({
+      title: 'Delete track?',
+      body: 'Sessions will be unassigned.',
+      confirmLabel: 'Delete',
+      danger: true,
+    }))) return;
     await fetch(`/api/events/${eventId}/tracks?trackId=${trackId}`, { method: 'DELETE' });
     setTracks((prev) => prev.filter((t) => t.id !== trackId));
   }
@@ -280,7 +287,12 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
   }
 
   async function handleDeleteSession(sessionId: string) {
-    if (!confirm('Delete this session?')) return;
+    if (!(await confirm({
+      title: 'Delete this session?',
+      body: 'This can’t be undone.',
+      confirmLabel: 'Delete',
+      danger: true,
+    }))) return;
     setDeletingId(sessionId);
     try {
       await fetch(`/api/events/${eventId}/sessions?sessionId=${sessionId}`, { method: 'DELETE' });

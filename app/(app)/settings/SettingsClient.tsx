@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { deleteAccount, signOutAllDevices } from '@/app/(auth)/actions';
 import { Check, Lock, ChevronRight, LogOut } from 'lucide-react';
+import { useConfirm } from '@/components/ui/ConfirmProvider';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -48,6 +49,7 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
 // ── Main component ────────────────────────────────────────────────────────────
 
 export default function SettingsClient({ profile, section }: Props) {
+  const confirm = useConfirm();
   const show = (s: 'notifications' | 'account') => !section || section === s;
   const showSaveBar = !section || section === 'notifications';
 
@@ -71,7 +73,11 @@ export default function SettingsClient({ profile, section }: Props) {
   const [signingOutAll, setSigningOutAll] = useState(false);
 
   async function handleSignOutAll() {
-    if (!confirm('Log out of all devices? You will need to sign in again everywhere, including here.')) return;
+    if (!(await confirm({
+      title: 'Log out everywhere?',
+      body: 'You will need to sign in again everywhere, including here.',
+      confirmLabel: 'Log out',
+    }))) return;
     setSigningOutAll(true);
     await signOutAllDevices();
   }

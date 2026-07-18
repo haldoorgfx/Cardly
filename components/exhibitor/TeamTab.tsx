@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import { useConfirm } from '@/components/ui/ConfirmProvider';
 
 interface Member {
   id: string;
@@ -46,6 +47,7 @@ function statusPill(status: string) {
 }
 
 export function TeamTab({ members: initial, token }: Props) {
+  const confirm = useConfirm();
   const [members, setMembers] = useState(initial);
   const [showInvite, setShowInvite] = useState(false);
   const [email, setEmail]           = useState('');
@@ -53,8 +55,13 @@ export function TeamTab({ members: initial, token }: Props) {
   const [removingId, setRemovingId] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  function handleRemove(id: string) {
-    if (!confirm('Remove this team member?')) return;
+  async function handleRemove(id: string) {
+    if (!(await confirm({
+      title: 'Remove this team member?',
+      body: 'They will lose access to the booth.',
+      confirmLabel: 'Remove',
+      danger: true,
+    }))) return;
     setRemovingId(id);
     startTransition(async () => {
       await fetch(`/api/exhibitor/team?id=${id}&token=${token}`, { method: 'DELETE' });

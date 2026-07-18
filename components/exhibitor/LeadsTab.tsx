@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import { useConfirm } from '@/components/ui/ConfirmProvider';
 
 interface Lead {
   id: string;
@@ -70,6 +71,7 @@ function LeadPanel({
   onUpdate: (updated: Lead) => void;
   onDelete: (id: string) => void;
 }) {
+  const confirm = useConfirm();
   const [rating, setRating] = useState(lead.rating ?? 'warm');
   const [note, setNote]     = useState(lead.note ?? '');
   const [isPending, startTransition] = useTransition();
@@ -88,8 +90,13 @@ function LeadPanel({
     });
   }
 
-  function handleDelete() {
-    if (!confirm('Delete this lead? This cannot be undone.')) return;
+  async function handleDelete() {
+    if (!(await confirm({
+      title: 'Delete this lead?',
+      body: 'This can’t be undone.',
+      confirmLabel: 'Delete',
+      danger: true,
+    }))) return;
     setDeleting(true);
     startTransition(async () => {
       await fetch(`/api/exhibitor/leads?id=${lead.id}&token=${token}`, { method: 'DELETE' });

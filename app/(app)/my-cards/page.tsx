@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { IdCard, Download, ArrowRight } from 'lucide-react';
 import { PageShell, PageHeader, EmptyState } from '@/components/dash';
+import { CardThumb } from '@/components/tickets/CardThumb';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = { title: 'My Eventera Cards' };
@@ -59,8 +60,7 @@ export default async function MyCardsPage() {
             <div key={c.id} className="rounded-2xl overflow-hidden bg-white" style={{ border: '1px solid #E5E0D4' }}>
               <div className="relative" style={{ aspectRatio: '16 / 9', background: '#E8EFEB' }}>
                 {c.eventera_card_url && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={c.eventera_card_url} alt={`Eventera Card — ${c.events?.name ?? ''}`} className="absolute inset-0 w-full h-full object-contain" />
+                  <CardThumb src={c.eventera_card_url} alt={`Eventera Card — ${c.events?.name ?? ''}`} />
                 )}
               </div>
               <div className="p-4 flex items-center gap-3">
