@@ -61,6 +61,7 @@ class OrganizerApi {
     String? venueName,
     String? city,
     bool? isPublic,
+    String? description,
   }) async {
     final cleanTitle = title.trim().isEmpty ? 'Untitled event' : title.trim();
 
@@ -88,6 +89,8 @@ class OrganizerApi {
         if (venueName != null && venueName.trim().isNotEmpty)
           'venue_name': venueName.trim(),
         if (city != null && city.trim().isNotEmpty) 'city': city.trim(),
+        if (description != null && description.trim().isNotEmpty)
+          'description': description.trim(),
         'is_public': isPublic ?? false,
       });
       return;
@@ -101,6 +104,7 @@ class OrganizerApi {
       update['venue_name'] = venueName.trim();
     }
     if (city != null && city.trim().isNotEmpty) update['city'] = city.trim();
+    if (description != null) update['description'] = description.trim();
     if (isPublic != null) update['is_public'] = isPublic;
     await supa.from('event_pages').update(update).eq('event_id', eventId);
   }
@@ -131,6 +135,8 @@ class OrganizerApi {
     required String email,
     String? phone,
     String? ticketTypeId,
+    String paymentMethod = 'cash', // 'cash' | 'mobile_money' | 'card'
+    String? clientUuid, // idempotency key for a double-tapped Confirm
   }) async {
     final nm = name.trim();
     final emailLc = email.toLowerCase().trim();
@@ -174,11 +180,28 @@ class OrganizerApi {
         .maybeSingle();
 
     if (existing != null) {
-      return WalkInResult(
-        created: false,
-        name: asString(existing['attendee_name'], nm),
-        alreadyCheckedIn: asString(existing['status']) == 'checked_in',
-      );
+      final existingName = asString(existing['attendee_name'], nm);
+      if (asString(existing['status']) == 'checked_in') {
+        return WalkInResult(
+            created: false, name: existingName, alreadyCheckedIn: true);
+      }
+      // On the list but not checked in → check them in now (mirrors web's
+      // walk-in route), instead of making the organizer go find the row.
+      try {
+        await supa.rpc('checkin_registration_by_id', params: {
+          'p_event_id': eventId,
+          'p_registration_id': asString(existing['id']),
+        });
+        return WalkInResult(
+            created: false,
+            name: existingName,
+            alreadyCheckedIn: false,
+            checkedInNow: true);
+      } catch (_) {
+        // Couldn't check them in — still report they're on the list.
+        return WalkInResult(
+            created: false, name: existingName, alreadyCheckedIn: false);
+      }
     }
 
     // Free-tier registration cap (CLAUDE.md: Free = 50/event) — only applies
@@ -188,6 +211,30 @@ class OrganizerApi {
           'This event has reached the registration limit for your current plan.');
     }
 
+    // Paid walk-in with a chosen ticket → the server-authoritative RPC (mig 090)
+    // that looks up the price, records real amount_paid, links the sale to the
+    // seller's cash shift, and is idempotent on clientUuid. The client never
+    // supplies an amount. Mirrors web's /api/events/[id]/walk-in route. Without
+    // this, every mobile door sale was recorded as $0 and skipped cash reconcile.
+    if (ticketTypeId != null && ticketTypeId.isNotEmpty) {
+      final res = await supa.rpc('create_walkin_registration', params: {
+        'p_event_id': eventId,
+        'p_ticket_type_id': ticketTypeId,
+        'p_name': nm,
+        'p_email': emailLc,
+        'p_phone': (phone != null && phone.trim().isNotEmpty) ? phone.trim() : null,
+        'p_payment_method': paymentMethod,
+        'p_client_uuid': clientUuid,
+      });
+      final m = (res is Map) ? Map<String, dynamic>.from(res) : <String, dynamic>{};
+      if (asString(m['status']) == 'error') {
+        throw WalkInBlockedException(
+            asString(m['message'], 'Could not add that walk-in.'));
+      }
+      return WalkInResult(created: true, name: nm, alreadyCheckedIn: false);
+    }
+
+    // No ticket chosen → free general entry (amount_paid 0).
     try {
       await supa.from('registrations').insert({
         'event_id': eventId,
@@ -625,10 +672,16 @@ class WalkInResult {
   /// True when the matched existing registration is already checked in.
   final bool alreadyCheckedIn;
 
+  /// True when a matched, not-yet-checked-in registration was checked in just
+  /// now (mirrors web: a walk-in for someone already on the list checks them in
+  /// in one step instead of making the organizer hunt for them).
+  final bool checkedInNow;
+
   const WalkInResult({
     required this.created,
     required this.name,
     required this.alreadyCheckedIn,
+    this.checkedInNow = false,
   });
 
   bool get alreadyRegistered => !created;

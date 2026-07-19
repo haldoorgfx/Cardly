@@ -24,6 +24,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
   final _org = const OrganizerApi();
   final _picker = ImagePicker();
   final _name = TextEditingController();
+  final _desc = TextEditingController();
   final _venue = TextEditingController();
   final _city = TextEditingController();
 
@@ -36,6 +37,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
   @override
   void dispose() {
     _name.dispose();
+    _desc.dispose();
     _venue.dispose();
     _city.dispose();
     super.dispose();
@@ -139,6 +141,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
           startsAt: _startsAt,
           venueName: _venue.text,
           city: _city.text,
+          description: _desc.text,
           isPublic: false,
         );
       } catch (_) {/* schedule can be added later in event settings */}
@@ -237,6 +240,18 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
             hint: 'e.g. Design Summit 2026',
             controller: _name,
             action: TextInputAction.next,
+          ),
+          const SizedBox(height: 18),
+
+          // Description — optional. Writes event_pages.description so the event
+          // isn't content-less like web-created events (parity).
+          MInput(
+            label: 'Description (optional)',
+            hint: 'What is this event about? Who is it for?',
+            controller: _desc,
+            minLines: 3,
+            maxLines: 6,
+            keyboardType: TextInputType.multiline,
           ),
           const SizedBox(height: 18),
 

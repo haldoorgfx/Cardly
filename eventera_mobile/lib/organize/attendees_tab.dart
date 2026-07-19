@@ -209,6 +209,8 @@ class _OrganizerAttendeesTabState extends State<OrganizerAttendeesTab> {
     if (res == null || !mounted) return;
     if (res.created) {
       showToast(context, '${res.name} added to the list ✓');
+    } else if (res.checkedInNow) {
+      showToast(context, '${res.name} was on the list — checked in ✓');
     } else if (res.alreadyCheckedIn) {
       showToast(context, '${res.name} is already checked in.');
     } else {
@@ -784,6 +786,51 @@ class _WalkInSheetState extends State<_WalkInSheet> {
   bool _busy = false;
   String? _error;
 
+  // Ticket selection — a paid ticket routes the sale through the server RPC
+  // (real price + cash shift, server-authoritative amount); null = "Free entry"
+  // keeps the $0 general-admission path.
+  List<Map<String, dynamic>> _tickets = [];
+  String? _ticketId;
+  String _payment = 'cash';
+  bool _loadingTickets = true;
+  // Stable per sheet so a double-tapped Confirm is idempotent (RPC keys on it).
+  late final String _clientUuid =
+      'mwalkin-${DateTime.now().microsecondsSinceEpoch}';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTickets();
+  }
+
+  Future<void> _loadTickets() async {
+    try {
+      final rows = await supa
+          .from('ticket_types')
+          .select('id, name, price, currency')
+          .eq('event_id', widget.eventId)
+          .order('position');
+      if (!mounted) return;
+      setState(() {
+        _tickets = asMapList(rows);
+        _loadingTickets = false;
+      });
+    } catch (_) {
+      if (mounted) setState(() => _loadingTickets = false);
+    }
+  }
+
+  String _ticketLabel(Map<String, dynamic> t) {
+    final name = asString(t['name'], 'Ticket');
+    final price = (t['price'] as num?)?.toDouble() ?? 0;
+    if (price <= 0) return '$name · Free';
+    final cur = asString(t['currency'], 'USD');
+    final p = price == price.roundToDouble()
+        ? price.toStringAsFixed(0)
+        : price.toStringAsFixed(2);
+    return '$name · $cur $p';
+  }
+
   @override
   void dispose() {
     _name.dispose();
@@ -818,6 +865,9 @@ class _WalkInSheetState extends State<_WalkInSheet> {
         name: _name.text,
         email: _email.text,
         phone: _phone.text,
+        ticketTypeId: _ticketId,
+        paymentMethod: _payment,
+        clientUuid: _clientUuid,
       );
       if (mounted) Navigator.of(context).pop(res);
     } on WalkInBlockedException catch (e) {
@@ -874,6 +924,36 @@ class _WalkInSheetState extends State<_WalkInSheet> {
           action: TextInputAction.done,
           onSubmitted: (_) => _submit(),
         ),
+        // Ticket picker — a paid ticket records the real price + cash shift via
+        // the server RPC; "Free entry" keeps the $0 general-admission path.
+        if (!_loadingTickets && _tickets.isNotEmpty) ...[
+          const SizedBox(height: 16),
+          Text('Ticket', style: AppText.bodySm.copyWith(color: AppColors.inkMuted)),
+          const SizedBox(height: 8),
+          Wrap(spacing: 8, runSpacing: 8, children: [
+            MChip('Free entry',
+                selected: _ticketId == null,
+                onTap: () => setState(() => _ticketId = null)),
+            for (final t in _tickets)
+              MChip(_ticketLabel(t),
+                  selected: _ticketId == asString(t['id']),
+                  onTap: () => setState(() => _ticketId = asString(t['id']))),
+          ]),
+          if (_ticketId != null) ...[
+            const SizedBox(height: 12),
+            Text('Payment',
+                style: AppText.bodySm.copyWith(color: AppColors.inkMuted)),
+            const SizedBox(height: 8),
+            Wrap(spacing: 8, children: [
+              MChip('Cash',
+                  selected: _payment == 'cash',
+                  onTap: () => setState(() => _payment = 'cash')),
+              MChip('Card',
+                  selected: _payment == 'card',
+                  onTap: () => setState(() => _payment = 'card')),
+            ]),
+          ],
+        ],
         if (_error != null) ...[
           const SizedBox(height: 12),
           Row(
