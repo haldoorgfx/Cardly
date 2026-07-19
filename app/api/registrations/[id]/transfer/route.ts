@@ -1,4 +1,5 @@
 import { createAdminClient, createClient } from '@/lib/supabase/server';
+import { registrationOwnershipFilter } from '@/lib/registration/ownership';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { sendTransferEmail } from '@/lib/registration/email';
@@ -27,7 +28,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     .from('registrations')
     .select('id, attendee_name, attendee_email, qr_code_token, status, events!inner(slug, event_pages(title, starts_at))')
     .eq('id', params.id)
-    .or(`attendee_email.eq.${(user.email ?? '').toLowerCase()},user_id.eq.${user.id}`)
+    .or(registrationOwnershipFilter(user.id, user.email))
     .in('status', ['confirmed', 'pending_approval'])
     .maybeSingle();
 

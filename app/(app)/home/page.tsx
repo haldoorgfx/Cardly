@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import type { Metadata } from 'next';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { registrationOwnershipFilter } from '@/lib/registration/ownership';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { getVisibleSections } from '@/lib/rbac/sections';
@@ -57,7 +58,6 @@ export default async function HomePage() {
   const sections = await getVisibleSections(user.id);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const admin = createAdminClient() as any;
-  const email = (user.email ?? '').toLowerCase();
 
   let org: OrgData | null = null;
   if (sections.organizing) {
@@ -104,7 +104,7 @@ export default async function HomePage() {
     const { data: regs } = await admin
       .from('registrations')
       .select('id, created_at, events(id, name, event_pages(starts_at))')
-      .or(`attendee_email.eq.${email},user_id.eq.${user.id}`)
+      .or(registrationOwnershipFilter(user.id, user.email))
       .in('status', ['confirmed', 'checked_in', 'pending', 'pending_approval'])
       .order('created_at', { ascending: false }).limit(12);
     const now = new Date();
