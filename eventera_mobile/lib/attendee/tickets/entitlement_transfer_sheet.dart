@@ -147,7 +147,10 @@ class _EntitlementTransferSheetState extends State<EntitlementTransferSheet> {
   }
 
   Future<void> _search() async {
-    final q = _searchCtrl.text.trim();
+    // Strip PostgREST `.or()`-breaking characters (comma/paren/etc.) so a name
+    // like "Doe, Jane" doesn't 400 the query and silently break the search
+    // (same sanitization the discover search uses).
+    final q = _searchCtrl.text.trim().replaceAll(RegExp(r'[(),*:%]'), ' ').trim();
     setState(() => _searching = true);
     try {
       var query = supa
