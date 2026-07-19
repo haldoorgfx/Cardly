@@ -206,6 +206,27 @@ export default async function PublicEventPage({ params, searchParams }: Props) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? '';
   const eventUrl = `${appUrl}/e/${params.slug}`;
   // schema.org/Event structured data → Google event rich results.
+  // Ticket offers — this is what puts a price in Google's Event rich result and
+  // is a recommended property for eligibility. One Offer per visible ticket,
+  // with availability derived from real remaining stock (never claims InStock
+  // for a sold-out tier).
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const eventOffers = (allTickets as any[]).map((t) => {
+    const quantity = t?.quantity as number | null | undefined;
+    const soldOut = quantity != null && (t?.quantity_sold ?? 0) >= quantity;
+    return {
+      '@type': 'Offer',
+      ...(t?.name ? { name: t.name as string } : {}),
+      price: (t?.price as number) ?? 0,
+      priceCurrency: (t?.currency as string) ?? 'USD',
+      url: `${eventUrl}/register`,
+      availability: soldOut
+        ? 'https://schema.org/SoldOut'
+        : 'https://schema.org/InStock',
+      ...(t?.sales_start ? { validFrom: t.sales_start as string } : {}),
+    };
+  });
+
   const eventJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Event',
@@ -220,6 +241,10 @@ export default async function PublicEventPage({ params, searchParams }: Props) {
       ? { description: page.seo_description ?? page.tagline }
       : {}),
     ...(page.cover_image_url ? { image: [page.cover_image_url] } : {}),
+    ...(eventOffers.length > 0 ? { offers: eventOffers } : {}),
+    ...(page.organizer_name
+      ? { organizer: { '@type': 'Organization', name: page.organizer_name } }
+      : {}),
     url: eventUrl,
     location: page.is_online
       ? { '@type': 'VirtualLocation', url: eventUrl }

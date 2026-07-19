@@ -14,7 +14,21 @@ export async function POST(req: NextRequest) {
 
   try {
     const verification = await verifyFlutterwaveTransaction(transaction_id ?? tx_ref);
-    const { status, amount, currency } = verification.data ?? {};
+    const { status, amount, currency, tx_ref: verifiedRef } = verification.data ?? {};
+
+    // SECURITY: `transaction_id` is supplied by the (unauthenticated) client.
+    // Without binding the VERIFIED transaction back to this registration's
+    // reference, anyone could pair ANY successful transaction on the merchant
+    // account — including their own cheap one — with someone else's
+    // qr_code_token and have it marked paid (the amount check below would be
+    // comparing the other transaction's amount). Require an exact tx_ref match.
+    if (!verifiedRef || verifiedRef !== tx_ref) {
+      console.error('[FW confirm] tx_ref mismatch', { claimed: tx_ref, verified: verifiedRef ?? null });
+      return NextResponse.json(
+        { error: 'This transaction does not match the registration' },
+        { status: 422 },
+      );
+    }
 
     const admin = createAdminClient();
 

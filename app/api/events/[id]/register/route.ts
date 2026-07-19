@@ -11,6 +11,7 @@ import { canRegisterForEvent } from '@/lib/billing/can';
 import { createNotification, notifyOrganizerNewRegistration } from '@/lib/notifications';
 import { allowedNeedsTags } from '@/lib/registration/needs-options';
 import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
+import { toStripeMinorUnits } from '@/lib/payments/currency';
 import { z } from 'zod';
 
 // ── Input validation ──────────────────────────────────────────────────────────
@@ -495,7 +496,9 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   if (!isFree) {
     let clientSecret: string | null = null;
     try {
-      const amountInCents = Math.round(split.charged * 100);
+      // Zero-decimal currencies (DJF, UGX, RWF, XOF, XAF, KMF …) take the major
+      // unit directly — a blanket ×100 overcharged those by 100×.
+      const amountInCents = toStripeMinorUnits(split.charged, ticket.currency);
       const pi = await createTicketPaymentIntent({
         amount: amountInCents,
         currency: ticket.currency,

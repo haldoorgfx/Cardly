@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
   const db = createAdminClient();
   let q = db
     .from('registrations')
-    .select('id, status, checked_in_at, attendee_name, event_id, events!inner(user_id)');
+    .select('id, status, payment_status, amount_paid, checked_in_at, attendee_name, event_id, events!inner(user_id)');
   q = token ? q.eq('qr_code_token', token) : q.eq('id', regId);
   const { data: reg } = await q.maybeSingle();
 
@@ -32,6 +32,25 @@ export async function POST(req: NextRequest) {
       ok: true, already_checked_in: true,
       registration_id: reg.id, attendee_name: reg.attendee_name, checked_in_at: reg.checked_in_at,
     });
+  }
+
+  // Same guards the web check-in route enforces — without them this endpoint is
+  // a clean bypass: a cancelled/refunded attendee could be admitted (and their
+  // status silently overwritten), as could an unpaid holder of a paid ticket.
+  if (reg.status === 'cancelled' || reg.status === 'refunded') {
+    return NextResponse.json(
+      { error: `This registration was ${reg.status} and cannot be checked in.` },
+      { status: 409 },
+    );
+  }
+  const owesPayment =
+    (reg.amount_paid ?? 0) > 0 &&
+    (reg.payment_status === 'pending' || reg.payment_status === 'failed');
+  if (owesPayment) {
+    return NextResponse.json(
+      { error: 'This ticket has not been paid for yet.' },
+      { status: 409 },
+    );
   }
 
   const now = new Date().toISOString();
