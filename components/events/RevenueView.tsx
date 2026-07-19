@@ -58,7 +58,12 @@ function StatCard({ icon, label, value, sub }: { icon: React.ReactNode; label: s
 export function RevenueView({ registrations }: Props) {
   const [tab, setTab] = useState<'tickets' | 'promoters' | 'utm'>('tickets');
 
-  const paidRegs = useMemo(() => registrations.filter(r => r.payment_status === 'paid' || r.payment_status === 'free'), [registrations]);
+  // Revenue is summed over the confirmed set (already filtered to confirmed+
+  // checked_in server-side); amount_paid is the source of truth and free tickets
+  // contribute 0. NOT gated on payment_status — that gate dropped comp/manual
+  // rows with amount_paid>0 that Overview/Analytics/Reports all count, so the
+  // Revenue total read lower than every other surface.
+  const paidRegs = registrations;
   const totalRevenue = useMemo(() => paidRegs.reduce((s, r) => s + (r.amount_paid ?? 0), 0), [paidRegs]);
   const totalFee = useMemo(() => paidRegs.reduce((s, r) => s + (r.platform_fee ?? 0), 0), [paidRegs]);
   const totalNet = useMemo(
@@ -67,8 +72,8 @@ export function RevenueView({ registrations }: Props) {
   );
   const primaryCurrency = paidRegs.find(r => r.amount_paid > 0)?.currency ?? 'USD';
   const totalCount = registrations.length;
-  const paidCount = paidRegs.filter(r => r.payment_status === 'paid').length;
-  const freeCount = paidRegs.filter(r => r.payment_status === 'free').length;
+  const paidCount = registrations.filter(r => (r.amount_paid ?? 0) > 0).length;
+  const freeCount = registrations.filter(r => (r.amount_paid ?? 0) === 0).length;
 
   // By ticket type
   const byTicket = useMemo(() => {
