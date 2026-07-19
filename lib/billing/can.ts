@@ -19,12 +19,16 @@ export async function getUserPlan(userId: string): Promise<Plan> {
 
   if (!data) return 'free';
 
-  // Only downgrade if there's an explicitly failed/cancelled subscription.
-  // Any other value (null, '', 'active', 'trialing', or unknown) → honor the plan.
-  // This correctly handles manually-assigned plans with no Stripe subscription.
+  // Only downgrade if there's an explicitly failed/cancelled/never-paid
+  // subscription. Any other value (null, '', 'active', 'trialing', or unknown)
+  // → honor the plan. This correctly handles manually-assigned/comped plans
+  // with no Stripe subscription.
+  //   • incomplete → the FIRST payment never succeeded (card declined at
+  //     signup), which previously still granted full Pro/Studio for free.
   const subscriptionFailed =
     data.subscription_status === 'canceled' ||
-    data.subscription_status === 'past_due';
+    data.subscription_status === 'past_due' ||
+    data.subscription_status === 'incomplete';
 
   if (subscriptionFailed && data.plan !== 'free') return 'free';
   return (data.plan as Plan) ?? 'free';

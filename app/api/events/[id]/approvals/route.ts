@@ -53,6 +53,28 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         return NextResponse.json({ error: 'Cannot approve — the event is at full capacity' }, { status: 409 });
       }
     }
+
+    // A paid registration created under approval-gating carries NO payment
+    // intent (the register route deliberately defers payment), so flipping it
+    // to `confirmed` here would hand out a free valid ticket AND book the
+    // uncollected amount as revenue (every revenue query sums amount_paid over
+    // confirmed+checked_in). Refuse until payment is actually collected.
+    const { data: target } = await admin
+      .from('registrations')
+      .select('amount_paid, payment_status')
+      .eq('id', registrationId)
+      .eq('event_id', id)
+      .maybeSingle();
+    const owesPayment =
+      (target?.amount_paid ?? 0) > 0 &&
+      (target?.payment_status === 'pending' || target?.payment_status === 'failed');
+    if (owesPayment) {
+      return NextResponse.json({
+        error:
+          'This application is for a paid ticket that has not been paid for yet. ' +
+          'Approving it would confirm the ticket for free — collect payment first, then approve.',
+      }, { status: 409 });
+    }
   }
 
   const newStatus = action === 'approve' ? 'confirmed' : 'rejected';

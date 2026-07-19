@@ -128,12 +128,28 @@ export async function POST(req: NextRequest) {
       // Mark registration as refunded when Stripe processes a refund
       const charge = event.data.object as { payment_intent?: string | null };
       if (charge.payment_intent) {
+        // The .in(status) guard doubles as the idempotency key: a replayed
+        // refund webhook matches zero rows the second time, so the seat is
+        // returned exactly once.
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await (admin as any)
+        const { data: refundedRows } = await (admin as any)
           .from('registrations')
           .update({ status: 'refunded', payment_status: 'refunded', updated_at: new Date().toISOString() })
           .eq('stripe_payment_intent_id', charge.payment_intent)
-          .in('status', ['confirmed', 'checked_in', 'pending']);
+          .in('status', ['confirmed', 'checked_in', 'pending'])
+          .select('id, ticket_type_id');
+
+        // Give the seat back. Without this a refunded ticket held its slot
+        // forever and the event silently under-sold against max capacity.
+        for (const r of (refundedRows ?? []) as { ticket_type_id: string | null }[]) {
+          if (r.ticket_type_id) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            await (admin as any).rpc('decrement_ticket_quantity_sold', {
+              ticket_id: r.ticket_type_id,
+              qty: 1,
+            });
+          }
+        }
       }
       break;
     }

@@ -24,7 +24,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: reg } = await (admin as any)
     .from('registrations')
-    .select('id, attendee_name, attendee_email, qr_code_token, status, events!inner(id, user_id, slug, event_pages(title, starts_at, timezone, venue_name, is_online))')
+    .select('id, attendee_name, attendee_email, qr_code_token, status, amount_paid, payment_status, events!inner(id, user_id, slug, event_pages(title, starts_at, timezone, venue_name, is_online))')
     .eq('id', params.id)
     .maybeSingle();
 
@@ -42,6 +42,20 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
           return NextResponse.json({ error: 'Cannot approve — the event is at full capacity' }, { status: 409 });
         }
       }
+    }
+
+    // A paid registration created under approval-gating carries NO payment
+    // intent, so confirming it here would grant a free valid ticket AND book
+    // the uncollected amount as revenue. Refuse until payment is collected.
+    const owesPayment =
+      (reg.amount_paid ?? 0) > 0 &&
+      (reg.payment_status === 'pending' || reg.payment_status === 'failed');
+    if (owesPayment) {
+      return NextResponse.json({
+        error:
+          'This application is for a paid ticket that has not been paid for yet. ' +
+          'Approving it would confirm the ticket for free — collect payment first, then approve.',
+      }, { status: 409 });
     }
   }
 

@@ -7,7 +7,7 @@ import { isWaafiPayCurrency } from '@/lib/payments/waafipay';
 import { splitTicketAmount, type FeeBearer } from '@/lib/billing/fees';
 import { onRegistrationConfirmed } from '@/lib/integrations/dispatch';
 import type { Plan } from '@/lib/billing/plans';
-import { canRegisterForEvent } from '@/lib/billing/can';
+import { canRegisterForEvent, getUserPlan } from '@/lib/billing/can';
 import { createNotification, notifyOrganizerNewRegistration } from '@/lib/notifications';
 import { allowedNeedsTags } from '@/lib/registration/needs-options';
 import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
@@ -262,9 +262,11 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     const { data: fb } = await (admin as any).from('events').select('fee_bearer').eq('id', params.id).single();
     if (fb?.fee_bearer === 'pass') feeBearer = 'pass';
     if (evRow.user_id) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: orgProfile } = await (admin as any).from('profiles').select('plan').eq('id', evRow.user_id).single();
-      organizerPlan = (orgProfile?.plan as Plan) ?? 'free';
+      // Use getUserPlan, not the raw profiles.plan column — it applies the
+      // subscription-status downgrade (canceled/past_due/incomplete/unpaid).
+      // Reading the column directly let a lapsed Studio organizer keep their
+      // 0% take-rate indefinitely, losing platform revenue on every ticket.
+      organizerPlan = await getUserPlan(evRow.user_id);
     }
   }
   const split = isFree
