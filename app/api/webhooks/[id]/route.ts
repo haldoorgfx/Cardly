@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { updateWebhook, deleteWebhook } from '@/lib/webhooks';
 import { validateWebhookUrl } from '@/lib/webhooks/ssrf';
+import { getUserPlan } from '@/lib/billing/can';
 import type { WebhookEvent } from '@/lib/webhooks';
 
 const VALID_EVENTS: WebhookEvent[] = ['card.generated', 'event.published', 'event.viewed'];
@@ -14,6 +15,12 @@ export async function PATCH(
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  // Same Studio gate POST enforces. Without it a downgraded account could still
+  // re-enable, re-point and re-subscribe its existing webhooks indefinitely.
+  if ((await getUserPlan(user.id)) !== 'studio') {
+    return NextResponse.json({ error: 'Webhooks require the Studio plan.' }, { status: 402 });
+  }
 
   const body = await req.json();
   const patch: Parameters<typeof updateWebhook>[2] = {};

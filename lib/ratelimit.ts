@@ -109,7 +109,11 @@ const ROUTE_TIERS: Array<{ prefix: string; tier: LimiterTier }> = [
   // Storage-writing uploads (sharp/storage cost).
   { prefix: '/api/sponsors/upload',           tier: 'render'   },
   { prefix: '/api/upload',                    tier: 'render'   },
-  // Expensive generation — image rendering and LLM calls
+  // Expensive generation — image rendering and LLM calls.
+  // NOTE: /api/v1/render must be listed too — it does NOT match the
+  // '/api/render' prefix, so it was silently falling through to 'standard'
+  // (60/min) for the single most expensive endpoint on the public API.
+  { prefix: '/api/v1/render',                 tier: 'render'   },
   { prefix: '/api/render',                    tier: 'render'   },
   { prefix: '/api/era',                       tier: 'render'   },
   { prefix: '/api/apply-solid-bg',            tier: 'render'   },
