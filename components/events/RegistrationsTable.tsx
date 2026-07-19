@@ -54,6 +54,7 @@ interface Props {
   totalCardsGenerated?: number;
   serverCheckedInCount?: number;
   serverPendingCount?: number;
+  serverConfirmedCount?: number;
   serverRevenueByCurrency?: Record<string, number>;
   plan?: 'free' | 'pro' | 'studio';
   eventName?: string;
@@ -935,7 +936,7 @@ function ReportModal({ report, onClose }: { report: string; onClose: () => void 
 }
 
 /* ── Main table ─────────────────────────────────────────────────────────────── */
-export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, totalCount, ticketTypes, formFields = [], cardEmails = [], totalCardsGenerated, serverCheckedInCount, serverPendingCount, serverRevenueByCurrency, plan = 'free', eventName }: Props) {
+export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, totalCount, ticketTypes, formFields = [], cardEmails = [], totalCardsGenerated, serverCheckedInCount, serverPendingCount, serverConfirmedCount, serverRevenueByCurrency, plan = 'free', eventName }: Props) {
   const confirm = useConfirm();
   const cardEmailSet = new Set(cardEmails);
   const [rows, setRows]               = useState(initialRegistrations);
@@ -1126,7 +1127,13 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
         })
         .join(' + ')
     : total > 0 ? 'Free' : '—';
-  const checkInPct     = total > 0 ? `${Math.round((checkedInCount / total) * 100)}%` : '0%';
+  // Check-in rate = checked_in ÷ the confirmed set (confirmed + checked_in),
+  // NOT ÷ total (which includes pending/cancelled/refunded and understated the
+  // rate, disagreeing with Overview/Analytics/Reports/Check-in).
+  const confirmedCount = rowsComplete
+    ? rows.filter(r => r.status === 'confirmed' || r.status === 'checked_in').length
+    : (serverConfirmedCount ?? rows.filter(r => r.status === 'confirmed' || r.status === 'checked_in').length);
+  const checkInPct     = confirmedCount > 0 ? `${Math.round((checkedInCount / confirmedCount) * 100)}%` : '0%';
 
   return (
     <div>

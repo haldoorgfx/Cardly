@@ -63,7 +63,10 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   // Live registration stats for grounding the model's answers.
   const [{ count: totalRegs }, { count: confirmed }, { count: checkedIn }, { count: waitlisted }] =
     await Promise.all([
-      adminAny.from('registrations').select('id', { count: 'exact', head: true }).eq('event_id', params.id),
+      // "Registered" = confirmed + checked_in everywhere in the product, so
+      // ground the model on that same set — quoting a raw all-status total made
+      // Copilot state a higher number than the Overview/Analytics headline.
+      adminAny.from('registrations').select('id', { count: 'exact', head: true }).eq('event_id', params.id).in('status', ['confirmed', 'checked_in']),
       adminAny.from('registrations').select('id', { count: 'exact', head: true }).eq('event_id', params.id).in('status', ['confirmed', 'checked_in']),
       adminAny.from('registrations').select('id', { count: 'exact', head: true }).eq('event_id', params.id).eq('status', 'checked_in'),
       adminAny.from('registrations').select('id', { count: 'exact', head: true }).eq('event_id', params.id).eq('status', 'waitlisted'),

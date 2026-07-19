@@ -39,11 +39,14 @@ export default async function RevenuePage({ params }: Props) {
   // silently blanked this page to $0 while Reports showed real revenue. So try
   // the full select, then fall back to guaranteed base columns on any error
   // (RevenueView already defaults the optional fields).
+  // Canonical "registered" set — confirmed + checked_in — so the Attendees
+  // stat and revenue here match Overview/Analytics/Reports/Check-in. Including
+  // pending_approval made this page's counts read higher than every other one.
   const runRegQuery = (cols: string) => admin
     .from('registrations')
     .select(cols)
     .eq('event_id', id)
-    .in('status', ['confirmed', 'checked_in', 'pending_approval'])
+    .in('status', ['confirmed', 'checked_in'])
     .order('created_at', { ascending: false });
 
   let regsRes = await runRegQuery(

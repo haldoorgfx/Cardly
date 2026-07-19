@@ -23,7 +23,7 @@ export default async function RegistrationsPage({ params }: Props) {
 
   const admin = createAdminClient();
 
-  const [{ data: event }, regResult, { data: ticketTypes }, cardsResult, checkedInResult, pendingResult, revenueResult] = await Promise.all([
+  const [{ data: event }, regResult, { data: ticketTypes }, cardsResult, checkedInResult, pendingResult, confirmedResult, revenueResult] = await Promise.all([
     admin
       .from('events')
       .select('id, name, slug')
@@ -56,6 +56,15 @@ export default async function RegistrationsPage({ params }: Props) {
       .select('id', { count: 'exact', head: true })
       .eq('event_id', id)
       .eq('status', 'pending'),
+    // Canonical "registered" set (confirmed + checked_in) — the denominator the
+    // check-in rate must use, matching Overview/Analytics/Reports/Check-in.
+    // Dividing by the raw `Total` (which includes pending/cancelled/refunded)
+    // understated the rate and disagreed with every other surface.
+    admin
+      .from('registrations')
+      .select('id', { count: 'exact', head: true })
+      .eq('event_id', id)
+      .in('status', ['confirmed', 'checked_in']),
     // Revenue: only pull amount+currency for paid, confirmed registrations —
     // a pending row already has amount_paid populated at checkout initiation
     // (before the payment webhook confirms it), so excluding pending here is
@@ -89,6 +98,7 @@ export default async function RegistrationsPage({ params }: Props) {
   // Server-computed aggregate stats (correct for any event size)
   const serverCheckedInCount = checkedInResult.count ?? 0;
   const serverPendingCount   = pendingResult.count ?? 0;
+  const serverConfirmedCount = confirmedResult.count ?? 0;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const serverRevenueByCurrency = (revenueResult.data ?? []).reduce<Record<string, number>>((acc: Record<string, number>, r: any) => {
     const cur = (r.currency as string) || 'USD';
@@ -116,6 +126,7 @@ export default async function RegistrationsPage({ params }: Props) {
           totalCardsGenerated={totalCardsGenerated}
           serverCheckedInCount={serverCheckedInCount}
           serverPendingCount={serverPendingCount}
+          serverConfirmedCount={serverConfirmedCount}
           serverRevenueByCurrency={serverRevenueByCurrency}
           plan={plan}
           eventName={event.name}
