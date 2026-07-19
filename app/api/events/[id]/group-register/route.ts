@@ -112,6 +112,32 @@ export async function POST(req: NextRequest, { params }: Params) {
     }, { status: 409 });
   }
 
+  // Capacity pre-check per ticket type. increment_ticket_quantity_sold silently
+  // NO-OPS when it would push quantity_sold past quantity, so without this the
+  // seats got inserted while the counter stayed put — a permanent oversell that
+  // surfaced no error to anyone.
+  const wanted: Record<string, number> = {};
+  for (const s of seats as Seat[]) {
+    if (s.ticketTypeId) wanted[s.ticketTypeId] = (wanted[s.ticketTypeId] ?? 0) + 1;
+  }
+  const wantedIds = Object.keys(wanted);
+  if (wantedIds.length > 0) {
+    const { data: tts } = await adminAny
+      .from('ticket_types')
+      .select('id, name, quantity, quantity_sold')
+      .in('id', wantedIds);
+    for (const tt of (tts ?? []) as { id: string; name: string; quantity: number | null; quantity_sold: number }[]) {
+      if (tt.quantity == null) continue; // unlimited
+      const remaining = tt.quantity - (tt.quantity_sold ?? 0);
+      const need = wanted[tt.id] ?? 0;
+      if (need > remaining) {
+        return NextResponse.json({
+          error: `Only ${Math.max(0, remaining)} seat${remaining === 1 ? '' : 's'} left on “${tt.name}” — you tried to register ${need}.`,
+        }, { status: 409 });
+      }
+    }
+  }
+
   const rows = seats.map((s: Seat) => ({
     event_id: eventId,
     ticket_type_id: s.ticketTypeId,
@@ -119,6 +145,12 @@ export async function POST(req: NextRequest, { params }: Params) {
     attendee_email: s.email,
     attendee_data: s.whatsapp ? { whatsapp: s.whatsapp } : {},
     status: 'confirmed',
+    // Be explicit: a group registration is confirmed by the organizer with any
+    // payment handled out-of-band, so Eventera processed nothing. Leaving these
+    // unset left the rows looking like confirmed-but-unpaid and made them
+    // ambiguous to every revenue query.
+    payment_status: 'free',
+    amount_paid: 0,
     source: 'group_registration',
   }));
 
