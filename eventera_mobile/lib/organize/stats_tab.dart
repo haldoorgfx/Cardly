@@ -21,10 +21,14 @@ class OrganizerStatsTab extends StatefulWidget {
 }
 
 class _Entry {
-  final String id, name;
+  final String id, name, status;
   final bool checkedIn;
   final DateTime? checkedInAt;
-  _Entry(this.id, this.name, this.checkedIn, this.checkedInAt);
+  _Entry(this.id, this.name, this.status, this.checkedIn, this.checkedInAt);
+  // "Registered" (the headline count + rate denominator) = confirmed set, to
+  // match web. The RPC also returns pending/pending_approval rows for the
+  // attendee LIST, but those must not inflate the stat card / check-in rate.
+  bool get isRegistered => status == 'confirmed' || status == 'checked_in';
 }
 
 class _OrganizerStatsTabState extends State<OrganizerStatsTab> {
@@ -36,6 +40,10 @@ class _OrganizerStatsTabState extends State<OrganizerStatsTab> {
   bool _error = false;
   bool _listError = false;
   RealtimeChannel? _channel;
+  // Event revenue = sum of amount_paid over the confirmed set (confirmed +
+  // checked_in), matching web's canonical revenue KPI. null = not loaded/failed.
+  double? _revenue;
+  String _revenueCurrency = 'USD';
 
   @override
   void initState() {
@@ -107,6 +115,7 @@ class _OrganizerStatsTabState extends State<OrganizerStatsTab> {
         _listError = false;
       });
     }
+    _loadRevenue(eventId); // parallel — manages its own state, never blocks counts
     try {
       final rows =
           await supa.rpc('list_event_attendees', params: {'p_event_id': eventId});
@@ -115,6 +124,7 @@ class _OrganizerStatsTabState extends State<OrganizerStatsTab> {
         return _Entry(
           asString(m['id']),
           asString(m['attendee_name'], 'Guest'),
+          asString(m['status']),
           asBool(m['checked_in']),
           asDate(m['checked_in_at']),
         );
@@ -137,6 +147,37 @@ class _OrganizerStatsTabState extends State<OrganizerStatsTab> {
     }
   }
 
+  /// Event revenue = sum of amount_paid over the confirmed set (confirmed +
+  /// checked_in), no payment_status gate — the exact rule web's revenue KPI
+  /// uses. Free tickets contribute 0. Failure leaves _revenue null (the tile
+  /// shows a calm placeholder, never a fake 0).
+  Future<void> _loadRevenue(String eventId) async {
+    try {
+      final rows = await supa
+          .from('registrations')
+          .select('amount_paid, currency')
+          .eq('event_id', eventId)
+          .inFilter('status', ['confirmed', 'checked_in'])
+          .gt('amount_paid', 0);
+      double total = 0;
+      String cur = 'USD';
+      for (final r in (rows as List)) {
+        final m = Map<String, dynamic>.from(r as Map);
+        total += (m['amount_paid'] as num?)?.toDouble() ?? 0;
+        final c = asString(m['currency']);
+        if (c.isNotEmpty) cur = c;
+      }
+      if (mounted && _selectedId == eventId) {
+        setState(() {
+          _revenue = total;
+          _revenueCurrency = cur;
+        });
+      }
+    } catch (_) {
+      if (mounted && _selectedId == eventId) setState(() => _revenue = null);
+    }
+  }
+
   Future<void> _refresh() async {
     final id = _selectedId;
     if (id != null) await _loadList(id);
@@ -147,6 +188,7 @@ class _OrganizerStatsTabState extends State<OrganizerStatsTab> {
     setState(() {
       _selectedId = e.id;
       _entries = [];
+      _revenue = null;
     });
     _loadList(e.id);
     _subscribe(e.id);
@@ -216,7 +258,7 @@ class _OrganizerStatsTabState extends State<OrganizerStatsTab> {
       ]);
     }
 
-    final registered = _entries.length;
+    final registered = _entries.where((e) => e.isRegistered).length;
     final checked = _entries.where((e) => e.checkedIn).length;
     final rate = registered == 0 ? 0 : ((checked / registered) * 100).round();
 
@@ -263,6 +305,13 @@ class _OrganizerStatsTabState extends State<OrganizerStatsTab> {
             Expanded(
                 child: _statCard('Checked in', '$checked', gold: true)),
           ]),
+          const SizedBox(height: 12),
+          // Revenue — parity with web's revenue KPI. Placeholder until loaded.
+          _statCard(
+              'Revenue',
+              _revenue == null
+                  ? '—'
+                  : '$_revenueCurrency ${_revenue!.toStringAsFixed(0)}'),
           const SizedBox(height: 12),
           // Check-in rate ring.
           MCard(

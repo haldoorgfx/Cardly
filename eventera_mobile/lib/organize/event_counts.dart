@@ -20,9 +20,16 @@ Future<Map<String, EventCounts?>> loadEventCounts(List<String> eventIds) async {
       final rows = await supa
           .rpc('list_event_attendees', params: {'p_event_id': id});
       final list = (rows as List);
+      // "Registered" = confirmed set (confirmed + checked_in), matching web.
+      // The RPC also returns pending/pending_approval rows (for the attendee
+      // list); those must not inflate the dashboard card's count.
+      final registered = list.where((r) {
+        final s = asString((r as Map)['status']);
+        return s == 'confirmed' || s == 'checked_in';
+      }).length;
       final checked = list.where((r) => asBool((r as Map)['checked_in'])).length;
       return MapEntry<String, EventCounts?>(
-          id, EventCounts(list.length, checked));
+          id, EventCounts(registered, checked));
     } catch (_) {
       return MapEntry<String, EventCounts?>(id, null);
     }
