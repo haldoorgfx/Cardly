@@ -69,7 +69,11 @@ export async function POST(req: NextRequest) {
             attendeeName: updated.attendee_name,
           });
         }
-        sendRegistrationConfirmEmail({
+        // Awaited: on serverless the function can be frozen the moment the
+        // response returns, so a fire-and-forget send is dropped and the
+        // attendee never receives their ticket. .catch still keeps a mail
+        // failure from breaking the webhook.
+        await sendRegistrationConfirmEmail({
           to: updated.attendee_email,
           attendeeName: updated.attendee_name,
           eventTitle: ep?.title ?? '',

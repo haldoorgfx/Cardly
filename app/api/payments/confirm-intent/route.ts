@@ -58,7 +58,9 @@ export async function POST(req: NextRequest) {
           eventName: eventPage.title,
           attendeeName: updated.attendee_name,
         });
-        sendRegistrationConfirmEmail({
+        // Awaited so the ticket email isn't dropped when the serverless
+        // function freezes on response (see Stripe webhook).
+        await sendRegistrationConfirmEmail({
           to: updated.attendee_email,
           attendeeName: updated.attendee_name,
           eventTitle: eventPage.title,

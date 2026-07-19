@@ -68,7 +68,8 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const eventSlug = reg.events?.slug ?? '';
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? '';
 
-  sendTransferEmail({
+  // Awaited — a dropped send means the new holder never receives the ticket.
+  await sendTransferEmail({
     to: to_email,
     name: to_name,
     eventTitle: ep?.title ?? '',

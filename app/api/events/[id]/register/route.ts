@@ -551,7 +551,9 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       eventId: params.id,
     }).catch(() => {});
   } else {
-    sendRegistrationConfirmEmail({
+    // Awaited so the ticket email isn't dropped when the serverless function
+    // freezes the moment the response returns.
+    await sendRegistrationConfirmEmail({
       to: registration.attendee_email,
       attendeeName: registration.attendee_name,
       eventTitle: eventPage.title,

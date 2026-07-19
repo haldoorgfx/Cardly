@@ -49,7 +49,8 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   // Send invite email (fire-and-forget)
   const { data: inviterProfile } = await supabase.from('profiles').select('full_name, email').eq('id', user.id).single();
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? '';
-  sendTeamInviteEmail({
+  // Awaited — the invite link only reaches the teammate by email.
+  await sendTeamInviteEmail({
     to: email.trim().toLowerCase(),
     teamName: team.name,
     inviterName: inviterProfile?.full_name ?? inviterProfile?.email ?? 'Someone',
