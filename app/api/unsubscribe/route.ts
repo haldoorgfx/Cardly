@@ -14,9 +14,20 @@ export async function POST(req: NextRequest) {
   const parsed = readUnsubscribeToken(token);
   if (!parsed) return NextResponse.json({ error: 'Invalid or expired link' }, { status: 400 });
 
-  await recordUnsubscribe(parsed.email, parsed.eventId);
+  const recorded = await recordUnsubscribe(parsed.email, parsed.eventId);
 
-  // Always 200 to the mail provider. A provider that sees an error may keep
-  // showing the unsubscribe affordance, or count it against sender reputation.
+  // Only claim success when the opt-out was actually written. Reporting ok
+  // regardless would tell the recipient "you're unsubscribed" while nothing
+  // was recorded — the exact broken promise this feature exists to avoid, and
+  // it would keep mailing someone who believes they opted out. A 503 is also
+  // the honest signal to Gmail/Yahoo, which retry it rather than treating the
+  // opt-out as done.
+  if (!recorded) {
+    return NextResponse.json(
+      { error: 'We could not record that right now. Please try again shortly.' },
+      { status: 503 },
+    );
+  }
+
   return NextResponse.json({ ok: true });
 }
