@@ -132,7 +132,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: eventStatusRow } = await (admin as any)
     .from('events')
-    .select('status')
+    .select('status, slug')
     .eq('id', params.id)
     .maybeSingle();
   const wasPublished = eventStatusRow?.status === 'published' || !!priorPage?.is_public;
@@ -212,7 +212,15 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 
     if (wasPublished && relevantChange) {
       const eventTitle = updatedPage?.title ?? priorPage?.title ?? 'the event';
-      const slug = updatedPage?.custom_slug ?? priorPage?.custom_slug ?? params.id;
+      // Fall back to the event's own slug, NOT the raw event id — `/e/<uuid>`
+      // is not a public URL, so every attendee whose event has no custom_slug
+      // got an "event updated" notification that 404s on tap. (The publish
+      // notification in events/[id]/route.ts already falls back correctly.)
+      const slug =
+        updatedPage?.custom_slug ??
+        priorPage?.custom_slug ??
+        eventStatusRow?.slug ??
+        params.id;
 
       // Confirmed / checked-in attendees who have an account (cap to a sane number).
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

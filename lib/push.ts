@@ -136,9 +136,36 @@ async function deliverToToken(
         }),
       },
     );
-    // Stale/invalid tokens → prune so we don't keep hammering them.
-    if (res.status === 404 || res.status === 400) {
-      await admin.from('user_devices').delete().eq('fcm_token', token);
+    // Prune ONLY genuinely dead tokens.
+    //
+    // FCM v1 returns 404 NOT_FOUND / UNREGISTERED for a token that no longer
+    // exists — but it ALSO returns 400 INVALID_ARGUMENT for a malformed
+    // MESSAGE (bad title/body/data). Pruning on a bare 400 meant a single
+    // malformed notification deleted healthy tokens for every recipient it
+    // touched, silently unsubscribing real devices from push.
+    //
+    // The delete is also scoped to this user, so we never remove a row that
+    // another account has since claimed on a shared device.
+    const pruneToken = async () => {
+      await admin
+        .from('user_devices')
+        .delete()
+        .eq('fcm_token', token)
+        .eq('user_id', opts.userId);
+    };
+
+    if (res.status === 404) {
+      await pruneToken();
+    } else if (res.status === 400) {
+      // Only prune if the error really is about the token, not the payload.
+      const errBody = await res.json().catch(() => null);
+      const code =
+        errBody?.error?.status ??
+        errBody?.error?.details?.[0]?.errorCode ??
+        '';
+      if (code === 'UNREGISTERED' || code === 'NOT_FOUND') {
+        await pruneToken();
+      }
     }
   } catch {
     // ignore a single failed device
