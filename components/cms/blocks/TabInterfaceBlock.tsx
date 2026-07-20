@@ -4,12 +4,14 @@ import { useState } from 'react';
 import type { TabInterfaceContent } from '@/lib/cms/types';
 
 export function TabInterfaceBlock({ content }: { content: TabInterfaceContent }) {
-  const { tabs } = content;
+  // Defensive: free-form block JSON may omit `tabs` — render nothing, never throw.
+  const tabs = content.tabs ?? [];
   const [active, setActive] = useState(0);
 
   if (tabs.length === 0) return null;
 
-  const tab = tabs[active];
+  // `active` can outlive a shrunken tabs array (content edited under a live page).
+  const tab = tabs[active] ?? tabs[0];
 
   return (
     <section className="relative">

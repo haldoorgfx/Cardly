@@ -82,7 +82,8 @@ export function ContactChannelsBlock({ content }: ContactChannelsBlockProps) {
       )}
 
       <div className="grid sm:grid-cols-2 gap-5">
-        {content.channels.map((channel, i) => (
+        {/* Defensive: free-form block JSON may omit `channels` — render empty, never throw. */}
+        {(content.channels ?? []).map((channel, i) => (
           <ChannelCard key={i} channel={channel} />
         ))}
       </div>

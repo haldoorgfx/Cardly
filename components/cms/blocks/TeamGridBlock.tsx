@@ -4,7 +4,9 @@ import type { TeamGridContent } from '@/lib/cms/types';
 import { SectionHeaderBlock } from './SectionHeaderBlock';
 
 export function TeamGridBlock({ content }: { content: TeamGridContent }) {
-  const { header, members, ctaButton } = content;
+  // Defensive: free-form block JSON may omit `members` — render empty, never throw.
+  const { header, ctaButton } = content;
+  const members = content.members ?? [];
 
   return (
     <section className="relative">

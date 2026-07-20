@@ -543,12 +543,17 @@ function getDefaultContent(type: BlockType): Record<string, unknown> {
   const defaults: Partial<Record<BlockType, Record<string, unknown>>> = {
     hero: { eyebrow: '', headline: 'Your headline here', subheadline: '', buttons: [], layout: 'split' },
     sectionHeader: { eyebrow: '', headline: 'Section heading', subtext: '', align: 'center' },
-    richText: { html: '<p>Your content here.</p>' },
+    // RichTextContent's field is `markdown`, not `html` — seeding `html` left
+    // `markdown` undefined and RichTextBlock's `content.markdown.split()` threw,
+    // 500-ing the whole preview page for every newly added Rich Text block.
+    richText: { markdown: 'Your content here.' },
     featuresGrid: { header: { headline: 'Features' }, cards: [], background: 'light', columns: 3 },
     stepsGrid: { header: { headline: 'How it works' }, steps: [], layout: 'horizontal' },
     faqAccordion: { header: { headline: 'FAQ' }, items: [] },
     cta: { headline: 'Ready to get started?', subtext: '', buttons: [], background: 'default' },
-    logoStrip: { eyebrow: 'Used by', logos: [] },
+    // LogoStripContent's field is `label` — `eyebrow` was dead data the renderer
+    // never read, so the seeded caption never appeared on the page.
+    logoStrip: { label: 'Used by', logos: [] },
     pricingCards: { header: { headline: 'Pricing' }, plans: [] },
     comparisonTable: { header: { headline: 'Compare plans' }, groups: [] },
     testimonial: { quote: '', authorName: '', authorRole: '' },

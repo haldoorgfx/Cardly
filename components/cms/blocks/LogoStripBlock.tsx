@@ -6,6 +6,8 @@ interface LogoStripBlockProps {
 }
 
 function getMonogram(name: string): string {
+  // Authored JSON can leave `name` unset — .trim() on undefined would 500 the page.
+  if (!name) return '';
   const words = name.trim().split(/\s+/);
   if (words.length === 1) return name.slice(0, 2).toUpperCase();
   return (words[0][0] + words[1][0]).toUpperCase();
@@ -28,7 +30,8 @@ export function LogoStripBlock({ content }: LogoStripBlockProps) {
         )}
 
         <div className="flex flex-wrap items-center justify-center gap-6 lg:gap-10">
-          {content.logos.map((logo, i) =>
+          {/* Defensive: free-form block JSON may omit `logos` — render empty, never throw. */}
+          {(content.logos ?? []).map((logo, i) =>
             logo.logo_url ? (
               <img
                 key={i}

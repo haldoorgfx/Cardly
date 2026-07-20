@@ -141,14 +141,12 @@ function ChangelogEntries({ entries }: { entries: DBEntry[] }) {
                   </span>
                 </div>
 
-                <h2 className="font-display font-bold text-ink text-[22px] sm:text-[26px] lg:text-[28px] tracking-[-0.025em] leading-[1.1] mb-3">
+                <h2 className="font-display font-bold text-ink text-[22px] sm:text-[26px] lg:text-[28px] tracking-[-0.025em] leading-[1.1] mb-5">
                   {entry.title}
                 </h2>
-                <p className="text-ink-soft text-[15px] lg:text-[16px] leading-[1.7] mb-6">
-                  {entry.description}
-                </p>
-
-                {/* Type tag */}
+                {/* Type tag + description. This row used to repeat `entry.title`
+                    verbatim (copy-paste), so every entry showed its title twice
+                    and the description was duplicated above it. */}
                 <div className="rounded-xl overflow-hidden" style={{ border: '1px solid #E5E0D4' }}>
                   <div
                     className="flex items-center gap-3 px-5 py-3.5 bg-surface"
@@ -160,7 +158,7 @@ function ChangelogEntries({ entries }: { entries: DBEntry[] }) {
                       {style.label}
                     </span>
                     <span className="text-ink-soft text-[13px] lg:text-[14px] leading-[1.55]">
-                      {entry.title}
+                      {entry.description}
                     </span>
                   </div>
                 </div>

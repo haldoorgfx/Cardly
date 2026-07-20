@@ -4,7 +4,9 @@ import type { PricingCardsContent } from '@/lib/cms/types';
 import { SectionHeaderBlock } from './SectionHeaderBlock';
 
 export function PricingCardsBlock({ content }: { content: PricingCardsContent }) {
-  const { header, plans, trialBanner, trustItems } = content;
+  // Defensive: free-form block JSON may omit `plans` — render empty, never throw.
+  const { header, trialBanner, trustItems } = content;
+  const plans = content.plans ?? [];
 
   return (
     <section className="relative">
@@ -50,7 +52,7 @@ export function PricingCardsBlock({ content }: { content: PricingCardsContent })
               </div>
 
               <ul className="mt-7 space-y-3 flex-1">
-                {plan.features.map((f) => (
+                {(plan.features ?? []).map((f) => (
                   <li key={f.text} className={`flex items-start gap-2.5 text-[14px] ${plan.highlighted ? 'text-[rgba(250,246,238,0.9)]' : 'text-[#3A4A42]'} ${!f.included ? 'opacity-40' : ''}`}>
                     <span className={plan.highlighted ? 'text-[#E8C57E]' : 'text-[#1F4D3A]'}>
                       <Check size={15} strokeWidth={2.5} />

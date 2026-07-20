@@ -6,7 +6,9 @@ import type { FaqAccordionContent } from '@/lib/cms/types';
 import { SectionHeaderBlock } from './SectionHeaderBlock';
 
 export function FaqAccordionBlock({ content }: { content: FaqAccordionContent }) {
-  const { header, items, defaultOpen } = content;
+  // Defensive: free-form block JSON may omit `items` — render empty, never throw.
+  const { header, defaultOpen } = content;
+  const items = content.items ?? [];
   const [open, setOpen] = useState<number | null>(defaultOpen ?? null);
 
   return (

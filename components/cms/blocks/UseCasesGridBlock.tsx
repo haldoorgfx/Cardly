@@ -4,7 +4,9 @@ import type { UseCasesGridContent } from '@/lib/cms/types';
 import { SectionHeaderBlock } from './SectionHeaderBlock';
 
 export function UseCasesGridBlock({ content }: { content: UseCasesGridContent }) {
-  const { header, cases, columns = 2 } = content;
+  // Defensive: free-form block JSON may omit `cases` — render empty, never throw.
+  const { header, columns = 2 } = content;
+  const cases = content.cases ?? [];
 
   const gridCols = columns === 6
     ? 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-6'

@@ -1,7 +1,9 @@
 import type { ProseSectionsContent } from '@/lib/cms/types';
 
 export function ProseSectionsBlock({ content }: { content: ProseSectionsContent }) {
-  const { eyebrow, headline, updatedAt, sections, warningBanner } = content;
+  // Defensive: free-form block JSON may omit `sections` — render empty, never throw.
+  const { eyebrow, headline, updatedAt, warningBanner } = content;
+  const sections = content.sections ?? [];
 
   return (
     <section className="max-w-[820px] mx-auto px-5 lg:px-10 pt-20 pb-28">
@@ -31,7 +33,7 @@ export function ProseSectionsBlock({ content }: { content: ProseSectionsContent 
             <h2 className="font-display font-bold text-[22px] text-[#0F1F18] mb-3">
               {s.h2}
             </h2>
-            {s.paragraphs.map((p, pi) => (
+            {(s.paragraphs ?? []).map((p, pi) => (
               <p key={pi} className="mb-3 last:mb-0">{p}</p>
             ))}
           </section>

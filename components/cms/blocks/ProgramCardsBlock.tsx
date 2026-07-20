@@ -3,7 +3,9 @@ import type { ProgramCardsContent } from '@/lib/cms/types';
 import { SectionHeaderBlock } from './SectionHeaderBlock';
 
 export function ProgramCardsBlock({ content }: { content: ProgramCardsContent }) {
-  const { header, programs } = content;
+  // Defensive: free-form block JSON may omit `programs` — render empty, never throw.
+  const { header } = content;
+  const programs = content.programs ?? [];
 
   return (
     <section className="relative">
@@ -33,7 +35,7 @@ export function ProgramCardsBlock({ content }: { content: ProgramCardsContent })
               </h3>
               <p className="text-[14px] text-[#3A4A42] leading-[1.6] mb-5">{p.description}</p>
               <ul className="mt-auto space-y-2">
-                {p.bullets.map((b) => (
+                {(p.bullets ?? []).map((b) => (
                   <li key={b} className="flex items-start gap-2 text-[13px] text-[#3A4A42]">
                     <Check size={13} strokeWidth={2.5} className="shrink-0 mt-0.5" style={{ color: '#1F4D3A' }} />
                     {b}

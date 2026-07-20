@@ -2,7 +2,9 @@ import type { FeaturesGridContent } from '@/lib/cms/types';
 import { SectionHeaderBlock } from './SectionHeaderBlock';
 
 export function FeaturesGridBlock({ content }: { content: FeaturesGridContent }) {
-  const { header, cards, background = 'light', columns = 3 } = content;
+  // Defensive: free-form block JSON may omit `cards` — render empty, never throw.
+  const { header, background = 'light', columns = 3 } = content;
+  const cards = content.cards ?? [];
   const dark = background === 'dark';
 
   return (

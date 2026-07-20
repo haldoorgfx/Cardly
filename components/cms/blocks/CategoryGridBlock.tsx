@@ -3,7 +3,10 @@ import type { CategoryGridContent } from '@/lib/cms/types';
 import { SectionHeaderBlock } from './SectionHeaderBlock';
 
 export function CategoryGridBlock({ content }: { content: CategoryGridContent }) {
-  const { header, categories } = content;
+  // Defensive: block content is free-form JSON — a missing array must render
+  // an empty section, not throw and 500 the whole page.
+  const { header } = content;
+  const categories = content.categories ?? [];
 
   return (
     <section className="relative">
@@ -26,7 +29,7 @@ export function CategoryGridBlock({ content }: { content: CategoryGridContent })
               </div>
               <p className="text-[14px] text-[#3A4A42] leading-[1.6] mb-5">{cat.description}</p>
               <ul className="space-y-1.5">
-                {cat.articles.map((article) => (
+                {(cat.articles ?? []).map((article) => (
                   <li key={article.title}>
                     <Link href={article.href}
                       className="text-[13px] text-[#1F4D3A] hover:underline hover:text-[#163828] transition-colors">

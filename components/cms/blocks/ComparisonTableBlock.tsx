@@ -9,7 +9,9 @@ function Cell({ val }: { val: string | boolean }) {
 }
 
 export function ComparisonTableBlock({ content }: { content: ComparisonTableContent }) {
-  const { header, groups } = content;
+  // Defensive: free-form block JSON may omit `groups` — render empty, never throw.
+  const { header } = content;
+  const groups = content.groups ?? [];
 
   return (
     <section className="relative">
@@ -39,7 +41,7 @@ export function ComparisonTableBlock({ content }: { content: ComparisonTableCont
                   {group.label}
                 </span>
               </div>
-              {group.rows.map((row, ri) => (
+              {(group.rows ?? []).map((row, ri) => (
                 <div key={ri} className={`grid grid-cols-[2fr_1fr_1fr_1fr] border-b border-[#E5E0D4] last:border-b-0 hover:bg-[#FAF6EE] transition-colors`}>
                   <div className="px-5 py-3.5 text-[13px] text-[#0F1F18] font-medium">{row.feature}</div>
                   <div className="px-4 py-3.5 text-center"><Cell val={row.free} /></div>

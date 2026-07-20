@@ -17,7 +17,7 @@ export function HeroBlock({ content }: { content: HeroContent }) {
           <h1 className="font-title font-bold text-[#0F1F18] leading-[0.97] text-[48px] sm:text-[64px] lg:text-[76px]">
             {headlineAccent ? (
               <>
-                {headline.replace(headlineAccent, '')}{' '}
+                {(headline ?? '').replace(headlineAccent, '')}{' '}
                 <span style={{ color: '#1F4D3A' }}>{headlineAccent}</span>
               </>
             ) : headline}
@@ -68,7 +68,7 @@ export function HeroBlock({ content }: { content: HeroContent }) {
           <h1 className="font-title font-bold text-[#0F1F18] leading-[0.97] text-[48px] sm:text-[64px] lg:text-[76px]">
             {headlineAccent ? (
               <>
-                {headline.replace(headlineAccent, '')}{' '}
+                {(headline ?? '').replace(headlineAccent, '')}{' '}
                 <span style={{ color: '#1F4D3A' }}>{headlineAccent}</span>
               </>
             ) : headline}

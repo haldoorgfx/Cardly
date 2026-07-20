@@ -21,7 +21,8 @@ export function PressSectionBlock({ content }: PressSectionBlockProps) {
         )}
 
         <div className="grid md:grid-cols-3 gap-4 lg:gap-5">
-          {content.mentions.map((mention, i) => (
+          {/* Defensive: free-form block JSON may omit `mentions` — render empty, never throw. */}
+          {(content.mentions ?? []).map((mention, i) => (
             <article
               key={i}
               className="bg-surface border rounded-2xl p-6 lg:p-7"

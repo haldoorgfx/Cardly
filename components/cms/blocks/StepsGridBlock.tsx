@@ -3,7 +3,9 @@ import { SectionHeaderBlock } from './SectionHeaderBlock';
 import { Check } from 'lucide-react';
 
 export function StepsGridBlock({ content }: { content: StepsGridContent }) {
-  const { header, steps, layout = 'horizontal' } = content;
+  // Defensive: free-form block JSON may omit `steps` — render empty, never throw.
+  const { header, layout = 'horizontal' } = content;
+  const steps = content.steps ?? [];
 
   if (layout === 'alternating') {
     // Detailed step layout (as used on /how-it-works)

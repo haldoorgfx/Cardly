@@ -5,7 +5,9 @@ interface RichTextBlockProps {
 }
 
 export function RichTextBlock({ content }: RichTextBlockProps) {
-  const paragraphs = content.markdown
+  // Blocks are authored as free-form JSON, so `markdown` can legitimately be
+  // absent. Server-rendered, an unguarded .split() would 500 the whole page.
+  const paragraphs = (content.markdown ?? '')
     .split(/\n\n+/)
     .map((p) => p.trim())
     .filter(Boolean);

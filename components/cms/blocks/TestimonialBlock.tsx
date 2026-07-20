@@ -7,7 +7,8 @@ interface TestimonialBlockProps {
 }
 
 function getInitials(name: string): string {
-  return name
+  // Authored JSON can leave `authorName` unset — .split() on undefined would 500.
+  return (name ?? '')
     .split(' ')
     .slice(0, 2)
     .map((w) => w[0]?.toUpperCase() ?? '')
