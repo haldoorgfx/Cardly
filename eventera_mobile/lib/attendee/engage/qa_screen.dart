@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../net.dart';
 import '../../ui/components.dart';
 import '../../ui/tokens.dart';
+import '../event_context.dart';
+import '../register/registration_screen.dart';
 import '_shared.dart';
 
 /// QaScreen — audience Q&A. Reads `qa_questions_public` (078 lockdown — the
@@ -225,6 +227,25 @@ class _QaScreenState extends State<QaScreen> {
 
   Future<void> _openComposer() async {
     if (_rid == null) {
+      // Only registered attendees can ask. Take them to registration rather
+      // than stopping at an error toast they can't act on.
+      final ctx = EventContext.current;
+      if (ctx != null && ctx.eventId == widget.eventId && ctx.slug.isNotEmpty) {
+        await Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) => RegistrationScreen(
+            eventId: ctx.eventId,
+            slug: ctx.slug,
+            eventName: ctx.eventName,
+          ),
+        ));
+        if (!mounted) return;
+        // Registration updates EventContext — pick the new id up so the next
+        // tap opens the composer instead of bouncing again.
+        _rid = await effectiveRegId(widget.registrationId, widget.eventId);
+        if (!mounted) return;
+        setState(() {});
+        return;
+      }
       showToast(context, 'Register for this event to ask a question',
           type: ToastType.error);
       return;
@@ -319,10 +340,16 @@ class _QaScreenState extends State<QaScreen> {
       child: visible.isEmpty
           ? ListView(children: [
               SizedBox(height: MediaQuery.of(context).size.height * 0.18),
-              const EngageState(
+              EngageState(
                 icon: Icons.forum_outlined,
                 title: 'No questions yet',
-                subtitle: 'Be the first to ask.',
+                subtitle:
+                    'Nobody has asked anything at this event. Yours would be first.',
+                action: MButton('Ask a question',
+                    icon: Icons.add,
+                    fullWidth: false,
+                    small: true,
+                    onTap: _openComposer),
               ),
             ])
           : ListView.builder(

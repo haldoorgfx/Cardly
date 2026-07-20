@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../attendee/app_shell.dart';
 import '../attendee/event_landing_screen.dart';
 import '../net.dart';
 import '../roles/role_widgets.dart';
@@ -161,13 +162,17 @@ class _SponsoringScreenState extends State<SponsoringScreen> {
             : _events.isEmpty
                 ? ListView(
                     physics: const AlwaysScrollableScrollPhysics(),
-                    children: const [
-                      SizedBox(height: 120),
+                    children: [
+                      const SizedBox(height: 120),
                       EmptyState(
                         icon: Icons.work_outline,
                         title: 'No sponsored events yet',
                         message:
-                            'Events where you are added as a sponsor will appear here.',
+                            'Organizers add your booth from their own dashboard '
+                            '— the event then shows up here with your lead '
+                            'scanner and booth tools.',
+                        ctaLabel: 'Browse events',
+                        onCta: _browseEvents,
                       ),
                     ],
                   )
@@ -187,6 +192,13 @@ class _SponsoringScreenState extends State<SponsoringScreen> {
                   ),
       ),
     );
+  }
+
+  /// Nothing here can create a sponsorship, so the empty state hands the user
+  /// back to Discover rather than leaving only a back button.
+  void _browseEvents() {
+    Navigator.of(context).popUntil((r) => r.isFirst);
+    mainTab.value = 0;
   }
 
   void _open(_SponsorEvent e) {

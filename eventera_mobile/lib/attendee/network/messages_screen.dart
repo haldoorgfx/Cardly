@@ -4,6 +4,9 @@ import '../../net.dart';
 import '../../ui/tokens.dart';
 import '../../ui/components.dart';
 import '../engage/_shared.dart';
+import '../event_context.dart';
+import '../register/registration_screen.dart';
+import 'people_screen.dart';
 import 'thread_screen.dart';
 
 /// Inbox of the attendee's message threads for an event.
@@ -107,10 +110,14 @@ class _MessagesScreenState extends State<MessagesScreen> {
     return MScaffold(
       appBar: const MAppBar(title: 'Messages', showBack: false, hairline: true),
       body: !_canNetwork
-          ? const EmptyState(
+          ? EmptyState(
               icon: Icons.badge_outlined,
               title: 'Register to message',
-              message: 'Register for this event to message other attendees.',
+              message:
+                  'Messaging is between registered attendees. Register and you '
+                  'can start a conversation with anyone here.',
+              ctaLabel: _eventCtx != null ? 'Register for this event' : null,
+              onCta: _eventCtx != null ? _openRegistration : null,
             )
           : _loading
               ? const LoadingState()
@@ -125,16 +132,52 @@ class _MessagesScreenState extends State<MessagesScreen> {
     );
   }
 
+  /// The in-memory context for THIS event, or null when it belongs to another
+  /// event (or the app restarted). Gates the two navigation CTAs below, both
+  /// of which need the event slug.
+  EventContext? get _eventCtx {
+    final c = EventContext.current;
+    if (c != null && c.eventId == widget.eventId && c.slug.isNotEmpty) return c;
+    return null;
+  }
+
+  Future<void> _openRegistration() async {
+    final ctx = _eventCtx;
+    if (ctx == null) return;
+    await Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => RegistrationScreen(
+          eventId: ctx.eventId, slug: ctx.slug, eventName: ctx.eventName),
+    ));
+    if (!mounted) return;
+    _resolveRegThenLoad();
+  }
+
+  Future<void> _openPeople() async {
+    final ctx = _eventCtx;
+    if (ctx == null) return;
+    await Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => PeopleScreen(
+          eventId: widget.eventId, slug: ctx.slug, registrationId: _rid),
+    ));
+    if (mounted) _load();
+  }
+
   Widget _buildList() {
     if (_threads.isEmpty) {
+      final canBrowse = _eventCtx != null;
       return ListView(
         physics: const AlwaysScrollableScrollPhysics(),
-        children: const [
-          SizedBox(height: 100),
+        children: [
+          const SizedBox(height: 100),
           EmptyState(
             icon: Icons.forum_outlined,
             title: 'No conversations yet',
-            message: 'Message someone from the People tab to get started.',
+            message: canBrowse
+                ? 'Conversations start when you message someone. Browse who '
+                    'else is at this event and say hello.'
+                : 'Conversations you start with other attendees appear here.',
+            ctaLabel: canBrowse ? 'Find people to message' : null,
+            onCta: canBrowse ? _openPeople : null,
           ),
         ],
       );

@@ -255,12 +255,21 @@ class _SessionQaScreenState extends State<SessionQaScreen> {
       color: AppColors.forest,
       onRefresh: _reload,
       child: qs.isEmpty
-          ? ListView(children: const [
-              SizedBox(height: 80),
+          ? ListView(children: [
+              const SizedBox(height: 80),
               EmptyState(
-                  icon: Icons.filter_alt_off_outlined,
-                  title: 'Nothing here',
-                  message: 'No questions match this filter.'),
+                icon: Icons.filter_alt_off_outlined,
+                title: _filter == 1
+                    ? 'Every question is answered'
+                    : 'Nothing answered yet',
+                message: _filter == 1
+                    ? 'You have replied to all ${_all.length} questions in '
+                        'this session.'
+                    : 'You have not answered any of the ${_all.length} '
+                        'questions in this session yet.',
+                ctaLabel: 'Show all questions',
+                onCta: () => setState(() => _filter = 0),
+              ),
             ])
           : ListView.separated(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),

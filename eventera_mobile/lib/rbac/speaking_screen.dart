@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../attendee/app_shell.dart';
 import '../attendee/event_landing_screen.dart';
 import '../attendee/hub/session_detail_screen.dart';
 import '../net.dart';
@@ -171,13 +172,17 @@ class _SpeakingScreenState extends State<SpeakingScreen> {
             : _events.isEmpty
                 ? ListView(
                     physics: const AlwaysScrollableScrollPhysics(),
-                    children: const [
-                      SizedBox(height: 120),
+                    children: [
+                      const SizedBox(height: 120),
                       EmptyState(
                         icon: Icons.mic_none_outlined,
                         title: 'No speaking events yet',
                         message:
-                            'Events where you are added as a speaker will appear here.',
+                            'Organizers add you as a speaker from their own '
+                            'dashboard — the event then shows up here with your '
+                            'sessions and green room details.',
+                        ctaLabel: 'Browse events',
+                        onCta: _browseEvents,
                       ),
                     ],
                   )
@@ -196,6 +201,13 @@ class _SpeakingScreenState extends State<SpeakingScreen> {
                   ),
       ),
     );
+  }
+
+  /// Nothing on this screen can create a speaking slot, so the empty state
+  /// hands the user back to Discover rather than leaving only a back button.
+  void _browseEvents() {
+    Navigator.of(context).popUntil((r) => r.isFirst);
+    mainTab.value = 0;
   }
 
   void _openEvent(_SpeakingEvent e) {

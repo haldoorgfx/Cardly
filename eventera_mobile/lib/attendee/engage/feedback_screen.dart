@@ -104,8 +104,9 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
               ),
             ]),
       body: gated
-          ? const RegisterPrompt(
-              message: 'Register for this event to leave feedback')
+          ? RegisterPrompt(
+              message: 'Register for this event to leave feedback',
+              eventId: widget.eventId)
           : _done
               ? _thanks()
               : _form(),
@@ -129,7 +130,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                   size: 36, color: AppColors.forest),
             ),
             const SizedBox(height: AppSpace.lg),
-            Text('Thank you!', style: AppText.h1.copyWith(fontSize: 24)),
+            Text('Feedback sent', style: AppText.h1.copyWith(fontSize: 24)),
             const SizedBox(height: AppSpace.sm),
             Text(
               'Your feedback went to the organizer. See you at the next one.',

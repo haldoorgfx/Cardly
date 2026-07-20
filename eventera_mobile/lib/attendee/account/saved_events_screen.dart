@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../net.dart';
 import '../../ui/tokens.dart';
 import '../../ui/components.dart';
+import '../app_shell.dart';
 import '../event_landing_screen.dart';
 
 /// The signed-in attendee's saved / bookmarked events.
@@ -108,16 +109,27 @@ class _SavedEventsScreenState extends State<SavedEventsScreen> {
     );
   }
 
+  /// Leaves this screen and lands on the Discover tab — the one place saved
+  /// events come from. Popping to the shell first means the bottom nav is
+  /// visible again rather than Discover being stacked on top of Account.
+  void _browseEvents() {
+    Navigator.of(context).popUntil((r) => r.isFirst);
+    mainTab.value = 0;
+  }
+
   Widget _buildList() {
     if (_items.isEmpty) {
       return ListView(
         physics: const AlwaysScrollableScrollPhysics(),
-        children: const [
-          SizedBox(height: 100),
+        children: [
+          const SizedBox(height: 100),
           EmptyState(
             icon: Icons.bookmark_border,
             title: 'Nothing saved yet',
-            message: 'You haven\'t saved any events yet.',
+            message: 'Tap the bookmark on any event to keep it here, so you '
+                'can find it again without searching.',
+            ctaLabel: 'Browse events',
+            onCta: _browseEvents,
           ),
         ],
       );

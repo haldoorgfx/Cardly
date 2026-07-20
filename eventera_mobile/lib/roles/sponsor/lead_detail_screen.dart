@@ -76,10 +76,13 @@ class _LeadDetailScreenState extends State<LeadDetailScreen> {
           }
           final m = snap.data;
           if (m == null) {
-            return const EmptyState(
+            return EmptyState(
               icon: Icons.person_off_outlined,
               title: 'Lead not found',
-              message: 'This lead may have been removed.',
+              message: 'This lead is no longer on your booth — a teammate may '
+                  'have deleted it since your list was loaded.',
+              ctaLabel: 'Check again',
+              onCta: _reload,
             );
           }
           final name = (m['attendee_name'] ?? 'Lead').toString();

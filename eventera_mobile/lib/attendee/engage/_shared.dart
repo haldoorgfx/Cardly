@@ -4,6 +4,7 @@ import '../../ui/tokens.dart';
 import '../../ui/components.dart';
 import '../event_context.dart';
 import '../reg_store.dart';
+import '../register/registration_screen.dart';
 
 /// Resolves the registration id an engagement/networking screen should use.
 ///
@@ -119,19 +120,51 @@ class EngageState extends StatelessWidget {
   }
 }
 
-/// A "register to join" prompt shown when registrationId is null. Restyled,
-/// not removed — the gating behaviour is preserved.
+/// A "register to join" prompt shown when registrationId is null.
+///
+/// Registering is the ONLY thing that clears this gate, so the prompt carries
+/// the registration flow itself rather than leaving the user with a back
+/// button. Pass [eventId] so we can confirm the in-memory [EventContext] is
+/// really for this event before offering the button — without a matching
+/// context we have no slug to register against, so the CTA is omitted rather
+/// than sending the user somewhere wrong.
 class RegisterPrompt extends StatelessWidget {
   final String message;
-  const RegisterPrompt(
-      {super.key, this.message = 'Register for this event to join in'});
+  final String? eventId;
+  const RegisterPrompt({
+    super.key,
+    this.message = 'Register for this event to join in',
+    this.eventId,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final ctx = EventContext.current;
+    final canRegister = eventId != null &&
+        ctx != null &&
+        ctx.eventId == eventId &&
+        ctx.slug.isNotEmpty;
     return EngageState(
       icon: Icons.how_to_reg_outlined,
       title: message,
-      subtitle: 'Once you register, you can take part in this.',
+      subtitle: canRegister
+          ? 'Registration is free to start and takes a minute.'
+          : 'Open this event and register to take part.',
+      action: canRegister
+          ? MButton(
+              'Register for this event',
+              fullWidth: false,
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => RegistrationScreen(
+                    eventId: ctx.eventId,
+                    slug: ctx.slug,
+                    eventName: ctx.eventName,
+                  ),
+                ),
+              ),
+            )
+          : null,
     );
   }
 }

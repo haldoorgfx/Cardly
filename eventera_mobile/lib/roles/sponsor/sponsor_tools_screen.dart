@@ -53,10 +53,15 @@ class _SponsorToolsScreenState extends State<SponsorToolsScreen> {
           }
           final booth = snap.data;
           if (booth == null) {
-            return const EmptyState(
+            return EmptyState(
               icon: Icons.business_outlined,
-              title: 'Booth not found',
-              message: 'Your sponsor booth for this event could not be loaded.',
+              title: 'No booth linked yet',
+              message:
+                  'Your account is a sponsor at this event, but the organizer '
+                  'has not linked a booth to it yet. Booth tools open as soon '
+                  'as they do — ask the organizer to add your booth.',
+              ctaLabel: 'Check again',
+              onCta: _reload,
             );
           }
           final sponsorId = (booth['id'] ?? '').toString();

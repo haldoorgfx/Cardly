@@ -4,6 +4,7 @@ import '../../net.dart';
 import '../../ui/tokens.dart';
 import '../../ui/menu.dart';
 import '../../ui/components.dart';
+import '../app_shell.dart';
 import '../organizer/organizer_profile_screen.dart';
 
 /// Organizers the signed-in attendee follows.
@@ -257,26 +258,47 @@ class _FollowingScreenState extends State<FollowingScreen> {
               border: Border.all(color: AppColors.border),
             ),
             padding: const EdgeInsets.symmetric(
-                horizontal: AppSpace.lg, vertical: 28),
-            child: Row(
+                horizontal: AppSpace.lg, vertical: 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.person_search_outlined,
-                    color: AppColors.inkMuted, size: 24),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Not following anyone',
-                          style: AppText.body
-                              .copyWith(fontWeight: FontWeight.w600)),
-                      const SizedBox(height: 2),
-                      Text('Follow an organizer to get new-event alerts.',
-                          style:
-                              AppText.bodySm.copyWith(color: AppColors.inkSoft)),
-                    ],
-                  ),
+                Row(
+                  children: [
+                    const Icon(Icons.person_search_outlined,
+                        color: AppColors.inkMuted, size: 24),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Not following anyone',
+                              style: AppText.body
+                                  .copyWith(fontWeight: FontWeight.w600)),
+                          const SizedBox(height: 2),
+                          Text(
+                            hasSuggestions
+                                ? 'Following an organizer alerts you when they '
+                                    'announce a new event. Pick one below to start.'
+                                : 'Following an organizer alerts you when they '
+                                    'announce a new event.',
+                            style: AppText.bodySm
+                                .copyWith(color: AppColors.inkSoft),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
+                // With no suggestions to offer, this card would otherwise be a
+                // dead end — send them to Discover, where organizers are found.
+                if (!hasSuggestions) ...[
+                  const SizedBox(height: AppSpace.base),
+                  MButton('Browse events',
+                      kind: MBtnKind.sec,
+                      small: true,
+                      fullWidth: false,
+                      onTap: _browseEvents),
+                ],
               ],
             ),
           ),
@@ -294,6 +316,13 @@ class _FollowingScreenState extends State<FollowingScreen> {
         ],
       ],
     );
+  }
+
+  /// Back to the shell, on the Discover tab — where organizers (and so the
+  /// people worth following) actually are.
+  void _browseEvents() {
+    Navigator.of(context).popUntil((r) => r.isFirst);
+    mainTab.value = 0;
   }
 
   Widget _card({required List<Widget> children}) {

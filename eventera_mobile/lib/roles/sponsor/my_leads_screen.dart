@@ -10,6 +10,7 @@ import '../../ui/tokens.dart';
 import '../../ui/components.dart';
 import 'sponsor_api.dart';
 import 'lead_detail_screen.dart';
+import 'lead_scanner_screen.dart';
 
 class MyLeadsScreen extends StatefulWidget {
   final String sponsorId;
@@ -31,6 +32,9 @@ class _MyLeadsScreenState extends State<MyLeadsScreen> {
   late Future<List<_Lead>> _future;
   String _filter = 'all'; // all|hot|warm|cold
   String _q = '';
+  // Owned by this screen so "Clear filters" can actually empty the box —
+  // resetting _q alone would leave the typed text sitting in the field.
+  final TextEditingController _searchCtrl = TextEditingController();
 
   RealtimeChannel? _channel;
 
@@ -60,7 +64,18 @@ class _MyLeadsScreenState extends State<MyLeadsScreen> {
   void dispose() {
     final c = _channel;
     if (c != null) Supabase.instance.client.removeChannel(c);
+    _searchCtrl.dispose();
     super.dispose();
+  }
+
+  /// The only way a lead ever gets into this list — so the empty state opens
+  /// it directly instead of just naming it.
+  Future<void> _openScanner() async {
+    await Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => LeadScannerScreen(
+          sponsorId: widget.sponsorId, boothName: widget.boothName),
+    ));
+    if (mounted) _refresh();
   }
 
   Future<List<_Lead>> _load() async {
@@ -125,10 +140,13 @@ class _MyLeadsScreenState extends State<MyLeadsScreen> {
           }
 
           if (all.isEmpty) {
-            return const EmptyState(
+            return EmptyState(
               icon: Icons.qr_code_scanner,
               title: 'No leads yet',
-              message: 'Open the lead scanner at your booth to capture your first lead.',
+              message: 'Leads are captured by scanning an attendee QR at your '
+                  'booth. Scan your first one to fill this list.',
+              ctaLabel: 'Open lead scanner',
+              onCta: _openScanner,
             );
           }
 
@@ -137,6 +155,7 @@ class _MyLeadsScreenState extends State<MyLeadsScreen> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
                 child: TextField(
+                  controller: _searchCtrl,
                   onChanged: (v) => setState(() => _q = v),
                   decoration: InputDecoration(
                     hintText: 'Search name, email or company',
@@ -170,10 +189,18 @@ class _MyLeadsScreenState extends State<MyLeadsScreen> {
               ),
               Expanded(
                 child: leads.isEmpty
-                    ? const EmptyState(
+                    ? EmptyState(
                         icon: Icons.filter_alt_off_outlined,
-                        title: 'No matches',
-                        message: 'No leads match this filter or search.',
+                        title: 'No leads match',
+                        message: 'You have ${all.length} '
+                            '${all.length == 1 ? 'lead' : 'leads'}, but none '
+                            'match the current search or rating filter.',
+                        ctaLabel: 'Clear filters',
+                        onCta: () => setState(() {
+                          _q = '';
+                          _filter = 'all';
+                          _searchCtrl.clear();
+                        }),
                       )
                     : RefreshIndicator(
                         color: AppColors.forest,

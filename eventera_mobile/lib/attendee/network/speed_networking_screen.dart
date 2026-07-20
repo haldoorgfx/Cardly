@@ -4,6 +4,9 @@ import '../../net.dart';
 import '../../ui/tokens.dart';
 import '../../ui/components.dart';
 import '../engage/_shared.dart';
+import '../event_context.dart';
+import '../register/registration_screen.dart';
+import 'people_screen.dart';
 
 /// Speed networking — a fast one-at-a-time "meet people" deck.
 ///
@@ -34,6 +37,35 @@ class _SpeedNetworkingScreenState extends State<SpeedNetworkingScreen> {
   String? _rid;
 
   bool get _canNetwork => _rid != null && _rid!.isNotEmpty;
+
+  /// In-memory context for THIS event, or null when it's for another event or
+  /// the app restarted. Both CTAs below need the event slug, so they only
+  /// appear when we actually have one.
+  EventContext? get _eventCtx {
+    final c = EventContext.current;
+    if (c != null && c.eventId == widget.eventId && c.slug.isNotEmpty) return c;
+    return null;
+  }
+
+  Future<void> _openRegistration() async {
+    final ctx = _eventCtx;
+    if (ctx == null) return;
+    await Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => RegistrationScreen(
+          eventId: ctx.eventId, slug: ctx.slug, eventName: ctx.eventName),
+    ));
+    if (mounted) _resolveRegThenLoad();
+  }
+
+  Future<void> _openPeople() async {
+    final ctx = _eventCtx;
+    if (ctx == null) return;
+    await Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => PeopleScreen(
+          eventId: widget.eventId, slug: ctx.slug, registrationId: _rid),
+    ));
+    if (mounted) _load();
+  }
 
   @override
   void initState() {
@@ -135,11 +167,16 @@ class _SpeedNetworkingScreenState extends State<SpeedNetworkingScreen> {
   }
 
   Widget _buildBody() {
+    final ctx = _eventCtx;
     if (!_canNetwork) {
-      return const EmptyState(
+      return EmptyState(
         icon: Icons.people_alt_outlined,
         title: 'Register to start networking',
-        message: 'Register for this event to meet other attendees.',
+        message:
+            'Speed networking deals you one attendee at a time to connect with. '
+            'Register for this event to join in.',
+        ctaLabel: ctx != null ? 'Register for this event' : null,
+        onCta: ctx != null ? _openRegistration : null,
       );
     }
     if (_loading) return const LoadingState();
@@ -148,18 +185,22 @@ class _SpeedNetworkingScreenState extends State<SpeedNetworkingScreen> {
           message: _error!, onRetry: _load, reason: _errorReason);
     }
     if (_deck.isEmpty) {
-      return const EmptyState(
+      return EmptyState(
         icon: Icons.people_alt_outlined,
         title: 'No one to meet yet',
-        message: 'No other attendees have joined yet. Check back soon.',
+        message: 'You are the only registered attendee so far. More people '
+            'appear here as they register.',
+        ctaLabel: ctx != null ? 'Open the attendee list' : null,
+        onCta: ctx != null ? _openPeople : null,
       );
     }
     if (_index >= _deck.length) {
       return EmptyState(
         icon: Icons.check_circle_outline,
         title: 'That\'s everyone',
-        message: 'You\'ve been through everyone here.',
-        ctaLabel: 'Start over',
+        message: 'You\'ve been through every attendee in the deck. Shuffle to '
+            'go again, or open the full list to search for someone.',
+        ctaLabel: 'Shuffle and start over',
         onCta: _restart,
       );
     }

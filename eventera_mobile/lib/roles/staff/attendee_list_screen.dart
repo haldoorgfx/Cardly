@@ -32,11 +32,20 @@ class _AttendeeListScreenState extends State<AttendeeListScreen> {
   int _filter = 0; // 0 all · 1 checked-in · 2 pending
   String _q = '';
   String? _busyId; // registration currently being checked in
+  // Owned here so "Show all attendees" can empty the search box, not just the
+  // _q that filters on it.
+  final TextEditingController _searchCtrl = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _future = _load();
+  }
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
   }
 
   Future<List<_Attendee>> _load() async {
@@ -169,8 +178,9 @@ class _AttendeeListScreenState extends State<AttendeeListScreen> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 6),
                 child: MInput(
-                  hint: 'Search attendees',
+                  hint: 'Search attendees by name',
                   icon: Icons.search,
+                  controller: _searchCtrl,
                   onChanged: (v) => setState(() => _q = v),
                 ),
               ),
@@ -187,12 +197,24 @@ class _AttendeeListScreenState extends State<AttendeeListScreen> {
                   color: AppColors.forest,
                   onRefresh: _refresh,
                   child: visible.isEmpty
-                      ? ListView(children: const [
-                          SizedBox(height: 80),
+                      ? ListView(children: [
+                          const SizedBox(height: 80),
                           EmptyState(
-                              icon: Icons.search_off,
-                              title: 'No matches',
-                              message: 'Try a different name or filter.'),
+                            icon: Icons.search_off,
+                            title: 'No attendees match',
+                            message: _q.isNotEmpty
+                                ? 'No attendee name contains "$_q" '
+                                    'in this filter.'
+                                : _filter == 1
+                                    ? 'Nobody has checked in yet.'
+                                    : 'Everyone here has already checked in.',
+                            ctaLabel: 'Show all attendees',
+                            onCta: () => setState(() {
+                              _q = '';
+                              _filter = 0;
+                              _searchCtrl.clear();
+                            }),
+                          ),
                         ])
                       : ListView.separated(
                           padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),

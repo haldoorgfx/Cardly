@@ -4,6 +4,8 @@ import '../../net.dart';
 import '../../ui/tokens.dart';
 import '../../ui/components.dart';
 import '../engage/_shared.dart';
+import '../event_context.dart';
+import '../register/registration_screen.dart';
 import 'thread_screen.dart';
 
 /// Attendee directory + AI matches + connection requests for an event.
@@ -255,6 +257,29 @@ class _PeopleScreenState extends State<PeopleScreen> {
     if (f == _Filter.requests && !_requestsLoaded) _loadRequests();
   }
 
+  /// Registration is the only thing that opens the directory, so the gate
+  /// leads straight into it. We already hold the slug from the hub; the name
+  /// comes from the in-memory event context when it matches this event.
+  Future<void> _openRegistration() async {
+    final ctx = EventContext.current;
+    final name = (ctx != null && ctx.eventId == widget.eventId)
+        ? ctx.eventName
+        : 'this event';
+    await Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => RegistrationScreen(
+        eventId: widget.eventId,
+        slug: widget.slug,
+        eventName: name,
+      ),
+    ));
+    if (!mounted) return;
+    // Registering fills in the id the directory needs — re-resolve and load.
+    _rid = await effectiveRegId(widget.registrationId, widget.eventId);
+    if (!mounted) return;
+    setState(() {});
+    if (_canNetwork) _load();
+  }
+
   void _openThread(String otherId, String otherName) {
     if (!_canNetwork) return;
     Navigator.of(context).push(
@@ -333,10 +358,12 @@ class _PeopleScreenState extends State<PeopleScreen> {
     return MScaffold(
       appBar: const MAppBar(title: 'People', showBack: false, hairline: true),
       body: !_canNetwork
-          ? const _RegisterPrompt(
-              title: 'Register to network',
+          ? _RegisterPrompt(
+              title: 'Register to see who is here',
               message:
-                  'Register for this event to see who else is attending and start connecting.',
+                  'The attendee directory is open to registered attendees only. '
+                  'Register and you can browse everyone and start connecting.',
+              onRegister: _openRegistration,
             )
           : _loading
               ? const LoadingState()
@@ -426,16 +453,14 @@ class _PeopleScreenState extends State<PeopleScreen> {
           ..._matches.map(_buildMatchCard),
           const SizedBox(height: 22),
         ],
-        SectionLabel('All attendees · ${people.length}'),
+        SectionLabel(_filter == _Filter.connected
+            ? 'Connected · ${people.length}'
+            : 'All attendees · ${people.length}'),
         const SizedBox(height: 4),
         if (people.isEmpty)
-          const Padding(
-            padding: EdgeInsets.only(top: 60),
-            child: EmptyState(
-              icon: Icons.groups_outlined,
-              title: 'No one here yet',
-              message: 'No attendees match right now. Check back soon.',
-            ),
+          Padding(
+            padding: const EdgeInsets.only(top: 60),
+            child: _directoryEmptyState(),
           )
         else
           ...people.map(_buildPersonRow),
@@ -443,14 +468,52 @@ class _PeopleScreenState extends State<PeopleScreen> {
     );
   }
 
+  /// The directory can look empty for three different reasons — say which one
+  /// it is and offer the matching way out, instead of one vague "no one here".
+  Widget _directoryEmptyState() {
+    if (_query.isNotEmpty) {
+      return EmptyState(
+        icon: Icons.search_off,
+        title: 'No one matches "$_query"',
+        message: 'No attendee name contains that. Clear the search to see '
+            'everyone who is here.',
+        ctaLabel: 'Clear search',
+        onCta: () {
+          _searchCtrl.clear();
+          setState(() => _query = '');
+        },
+      );
+    }
+    if (_filter == _Filter.connected) {
+      return EmptyState(
+        icon: Icons.group_add_outlined,
+        title: 'No connections yet',
+        message: 'People you connect with appear here. Browse everyone at the '
+            'event to send your first request.',
+        ctaLabel: 'Browse all attendees',
+        onCta: () => _selectFilter(_Filter.all),
+      );
+    }
+    return const EmptyState(
+      icon: Icons.groups_outlined,
+      title: 'Nobody has registered yet',
+      message: 'You are early. Attendees appear here as they register, so '
+          'pull down to refresh closer to the event.',
+    );
+  }
+
   Widget _buildSuggestedTab() {
     if (_matches.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.only(top: 60),
+      return Padding(
+        padding: const EdgeInsets.only(top: 60),
         child: EmptyState(
           icon: Icons.auto_awesome,
           title: 'No suggestions yet',
-          message: 'Check back once more attendees have registered.',
+          message: 'Suggestions are built from what other attendees put in '
+              'their profiles, so they appear once more people register. '
+              'You can still browse everyone in the meantime.',
+          ctaLabel: 'Browse all attendees',
+          onCta: () => _selectFilter(_Filter.all),
         ),
       );
     }
@@ -475,12 +538,15 @@ class _PeopleScreenState extends State<PeopleScreen> {
       );
     }
     if (_incoming.isEmpty && _sent.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.only(top: 60),
+      return Padding(
+        padding: const EdgeInsets.only(top: 60),
         child: EmptyState(
           icon: Icons.inbox_outlined,
           title: 'No pending requests',
-          message: 'Requests you send or receive will appear here.',
+          message: 'Nobody has asked to connect with you, and you have no '
+              'requests out. Browse the directory to send one.',
+          ctaLabel: 'Browse all attendees',
+          onCta: () => _selectFilter(_Filter.all),
         ),
       );
     }
@@ -913,13 +979,17 @@ class _ConnRequest {
 class _RegisterPrompt extends StatelessWidget {
   final String title;
   final String message;
-  const _RegisterPrompt({required this.title, required this.message});
+  final VoidCallback? onRegister;
+  const _RegisterPrompt(
+      {required this.title, required this.message, this.onRegister});
   @override
   Widget build(BuildContext context) {
     return EmptyState(
       icon: Icons.badge_outlined,
       title: title,
       message: message,
+      ctaLabel: onRegister != null ? 'Register for this event' : null,
+      onCta: onRegister,
     );
   }
 }
