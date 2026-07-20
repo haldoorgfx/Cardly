@@ -1088,6 +1088,18 @@ export function AppShell({ children, initialSections, initialProfile, initialEve
       .finally(() => setNotifLoading(false));
   }
 
+  // Load once on mount so the unread dot can actually appear. Previously the
+  // list was only fetched when the bell was CLICKED, so `notifications` was []
+  // on every page load and the badge condition was never true — the indicator
+  // could only ever show after you'd already opened the panel, which defeats
+  // the point of an unread badge.
+  useEffect(() => {
+    fetch('/api/notifications?limit=20')
+      .then(r => r.json())
+      .then(d => setNotifications(d.notifications ?? []))
+      .catch(() => { /* badge is non-critical — never surface an error */ });
+  }, []);
+
   function handleMarkAllRead() {
     fetch('/api/notifications', { method: 'PATCH' }).then(() =>
       setNotifications(prev => prev.map(n => ({ ...n, read_at: n.read_at ?? new Date().toISOString() })))

@@ -24,8 +24,18 @@ export async function GET(req: NextRequest) {
   const { data, error } = await query;
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  const unreadCount = (data as { read_at: string | null }[]).filter(n => !n.read_at).length;
-  return NextResponse.json({ notifications: data, unreadCount });
+  // Count unread across the WHOLE table, not just the page we returned.
+  // Filtering the .limit()ed slice capped the badge at the page size and — worse
+  // — reported 0 whenever the newest 20 happened to be read while older ones
+  // weren't.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { count } = await (admin as any)
+    .from('notifications')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', user.id)
+    .is('read_at', null);
+
+  return NextResponse.json({ notifications: data, unreadCount: count ?? 0 });
 }
 
 // Mark all as read

@@ -1430,7 +1430,20 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
                         className="h-7 pl-2 pr-0.5 rounded-lg text-[11.5px] font-medium outline-none hover:bg-[#FAF6EE] focus:bg-[#FAF6EE] cursor-pointer transition"
                         style={{ maxWidth: 110, background: 'transparent', border: 'none', color: '#0F1F18' }}
                       >
-                        {FONTS.map(f => <option key={f} value={f}>{f}</option>)}
+                        {/* Only the fonts the SERVER renderer actually embeds.
+                            This picker previously listed all 19 FONTS, but
+                            app/api/render's FAMILY_MAP knows just the bundled
+                            set and silently falls back to Inter — so choosing
+                            e.g. Playfair Display previewed in Playfair and came
+                            out of the PNG in Inter, with different metrics (so
+                            wrapping and width shifted too). The sidebar picker
+                            was already restricted this way; this matches it.
+                            A zone saved with a legacy font keeps showing it
+                            until changed, rather than rendering blank. */}
+                        {Array.from(new Set([
+                          ...EDITOR_FONTS,
+                          ...(selected.font && !EDITOR_FONTS.includes(selected.font) ? [selected.font] : []),
+                        ])).map(f => <option key={f} value={f}>{f}</option>)}
                       </select>
 
                       {sep}

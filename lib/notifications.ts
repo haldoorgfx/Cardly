@@ -1,6 +1,7 @@
 import { createAdminClient } from '@/lib/supabase/server';
 import { sendNotificationEmail } from '@/lib/email';
 import { sendPushToUser } from '@/lib/push';
+import type { NotifKey } from '@/lib/notifications/prefs';
 
 type NotificationType = 'registration' | 'card_download' | 'ticket_sale' | 'milestone' | 'sponsor' | 'system' | 'ticket_confirmed' | 'event_reminder' | 'new_event' | 'event_update';
 
@@ -27,26 +28,42 @@ const TYPE_ICONS: Record<NotificationType, string> = {
   event_update:     'bell',
 };
 
-// Which `notification_prefs.*_email` flag gates the EMAIL copy of each type.
-// Types not listed always email (transactional / important by default).
-const TYPE_EMAIL_PREF: Partial<Record<NotificationType, string>> = {
-  registration:     'tickets_email',
-  ticket_confirmed: 'tickets_email',
-  ticket_sale:      'tickets_email',
-  event_reminder:   'reminders_email',
-  event_update:     'agenda_changes_email',
-  new_event:        'organizer_follows_email',
-  // milestone / sponsor / system / card_download → always email
+// Which `notification_prefs` category gates each type. Types not listed are
+// transactional / important and always send.
+//
+// These are the CANONICAL BARE keys the Notifications center actually writes
+// (see lib/notifications/prefs.ts). This map previously used channel-suffixed
+// keys ('tickets_email', …) that the UI never writes, so every lookup returned
+// undefined, `!== false` was always true, and EVERY opt-out was ignored — a
+// user who unchecked "Tickets & receipts" still received all of them.
+const TYPE_NOTIF_KEY: Partial<Record<NotificationType, NotifKey>> = {
+  registration:     'tickets',
+  ticket_confirmed: 'tickets',
+  ticket_sale:      'tickets',
+  event_reminder:   'reminders',
+  event_update:     'agenda_changes',
+  new_event:        'organizer_follows',
+  // milestone / sponsor / system / card_download → always send
 };
 
-function emailAllowed(
+/**
+ * Mirrors lib/notifications/prefs.ts#isNotifAllowed, but against the prefs row
+ * notify() has already loaded (so we don't re-query per channel). Same opt-out
+ * model: allowed unless EXPLICITLY false; unset → allowed; unknown → allowed.
+ */
+function categoryAllowed(
   prefs: Record<string, unknown> | null | undefined,
   type: NotificationType,
 ): boolean {
-  const key = TYPE_EMAIL_PREF[type];
-  if (!key) return true;         // no gate for this type → send
-  if (!prefs) return true;       // prefs default to on
-  return prefs[key] !== false;   // only an explicit false disables it
+  const key = TYPE_NOTIF_KEY[type];
+  if (!key) return true;   // no gate for this type → send
+  if (!prefs) return true; // never set → opt-out model, allowed
+  // 1. Canonical bare key wins.
+  if (typeof prefs[key] === 'boolean') return prefs[key] as boolean;
+  // 2. An explicit legacy `<key>_email` opt-out still counts.
+  const legacy = prefs[`${key}_email`];
+  if (typeof legacy === 'boolean') return legacy;
+  return true;
 }
 
 /**
@@ -95,8 +112,11 @@ export async function notify(params: CreateNotificationParams): Promise<void> {
     // Couldn't resolve recipient — email stays null and is skipped.
   }
 
+  // Same gate for both outbound channels.
+  const allowed = categoryAllowed(prefs, params.type);
+
   // 3) Email — pref-aware. No-ops without RESEND_API_KEY.
-  if (email && emailAllowed(prefs, params.type)) {
+  if (email && allowed) {
     await sendNotificationEmail({
       to: email,
       title: params.title,
@@ -106,12 +126,16 @@ export async function notify(params: CreateNotificationParams): Promise<void> {
   }
 
   // 4) Push — to all the user's devices. No-op until Firebase is provisioned.
-  await sendPushToUser({
-    userId: params.userId,
-    title: params.title,
-    body: params.body,
-    url: params.actionUrl,
-  });
+  // Previously ungated entirely: turning a category off still fired an OS
+  // banner for every one of them.
+  if (allowed) {
+    await sendPushToUser({
+      userId: params.userId,
+      title: params.title,
+      body: params.body,
+      url: params.actionUrl,
+    });
+  }
 }
 
 /**
