@@ -25,14 +25,31 @@ const ENGAGEMENT_SEGMENTS = new Set([
   'sessions', 'speakers', 'sponsors', 'schedule',
 ]);
 
+/**
+ * Surfaces that behave like an app pane rather than a document: they own the
+ * viewport, scroll internally, and keep a composer pinned to the bottom.
+ *
+ * They get no marketing footer (you don't put newsletter links under a live
+ * chat) and no separate back-link bar — the pane draws its own header, so an
+ * extra bar above it just steals height. Critically they also make the shell a
+ * fixed-height flex column, so the pane can size itself with `h-full` instead
+ * of guessing the chrome height with a `calc(100vh - Npx)` that silently
+ * breaks the moment anything is added above it.
+ */
+const IMMERSIVE_SEGMENTS = new Set(['community', 'messages']);
+
 export function EventShell({ slug, eventName, children }: Props) {
   const pathname = usePathname();
   // pathname → ['', 'e', <slug>, <segment>, ...]
   const segment = pathname.split('/')[3] ?? '';
-  const showBackLink = ENGAGEMENT_SEGMENTS.has(segment);
+  const immersive = IMMERSIVE_SEGMENTS.has(segment);
+  const showBackLink = !immersive && ENGAGEMENT_SEGMENTS.has(segment);
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: '#FAF6EE' }}>
+    <div
+      className={immersive ? 'h-screen flex flex-col overflow-hidden' : 'min-h-screen flex flex-col'}
+      style={{ background: '#FAF6EE' }}
+    >
       <PublicNav />
       {showBackLink && (
         <div className="mx-auto w-full px-5 lg:px-10 pt-4" style={{ maxWidth: 1240 }}>
@@ -46,8 +63,8 @@ export function EventShell({ slug, eventName, children }: Props) {
           </Link>
         </div>
       )}
-      <main className="flex-1 min-w-0">{children}</main>
-      <MarketingFooter />
+      <main className={immersive ? 'flex-1 min-h-0' : 'flex-1 min-w-0'}>{children}</main>
+      {!immersive && <MarketingFooter />}
     </div>
   );
 }

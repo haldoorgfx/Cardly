@@ -35,8 +35,10 @@ export default async function CommunityPage({ params, searchParams }: Props) {
     .order('created_at', { ascending: true })
     .limit(100) : { data: [] };
 
+  // h-full, not min-h-screen: EventShell marks this segment immersive and gives
+  // it a fixed-height flex slot, so the chat fills exactly what's left.
   return (
-    <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
+    <div className="h-full" style={{ background: '#FAF6EE' }}>
       <CommunityChatClient
         eventId={event.id}
         eventName={event.name}

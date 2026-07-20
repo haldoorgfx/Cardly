@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Hash, Pin, Send, Menu } from 'lucide-react';
+import Link from 'next/link';
+import { Hash, Pin, Send, Menu, ArrowLeft } from 'lucide-react';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Channel = any;
@@ -38,7 +39,7 @@ function AvatarBubble({ name, size = 32 }: { name: string; size?: number }) {
   );
 }
 
-export function CommunityChatClient({ eventId, eventName, channels, initialMessages, activeChannelId: defaultChannelId, registrationId, embedded = false }: Props) {
+export function CommunityChatClient({ eventId, eventName, eventSlug, channels, initialMessages, activeChannelId: defaultChannelId, registrationId, embedded = false }: Props) {
   const [activeChannelId, setActiveChannelId] = useState(defaultChannelId ?? channels[0]?.id ?? null);
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [input, setInput] = useState('');
@@ -99,7 +100,10 @@ export function CommunityChatClient({ eventId, eventName, channels, initialMessa
 
   if (channels.length === 0) {
     return (
-      <div className="flex items-center justify-center text-center px-6" style={{ height: embedded ? 480 : 'calc(100vh - 56px)' }}>
+      <div
+        className={`flex items-center justify-center text-center px-6 ${embedded ? '' : 'h-full'}`}
+        style={embedded ? { height: 480 } : undefined}
+      >
         <div>
           <Hash size={30} style={{ color: '#65736B' }} className="mx-auto mb-3" />
           <div className="font-display font-semibold text-[17px] mb-1" style={{ color: '#0F1F18' }}>
@@ -113,21 +117,31 @@ export function CommunityChatClient({ eventId, eventName, channels, initialMessa
     );
   }
 
+  // A 256px sidebar to list a single channel is pure overhead — most events
+  // only ever have #general. The channel name already sits in the header, so
+  // the rail only earns its space once there's something to switch between.
+  const showChannelRail = channels.length > 1;
+
   return (
     <div
-      className={embedded ? 'flex rounded-2xl border overflow-hidden' : 'flex'}
+      className={embedded ? 'flex rounded-2xl border overflow-hidden' : 'flex h-full'}
       style={{
-        height: embedded ? 620 : 'calc(100vh - 56px)',
-        ...(embedded ? { borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' } : {}),
+        // Non-embedded fills its parent instead of guessing chrome height with
+        // calc(100vh - 56px), which under-counted the shell's back-link bar and
+        // footer and pushed the composer below the fold.
+        ...(embedded
+          ? { height: 620, borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }
+          : {}),
       }}
     >
       {/* Sidebar overlay for mobile */}
-      {sidebarOpen && (
+      {showChannelRail && sidebarOpen && (
         <div className="fixed inset-0 z-20 lg:hidden" style={{ background: 'rgba(15,31,24,0.45)' }}
           onClick={() => setSidebarOpen(false)} />
       )}
 
       {/* Sidebar */}
+      {showChannelRail && (
       <div className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 fixed lg:relative z-30 lg:z-auto h-full transition-transform w-64 shrink-0 flex flex-col`}
         style={{ background: '#FAF6EE', borderRight: '1px solid #E5E0D4' }}>
         {/* Event name */}
@@ -159,39 +173,64 @@ export function CommunityChatClient({ eventId, eventName, channels, initialMessa
           ))}
         </div>
       </div>
+      )}
 
       {/* Main chat */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Channel header */}
-        <div className="flex items-center gap-3 px-4 py-3 border-b"
+        <div className="flex items-center gap-3 px-4 py-3 border-b shrink-0"
           style={{ background: '#FFFFFF', borderColor: '#E5E0D4' }}>
-          <button
-            type="button"
-            className="lg:hidden -ml-1 w-10 h-10 flex items-center justify-center shrink-0"
-            onClick={() => setSidebarOpen(true)}
-            aria-label="Open channel list"
-            style={{ color: '#65736B' }}
-          >
-            <Menu size={18} />
-          </button>
-          <Hash size={16} style={{ color: '#65736B' }} />
-          <span className="font-semibold text-[15px]" style={{ color: '#0F1F18' }}>
-            {activeChannel?.name ?? 'general'}
-          </span>
+          {showChannelRail && (
+            <button
+              type="button"
+              className="lg:hidden -ml-1 w-10 h-10 flex items-center justify-center shrink-0"
+              onClick={() => setSidebarOpen(true)}
+              aria-label="Open channel list"
+              style={{ color: '#65736B' }}
+            >
+              <Menu size={18} />
+            </button>
+          )}
+          {/* The shell no longer draws a back bar above an immersive pane, so
+              the way out lives here instead of costing a whole row of height. */}
+          {!embedded && (
+            <Link
+              href={`/e/${eventSlug}`}
+              aria-label={`Back to ${eventName}`}
+              className="w-9 h-9 -ml-1 rounded-lg flex items-center justify-center shrink-0 transition hover:opacity-70"
+              style={{ color: '#1F4D3A', background: '#E8EFEB' }}
+            >
+              <ArrowLeft size={16} strokeWidth={2} />
+            </Link>
+          )}
+          <div className="min-w-0 flex items-center gap-2">
+            <Hash size={16} style={{ color: '#65736B' }} className="shrink-0" />
+            <span className="font-semibold text-[15px] truncate" style={{ color: '#0F1F18' }}>
+              {activeChannel?.name ?? 'general'}
+            </span>
+          </div>
           {activeChannel?.description && (
-            <span className="text-[12px] border-l pl-3 hidden sm:block" style={{ borderColor: '#E5E0D4', color: '#65736B' }}>
+            <span className="text-[12px] border-l pl-3 hidden md:block truncate" style={{ borderColor: '#E5E0D4', color: '#65736B' }}>
               {activeChannel.description}
             </span>
           )}
           {pinned.length > 0 && (
-            <span className="ml-auto flex items-center gap-1 text-[12.5px]" style={{ color: '#65736B' }}>
+            <span className="ml-auto flex items-center gap-1 text-[12.5px] shrink-0" style={{ color: '#65736B' }}>
               <Pin size={11} /> {pinned.length} pinned
             </span>
           )}
         </div>
 
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4" role="log" aria-live="polite" aria-label="Chat messages" style={{ background: '#FAF6EE' }}>
+        {/* Messages. flex column so an empty channel can centre its state in
+            the available space instead of stranding it at the top of a very
+            tall, otherwise blank pane. */}
+        <div
+          className={`flex-1 min-h-0 overflow-y-auto px-4 py-4 ${messages.length === 0 && pinned.length === 0 ? 'flex flex-col' : 'space-y-4'}`}
+          role="log"
+          aria-live="polite"
+          aria-label="Chat messages"
+          style={{ background: '#FAF6EE' }}
+        >
           {/* Pinned message */}
           {pinned.length > 0 && (
             <div className="rounded-xl px-4 py-3 flex items-start gap-3 mb-2"
@@ -205,12 +244,21 @@ export function CommunityChatClient({ eventId, eventName, channels, initialMessa
           )}
 
           {messages.length === 0 && (
-            <div className="flex flex-col items-center justify-center text-center py-16">
-              <Hash size={26} style={{ color: '#65736B' }} className="mb-2" />
-              <div className="font-medium text-[14px]" style={{ color: '#0F1F18' }}>No messages yet</div>
-              <div className="text-[12.5px] mt-0.5" style={{ color: '#65736B' }}>
-                Be the first to say something in #{activeChannel?.name ?? 'general'}.
+            <div className="flex-1 flex flex-col items-center justify-center text-center px-6">
+              <div
+                className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4"
+                style={{ background: '#E8EFEB' }}
+              >
+                <Hash size={22} strokeWidth={1.8} style={{ color: '#1F4D3A' }} />
               </div>
+              <div className="font-display font-semibold text-[17px]" style={{ color: '#0F1F18' }}>
+                Start the conversation
+              </div>
+              <p className="text-[13.5px] mt-1.5 max-w-[300px]" style={{ color: '#65736B', lineHeight: 1.55 }}>
+                {registrationId
+                  ? `No one has posted in #${activeChannel?.name ?? 'general'} yet. Say hello — introduce yourself to the other attendees.`
+                  : `This is where attendees of ${eventName} talk before and during the event.`}
+              </p>
             </div>
           )}
 
@@ -233,8 +281,8 @@ export function CommunityChatClient({ eventId, eventName, channels, initialMessa
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Message input */}
-        <div className="px-4 py-3 border-t" style={{ background: '#FFFFFF', borderColor: '#E5E0D4' }}>
+        {/* Message input — shrink-0 so it can never be squeezed out of view. */}
+        <div className="px-4 py-3 border-t shrink-0" style={{ background: '#FFFFFF', borderColor: '#E5E0D4' }}>
           <div className="flex items-center gap-2 px-4 py-2.5 rounded-2xl"
             style={{ background: '#FAF6EE', border: '1px solid #E5E0D4' }}>
             <input
@@ -255,8 +303,17 @@ export function CommunityChatClient({ eventId, eventName, channels, initialMessa
             </button>
           </div>
           {!registrationId && (
+            // Was a dead sentence under a disabled box. Registering is the
+            // actual next step, so link to it rather than describing it.
             <p className="text-[12.5px] text-center mt-2" style={{ color: '#65736B' }}>
-              Register for the event to post messages
+              <Link
+                href={`/e/${eventSlug}/register`}
+                className="font-medium underline"
+                style={{ color: '#1F4D3A' }}
+              >
+                Register for {eventName}
+              </Link>{' '}
+              to join the conversation
             </p>
           )}
         </div>
