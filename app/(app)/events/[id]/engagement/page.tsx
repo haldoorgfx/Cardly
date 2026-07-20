@@ -51,7 +51,7 @@ export default async function EngagementPage({ params }: Props) {
       label: 'Networking',
       icon: <Users2 size={20} strokeWidth={1.7} />,
       desc: 'Attendee connections, match suggestions, and messaging.',
-      href: `/e/${event.slug}/people`,
+      href: `/e/${event.slug}?tab=network`,
     },
   ];
 

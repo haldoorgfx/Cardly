@@ -1,51 +1,24 @@
-export const dynamic = 'force-dynamic';
+import { redirect } from 'next/navigation';
 
-import { createAdminClient } from '@/lib/supabase/server';
-import { notFound, redirect } from 'next/navigation';
-import FeedbackClient from '@/components/events/FeedbackClient';
-import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
-import { resolveViewerRegistrationId } from '@/lib/attendee/resolveViewerRegistration';
-
-interface Props { params: { slug: string }; searchParams: { reg?: string } }
-
-export default async function FeedbackPage({ params, searchParams }: Props) {
-  const admin = createAdminClient();
-
-  const resolved = await resolvePublicSlug(params.slug);
-  if (!resolved) notFound();
-  const { eventPageTitle, event } = resolved;
-  const eventPage = { title: eventPageTitle ?? '' };
-
-  const registrationId = await resolveViewerRegistrationId(event.id, searchParams.reg);
-  if (!registrationId) redirect(`/e/${params.slug}`);
-
-  const { data: agendaSessions } = await admin
-    .from('attendee_agendas')
-    .select('session_id, sessions(id, title, starts_at, session_type)')
-    .eq('registration_id', registrationId)
-    .order('created_at', { ascending: true });
-
-  // Pre-load any feedback this registration has already submitted so we can show
-  // the "already submitted" state and pre-fill the form on edit.
-  const { data: existingFeedback } = await admin
-    .from('event_feedback')
-    .select('overall_rating, highlights, comment')
-    .eq('registration_id', registrationId)
-    .eq('event_id', event.id)
-    .maybeSingle();
-
-  return (
-    <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
-      <div className="px-5 py-10">
-        <FeedbackClient
-          eventId={event.id}
-          eventTitle={eventPage.title}
-          registrationId={registrationId}
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          attendedSessions={(agendaSessions ?? []).map(r => r.sessions).filter(Boolean) as any}
-          existingFeedback={existingFeedback ?? null}
-        />
-      </div>
-    </div>
-  );
+// Moved into the dashboard. This page is about YOU — your registration, your
+// messages, the room only ticket-holders can enter — not about the event, so
+// it belongs in the app shell rather than under the marketing nav.
+//
+// The route stays as a redirect rather than being deleted: links to it are
+// already sitting in inboxes and shared messages. Every query param is
+// forwarded, including the `?reg=` guest token, so a recipient lands exactly
+// where they expected.
+export default function Page({
+  params,
+  searchParams,
+}: {
+  params: { slug: string };
+  searchParams: Record<string, string | string[] | undefined>;
+}) {
+  const qs = new URLSearchParams();
+  for (const [k, v] of Object.entries(searchParams)) {
+    if (typeof v === 'string') qs.set(k, v);
+  }
+  const suffix = qs.toString();
+  redirect(`/attending/${params.slug}/feedback${suffix ? `?${suffix}` : ''}`);
 }

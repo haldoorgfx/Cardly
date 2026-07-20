@@ -518,7 +518,7 @@ export default function TicketDetailClient({ reg, scannedByName, variant, existi
 
         {isCheckedIn && (
           <Link
-            href={`/e/${slug}/feedback`}
+            href={`/attending/${slug}/feedback`}
             className="mt-4 flex items-center justify-center gap-2 h-12 rounded-2xl text-[15px] font-semibold transition hover:opacity-90"
             style={{ background: '#fff', color: FOREST, border: `1px solid ${BORDER}` }}
           >

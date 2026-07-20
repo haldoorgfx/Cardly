@@ -1,7 +1,41 @@
-import { redirect } from 'next/navigation';
+export const dynamic = 'force-dynamic';
 
-// Consolidated into the canonical /e/[slug]/* attendee tools (see the hub page).
-export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
+import { createAdminClient } from '@/lib/supabase/server';
+import PollsClient from '@/components/polls/PollsClient';
+import { resolveAttendeeWorkspace } from '@/lib/attendee/eventWorkspace';
+
+interface Props { params: Promise<{ slug: string }>; searchParams: Promise<{ reg?: string }> }
+
+export default async function PollsPage({ params, searchParams }: Props) {
   const { slug } = await params;
-  redirect(`/e/${slug}/polls`);
+  const { reg } = await searchParams;
+  const ws = await resolveAttendeeWorkspace({ slug, reg, section: 'polls' });
+
+  const admin = createAdminClient();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: polls } = await (admin as any)
+    .from('polls')
+    .select('*, poll_options(id, text, votes_count, position)')
+    .eq('event_id', ws.eventId)
+    .order('created_at', { ascending: false });
+
+  const myVotes: Record<string, string> = {};
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: votes } = await (admin as any)
+    .from('poll_votes')
+    .select('poll_id, option_id')
+    .eq('registration_id', ws.registrationId);
+  for (const v of (votes ?? [])) myVotes[v.poll_id] = v.option_id;
+
+  return (
+    <div className="max-w-[760px]">
+      <PollsClient
+        eventId={ws.eventId}
+        registrationId={ws.registrationId}
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        initialPolls={(polls ?? []) as any}
+        myVotes={myVotes}
+      />
+    </div>
+  );
 }

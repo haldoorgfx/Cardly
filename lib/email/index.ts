@@ -312,7 +312,7 @@ export async function sendConnectionRequestEmail(opts: {
   eventSlug: string;
   registrationId: string;
 }): Promise<void> {
-  const peopleUrl = `${APP_URL}/e/${opts.eventSlug}/people?reg=${opts.registrationId}`;
+  const peopleUrl = `${APP_URL}/attending/${opts.eventSlug}/networking?reg=${opts.registrationId}`;
   await sendEmail(
     opts.to,
     `${opts.requesterName} wants to connect at ${opts.eventName}`,
@@ -340,7 +340,7 @@ export async function sendConnectionAcceptedEmail(opts: {
   eventSlug: string;
   registrationId: string;
 }): Promise<void> {
-  const messagesUrl = `${APP_URL}/e/${opts.eventSlug}/messages?reg=${opts.registrationId}`;
+  const messagesUrl = `${APP_URL}/attending/${opts.eventSlug}/messages?reg=${opts.registrationId}`;
   await sendEmail(
     opts.to,
     `${opts.acceptorName} accepted your connection at ${opts.eventName}`,
@@ -369,7 +369,7 @@ export async function sendNewMessageEmail(opts: {
   registrationId: string;
   preview: string;
 }): Promise<void> {
-  const messagesUrl = `${APP_URL}/e/${opts.eventSlug}/messages?reg=${opts.registrationId}`;
+  const messagesUrl = `${APP_URL}/attending/${opts.eventSlug}/messages?reg=${opts.registrationId}`;
   const previewRaw = opts.preview.length > 120 ? opts.preview.slice(0, 117) + '…' : opts.preview;
   const preview = esc(previewRaw);
   await sendEmail(
@@ -401,7 +401,7 @@ export async function sendQAAnsweredEmail(opts: {
   eventSlug: string;
   registrationId: string;
 }): Promise<void> {
-  const qaUrl = `${APP_URL}/e/${opts.eventSlug}/q-and-a?reg=${opts.registrationId}`;
+  const qaUrl = `${APP_URL}/attending/${opts.eventSlug}/q-and-a?reg=${opts.registrationId}`;
   const questionPreviewRaw = opts.question.length > 140 ? opts.question.slice(0, 137) + '…' : opts.question;
   const questionPreview = esc(questionPreviewRaw);
   await sendEmail(

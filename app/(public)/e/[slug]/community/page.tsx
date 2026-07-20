@@ -1,53 +1,24 @@
-export const dynamic = 'force-dynamic';
+import { redirect } from 'next/navigation';
 
-import { createAdminClient } from '@/lib/supabase/server';
-import { notFound } from 'next/navigation';
-import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
-import { getEventFeatures, isSectionEnabled } from '@/lib/events/sectionGate';
-import { resolveViewerRegistrationId } from '@/lib/attendee/resolveViewerRegistration';
-import { CommunityChatClient } from '@/components/events/CommunityChatClient';
-
-interface Props { params: { slug: string }; searchParams: { reg?: string; channel?: string } }
-
-export default async function CommunityPage({ params, searchParams }: Props) {
-  const admin = createAdminClient();
-  const resolved = await resolvePublicSlug(params.slug);
-  if (!resolved) notFound();
-  const { event } = resolved;
-  // 404 when the organizer has explicitly disabled this section.
-  if (!isSectionEnabled(await getEventFeatures(event.id), 'community')) notFound();
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const adminAny = admin as any;
-
-  const { data: channels } = await adminAny
-    .from('community_channels')
-    .select('id, name, description, is_pinned, position')
-    .eq('event_id', event.id)
-    .order('is_pinned', { ascending: false })
-    .order('position', { ascending: true });
-
-  const defaultChannel = searchParams.channel ?? channels?.[0]?.id;
-  const { data: messages } = defaultChannel ? await adminAny
-    .from('community_messages')
-    .select('id, content, created_at, is_pinned, registration_id, registrations!community_messages_registration_id_fkey(attendee_name)')
-    .eq('channel_id', defaultChannel)
-    .order('created_at', { ascending: true })
-    .limit(100) : { data: [] };
-
-  // h-full, not min-h-screen: EventShell marks this segment immersive and gives
-  // it a fixed-height flex slot, so the chat fills exactly what's left.
-  return (
-    <div className="h-full" style={{ background: '#FAF6EE' }}>
-      <CommunityChatClient
-        eventId={event.id}
-        eventName={event.name}
-        eventSlug={params.slug}
-        channels={channels ?? []}
-        initialMessages={messages ?? []}
-        activeChannelId={defaultChannel ?? null}
-        registrationId={await resolveViewerRegistrationId(event.id, searchParams.reg) ?? undefined}
-      />
-    </div>
-  );
+// Moved into the dashboard. This page is about YOU — your registration, your
+// messages, the room only ticket-holders can enter — not about the event, so
+// it belongs in the app shell rather than under the marketing nav.
+//
+// The route stays as a redirect rather than being deleted: links to it are
+// already sitting in inboxes and shared messages. Every query param is
+// forwarded, including the `?reg=` guest token, so a recipient lands exactly
+// where they expected.
+export default function Page({
+  params,
+  searchParams,
+}: {
+  params: { slug: string };
+  searchParams: Record<string, string | string[] | undefined>;
+}) {
+  const qs = new URLSearchParams();
+  for (const [k, v] of Object.entries(searchParams)) {
+    if (typeof v === 'string') qs.set(k, v);
+  }
+  const suffix = qs.toString();
+  redirect(`/attending/${params.slug}/community${suffix ? `?${suffix}` : ''}`);
 }

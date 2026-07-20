@@ -135,8 +135,8 @@ export default function PeopleDiscoveryClient({ eventId, eventSlug, registration
   const [respondingTo, setRespondingTo] = useState<string | null>(null);
 
   const messagesHref = registrationId
-    ? `/e/${eventSlug}/messages?reg=${registrationId}`
-    : `/e/${eventSlug}/messages`;
+    ? `/attending/${eventSlug}/messages?reg=${registrationId}`
+    : `/attending/${eventSlug}/messages`;
 
   /* Load the directory (with connection status) once we know the viewer's reg. */
   const loadPeople = useCallback(async () => {

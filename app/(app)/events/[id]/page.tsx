@@ -123,7 +123,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
     { id: 'multiday',       label: 'Multi-day',      iconId: 'multiday',  desc: 'Per-day check-in, capacity and passes',     href: `/events/${slug}/settings/days`,  badge: null },
     { id: 'catering',       label: 'Catering',       iconId: 'catering',  desc: 'Meal counts and dietary breakdown',         href: `/events/${slug}/catering`,       badge: null },
     { id: 'audit',          label: 'Audit log',      iconId: 'audit',     desc: 'Every pass action, fully traceable',        href: `/events/${slug}/analytics/audit`, badge: null },
-    { id: 'networking',     label: 'Networking',     iconId: 'network',   desc: 'Attendee connections and matchmaking',      href: `/e/${event.slug}/people`,        badge: null, minPlan: 'pro' },
+    { id: 'networking',     label: 'Networking',     iconId: 'network',   desc: 'Attendee connections and matchmaking',      href: `/e/${event.slug}?tab=network`,        badge: null, minPlan: 'pro' },
     { id: 'q-and-a',        label: 'Q&A & Polls',    iconId: 'message',   desc: 'Live session engagement',                  href: `/events/${slug}/q-and-a`,        badge: null, minPlan: 'pro' },
     { id: 'gamification',   label: 'Gamification',   iconId: 'trophy',    desc: 'Points and leaderboard for attendees',      href: `/events/${slug}/gamification`,   badge: null, minPlan: 'pro' },
     { id: 'sponsors',       label: 'Sponsors',       iconId: 'briefcase', desc: 'Manage sponsors and exhibitors',            href: `/events/${slug}/sponsors`,       badge: null, minPlan: 'studio' },

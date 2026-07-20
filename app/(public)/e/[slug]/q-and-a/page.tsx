@@ -1,57 +1,24 @@
-export const dynamic = 'force-dynamic';
+import { redirect } from 'next/navigation';
 
-import { createAdminClient } from '@/lib/supabase/server';
-import { notFound } from 'next/navigation';
-import QandAClient from '@/components/qa/QandAClient';
-import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
-import { getEventFeatures, isSectionEnabled } from '@/lib/events/sectionGate';
-import { resolveViewerRegistrationId } from '@/lib/attendee/resolveViewerRegistration';
-
-interface Props { params: { slug: string }; searchParams: { reg?: string; session?: string } }
-
-export default async function QandAPage({ params, searchParams }: Props) {
-  const admin = createAdminClient();
-
-  const resolved = await resolvePublicSlug(params.slug);
-  if (!resolved) notFound();
-  const { eventPageTitle, event } = resolved;
-  // 404 when the organizer has explicitly disabled this section.
-  if (!isSectionEnabled(await getEventFeatures(event.id), 'qa')) notFound();
-  const eventPage = { title: eventPageTitle };
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: questions } = await (admin as any)
-    .from('qa_questions')
-    .select('*, registrations!qa_questions_registration_id_fkey(attendee_name)')
-    .eq('event_id', event.id)
-    .neq('status', 'hidden')
-    .order('upvotes_count', { ascending: false })
-    .order('created_at', { ascending: true });
-
-  const { data: sessions } = await admin
-    .from('sessions')
-    .select('id, title')
-    .eq('event_id', event.id)
-    .eq('is_published', true)
-    .order('starts_at', { ascending: true });
-
-  return (
-    <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
-      <div className="max-w-[760px] mx-auto px-5 py-10">
-        <div className="mb-8">
-          <h1 className="font-display font-normal text-[32px]" style={{ color: '#0F1F18', letterSpacing: '-0.025em' }}>
-            Q&amp;A
-          </h1>
-          <p className="text-[16px] mt-2" style={{ color: '#65736B' }}>{eventPage.title}</p>
-        </div>
-        <QandAClient
-          eventId={event.id}
-          registrationId={await resolveViewerRegistrationId(event.id, searchParams.reg)}
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          initialQuestions={(questions ?? []) as any}
-          sessions={(sessions ?? []) as { id: string; title: string }[]}
-        />
-      </div>
-    </div>
-  );
+// Moved into the dashboard. This page is about YOU — your registration, your
+// messages, the room only ticket-holders can enter — not about the event, so
+// it belongs in the app shell rather than under the marketing nav.
+//
+// The route stays as a redirect rather than being deleted: links to it are
+// already sitting in inboxes and shared messages. Every query param is
+// forwarded, including the `?reg=` guest token, so a recipient lands exactly
+// where they expected.
+export default function Page({
+  params,
+  searchParams,
+}: {
+  params: { slug: string };
+  searchParams: Record<string, string | string[] | undefined>;
+}) {
+  const qs = new URLSearchParams();
+  for (const [k, v] of Object.entries(searchParams)) {
+    if (typeof v === 'string') qs.set(k, v);
+  }
+  const suffix = qs.toString();
+  redirect(`/attending/${params.slug}/q-and-a${suffix ? `?${suffix}` : ''}`);
 }
