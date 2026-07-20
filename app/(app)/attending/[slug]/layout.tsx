@@ -1,9 +1,11 @@
 export const dynamic = 'force-dynamic';
 
 import { notFound } from 'next/navigation';
+import { createClient } from '@/lib/supabase/server';
 import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
 import { getEventFeatures, isSectionEnabled } from '@/lib/events/sectionGate';
-import { AttendingTabs } from '@/components/attending/AttendingTabs';
+import { resolveEventRoles, roleLinks } from '@/lib/workspace/eventRoles';
+import { EventWorkspaceShell } from '@/components/workspace/EventWorkspaceShell';
 
 /**
  * The attendee's workspace for one event.
@@ -49,13 +51,23 @@ export default async function AttendingLayout({
     .filter(t => !t.section || isSectionEnabled(features, t.section))
     .map(({ href, label }) => ({ href, label }));
 
+  // Every other hat this account wears at THIS event. Someone who attends and
+  // also speaks here previously had no way to get between the two halves of
+  // their own event — the band is that link.
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const roles = await resolveEventRoles(user?.id ?? null, event.id);
+
   return (
-    <AttendingTabs
+    <EventWorkspaceShell
       eventName={eventPageTitle ?? event.name}
       eventSlug={slug}
+      roleLabel="You're attending"
+      roles={roleLinks(roles, slug, event.id)}
+      activeRole="attending"
       tabs={tabs}
     >
       {children}
-    </AttendingTabs>
+    </EventWorkspaceShell>
   );
 }

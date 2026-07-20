@@ -5,6 +5,8 @@ import { redirect, notFound } from 'next/navigation';
 import { ownedSpeaker } from '@/lib/rbac/ownership';
 import { SpeakerPortalClient } from '@/components/speaker/SpeakerPortalClient';
 import { PageShell } from '@/components/dash';
+import { RoleBand } from '@/components/workspace/RoleBand';
+import { resolveEventRoles, roleLinks } from '@/lib/workspace/eventRoles';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = { title: 'Speaker workspace' };
@@ -87,8 +89,18 @@ export default async function SpeakerWorkspacePage({
     }
   }
 
+  // Other hats this account wears at THIS event. A speaker who also holds a
+  // ticket had no way across from here — the two halves of their own event
+  // lived in unrelated sidebar entries.
+  const roles = await resolveEventRoles(user.id, event.id);
+
   return (
     <PageShell width="wide">
+      <RoleBand
+        roles={roleLinks(roles, event.slug, event.id)}
+        activeRole="speaking"
+        className="mb-5"
+      />
       <SpeakerPortalClient
         embedded
         speaker={speaker}

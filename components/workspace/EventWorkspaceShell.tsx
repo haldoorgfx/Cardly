@@ -3,29 +3,49 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ExternalLink } from 'lucide-react';
+import { RoleBand, type WorkspaceRole } from '@/components/workspace/RoleBand';
 
-export interface AttendingTab {
+export interface WorkspaceTab {
   href: string;
   label: string;
 }
 
+export type { WorkspaceRole };
+
 /**
- * Header + tab rail for the attendee's event workspace.
+ * The shell every per-event workspace shares: one event name, one role band,
+ * one tab rail.
  *
- * Deliberately the same anatomy as the organizer, speaker and sponsor
- * workspaces — event name, then a horizontal rail of the tools that event has
- * enabled — so a person who is an attendee at one event and a speaker at
- * another isn't learning two different products.
+ * The problem this solves is specific. A person who attends an event AND
+ * speaks at it had two unrelated destinations — /attending/<slug> and
+ * /speaking/<speakerId> — with no link between them and no sign the other
+ * existed. You had to remember which sidebar entry held which half of your own
+ * event. That is what "everything is partying away" actually described.
+ *
+ * Merging every role's tabs into one flat rail was the obvious move and the
+ * wrong one: attendee (9) + speaker (7) + sponsor (8) is 24 tabs with three
+ * "Overview"s and two "Q&A"s. So the roles sit in a band above the rail
+ * instead — switch hats, and the tabs below change. Two roles is two chips.
+ *
+ * The band is hidden entirely for the common single-role case, so nobody pays
+ * for a switcher they don't need.
  */
-export function AttendingTabs({
+export function EventWorkspaceShell({
   eventName,
   eventSlug,
+  roleLabel,
+  roles,
+  activeRole,
   tabs,
   children,
 }: {
   eventName: string;
   eventSlug: string;
-  tabs: AttendingTab[];
+  /** Eyebrow above the title — "You're attending", "You're speaking", … */
+  roleLabel: string;
+  roles: WorkspaceRole[];
+  activeRole: string;
+  tabs: WorkspaceTab[];
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
@@ -40,7 +60,7 @@ export function AttendingTabs({
                 className="text-[11px] font-medium uppercase tracking-[0.14em] mb-1.5"
                 style={{ color: '#65736B' }}
               >
-                You&apos;re attending
+                {roleLabel}
               </div>
               <h1
                 className="font-display font-bold text-[22px] sm:text-[26px] truncate"
@@ -61,6 +81,10 @@ export function AttendingTabs({
               Event page
             </Link>
           </div>
+
+          {/* Only when this account genuinely wears more than one hat here —
+              RoleBand renders nothing for the single-role case. */}
+          <RoleBand roles={roles} activeRole={activeRole} className="mt-4" />
 
           {tabs.length > 1 && (
             <div className="flex gap-1 mt-5 -mb-px overflow-x-auto">
