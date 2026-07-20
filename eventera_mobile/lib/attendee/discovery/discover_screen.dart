@@ -14,6 +14,7 @@ import '../app_shell.dart';
 import '../auth/attendee_auth_screen.dart';
 import '../event_landing_screen.dart';
 import '../hub/event_page_model.dart';
+import '../next_up_card.dart';
 import 'events_map_screen.dart';
 
 /// Browse public, published events. Server-side filtering (category, city,
@@ -547,6 +548,12 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
       controller: _scrollCtl,
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
       children: [
+        // Your own next event comes before anything we're promoting. Discover
+        // had no awareness of the user's tickets at all, so someone whose
+        // event started in two hours opened the app to a generic browse feed.
+        // Renders nothing when signed out or with no upcoming ticket.
+        const NextUpCard(),
+
         // Sliding hero banner (Eventera promo + featured events)
         _HeroCarousel(
           banners: _banners,

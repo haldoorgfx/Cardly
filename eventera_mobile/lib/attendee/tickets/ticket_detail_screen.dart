@@ -7,6 +7,7 @@ import '../../ics_export.dart';
 import '../../net.dart';
 import '../../ui/components.dart';
 import '../../ui/tokens.dart';
+import '../event_landing_screen.dart';
 import '../register/waafipay_payment_screen.dart';
 import 'entitlement_transfer_sheet.dart';
 import 'entitlements_screen.dart';
@@ -221,6 +222,14 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
     }
   }
 
+  void _openEvent() {
+    final slug = widget.eventSlug;
+    if (slug == null || slug.isEmpty) return;
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => EventLandingScreen(slug: slug)),
+    );
+  }
+
   Future<void> _openCard() async {
     final url = widget.cardUrl;
     if (url == null || url.isEmpty) return;
@@ -405,6 +414,36 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
                   ),
                 ],
               ],
+            ),
+          ],
+
+          // Ticket -> event. This route did not exist: every path into the
+          // event hub came from browsing (Discover, saved, notifications), so
+          // a ticket-holder could not reach the agenda, speakers, Q&A or the
+          // people they came to meet from the ticket in their hand. On event
+          // day that is the whole reason they opened the app.
+          if ((widget.eventSlug ?? '').isNotEmpty) ...[
+            const SizedBox(height: 14),
+            MCard(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              onTap: _openEvent,
+              child: ListRow(
+                leading: Container(
+                  width: 40,
+                  height: 40,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: AppColors.forestSoft,
+                    borderRadius: BorderRadius.circular(11),
+                  ),
+                  child: const Icon(Icons.event_note_outlined,
+                      size: 20, color: AppColors.forest),
+                ),
+                title: const Text('Open event'),
+                subtitle: const Text('Agenda, speakers, Q&A and people'),
+                trailing: const Icon(Icons.chevron_right,
+                    size: 20, color: AppColors.inkMuted),
+              ),
             ),
           ],
 
