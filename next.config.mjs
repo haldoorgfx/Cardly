@@ -58,6 +58,27 @@ const nextConfig = {
   async redirects() {
     return [
       { source: '/brand-kit', destination: '/brand', permanent: true },
+
+      // ── Attendee tools moved into the dashboard ────────────────────────────
+      // These used to be page components that called redirect() in the render
+      // pass. That works, but the public route's layout mounts first — so you
+      // saw the marketing nav and footer flash up for a beat before being sent
+      // to the dashboard. Handled here instead, the redirect happens at the
+      // routing layer with nothing rendered at all: no flash, no wasted render.
+      //
+      // 307 (permanent: false) on purpose. These are product-IA decisions, not
+      // settled URL facts, and a 301 would be cached in every browser that has
+      // ever followed one — impossible to walk back if the layout changes again.
+      // Query strings, including the ?reg= guest token, are forwarded by Next
+      // automatically.
+      { source: '/e/:slug/community',    destination: '/attending/:slug/community',    permanent: false },
+      { source: '/e/:slug/feedback',     destination: '/attending/:slug/feedback',     permanent: false },
+      { source: '/e/:slug/polls',        destination: '/attending/:slug/polls',        permanent: false },
+      { source: '/e/:slug/q-and-a',      destination: '/attending/:slug/q-and-a',      permanent: false },
+      { source: '/e/:slug/leaderboard',  destination: '/attending/:slug/leaderboard',  permanent: false },
+      { source: '/e/:slug/messages',     destination: '/attending/:slug/messages',     permanent: false },
+      { source: '/e/:slug/my-agenda',    destination: '/attending/:slug/agenda',       permanent: false },
+      { source: '/e/:slug/people',       destination: '/attending/:slug/networking',   permanent: false },
     ];
   },
 
