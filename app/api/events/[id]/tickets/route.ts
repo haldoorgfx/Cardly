@@ -19,6 +19,11 @@ interface ExistingTicket {
   quantity: number | null;
 }
 
+// The only ticket_types columns a client may write. Anything else (id,
+// event_id, quantity_sold, created_at) is server-owned.
+const TICKET_FIELDS = ['name', 'description', 'price', 'currency', 'quantity', 'is_visible',
+  'min_per_order', 'max_per_order', 'sales_start', 'sales_end', 'access_code', 'position'];
+
 function validateTicketBody(
   body: Record<string, unknown>,
   ep: EventConstraints | null,
@@ -113,9 +118,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const err = validateTicketBody(body, ep ?? null, existing ?? []);
   if (err) return NextResponse.json({ error: err }, { status: 422 });
 
-  const allowed = ['name', 'description', 'price', 'currency', 'quantity', 'is_visible',
-    'min_per_order', 'max_per_order', 'sales_start', 'sales_end', 'access_code', 'position'];
-  const safeBody = Object.fromEntries(Object.entries(body).filter(([k]) => allowed.includes(k)));
+  const safeBody = Object.fromEntries(Object.entries(body).filter(([k]) => TICKET_FIELDS.includes(k)));
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data, error: dbError } = await (admin as any)
@@ -132,8 +135,19 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const { ticketId, ...updates } = await req.json();
+  const { ticketId, ...rawUpdates } = await req.json();
   if (!ticketId) return NextResponse.json({ error: 'ticketId required' }, { status: 400 });
+
+  // Same allowlist POST uses. Without it the body was spread straight into the
+  // UPDATE, so an organizer could PATCH quantity_sold (reset to 0 → unlimited
+  // oversell of a capped ticket) or event_id (move a sold ticket type, and its
+  // registrations' FK, onto a different event).
+  const updates = Object.fromEntries(
+    Object.entries(rawUpdates).filter(([k]) => TICKET_FIELDS.includes(k)),
+  );
+  if (Object.keys(updates).length === 0) {
+    return NextResponse.json({ error: 'No editable fields provided' }, { status: 400 });
+  }
 
   const admin = createAdminClient();
   const [{ data: event }, { data: ep }, { data: existing }, { data: current }] = await Promise.all([
@@ -150,7 +164,21 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   const err = validateTicketBody(merged, ep ?? null, existing ?? [], ticketId, 'quantity' in updates);
   if (err) return NextResponse.json({ error: err }, { status: 422 });
 
-  const { data, error: dbError } = await admin
+  // Can't shrink allocation below what's already been sold — the ticket would
+  // read as over-allocated (remaining goes negative) and every existing holder
+  // would be counted against a cap that can no longer contain them.
+  if ('quantity' in updates && updates.quantity != null && current) {
+    const sold = Number(current.quantity_sold ?? 0);
+    if (Number(updates.quantity) < sold) {
+      return NextResponse.json(
+        { error: `Quantity cannot be lower than the ${sold} ticket${sold === 1 ? '' : 's'} already sold. Cancel or refund registrations first.` },
+        { status: 422 },
+      );
+    }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error: dbError } = await (admin as any)
     .from('ticket_types')
     .update(updates)
     .eq('id', ticketId)
@@ -175,8 +203,29 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     .from('events').select('id').eq('id', params.id).eq('user_id', user.id).single();
   if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
+  // registrations.ticket_type_id has a plain FK (no ON DELETE action), so the
+  // database already refuses to orphan live holders — but it surfaced as a raw
+  // 500 with a Postgres constraint string. Check first and say why.
+  const { count: liveRegs } = await admin
+    .from('registrations')
+    .select('id', { count: 'exact', head: true })
+    .eq('ticket_type_id', ticketId)
+    .eq('event_id', params.id);
+  if ((liveRegs ?? 0) > 0) {
+    return NextResponse.json(
+      { error: `This ticket type has ${liveRegs} registration${liveRegs === 1 ? '' : 's'} attached and cannot be deleted. Hide it instead so it stops selling, or move those attendees to another ticket type first.` },
+      { status: 409 },
+    );
+  }
+
   const { error } = await admin
     .from('ticket_types').delete().eq('id', ticketId).eq('event_id', params.id);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) {
+    // Lost the race with a registration created between the check and the delete.
+    if (error.code === '23503') {
+      return NextResponse.json({ error: 'This ticket type now has registrations attached and cannot be deleted.' }, { status: 409 });
+    }
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
   return NextResponse.json({ ok: true });
 }

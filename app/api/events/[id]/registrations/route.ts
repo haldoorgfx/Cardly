@@ -211,18 +211,33 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   if (ticket_type_id !== undefined) patch.ticket_type_id = ticket_type_id || null;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (admin as any)
+  let updateQuery = (admin as any)
     .from('registrations')
     .update(patch)
     .eq('id', registrationId)
-    .eq('event_id', params.id)
+    .eq('event_id', params.id);
+
+  // Race guard: when this transition releases a seat, the prior status must be
+  // part of the WHERE clause, not just a pre-read. Two concurrent cancels (a
+  // double-clicked button) would otherwise both see 'confirmed', both write
+  // 'cancelled', and both decrement quantity_sold — undercounting the ticket
+  // type and letting the event oversell. With the precondition only the first
+  // request matches a row; the second returns none and skips the decrement.
+  if (priorForRelease) updateQuery = updateQuery.in('status', ['confirmed', 'checked_in']);
+
+  const { data, error } = await updateQuery
     .select('*, ticket_types(name, price)')
-    .single();
+    .maybeSingle();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (!data) {
+    return priorForRelease
+      ? NextResponse.json({ error: 'This registration was already updated.' }, { status: 409 })
+      : NextResponse.json({ error: 'Registration not found' }, { status: 404 });
+  }
 
   // Release the ticket-type slot this registration was holding, now that the
-  // status update above has actually landed.
+  // status update above has actually landed (and won the race).
   if (priorForRelease?.ticket_type_id) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await (admin as any).rpc('decrement_ticket_quantity_sold', { ticket_id: priorForRelease.ticket_type_id, qty: 1 });
@@ -257,10 +272,15 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
   // ticket-type slot to release (see decrement below).
   const { data: priorForRelease } = await admin.from('registrations').select('status, ticket_type_id').eq('id', regId).eq('event_id', params.id).maybeSingle();
 
-  const { error } = await admin.from('registrations').delete().eq('id', regId).eq('event_id', params.id);
+  // .select() makes the delete report which rows it actually removed. Two
+  // concurrent deletes of the same registration both pre-read 'confirmed', but
+  // only one actually deletes a row — without this the loser would also
+  // decrement quantity_sold and undercount the ticket type into an oversell.
+  const { data: deleted, error } = await admin
+    .from('registrations').delete().eq('id', regId).eq('event_id', params.id).select('id');
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  if (priorForRelease?.ticket_type_id && (priorForRelease.status === 'confirmed' || priorForRelease.status === 'checked_in')) {
+  if ((deleted?.length ?? 0) > 0 && priorForRelease?.ticket_type_id && (priorForRelease.status === 'confirmed' || priorForRelease.status === 'checked_in')) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await (admin as any).rpc('decrement_ticket_quantity_sold', { ticket_id: priorForRelease.ticket_type_id, qty: 1 });
   }

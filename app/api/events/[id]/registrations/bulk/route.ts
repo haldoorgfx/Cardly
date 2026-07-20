@@ -45,11 +45,11 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   }
 
   // Verify ticket type if provided
-  let ticket: { id: string; price: number; currency: string } | null = null;
+  let ticket: { id: string; price: number; currency: string; quantity: number | null; quantity_sold: number | null } | null = null;
   if (ticket_type_id) {
     const { data } = await admin
       .from('ticket_types')
-      .select('id, price, currency')
+      .select('id, price, currency, quantity, quantity_sold')
       .eq('id', ticket_type_id)
       .eq('event_id', params.id)
       .single();
@@ -92,6 +92,19 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     });
   }
 
+  // The event-level capacity check above doesn't know about the ticket type's
+  // own quantity — importing 500 rows against a 10-seat ticket previously
+  // succeeded and pushed quantity_sold straight past its cap.
+  if (ticket && ticket.quantity != null && toInsert.length > 0) {
+    const remaining = ticket.quantity - (ticket.quantity_sold ?? 0);
+    if (toInsert.length > remaining) {
+      return NextResponse.json(
+        { error: `Import exceeds this ticket type's quantity. Only ${Math.max(0, remaining)} of ${ticket.quantity} remain, but ${toInsert.length} attendees would be imported.` },
+        { status: 409 },
+      );
+    }
+  }
+
   let imported = 0;
   if (toInsert.length > 0) {
     // Duplicates are already filtered above (existingEmails), so a plain insert is
@@ -101,17 +114,19 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     imported = toInsert.length;
 
-    // Keep quantity_sold in sync on the ticket type
+    // Keep quantity_sold in sync on the ticket type.
+    // Atomic RPC, not read-then-write: the old select+update lost the whole
+    // count of a concurrent import (or of a registration paid for mid-import),
+    // leaving quantity_sold below reality and letting the ticket oversell.
     if (ticket) {
-      const { data: cur } = await admin
-        .from('ticket_types')
-        .select('quantity_sold')
-        .eq('id', ticket.id)
-        .single();
-      await admin
-        .from('ticket_types')
-        .update({ quantity_sold: (cur?.quantity_sold ?? 0) + imported })
-        .eq('id', ticket.id);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { error: bumpError } = await (admin as any)
+        .rpc('increment_ticket_quantity_sold', { ticket_id: ticket.id, qty: imported });
+      // The RPC refuses to push quantity_sold past the ticket's quantity. The
+      // pre-check above makes that near-impossible; if a concurrent sale still
+      // won the race, log it — the rows are already inserted, so failing the
+      // whole request here would be a lie about what happened.
+      if (bumpError) console.error('[bulk import] quantity_sold bump failed:', bumpError.message);
     }
   }
 

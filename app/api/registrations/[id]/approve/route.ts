@@ -60,8 +60,21 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   }
 
   const newStatus = parsed.data.action === 'approve' ? 'confirmed' : 'cancelled';
-  const { error: updateError } = await admin.from('registrations').update({ status: newStatus, updated_at: new Date().toISOString() }).eq('id', params.id);
+
+  // The pending_approval check above is a pre-read, so a double-clicked
+  // Approve button ran the update — and sent the approval email — twice.
+  // Putting the prior status in the WHERE clause makes only the first
+  // transition match a row; the second is a no-op and returns 409.
+  const { data: updatedRows, error: updateError } = await admin
+    .from('registrations')
+    .update({ status: newStatus, updated_at: new Date().toISOString() })
+    .eq('id', params.id)
+    .eq('status', 'pending_approval')
+    .select('id');
   if (updateError) return NextResponse.json({ error: 'Failed to update registration' }, { status: 500 });
+  if ((updatedRows?.length ?? 0) === 0) {
+    return NextResponse.json({ error: 'This application has already been reviewed.' }, { status: 409 });
+  }
 
   const ep = reg.events?.event_pages?.[0];
   const eventSlug = reg.events?.slug ?? params.id;

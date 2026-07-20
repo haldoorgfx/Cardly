@@ -135,13 +135,27 @@ export async function POST(req: NextRequest) {
         // The .in(status) guard doubles as the idempotency key: a replayed
         // refund webhook matches zero rows the second time, so the seat is
         // returned exactly once.
+        const refundPatch = { status: 'refunded', payment_status: 'refunded', updated_at: new Date().toISOString() };
+
+        // Split by prior status. quantity_sold is only incremented on the
+        // pending→confirmed flip, so a registration refunded while still
+        // 'pending' never held a seat — decrementing for it would undercount
+        // the ticket type and let the event oversell by one.
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { data: refundedRows } = await (admin as any)
           .from('registrations')
-          .update({ status: 'refunded', payment_status: 'refunded', updated_at: new Date().toISOString() })
+          .update(refundPatch)
           .eq('stripe_payment_intent_id', charge.payment_intent)
-          .in('status', ['confirmed', 'checked_in', 'pending'])
+          .in('status', ['confirmed', 'checked_in'])
           .select('id, ticket_type_id');
+
+        // Still-pending rows: mark refunded, but hold the counter steady.
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await (admin as any)
+          .from('registrations')
+          .update(refundPatch)
+          .eq('stripe_payment_intent_id', charge.payment_intent)
+          .eq('status', 'pending');
 
         // Give the seat back. Without this a refunded ticket held its slot
         // forever and the event silently under-sold against max capacity.
