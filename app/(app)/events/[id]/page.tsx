@@ -11,6 +11,8 @@ import { EventOverviewCards, type OverviewCard } from '@/components/events/Event
 import { EventCompletionCard, type ChecklistItem } from '@/components/events/EventCompletionCard';
 import type { Zone, Variant } from '@/types/database';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
+import { RoleBand } from '@/components/workspace/RoleBand';
+import { resolveEventRoles, roleLinks } from '@/lib/workspace/eventRoles';
 
 function timeAgo(dateStr: string) {
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -101,6 +103,14 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
 
   const st = STATUS_STYLE[event.status as keyof typeof STATUS_STYLE] ?? STATUS_STYLE.draft;
 
+  // Other hats this account wears at this event — rendered as chips in the
+  // hero. Empty for the common organizer-only case, so nothing shows.
+  const eventRoleLinks = roleLinks(
+    await resolveEventRoles(user.id, event.id),
+    event.slug ?? '',
+    event.id,
+  );
+
   const epOverview = Array.isArray(event.event_pages) ? event.event_pages[0] : event.event_pages;
   const CHECKLIST: ChecklistItem[] = [
     { label: 'Event details & page', done: !!(epOverview?.starts_at), href: `/events/${slug}/event-page`, cta: 'Set up' },
@@ -146,10 +156,18 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
         <div className="relative max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-5 flex flex-col justify-end">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 sm:gap-4">
             <div>
-              <span className={`inline-flex items-center gap-1.5 text-[12px] tracking-[0.1em] uppercase px-2 py-0.5 rounded-full border bg-[#FAF6EE]/95 mb-3 ${st.cls}`}>
-                <span className={`w-1.5 h-1.5 rounded-full ${st.pulse ? 'animate-pulse' : ''}`} style={{ background: st.dot }} />
-                {st.label}
-              </span>
+              {/* Status + the other hats this account wears here, on one line.
+                  The role switcher used to be a separate strip above the hero,
+                  which read as a stray toolbar; inside the banner it sits with
+                  the event identity it belongs to. Renders nothing when the
+                  account only organizes. */}
+              <div className="flex items-center gap-2 flex-wrap mb-3">
+                <span className={`inline-flex items-center gap-1.5 text-[12px] tracking-[0.1em] uppercase px-2 py-0.5 rounded-full border bg-[#FAF6EE]/95 ${st.cls}`}>
+                  <span className={`w-1.5 h-1.5 rounded-full ${st.pulse ? 'animate-pulse' : ''}`} style={{ background: st.dot }} />
+                  {st.label}
+                </span>
+                <RoleBand roles={eventRoleLinks} activeRole="organizing" tone="onDark" />
+              </div>
               <h1 className="font-display text-[26px] sm:text-[32px] font-bold text-[#FAF6EE] tracking-[-0.02em] leading-tight">
                 {event.name}
               </h1>

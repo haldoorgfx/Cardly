@@ -46,7 +46,7 @@ export default async function SponsorWorkspaceLayout({
           <RoleBand
             roles={roleLinks(roles, slug, eventId)}
             activeRole="sponsoring"
-            className="mb-5"
+            className="mb-4"
           />
         );
       }

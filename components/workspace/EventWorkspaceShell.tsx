@@ -56,12 +56,19 @@ export function EventWorkspaceShell({
         <div className="mx-auto w-full px-4 sm:px-6 lg:px-8 pt-6" style={{ maxWidth: 1100 }}>
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="min-w-0">
-              <div
-                className="text-[11px] font-medium uppercase tracking-[0.14em] mb-1.5"
-                style={{ color: '#65736B' }}
-              >
-                {roleLabel}
-              </div>
+              {/* The chips ARE the role indicator when there's more than one —
+                  showing "You're attending" above a row that already says
+                  Attending / Speaking / Organizing is the same fact twice. */}
+              {roles.length > 1 ? (
+                <RoleBand roles={roles} activeRole={activeRole} className="mb-2" />
+              ) : (
+                <div
+                  className="text-[11px] font-medium uppercase tracking-[0.14em] mb-1.5"
+                  style={{ color: '#65736B' }}
+                >
+                  {roleLabel}
+                </div>
+              )}
               <h1
                 className="font-display font-bold text-[22px] sm:text-[26px] truncate"
                 style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}
