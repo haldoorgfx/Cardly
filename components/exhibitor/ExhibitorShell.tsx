@@ -149,7 +149,11 @@ export function ExhibitorShell({ token, companyName, tier, boothNumber, logoUrl,
 
       {/* Tab bar */}
       <div className={embedded ? 'border-b' : 'sticky top-14 z-10 backdrop-blur border-b'} style={{ background: embedded ? 'transparent' : 'rgba(250,246,238,0.9)', borderColor: '#E5E0D4' }}>
-        <div className="mx-auto max-w-[1080px] px-5 lg:px-8 flex gap-1 overflow-x-auto no-scrollbar">
+        {/* Embedded, PageShell already caps the width and pads — applying the
+            portal's own max-width on top of it insets the rail from the
+            content it belongs to and makes the page look assembled from two
+            different layouts. */}
+        <div className={`${embedded ? '' : 'mx-auto max-w-[1080px] px-5 lg:px-8'} flex gap-1 overflow-x-auto no-scrollbar`}>
           {TABS.map(({ id, label }) => {
             const isActive = activeTab === id;
             return (
@@ -170,7 +174,7 @@ export function ExhibitorShell({ token, companyName, tier, boothNumber, logoUrl,
       </div>
 
       {/* Content */}
-      <main className="mx-auto max-w-[1080px] px-5 lg:px-8 py-7">
+      <main className={embedded ? 'py-7' : 'mx-auto max-w-[1080px] px-5 lg:px-8 py-7'}>
         {children}
       </main>
     </div>

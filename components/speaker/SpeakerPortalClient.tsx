@@ -1085,15 +1085,28 @@ export function SpeakerPortalClient({ speaker: initialSpeaker, event, sessions, 
       </header>
       )}
 
-      {/* Tab nav */}
-      <div style={{ background: '#fff', borderBottom: '1px solid #E5E0D4' }}>
-        <div className="max-w-[960px] mx-auto px-4 sm:px-6">
-          <nav className="flex gap-0 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+      {/* Tab nav.
+          This was a full-bleed white band — correct for the standalone public
+          portal it came from, wrong inside the dashboard, where PageShell pads
+          and width-caps its children. The band got clipped to the content
+          column and rendered as a white rectangle floating on cream with hard
+          cut edges, which is what gave the page away as a transplanted public
+          screen. Embedded, the rail sits directly on the page with a hairline
+          under it, the same anatomy as every other dashboard tab rail. */}
+      <div
+        style={
+          embedded
+            ? { borderBottom: '1px solid #E5E0D4' }
+            : { background: '#fff', borderBottom: '1px solid #E5E0D4' }
+        }
+      >
+        <div className={embedded ? '' : 'max-w-[960px] mx-auto px-4 sm:px-6'}>
+          <nav className="flex gap-0 overflow-x-auto -mb-px" style={{ scrollbarWidth: 'none' }}>
             {TABS.map(tab => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className="flex items-center gap-2 px-4 h-11 text-[13px] font-medium whitespace-nowrap transition-colors shrink-0"
+                className={`flex items-center gap-2 ${embedded ? 'px-3' : 'px-4'} h-11 text-[13px] font-medium whitespace-nowrap transition-colors shrink-0`}
                 style={{
                   color: activeTab === tab.id ? '#1F4D3A' : '#65736B',
                   borderBottom: activeTab === tab.id ? '2px solid #1F4D3A' : '2px solid transparent',
