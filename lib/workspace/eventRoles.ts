@@ -1,5 +1,6 @@
 import { createAdminClient } from '@/lib/supabase/server';
 import { hasRole } from '@/lib/rbac/roles';
+import { hasCheckInAccess } from '@/lib/rbac/ownership';
 import { registrationOwnershipFilter } from '@/lib/registration/ownership';
 
 /**
@@ -29,6 +30,13 @@ export interface EventRoles {
   sponsorId: string | null;
   /** Owns the event outright. */
   isOrganizer: boolean;
+  /**
+   * Door staff — can reach the scanner without owning the event.
+   * Deliberately excludes the owner: hasCheckInAccess() is true for them too,
+   * and an "Organizing" plus a "Check-in" chip pointing into the same
+   * workspace would be two names for one thing.
+   */
+  isStaff: boolean;
 }
 
 export async function resolveEventRoles(
@@ -36,7 +44,8 @@ export async function resolveEventRoles(
   eventId: string,
 ): Promise<EventRoles> {
   const empty: EventRoles = {
-    registrationId: null, speakerId: null, sponsorId: null, isOrganizer: false,
+    registrationId: null, speakerId: null, sponsorId: null,
+    isOrganizer: false, isStaff: false,
   };
   if (!userId) return empty;
 
@@ -90,22 +99,28 @@ export async function resolveEventRoles(
     return null;
   };
 
-  const [speakerId, sponsorId] = await Promise.all([
+  const isOrganizer = !!eventRes.data;
+
+  const [speakerId, sponsorId, canCheckIn] = await Promise.all([
     pick(speakerRes.data, 'email', 'speaker'),
     pick(sponsorRes.data, 'contact_email', 'sponsor'),
+    // Skip the lookup entirely for the owner — they already get the
+    // Organizing chip, and this would only ever confirm what we know.
+    isOrganizer ? Promise.resolve(false) : hasCheckInAccess(userId, eventId),
   ]);
 
   return {
     registrationId: (regRes.data?.id as string | undefined) ?? null,
     speakerId,
     sponsorId,
-    isOrganizer: !!eventRes.data,
+    isOrganizer,
+    isStaff: canCheckIn,
   };
 }
 
 /** Roles that give this account a workspace at the event, in reading order. */
 export interface RoleLink {
-  key: 'attending' | 'speaking' | 'sponsoring' | 'organizing';
+  key: 'attending' | 'speaking' | 'sponsoring' | 'organizing' | 'staff';
   label: string;
   href: string;
 }
@@ -123,6 +138,12 @@ export function roleLinks(roles: EventRoles, slug: string, eventId: string): Rol
   }
   if (roles.isOrganizer) {
     out.push({ key: 'organizing', label: 'Organizing', href: `/events/${eventId}` });
+  }
+  // Door staff get the scanner directly rather than the event workspace —
+  // /events/[id] is owner-only, but /check-in admits them via
+  // hasCheckInAccess. Sending them to the workspace would bounce them.
+  if (roles.isStaff) {
+    out.push({ key: 'staff', label: 'Check-in', href: `/events/${eventId}/check-in` });
   }
   return out;
 }
