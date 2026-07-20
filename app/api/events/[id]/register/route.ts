@@ -569,7 +569,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
     // In-app notification for the attendee (only if they have an account)
     if (registration.user_id) {
-      createNotification({
+      await createNotification({
         userId: registration.user_id,
         eventId: params.id,
         type: 'ticket_confirmed',

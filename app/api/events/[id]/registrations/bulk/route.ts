@@ -118,7 +118,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   if (imported > 0) {
     // Fetch event name for the notification title
     const { data: ev } = await admin.from('events').select('name').eq('id', params.id).single();
-    createNotification({
+    await createNotification({
       userId: user.id,
       eventId: params.id,
       type: 'registration',

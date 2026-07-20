@@ -117,19 +117,32 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         .eq('organizer_id', user.id)
         .eq('notify_new_events', true);
 
-      for (const f of (followers ?? []) as { follower_id: string }[]) {
-        if (!f.follower_id) continue;
-        // Respect the follower's "Organizers you follow" preference (opt-out;
-        // default ON). This is on top of the per-follow notify_new_events flag.
-        if (!(await isNotifAllowed(f.follower_id, 'organizer_follows', 'inapp'))) continue;
-        createNotification({
-          userId: f.follower_id,
-          eventId: id,
-          type: 'new_event',
-          title: 'New event from an organizer you follow',
-          body: eventTitle,
-          actionUrl: `/e/${slug}`,
-        });
+      // Bounded, AWAITED fan-out. These were fired without await, so on
+      // serverless the function could freeze on response and drop the whole
+      // batch — a popular organizer's followers would silently never hear that
+      // a new event went live. Chunking also caps concurrency, and runs the
+      // per-follower preference check in parallel instead of one at a time.
+      // Respects the "Organizers you follow" preference (opt-out; default ON),
+      // on top of the per-follow notify_new_events flag.
+      const followerIds = ((followers ?? []) as { follower_id: string }[])
+        .map(f => f.follower_id)
+        .filter(Boolean);
+
+      const NOTIFY_CHUNK = 25;
+      for (let i = 0; i < followerIds.length; i += NOTIFY_CHUNK) {
+        await Promise.allSettled(
+          followerIds.slice(i, i + NOTIFY_CHUNK).map(async (followerId) => {
+            if (!(await isNotifAllowed(followerId, 'organizer_follows', 'inapp'))) return;
+            await createNotification({
+              userId: followerId,
+              eventId: id,
+              type: 'new_event',
+              title: 'New event from an organizer you follow',
+              body: eventTitle,
+              actionUrl: `/e/${slug}`,
+            });
+          }),
+        );
       }
     } catch { /* notifications are non-critical */ }
   }

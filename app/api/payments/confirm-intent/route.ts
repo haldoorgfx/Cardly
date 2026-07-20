@@ -75,7 +75,7 @@ export async function POST(req: NextRequest) {
 
       // In-app notification for the attendee (only if they have an account)
       if (updated.user_id) {
-        createNotification({
+        await createNotification({
           userId: updated.user_id,
           eventId: updated.event_id,
           type: 'ticket_confirmed',

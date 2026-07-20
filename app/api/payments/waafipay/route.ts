@@ -94,7 +94,7 @@ export async function POST(req: NextRequest) {
 
     // In-app notification for the attendee — only on the first flip, only if they have an account.
     if (flipped && reg.user_id) {
-      createNotification({
+      await createNotification({
         userId: reg.user_id,
         eventId: reg.event_id,
         type: 'ticket_confirmed',

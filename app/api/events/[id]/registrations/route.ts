@@ -131,7 +131,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       .eq('id', user.id)
       .maybeSingle();
     if (orgPrefs?.notify_registrations !== false) {
-      createNotification({
+      await createNotification({
         userId: user.id,
         eventId: params.id,
         type: 'registration',

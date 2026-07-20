@@ -94,7 +94,7 @@ export async function POST(req: NextRequest) {
     // In-app notification for the attendee — only on the first flip, only if they have an account.
     if (updated?.user_id) {
       const { data: ep } = await admin.from('event_pages').select('title').eq('event_id', updated.event_id).maybeSingle();
-      createNotification({
+      await createNotification({
         userId: updated.user_id,
         eventId: updated.event_id,
         type: 'ticket_confirmed',

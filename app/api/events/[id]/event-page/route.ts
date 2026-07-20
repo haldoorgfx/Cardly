@@ -233,20 +233,36 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
         .limit(500);
 
       const seen = new Set<string>();
+      const candidates: string[] = [];
       for (const a of (attendees ?? []) as { user_id: string | null }[]) {
         if (!a.user_id || seen.has(a.user_id)) continue;
         seen.add(a.user_id);
-        // Respect the attendee's "Agenda changes" preference (time/venue/format
-        // changes fall under this category). Opt-out; default ON.
-        if (!(await isNotifAllowed(a.user_id, 'agenda_changes', 'inapp'))) continue;
-        createNotification({
-          userId: a.user_id,
-          eventId: params.id,
-          type: 'event_update',
-          title: 'Event details updated',
-          body: `${eventTitle}: check the latest time & venue.`,
-          actionUrl: `/e/${slug}`,
-        });
+        candidates.push(a.user_id);
+      }
+
+      // Bounded, AWAITED fan-out. Each createNotification was previously fired
+      // without await, so on serverless the function could freeze the instant
+      // the response returned and drop the entire batch — and up to 500
+      // in-flight calls meant unbounded concurrency. The preference check was
+      // also sequential (one round-trip per attendee); it now runs inside the
+      // same chunk.
+      // Respects the attendee's "Agenda changes" preference (time/venue/format
+      // changes fall under this category). Opt-out; default ON.
+      const NOTIFY_CHUNK = 25;
+      for (let i = 0; i < candidates.length; i += NOTIFY_CHUNK) {
+        await Promise.allSettled(
+          candidates.slice(i, i + NOTIFY_CHUNK).map(async (userId) => {
+            if (!(await isNotifAllowed(userId, 'agenda_changes', 'inapp'))) return;
+            await createNotification({
+              userId,
+              eventId: params.id,
+              type: 'event_update',
+              title: 'Event details updated',
+              body: `${eventTitle}: check the latest time & venue.`,
+              actionUrl: `/e/${slug}`,
+            });
+          }),
+        );
       }
     }
   } catch { /* notifications are non-critical */ }
