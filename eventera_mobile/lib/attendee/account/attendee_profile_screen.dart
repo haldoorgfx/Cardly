@@ -518,19 +518,26 @@ class _AttendeeProfileScreenState extends State<AttendeeProfileScreen> {
     if (confirmed != true || !mounted) return;
     setState(() => _saving = true);
     try {
-      // Prefer the backend endpoint (removes the privileged auth user). If it
-      // isn't available, fall back to deleting the user's own profile data.
-      try {
-        await apiPost('/api/account/delete', {});
-      } catch (_) {
-        await supa.from('profiles').delete().eq('id', currentUserId ?? '');
-      }
+      // Only the backend endpoint may delete an account. There used to be a
+      // fallback here that deleted the profile row directly when the endpoint
+      // threw — which quietly defeated every server-side guard: it wiped
+      // attendees' paid tickets the server had just refused to wipe, left the
+      // Stripe subscription billing, orphaned the privileged auth user, and
+      // then showed "Your account has been deleted." for what was actually a
+      // refusal. A refusal must surface as a refusal.
+      await apiPost('/api/account/delete', {});
       await BiometricService.instance.clear();
       await supa.auth.signOut();
       if (!mounted) return;
       Navigator.of(context).popUntil((r) => r.isFirst);
       showToast(context, 'Your account has been deleted.',
           type: ToastType.success);
+    } on ApiException catch (e) {
+      // The server explains WHY it refused (unrefunded tickets, an active
+      // subscription it couldn't cancel) — show that, not a generic error.
+      if (!mounted) return;
+      setState(() => _saving = false);
+      showToast(context, e.message, type: ToastType.error);
     } catch (_) {
       if (!mounted) return;
       setState(() => _saving = false);

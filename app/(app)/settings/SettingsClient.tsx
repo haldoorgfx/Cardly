@@ -68,6 +68,7 @@ export default function SettingsClient({ profile, section }: Props) {
   // Delete
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [deleting, setDeleting]           = useState(false);
+  const [deleteError, setDeleteError]     = useState<string | null>(null);
 
   // Log out of all devices
   const [signingOutAll, setSigningOutAll] = useState(false);
@@ -106,7 +107,16 @@ export default function SettingsClient({ profile, section }: Props) {
   async function handleDeleteAccount() {
     if (!deleteConfirm) { setDeleteConfirm(true); return; }
     setDeleting(true);
-    await deleteAccount();
+    setDeleteError(null);
+    // On success this redirects and never returns. On a refusal it returns
+    // { error } — previously discarded, which left the button stuck on
+    // "Deleting…" forever with no explanation of why nothing happened.
+    const res = await deleteAccount();
+    if (res?.error) {
+      setDeleteError(res.error);
+      setDeleting(false);
+      setDeleteConfirm(false);
+    }
   }
 
   return (
@@ -230,6 +240,13 @@ export default function SettingsClient({ profile, section }: Props) {
               )}
             </div>
           </div>
+          {/* Full-width so the server's explanation (unrefunded tickets, a
+              subscription we couldn't cancel) wraps readably on a phone. */}
+          {deleteError && (
+            <p className="mt-3 text-[13px] leading-relaxed" style={{ color: '#B8423C' }}>
+              {deleteError}
+            </p>
+          )}
         </section>
         </>
         )}

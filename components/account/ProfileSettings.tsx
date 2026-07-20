@@ -236,10 +236,18 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
     try {
       const res = await fetch('/api/account/delete', { method: 'POST' });
       if (!res.ok) {
-        // Fall back to deleting the caller's own profile row directly (RLS-scoped).
-        const supabase = createClient();
-        const { error } = await supabase.from('profiles').delete().eq('id', profile.id);
-        if (error) throw error;
+        // There used to be a fallback here that deleted the profile row
+        // directly when this returned non-OK. That quietly defeated every
+        // server-side guard — it wiped attendees' paid tickets the server had
+        // just refused to wipe, and left the Stripe subscription billing a
+        // deleted account. A refusal has to stay a refusal, and the server
+        // explains why, so surface its message instead of overriding it.
+        const body = await res.json().catch(() => null);
+        setDeleteError(
+          body?.error ?? 'We couldn’t delete your account right now. Please contact support.',
+        );
+        setDeleting(false);
+        return;
       }
       const supabase = createClient();
       await supabase.auth.signOut().catch(() => {});

@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { createClient, createAdminClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 import { sendWelcomeEmail } from "@/lib/email";
 
 // Only allow same-origin absolute paths as a post-auth destination. Blocks
@@ -94,9 +94,13 @@ export async function deleteAccount() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: 'Not authenticated' };
 
-  const admin = createAdminClient();
-  const { error } = await admin.auth.admin.deleteUser(user.id);
-  if (error) return { error: error.message };
+  // Delegates to the shared implementation. This used to call
+  // admin.auth.admin.deleteUser() directly, which skipped every guard the API
+  // route applied — and since Settings wires the delete button to THIS action,
+  // the path most users actually reached was the least safe one.
+  const { deleteOwnAccount } = await import('@/lib/account/delete');
+  const result = await deleteOwnAccount(user.id);
+  if (!result.ok) return { error: result.error };
 
   revalidatePath("/", "layout");
   redirect("/");
