@@ -91,6 +91,24 @@ const MARK_ASPECT = 66 / 70;
 const MARK_PNG_BASE64 =
   'iVBORw0KGgoAAAANSUhEUgAAAEIAAABGCAYAAAB4xUL+AAAACXBIWXMAABYlAAAWJQFJUiTwAAABLklEQVR4nO2asQ3CMBRE/whUrjOFaxorazAKIzADkzCF13mIDpEySHeSr3gNaZ5O9v+HkprPcZ/PwWJcgfqmEgQJgpyIkasxMyNGhuXM1hhZnzM9YqRQzZPNcvs8WIzLIYjfH1gUuQAmyAUwQS6ACXIBTJALYIJcABPkApggF8AEuQAmyAUwQS6ACXIBTJALYIJcABOq7f3W9v4S8XAK4t72joiXOoAEQYKonAhyNSozggzLytYg67PSI0jFrr80S3W1xQS5ACbIBTBBLoAJcgFMkAtgglwAE+QCmCAXwAS5ACbIBTBBLoAJcgFMkAtgglwAozddW9v7dTEubq/8EHH8KD1BkCDIiei5Gi0zomdYtmyNnvXZ0iN6ClU70yzVf3YwQS6ACXIBTJALYMIbLxpjawb0N64AAAAASUVORK5CYII=';
 
+/**
+ * Centre-mark geometry, shared by the PNG and SVG paths so the download can
+ * never drift from what's on screen.
+ *
+ * The mark used to sit on a plate barely larger than itself (plate 0.23 of the
+ * QR, mark 0.15 — a 65% fill), which read as a hole punched in the pattern
+ * with something small inside rather than a deliberate badge, and the thin
+ * three-bar glyph disappeared into the surrounding modules.
+ *
+ * Bigger plate, more padding inside it, and a hairline ring to separate badge
+ * from pattern. The QR is generated at error-correction H (30% recoverable);
+ * the plate covers 0.30² = 9% of the area, so this stays comfortably scannable.
+ */
+const MARK_PLATE_HALF = 0.150;  // half the plate, as a fraction of QR size
+const MARK_HEIGHT     = 0.170;  // mark height, as a fraction of QR size
+const MARK_RING       = 0.006;  // hairline ring around the plate
+const MARK_RADIUS     = 0.36;   // corner radius, as a fraction of the plate
+
 /** Draw the real Eventera icon mark (not a redrawn approximation) on a white
  *  plate into the centre of a QR PNG data URL and return the composited PNG. */
 function compositeQrMark(rawDataUrl: string): Promise<string> {
@@ -105,13 +123,21 @@ function compositeQrMark(rawDataUrl: string): Promise<string> {
       if (!ctx) { resolve(rawDataUrl); return; }
       ctx.drawImage(img, 0, 0, size, size);
       const cx = size / 2, cy = size / 2;
-      const plate = size * 0.115;   // half-size of the white plate
+      const plate = size * MARK_PLATE_HALF;
+      const radius = plate * MARK_RADIUS * 2;
+
+      roundRect(ctx, cx - plate, cy - plate, plate * 2, plate * 2, radius);
       ctx.fillStyle = '#FFFFFF';
-      roundRect(ctx, cx - plate, cy - plate, plate * 2, plate * 2, plate * 0.42); ctx.fill();
+      ctx.fill();
+      // Hairline ring — without it the white plate blends into the quiet space
+      // between modules and the badge loses its edge.
+      ctx.strokeStyle = '#E5E0D4';
+      ctx.lineWidth = size * MARK_RING;
+      ctx.stroke();
 
       const markImg = new window.Image();
       markImg.onload = () => {
-        const markH = size * 0.15;
+        const markH = size * MARK_HEIGHT;
         const markW = markH * MARK_ASPECT;
         ctx.drawImage(markImg, cx - markW / 2, cy - markH / 2, markW, markH);
         resolve(canvas.toDataURL('image/png'));
@@ -131,11 +157,13 @@ function injectMarkIntoSvg(svg: string): string {
   const vb = m ? parseFloat(m[1]) : 0;
   if (!vb) return svg;
   const c = vb / 2;
-  const plate = vb * 0.115;
-  const markH = vb * 0.15;
+  const plate = vb * MARK_PLATE_HALF;
+  const markH = vb * MARK_HEIGHT;
   const markW = markH * MARK_ASPECT;
   const overlay =
-    `<rect x="${c - plate}" y="${c - plate}" width="${plate * 2}" height="${plate * 2}" rx="${plate * 0.42}" fill="#FFFFFF"/>` +
+    `<rect x="${c - plate}" y="${c - plate}" width="${plate * 2}" height="${plate * 2}"` +
+    ` rx="${plate * MARK_RADIUS * 2}" fill="#FFFFFF"` +
+    ` stroke="#E5E0D4" stroke-width="${vb * MARK_RING}"/>` +
     `<image x="${c - markW / 2}" y="${c - markH / 2}" width="${markW}" height="${markH}" href="data:image/png;base64,${MARK_PNG_BASE64}"/>`;
   return svg.replace('</svg>', `${overlay}</svg>`);
 }
