@@ -9,7 +9,12 @@ import type { Zone } from '@/types/database';
 // Zod schema for a single zone — lenient (passthrough) so unknown future fields survive.
 const ZoneSchema = z.object({
   id:     z.string(),
-  type:   z.enum(['text', 'photo', 'custom']),
+  // NOTE: types the editor can create but this route still cannot draw are
+  // dropped by parseZones BELOW, silently. 'label' is handled now; 'shape' and
+  // 'image' still need render branches (see the dispatch loop) — until then a
+  // designer can place them, see them on the canvas, and they will be absent
+  // from the attendee's PNG.
+  type:   z.enum(['text', 'photo', 'custom', 'label']),
   x: z.number(), y: z.number(), w: z.number(), h: z.number(),
 }).passthrough();
 
@@ -457,6 +462,16 @@ export async function POST(req: NextRequest) {
       if (zone.type === 'text' || zone.type === 'custom') {
         const text = fields[zone.id];
         if (text?.trim()) {
+          ops.push(await buildTextOp(zone, text, canvasW, canvasH));
+        }
+      } else if (zone.type === 'label') {
+        // Static copy authored in Card Studio (e.g. "I'm Attending"). It lives
+        // on the zone itself (`sample`), NOT in the attendee-supplied fields —
+        // which is why it was rendering for nobody: the zone type wasn't even
+        // parsed, so every static headline the designer placed silently
+        // vanished from the final card.
+        const text = (zone as { sample?: string }).sample ?? '';
+        if (text.trim()) {
           ops.push(await buildTextOp(zone, text, canvasW, canvasH));
         }
       } else if (zone.type === 'photo') {
