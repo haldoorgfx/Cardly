@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { getMyTeam, getTeamMembers, getTeamInvites, createInvite } from '@/lib/teams/queries';
 import { PLANS } from '@/lib/billing/plans';
 import { sendTeamInviteEmail } from '@/lib/email';
@@ -29,13 +29,24 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     return NextResponse.json({ error: 'Invalid role.' }, { status: 400 });
   }
 
-  // Check seat limit
-  const { data: profile } = await supabase
+  // Check seat limit — against the TEAM OWNER's plan, not the inviter's.
+  // Seats are billed to the owner's subscription. Reading the inviter's plan
+  // meant an admin member (almost always on the free plan themselves) resolved
+  // to teamSeats: 1 and could never invite anyone, while a downgraded owner's
+  // team kept full seats if an admin with a paid plan did the inviting.
+  // Admin client: an admin member cannot read the owner's profile row under RLS.
+  const adminDb = createAdminClient();
+  const { data: ownerProfile } = await adminDb
     .from('profiles')
-    .select('plan')
-    .eq('id', user.id)
+    .select('plan, subscription_status')
+    .eq('id', team.owner_id)
     .single();
-  const plan = (profile?.plan ?? 'free') as 'free' | 'pro' | 'studio';
+  const ownerLapsed =
+    ownerProfile?.subscription_status === 'canceled' ||
+    ownerProfile?.subscription_status === 'past_due';
+  const plan = (
+    ownerLapsed && ownerProfile?.plan !== 'free' ? 'free' : (ownerProfile?.plan ?? 'free')
+  ) as 'free' | 'pro' | 'studio';
   const seatLimit = PLANS[plan].teamSeats;
 
   const invites = await getTeamInvites(params.id);

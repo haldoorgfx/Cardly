@@ -18,6 +18,13 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     return NextResponse.json({ error: 'Invalid role.' }, { status: 400 });
   }
 
+  // The owner's own row must stay role 'owner' — demoting it strands the team
+  // (teams.owner_id still points at them, but every membership-role check drops
+  // to 'member' and nobody can re-promote).
+  if (params.userId === team.owner_id) {
+    return NextResponse.json({ error: "The team owner's role can't be changed." }, { status: 400 });
+  }
+
   await updateMemberRole(params.id, params.userId, role);
   return NextResponse.json({ ok: true });
 }
@@ -36,6 +43,17 @@ export async function DELETE(_req: NextRequest, { params }: { params: { id: stri
   // Owner can remove anyone; members can only remove themselves
   if (team.owner_id !== user.id && params.userId !== user.id) {
     return NextResponse.json({ error: 'Forbidden.' }, { status: 403 });
+  }
+
+  // Never remove the owner's membership row. getMyTeam() resolves the team via
+  // team_members, so an owner who removed themselves lost access to their own
+  // team permanently — they could no longer invite, manage seats, or even
+  // delete it (DELETE /api/teams/[id] also goes through getMyTeam).
+  if (params.userId === team.owner_id) {
+    return NextResponse.json(
+      { error: 'The team owner cannot be removed. Delete the team instead.' },
+      { status: 400 }
+    );
   }
 
   await removeMember(params.id, params.userId);

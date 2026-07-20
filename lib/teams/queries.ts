@@ -205,6 +205,24 @@ export async function acceptInvite(
   if (row.accepted_at) throw new Error("Invite has already been accepted.");
   if (new Date(row.expires_at) < new Date()) throw new Error("Invite has expired.");
 
+  // 1b. One team per account. Nothing stopped a user from accepting invites to
+  // two teams; getMyTeam() reads membership with .maybeSingle(), so a second
+  // row makes that query error out and the user silently loses access to BOTH
+  // teams (and can't be shown a team to leave). Reject up front instead.
+  const { data: existingMembership } = await (db as any)
+    .from("team_members")
+    .select("team_id")
+    .eq("user_id", userId)
+    .limit(1)
+    .maybeSingle();
+  if (existingMembership) {
+    throw new Error(
+      existingMembership.team_id === row.team_id
+        ? "You're already a member of this team."
+        : "You already belong to a team. Leave it before joining another."
+    );
+  }
+
   // 2. Add the user as a team member
   const { error: memberError } = await (db as any)
     .from("team_members")
