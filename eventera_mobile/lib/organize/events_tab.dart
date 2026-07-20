@@ -184,10 +184,17 @@ class _OrganizerEventsTabState extends State<OrganizerEventsTab> {
     }
 
     final visible = _filtered;
+    final next = _nextAction();
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
       children: [
+        // One clear next action, above the filters. An organizer opening the
+        // app mid-event had to work out for themselves which event was live
+        // and where check-in lived; a draft they abandoned looked identical
+        // to a published one until they read the pill.
+        if (next != null) ...[next, const SizedBox(height: 16)],
+
         // Filter chips: Live & upcoming · Past · Drafts.
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
@@ -236,6 +243,82 @@ class _OrganizerEventsTabState extends State<OrganizerEventsTab> {
   }
 
   // O01 event card (.oev): cover + pill / name / when / stat strip.
+  /// The single most useful thing this organizer could do right now, or null
+  /// when there's nothing worth interrupting them about.
+  ///
+  /// Priority is by urgency, not by recency: an event happening today beats an
+  /// unfinished draft, which beats a published event nobody has registered for
+  /// yet (that one is usually a share problem, not a build problem).
+  Widget? _nextAction() {
+    final all = _events;
+    if (all == null || all.isEmpty) return null;
+    final now = DateTime.now();
+
+    OrganizerEvent? live;
+    OrganizerEvent? soon;
+    for (final e in all) {
+      if (e.status != 'published' || e.startsAt == null) continue;
+      final diff = e.startsAt!.difference(now);
+      // Treat a same-day event as live for a reasonable window after it opens;
+      // OrganizerEvent has no end time to check against.
+      if (diff.isNegative && diff.inHours > -12) {
+        if (live == null || e.startsAt!.isAfter(live.startsAt!)) live = e;
+      } else if (!diff.isNegative && diff.inHours < 24) {
+        if (soon == null || e.startsAt!.isBefore(soon.startsAt!)) soon = e;
+      }
+    }
+
+    final target = live ?? soon;
+    if (target != null) {
+      final c = _counts[target.id];
+      final registered = c?.registered;
+      final checkedIn = c?.checkedIn;
+      final isLive = live != null;
+      return _NextActionCard(
+        tag: isLive ? 'Happening now' : 'Starts soon',
+        highlight: isLive,
+        title: target.name,
+        subtitle: registered == null
+            ? (isLive ? 'Doors are open' : 'Get the door ready')
+            : isLive
+                ? '$checkedIn of $registered checked in'
+                : '$registered registered · scan them in from the door',
+        cta: isLive ? 'Open check-in' : 'Open event',
+        onTap: () => _open(target),
+      );
+    }
+
+    final draft = all.where((e) => e.status == 'draft').toList();
+    if (draft.isNotEmpty) {
+      final d = draft.first;
+      return _NextActionCard(
+        tag: 'Draft',
+        highlight: false,
+        title: d.name,
+        subtitle: 'Not visible to anyone yet — publish it to start selling',
+        cta: 'Finish setup',
+        onTap: () => _open(d),
+      );
+    }
+
+    // A published event with nobody registered is almost always unshared.
+    for (final e in all) {
+      if (e.status != 'published') continue;
+      if (e.startsAt != null && e.startsAt!.isBefore(now)) continue;
+      if ((_counts[e.id]?.registered ?? -1) != 0) continue;
+      return _NextActionCard(
+        tag: 'No registrations yet',
+        highlight: false,
+        title: e.name,
+        subtitle: 'Share the link — most events get their first sign-ups that way',
+        cta: 'Open event',
+        onTap: () => _open(e),
+      );
+    }
+
+    return null;
+  }
+
   Widget _eventCard(OrganizerEvent e) {
     final counts = _counts[e.id];
     return GestureDetector(
@@ -343,5 +426,52 @@ class _OrganizerEventsTabState extends State<OrganizerEventsTab> {
     ];
     if (parts.isEmpty) return e.isPublished ? 'Published' : 'Not scheduled yet';
     return parts.join(' · ').toUpperCase();
+  }
+}
+
+/// Compact "do this next" banner. Deliberately ONE action, not a checklist —
+/// an organizer standing at a door does not want a to-do list.
+class _NextActionCard extends StatelessWidget {
+  final String tag;
+  final bool highlight;
+  final String title;
+  final String subtitle;
+  final String cta;
+  final VoidCallback onTap;
+
+  const _NextActionCard({
+    required this.tag,
+    required this.highlight,
+    required this.title,
+    required this.subtitle,
+    required this.cta,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return MCard(
+      onTap: onTap,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Tag(tag,
+              kind: highlight ? TagKind.gold : TagKind.forest,
+              dot: highlight),
+          const SizedBox(height: 10),
+          Text(title,
+              style: AppText.h3.copyWith(fontSize: 16),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis),
+          const SizedBox(height: 4),
+          Text(subtitle,
+              style: AppText.bodySm.copyWith(color: AppColors.inkMuted),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis),
+          const SizedBox(height: 14),
+          MButton(cta, kind: MBtnKind.forest, onTap: onTap),
+        ],
+      ),
+    );
   }
 }
