@@ -66,7 +66,10 @@ export default async function RegisterPage({ params, searchParams }: Props) {
   const [ticketsRes, pageRes, variantRes, formFieldsRes] = await Promise.all([
     (admin as any)
       .from('ticket_types')
-      .select('id, name, description, price, currency, quantity, quantity_sold, is_visible, min_price')
+      // sales_start / sales_end are enforced by /api/events/[id]/register. Without
+      // them here the picker offered tickets outside their sales window and the
+      // attendee only found out after filling in the entire form.
+      .select('id, name, description, price, currency, quantity, quantity_sold, is_visible, min_price, sales_start, sales_end')
       .eq('event_id', event.id)
       .eq('is_visible', true)
       .order('price', { ascending: true }),

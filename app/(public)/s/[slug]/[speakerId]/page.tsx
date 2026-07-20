@@ -44,6 +44,13 @@ export default async function PublicSpeakerPage({ params }: Props) {
     if (owned) redirect(`/speaking/${params.speakerId}`);
   }
 
+  const { data: eventPage } = await admin
+    .from('event_pages')
+    .select('timezone')
+    .eq('event_id', event.id)
+    .maybeSingle();
+  const eventTimezone = eventPage?.timezone || 'UTC';
+
   // Public sessions for this speaker
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: sessionSpeakers } = await (admin as any)
@@ -59,11 +66,15 @@ export default async function PublicSpeakerPage({ params }: Props) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .sort((a: any, b: any) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime());
 
+  // This is a SERVER component — `undefined` timeZone resolves to the server's
+  // clock (UTC on Vercel), so every session time rendered in UTC regardless of
+  // where the event is. Always format in the event's own timezone.
   function fmtTime(iso: string | null): string {
     if (!iso) return '';
     try {
-      return new Date(iso).toLocaleString(undefined, {
+      return new Date(iso).toLocaleString('en', {
         weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit',
+        timeZone: eventTimezone,
       });
     } catch { return ''; }
   }

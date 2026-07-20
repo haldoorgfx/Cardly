@@ -92,6 +92,22 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
+  // Keep the public page's visibility switch in sync with the event status.
+  // The public event page (and the register API) resolve purely on
+  // event_pages.is_public — events.status is NOT consulted. So "Unpublish"
+  // (status → draft/archived) left the page fully live at /e/[slug] and still
+  // selling tickets to anyone holding the link; it only disappeared from the
+  // /events listing, which does filter on status.
+  if (patch.status && prior?.status && patch.status !== prior.status) {
+    const shouldBePublic = patch.status === 'published';
+    if (shouldBePublic !== (prior.status === 'published')) {
+      await admin
+        .from('event_pages')
+        .update({ is_public: shouldBePublic })
+        .eq('event_id', id);
+    }
+  }
+
   // Task 2: newly published event → notify followers of this organizer who opted in.
   if (patch.status === 'published' && prior?.status !== 'published') {
     try {

@@ -8,6 +8,7 @@ interface Props {
   speaker: Speaker;
   sessions: Session[];
   eventSlug: string;
+  timezone?: string | null;
 }
 
 const TYPE_LABELS: Record<string, string> = {
@@ -18,11 +19,16 @@ const TYPE_LABELS: Record<string, string> = {
   mc: 'MC',
 };
 
-function formatTimeRange(start: string, end: string) {
+// Session times belong to the EVENT's timezone, not the viewer's — without the
+// explicit timeZone a 09:00 Djibouti talk showed as 06:00 to anyone abroad.
+function formatTimeRange(start: string, end: string, tz: string) {
   if (!start || !end) return '';
-  const s = new Date(start);
-  const e = new Date(end);
-  return `${s.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false })}–${e.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false })}`;
+  const opts: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: tz };
+  try {
+    return `${new Date(start).toLocaleTimeString('en', opts)}–${new Date(end).toLocaleTimeString('en', opts)}`;
+  } catch {
+    return '';
+  }
 }
 
 function LinkedInIcon() {
@@ -57,7 +63,8 @@ function getInitials(name: string) {
   return name.split(' ').map((p) => p[0]).join('').toUpperCase().slice(0, 2);
 }
 
-export default function SpeakerProfileClient({ speaker, sessions, eventSlug }: Props) {
+export default function SpeakerProfileClient({ speaker, sessions, eventSlug, timezone }: Props) {
+  const tz = timezone || 'UTC';
   const typeLabel = TYPE_LABELS[speaker.speaker_type] ?? speaker.speaker_type;
   const roleLine = [speaker.role, speaker.company].filter(Boolean).join(' · ');
   const hasSocials = speaker.linkedin_url || speaker.twitter_url || speaker.website_url;
@@ -196,7 +203,7 @@ export default function SpeakerProfileClient({ speaker, sessions, eventSlug }: P
                     {session.title}
                   </p>
                   <p className="text-[12px] mt-1" style={{ color: '#65736B' }}>
-                    {formatTimeRange(session.starts_at, session.ends_at)}
+                    {formatTimeRange(session.starts_at, session.ends_at, tz)}
                     {session.room ? ` · ${session.room}` : ''}
                   </p>
                   {session.tracks && (

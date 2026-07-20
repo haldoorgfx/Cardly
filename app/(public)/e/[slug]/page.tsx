@@ -82,6 +82,14 @@ export default async function PublicEventPage({ params, searchParams }: Props) {
     admin.from('ticket_types').select('id', { count: 'exact', head: true }).eq('event_id', page.event_id),
   ]);
 
+  // `page` is serialized into the RSC payload, so every column selected above
+  // ships to anonymous visitors in the public HTML. online_url is the private
+  // Zoom/Meet join link — the UI only ever says "shared with registered
+  // attendees", but the raw link was readable in page source. Strip it and pass
+  // a boolean so the copy still knows whether a link exists.
+  const { online_url: privateJoinUrl, ...publicPage } = page as typeof page & { online_url: string | null };
+  const hasOnlineUrl = !!privateJoinUrl;
+
   const allTickets = ticketsRes.data ?? [];
   const hasAnyTickets = (anyTicketsRes.count ?? 0) > 0;
   const organizerUserId = eventRes.data?.user_id ?? null;
@@ -289,7 +297,8 @@ export default async function PublicEventPage({ params, searchParams }: Props) {
         </div>
       )}
       <PublicEventPageClient
-        page={page}
+        page={publicPage}
+        hasOnlineUrl={hasOnlineUrl}
         tickets={allTickets}
         hasAnyTickets={hasAnyTickets}
         dateStr={date}

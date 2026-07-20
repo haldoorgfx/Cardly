@@ -14,6 +14,10 @@ import { bannerGradientFor, avatarColorFor, initialsOf, placeholderInitials } fr
 /* ─── Types ─────────────────────────────────────────────────────── */
 
 type EventPageRow = Database['public']['Tables']['event_pages']['Row'];
+// Everything this component (and its children) may receive about the event page.
+// online_url is stripped server-side — the private join link must never be
+// serialized into the public RSC payload.
+type PublicEventPage = Omit<EventPageRow, 'online_url'>;
 type TicketTypeRow = Database['public']['Tables']['ticket_types']['Row'];
 type Tab = 'overview' | 'schedule' | 'speakers' | 'sponsors' | 'network';
 
@@ -53,7 +57,10 @@ interface Attendee {
 }
 
 interface Props {
-  page: EventPageRow;
+  // online_url is deliberately absent — the private join link must never reach
+  // the public RSC payload. The server passes `hasOnlineUrl` instead.
+  page: PublicEventPage;
+  hasOnlineUrl?: boolean;
   tickets: TicketTypeRow[];
   hasAnyTickets?: boolean;
   dateStr: string;
@@ -175,20 +182,25 @@ function VenueMap({
 
 function TicketList({
   tickets, hasAnyTickets = true, selectedTicket, setSelectedTicket,
-  registerHref, page, minPrice, registrationSlug,
+  registerHref, page, minPrice, registrationSlug, capacityFull = false,
 }: {
   tickets: TicketTypeRow[];
   hasAnyTickets?: boolean;
   selectedTicket: string;
   setSelectedTicket: (id: string) => void;
   registerHref: string;
-  page: EventPageRow;
+  page: PublicEventPage;
   minPrice: string;
   registrationSlug: string;
+  capacityFull?: boolean;
 }) {
   const isSoldOut = (t: TicketTypeRow) => t.quantity !== null && t.quantity_sold >= t.quantity;
   const hasTickets = tickets.length > 0;
-  const allSoldOut = hasTickets && tickets.every(isSoldOut);
+  // capacityFull = the event's own max_capacity is reached. The register API
+  // rejects these with EVENT_FULL (409), so treat it exactly like sold out —
+  // otherwise an event with unlimited-quantity tickets kept showing "Get
+  // tickets" and only failed after the attendee filled in the whole form.
+  const allSoldOut = capacityFull || (hasTickets && tickets.every(isSoldOut));
   // Registration is closed once an explicit deadline passes OR the event itself
   // has ended (prefer the end time, fall back to the start). Without the
   // event-ended check, past events kept showing "Selling now / Get tickets" and
@@ -309,7 +321,7 @@ function TicketList({
 
 /* ─── ERA Q&A widget ────────────────────────────────────────────── */
 
-function ERAQandA({ page }: { page: EventPageRow }) {
+function ERAQandA({ page }: { page: PublicEventPage }) {
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState('');
   const [loading, setLoading] = useState(false);
@@ -398,7 +410,7 @@ function ERAQandA({ page }: { page: EventPageRow }) {
 /* ─── Main component ────────────────────────────────────────────── */
 
 export function PublicEventPageClient({
-  page, tickets, hasAnyTickets = true, dateStr, timeStr, endTimeStr, minPrice,
+  page, hasOnlineUrl = false, tickets, hasAnyTickets = true, dateStr, timeStr, endTimeStr, minPrice,
   registrationSlug, eventId, viewerRegistrationId = null, organizerUserId, seriesSlug, seriesName,
   sessions = [], speakers = [], sponsors = [],
   attendees = [], attendeeCount = 0, organizerAvatarUrl = null,
@@ -427,7 +439,12 @@ export function PublicEventPageClient({
   const registrationClosed =
     !!(eventEndTime && new Date(eventEndTime) < new Date()) ||
     !!(page.registration_deadline && new Date(page.registration_deadline) < new Date());
-  const allSoldOut = tickets.length > 0 && tickets.every(t => t.quantity !== null && t.quantity_sold >= t.quantity);
+  // Mirror of TicketList's rule for the mobile sticky CTA: the event's own
+  // max_capacity counts as sold out (the register API returns EVENT_FULL).
+  // attendeeCount is the same confirmed+checked_in count the API compares.
+  const capacityFull = !!(page.max_capacity && attendeeCount >= page.max_capacity);
+  const allSoldOut = capacityFull
+    || (tickets.length > 0 && tickets.every(t => t.quantity !== null && t.quantity_sold >= t.quantity));
   const totalPrice = selectedTicketObj ? fmtTicketPrice(selectedTicketObj.price, selectedTicketObj.currency) : minPrice;
 
   const hasRealAttendees = attendees.length > 0;
@@ -922,7 +939,7 @@ export function PublicEventPageClient({
                   </h2>
                   {page.is_online ? (
                     <div className="text-[15px]" style={{ color: '#3A4A42' }}>
-                      {page.online_url
+                      {hasOnlineUrl
                         ? 'Join link will be shared with registered attendees.'
                         : 'Details will be sent after registration.'}
                     </div>
@@ -968,6 +985,7 @@ export function PublicEventPageClient({
                   page={page}
                   minPrice={minPrice}
                   registrationSlug={registrationSlug}
+                  capacityFull={capacityFull}
                 />
               </div>
 
@@ -984,6 +1002,7 @@ export function PublicEventPageClient({
                 page={page}
                 minPrice={minPrice}
                 registrationSlug={registrationSlug}
+                capacityFull={capacityFull}
               />
             </aside>
           </div>

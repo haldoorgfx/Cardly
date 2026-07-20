@@ -22,6 +22,24 @@ interface TicketType {
   quantity_sold: number;
   min_price?: number | null;
   is_visible?: boolean;
+  sales_start?: string | null;
+  sales_end?: string | null;
+}
+
+/**
+ * Why a ticket can't be bought right now, or null if it can.
+ * Mirrors the checks in /api/events/[id]/register so the picker never offers a
+ * ticket the API will reject at the very end of the flow.
+ */
+function ticketBlockedReason(t: TicketType): string | null {
+  if (t.quantity !== null && t.quantity_sold >= t.quantity) return 'Sold out';
+  const now = Date.now();
+  if (t.sales_start && new Date(t.sales_start).getTime() > now) {
+    const when = new Date(t.sales_start).toLocaleDateString('en', { month: 'short', day: 'numeric' });
+    return `Sales open ${when}`;
+  }
+  if (t.sales_end && new Date(t.sales_end).getTime() < now) return 'Sales closed';
+  return null;
 }
 
 interface CanvasVariant {
@@ -108,8 +126,11 @@ function deriveAttendeeName(zones: Zone[], values: Record<string, string>, fallb
 
 // -- Helpers -----------------------------------------------------------------
 function pickDefaultTicket(tickets: TicketType[]): TicketType | null {
-  const available = tickets.filter(t => !(t.quantity !== null && t.quantity_sold >= t.quantity));
-  if (available.length === 0) return tickets[0] ?? null;
+  const available = tickets.filter(t => !ticketBlockedReason(t));
+  // Nothing buyable → select nothing, which keeps "Next" disabled. Previously
+  // this fell back to tickets[0] even when it was sold out / off-sale, letting
+  // the attendee walk the whole flow and get rejected at submit.
+  if (available.length === 0) return null;
   const notInvite = available.filter(t => {
     const combined = `${t.name ?? ''} ${t.description ?? ''}`.toLowerCase();
     return !combined.includes('invitation only') && !combined.includes('invite only') && !combined.includes('speaker') && !combined.includes('vip');
@@ -170,7 +191,10 @@ export default function RegistrationClient({
   const router = useRouter();
 
   // If the attendee arrived from the event page with a chosen ticket, honor it.
-  const preselected = initialTicketId ? tickets.find(t => t.id === initialTicketId) ?? null : null;
+  // ?ticket=… deep link — ignore it if that ticket is sold out or off-sale, so a
+  // stale shared link doesn't preselect something the API will reject.
+  const preselectedRaw = initialTicketId ? tickets.find(t => t.id === initialTicketId) ?? null : null;
+  const preselected = preselectedRaw && !ticketBlockedReason(preselectedRaw) ? preselectedRaw : null;
 
   // step 0 = ticket, 1 = details, 2 = review/pay, 3 = your card (canvas events only).
   // Always start at step 0 so the attendee confirms their ticket before continuing.
@@ -734,7 +758,8 @@ export default function RegistrationClient({
               ) : (
                 <div className="space-y-3">
                   {allTickets.map((t: TicketType) => {
-                    const sold = t.quantity !== null && t.quantity_sold >= t.quantity!;
+                    const blockedReason = ticketBlockedReason(t);
+                    const sold = !!blockedReason;
                     const isSelected = selectedTicket?.id === t.id;
                     const isUnlocked = unlockedTickets.some(u => u.id === t.id);
                     const displayPrice = t.min_price && t.min_price > 0
@@ -760,7 +785,7 @@ export default function RegistrationClient({
                             )}
                           </div>
                           {t.description && <div className="text-[13px] mt-0.5" style={{ color: '#65736B' }}>{t.description}</div>}
-                          {sold && <div className="text-[12px] mt-1 font-medium" style={{ color: '#B8423C' }}>Sold out</div>}
+                          {blockedReason && <div className="text-[12px] mt-1 font-medium" style={{ color: '#B8423C' }}>{blockedReason}</div>}
                         </div>
                         <div className="font-title font-bold text-[18px] shrink-0" style={{ color: t.price === 0 && !t.min_price ? '#C9A45E' : '#1F4D3A' }}>
                           {displayPrice}
@@ -768,6 +793,19 @@ export default function RegistrationClient({
                       </button>
                     );
                   })}
+                </div>
+              )}
+
+              {/* Every ticket is sold out or outside its sales window — say so
+                  plainly and point at the waitlist instead of leaving the
+                  attendee staring at a disabled "Next". */}
+              {allTickets.length > 0 && allTickets.every(t => !!ticketBlockedReason(t)) && (
+                <div className="mt-4 rounded-2xl p-5 text-[14px]" style={{ background: 'white', border: '1px solid #E5E0D4', color: '#65736B' }}>
+                  No tickets are on sale right now.{' '}
+                  <a href={`/e/${eventSlug}/waitlist`} className="font-semibold underline" style={{ color: '#1F4D3A' }}>
+                    Join the waitlist
+                  </a>{' '}
+                  and we&rsquo;ll let you know if more become available.
                 </div>
               )}
 

@@ -18,9 +18,23 @@ export default async function SpeakerProfilePage({ params }: Props) {
   const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   const speakerCol = UUID_RE.test(params.speakerId) ? 'id' : 'slug';
 
+  // Explicit column list — `select('*')` also shipped speakers.email (added in
+  // migration 039) into this public page's RSC payload, publishing every
+  // speaker's private address to scrapers.
   const { data: speaker } = await admin
-    .from('speakers').select('*').eq(speakerCol, params.speakerId).eq('event_id', event.id).maybeSingle();
+    .from('speakers')
+    .select('id, name, headline, bio, photo_url, company, role, linkedin_url, twitter_url, website_url, speaker_type, is_featured, event_id')
+    .eq(speakerCol, params.speakerId)
+    .eq('event_id', event.id)
+    .maybeSingle();
   if (!speaker) notFound();
+
+  // Session times must render in the EVENT's timezone, not the viewer's.
+  const { data: eventPage } = await admin
+    .from('event_pages')
+    .select('timezone')
+    .eq('event_id', event.id)
+    .maybeSingle();
 
   // Filter sessions by the RESOLVED speaker UUID. session_speakers.speaker_id is
   // a UUID, so filtering by the slug (new-style links) always returned nothing.
@@ -34,7 +48,7 @@ export default async function SpeakerProfilePage({ params }: Props) {
   return (
     <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
       {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-      <SpeakerProfileClient speaker={speaker as any} sessions={(sessions ?? []) as any} eventSlug={params.slug} />
+      <SpeakerProfileClient speaker={speaker as any} sessions={(sessions ?? []) as any} eventSlug={params.slug} timezone={eventPage?.timezone ?? null} />
     </div>
   );
 }
