@@ -282,7 +282,14 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
   const imageUploadRef  = useRef<HTMLInputElement>(null);
   const brandUploadRef  = useRef<HTMLInputElement>(null);
   const bgReplaceRef  = useRef<HTMLInputElement>(null);
-  const autosaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Pending autosave keyed BY VARIANT, holding the payload so it can be
+  // flushed. This used to be a single shared timer that scheduleSave cleared
+  // unconditionally, so scheduling a save for variant B cancelled variant A's
+  // pending PATCH and it was never re-issued — the edit was silently lost while
+  // the in-memory zone map kept displaying it until a reload.
+  const autosaveTimers = useRef<
+    Record<string, { timer: ReturnType<typeof setTimeout>; zones: Zone[] }>
+  >({});
   const zonesRef      = useRef(zones);
   zonesRef.current    = zones;
   const didMoveRef    = useRef(false);
@@ -397,8 +404,11 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
 
   /* -- autosave ------------------------------------------ */
   const scheduleSave = useCallback((nextZones: Zone[], variantId: string) => {
-    if (autosaveTimer.current) clearTimeout(autosaveTimer.current);
-    autosaveTimer.current = setTimeout(async () => {
+    // Only debounce against THIS variant's own pending save.
+    const pending = autosaveTimers.current[variantId];
+    if (pending) clearTimeout(pending.timer);
+    const timer = setTimeout(async () => {
+      delete autosaveTimers.current[variantId];
       try {
         await fetchWithRetry(
           `/api/events/${eventId}/variants/${variantId}`,
@@ -416,6 +426,30 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
         setSaveError(true);
       }
     }, 800);
+    autosaveTimers.current[variantId] = { timer, zones: nextZones };
+  }, [eventId]);
+
+  // Flush any still-pending autosave when the editor unmounts. Without this, an
+  // edit made in the last 800ms before hitting Publish, clicking a sidebar link
+  // or closing the tab was dropped with no warning. `keepalive` lets the PATCH
+  // outlive the teardown (sendBeacon can't be used — it only issues POST).
+  useEffect(() => {
+    const timers = autosaveTimers.current;
+    return () => {
+      for (const [variantId, pending] of Object.entries(timers)) {
+        clearTimeout(pending.timer);
+        try {
+          void fetch(`/api/events/${eventId}/variants/${variantId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ zones: pending.zones }),
+            keepalive: true,
+          });
+        } catch {
+          /* best-effort — nothing useful to do during teardown */
+        }
+      }
+    };
   }, [eventId]);
 
   const setZonesForVariant = useCallback((variantId: string, nextZones: Zone[]) => {
