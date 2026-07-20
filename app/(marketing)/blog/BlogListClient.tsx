@@ -51,8 +51,6 @@ function FeaturedPost({ post }: { post: BlogPost }) {
             aria-hidden
             className="absolute inset-0"
             style={{
-              backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(232,197,126,0.12) 1px, transparent 1px)',
-              backgroundSize: '24px 24px',
             }}
           />
           <div className="absolute inset-0 flex items-end p-6">
@@ -86,8 +84,6 @@ function PostCard({ post, delay }: { post: BlogPost; delay: number }) {
             aria-hidden
             className="absolute inset-0"
             style={{
-              backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(232,197,126,0.10) 1px, transparent 1px)',
-              backgroundSize: '20px 20px',
             }}
           />
           <div className="absolute top-4 left-4">

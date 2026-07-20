@@ -43,9 +43,6 @@ export function NewsCTAClient() {
         aria-hidden
         className="absolute inset-0 pointer-events-none"
         style={{
-          backgroundImage:
-            'radial-gradient(circle at 1px 1px, rgba(232,197,126,0.10) 1px, transparent 1px)',
-          backgroundSize: '32px 32px',
         }}
       />
       <div className="relative mx-auto max-w-[760px] px-5 lg:px-10 py-16 lg:py-20 text-center">

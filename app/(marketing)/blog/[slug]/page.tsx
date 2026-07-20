@@ -40,8 +40,6 @@ export default function BlogArticlePage({ params }: { params: { slug: string } }
           aria-hidden
           className="absolute inset-0 pointer-events-none"
           style={{
-            backgroundImage: 'radial-gradient(rgba(15,31,24,0.045) 1px, transparent 1px)',
-            backgroundSize: '24px 24px',
           }}
         />
         <div className="relative mx-auto max-w-[760px] px-5 lg:px-10 pt-10 lg:pt-14 pb-8 lg:pb-10">

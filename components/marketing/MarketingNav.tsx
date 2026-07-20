@@ -98,8 +98,6 @@ function MobileOverlay({
         className="absolute inset-0"
         style={{
           background: '#FAF6EE',
-          backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(15,31,24,0.04) 1px, transparent 1px)',
-          backgroundSize: '22px 22px',
         }}
       />
       <div className="relative flex flex-col min-h-screen">

@@ -105,8 +105,6 @@ export default function NewEventPage() {
   return (
     <div className="min-h-screen" style={{
       background: '#FAF6EE',
-      backgroundImage: 'radial-gradient(circle, rgba(15,31,24,0.04) 1px, transparent 1px)',
-      backgroundSize: '24px 24px',
     }}>
 
       {/* ── Header ─────────────────────────────────────────────────────────── */}

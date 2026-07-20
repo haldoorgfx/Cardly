@@ -9,10 +9,6 @@ export function FeaturesGridBlock({ content }: { content: FeaturesGridContent })
 
   return (
     <section className={`relative overflow-hidden ${dark ? 'bg-[#1F4D3A] text-[#FAF6EE]' : ''}`}>
-      {dark && (
-        <div aria-hidden className="absolute inset-0 opacity-[0.06]"
-          style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, #E8C57E 1px, transparent 0)', backgroundSize: '32px 32px' }} />
-      )}
       <div className="relative mx-auto max-w-[1200px] px-5 lg:px-10 py-20 lg:py-28">
         {header && (
           <div className="max-w-[760px] mb-12 lg:mb-16">

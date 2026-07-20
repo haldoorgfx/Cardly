@@ -67,7 +67,6 @@ export default async function SeriesPage({ params }: Props) {
         >
           <div
             className="absolute inset-0 opacity-10 pointer-events-none rounded-2xl"
-            style={{ backgroundImage: 'radial-gradient(circle, #E8C57E 1px, transparent 1px)', backgroundSize: '24px 24px' }}
           />
           <div className="relative">
             <div

@@ -425,8 +425,6 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents, ban
       {/* ── HERO (light) ──────────────────────────────────────── */}
       <section className="relative" style={{ background: '#FAF6EE' }}>
         <div aria-hidden className="absolute inset-0 pointer-events-none" style={{
-          backgroundImage: 'radial-gradient(rgba(31,77,58,0.05) 1px, transparent 1px)',
-          backgroundSize: '22px 22px',
           maskImage: 'radial-gradient(120% 80% at 50% 0%, #000 40%, transparent 100%)',
           WebkitMaskImage: 'radial-gradient(120% 80% at 50% 0%, #000 40%, transparent 100%)',
         }} />

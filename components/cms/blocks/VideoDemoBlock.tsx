@@ -46,17 +46,6 @@ export function VideoDemoBlock({ content }: VideoDemoBlockProps) {
               boxShadow: '0 8px 40px rgba(15,31,24,0.18)',
             }}
           >
-            {/* Dot grid overlay */}
-            <div
-              aria-hidden
-              className="absolute inset-0 opacity-[0.10]"
-              style={{
-                backgroundImage:
-                  'radial-gradient(circle at 1px 1px, #E8C57E 1px, transparent 0)',
-                backgroundSize: '26px 26px',
-              }}
-            />
-
             {/* Placeholder label */}
             {content.placeholder && (
               <div className="absolute top-5 left-5">

@@ -58,8 +58,6 @@ function PartnersHero() {
         aria-hidden
         className="absolute inset-0 pointer-events-none"
         style={{
-          backgroundImage: 'radial-gradient(rgba(15,31,24,0.05) 1px, transparent 1px)',
-          backgroundSize: '24px 24px',
         }}
       />
 
@@ -186,8 +184,6 @@ function WhyPartner() {
         aria-hidden
         className="absolute inset-0 pointer-events-none"
         style={{
-          backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(232,197,126,0.06) 1px, transparent 1px)',
-          backgroundSize: '32px 32px',
         }}
       />
       <div className="relative mx-auto max-w-[1200px] px-5 lg:px-10 py-16 lg:py-24">

@@ -74,8 +74,6 @@ export function CategoryPage({ category, events, savedIds, cityCounts }: Categor
         <div
           className="absolute inset-0 opacity-5 pointer-events-none rounded-2xl"
           style={{
-            backgroundImage: 'radial-gradient(circle, #1F4D3A 1px, transparent 1px)',
-            backgroundSize: '24px 24px',
           }}
         />
         <div className="relative">

@@ -119,8 +119,6 @@ function SpeakerCard({ speaker, event, size = 'lg' }: { speaker: Speaker; event:
       {/* Subtle dot grid */}
       <div style={{
         position: 'absolute', inset: 0, opacity: 0.07,
-        backgroundImage: 'radial-gradient(rgba(232,197,126,0.6) 1px, transparent 1px)',
-        backgroundSize: '16px 16px',
       }} />
 
       {/* Event name */}
@@ -278,9 +276,6 @@ function HomeTab({ speaker, event, sessions, onTab }: { speaker: Speaker; event:
       {/* ── Hero banner ── */}
       <div className="relative overflow-hidden rounded-2xl p-6 sm:p-8"
         style={{ background: 'linear-gradient(135deg, #0D1F17 0%, #1F4D3A 60%, #2A6A50 100%)' }}>
-        {/* Dot mesh */}
-        <div className="absolute inset-0 pointer-events-none"
-          style={{ backgroundImage: 'radial-gradient(rgba(232,197,126,0.12) 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
         <div className="relative">
           <div className="inline-flex items-center gap-1.5 mb-4 px-3 py-1.5 rounded-full text-[12px] font-medium"
             style={{ background: 'rgba(232,197,126,0.15)', border: '1px solid rgba(232,197,126,0.35)', color: '#E8C57E' }}>

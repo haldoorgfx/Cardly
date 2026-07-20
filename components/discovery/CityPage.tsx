@@ -195,8 +195,6 @@ export function CityPage({ city, events, savedIds, eventCount }: CityPageProps) 
           <div
             className="absolute inset-0 opacity-10 pointer-events-none"
             style={{
-              backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)',
-              backgroundSize: '24px 24px',
             }}
           />
           <div className="relative max-w-lg">

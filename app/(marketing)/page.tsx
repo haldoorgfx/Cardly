@@ -155,7 +155,7 @@ const ALL_FEATURES = [
 
 function PlatformOverview() {
   return (
-    <section id="platform" style={{ background: '#FAF6EE', backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(15,31,24,0.045) 1px, transparent 1px)', backgroundSize: '22px 22px', padding: 'clamp(60px,8vw,96px) clamp(20px,5vw,64px)' }}>
+    <section id="platform" style={{ background: '#FAF6EE', padding: 'clamp(60px,8vw,96px) clamp(20px,5vw,64px)' }}>
       <div style={{ maxWidth: 1100, margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: 44 }}>
           <div style={{ fontSize: 11, fontFamily: 'var(--font-sans)', letterSpacing: '0.22em', textTransform: 'uppercase', color: '#1F4D3A', marginBottom: 14 }}>

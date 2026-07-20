@@ -62,8 +62,6 @@ export default function AttendeeLoginPage() {
         className="flex items-center justify-center px-8 py-12 lg:col-span-1 col-span-2"
         style={{
           background: '#FAF6EE',
-          backgroundImage: 'radial-gradient(circle, rgba(15,31,24,0.045) 1px, transparent 1px)',
-          backgroundSize: '24px 24px',
         }}
       >
         <div className="w-full max-w-[380px]">

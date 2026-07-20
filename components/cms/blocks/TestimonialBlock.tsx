@@ -23,17 +23,6 @@ export function TestimonialBlock({ content }: TestimonialBlockProps) {
       className="relative border-y overflow-hidden"
       style={{ borderColor: '#E5E0D4' }}
     >
-      {/* subtle dot grid background */}
-      <div
-        aria-hidden
-        className="absolute inset-0 opacity-[0.035]"
-        style={{
-          backgroundImage:
-            'radial-gradient(circle at 1px 1px, #1F4D3A 1px, transparent 0)',
-          backgroundSize: '28px 28px',
-        }}
-      />
-
       <div className="relative mx-auto max-w-[760px] px-5 lg:px-10 py-20 lg:py-24 text-center">
         {/* Quote icon */}
         <div
