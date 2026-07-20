@@ -25,9 +25,18 @@ export async function POST(req: NextRequest) {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const stripe = getStripe();
-  const { plan, billingCycle } = await req.json() as { plan: Plan; billingCycle: 'monthly' | 'annual' };
+  // Malformed/empty bodies threw an unhandled 500 here instead of a 400.
+  let body: { plan?: Plan; billingCycle?: 'monthly' | 'annual' };
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
+  }
+  const { plan, billingCycle } = body;
 
-  const priceId = PRICE_IDS[plan]?.[billingCycle];
+  const cycle: 'monthly' | 'annual' | null =
+    billingCycle === 'monthly' || billingCycle === 'annual' ? billingCycle : null;
+  const priceId = plan && cycle ? PRICE_IDS[plan]?.[cycle] : undefined;
   if (!priceId) {
     return NextResponse.json({ error: 'Price not configured' }, { status: 400 });
   }
@@ -51,6 +60,28 @@ export async function POST(req: NextRequest) {
     await admin.from('profiles').update({ stripe_customer_id: customerId }).eq('id', user.id);
   }
 
+  // Existing subscriptions on this customer decide two things:
+  //  1. A customer who already has a live subscription must NOT be sent through
+  //     checkout again — Stripe would happily create a second subscription and
+  //     bill them twice. Plan changes belong in the customer portal.
+  //  2. The 14-day trial was granted unconditionally, so subscribe → cancel →
+  //     resubscribe looped free Pro/Studio forever. Only ever trial once.
+  const existing = await stripe.subscriptions.list({
+    customer: customerId,
+    status: 'all',
+    limit: 100,
+  });
+  const hasLiveSubscription = existing.data.some(s =>
+    ['active', 'trialing', 'past_due', 'unpaid'].includes(s.status),
+  );
+  if (hasLiveSubscription) {
+    return NextResponse.json(
+      { error: 'You already have an active subscription. Use “Manage billing” to change your plan.' },
+      { status: 409 },
+    );
+  }
+  const hasSubscribedBefore = existing.data.length > 0;
+
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
 
   const session = await stripe.checkout.sessions.create({
@@ -60,8 +91,8 @@ export async function POST(req: NextRequest) {
     success_url: `${appUrl}/settings/billing?checkout=success`,
     cancel_url: `${appUrl}/pricing?checkout=canceled`,
     subscription_data: {
-      trial_period_days: 14,
-      metadata: { supabase_user_id: user.id, billing_cycle: billingCycle },
+      ...(hasSubscribedBefore ? {} : { trial_period_days: 14 }),
+      metadata: { supabase_user_id: user.id, billing_cycle: cycle ?? 'monthly' },
     },
     allow_promotion_codes: true,
   });

@@ -13,7 +13,7 @@ export async function getUserPlan(userId: string): Promise<Plan> {
   const admin = createAdminClient();
   const { data } = await admin
     .from('profiles')
-    .select('plan, subscription_status')
+    .select('plan, subscription_status, stripe_subscription_id, current_period_end')
     .eq('id', userId)
     .single();
 
@@ -31,6 +31,23 @@ export async function getUserPlan(userId: string): Promise<Plan> {
     data.subscription_status === 'incomplete';
 
   if (subscriptionFailed && data.plan !== 'free') return 'free';
+
+  // Webhook-loss backstop. Everything above trusts `subscription_status`, which
+  // only ever changes when a Stripe webhook lands. If the endpoint is down,
+  // disabled by Stripe after repeated failures, or the secret is rotated, a
+  // cancelled subscription stays 'active' in our DB and the user keeps a paid
+  // plan for free indefinitely. A Stripe-backed subscription whose billing
+  // period ended over a week ago has demonstrably not renewed → treat as free.
+  // Comped/manual plans (no stripe_subscription_id, or no period end) are
+  // untouched.
+  const GRACE_DAYS = 7;
+  if (data.stripe_subscription_id && data.current_period_end && data.plan !== 'free') {
+    const endedMsAgo = Date.now() - new Date(data.current_period_end).getTime();
+    if (Number.isFinite(endedMsAgo) && endedMsAgo > GRACE_DAYS * 24 * 60 * 60 * 1000) {
+      return 'free';
+    }
+  }
+
   return (data.plan as Plan) ?? 'free';
 }
 
@@ -114,16 +131,10 @@ export async function canGenerateCard(userId: string): Promise<{ allowed: boolea
 
   if (!profile) return { allowed: false, plan: 'free' };
 
-  // Only downgrade if there's an explicitly failed/cancelled subscription.
-  // 'none' = manually-assigned plan (no Stripe) → honor the plan.
-  const subscriptionFailed =
-    profile.subscription_status === 'canceled' ||
-    profile.subscription_status === 'past_due';
-
-  const plan: Plan =
-    subscriptionFailed && profile.plan !== 'free'
-      ? 'free'
-      : (profile.plan as Plan) ?? 'free';
+  // Resolve through getUserPlan rather than re-deriving the downgrade rules
+  // here — this copy had drifted (it missed 'incomplete' and the period-end
+  // backstop), so a never-paid signup still got Pro's 500-card monthly quota.
+  const plan = await getUserPlan(userId);
 
   // Lazy monthly rollover: if cards_month_start is more than 30 days ago, reset
   const monthStart = new Date(profile.cards_month_start);

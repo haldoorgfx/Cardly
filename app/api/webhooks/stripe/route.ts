@@ -18,7 +18,14 @@ export async function POST(req: NextRequest) {
   const sig = req.headers.get('stripe-signature');
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
-  if (!sig || !webhookSecret) {
+  // Without the secret key the Stripe proxy resolves to undefined and
+  // constructEvent blew up into a 400 — which Stripe records as a permanent
+  // failure and eventually disables the endpoint. 503 keeps it retrying.
+  if (!process.env.STRIPE_SECRET_KEY || !webhookSecret) {
+    console.error('[stripe-webhook] STRIPE_SECRET_KEY / STRIPE_WEBHOOK_SECRET not configured');
+    return NextResponse.json({ error: 'Billing not configured' }, { status: 503 });
+  }
+  if (!sig) {
     return NextResponse.json({ error: 'Missing signature' }, { status: 400 });
   }
 

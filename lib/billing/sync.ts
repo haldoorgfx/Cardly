@@ -2,6 +2,7 @@ import type Stripe from 'stripe';
 import { stripe } from './stripe';
 import { getPlanFromPriceId } from './plans';
 import { createAdminClient } from '@/lib/supabase/server';
+import type { BillingCycle } from '@/types/database';
 
 export async function syncSubscription(subscriptionId: string): Promise<void> {
   const admin = createAdminClient();
@@ -12,8 +13,8 @@ export async function syncSubscription(subscriptionId: string): Promise<void> {
   });
 
   const priceId = sub.items.data[0]?.price.id ?? null;
-  const plan = priceId ? (getPlanFromPriceId(priceId) ?? 'free') : 'free';
-  const billingCycle =
+  const pricedPlan = priceId ? (getPlanFromPriceId(priceId) ?? 'free') : 'free';
+  const billingCycle: BillingCycle =
     sub.items.data[0]?.price.recurring?.interval === 'year' ? 'annual' : 'monthly';
 
   // Normalize Stripe status to our enum (incomplete_expired → canceled)
@@ -24,21 +25,55 @@ export async function syncSubscription(subscriptionId: string): Promise<void> {
     ? (rawStatus as KnownStatus)
     : 'canceled';
 
+  // A cancelled subscription must write `plan` itself back to 'free', not just
+  // the status. getUserPlan() compensates, but plenty of surfaces read the raw
+  // `profiles.plan` column (settings/developer, settings/white-label, billing,
+  // dashboard, admin) — leaving it on 'pro'/'studio' left cancelled users
+  // looking and feeling subscribed forever. past_due/incomplete keep the plan
+  // so a recovered payment restores the tier without a re-checkout.
+  const plan = subscriptionStatus === 'canceled' ? 'free' : pricedPlan;
+
   // Find the Supabase user via stripe_customer_id
   const customerId =
     typeof sub.customer === 'string' ? sub.customer : sub.customer.id;
 
-  await admin
+  const patch = {
+    plan,
+    stripe_subscription_id: sub.id,
+    subscription_status: subscriptionStatus,
+    billing_cycle: billingCycle,
+    current_period_end: new Date(sub.current_period_end * 1000).toISOString(),
+    cancel_at_period_end: sub.cancel_at_period_end,
+  };
+
+  const { data: matched } = await admin
     .from('profiles')
-    .update({
-      plan,
-      stripe_subscription_id: sub.id,
-      subscription_status: subscriptionStatus,
-      billing_cycle: billingCycle,
-      current_period_end: new Date(sub.current_period_end * 1000).toISOString(),
-      cancel_at_period_end: sub.cancel_at_period_end,
-    })
-    .eq('stripe_customer_id', customerId);
+    .update(patch)
+    .eq('stripe_customer_id', customerId)
+    .select('id');
+
+  // The customer-id match silently updates ZERO rows if the profile never got
+  // its stripe_customer_id persisted (write failed after customers.create, or
+  // the customer was made in the Stripe dashboard). That is the "paid but never
+  // upgraded" path. Fall back to the supabase_user_id we stamp on subscription
+  // metadata at checkout, and heal the missing customer id while we're here.
+  if (!matched || matched.length === 0) {
+    const userId = sub.metadata?.supabase_user_id;
+    if (userId) {
+      const { data: healed } = await admin
+        .from('profiles')
+        .update({ ...patch, stripe_customer_id: customerId })
+        .eq('id', userId)
+        .select('id');
+      if (healed && healed.length > 0) return;
+    }
+    console.error(
+      '[billing/sync] no profile matched for subscription',
+      sub.id,
+      'customer',
+      customerId,
+    );
+  }
 }
 
 export async function handleCustomerDeleted(customer: Stripe.Customer): Promise<void> {

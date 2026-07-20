@@ -6,6 +6,8 @@ import { notFound } from 'next/navigation';
 import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
 import RegistrationClient from '@/components/registration/RegistrationClient';
 import type { Zone } from '@/types/database';
+import { getUserPlan } from '@/lib/billing/can';
+import { PLATFORM_FEE_PERCENT } from '@/lib/billing/fees';
 
 interface Props { params: { slug: string }; searchParams?: { ref?: string; utm_source?: string; ticket?: string } }
 
@@ -99,10 +101,12 @@ export default async function RegisterPage({ params, searchParams }: Props) {
       .from('events').select('fee_bearer, user_id').eq('id', event.id).single();
     if (ev?.fee_bearer === 'pass') feeBearer = 'pass';
     if (ev?.user_id) {
-      const { data: prof } = await (admin as any)
-        .from('profiles').select('plan').eq('id', ev.user_id).single();
-      const plan = (prof?.plan ?? 'free') as 'free' | 'pro' | 'studio';
-      feePercent = plan === 'studio' ? 0 : plan === 'pro' ? 0.02 : 0.05;
+      // Must match what /api/events/[id]/register actually charges: it resolves
+      // the organizer's plan via getUserPlan (status-aware) and reads the rate
+      // from PLATFORM_FEE_PERCENT. Reading profiles.plan raw and re-hardcoding
+      // the percentages here meant a lapsed Studio organizer's attendees were
+      // quoted a 0% fee and then charged 5% at submit.
+      feePercent = PLATFORM_FEE_PERCENT[await getUserPlan(ev.user_id)] ?? 0.05;
     }
   } catch { /* defaults: absorb / 0 — safe (total = face price) */ }
 

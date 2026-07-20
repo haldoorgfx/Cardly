@@ -6,6 +6,7 @@ export async function generateMetadata(): Promise<Metadata> {
 import { redirect } from 'next/navigation';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { PLANS } from '@/lib/billing/plans';
+import { fromStripeMinorUnits } from '@/lib/payments/currency';
 import BillingActions from './BillingActions';
 import { BillingPortalButton } from './BillingPortalButton';
 import { UpgradeStudioButton } from './UpgradeStudioButton';
@@ -62,9 +63,14 @@ async function getStripeData(customerId: string): Promise<{ paymentMethod: Payme
       const month = d.toLocaleString(undefined, { month: 'short' });
       const year = d.getFullYear();
       const planNickname = inv.lines.data[0]?.description ?? 'Subscription';
-      const amount = inv.amount_paid === 0
-        ? '$0.00'
-        : `$${(inv.amount_paid / 100).toFixed(2)}`;
+      // Invoice amounts are in Stripe minor units, which are NOT always 1/100 —
+      // DJF/RWF/UGX/XOF etc. are zero-decimal, so a flat /100 under-reported the
+      // invoice by 100x. Format from the invoice's own currency, not a hardcoded $.
+      const major = fromStripeMinorUnits(inv.amount_paid, inv.currency);
+      const amount = new Intl.NumberFormat(undefined, {
+        style: 'currency',
+        currency: (inv.currency ?? 'usd').toUpperCase(),
+      }).format(major);
       const status: Invoice['status'] =
         inv.amount_paid === 0 ? 'free'
         : inv.status === 'paid' ? 'paid'
