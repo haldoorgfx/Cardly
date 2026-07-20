@@ -30,6 +30,10 @@ function ComposeModal({
   const [message, setMessage]   = useState('');
   const [sending, setSending]   = useState(false);
   const [sent, setSent]         = useState(false);
+  // Actual server-reported outcome. The success message used to quote
+  // registrantCount, which is what we *hoped* to send, not what went out.
+  const [sentCount, setSentCount] = useState(0);
+  const [skipped, setSkipped]     = useState(0);
   const [error, setError]       = useState('');
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
@@ -47,8 +51,12 @@ function ComposeModal({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ subject: subject.trim(), message: message.trim() }),
       });
-      const data = await res.json() as { sent?: number; error?: string };
+      const data = await res.json() as { sent?: number; skipped?: number; error?: string };
       if (!res.ok) { setError(data.error ?? 'Failed to send'); return; }
+      // Unsubscribed attendees are filtered out server-side. Say so, otherwise
+      // a lower-than-expected count just looks like a partial failure.
+      setSentCount(data.sent ?? registrantCount);
+      setSkipped(data.skipped ?? 0);
       setSent(true);
     } catch (e) {
       setError(describeError(e, 'this email'));
@@ -85,7 +93,12 @@ function ComposeModal({
             kind="success"
             compact
             title="Email sent!"
-            message={`Your message was delivered to ${registrantCount} attendee${registrantCount !== 1 ? 's' : ''}.`}
+            message={
+              `Your message was delivered to ${sentCount} attendee${sentCount !== 1 ? 's' : ''}.` +
+              (skipped > 0
+                ? ` ${skipped} ${skipped === 1 ? 'attendee has' : 'attendees have'} unsubscribed from event updates and ${skipped === 1 ? 'was' : 'were'} not emailed.`
+                : '')
+            }
           />
         ) : (
           <>

@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { Resend } from 'resend';
 import { wrap, esc } from '@/lib/email';
+import {
+  filterUnsubscribed,
+  unsubscribeTableExists,
+  unsubscribeUrl,
+} from '@/lib/email/unsubscribe';
 
 // RESEND_FROM_EMAIL is a BARE address; the display name comes from
 // RESEND_FROM_NAME. Build `from` here so it never double-wraps.
@@ -60,6 +65,30 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     return NextResponse.json({ error: 'No confirmed attendees to email' }, { status: 400 });
   }
 
+  // Honour opt-outs. This is the only broadcast path in the product, so if a
+  // suppressed address isn't removed here it isn't removed anywhere.
+  //
+  // `unsubscribeReady` gates the whole feature on the suppression table
+  // existing (migration 102 is applied by hand, so the code ships first).
+  // Until then we send exactly as before rather than advertising an opt-out we
+  // couldn't record — a dead unsubscribe link is worse than none.
+  const unsubscribeReady = await unsubscribeTableExists();
+  const suppressed = unsubscribeReady
+    ? await filterUnsubscribed(regs.map(r => r.attendee_email))
+    : new Set<string>();
+
+  const recipients = regs.filter(
+    r => !suppressed.has((r.attendee_email ?? '').trim().toLowerCase()),
+  );
+  const skipped = regs.length - recipients.length;
+
+  if (recipients.length === 0) {
+    return NextResponse.json(
+      { error: 'Every confirmed attendee has unsubscribed from event updates', sent: 0, skipped },
+      { status: 400 },
+    );
+  }
+
   const resend = getResend();
   if (!resend) {
     // Email isn't configured — don't crash; report zero sent.
@@ -72,21 +101,38 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const BATCH = 100;
   let sent = 0;
   let failed = 0;
-  for (let i = 0; i < regs.length; i += BATCH) {
-    const chunk = regs.slice(i, i + BATCH);
+  for (let i = 0; i < recipients.length; i += BATCH) {
+    const chunk = recipients.slice(i, i + BATCH);
     try {
       const { error } = await resend.batch.send(
-        chunk.map(r => ({
-          from: FROM,
-          to: r.attendee_email,
-          subject: subject.trim(),
-          html: buildBroadcastHtml({
-            attendeeName: r.attendee_name ?? 'Attendee',
-            eventName: event.name,
+        chunk.map(r => {
+          // Per-recipient, because the token is bound to their address.
+          const unsub = unsubscribeReady ? unsubscribeUrl(r.attendee_email, params.id) : null;
+          return {
+            from: FROM,
+            to: r.attendee_email,
             subject: subject.trim(),
-            message: message.trim(),
-          }),
-        }))
+            // Gmail and Yahoo have required List-Unsubscribe on bulk mail since
+            // Feb 2024 — without it broadcasts land in spam regardless of
+            // content. List-Unsubscribe-Post opts into RFC 8058 one-click, so
+            // their native Unsubscribe button POSTs straight to us.
+            ...(unsub
+              ? {
+                  headers: {
+                    'List-Unsubscribe': `<${unsub}>`,
+                    'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+                  },
+                }
+              : {}),
+            html: buildBroadcastHtml({
+              attendeeName: r.attendee_name ?? 'Attendee',
+              eventName: event.name,
+              subject: subject.trim(),
+              message: message.trim(),
+              unsubscribeUrl: unsub,
+            }),
+          };
+        })
       );
       if (error) failed += chunk.length;
       else sent += chunk.length;
@@ -95,16 +141,17 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     }
   }
 
-  return NextResponse.json({ sent, failed });
+  return NextResponse.json({ sent, failed, skipped });
 }
 
 function buildBroadcastHtml({
-  attendeeName, eventName, subject, message,
+  attendeeName, eventName, subject, message, unsubscribeUrl,
 }: {
   attendeeName: string;
   eventName: string;
   subject: string;
   message: string;
+  unsubscribeUrl?: string | null;
 }) {
   // Preserve line breaks in the organizer's plain-text message.
   const messageHtml = esc(message).replace(/\n/g, '<br>');
@@ -114,5 +161,8 @@ function buildBroadcastHtml({
     <h1 style="font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-size:22px;font-weight:700;letter-spacing:-0.02em;margin:8px 0 16px;">${esc(subject)}</h1>
     <p style="font-size:14px;color:#65736B;margin:0 0 16px;">Hi ${esc(attendeeName)},</p>
     <div style="font-size:15px;color:#3A4A42;line-height:1.6;">${messageHtml}</div>
-  `, { preheader: `${subject} — a message from ${eventName}` });
+  `, {
+    preheader: `${subject} — a message from ${eventName}`,
+    unsubscribeUrl: unsubscribeUrl ?? undefined,
+  });
 }

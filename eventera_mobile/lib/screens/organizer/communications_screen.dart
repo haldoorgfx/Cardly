@@ -220,6 +220,7 @@ class _ComposeSheetState extends State<_ComposeSheet> {
   bool _sending = false;
   bool _sent = false;
   int _sentCount = 0;
+  int _skippedCount = 0;
   String? _error;
 
   @override
@@ -250,10 +251,15 @@ class _ComposeSheetState extends State<_ComposeSheet> {
         'message': message,
       });
       final sent = res is Map ? asInt(res['sent']) : widget.registrantCount;
+      // Attendees who unsubscribed are filtered out server-side. Without
+      // surfacing that, "delivered to 48" against 50 attendees just looks
+      // like something silently failed.
+      final skipped = res is Map ? asInt(res['skipped']) : 0;
       if (mounted) {
         setState(() {
           _sent = true;
           _sentCount = sent;
+          _skippedCount = skipped;
           _sending = false;
         });
       }
@@ -290,6 +296,14 @@ class _ComposeSheetState extends State<_ComposeSheet> {
             style: AppText.bodySm.copyWith(color: AppColors.inkMuted),
             textAlign: TextAlign.center,
           ),
+          if (_skippedCount > 0) ...[
+            const SizedBox(height: 6),
+            Text(
+              '$_skippedCount ${_skippedCount == 1 ? 'attendee has' : 'attendees have'} unsubscribed from event updates and were not emailed.',
+              style: AppText.bodySm.copyWith(color: AppColors.inkMuted),
+              textAlign: TextAlign.center,
+            ),
+          ],
           const SizedBox(height: 18),
           MButton('Done', onTap: () => Navigator.of(context).pop(_sentCount)),
         ],

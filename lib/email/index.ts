@@ -38,7 +38,10 @@ const APP_URL_BASE = process.env.NEXT_PUBLIC_APP_URL ?? '';
 const LOGO_WHITE_URL = `${APP_URL_BASE}/eventera-logo-white.png`;
 const LOGO_COLOR_URL = `${APP_URL_BASE}/eventera-logo.png`;
 
-export function wrap(content: string, opts?: { preheader?: string }): string {
+export function wrap(
+  content: string,
+  opts?: { preheader?: string; unsubscribeUrl?: string },
+): string {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -64,8 +67,17 @@ ${opts?.preheader ? `<div style="display:none;max-height:0;overflow:hidden;opaci
     <tr><td style="background:#FAF6EE;padding:24px 32px;border:1px solid #E5E0D4;border-top:none;border-radius:0 0 16px 16px;text-align:center">
       <img src="${LOGO_COLOR_URL}" alt="" width="70" height="14" style="display:inline-block;height:14px;width:auto;opacity:0.5;margin-bottom:10px" />
       <p style="margin:0;font-size:11px;line-height:1.6;color:#65736B">
-        You&apos;re receiving this because you have email notifications enabled in your Eventera account.<br>
-        <a href="${APP_URL_BASE}/settings" style="color:#1F4D3A;text-decoration:underline">Manage preferences</a>
+        ${opts?.unsubscribeUrl
+          // Broadcast recipients are attendees, and most have no Eventera
+          // account — the default line below ("notifications enabled in your
+          // Eventera account") is simply untrue for them, and its Manage
+          // preferences link lands them on a page they can't use. When an
+          // unsubscribe URL is supplied, say the accurate thing and give them
+          // a link that actually works.
+          ? `You&apos;re receiving this because you registered for this event.<br>
+        <a href="${opts.unsubscribeUrl}" style="color:#1F4D3A;text-decoration:underline">Unsubscribe</a>`
+          : `You&apos;re receiving this because you have email notifications enabled in your Eventera account.<br>
+        <a href="${APP_URL_BASE}/settings" style="color:#1F4D3A;text-decoration:underline">Manage preferences</a>`}
         &nbsp;·&nbsp;
         <a href="${APP_URL_BASE}" style="color:#1F4D3A;text-decoration:underline">eventera.so</a>
       </p>
