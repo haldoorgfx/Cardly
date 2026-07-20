@@ -31,11 +31,17 @@ export default async function CommunityPage({ params }: { params: Promise<{ id: 
   const msgCounts: Record<string, number> = {};
   const posters = new Set<string>();
   if (channels && channels.length > 0) {
-    for (const ch of channels) {
-      const { count } = await db.from('community_messages').select('id', { count: 'exact', head: true }).eq('channel_id', ch.id);
-      msgCounts[ch.id] = count ?? 0;
-      const { data: rows } = await db.from('community_messages').select('registration_id').eq('channel_id', ch.id);
-      (rows ?? []).forEach((r: { registration_id: string | null }) => { if (r.registration_id) posters.add(r.registration_id); });
+    // One query for every channel, not two per channel. Reads the same rows the
+    // per-channel loop did, then tallies counts + distinct posters in memory.
+    const channelIds = channels.map((c: { id: string }) => c.id);
+    for (const cid of channelIds) msgCounts[cid] = 0;
+    const { data: rows } = await db
+      .from('community_messages')
+      .select('channel_id, registration_id')
+      .in('channel_id', channelIds);
+    for (const r of (rows ?? []) as { channel_id: string; registration_id: string | null }[]) {
+      msgCounts[r.channel_id] = (msgCounts[r.channel_id] ?? 0) + 1;
+      if (r.registration_id) posters.add(r.registration_id);
     }
   }
 

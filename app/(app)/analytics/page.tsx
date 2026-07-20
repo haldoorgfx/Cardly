@@ -91,18 +91,20 @@ export default async function AnalyticsPage({
   const allEvents = events ?? [];
   const eventIds = allEvents.map(e => e.id);
 
+  // Period filter is applied in the DB, not in JS — pulling every registration
+  // an organizer has ever taken just to throw away everything older than the
+  // selected window scales with lifetime volume, not with what's displayed.
+  const cutoffDate = new Date(Date.now() - periodDays * 86400000);
+
   const { data: regs } = eventIds.length > 0
     ? await admin
         .from('registrations')
         .select('event_id, status, amount_paid, created_at, currency')
         .in('event_id', eventIds)
+        .gte('created_at', cutoffDate.toISOString())
     : { data: [] };
 
-  const allRegsRaw = regs ?? [];
-
-  // Apply period filter
-  const cutoffDate = new Date(Date.now() - periodDays * 86400000);
-  const allRegs = allRegsRaw.filter(r => new Date(r.created_at) >= cutoffDate);
+  const allRegs = regs ?? [];
 
   // ─── Aggregate stats ────────────────────────────────────────────────────────
 
