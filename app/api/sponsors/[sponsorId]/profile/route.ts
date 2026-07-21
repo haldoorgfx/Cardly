@@ -2,6 +2,8 @@ import { createAdminClient, createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { ownedSponsor } from '@/lib/rbac/ownership';
+import { zSafeUrl } from '@/lib/url/safeUrl';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 const Schema = z.object({
   /** Exhibitor-portal callers authenticate with the sponsor's invite token. */
@@ -9,7 +11,9 @@ const Schema = z.object({
   company_name: z.string().min(1).max(200).trim().optional(),
   tagline: z.string().max(300).trim().nullable().optional(),
   description: z.string().max(5000).nullable().optional(),
-  website_url: z.string().url().nullable().optional().or(z.literal('')).transform(v => v === '' ? null : v),
+  // NOT z.string().url() — that accepts `javascript:alert(1)`, which is then
+  // rendered as an href on the public booth page. See lib/url/safeUrl.ts.
+  website_url: zSafeUrl,
   booth_location: z.string().max(100).trim().nullable().optional(),
   offerings: z.array(z.object({
     title: z.string().max(200),
@@ -66,7 +70,7 @@ export async function PATCH(
             .from('events')
             .select('id')
             .eq('id', sponsorRow.event_id)
-            .eq('user_id', user.id)
+            .in('user_id', await manageableOwnerIds(user.id))
             .maybeSingle();
           allowed = Boolean(event);
         }

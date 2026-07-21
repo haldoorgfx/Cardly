@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import { createAdminClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
+import { safeExternalUrl, safeUrlHostname } from '@/lib/url/safeUrl';
 import { Check } from 'lucide-react';
 
 interface Props {
@@ -13,18 +14,12 @@ function initials(name: string) {
   return name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
 }
 
-// Safely derive a display hostname from a stored website URL. Values may be
-// stored without a scheme (e.g. "example.com"), which makes `new URL()` throw
-// and 500 the page. Prepend https:// when missing and fall back to the raw
-// string if it still can't be parsed.
-function safeHostname(url: string): string {
-  const withScheme = /^https?:\/\//i.test(url) ? url : `https://${url}`;
-  try {
-    return new URL(withScheme).hostname;
-  } catch {
-    return url;
-  }
-}
+// Hostname display + href safety both live in lib/url/safeUrl.ts. The old local
+// `safeHostname` only made the DISPLAY text safe; the href beside it still used
+// the raw stored value, so a booth whose website_url was `javascript:...` — a
+// value any invite-token holder could set — executed for every attendee who
+// opened this public page. `safeExternalUrl` returns null for anything that
+// isn't http(s), and the links below render only when it doesn't.
 
 export default async function BoothPage({ params }: Props) {
   const admin = createAdminClient();
@@ -46,6 +41,11 @@ export default async function BoothPage({ params }: Props) {
     .single();
 
   if (!sponsor) notFound();
+
+  // Resolved once here so both links below are scheme-checked, including rows
+  // written before this validation existed.
+  const websiteUrl = safeExternalUrl(sponsor.website_url);
+  const meetingUrl = safeExternalUrl(sponsor.meeting_url);
 
   const offerings: string[] = sponsor.offerings ?? [];
   const teamMembers: { name: string; role: string; avatar_url?: string }[] = sponsor.team_members ?? [];
@@ -211,9 +211,9 @@ export default async function BoothPage({ params }: Props) {
               </a>
             )}
 
-            {sponsor.meeting_url && (
+            {meetingUrl && (
               <a
-                href={sponsor.meeting_url}
+                href={meetingUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center w-full py-3 rounded-xl font-medium text-[14px] transition-colors hover:bg-[#F0EBE3]"
@@ -223,15 +223,15 @@ export default async function BoothPage({ params }: Props) {
               </a>
             )}
 
-            {sponsor.website_url && (
+            {websiteUrl && (
               <a
-                href={sponsor.website_url}
+                href={websiteUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block text-center text-[13px] mt-4 hover:underline"
                 style={{ color: '#65736B' }}
               >
-                {safeHostname(sponsor.website_url)} →
+                {safeUrlHostname(websiteUrl)} →
               </a>
             )}
           </div>

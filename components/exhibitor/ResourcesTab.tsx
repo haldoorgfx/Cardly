@@ -133,11 +133,18 @@ export function ResourcesTab({ resources: initial, token }: Props) {
               <span className="w-9 h-9 rounded-lg grid place-items-center shrink-0" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
                 <ExternalIcon size={15} />
               </span>
-              <div className="min-w-0 flex-1">
+              {/* The resource was previously plain text — you could add a link and
+                  then had no way to open it. The URL is scheme-validated on the
+                  way in (app/api/exhibitor/resources), so it is safe as an href. */}
+              <a
+                href={r.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="min-w-0 flex-1 hover:underline"
+              >
                 <div className="text-[13.5px] font-medium truncate" style={{ color: '#0F1F18' }}>{r.name}</div>
                 <div className=" text-[11px] mt-0.5" style={{ color: '#65736B' }}>{kindLabel(r.kind, r.file_size_bytes)}</div>
-              </div>
-              <span className=" text-[11px] shrink-0 whitespace-nowrap" style={{ color: '#65736B' }}>{r.opens} opens</span>
+              </a>
               <button
                 onClick={() => handleDelete(r.id)}
                 className="w-10 h-10 grid place-items-center rounded-lg transition-colors shrink-0 opacity-60 sm:opacity-0 sm:group-hover:opacity-100"

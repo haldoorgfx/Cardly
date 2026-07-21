@@ -1,5 +1,18 @@
 import { createAdminClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { z } from 'zod';
+import { safeExternalUrl } from '@/lib/url/safeUrl';
+
+// Booth resources are exhibitor-supplied links. They are stored to be opened by
+// a human later, so the scheme is restricted to http(s) for the same reason as
+// the booth website field — a `javascript:` value that reaches an href is a
+// stored-XSS payload. `url` was previously unvalidated, and `url.startsWith(...)`
+// below would also throw a 500 on any non-string body value.
+const CreateSchema = z.object({
+  token: z.string().min(1).max(200),
+  name:  z.string().min(1).max(200).trim(),
+  url:   z.string().min(1).max(2000).trim(),
+});
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function resolveSponsor(admin: any, token: string) {
@@ -8,12 +21,18 @@ async function resolveSponsor(admin: any, token: string) {
 }
 
 export async function POST(req: Request) {
-  const body = await req.json();
-  const { token, name, url } = body;
-
-  if (!token || !name || !url) {
-    return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
+  const raw = await req.json().catch(() => null);
+  const parsed = CreateSchema.safeParse(raw);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: parsed.error.issues[0]?.message ?? 'Validation failed' },
+      { status: 400 },
+    );
   }
+  const { token, name } = parsed.data;
+
+  const url = safeExternalUrl(parsed.data.url);
+  if (!url) return NextResponse.json({ error: 'Must be a valid http(s) URL' }, { status: 400 });
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const admin = createAdminClient() as any;
@@ -22,7 +41,7 @@ export async function POST(req: Request) {
 
   const { data: resource, error } = await admin
     .from('sponsor_resources')
-    .insert({ sponsor_id: sponsor.id, name, url, kind: url.startsWith('http') ? 'Link' : null })
+    .insert({ sponsor_id: sponsor.id, name, url, kind: 'Link' })
     .select()
     .single();
 
