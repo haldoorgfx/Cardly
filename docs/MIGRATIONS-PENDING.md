@@ -1,10 +1,10 @@
 # Migrations on disk from 105 up — apply checklist
 
-Ten migration files sit in `supabase/migrations/` at 105 and above. Some may
+Eleven migration files sit in `supabase/migrations/` at 105 and above. Some may
 already be applied; **I cannot tell from here** and neither can the repo — see
 the caveat at the bottom. This is the list, what each does, and how to check.
 
-Applied by hand in the Supabase SQL editor. All ten are idempotent
+Applied by hand in the Supabase SQL editor. All eleven are idempotent
 (`create or replace`, `drop … if exists`, `if not exists`), so **re-running one
 that is already applied is safe** — which makes "when in doubt, run it" the
 right default for every row except 116.
@@ -22,6 +22,7 @@ right default for every row except 116.
 | 117 | `exhibitor_products_published_only` | Narrows a `using (true)` read policy | ✅ verified needed — see below |
 | 118 | `sync_profile_email_on_change` | Trigger + backfill so `profiles.email` follows `auth.users.email` | No |
 | 119 | `networking_public_all_policy_removal` | Drops migration 021's `public_all` on the DM tables | Partially — see below |
+| 120 | `registrations_hot_indexes` | Three ordering indexes on `registrations` (event+date, date, paid) | No — indexes aren't visible over REST. Purely additive, zero risk to apply; `CREATE INDEX` locks writes, so run during low traffic or add `CONCURRENTLY` if applying while an event is live. |
 
 ---
 
