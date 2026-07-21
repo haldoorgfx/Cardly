@@ -5,6 +5,7 @@ import {
   type ColDef,
 } from './helpers';
 import { C, M, CW, PH } from './brand';
+import { registerFonts } from './fonts';
 
 interface Reg {
   id: string;
@@ -26,6 +27,7 @@ export async function generateRosterPDF(
   const PDFDocument = (await import('pdfkit')).default;
 
   const doc = new PDFDocument({ size: 'A4', margin: 0, autoFirstPage: true, bufferPages: true });
+  registerFonts(doc);
   const bufferPromise = streamToBuffer(doc);
 
   const ttMap  = new Map(ticketTypes.map(t => [t.id, t.name]));

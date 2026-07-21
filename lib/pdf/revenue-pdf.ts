@@ -4,6 +4,7 @@ import {
   type ColDef,
 } from './helpers';
 import { C, M, CW, PH } from './brand';
+import { FONT, registerFonts } from './fonts';
 
 interface Reg {
   id: string;
@@ -28,6 +29,7 @@ export async function generateRevenuePDF(
   const PDFDocument = (await import('pdfkit')).default;
 
   const doc = new PDFDocument({ size: 'A4', margin: 0, autoFirstPage: true, bufferPages: true });
+  registerFonts(doc);
   const bufferPromise = streamToBuffer(doc);
 
   const dateStr = today();
@@ -45,13 +47,13 @@ export async function generateRevenuePDF(
   doc.rect(M, heroY, CW, heroH).fill(C.primary);
 
   // "Total Revenue" label
-  doc.font('Helvetica-Bold')
+  doc.font(FONT.bold)
      .fontSize(7.5)
      .fillColor('#A8C4B8')
      .text('TOTAL REVENUE', M + 16, heroY + 14, { characterSpacing: 1.2 });
 
   // Big revenue number
-  doc.font('Helvetica-Bold')
+  doc.font(FONT.bold)
      .fontSize(32)
      .fillColor(C.cream)
      .text(fmtCurrency(totalRev, currency), M + 16, heroY + 24, {
@@ -60,12 +62,12 @@ export async function generateRevenuePDF(
      });
 
   // Confirmed registrations — right side
-  doc.font('Helvetica-Bold')
+  doc.font(FONT.bold)
      .fontSize(7.5)
      .fillColor('#A8C4B8')
      .text('CONFIRMED', M, heroY + 14, { width: CW - 16, align: 'right', characterSpacing: 1.2 });
 
-  doc.font('Helvetica-Bold')
+  doc.font(FONT.bold)
      .fontSize(28)
      .fillColor(C.accent)
      .text(String(confirmed.length), M, heroY + 26, { width: CW - 16, align: 'right' });
@@ -150,7 +152,7 @@ export async function generateRevenuePDF(
     ];
     totalCells.forEach((cell, ci) => {
       const col = BREAK_COLS[ci];
-      doc.font(cell.bold ? 'Helvetica-Bold' : 'Helvetica')
+      doc.font(cell.bold ? FONT.bold : FONT.regular)
          .fontSize(8.5)
          .fillColor(cell.color ?? C.ink)
          .text(cell.text, x + 5, y + (ROW_H - 8.5) / 2 + 1, {

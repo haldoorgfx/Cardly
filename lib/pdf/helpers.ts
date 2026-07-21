@@ -2,6 +2,7 @@
 import PDFDocument from 'pdfkit';
 type PDFDocumentType = InstanceType<typeof PDFDocument>;
 import { C, M, CW, PW, PH } from './brand';
+import { FONT, withFont, pdfSafe } from './fonts';
 
 // ── Collect pdfkit stream into a Buffer ───────────────────────────────────────
 export function streamToBuffer(doc: PDFDocumentType): Promise<Buffer> {
@@ -27,25 +28,26 @@ export function drawHeader(
   doc.rect(0, 0, PW, H).fill(C.primary);
 
   // "EVENTERA" brand mark — top-left
-  doc.font('Helvetica-Bold')
+  doc.font(FONT.bold)
      .fontSize(7)
      .fillColor(C.accent)
      .text('EVENTERA', M, 16, { characterSpacing: 3 });
 
-  // Event name
-  doc.font('Helvetica-Bold')
+  // Event name — organizer-supplied, so it may be any script
+  const name = pdfSafe(eventName);
+  withFont(doc, name, true)
      .fontSize(18)
      .fillColor(C.cream)
-     .text(eventName, M, 28, { width: CW * 0.65, lineBreak: false, ellipsis: true });
+     .text(name, M, 28, { width: CW * 0.65, lineBreak: false, ellipsis: true });
 
   // Document type — right side
-  doc.font('Helvetica-Bold')
+  doc.font(FONT.bold)
      .fontSize(8)
      .fillColor(C.accent)
      .text(docLabel, M, 20, { width: CW, align: 'right', characterSpacing: 1.5 });
 
   // Date — right side below
-  doc.font('Helvetica')
+  doc.font(FONT.regular)
      .fontSize(7.5)
      .fillColor('rgba(250,246,238,0.55)') // pdfkit doesn't support rgba, use approximate
      .fillColor('#A8C4B8')                // soft cream-green stand-in
@@ -57,10 +59,11 @@ export function drawHeader(
 
 // ── Section heading ───────────────────────────────────────────────────────────
 export function drawSectionHeading(doc: PDFDocumentType, text: string, y: number): void {
-  doc.font('Helvetica-Bold')
+  const safe = pdfSafe(text);
+  withFont(doc, safe, true)
      .fontSize(11)
      .fillColor(C.ink)
-     .text(text, M, y);
+     .text(safe, M, y);
 }
 
 // ── Horizontal rule ───────────────────────────────────────────────────────────
@@ -81,13 +84,13 @@ export function drawStatBox(
   doc.rect(x, y, w, h).lineWidth(0.75).strokeColor(C.border).stroke();
 
   // Value — large
-  doc.font('Helvetica-Bold')
+  doc.font(FONT.bold)
      .fontSize(24)
      .fillColor(valueColor)
      .text(String(value), x, y + 10, { width: w, align: 'center' });
 
   // Label — small, below value
-  doc.font('Helvetica')
+  doc.font(FONT.regular)
      .fontSize(8)
      .fillColor(C.muted)
      .text(label, x, y + h - 18, { width: w, align: 'center' });
@@ -112,7 +115,7 @@ export function drawTableHeader(
   // Column labels
   let x = M;
   for (const col of cols) {
-    doc.font('Helvetica-Bold')
+    doc.font(FONT.bold)
        .fontSize(7.5)
        .fillColor(C.muted)
        .text(col.label.toUpperCase(), x + 5, y + (rowH - 7.5) / 2, {
@@ -144,10 +147,12 @@ export function drawTableRow(
   for (let i = 0; i < cols.length; i++) {
     const col   = cols[i];
     const cell  = cells[i] ?? { text: '' };
-    doc.font('Helvetica')
+    // Cell text is attendee/ticket data — any script.
+    const value = pdfSafe(cell.text);
+    withFont(doc, value)
        .fontSize(8.5)
        .fillColor(cell.color ?? C.inkSoft)
-       .text(cell.text, x + 5, y + (rowH - 8.5) / 2 + 1, {
+       .text(value, x + 5, y + (rowH - 8.5) / 2 + 1, {
          width: col.width - 10,
          align: col.align ?? 'left',
          lineBreak: false,
@@ -163,12 +168,12 @@ export function drawFooter(doc: PDFDocumentType, dateStr: string): void {
   doc.rect(0, y - 4, PW, 32).fill(C.creams);
   doc.moveTo(0, y - 4).lineTo(PW, y - 4).lineWidth(0.5).strokeColor(C.border).stroke();
 
-  doc.font('Helvetica')
+  doc.font(FONT.regular)
      .fontSize(7.5)
      .fillColor(C.muted)
      .text(`Generated with Eventera · ${(process.env.NEXT_PUBLIC_APP_URL ?? '').replace(/^https?:\/\//, '')}`, M, y + 4);
 
-  doc.font('Helvetica')
+  doc.font(FONT.regular)
      .fontSize(7.5)
      .fillColor(C.muted)
      .text(dateStr, M, y + 4, { width: CW, align: 'right' });

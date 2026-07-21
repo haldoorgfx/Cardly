@@ -2,6 +2,7 @@ import {
   streamToBuffer, drawHeader, drawFooter, today,
 } from './helpers';
 import { C, M, CW, PH } from './brand';
+import { FONT, registerFonts, withFont, pdfSafe } from './fonts';
 
 interface Speaker { name: string; title?: string | null; company?: string | null }
 interface Session {
@@ -62,6 +63,7 @@ export async function generateAgendaPDF(
   const PDFDocument = (await import('pdfkit')).default;
 
   const doc = new PDFDocument({ size: 'A4', margin: 0, autoFirstPage: true, bufferPages: true });
+  registerFonts(doc);
   const bufferPromise = streamToBuffer(doc);
 
   const dateStr = today();
@@ -82,7 +84,7 @@ export async function generateAgendaPDF(
 
     // Day label bar
     doc.rect(M, y, CW, 26).fill(C.primarySoft);
-    doc.font('Helvetica-Bold')
+    doc.font(FONT.bold)
        .fontSize(10)
        .fillColor(C.primary)
        .text(day.label.toUpperCase(), M + 10, y + 8, { characterSpacing: 1 });
@@ -121,7 +123,7 @@ export async function generateAgendaPDF(
       const timeStr = [fmtTime(session.start_time, timezone), fmtTime(session.end_time, timezone)]
         .filter(Boolean).join(' – ');
       if (timeStr) {
-        doc.font('Helvetica')
+        doc.font(FONT.regular)
            .fontSize(7.5)
            .fillColor(isKeynote ? '#A8C4B8' : C.muted)
            .text(timeStr, leftPad, y + (isBreak ? 9 : 8));
@@ -129,10 +131,11 @@ export async function generateAgendaPDF(
 
       // Title
       const titleY = timeStr ? y + 18 : y + (isBreak ? 9 : 14);
-      doc.font('Helvetica-Bold')
+      const sessionTitle = pdfSafe(session.title);
+      withFont(doc, sessionTitle, true)
          .fontSize(isKeynote ? 11 : isBreak ? 8.5 : 9.5)
          .fillColor(isKeynote ? C.cream : isBreak ? C.muted : C.ink)
-         .text(session.title, leftPad, titleY, {
+         .text(sessionTitle, leftPad, titleY, {
            width: CW - (leftPad - M) - (isBreak ? 8 : 40),
            lineBreak: false,
            ellipsis: true,
@@ -141,7 +144,7 @@ export async function generateAgendaPDF(
       // Type badge (non-break)
       if (!isBreak) {
         const dot = typeDot(session.session_type);
-        doc.font('Helvetica')
+        doc.font(FONT.regular)
            .fontSize(7)
            .fillColor(isKeynote ? C.accent : dot)
            .text(typeLabel(session.session_type), M + CW - 70, y + 8, {
@@ -153,10 +156,10 @@ export async function generateAgendaPDF(
 
       // Speakers (keynote or tall card)
       if (!isBreak && session.speakers && session.speakers.length > 0 && cardH >= 48) {
-        const speakerStr = session.speakers
+        const speakerStr = pdfSafe(session.speakers
           .map(s => [s.name, s.company].filter(Boolean).join(', '))
-          .join(' · ');
-        doc.font('Helvetica')
+          .join(' · '));
+        withFont(doc, speakerStr)
            .fontSize(7.5)
            .fillColor(isKeynote ? '#A8C4B8' : C.muted)
            .text(speakerStr, leftPad, y + cardH - 15, {
@@ -168,10 +171,11 @@ export async function generateAgendaPDF(
 
       // Location (if present, non-break)
       if (!isBreak && session.location) {
-        doc.font('Helvetica')
+        const loc = `@ ${pdfSafe(session.location)}`;
+        withFont(doc, loc)
            .fontSize(7.5)
            .fillColor(isKeynote ? '#A8C4B8' : C.muted)
-           .text(`@ ${session.location}`, M + CW - 120, y + cardH - 15, {
+           .text(loc, M + CW - 120, y + cardH - 15, {
              width: 118,
              align: 'right',
              lineBreak: false,
