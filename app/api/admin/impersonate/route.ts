@@ -1,14 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
-import { getSessionUser } from '@/lib/auth/guards';
-import { IMPERSONATE } from '@/lib/auth/permissions';
-import { ROLE_PERMISSIONS } from '@/lib/auth/permissions';
+import { getSessionUser, canImpersonate } from '@/lib/auth/guards';
 import { logAudit } from '@/lib/audit/log';
-
-function canImpersonate(role: string): boolean {
-  return (ROLE_PERMISSIONS[role as keyof typeof ROLE_PERMISSIONS] ?? []).includes(IMPERSONATE);
-}
 
 // GET /api/admin/impersonate — return the impersonated user's profile + event count
 // (called by AppShell when it detects the eventera_impersonating cookie)

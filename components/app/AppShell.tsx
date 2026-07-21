@@ -1055,27 +1055,29 @@ export function AppShell({ children, initialSections, initialProfile, initialEve
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
       if (!data.user) { router.push('/login'); return; }
-      const userId = data.user.id;
-      Promise.all([
-        supabase.from('profiles').select('full_name, email, plan, role').eq('id', userId).single(),
-        supabase.from('events').select('id', { count: 'exact', head: true }).eq('user_id', userId).neq('status', 'archived'),
-        supabase.from('site_settings').select('logo_light_url').eq('id', 1).single(),
-      ]).then(([{ data: p }, { count }, { data: s }]) => {
-        if (p) {
-          setProfile(p);
-          writeProfileCache(p);
-          // Tell PostHog who this user is — connects all events to this person
-          identify(userId, { email: p.email, plan: p.plan, role: p.role, name: p.full_name });
-        }
-        setEventCount(count ?? 0);
-        setLogoUrl((s as { logo_light_url?: string | null } | null)?.logo_light_url ?? null);
-      });
 
-      // Adaptive shell — resolve which role sections this account can see.
-      // Failure is silent: flags stay false, so the nav just shows Home.
-      fetch('/api/me/roles')
+      // Single impersonation/team-aware source for everything the shell shows.
+      // This used to be a raw Supabase profile/event-count query plus a
+      // separate /api/me/roles call, both keyed off the browser session's own
+      // user id — so within moments of page load they silently overwrote the
+      // server-rendered, impersonation-aware shell (app/(app)/layout.tsx) with
+      // the REAL caller's own (possibly wrong, possibly empty) data. One
+      // fetch to /api/me/shell keeps this refresh in step with the SSR props.
+      fetch('/api/me/shell')
         .then(r => (r.ok ? r.json() : null))
-        .then((data: VisibleSections | null) => { if (data) setSections(data); })
+        .then((d: { sections: VisibleSections; profile: Profile | null; eventCount: number; logoUrl: string | null; realUserId: string } | null) => {
+          if (!d) return;
+          if (d.profile) {
+            setProfile(d.profile);
+            writeProfileCache(d.profile);
+            // Tell PostHog who this REAL account is — never the impersonation
+            // target, so events stay attributed to the actual admin browsing.
+            identify(d.realUserId, { email: d.profile.email, plan: d.profile.plan, role: d.profile.role, name: d.profile.full_name });
+          }
+          setEventCount(d.eventCount ?? 0);
+          setLogoUrl(d.logoUrl ?? null);
+          setSections(d.sections);
+        })
         .catch(() => {});
     });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps

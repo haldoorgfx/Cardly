@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { getVisibleSections } from '@/lib/rbac/sections';
 import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
+import { resolveEffectiveUserId } from '@/lib/auth/guards';
 import { AppShell } from '@/components/app/AppShell';
 
 // Server layout: resolves the user's role sections AND profile/plan BEFORE
@@ -13,14 +14,19 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
+  // While a super_admin is impersonating (see lib/auth/guards.ts), the shell
+  // itself — nav sections, plan box, event count — reflects the TARGET
+  // account. Read-only: this never changes which account can write anything.
+  const effective = await resolveEffectiveUserId(user.id);
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const admin = createAdminClient() as any;
   const [sections, profileRes, countRes, settingsRes] = await Promise.all([
-    getVisibleSections(user.id),
-    admin.from('profiles').select('full_name, email, plan, role').eq('id', user.id).single(),
+    getVisibleSections(effective.id),
+    admin.from('profiles').select('full_name, email, plan, role').eq('id', effective.id).single(),
     // Team-aware: the nav count must match what the Events list actually shows,
     // or a teammate sees "0 events" above a list of the team's events.
-    admin.from('events').select('id', { count: 'exact', head: true }).in('user_id', await manageableOwnerIds(user.id)).neq('status', 'archived'),
+    admin.from('events').select('id', { count: 'exact', head: true }).in('user_id', await manageableOwnerIds(effective.id)).neq('status', 'archived'),
     admin.from('site_settings').select('logo_light_url').eq('id', 1).maybeSingle(),
   ]);
 

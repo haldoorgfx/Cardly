@@ -13,20 +13,27 @@ import { PLANS, type Plan } from '@/lib/billing/plans';
 import { formatRevenue } from '@/lib/events/format';
 import { PageShell, PageHeader } from '@/components/dash';
 import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
+import { resolveEffectiveUserId } from '@/lib/auth/guards';
 
 export default async function DashboardPage() {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
+  // Read-only support tool: while a super_admin is impersonating (see
+  // lib/auth/guards.ts), this page lists the TARGET's events/plan, not the
+  // admin's own. Every write on this page's sub-routes still checks the real
+  // signed-in admin, so nothing here changes who can mutate what.
+  const effective = await resolveEffectiveUserId(user.id);
+
   const admin = createAdminClient();
   const [{ data: events, error: eventsError }, { data: profile, error: profileError }] = await Promise.all([
     admin.from('events')
       .select('id, name, slug, status, view_count, download_count, updated_at, event_pages(starts_at, venue_name), event_variants(id, background_url, position)')
-      .in('user_id', await manageableOwnerIds(user.id))
+      .in('user_id', await manageableOwnerIds(effective.id))
       .order('updated_at', { ascending: false }),
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (admin as any).from('profiles').select('plan, full_name, onboarding_completed').eq('id', user.id).single(),
+    (admin as any).from('profiles').select('plan, full_name, onboarding_completed').eq('id', effective.id).single(),
   ]);
 
   const allEvents = events ?? [];
@@ -35,9 +42,14 @@ export default async function DashboardPage() {
   // New users who haven't completed onboarding → redirect to the wizard.
   // Only redirect if BOTH queries succeeded (no errors) — if either fails,
   // fall through to show the empty state rather than looping on /onboarding.
+  // Never while impersonating: the wizard writes under the REAL admin's own
+  // account (every write route checks the actual caller, not this page's
+  // effective id), so sending an admin who's viewing someone else's empty
+  // dashboard into "create your first event" would create it for the admin,
+  // not the target — just show the empty state instead.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const completedOnboarding = (profile as any)?.onboarding_completed === true || !!profile?.full_name;
-  if (isEmpty && !completedOnboarding && !eventsError && !profileError) {
+  if (isEmpty && !completedOnboarding && !eventsError && !profileError && !effective.isImpersonating) {
     redirect('/onboarding');
   }
   const plan = (profile?.plan ?? 'free') as Plan;
