@@ -120,7 +120,9 @@ type Op = sharp.OverlayOptions;
 
 async function buildTextOp(zone: Zone, text: string, canvasW: number, canvasH: number): Promise<Op> {
   const family = zone.font   ?? 'Inter';
-  const size   = zone.size   ?? 32;
+  // Mutable: the shrink-to-fit pass below lowers it when the text overflows,
+  // mirroring the editor's preview scaling.
+  let size     = zone.size   ?? 32;
   const weight = zone.weight ?? 400;
   const color  = zone.color  ?? '#FFFFFF';
   const align  = zone.align  ?? 'left';
@@ -174,28 +176,59 @@ async function buildTextOp(zone: Zone, text: string, canvasW: number, canvasH: n
     attrs.push(`alpha="${clamped}%"`);
   }
 
-  const pangoText = `<span ${attrs.join(' ')}>${pangoEscape(cased)}</span>`;
-
   // fontfile= loads the TTF directly into Pango — no fontconfig, no SVG, no base64.
   const sharpAlign = align === 'center' ? 'centre' : align as 'left' | 'right';
-  const textBuf = await sharp({
-    text: {
-      text: pangoText,
-      fontfile,
-      width: zW - 16,   // sharp wraps at this pixel width (8 px padding each side)
-      dpi: 72,          // 1 pt = 1 px; keeps font sizes consistent with the editor
-      rgba: true,
-      align: sharpAlign,
-    },
-  }).png().toBuffer();
 
-  // Composite the rendered text block centred inside a zone-sized transparent canvas
-  // so the final composite step always receives a buffer with the exact zone dimensions.
-  const { width: tW = 0, height: tH = 0 } = await sharp(textBuf).metadata();
+  const renderAt = async (pt: number) => {
+    const markup = `<span ${attrs.map(a => a.startsWith('size=') ? `size="${pt}pt"` : a).join(' ')}>${pangoEscape(cased)}</span>`;
+    const buf = await sharp({
+      text: {
+        text: markup,
+        fontfile,
+        width: zW - 16,   // sharp wraps at this pixel width (8 px padding each side)
+        dpi: 72,          // 1 pt = 1 px; keeps font sizes consistent with the editor
+        rgba: true,
+        align: sharpAlign,
+      },
+    }).png().toBuffer();
+    const { width = 0, height = 0 } = await sharp(buf).metadata();
+    return { buf, width, height };
+  };
 
-  // If the rendered text is larger than the zone (e.g. long text at large font wraps
-  // to multiple lines that exceed zone.h), clip it to the zone bounds before compositing.
-  // sharp throws "Image to composite must have same dimensions or smaller" otherwise.
+  /**
+   * Shrink to fit, the way the Card Studio canvas already does.
+   *
+   * The editor scales overflowing text down so the whole string stays visible
+   * (`previewFitScale`), and its comment says the real size is "used for the
+   * final render" — which was true, and was the bug: this route CLIPPED the
+   * overflow with extract(), cutting the text off mid-line.
+   *
+   * So a designer sizing a name zone against "Ada Lovelace" saw long names
+   * shrink neatly on canvas, and "Abdullahi Mohamed Abdikarim Hassan" reached
+   * the attendee with the bottom sliced off. On a platform whose primary
+   * markets are Somalia, Djibouti, Ethiopia and the UAE, long multi-part names
+   * are the common case, not the edge case.
+   *
+   * Iterated rather than solved in one step because shrinking changes where
+   * the text wraps, which changes the height non-linearly. Three passes gets
+   * there for realistic zones; the clip below stays as a last-resort guard so
+   * the composite can never throw.
+   */
+  const MIN_RENDER_PT = 8;
+  let rendered = await renderAt(size);
+  for (let i = 0; i < 3 && rendered.height > zH && size > MIN_RENDER_PT; i++) {
+    const scale = zH / rendered.height;
+    const next = Math.max(MIN_RENDER_PT, Math.floor(size * scale));
+    if (next >= size) break;               // no progress — stop rather than loop
+    size = next;
+    rendered = await renderAt(size);
+  }
+
+  const { buf: textBuf, width: tW, height: tH } = rendered;
+
+  // Last-resort clip. Reachable only when even MIN_RENDER_PT overflows, and
+  // sharp throws "Image to composite must have same dimensions or smaller"
+  // without it.
   const safeTW = Math.min(tW, zW);
   const safeTH = Math.min(tH, zH);
   const safeTextBuf = (safeTW < tW || safeTH < tH)
