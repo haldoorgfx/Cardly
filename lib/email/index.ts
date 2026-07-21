@@ -363,9 +363,15 @@ export async function sendConnectionRequestEmail(opts: {
   requesterName: string;
   eventName: string;
   eventSlug: string;
-  registrationId: string;
+  /**
+   * The recipient's own qr_code_token — NOT their registration id. The
+   * attending pages resolve `?reg=` as a qr_code_token (guest-identity proof);
+   * a bare registration id is handed out by peer-listing endpoints and is no
+   * longer accepted as identity (see lib/attendee-identity.ts).
+   */
+  qrCodeToken: string;
 }): Promise<void> {
-  const peopleUrl = `${APP_URL}/attending/${opts.eventSlug}/networking?reg=${opts.registrationId}`;
+  const peopleUrl = `${APP_URL}/attending/${opts.eventSlug}/networking?reg=${opts.qrCodeToken}`;
   await sendEmail(
     opts.to,
     `${opts.requesterName} wants to connect at ${opts.eventName}`,
@@ -391,9 +397,10 @@ export async function sendConnectionAcceptedEmail(opts: {
   acceptorName: string;
   eventName: string;
   eventSlug: string;
-  registrationId: string;
+  /** The recipient's own qr_code_token — see sendConnectionRequestEmail. */
+  qrCodeToken: string;
 }): Promise<void> {
-  const messagesUrl = `${APP_URL}/attending/${opts.eventSlug}/messages?reg=${opts.registrationId}`;
+  const messagesUrl = `${APP_URL}/attending/${opts.eventSlug}/messages?reg=${opts.qrCodeToken}`;
   await sendEmail(
     opts.to,
     `${opts.acceptorName} accepted your connection at ${opts.eventName}`,
@@ -419,10 +426,11 @@ export async function sendNewMessageEmail(opts: {
   senderName: string;
   eventName: string;
   eventSlug: string;
-  registrationId: string;
+  /** The recipient's own qr_code_token — see sendConnectionRequestEmail. */
+  qrCodeToken: string;
   preview: string;
 }): Promise<void> {
-  const messagesUrl = `${APP_URL}/attending/${opts.eventSlug}/messages?reg=${opts.registrationId}`;
+  const messagesUrl = `${APP_URL}/attending/${opts.eventSlug}/messages?reg=${opts.qrCodeToken}`;
   const previewRaw = opts.preview.length > 120 ? opts.preview.slice(0, 117) + '…' : opts.preview;
   const preview = esc(previewRaw);
   await sendEmail(
@@ -452,9 +460,10 @@ export async function sendQAAnsweredEmail(opts: {
   question: string;
   eventName: string;
   eventSlug: string;
-  registrationId: string;
+  /** The recipient's own qr_code_token — see sendConnectionRequestEmail. */
+  qrCodeToken: string;
 }): Promise<void> {
-  const qaUrl = `${APP_URL}/attending/${opts.eventSlug}/q-and-a?reg=${opts.registrationId}`;
+  const qaUrl = `${APP_URL}/attending/${opts.eventSlug}/q-and-a?reg=${opts.qrCodeToken}`;
   const questionPreviewRaw = opts.question.length > 140 ? opts.question.slice(0, 137) + '…' : opts.question;
   const questionPreview = esc(questionPreviewRaw);
   await sendEmail(

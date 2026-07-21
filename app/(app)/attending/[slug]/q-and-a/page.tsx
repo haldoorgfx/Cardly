@@ -48,6 +48,7 @@ export default async function QandAPage({ params, searchParams }: Props) {
       <QandAClient
         eventId={ws.eventId}
         registrationId={ws.registrationId}
+        qrToken={ws.qrToken}
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         initialQuestions={safeQuestions as any}
         sessions={(sessions ?? []) as { id: string; title: string }[]}

@@ -12,6 +12,7 @@ interface Props {
   session: SessionWithSpeakers;
   relatedSessions: Partial<Session>[];
   registrationId: string | null;
+  qrToken?: string | null;
   initialSaved: boolean;
   /** IANA zone of the event. Session times render here, not in the viewer's zone. */
   timezone: string;
@@ -42,7 +43,7 @@ function formatShortTime(iso: string, tz: string) {
   return `${d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: zone })} · ${d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: zone })}`;
 }
 
-export default function SessionDetailClient({ session, relatedSessions, registrationId, initialSaved, timezone }: Props) {
+export default function SessionDetailClient({ session, relatedSessions, registrationId, qrToken, initialSaved, timezone }: Props) {
   const [saved, setSaved] = useState(initialSaved);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -67,7 +68,7 @@ export default function SessionDetailClient({ session, relatedSessions, registra
       const res = await fetch(`/api/sessions/${session.id}/agenda`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ registration_id: registrationId, action }),
+        body: JSON.stringify({ registration_id: registrationId, action, qr_code_token: qrToken }),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));

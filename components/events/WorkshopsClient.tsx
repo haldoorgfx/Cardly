@@ -12,6 +12,7 @@ interface Props {
   sessions: Session[];
   bookedIds: string[];
   registrationId?: string;
+  qrToken?: string | null;
   /** IANA zone of the event. Workshop times render here, not in the viewer's zone. */
   timezone: string;
 }
@@ -96,7 +97,7 @@ function ConfirmModal({ session, onClose, onConfirm, confirming, error, timezone
   );
 }
 
-export function WorkshopsClient({ eventId, eventSlug, sessions, bookedIds: initial, registrationId, timezone }: Props) {
+export function WorkshopsClient({ eventId, eventSlug, sessions, bookedIds: initial, registrationId, qrToken, timezone }: Props) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [bookedIds, setBookedIds] = useState<Set<string>>(new Set(initial));
   const [confirmSession, setConfirmSession] = useState<Session | null>(null);
@@ -124,7 +125,7 @@ export function WorkshopsClient({ eventId, eventSlug, sessions, bookedIds: initi
       const res = await fetch(`/api/events/${eventId}/sessions/${session.id}/book`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ registrationId }),
+        body: JSON.stringify({ registrationId, qrCodeToken: qrToken }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {

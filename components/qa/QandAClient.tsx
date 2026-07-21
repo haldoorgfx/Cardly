@@ -7,11 +7,12 @@ import type { QAQuestion } from '@/types/database';
 interface Props {
   eventId: string;
   registrationId: string | null;
+  qrToken?: string | null;
   initialQuestions: QAQuestion[];
   sessions: { id: string; title: string }[];
 }
 
-export default function QandAClient({ eventId, registrationId, initialQuestions, sessions }: Props) {
+export default function QandAClient({ eventId, registrationId, qrToken, initialQuestions, sessions }: Props) {
   const [questions, setQuestions] = useState(initialQuestions);
   const [sessionFilter, setSessionFilter] = useState<string | null>(null);
   const [askText, setAskText] = useState('');
@@ -31,7 +32,7 @@ export default function QandAClient({ eventId, registrationId, initialQuestions,
       const res = await fetch(`/api/events/${eventId}/q-and-a`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question_id: qId, registration_id: registrationId }),
+        body: JSON.stringify({ question_id: qId, registration_id: registrationId, qr_code_token: qrToken }),
       });
       const data = await res.json() as { upvoted: boolean };
       const nowUpvoted = data.upvoted;
@@ -60,6 +61,7 @@ export default function QandAClient({ eventId, registrationId, initialQuestions,
           question: askText.trim(),
           is_anonymous: isAnon,
           registration_id: registrationId ?? undefined,
+          qr_code_token: qrToken ?? undefined,
           session_id: sessionFilter ?? undefined,
         }),
       });

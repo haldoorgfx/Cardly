@@ -37,6 +37,7 @@ export default async function MyAgendaPage({ params, searchParams }: Props) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         sessions={sessions as any}
         registrationId={ws.registrationId}
+        qrToken={ws.qrToken}
         eventSlug={slug}
         timezone={eventPage?.timezone || 'UTC'}
       />

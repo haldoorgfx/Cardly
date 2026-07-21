@@ -8,7 +8,7 @@ interface Params { params: Promise<{ id: string; sessionId: string }> }
 export async function POST(req: NextRequest, { params }: Params) {
   const { id: eventId, sessionId } = await params;
   const body = await req.json();
-  const { registrationId } = body;
+  const { registrationId, qrCodeToken } = body;
   if (!registrationId) return NextResponse.json({ error: 'registrationId required' }, { status: 400 });
 
   const admin = createAdminClient();
@@ -28,7 +28,7 @@ export async function POST(req: NextRequest, { params }: Params) {
   }
 
   // Identity: when authenticated, the registration must belong to the caller (guests allowed).
-  const identity = await assertOwnsRegistration(eventId, registrationId);
+  const identity = await assertOwnsRegistration(eventId, registrationId, qrCodeToken);
   if (!identity.ok) {
     return NextResponse.json({ error: identity.error }, { status: identity.status });
   }

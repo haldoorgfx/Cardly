@@ -9,8 +9,9 @@ import { assertOwnsRegistration } from '@/lib/attendee-identity';
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   const { searchParams } = new URL(req.url);
   const regId = searchParams.get('reg');
+  const token = searchParams.get('token');
 
-  const identity = await assertOwnsRegistration(params.id, regId);
+  const identity = await assertOwnsRegistration(params.id, regId, token);
   if (!identity.ok) {
     return NextResponse.json({ error: identity.error }, { status: identity.status });
   }

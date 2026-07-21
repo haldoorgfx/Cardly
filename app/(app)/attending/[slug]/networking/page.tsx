@@ -20,6 +20,7 @@ export default async function NetworkingPage({ params, searchParams }: Props) {
       eventId={ws.eventId}
       eventSlug={slug}
       registrationId={ws.registrationId}
+      qrToken={ws.qrToken}
     />
   );
 }

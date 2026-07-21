@@ -23,6 +23,7 @@ interface Message {
 interface Props {
   eventId: string;
   registrationId: string | null;
+  qrToken?: string | null;
   /** Dashboard mode: contained rounded card instead of full-viewport panes. */
   embedded?: boolean;
   /** Deep-link from the People directory: open (or start) a conversation with this attendee. */
@@ -44,7 +45,7 @@ function timeAgo(iso: string) {
   return `${Math.floor(hrs / 24)}d`;
 }
 
-export default function MessagingClient({ eventId, registrationId, embedded = false, initialRecipientId, initialRecipientName }: Props) {
+export default function MessagingClient({ eventId, registrationId, qrToken, embedded = false, initialRecipientId, initialRecipientName }: Props) {
   const [threads, setThreads] = useState<Thread[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -71,7 +72,7 @@ export default function MessagingClient({ eventId, registrationId, embedded = fa
   const loadThreads = useCallback(async () => {
     if (!registrationId) { setLoadingThreads(false); return; }
     try {
-      const res = await fetch(`/api/threads?registration_id=${registrationId}&event_id=${eventId}`);
+      const res = await fetch(`/api/threads?registration_id=${registrationId}&event_id=${eventId}&token=${qrToken ?? ''}`);
       const data = await res.json() as { threads?: Thread[] };
       setThreads(data.threads ?? []);
     } catch {
@@ -79,7 +80,7 @@ export default function MessagingClient({ eventId, registrationId, embedded = fa
     } finally {
       setLoadingThreads(false);
     }
-  }, [eventId, registrationId]);
+  }, [eventId, registrationId, qrToken]);
 
   useEffect(() => { loadThreads(); }, [loadThreads]);
 
@@ -109,7 +110,7 @@ export default function MessagingClient({ eventId, registrationId, embedded = fa
     setMessages([]);
     if (!registrationId) return;
     try {
-      const res = await fetch(`/api/events/${eventId}/messages?registration_id=${registrationId}&thread_id=${threadId}`);
+      const res = await fetch(`/api/events/${eventId}/messages?registration_id=${registrationId}&thread_id=${threadId}&token=${qrToken ?? ''}`);
       const data = await res.json() as { messages?: Message[] };
       setMessages(data.messages ?? []);
       // The GET stamps read_at server-side; clear the unread badge locally.
@@ -136,7 +137,7 @@ export default function MessagingClient({ eventId, registrationId, embedded = fa
       const res = await fetch(`/api/events/${eventId}/messages`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sender_id: registrationId, recipient_id: recipientId, content }),
+        body: JSON.stringify({ sender_id: registrationId, recipient_id: recipientId, content, qr_code_token: qrToken }),
       });
       const data = await res.json() as { message?: Message; thread_id?: string };
       if (data.message) {

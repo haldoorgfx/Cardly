@@ -11,18 +11,21 @@ const SendSchema = z.object({
   sender_id: z.string().uuid(),
   recipient_id: z.string().uuid(),
   content: z.string().min(1).max(2000),
+  qr_code_token: z.string().optional(),
 });
 
 const ReadSchema = z.object({
   thread_id: z.string().uuid(),
   registration_id: z.string().uuid(),
+  qr_code_token: z.string().optional(),
 });
 
-// GET /api/events/[id]/messages?registration_id=xxx[&thread_id=xxx]
+// GET /api/events/[id]/messages?registration_id=xxx&token=xxx[&thread_id=xxx]
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   const { searchParams } = new URL(req.url);
   const registrationId = searchParams.get('registration_id');
   const threadId = searchParams.get('thread_id');
+  const token = searchParams.get('token');
 
   if (!registrationId) {
     return NextResponse.json({ error: 'registration_id required' }, { status: 400 });
@@ -31,7 +34,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   // The caller-supplied registration_id gates everything below (which threads,
   // whose inbox) — without this, anyone could read another attendee's DMs by
   // swapping the id.
-  const identity = await assertOwnsRegistration(params.id, registrationId);
+  const identity = await assertOwnsRegistration(params.id, registrationId, token);
   if (!identity.ok) {
     return NextResponse.json({ error: identity.error }, { status: identity.status });
   }
@@ -140,10 +143,10 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
 
-  const { sender_id, recipient_id, content } = parsed.data;
+  const { sender_id, recipient_id, content, qr_code_token } = parsed.data;
 
   // Identity: the sender must be the caller's own registration (guests allowed).
-  const identity = await assertOwnsRegistration(params.id, sender_id);
+  const identity = await assertOwnsRegistration(params.id, sender_id, qr_code_token);
   if (!identity.ok) {
     return NextResponse.json({ error: identity.error }, { status: identity.status });
   }
@@ -226,7 +229,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
         admin.from('events').select('name, slug').eq('id', params.id).single(),
         admin
           .from('registrations')
-          .select('id, attendee_name, attendee_email')
+          .select('id, attendee_name, attendee_email, qr_code_token')
           .in('id', [sender_id, recipient_id]),
       ]);
       if (!event || !regs) return;
@@ -239,7 +242,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
         senderName: sender.attendee_name,
         eventName: event.name,
         eventSlug: event.slug,
-        registrationId: recipient_id,
+        qrCodeToken: recipient.qr_code_token,
         preview: content,
       });
     })().catch(() => {});
@@ -254,9 +257,9 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   const parsed = ReadSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
 
-  const { thread_id, registration_id } = parsed.data;
+  const { thread_id, registration_id, qr_code_token } = parsed.data;
 
-  const identity = await assertOwnsRegistration(params.id, registration_id);
+  const identity = await assertOwnsRegistration(params.id, registration_id, qr_code_token);
   if (!identity.ok) {
     return NextResponse.json({ error: identity.error }, { status: identity.status });
   }

@@ -6,6 +6,7 @@ import { z } from 'zod';
 const BodySchema = z.object({
   registration_id: z.string().uuid(),
   rating: z.number().int().min(1).max(5),
+  qr_code_token: z.string().optional(),
 });
 
 export async function POST(req: NextRequest, { params }: { params: { sessionId: string } }) {
@@ -13,7 +14,7 @@ export async function POST(req: NextRequest, { params }: { params: { sessionId: 
   const parsed = BodySchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
 
-  const { registration_id, rating } = parsed.data;
+  const { registration_id, rating, qr_code_token } = parsed.data;
   const admin = createAdminClient();
 
   // Resolve the session's event so we can verify the caller owns a registration for it.
@@ -25,7 +26,7 @@ export async function POST(req: NextRequest, { params }: { params: { sessionId: 
   if (!session) return NextResponse.json({ error: 'Session not found' }, { status: 404 });
 
   // Identity: the rater must be the caller's own registration (guests allowed).
-  const identity = await assertOwnsRegistration(session.event_id, registration_id);
+  const identity = await assertOwnsRegistration(session.event_id, registration_id, qr_code_token);
   if (!identity.ok) {
     return NextResponse.json({ error: identity.error }, { status: identity.status });
   }

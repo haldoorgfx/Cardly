@@ -15,6 +15,7 @@ interface Props {
   eventName: string;
   eventSlug: string;
   registrationId: string | null;
+  qrToken?: string | null;
   /** Dashboard mode: chrome handled by the shell. */
   embedded?: boolean;
 }
@@ -29,7 +30,7 @@ function hue(id: string) {
   return 120 + (h % 80); // forest-adjacent greens
 }
 
-export function SpeedNetworkingClient({ eventId, eventName, eventSlug, registrationId , embedded = false }: Props) {
+export function SpeedNetworkingClient({ eventId, eventName, eventSlug, registrationId, qrToken, embedded = false }: Props) {
   const [deck, setDeck] = useState<Attendee[]>([]);
   const [index, setIndex] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -45,7 +46,7 @@ export function SpeedNetworkingClient({ eventId, eventName, eventSlug, registrat
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/events/${eventId}/connections?reg=${registrationId}`, {
+      const res = await fetch(`/api/events/${eventId}/connections?reg=${registrationId}&token=${qrToken ?? ''}`, {
         cache: 'no-store',
       });
       const json = await res.json().catch(() => ({}));
@@ -57,7 +58,7 @@ export function SpeedNetworkingClient({ eventId, eventName, eventSlug, registrat
     } finally {
       setLoading(false);
     }
-  }, [eventId, registrationId, canNetwork]);
+  }, [eventId, registrationId, qrToken, canNetwork]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -85,7 +86,7 @@ export function SpeedNetworkingClient({ eventId, eventName, eventSlug, registrat
       const res = await fetch(`/api/events/${eventId}/connections`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ requester_id: registrationId, recipient_id: current.id }),
+        body: JSON.stringify({ requester_id: registrationId, recipient_id: current.id, qr_code_token: qrToken }),
       });
       if (res.ok) setConnectedCount(c => c + 1);
       // Advance regardless — a duplicate/failed request shouldn't trap the deck.

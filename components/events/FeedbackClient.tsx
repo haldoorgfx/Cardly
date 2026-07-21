@@ -14,6 +14,7 @@ interface Props {
   eventId: string;
   eventTitle: string;
   registrationId: string;
+  qrToken?: string | null;
   attendedSessions: Partial<Session>[];
   existingFeedback?: ExistingFeedback | null;
 }
@@ -56,7 +57,7 @@ function SmallStarIcon({ filled }: { filled: boolean }) {
   );
 }
 
-export default function FeedbackClient({ eventId, eventTitle, registrationId, attendedSessions, existingFeedback }: Props) {
+export default function FeedbackClient({ eventId, eventTitle, registrationId, qrToken, attendedSessions, existingFeedback }: Props) {
   const hadFeedback = Boolean(existingFeedback);
   const [overallRating, setOverallRating] = useState(existingFeedback?.overall_rating ?? 0);
   const [hoverRating, setHoverRating] = useState(0);
@@ -81,7 +82,7 @@ export default function FeedbackClient({ eventId, eventTitle, registrationId, at
       await fetch(`/api/sessions/${sessionId}/rate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ registration_id: registrationId, rating }),
+        body: JSON.stringify({ registration_id: registrationId, rating, qr_code_token: qrToken }),
       });
     } catch {
       // no-op
@@ -100,6 +101,7 @@ export default function FeedbackClient({ eventId, eventTitle, registrationId, at
           overall_rating: overallRating,
           highlights: selectedHighlights,
           comment,
+          qr_code_token: qrToken,
         }),
       });
       if (!res.ok) {

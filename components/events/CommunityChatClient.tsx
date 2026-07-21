@@ -17,6 +17,7 @@ interface Props {
   initialMessages: Message[];
   activeChannelId: string | null;
   registrationId?: string;
+  qrToken?: string | null;
   /** Dashboard mode: contained rounded card instead of full-viewport panes. */
   embedded?: boolean;
 }
@@ -39,7 +40,7 @@ function AvatarBubble({ name, size = 32 }: { name: string; size?: number }) {
   );
 }
 
-export function CommunityChatClient({ eventId, eventName, eventSlug, channels, initialMessages, activeChannelId: defaultChannelId, registrationId, embedded = false }: Props) {
+export function CommunityChatClient({ eventId, eventName, eventSlug, channels, initialMessages, activeChannelId: defaultChannelId, registrationId, qrToken, embedded = false }: Props) {
   const [activeChannelId, setActiveChannelId] = useState(defaultChannelId ?? channels[0]?.id ?? null);
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [input, setInput] = useState('');
@@ -57,9 +58,9 @@ export function CommunityChatClient({ eventId, eventName, eventSlug, channels, i
     setSidebarOpen(false);
     setMessages([]);
     try {
-      // `reg` is how the route proves the caller is an attendee of this event —
-      // reads are gated the same way writes are.
-      const regParam = registrationId ? `&reg=${registrationId}` : '';
+      // `reg`+`token` is how the route proves the caller is an attendee of this
+      // event — reads are gated the same way writes are.
+      const regParam = registrationId ? `&reg=${registrationId}&token=${qrToken ?? ''}` : '';
       const res = await fetch(`/api/events/${eventId}/community?channel_id=${channelId}${regParam}`);
       const data = await res.json() as { messages?: Message[] };
       setMessages(data.messages ?? []);
@@ -83,7 +84,7 @@ export function CommunityChatClient({ eventId, eventName, eventSlug, channels, i
       const res = await fetch(`/api/events/${eventId}/community`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ channel_id: activeChannelId, registration_id: registrationId, content }),
+        body: JSON.stringify({ channel_id: activeChannelId, registration_id: registrationId, content, qr_code_token: qrToken }),
       });
       const data = await res.json() as { message?: Message; error?: string };
       if (data.message) {

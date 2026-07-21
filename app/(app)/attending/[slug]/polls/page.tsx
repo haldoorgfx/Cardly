@@ -37,6 +37,7 @@ export default async function PollsPage({ params, searchParams }: Props) {
       <PollsClient
         eventId={ws.eventId}
         registrationId={ws.registrationId}
+        qrToken={ws.qrToken}
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         initialPolls={(polls ?? []) as any}
         myVotes={myVotes}

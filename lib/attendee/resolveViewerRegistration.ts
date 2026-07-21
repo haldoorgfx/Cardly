@@ -7,8 +7,6 @@ import { escapeLikePattern } from '@/lib/search/filter';
  */
 const ACTIVE_STATUSES = ['confirmed', 'checked_in'];
 
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
 /**
  * Resolve the viewer's registration UUID for a given event.
  *
@@ -17,10 +15,17 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
  * hub do NOT carry `?reg=`, so a logged-in attendee arriving from the hub has no
  * registration id. This helper recovers the correct UUID from, in order:
  *
- *  1. A `reg` param that is already a valid registration UUID for this event.
- *  2. A `reg` param that is a `qr_code_token` (guest link) → its registration id.
- *  3. The authenticated user's own active registration for this event
+ *  1. A `reg` param that is a `qr_code_token` (guest link) → its registration id.
+ *  2. The authenticated user's own active registration for this event
  *     (matched by user_id, or case-insensitively by attendee_email).
+ *
+ * A bare registration UUID in `reg` is deliberately NOT trusted on its own —
+ * it used to be (accepted directly as proof of identity), but every
+ * peer-listing endpoint (people, connections, leaderboard...) hands out other
+ * attendees' `id` by design, so a bare id is not a secret. Only
+ * `qr_code_token` — never shown to anyone but the registration's own owner —
+ * is treated as proof of guest identity. Emails link with the token, not the
+ * id; see lib/email/index.ts.
  *
  * Returns the registration UUID, or null when none can be resolved.
  * Any failure returns null — this never throws.
@@ -36,20 +41,8 @@ export async function resolveViewerRegistrationId(
 
     const param = typeof regParam === 'string' ? regParam.trim() : '';
 
-    // 1. Direct UUID → verify it's a valid, active registration for this event.
-    if (param && UUID_RE.test(param)) {
-      const { data: reg } = await adminAny
-        .from('registrations')
-        .select('id, status, event_id')
-        .eq('id', param)
-        .eq('event_id', eventId)
-        .maybeSingle();
-      if (reg && ACTIVE_STATUSES.includes(reg.status) && reg.event_id === eventId) {
-        return reg.id as string;
-      }
-      // else fall through
-    } else if (param) {
-      // 2. Non-UUID token → treat as a qr_code_token guest link.
+    if (param) {
+      // 1. Treat as a qr_code_token guest link.
       const { data: reg } = await adminAny
         .from('registrations')
         .select('id, status, event_id')
@@ -63,7 +56,7 @@ export async function resolveViewerRegistrationId(
       // else fall through
     }
 
-    // 3. Fall back to the authenticated user's own registration for this event.
+    // 2. Fall back to the authenticated user's own registration for this event.
     let user: { id: string; email?: string | null } | null = null;
     try {
       const supabase = createClient();

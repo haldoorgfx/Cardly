@@ -2,6 +2,7 @@ import { notFound, redirect } from 'next/navigation';
 import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
 import { getEventFeatures, isSectionEnabled } from '@/lib/events/sectionGate';
 import { resolveViewerRegistrationId } from '@/lib/attendee/resolveViewerRegistration';
+import { createAdminClient } from '@/lib/supabase/server';
 
 /**
  * Single entry point for the attendee's event workspace under
@@ -31,11 +32,18 @@ export interface AttendeeWorkspace {
   eventName: string;
   slug: string;
   registrationId: string;
+  /**
+   * This registration's own qr_code_token — the secret the engagement write
+   * APIs require alongside registrationId to prove it's really this viewer
+   * (see assertOwnsRegistration). registrationId alone is not proof: peer
+   * listings hand it out by design as a routing key.
+   */
+  qrToken: string;
 }
 
 export async function resolveAttendeeWorkspace(opts: {
   slug: string;
-  /** The `?reg=` param, if present — a registration UUID or a qr_code_token. */
+  /** The `?reg=` param, if present — the registration's qr_code_token (guest link). */
   reg?: string;
   /** Section key to gate on. Omit for pages with no organizer toggle. */
   section?: string;
@@ -62,10 +70,19 @@ export async function resolveAttendeeWorkspace(opts: {
     redirect(`/e/${opts.slug}`);
   }
 
+  const admin = createAdminClient();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: reg } = await (admin as any)
+    .from('registrations')
+    .select('qr_code_token')
+    .eq('id', registrationId)
+    .single();
+
   return {
     eventId: event.id,
     eventName: eventPageTitle ?? event.name,
     slug: opts.slug,
     registrationId,
+    qrToken: reg.qr_code_token as string,
   };
 }

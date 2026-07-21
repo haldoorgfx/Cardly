@@ -6,18 +6,22 @@ import { z } from 'zod';
 
 const PLAN_RANK: Record<string, number> = { free: 0, pro: 1, studio: 2 };
 
-const GetSchema = z.object({ registration_id: z.string().uuid(), event_id: z.string().uuid() });
-const CreateSchema = z.object({ event_id: z.string().uuid(), sender_id: z.string().uuid(), recipient_id: z.string().uuid(), content: z.string().min(1) });
+const GetSchema = z.object({ registration_id: z.string().uuid(), event_id: z.string().uuid(), token: z.string().optional() });
+const CreateSchema = z.object({ event_id: z.string().uuid(), sender_id: z.string().uuid(), recipient_id: z.string().uuid(), content: z.string().min(1), qr_code_token: z.string().optional() });
 
-// GET /api/threads?registration_id=X&event_id=Y
+// GET /api/threads?registration_id=X&event_id=Y&token=Z
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const parsed = GetSchema.safeParse({ registration_id: searchParams.get('registration_id'), event_id: searchParams.get('event_id') });
+  const parsed = GetSchema.safeParse({
+    registration_id: searchParams.get('registration_id'),
+    event_id: searchParams.get('event_id'),
+    token: searchParams.get('token') ?? undefined,
+  });
   if (!parsed.success) return NextResponse.json({ error: 'Missing params' }, { status: 400 });
 
-  const { registration_id, event_id } = parsed.data;
+  const { registration_id, event_id, token } = parsed.data;
 
-  const identity = await assertOwnsRegistration(event_id, registration_id);
+  const identity = await assertOwnsRegistration(event_id, registration_id, token);
   if (!identity.ok) return NextResponse.json({ error: identity.error }, { status: identity.status });
 
   const admin = createAdminClient();
@@ -60,9 +64,9 @@ export async function POST(req: NextRequest) {
   const parsed = CreateSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
 
-  const { event_id, sender_id, recipient_id, content } = parsed.data;
+  const { event_id, sender_id, recipient_id, content, qr_code_token } = parsed.data;
 
-  const identity = await assertOwnsRegistration(event_id, sender_id);
+  const identity = await assertOwnsRegistration(event_id, sender_id, qr_code_token);
   if (!identity.ok) return NextResponse.json({ error: identity.error }, { status: identity.status });
 
   // This route is the twin of /api/events/[id]/messages and must gate the same

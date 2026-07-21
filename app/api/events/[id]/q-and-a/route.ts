@@ -16,6 +16,7 @@ const AskSchema = z.object({
   question: z.string().min(1).max(500),
   is_anonymous: z.boolean().default(false),
   session_id: z.string().uuid().nullable().optional(),
+  qr_code_token: z.string().optional(),
 });
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
@@ -76,7 +77,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
   // Identity: when a registration is supplied, it must be the caller's own.
   if (parsed.data.registration_id) {
-    const identity = await assertOwnsRegistration(params.id, parsed.data.registration_id);
+    const identity = await assertOwnsRegistration(params.id, parsed.data.registration_id, parsed.data.qr_code_token);
     if (!identity.ok) {
       return NextResponse.json({ error: identity.error }, { status: identity.status });
     }
@@ -97,9 +98,14 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     return NextResponse.json({ error: 'Q&A is closed — this event has already ended' }, { status: 422 });
   }
 
+  // qr_code_token is an identity credential, not a qa_questions column — strip
+  // it before the insert so it can't be spread into a row.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { qr_code_token: _qrCodeToken, ...questionFields } = parsed.data;
+
   const { data, error } = await admin
     .from('qa_questions')
-    .insert({ event_id: params.id, ...parsed.data })
+    .insert({ event_id: params.id, ...questionFields })
     .select()
     .single();
 
@@ -167,7 +173,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
         admin.from('events').select('name, slug').eq('id', params.id).single(),
         admin
           .from('registrations')
-          .select('attendee_name, attendee_email')
+          .select('attendee_name, attendee_email, qr_code_token')
           .eq('id', data.registration_id!)
           .single(),
       ]);
@@ -178,7 +184,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
         question: data.question,
         eventName: event.name,
         eventSlug: event.slug,
-        registrationId: data.registration_id!,
+        qrCodeToken: reg.qr_code_token,
       });
     })().catch(() => {});
   }
@@ -188,11 +194,11 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
 // PUT — toggle upvote
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
-  const { question_id, registration_id } = await req.json();
+  const { question_id, registration_id, qr_code_token } = await req.json();
   if (!question_id || !registration_id) return NextResponse.json({ error: 'question_id and registration_id required' }, { status: 400 });
 
   // Identity: the upvoter must be the caller's own registration (guests allowed).
-  const identity = await assertOwnsRegistration(params.id, registration_id);
+  const identity = await assertOwnsRegistration(params.id, registration_id, qr_code_token);
   if (!identity.ok) {
     return NextResponse.json({ error: identity.error }, { status: identity.status });
   }

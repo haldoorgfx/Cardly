@@ -33,6 +33,7 @@ export default async function FeedbackPage({ params, searchParams }: Props) {
       eventId={ws.eventId}
       eventTitle={ws.eventName}
       registrationId={ws.registrationId}
+      qrToken={ws.qrToken}
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       attendedSessions={(agendaSessions ?? []).map(r => r.sessions).filter(Boolean) as any}
       existingFeedback={existingFeedback ?? null}

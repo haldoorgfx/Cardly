@@ -42,6 +42,7 @@ interface Props {
   eventId: string;
   eventSlug: string;
   registrationId: string | null;
+  qrToken?: string | null;
   /** Optional server-rendered attendees; the client refetches with connection status when a reg is present. */
   initialPeople?: Person[];
 }
@@ -113,7 +114,7 @@ function StatusTag({ status }: { status: string }) {
 
 /* ─── Component ─────────────────────────────────────────────────── */
 
-export default function PeopleDiscoveryClient({ eventId, eventSlug, registrationId, initialPeople = [] }: Props) {
+export default function PeopleDiscoveryClient({ eventId, eventSlug, registrationId, qrToken, initialPeople = [] }: Props) {
   const [people, setPeople] = useState<Person[]>(initialPeople);
   const [loadingPeople, setLoadingPeople] = useState(false);
   const [peopleError, setPeopleError] = useState<string | null>(null);
@@ -134,8 +135,11 @@ export default function PeopleDiscoveryClient({ eventId, eventSlug, registration
   const [requestsLoaded, setRequestsLoaded] = useState(false);
   const [respondingTo, setRespondingTo] = useState<string | null>(null);
 
+  // The messages page resolves `?reg=` as a qr_code_token (guest link), not a
+  // bare registration id — a bare id no longer proves identity. Link with the
+  // token so a guest attendee's navigation keeps working.
   const messagesHref = registrationId
-    ? `/attending/${eventSlug}/messages?reg=${registrationId}`
+    ? `/attending/${eventSlug}/messages?reg=${qrToken ?? registrationId}`
     : `/attending/${eventSlug}/messages`;
 
   /* Load the directory (with connection status) once we know the viewer's reg. */
@@ -144,7 +148,7 @@ export default function PeopleDiscoveryClient({ eventId, eventSlug, registration
     setLoadingPeople(true);
     setPeopleError(null);
     try {
-      const res = await fetch(`/api/events/${eventId}/people?reg=${registrationId}`);
+      const res = await fetch(`/api/events/${eventId}/people?reg=${registrationId}&token=${qrToken ?? ''}`);
       if (!res.ok) throw new Error('failed');
       const data = await res.json() as { people: Person[] };
       setPeople(data.people ?? []);
@@ -153,7 +157,7 @@ export default function PeopleDiscoveryClient({ eventId, eventSlug, registration
     } finally {
       setLoadingPeople(false);
     }
-  }, [eventId, registrationId]);
+  }, [eventId, registrationId, qrToken]);
 
   useEffect(() => {
     if (registrationId) loadPeople();
@@ -163,12 +167,12 @@ export default function PeopleDiscoveryClient({ eventId, eventSlug, registration
   useEffect(() => {
     if (!registrationId || suggestionsLoaded) return;
     setLoadingSuggestions(true);
-    fetch(`/api/events/${eventId}/matches?registration_id=${registrationId}`)
+    fetch(`/api/events/${eventId}/matches?registration_id=${registrationId}&token=${qrToken ?? ''}`)
       .then(r => r.ok ? r.json() : { matches: [] })
       .then((data: { matches?: MatchSuggestion[] }) => setSuggestions(data.matches ?? []))
       .catch(() => setSuggestions([]))
       .finally(() => { setLoadingSuggestions(false); setSuggestionsLoaded(true); });
-  }, [eventId, registrationId, suggestionsLoaded]);
+  }, [eventId, registrationId, qrToken, suggestionsLoaded]);
 
   const handleConnect = async (personId: string) => {
     if (!registrationId) return;
@@ -178,7 +182,7 @@ export default function PeopleDiscoveryClient({ eventId, eventSlug, registration
       const res = await fetch(`/api/events/${eventId}/connections`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ requester_id: registrationId, recipient_id: personId }),
+        body: JSON.stringify({ requester_id: registrationId, recipient_id: personId, qr_code_token: qrToken }),
       });
       if (!res.ok) throw new Error('failed');
       setPeople(prev => prev.map(p => p.id === personId ? { ...p, connection_status: 'pending' } : p));
@@ -195,7 +199,7 @@ export default function PeopleDiscoveryClient({ eventId, eventSlug, registration
     if (!registrationId) return;
     setLoadingRequests(true);
     try {
-      const res = await fetch(`/api/events/${eventId}/connections/requests?reg=${registrationId}`);
+      const res = await fetch(`/api/events/${eventId}/connections/requests?reg=${registrationId}&token=${qrToken ?? ''}`);
       if (!res.ok) throw new Error('failed');
       const data = await res.json() as { incoming: ConnectionRequest[]; sent: ConnectionRequest[] };
       setIncoming(data.incoming ?? []);
@@ -207,7 +211,7 @@ export default function PeopleDiscoveryClient({ eventId, eventSlug, registration
       setLoadingRequests(false);
       setRequestsLoaded(true);
     }
-  }, [eventId, registrationId]);
+  }, [eventId, registrationId, qrToken]);
 
   useEffect(() => {
     if (filter === 'requests' && registrationId && !requestsLoaded) loadRequests();
@@ -221,7 +225,7 @@ export default function PeopleDiscoveryClient({ eventId, eventSlug, registration
       const res = await fetch(`/api/events/${eventId}/connections`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ connection_id: connectionId, action, registration_id: registrationId }),
+        body: JSON.stringify({ connection_id: connectionId, action, registration_id: registrationId, qr_code_token: qrToken }),
       });
       if (!res.ok) throw new Error('failed');
       const accepted = incoming.find(r => r.connection_id === connectionId);

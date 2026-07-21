@@ -71,6 +71,7 @@ interface Props {
   registrationSlug: string;
   eventId: string;
   viewerRegistrationId?: string | null;
+  viewerQrToken?: string | null;
   organizerUserId?: string | null;
   seriesSlug?: string | null;
   seriesName?: string | null;
@@ -412,7 +413,7 @@ function ERAQandA({ page }: { page: PublicEventPage }) {
 
 export function PublicEventPageClient({
   page, hasOnlineUrl = false, tickets, hasAnyTickets = true, dateStr, timeStr, endTimeStr, minPrice,
-  registrationSlug, eventId, viewerRegistrationId = null, organizerUserId, seriesSlug, seriesName,
+  registrationSlug, eventId, viewerRegistrationId = null, viewerQrToken = null, organizerUserId, seriesSlug, seriesName,
   sessions = [], speakers = [], sponsors = [],
   attendees = [], attendeeCount = 0, organizerAvatarUrl = null,
   venueLat = null, venueLng = null,
@@ -1188,6 +1189,7 @@ export function PublicEventPageClient({
               eventId={eventId}
               eventSlug={registrationSlug}
               registrationId={viewerRegistrationId}
+              qrToken={viewerQrToken}
             />
           )}
         </div>

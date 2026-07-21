@@ -13,6 +13,7 @@ const PLAN_RANK: Record<string, number> = { free: 0, pro: 1, studio: 2 };
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   const { searchParams } = new URL(req.url);
   const registrationId = searchParams.get('registration_id');
+  const token = searchParams.get('token');
 
   if (!registrationId) {
     return NextResponse.json({ error: 'registration_id required' }, { status: 400 });
@@ -20,7 +21,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
   // Without this, anyone could read another attendee's match suggestions
   // (name + custom profile fields) by swapping the registration_id.
-  const identity = await assertOwnsRegistration(params.id, registrationId);
+  const identity = await assertOwnsRegistration(params.id, registrationId, token);
   if (!identity.ok) {
     return NextResponse.json({ error: identity.error }, { status: identity.status });
   }

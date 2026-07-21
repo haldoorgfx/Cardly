@@ -7,7 +7,7 @@ import { z } from 'zod';
 // two participants. Without this the route was an open door: anyone could read
 // any thread's messages by guessing a thread_id, or inject a message spoofing
 // any sender_id. Mirrors the gate on /api/events/[id]/messages.
-async function authorizeThread(threadId: string, registrationId: string) {
+async function authorizeThread(threadId: string, registrationId: string, qrCodeToken?: string | null) {
   const admin = createAdminClient();
   const { data: thread } = await admin
     .from('message_threads')
@@ -16,7 +16,7 @@ async function authorizeThread(threadId: string, registrationId: string) {
     .maybeSingle();
   if (!thread) return { ok: false as const, status: 404, error: 'Thread not found' };
 
-  const identity = await assertOwnsRegistration(thread.event_id, registrationId);
+  const identity = await assertOwnsRegistration(thread.event_id, registrationId, qrCodeToken);
   if (!identity.ok) return { ok: false as const, status: identity.status, error: identity.error };
 
   if (thread.participant_a !== registrationId && thread.participant_b !== registrationId) {
@@ -27,12 +27,14 @@ async function authorizeThread(threadId: string, registrationId: string) {
 
 // GET /api/threads/[threadId]?registration_id=xxx
 export async function GET(req: NextRequest, { params }: { params: { threadId: string } }) {
-  const registrationId = new URL(req.url).searchParams.get('registration_id');
+  const { searchParams } = new URL(req.url);
+  const registrationId = searchParams.get('registration_id');
+  const token = searchParams.get('token');
   if (!registrationId) {
     return NextResponse.json({ error: 'registration_id required' }, { status: 400 });
   }
 
-  const auth = await authorizeThread(params.threadId, registrationId);
+  const auth = await authorizeThread(params.threadId, registrationId, token);
   if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
   const { data, error } = await auth.admin
@@ -48,6 +50,7 @@ export async function GET(req: NextRequest, { params }: { params: { threadId: st
 const PostSchema = z.object({
   sender_id: z.string().uuid(),
   content: z.string().min(1).max(2000),
+  qr_code_token: z.string().optional(),
 });
 
 // POST /api/threads/[threadId] — the sender must own the registration AND be a
@@ -57,9 +60,9 @@ export async function POST(req: NextRequest, { params }: { params: { threadId: s
   if (!parsed.success) {
     return NextResponse.json({ error: 'sender_id and content required' }, { status: 400 });
   }
-  const { sender_id, content } = parsed.data;
+  const { sender_id, content, qr_code_token } = parsed.data;
 
-  const auth = await authorizeThread(params.threadId, sender_id);
+  const auth = await authorizeThread(params.threadId, sender_id, qr_code_token);
   if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
   const { data, error } = await auth.admin

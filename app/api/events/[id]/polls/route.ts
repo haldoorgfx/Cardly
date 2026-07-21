@@ -18,6 +18,7 @@ const VoteSchema = z.object({
   poll_id: z.string().uuid(),
   option_id: z.string().uuid(),
   registration_id: z.string().uuid(),
+  qr_code_token: z.string().optional(),
 });
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
@@ -126,10 +127,10 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   const parsed = VoteSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
 
-  const { poll_id, option_id, registration_id } = parsed.data;
+  const { poll_id, option_id, registration_id, qr_code_token } = parsed.data;
 
   // Identity: the voter must be the caller's own registration (guests allowed).
-  const identity = await assertOwnsRegistration(params.id, registration_id);
+  const identity = await assertOwnsRegistration(params.id, registration_id, qr_code_token);
   if (!identity.ok) {
     return NextResponse.json({ error: identity.error }, { status: identity.status });
   }

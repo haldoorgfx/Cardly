@@ -9,6 +9,7 @@ import { formatZonedTime, formatZonedDayLabel, groupSessionsByZonedDay } from '@
 interface Props {
   sessions: Session[];
   registrationId: string;
+  qrToken?: string | null;
   eventSlug: string;
   /** IANA zone of the event. Times render here, not in the viewer's zone. */
   timezone: string;
@@ -42,7 +43,7 @@ function getSpeakerNames(session: Session) {
     .join(', ');
 }
 
-export default function PersonalAgendaClient({ sessions: initialSessions, registrationId, eventSlug, timezone }: Props) {
+export default function PersonalAgendaClient({ sessions: initialSessions, registrationId, qrToken, eventSlug, timezone }: Props) {
   const [sessions, setSessions] = useState<Session[]>(initialSessions);
   const [removingId, setRemovingId] = useState<string | null>(null);
 
@@ -54,7 +55,7 @@ export default function PersonalAgendaClient({ sessions: initialSessions, regist
       await fetch(`/api/sessions/${sessionId}/agenda`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ registration_id: registrationId, action: 'remove' }),
+        body: JSON.stringify({ registration_id: registrationId, action: 'remove', qr_code_token: qrToken }),
       });
       setSessions((prev) => prev.filter((s) => s.id !== sessionId));
     } catch {

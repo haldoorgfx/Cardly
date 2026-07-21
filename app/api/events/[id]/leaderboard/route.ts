@@ -24,11 +24,12 @@ import { getLeaderboard } from '@/lib/events/leaderboard';
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   const { searchParams } = new URL(req.url);
   const reg = searchParams.get('reg');
+  const token = searchParams.get('token');
 
   let viewerRegistrationId: string | null = null;
 
   if (reg) {
-    const identity = await assertOwnsRegistration(params.id, reg);
+    const identity = await assertOwnsRegistration(params.id, reg, token);
     if (!identity.ok) {
       return NextResponse.json({ error: identity.error }, { status: identity.status });
     }

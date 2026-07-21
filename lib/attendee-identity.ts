@@ -20,15 +20,25 @@ const ACTIVE_STATUSES = ['confirmed', 'checked_in'];
  *  - If there is an authenticated user, resolve THAT user's own confirmed /
  *    checked-in registrations for this event and require the supplied
  *    registration to be one of them → otherwise 403.
- *  - If there is NO auth session (guest), simply verify the supplied
- *    registration exists and is confirmed / checked-in for THIS event → 404 if not.
+ *  - If there is NO auth session (guest), the caller must also present this
+ *    registration's own `qr_code_token` → 404 if missing or mismatched.
  *
- * This lets legitimate guests keep working while blocking an authenticated
- * user from acting as someone else's registration.
+ * The token check on the guest path is load-bearing, not optional. Every
+ * peer-listing endpoint (people, connections, leaderboard...) hands out other
+ * attendees' `id` by design — it's the routing key the UI uses to address a
+ * message or connection request at a specific person. Before this, an
+ * anonymous caller (no session at all, so the auth branch below never ran)
+ * could pass ANY of those harvested ids here and it would satisfy the "guest"
+ * branch outright — impersonating attendees who are themselves fully logged
+ * in, not just fellow guests. `qr_code_token` is a crypto.randomUUID()-class
+ * secret that a listing never exposes to peers, only ever delivered to the
+ * registration's own owner, so requiring it here closes that without asking
+ * legitimate guests for anything they don't already have.
  */
 export async function assertOwnsRegistration(
   eventId: string,
   registrationId: string | null | undefined,
+  qrCodeToken?: string | null,
 ): Promise<IdentityCheck> {
   if (!registrationId) {
     return { ok: false, status: 404, error: 'Registration not found' };
@@ -40,7 +50,7 @@ export async function assertOwnsRegistration(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: reg } = await (admin as any)
     .from('registrations')
-    .select('id, status, user_id')
+    .select('id, status, user_id, qr_code_token')
     .eq('id', registrationId)
     .eq('event_id', eventId)
     .maybeSingle();
@@ -86,6 +96,11 @@ export async function assertOwnsRegistration(
     return { ok: false, status: 403, error: 'Forbidden' };
   }
 
-  // Guest caller: the registration exists and is active for this event → allow.
+  // Guest caller: the registration must be active for this event AND the
+  // caller must present its own qr_code_token — see the doc comment above for
+  // why a bare registration_id is not sufficient here.
+  if (!qrCodeToken || reg.qr_code_token !== qrCodeToken) {
+    return { ok: false, status: 404, error: 'Registration not found' };
+  }
   return { ok: true };
 }

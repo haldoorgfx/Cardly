@@ -19,6 +19,7 @@ export default async function MessagesPage({ params, searchParams }: Props) {
     <MessagingClient
       eventId={ws.eventId}
       registrationId={ws.registrationId}
+      qrToken={ws.qrToken}
       initialRecipientId={to}
       initialRecipientName={name}
     />

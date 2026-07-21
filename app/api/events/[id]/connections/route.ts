@@ -13,12 +13,14 @@ const PLAN_RANK: Record<string, number> = { free: 0, pro: 1, studio: 2 };
 const RequestSchema = z.object({
   requester_id: z.string().uuid(),
   recipient_id: z.string().uuid(),
+  qr_code_token: z.string().optional(),
 });
 
 const RespondSchema = z.object({
   connection_id: z.string().uuid(),
   action: z.enum(['accept', 'decline']),
   registration_id: z.string().uuid(),
+  qr_code_token: z.string().optional(),
 });
 
 // GET /api/events/[id]/connections?reg=<registration_id>
@@ -28,12 +30,13 @@ const RespondSchema = z.object({
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   const { searchParams } = new URL(req.url);
   const regId = searchParams.get('reg');
+  const token = searchParams.get('token');
 
   // This returns every confirmed/checked-in attendee's name + registration id
   // for the event — require the caller to hold a valid registration first,
   // same identity check POST/PATCH already use, instead of handing that list
   // to anyone who calls the route with no `reg` at all.
-  const identity = await assertOwnsRegistration(params.id, regId);
+  const identity = await assertOwnsRegistration(params.id, regId, token);
   if (!identity.ok) {
     return NextResponse.json({ error: identity.error }, { status: identity.status });
   }
@@ -105,10 +108,10 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const parsed = RequestSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
 
-  const { requester_id, recipient_id } = parsed.data;
+  const { requester_id, recipient_id, qr_code_token } = parsed.data;
 
   // Identity: the requester must be the caller's own registration (guests allowed).
-  const identity = await assertOwnsRegistration(params.id, requester_id);
+  const identity = await assertOwnsRegistration(params.id, requester_id, qr_code_token);
   if (!identity.ok) {
     return NextResponse.json({ error: identity.error }, { status: identity.status });
   }
@@ -201,7 +204,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       admin.from('events').select('name, slug').eq('id', params.id).single(),
       admin
         .from('registrations')
-        .select('id, attendee_name, attendee_email')
+        .select('id, attendee_name, attendee_email, qr_code_token')
         .in('id', [requester_id, recipient_id]),
     ]);
     if (!event || !regs) return;
@@ -214,7 +217,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       requesterName: requester.attendee_name,
       eventName: event.name,
       eventSlug: event.slug,
-      registrationId: recipient_id,
+      qrCodeToken: recipient.qr_code_token,
     });
   })().catch(() => {});
 
@@ -226,10 +229,10 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   const parsed = RespondSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
 
-  const { connection_id, action, registration_id } = parsed.data;
+  const { connection_id, action, registration_id, qr_code_token } = parsed.data;
 
   // Identity: the responder must be the caller's own registration (guests allowed).
-  const identity = await assertOwnsRegistration(params.id, registration_id);
+  const identity = await assertOwnsRegistration(params.id, registration_id, qr_code_token);
   if (!identity.ok) {
     return NextResponse.json({ error: identity.error }, { status: identity.status });
   }
@@ -263,7 +266,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
         admin.from('events').select('name, slug').eq('id', params.id).single(),
         admin
           .from('registrations')
-          .select('id, attendee_name, attendee_email')
+          .select('id, attendee_name, attendee_email, qr_code_token')
           .in('id', [data.requester_id, data.recipient_id]),
       ]);
       if (!event || !regs) return;
@@ -276,7 +279,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
         acceptorName: acceptor.attendee_name,
         eventName: event.name,
         eventSlug: event.slug,
-        registrationId: data.requester_id,
+        qrCodeToken: requester.qr_code_token,
       });
     })().catch(() => {});
   }

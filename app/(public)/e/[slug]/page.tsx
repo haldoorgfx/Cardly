@@ -188,6 +188,21 @@ export default async function PublicEventPage({ params, searchParams }: Props) {
     viewerRegistrationId = ownReg?.id ?? null;
   }
 
+  // The Network tab's PeopleDiscoveryClient calls write endpoints
+  // (/api/events/[id]/people, /connections, /matches) that now require this
+  // registration's own qr_code_token to prove guest identity — a bare
+  // registration id is handed out by those same endpoints to peers, so it is
+  // no longer sufficient on its own. Resolve it once here.
+  let viewerQrToken: string | null = null;
+  if (viewerRegistrationId) {
+    const { data: viewerReg } = await admin
+      .from('registrations')
+      .select('qr_code_token')
+      .eq('id', viewerRegistrationId)
+      .maybeSingle();
+    viewerQrToken = viewerReg?.qr_code_token ?? null;
+  }
+
   // Fetch all section data in parallel — no limits, full fields
   const [sessionsRes, speakersRes, sponsorsRes, regRes] = await Promise.all([
     admin.from('sessions')
@@ -351,6 +366,7 @@ export default async function PublicEventPage({ params, searchParams }: Props) {
         registrationSlug={registrationSlug}
         eventId={page.event_id}
         viewerRegistrationId={viewerRegistrationId}
+        viewerQrToken={viewerQrToken}
         organizerUserId={organizerUserId}
         seriesSlug={seriesSlug}
         seriesName={page.series_name ?? null}

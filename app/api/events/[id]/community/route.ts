@@ -8,6 +8,7 @@ const PostSchema = z.object({
   channel_id: z.string().uuid(),
   registration_id: z.string().uuid(),
   content: z.string().min(1).max(2000),
+  qr_code_token: z.string().optional(),
 });
 
 // GET /api/events/[id]/community?channel_id=xxx&reg=xxx — messages for a channel
@@ -22,9 +23,10 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   // channel id (a shared link, a screenshot, a cancelled attendee) could read
   // the whole attendee chat unauthenticated. Gate reads like the writes.
   const regId = searchParams.get('reg');
+  const token = searchParams.get('token');
   let allowed = false;
   if (regId) {
-    const identity = await assertOwnsRegistration(params.id, regId);
+    const identity = await assertOwnsRegistration(params.id, regId, token);
     if (identity.ok) allowed = true;
   }
   if (!allowed) {
@@ -65,10 +67,10 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const parsed = PostSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
 
-  const { channel_id, registration_id, content } = parsed.data;
+  const { channel_id, registration_id, content, qr_code_token } = parsed.data;
 
   // The sender must own the supplied registration for this event.
-  const identity = await assertOwnsRegistration(params.id, registration_id);
+  const identity = await assertOwnsRegistration(params.id, registration_id, qr_code_token);
   if (!identity.ok) return NextResponse.json({ error: identity.error }, { status: identity.status });
 
   // community_channels/community_messages aren't in the generated types yet.

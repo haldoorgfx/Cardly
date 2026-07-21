@@ -49,6 +49,7 @@ export default async function CommunityPage({ params, searchParams }: Props) {
       initialMessages={messages ?? []}
       activeChannelId={activeChannel ?? null}
       registrationId={ws.registrationId}
+      qrToken={ws.qrToken}
       embedded
     />
   );

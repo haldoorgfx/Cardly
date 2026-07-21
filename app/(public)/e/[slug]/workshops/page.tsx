@@ -26,6 +26,19 @@ export default async function WorkshopsPage({ params, searchParams }: Props) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const adminAny = admin as any;
 
+  // The booking endpoint now requires this registration's own qr_code_token
+  // to prove guest identity (a bare registration id is no longer sufficient —
+  // see lib/attendee-identity.ts).
+  let viewerQrToken: string | null = null;
+  if (viewerReg) {
+    const { data: viewerRegRow } = await adminAny
+      .from('registrations')
+      .select('qr_code_token')
+      .eq('id', viewerReg)
+      .maybeSingle();
+    viewerQrToken = viewerRegRow?.qr_code_token ?? null;
+  }
+
   const [{ data: sessions }, bookedIds, { data: eventPage }] = await Promise.all([
     adminAny
       .from('sessions')
@@ -52,6 +65,7 @@ export default async function WorkshopsPage({ params, searchParams }: Props) {
         sessions={sessions ?? []}
         bookedIds={bookedIds as string[]}
         registrationId={viewerReg ?? undefined}
+        qrToken={viewerQrToken}
         timezone={eventPage?.timezone || 'UTC'}
       />
     </div>

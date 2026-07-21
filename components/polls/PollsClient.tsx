@@ -7,11 +7,12 @@ import type { Poll, PollOption } from '@/types/database';
 interface Props {
   eventId: string;
   registrationId: string | null;
+  qrToken?: string | null;
   initialPolls: Poll[];
   myVotes: Record<string, string>;
 }
 
-function PollCard({ poll, eventId, registrationId, initialVote }: { poll: Poll; eventId: string; registrationId: string | null; initialVote: string | null }) {
+function PollCard({ poll, eventId, registrationId, qrToken, initialVote }: { poll: Poll; eventId: string; registrationId: string | null; qrToken?: string | null; initialVote: string | null }) {
   const [voted, setVoted] = useState<string | null>(initialVote);
   const [options, setOptions] = useState<PollOption[]>(poll.poll_options ?? []);
   const [voting, setVoting] = useState(false);
@@ -25,7 +26,7 @@ function PollCard({ poll, eventId, registrationId, initialVote }: { poll: Poll; 
       const res = await fetch(`/api/events/${eventId}/polls`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ poll_id: poll.id, option_id: optionId, registration_id: registrationId }),
+        body: JSON.stringify({ poll_id: poll.id, option_id: optionId, registration_id: registrationId, qr_code_token: qrToken }),
       });
       const data = await res.json() as { options: { id: string; votes_count: number }[] };
       if (data.options) {
@@ -91,7 +92,7 @@ function PollCard({ poll, eventId, registrationId, initialVote }: { poll: Poll; 
   );
 }
 
-export default function PollsClient({ eventId, registrationId, initialPolls, myVotes }: Props) {
+export default function PollsClient({ eventId, registrationId, qrToken, initialPolls, myVotes }: Props) {
   const [polls, setPolls] = useState(initialPolls);
 
   // Auto-refresh active polls every 10s
@@ -125,13 +126,13 @@ export default function PollsClient({ eventId, registrationId, initialPolls, myV
   return (
     <div className="space-y-4">
       {active.map(poll => (
-        <PollCard key={poll.id} poll={poll} eventId={eventId} registrationId={registrationId} initialVote={myVotes[poll.id] ?? null} />
+        <PollCard key={poll.id} poll={poll} eventId={eventId} registrationId={registrationId} qrToken={qrToken} initialVote={myVotes[poll.id] ?? null} />
       ))}
       {closed.length > 0 && active.length > 0 && (
         <div className="text-[12px] font-semibold uppercase tracking-wider pt-4 pb-1" style={{ color: '#65736B' }}>Past polls</div>
       )}
       {closed.map(poll => (
-        <PollCard key={poll.id} poll={poll} eventId={eventId} registrationId={registrationId} initialVote={myVotes[poll.id] ?? null} />
+        <PollCard key={poll.id} poll={poll} eventId={eventId} registrationId={registrationId} qrToken={qrToken} initialVote={myVotes[poll.id] ?? null} />
       ))}
     </div>
   );

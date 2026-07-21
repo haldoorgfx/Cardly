@@ -19,6 +19,19 @@ export default async function SessionDetailPage({ params, searchParams }: Props)
   // "Save to agenda" booking works when arriving from the hub without ?reg=.
   const viewerReg = await resolveViewerRegistrationId(event.id, searchParams.reg);
 
+  // The agenda save/remove endpoint now requires this registration's own
+  // qr_code_token to prove guest identity (a bare registration id is no
+  // longer sufficient — see lib/attendee-identity.ts).
+  let viewerQrToken: string | null = null;
+  if (viewerReg) {
+    const { data: viewerRegRow } = await admin
+      .from('registrations')
+      .select('qr_code_token')
+      .eq('id', viewerReg)
+      .maybeSingle();
+    viewerQrToken = viewerRegRow?.qr_code_token ?? null;
+  }
+
   const [{ data: session }, relatedResult, isSavedResult, { data: eventPage }] = await Promise.all([
     admin.from('sessions')
       .select('*, tracks(id,name,color), session_speakers(speaker_id, position, speakers(id,name,photo_url,role,company,headline))')
@@ -53,6 +66,7 @@ export default async function SessionDetailPage({ params, searchParams }: Props)
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         relatedSessions={(relatedResult.data ?? []) as any}
         registrationId={viewerReg}
+        qrToken={viewerQrToken}
         initialSaved={isSavedResult}
         timezone={eventPage?.timezone || 'UTC'}
       />

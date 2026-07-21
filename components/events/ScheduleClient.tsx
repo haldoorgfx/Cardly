@@ -9,6 +9,7 @@ interface Props {
   sessions: Session[];
   tracks: Track[];
   registrationId: string | null;
+  qrToken?: string | null;
   savedSessionIds: string[];
 }
 
@@ -37,7 +38,7 @@ function isSameDay(a: Date, b: Date) {
   return a.toDateString() === b.toDateString();
 }
 
-export default function ScheduleClient({ sessions, tracks, registrationId, savedSessionIds }: Props) {
+export default function ScheduleClient({ sessions, tracks, registrationId, qrToken, savedSessionIds }: Props) {
   const days = useMemo(() => getUniqueDates(sessions), [sessions]);
   const [activeDayIdx, setActiveDayIdx] = useState(0);
   const [activeTrackId, setActiveTrackId] = useState<string | 'all'>('all');
@@ -72,7 +73,7 @@ export default function ScheduleClient({ sessions, tracks, registrationId, saved
         const res = await fetch(`/api/events/${eventId}/sessions/${sessionId}/book`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ registrationId }),
+          body: JSON.stringify({ registrationId, qrCodeToken: qrToken }),
         });
         if (!res.ok) throw new Error();
         const data = await res.json();
@@ -83,7 +84,7 @@ export default function ScheduleClient({ sessions, tracks, registrationId, saved
         await fetch(`/api/sessions/${sessionId}/agenda`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ registration_id: registrationId, action: 'remove' }),
+          body: JSON.stringify({ registration_id: registrationId, action: 'remove', qr_code_token: qrToken }),
         });
       }
     } catch {

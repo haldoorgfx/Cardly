@@ -8,6 +8,7 @@ const BodySchema = z.object({
   overall_rating: z.number().int().min(1).max(5).optional(),
   highlights: z.array(z.string()).optional(),
   comment: z.string().optional(),
+  qr_code_token: z.string().optional(),
 });
 
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
@@ -15,10 +16,10 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const parsed = BodySchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
 
-  const { registration_id, ...rest } = parsed.data;
+  const { registration_id, qr_code_token, ...rest } = parsed.data;
 
   // Identity: feedback must be tied to the caller's own registration (guests allowed).
-  const identity = await assertOwnsRegistration(params.id, registration_id);
+  const identity = await assertOwnsRegistration(params.id, registration_id, qr_code_token);
   if (!identity.ok) {
     return NextResponse.json({ error: identity.error }, { status: identity.status });
   }
