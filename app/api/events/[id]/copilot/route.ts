@@ -3,6 +3,8 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { z } from 'zod';
 import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
+import { getEventOwnerPlan } from '@/lib/billing/can';
+import { hasERA } from '@/lib/ai/gate';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -58,6 +60,23 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     .single();
   if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
+  // Plan gate. Copilot is the single most expensive endpoint in the product —
+  // a frontier model with a 40-turn history — and it was the ONLY AI surface
+  // with no plan check at all, so any free signup could run it without limit.
+  // CLAUDE.md is explicit that AI is locked on Free, so this matches the
+  // documented policy and every /api/era route.
+  //
+  // Gated on the EVENT OWNER's plan, not the caller's: a Studio organiser's
+  // teammates reach this event through manageableOwnerIds() above and must not
+  // be told to upgrade their own personal account to use the owner's feature.
+  const ownerPlan = await getEventOwnerPlan(params.id);
+  if (!ownerPlan || !hasERA(ownerPlan)) {
+    return NextResponse.json(
+      { error: 'AI Copilot is a paid feature. Upgrade to Pro to use it.' },
+      { status: 402 },
+    );
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const adminAny = admin as any;
 
@@ -106,14 +125,22 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
   const anthropic = new Anthropic();
 
-  const aiStream = anthropic.messages.stream({
-    model: 'claude-opus-4-8',
-    max_tokens: 4000,
-    thinking: { type: 'adaptive' },
-    output_config: { effort: 'low' },
-    system,
-    messages: parsed.data.messages,
-  });
+  // Tie the upstream call to the client's connection. Without a signal, an
+  // organiser closing the tab or hitting stop mid-reply left Anthropic
+  // generating the full 4000-token completion into a socket nobody was
+  // reading — billed in full, every time. `cancel()` below covers the case
+  // where the consumer goes away after the stream has already started.
+  const aiStream = anthropic.messages.stream(
+    {
+      model: 'claude-opus-4-8',
+      max_tokens: 4000,
+      thinking: { type: 'adaptive' },
+      output_config: { effort: 'low' },
+      system,
+      messages: parsed.data.messages,
+    },
+    { signal: req.signal },
+  );
 
   const encoder = new TextEncoder();
   const stream = new ReadableStream<Uint8Array>({
@@ -125,6 +152,12 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
           }
         }
       } catch (err) {
+        // An abort is the expected path when the client disconnects, not a
+        // fault: there is no longer a reader to show a message to, and
+        // enqueueing into a cancelled controller throws.
+        if (req.signal.aborted || (err instanceof Error && err.name === 'AbortError')) {
+          return;
+        }
         // The 503 above only covers a MISSING key. A key that is invalid,
         // revoked, or over its quota fails here instead — mid-stream, after
         // headers are already sent, so it cannot become a status code. Keep the
@@ -132,12 +165,22 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
         // request ids and key/account detail, and this string is rendered
         // straight into the organiser's chat transcript.
         console.error('[copilot] stream error:', err);
-        controller.enqueue(
-          encoder.encode('\n\n[Copilot could not finish this reply. Please try again.]'),
-        );
+        try {
+          controller.enqueue(
+            encoder.encode('\n\n[Copilot could not finish this reply. Please try again.]'),
+          );
+        } catch { /* consumer already gone */ }
       } finally {
-        controller.close();
+        // Both branches above can leave the controller already torn down by a
+        // cancel(); closing twice throws and would surface as an unhandled
+        // rejection in the function logs.
+        try { controller.close(); } catch { /* already closed */ }
       }
+    },
+    cancel() {
+      // The reader went away (tab closed, navigation, client abort). Stop the
+      // upstream generation rather than paying for tokens nobody receives.
+      aiStream.abort();
     },
   });
 

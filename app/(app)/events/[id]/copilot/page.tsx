@@ -5,6 +5,8 @@ import { redirect } from 'next/navigation';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { AICopilotClient } from '@/components/events/AICopilotClient';
 import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
+import { getEventOwnerPlan } from '@/lib/billing/can';
+import { hasERA } from '@/lib/ai/gate';
 
 export async function generateMetadata() {
   return { title: 'AI Copilot' };
@@ -28,6 +30,12 @@ export default async function CopilotPage({ params }: { params: Promise<{ id: st
     .single();
 
   if (!event) redirect('/dashboard');
+
+  // Match the API's plan gate so a Free organiser sees the event page instead
+  // of a chat box that 402s on the first message. Same redirect-to-event shape
+  // the other paid tabs use (gamification / q-and-a / sponsors).
+  const ownerPlan = await getEventOwnerPlan(id);
+  if (!ownerPlan || !hasERA(ownerPlan)) redirect(`/events/${_ev.slug}`);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const adminAny = admin as any;

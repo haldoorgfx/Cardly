@@ -32,7 +32,11 @@ async function geminiGenerate(prompt: string): Promise<string | null> {
   const key = process.env.GOOGLE_AI_KEY;
   if (!key) return null;
   const genAI = new GoogleGenerativeAI(key);
-  const geminiModel = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+  // Same reason as lib/ai/era.ts: the SDK has no default timeout, and this
+  // call runs over a pool of up to 200 attendees, so a stall holds a
+  // serverless function open for the platform's whole max duration. Callers
+  // already handle a throw (503 / 500), so timing out degrades cleanly.
+  const geminiModel = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' }, { timeout: 45_000 });
   const result = await geminiModel.generateContent(prompt);
   return result.response.text();
 }

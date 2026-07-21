@@ -65,8 +65,15 @@ export function AICopilotClient({ eventId, eventName, stats }: Props) {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
+
+  // Client-side navigation does not cancel an in-flight fetch, so leaving this
+  // tab mid-reply left the route streaming (and billing) a completion into a
+  // reader that no longer existed. Aborting here triggers the stream's
+  // cancel() on the server, which stops the upstream call.
+  useEffect(() => () => abortRef.current?.abort(), []);
 
   async function send(text?: string) {
     const content = (text ?? input).trim();
@@ -83,11 +90,15 @@ export function AICopilotClient({ eventId, eventName, stats }: Props) {
     setLoading(true);
 
     const assistantId = `a-${Date.now()}`;
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
     try {
       const res = await fetch(`/api/events/${eventId}/copilot`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages: history }),
+        signal: controller.signal,
       });
 
       if (!res.ok || !res.body) {
@@ -109,6 +120,9 @@ export function AICopilotClient({ eventId, eventName, stats }: Props) {
         setMessages(prev => prev.map(m => (m.id === assistantId ? { ...m, content: acc } : m)));
       }
     } catch (e) {
+      // An abort is us tearing down, not a failure — don't push an error
+      // bubble into a transcript the user has already navigated away from.
+      if (e instanceof DOMException && e.name === 'AbortError') return;
       const msg = describeError(e, 'the AI service');
       setLoading(false);
       setMessages(prev => {
