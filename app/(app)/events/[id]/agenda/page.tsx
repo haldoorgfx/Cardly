@@ -8,6 +8,7 @@ import { redirect } from 'next/navigation';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { PageShell } from '@/components/dash';
 import { AgendaView } from '@/components/events/AgendaView';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 interface Props { params: Promise<{ id: string }> }
 
@@ -22,7 +23,7 @@ export default async function AgendaPage({ params }: Props) {
 
   const admin = createAdminClient();
   const [{ data: event }, { data: eventPage }, { data: sessions }, { data: speakers }, { data: tracks }] = await Promise.all([
-    admin.from('events').select('id, name, slug').eq('id', id).eq('user_id', user.id).single(),
+    admin.from('events').select('id, name, slug').eq('id', id).in('user_id', await manageableOwnerIds(user.id)).single(),
     admin.from('event_pages').select('starts_at, ends_at').eq('event_id', id).maybeSingle(),
     admin.from('sessions').select('*, tracks(id,name,color), session_speakers(speaker_id, position, speakers(id,name,photo_url))').eq('event_id', id).order('starts_at', { ascending: true }),
     admin.from('speakers').select('id, name, photo_url, role').eq('event_id', id).order('position', { ascending: true }),

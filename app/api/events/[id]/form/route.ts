@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
   const admin = createAdminClient();
@@ -18,7 +19,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const admin = createAdminClient();
-  const { data: event } = await admin.from('events').select('id').eq('id', params.id).eq('user_id', user.id).single();
+  const { data: event } = await admin.from('events').select('id').eq('id', params.id).in('user_id', await manageableOwnerIds(user.id)).single();
   if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
   const body = await req.json();
@@ -40,7 +41,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   if (!fieldId) return NextResponse.json({ error: 'fieldId required' }, { status: 400 });
 
   const admin = createAdminClient();
-  const { data: event } = await admin.from('events').select('id').eq('id', params.id).eq('user_id', user.id).single();
+  const { data: event } = await admin.from('events').select('id').eq('id', params.id).in('user_id', await manageableOwnerIds(user.id)).single();
   if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
   const { data, error } = await admin
@@ -64,7 +65,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
   if (!fieldId) return NextResponse.json({ error: 'fieldId required' }, { status: 400 });
 
   const admin = createAdminClient();
-  const { data: event } = await admin.from('events').select('id').eq('id', params.id).eq('user_id', user.id).single();
+  const { data: event } = await admin.from('events').select('id').eq('id', params.id).in('user_id', await manageableOwnerIds(user.id)).single();
   if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
   const { error } = await admin

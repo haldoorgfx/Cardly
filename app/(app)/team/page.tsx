@@ -31,28 +31,32 @@ export default async function TeamPage() {
     subscriptionFailed && profile?.plan !== 'free' ? 'free' : (profile?.plan ?? 'free');
   const isStudio = plan === 'studio';
 
-  let team = null;
   let members: Awaited<ReturnType<typeof getTeamMembers>> = [];
   let invites: Awaited<ReturnType<typeof getTeamInvites>> = [];
 
-  if (isStudio) {
-    team = await getMyTeam(user.id);
-    // Auto-provision a team for a Studio owner who doesn't have one yet, so the
-    // page shows a working "Invite member" control (and the owner as a member)
-    // instead of a dead-end empty state that says "invite" with no button.
-    if (!team) {
-      try {
-        team = await createTeam(user.id, profile?.full_name?.trim() || 'My Team');
-      } catch {
-        team = null;
-      }
+  // Resolve membership FIRST, independent of plan. An invited teammate is
+  // billed nothing and is almost always on the free plan — gating this lookup
+  // on `isStudio` meant every member who accepted an invite landed back here
+  // and saw the "Upgrade to Studio" upsell instead of the team they had just
+  // joined, with no way to see who else was on it or to leave.
+  let team = await getMyTeam(user.id);
+
+  // Auto-provision a team for a Studio owner who doesn't have one yet, so the
+  // page shows a working "Invite member" control (and the owner as a member)
+  // instead of a dead-end empty state that says "invite" with no button.
+  if (!team && isStudio) {
+    try {
+      team = await createTeam(user.id, profile?.full_name?.trim() || 'My Team');
+    } catch {
+      team = null;
     }
-    if (team) {
-      [members, invites] = await Promise.all([
-        getTeamMembers(team.id),
-        getTeamInvites(team.id),
-      ]);
-    }
+  }
+
+  if (team) {
+    [members, invites] = await Promise.all([
+      getTeamMembers(team.id),
+      getTeamInvites(team.id),
+    ]);
   }
 
   return (

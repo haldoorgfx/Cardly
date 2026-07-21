@@ -9,6 +9,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { EventeraCardView } from '@/components/events/EventeraCardView';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 export default async function EventeraCardPage({ params }: { params: Promise<{ id: string }> }) {
   const { id: _ref } = await params;
@@ -31,7 +32,7 @@ export default async function EventeraCardPage({ params }: { params: Promise<{ i
     { count: todayCards },
     { count: sharedCards },
   ] = await Promise.all([
-    admin.from('events').select('id, name, slug, status').eq('id', id).eq('user_id', user.id).single(),
+    admin.from('events').select('id, name, slug, status').eq('id', id).in('user_id', await manageableOwnerIds(user.id)).single(),
     admin.from('event_variants').select('id, variant_name, background_url, background_width, background_height, zones').eq('event_id', id).order('position' as never),
     admin.from('generated_cards').select('id', { count: 'exact', head: true }).eq('event_id', id),
     admin.from('generated_cards').select('id', { count: 'exact', head: true }).eq('event_id', id).gte('created_at', todayStart.toISOString()),

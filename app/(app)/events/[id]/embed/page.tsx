@@ -4,6 +4,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { EmbedWidgetsClient } from '@/components/events/EmbedWidgetsClient';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 export async function generateMetadata() {
   return { title: 'Embed Widgets' };
@@ -23,7 +24,7 @@ export default async function EmbedPage({ params }: { params: Promise<{ id: stri
     .from('events')
     .select('id, name, slug, status')
     .eq('id', id)
-    .eq('user_id', user.id)
+    .in('user_id', await manageableOwnerIds(user.id))
     .single();
 
   if (!event) redirect('/dashboard');

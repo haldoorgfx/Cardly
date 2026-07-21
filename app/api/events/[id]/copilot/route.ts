@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { z } from 'zod';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -53,7 +54,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     .from('events')
     .select('*')
     .eq('id', params.id)
-    .eq('user_id', user.id)
+    .in('user_id', await manageableOwnerIds(user.id))
     .single();
   if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 

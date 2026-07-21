@@ -9,6 +9,7 @@ import { Suspense } from 'react';
 import { PeriodSelector } from '@/components/analytics/PeriodSelector';
 import { ExportButton } from '@/components/analytics/ExportButton';
 import { PageShell, PageHeader } from '@/components/dash';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 export const metadata: Metadata = { title: 'Analytics' };
 
@@ -85,7 +86,7 @@ export default async function AnalyticsPage({
   const { data: events } = await admin
     .from('events')
     .select('id, name, slug, status, download_count, updated_at')
-    .eq('user_id', user.id)
+    .in('user_id', await manageableOwnerIds(user.id))
     .order('updated_at', { ascending: false });
 
   const allEvents = events ?? [];

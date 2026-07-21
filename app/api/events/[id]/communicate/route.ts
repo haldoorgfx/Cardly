@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { Resend } from 'resend';
 import { wrap, esc } from '@/lib/email';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 import {
   filterUnsubscribed,
   unsubscribeTableExists,
@@ -45,7 +46,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     .from('events')
     .select('id, name')
     .eq('id', params.id)
-    .eq('user_id', user.id)
+    .in('user_id', await manageableOwnerIds(user.id))
     .single();
   if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 

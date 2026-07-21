@@ -8,6 +8,7 @@ import { redirect } from 'next/navigation';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { CateringClient } from '@/components/catering/CateringClient';
 import type { Meal } from '@/components/catering/CateringClient';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 interface Props { params: Promise<{ id: string }> }
 
@@ -27,7 +28,7 @@ export default async function CateringPage({ params }: Props) {
     .from('events')
     .select('id, name, slug')
     .eq('id', id)
-    .eq('user_id', user.id)
+    .in('user_id', await manageableOwnerIds(user.id))
     .single();
   if (!event) redirect('/dashboard');
 

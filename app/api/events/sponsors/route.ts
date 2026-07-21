@@ -4,6 +4,7 @@ import { randomUUID } from 'crypto';
 import { z } from 'zod';
 import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
 import { getUserPlan } from '@/lib/billing/can';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 // Optional sponsor contact email — trimmed; empty string coerces to undefined.
 const contactEmailSchema = z
@@ -49,7 +50,7 @@ export async function PATCH(req: Request) {
   // Verify ownership via event
   const { data: sponsor } = await admin.from('sponsors').select('id, event_id').eq('id', sponsor_id).single();
   if (!sponsor) return NextResponse.json({ error: 'Not found' }, { status: 404 });
-  const { data: event } = await admin.from('events').select('id').eq('id', sponsor.event_id).eq('user_id', user.id).single();
+  const { data: event } = await admin.from('events').select('id').eq('id', sponsor.event_id).in('user_id', await manageableOwnerIds(user.id)).single();
   if (!event) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const patch: Record<string, unknown> = {};
@@ -85,7 +86,7 @@ export async function DELETE(req: Request) {
 
   const { data: sponsor } = await admin.from('sponsors').select('id, event_id').eq('id', sponsorId).single();
   if (!sponsor) return NextResponse.json({ error: 'Not found' }, { status: 404 });
-  const { data: event } = await admin.from('events').select('id').eq('id', sponsor.event_id).eq('user_id', user.id).single();
+  const { data: event } = await admin.from('events').select('id').eq('id', sponsor.event_id).in('user_id', await manageableOwnerIds(user.id)).single();
   if (!event) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const { error } = await admin.from('sponsors').delete().eq('id', sponsorId);
@@ -118,7 +119,7 @@ export async function POST(req: Request) {
   const admin = createAdminClient() as any;
 
   // Verify ownership
-  const { data: event } = await admin.from('events').select('id').eq('id', event_id).eq('user_id', user.id).single();
+  const { data: event } = await admin.from('events').select('id').eq('id', event_id).in('user_id', await manageableOwnerIds(user.id)).single();
   if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
   const invite_token = randomUUID();

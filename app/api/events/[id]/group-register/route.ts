@@ -4,6 +4,7 @@ import { createAdminClient, createClient } from '@/lib/supabase/server';
 import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
 import { getUserPlan } from '@/lib/billing/can';
 import { PLANS } from '@/lib/billing/plans';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 interface Params { params: Promise<{ id: string }> }
 
@@ -42,7 +43,7 @@ export async function POST(req: NextRequest, { params }: Params) {
   const adminAny = admin as any;
 
   // Verify the caller owns the event
-  const { data: event } = await admin.from('events').select('id').eq('id', eventId).eq('user_id', user.id).single();
+  const { data: event } = await admin.from('events').select('id').eq('id', eventId).in('user_id', await manageableOwnerIds(user.id)).single();
   if (!event) return NextResponse.json({ error: 'Event not found' }, { status: 404 });
 
   // Every seat's ticket type must belong to THIS event — otherwise a caller

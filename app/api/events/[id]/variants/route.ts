@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { canCreateVariant } from '@/lib/billing/can';
 import { slugifyBase } from '@/lib/slug';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -12,7 +13,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   const admin = createAdminClient();
 
   // Verify the event belongs to the user
-  const { data: event } = await admin.from('events').select('id').eq('id', id).eq('user_id', user.id).single();
+  const { data: event } = await admin.from('events').select('id').eq('id', id).in('user_id', await manageableOwnerIds(user.id)).single();
   if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
   const { data, error } = await admin
@@ -34,7 +35,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   const admin = createAdminClient();
 
   // Verify the event belongs to the user
-  const { data: event } = await admin.from('events').select('id').eq('id', id).eq('user_id', user.id).single();
+  const { data: event } = await admin.from('events').select('id').eq('id', id).in('user_id', await manageableOwnerIds(user.id)).single();
   if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
   // Enforce per-plan variant limit

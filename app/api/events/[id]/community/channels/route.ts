@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { z } from 'zod';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 const CreateSchema = z.object({
   name: z.string().min(1).max(40),
@@ -16,7 +17,7 @@ async function assertOwnsEvent(eventId: string) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const admin = createAdminClient() as any;
   const { data: event } = await admin
-    .from('events').select('id').eq('id', eventId).eq('user_id', user.id).single();
+    .from('events').select('id').eq('id', eventId).in('user_id', await manageableOwnerIds(user.id)).single();
   if (!event) return { ok: false as const, status: 403, error: 'Not your event' };
   return { ok: true as const, admin };
 }

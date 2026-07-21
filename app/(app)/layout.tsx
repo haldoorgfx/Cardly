@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { getVisibleSections } from '@/lib/rbac/sections';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 import { AppShell } from '@/components/app/AppShell';
 
 // Server layout: resolves the user's role sections AND profile/plan BEFORE
@@ -17,7 +18,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const [sections, profileRes, countRes, settingsRes] = await Promise.all([
     getVisibleSections(user.id),
     admin.from('profiles').select('full_name, email, plan, role').eq('id', user.id).single(),
-    admin.from('events').select('id', { count: 'exact', head: true }).eq('user_id', user.id).neq('status', 'archived'),
+    // Team-aware: the nav count must match what the Events list actually shows,
+    // or a teammate sees "0 events" above a list of the team's events.
+    admin.from('events').select('id', { count: 'exact', head: true }).in('user_id', await manageableOwnerIds(user.id)).neq('status', 'archived'),
     admin.from('site_settings').select('logo_light_url').eq('id', 1).maybeSingle(),
   ]);
 

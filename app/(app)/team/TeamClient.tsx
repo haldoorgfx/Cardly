@@ -347,6 +347,11 @@ export function TeamClient({
   const [showInviteModal, setShowInviteModal] = useState(false);
 
   const isOwner = initialTeam ? initialTeam.owner_id === userId : false;
+  // Admins may invite and revoke invites (the API has always allowed it) — the
+  // buttons were hidden from them, and the revoke gear was shown to plain
+  // members who could only ever get a 403 back from it.
+  const myRole = members.find(m => m.user_id === userId)?.role;
+  const canManageInvites = isOwner || myRole === 'admin';
   const totalCount = members.length;
   const pendingCount = invites.length;
 
@@ -364,7 +369,22 @@ export function TeamClient({
     return roleFilter === 'All roles' || memberDisplayRole(m) === roleFilter;
   });
 
-  if (plan !== 'studio') {
+  // Show the roster to anyone who is actually on a team — including members on
+  // the free plan, who never pay for the seat themselves. Only pitch the upsell
+  // to accounts with no team at all.
+  if (!initialTeam) {
+    if (plan === 'studio') {
+      return (
+        <PageShell width="wide">
+          <PageHeader title="Team" subtitle="Manage collaborators and workspace access." />
+          <StatusState
+            kind="error"
+            title="Team unavailable"
+            message="We couldn't load your team workspace. Refresh the page, and contact support if it keeps happening."
+          />
+        </PageShell>
+      );
+    }
     return (
       <PageShell width="wide">
         <PageHeader
@@ -423,7 +443,7 @@ export function TeamClient({
           </>
         }
         actions={
-          isOwner && (
+          canManageInvites && (
             <button
               onClick={() => setShowInviteModal(true)}
               className="inline-flex items-center gap-1.5 h-9 px-5 rounded-lg text-[13.5px] font-semibold text-white bg-primary hover:opacity-95 transition shrink-0"
@@ -566,14 +586,15 @@ export function TeamClient({
             {/* Role */}
             <div><RoleBadge role={inv.role === 'admin' ? 'admin' : 'editor'} /></div>
 
-            {/* Event access */}
-            <div className="text-[13px] text-[#65736B]">1 event</div>
+            {/* Event access — a pending invite grants nothing until it's accepted */}
+            <div className="text-[13px] text-[#65736B]">—</div>
 
             {/* Status */}
             <div><StatusBadge status="pending" /></div>
 
             {/* Settings gear */}
             <div className="flex justify-center">
+              {canManageInvites && (
               <button
                 className="h-7 w-7 rounded-lg grid place-items-center text-[#65736B] hover:bg-[#E8EFEB] transition"
                 title="Revoke invite"
@@ -594,6 +615,7 @@ export function TeamClient({
               >
                 <Settings size={14} strokeWidth={1.8} />
               </button>
+              )}
             </div>
           </div>
         ))}

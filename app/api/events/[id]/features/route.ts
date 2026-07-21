@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { z } from 'zod';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 /**
  * Per-event feature toggles + custom menu.
@@ -66,7 +67,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 
   const admin = createAdminClient();
   const { data: event } = await admin
-    .from('events').select('id').eq('id', params.id).eq('user_id', user.id).single();
+    .from('events').select('id').eq('id', params.id).in('user_id', await manageableOwnerIds(user.id)).single();
   if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
   const update: Record<string, unknown> = { updated_at: new Date().toISOString() };

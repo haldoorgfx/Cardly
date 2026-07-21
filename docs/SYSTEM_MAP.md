@@ -257,7 +257,7 @@ Auth legend: **session** = `supabase.auth.getUser()` cookie; **owner** = session
 | `/api/keys`, `/api/keys/[id]` | GET/POST/DELETE | API key management (Studio) | session |
 | `/api/webhooks`, `/api/webhooks/[id]` | GET/POST/PATCH/DELETE | Organizer outbound webhook endpoints | session |
 | `/api/teams`, `/api/teams/[id]`, `.../members/[userId]`, `.../invites`, `.../invites/[inviteId]`, `/api/teams/invites/[token]` | various | Teams CRUD, member roles, invites, invite acceptance | session (+invite token) |
-| `/api/templates/published`, `/api/templates/use` | GET/POST | Card template gallery + apply | session |
+| `/api/templates/published` | GET | Card template gallery (admin-managed templates) | session |
 | `/api/brand`, `/api/brand/logo` | GET/PATCH/POST | Brand kit JSONB + logo upload | session |
 | `/api/white-label` | GET/POST | White-label settings (Studio) | session |
 | `/api/calendar/[pageId]` | GET | ICS file for event | none |

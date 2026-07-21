@@ -8,6 +8,7 @@ import { EntitlementsClient } from '@/components/tickets/EntitlementsClient';
 import type { Entitlement, EntitlementInput, TicketTypeLite } from '@/components/tickets/entitlement-model';
 import type { EntitlementType } from '@/components/tickets/EntitlementIcon';
 import { PageShell } from '@/components/dash';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 export async function generateMetadata() {
   return { title: 'Entitlements' };
@@ -81,7 +82,7 @@ export default async function EntitlementsPage({ params }: { params: Promise<{ i
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = createAdminClient() as any;
   const [{ data: event }, { data: eventPage }, { data: ents }, { data: ticketTypes }, { data: redemptions }] = await Promise.all([
-    db.from('events').select('id, name, slug').eq('id', id).eq('user_id', user.id).single(),
+    db.from('events').select('id, name, slug').eq('id', id).in('user_id', await manageableOwnerIds(user.id)).single(),
     db.from('event_pages').select('starts_at, ends_at').eq('event_id', id).maybeSingle(),
     db.from('entitlements').select('*').eq('event_id', id).order('created_at', { ascending: true }),
     db.from('ticket_types').select('id, name').eq('event_id', id).order('position'),

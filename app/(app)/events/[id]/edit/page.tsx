@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import nextDynamic from 'next/dynamic';
 import type { Variant } from '@/types/database';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 // Dynamic import keeps the 2,700-line CanvasEditor out of the initial JS bundle.
 // It only loads when the user actually navigates to the edit page.
@@ -34,7 +35,7 @@ export default async function EditEventPage({ params }: { params: Promise<{ id: 
     .from('events')
     .select('id, name, slug, status')
     .eq('id', id)
-    .eq('user_id', user.id)
+    .in('user_id', await manageableOwnerIds(user.id))
     .single();
 
   if (!event) redirect('/dashboard');

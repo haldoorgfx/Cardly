@@ -9,6 +9,7 @@ import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { EventAnalyticsView } from '@/components/events/EventAnalyticsView';
 import { getUserPlan } from '@/lib/billing/can';
 import { PageShell, PageHeader } from '@/components/dash';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 interface Props { params: Promise<{ id: string }> }
 
@@ -26,7 +27,7 @@ export default async function EventAnalyticsPage({ params }: Props) {
     .from('events')
     .select('id, name, slug')
     .eq('id', id)
-    .eq('user_id', user.id)
+    .in('user_id', await manageableOwnerIds(user.id))
     .single();
 
   if (!event) redirect('/dashboard');

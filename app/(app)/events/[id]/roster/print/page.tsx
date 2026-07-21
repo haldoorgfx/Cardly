@@ -7,6 +7,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { AgendaPrintTrigger } from '@/components/events/AgendaPrintTrigger';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 interface Props { params: Promise<{ id: string }> }
 
@@ -35,7 +36,7 @@ export default async function RosterPrintPage({ params }: Props) {
 
   const admin = createAdminClient();
   const [{ data: event }, { data: regs }, { data: ticketTypes }] = await Promise.all([
-    admin.from('events').select('id, name').eq('id', id).eq('user_id', user.id).single(),
+    admin.from('events').select('id, name').eq('id', id).in('user_id', await manageableOwnerIds(user.id)).single(),
     admin.from('registrations').select('id, attendee_name, status, amount_paid, currency, created_at, ticket_type_id').eq('event_id', id).order('created_at', { ascending: true }),
     admin.from('ticket_types').select('id, name, price, currency').eq('event_id', id),
   ]);

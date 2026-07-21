@@ -7,6 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { escapeCsvCell } from '@/lib/csv';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 export async function GET(
   _req: NextRequest,
@@ -23,7 +24,7 @@ export async function GET(
     .from('events')
     .select('id, name')
     .eq('id', params.id)
-    .eq('user_id', user.id)
+    .in('user_id', await manageableOwnerIds(user.id))
     .single();
 
   if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });

@@ -5,6 +5,7 @@ import { isNotifAllowed } from '@/lib/notifications/prefs';
 import { z } from 'zod';
 import { slugifyBase } from '@/lib/slug';
 import type { Database } from '@/types/database';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 // ── Validation ────────────────────────────────────────────────────────────────
 
@@ -117,7 +118,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     .from('events')
     .select('id')
     .eq('id', params.id)
-    .eq('user_id', user.id)
+    .in('user_id', await manageableOwnerIds(user.id))
     .single();
   if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 

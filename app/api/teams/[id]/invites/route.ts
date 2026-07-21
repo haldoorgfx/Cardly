@@ -49,20 +49,40 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   ) as 'free' | 'pro' | 'studio';
   const seatLimit = PLANS[plan].teamSeats;
 
+  const inviteEmail = email.trim().toLowerCase();
+
+  // Already on the team? Re-inviting them would burn a seat on an invite that
+  // acceptInvite() rejects anyway ("You're already a member of this team.").
+  if (members.some(m => m.profile.email?.toLowerCase() === inviteEmail)) {
+    return NextResponse.json({ error: 'That person is already on your team.' }, { status: 409 });
+  }
+
   const invites = await getTeamInvites(params.id);
-  const pendingCount = invites.filter(i => !i.accepted_at).length;
-  if (members.length + pendingCount >= seatLimit) {
+  // EXPIRED invites must not hold a seat. getTeamInvites() only filters on
+  // accepted_at, so every invite that timed out unaccepted kept counting
+  // forever — a Studio team that sent 10 invites nobody clicked could never
+  // invite again, with no way to free the seats except revoking one by one.
+  const now = Date.now();
+  const livePending = invites.filter(
+    i => !i.accepted_at && new Date(i.expires_at).getTime() > now
+  );
+
+  if (livePending.some(i => i.email.toLowerCase() === inviteEmail)) {
+    return NextResponse.json({ error: 'That email already has a pending invite.' }, { status: 409 });
+  }
+
+  if (members.length + livePending.length >= seatLimit) {
     return NextResponse.json({ error: `Seat limit reached (${seatLimit} seats on ${plan} plan).` }, { status: 402 });
   }
 
-  const invite = await createInvite(params.id, email.trim().toLowerCase(), role as 'admin' | 'member', user.id);
+  const invite = await createInvite(params.id, inviteEmail, role as 'admin' | 'member', user.id);
 
   // Send invite email (fire-and-forget)
   const { data: inviterProfile } = await supabase.from('profiles').select('full_name, email').eq('id', user.id).single();
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? '';
   // Awaited — the invite link only reaches the teammate by email.
   await sendTeamInviteEmail({
-    to: email.trim().toLowerCase(),
+    to: inviteEmail,
     teamName: team.name,
     inviterName: inviterProfile?.full_name ?? inviterProfile?.email ?? 'Someone',
     acceptUrl: `${appUrl}/team/invite/${invite.token}`,

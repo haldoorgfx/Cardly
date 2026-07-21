@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { createNotification } from '@/lib/notifications';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 interface AttendeeRow {
   attendee_name: string;
@@ -19,7 +20,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     .from('events')
     .select('id')
     .eq('id', params.id)
-    .eq('user_id', user.id)
+    .in('user_id', await manageableOwnerIds(user.id))
     .single();
   if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 

@@ -6,6 +6,7 @@ import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import Link from 'next/link';
 import { ChevronLeft, CalendarDays, Star, ExternalLink } from 'lucide-react';
 import { PageShell } from '@/components/dash';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 interface Props { params: Promise<{ id: string; speakerId: string }> }
 
@@ -37,7 +38,7 @@ export default async function SpeakerDetailPage({ params }: Props) {
 
   const admin = createAdminClient();
   const [{ data: event }, { data: speaker }] = await Promise.all([
-    admin.from('events').select('id, name, slug').eq('id', id).eq('user_id', user.id).single(),
+    admin.from('events').select('id, name, slug').eq('id', id).in('user_id', await manageableOwnerIds(user.id)).single(),
     admin.from('speakers').select('*').eq('id', speakerId).eq('event_id', id).single(),
   ]);
 

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 // GET — list pending applications
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -12,7 +13,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
   const admin = createAdminClient();
 
   // Verify ownership
-  const { data: event } = await admin.from('events').select('id').eq('id', id).eq('user_id', user.id).single();
+  const { data: event } = await admin.from('events').select('id').eq('id', id).in('user_id', await manageableOwnerIds(user.id)).single();
   if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
   // Registrations with status = 'pending_approval'
@@ -42,7 +43,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const admin = createAdminClient();
 
   // Verify ownership of event
-  const { data: event } = await admin.from('events').select('id').eq('id', id).eq('user_id', user.id).single();
+  const { data: event } = await admin.from('events').select('id').eq('id', id).in('user_id', await manageableOwnerIds(user.id)).single();
   if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
   if (action === 'approve') {

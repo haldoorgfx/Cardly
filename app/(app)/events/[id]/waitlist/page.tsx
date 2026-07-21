@@ -4,6 +4,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { WaitlistClient } from '@/components/events/WaitlistClient';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 interface Props { params: Promise<{ id: string }> }
 
@@ -20,7 +21,7 @@ export default async function WaitlistPage({ params }: Props) {
   const db = createAdminClient() as any;
 
   const { data: event } = await db
-    .from('events').select('id, name').eq('id', id).eq('user_id', user.id).single();
+    .from('events').select('id, name').eq('id', id).in('user_id', await manageableOwnerIds(user.id)).single();
   if (!event) redirect('/dashboard');
 
   // WHY this reads waitlist_entries and not registrations.status='waitlisted':

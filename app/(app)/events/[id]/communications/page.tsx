@@ -10,6 +10,7 @@ import { redirect } from 'next/navigation';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { CommunicationsView } from '@/components/events/CommunicationsView';
 import { getUserPlan } from '@/lib/billing/can';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 export default async function CommunicationsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id: _ref } = await params;
@@ -22,7 +23,7 @@ export default async function CommunicationsPage({ params }: { params: Promise<{
 
   const admin = createAdminClient();
   const [{ data: event }, { data: page }, { count: registrantCount }, plan] = await Promise.all([
-    admin.from('events').select('id, name, slug').eq('id', id).eq('user_id', user.id).single(),
+    admin.from('events').select('id, name, slug').eq('id', id).in('user_id', await manageableOwnerIds(user.id)).single(),
     admin.from('event_pages').select('starts_at, venue_name, description').eq('event_id', id).maybeSingle(),
     admin.from('registrations').select('id', { count: 'exact', head: true })
       .eq('event_id', id).in('status', ['confirmed', 'checked_in']),

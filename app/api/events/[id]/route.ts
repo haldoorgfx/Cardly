@@ -4,6 +4,7 @@ import { createNotification } from '@/lib/notifications';
 import { isNotifAllowed } from '@/lib/notifications/prefs';
 import { fireWebhooks } from '@/lib/webhooks';
 import { slugifyBase } from '@/lib/slug';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -16,7 +17,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     .from('events')
     .select('*, event_variants(id, variant_name, variant_slug, background_url, background_width, background_height, zones, position, created_at)')
     .eq('id', id)
-    .eq('user_id', user.id)
+    .in('user_id', await manageableOwnerIds(user.id))
     .single();
 
   if (error || !data) return NextResponse.json({ error: 'Not found' }, { status: 404 });
@@ -57,7 +58,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       .from('events')
       .select('status, slug')
       .eq('id', id)
-      .eq('user_id', user.id)
+      .in('user_id', await manageableOwnerIds(user.id))
       .single();
     if (current?.status === 'published' && current.slug !== normalized) {
       return NextResponse.json(
@@ -73,14 +74,14 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     .from('events')
     .select('status')
     .eq('id', id)
-    .eq('user_id', user.id)
+    .in('user_id', await manageableOwnerIds(user.id))
     .maybeSingle();
   const { data, error } = await admin
     .from('events')
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .update(patch as any)
     .eq('id', id)
-    .eq('user_id', user.id)
+    .in('user_id', await manageableOwnerIds(user.id))
     .select()
     .single();
 
@@ -187,7 +188,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     .from('events')
     .select('id')
     .eq('id', id)
-    .eq('user_id', user.id)
+    .in('user_id', await manageableOwnerIds(user.id))
     .single();
   if (!owned) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
@@ -223,7 +224,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     .from('events')
     .delete()
     .eq('id', id)
-    .eq('user_id', user.id);
+    .in('user_id', await manageableOwnerIds(user.id));
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 

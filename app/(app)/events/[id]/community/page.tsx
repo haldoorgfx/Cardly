@@ -4,6 +4,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { OrganizerCommunityClient } from '@/components/events/OrganizerCommunityClient';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 export async function generateMetadata() {
   return { title: 'Community' };
@@ -21,7 +22,7 @@ export default async function CommunityPage({ params }: { params: Promise<{ id: 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = createAdminClient() as any;
   const [{ data: event }, { data: channels }] = await Promise.all([
-    db.from('events').select('id, name, slug').eq('id', id).eq('user_id', user.id).single(),
+    db.from('events').select('id, name, slug').eq('id', id).in('user_id', await manageableOwnerIds(user.id)).single(),
     db.from('community_channels').select('id, name, description, is_pinned, created_at').eq('event_id', id).order('created_at'),
   ]);
 

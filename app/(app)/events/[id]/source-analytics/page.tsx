@@ -4,6 +4,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { SourceAnalyticsClient } from '@/components/events/SourceAnalyticsClient';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 export async function generateMetadata() {
   return { title: 'Source Analytics' };
@@ -20,7 +21,7 @@ export default async function SourceAnalyticsPage({ params }: { params: Promise<
 
   const admin = createAdminClient();
   const [{ data: event }, { data: eventPage }] = await Promise.all([
-    admin.from('events').select('id, name, slug').eq('id', id).eq('user_id', user.id).single(),
+    admin.from('events').select('id, name, slug').eq('id', id).in('user_id', await manageableOwnerIds(user.id)).single(),
     admin.from('event_pages').select('custom_slug').eq('event_id', id).maybeSingle(),
   ]);
   if (!event) redirect('/dashboard');

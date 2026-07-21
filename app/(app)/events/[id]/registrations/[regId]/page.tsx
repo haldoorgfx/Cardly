@@ -7,6 +7,7 @@ import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { ChevronLeft, CheckCircle2, CheckCircle, Scan } from 'lucide-react';
 import { RegistrationDetailActions } from '@/components/events/RegistrationDetailActions';
 import { PageShell } from '@/components/dash';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 interface Props { params: Promise<{ id: string; regId: string }> }
 
@@ -52,7 +53,7 @@ export default async function AttendeeDetailPage({ params }: Props) {
 
   const admin = createAdminClient();
   const [{ data: event }, { data: reg }, { data: formFields }] = await Promise.all([
-    admin.from('events').select('id, name, slug').eq('id', id).eq('user_id', user.id).single(),
+    admin.from('events').select('id, name, slug').eq('id', id).in('user_id', await manageableOwnerIds(user.id)).single(),
     admin.from('registrations')
       .select('*, ticket_types(name, price, currency)')
       .eq('id', regId)

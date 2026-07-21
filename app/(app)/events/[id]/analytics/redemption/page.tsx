@@ -8,6 +8,7 @@ import { redirect } from 'next/navigation';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { RedemptionDashboard } from '@/components/analytics/RedemptionDashboard';
 import { computeRedemptionStats, type RedemptionStatRow } from '@/lib/entitlements/redemptionStats';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 interface Props { params: Promise<{ id: string }> }
 
@@ -30,7 +31,7 @@ export default async function RedemptionDashboardPage({ params }: Props) {
     .from('events')
     .select('id, name')
     .eq('id', id)
-    .eq('user_id', user.id)
+    .in('user_id', await manageableOwnerIds(user.id))
     .single();
   if (!event) redirect('/dashboard');
 

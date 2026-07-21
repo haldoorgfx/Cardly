@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -10,7 +11,7 @@ export async function PATCH(req: Request, { params }: Params) {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const admin = createAdminClient();
-  const { data: event } = await admin.from('events').select('id').eq('id', id).eq('user_id', user.id).single();
+  const { data: event } = await admin.from('events').select('id').eq('id', id).in('user_id', await manageableOwnerIds(user.id)).single();
   if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
   const { photoId, status } = await req.json() as { photoId: string; status: string };

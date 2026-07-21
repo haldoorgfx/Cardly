@@ -7,6 +7,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { DownloadsHub } from '@/components/events/DownloadsHub';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 interface Props { params: Promise<{ id: string }> }
 
@@ -27,7 +28,7 @@ export default async function DownloadsPage({ params }: Props) {
     { data: ticketTypes },
     { data: tracks },
   ] = await Promise.all([
-    admin.from('events').select('id, name, slug').eq('id', id).eq('user_id', user.id).single(),
+    admin.from('events').select('id, name, slug').eq('id', id).in('user_id', await manageableOwnerIds(user.id)).single(),
     admin.from('registrations').select('id, attendee_name, status, amount_paid, currency, created_at, ticket_type_id').eq('event_id', id),
     admin.from('sessions').select('id, title, starts_at, ends_at, session_type, room, track_id, session_speakers(speakers(name))').eq('event_id', id).order('starts_at', { ascending: true }),
     admin.from('ticket_types').select('id, name, price, currency').eq('event_id', id),

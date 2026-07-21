@@ -9,6 +9,7 @@ import { getVisibleSections } from '@/lib/rbac/sections';
 import { formatRevenue } from '@/lib/events/format';
 import { Plus, Users, ScanLine, ArrowRight, Mic, Briefcase, ShieldCheck, Compass, IdCard, Heart } from 'lucide-react';
 import { PageShell, PageHeader, StatRow, EmptyState, PrimaryButton } from '@/components/dash';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 export const metadata: Metadata = { title: 'Home' };
 
@@ -61,7 +62,7 @@ export default async function HomePage() {
 
   let org: OrgData | null = null;
   if (sections.organizing) {
-    const { data: events } = await admin.from('events').select('id, name, slug, status').eq('user_id', user.id);
+    const { data: events } = await admin.from('events').select('id, name, slug, status').in('user_id', await manageableOwnerIds(user.id));
     const allEvents = (events ?? []) as { id: string; name: string; slug: string; status: string }[];
     const eventIds = allEvents.map((e) => e.id);
     let totalRegistrations = 0, totalRevenue = 0, totalCheckedIn = 0;

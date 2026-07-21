@@ -1,6 +1,7 @@
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { ownedSpeaker } from '@/lib/rbac/ownership';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 export async function PATCH(
   req: Request,
@@ -29,7 +30,7 @@ export async function PATCH(
         .from('events')
         .select('id')
         .eq('id', speakerRow.event_id)
-        .eq('user_id', user.id)
+        .in('user_id', await manageableOwnerIds(user.id))
         .maybeSingle();
       allowed = Boolean(event);
     }

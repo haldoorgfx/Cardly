@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { generateRevenuePDF } from '@/lib/pdf/revenue-pdf';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 interface Params { params: Promise<{ id: string }> }
 
@@ -16,7 +17,7 @@ export async function GET(_req: NextRequest, { params }: Params) {
 
     const admin = createAdminClient();
     const [{ data: event }, { data: regs }, { data: ticketTypes }] = await Promise.all([
-      admin.from('events').select('id, name').eq('id', id).eq('user_id', user.id).single(),
+      admin.from('events').select('id, name').eq('id', id).in('user_id', await manageableOwnerIds(user.id)).single(),
       admin.from('registrations')
            .select('id, status, amount_paid, currency, ticket_type_id')
            .eq('event_id', id),

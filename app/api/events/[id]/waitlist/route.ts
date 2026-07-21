@@ -6,6 +6,7 @@ import { sendWaitlistConfirmEmail, sendWaitlistInviteEmail } from '@/lib/registr
 import { resolveAccountIdByEmail } from '@/lib/rbac/assign';
 import { escapeLikePattern } from '@/lib/search/filter';
 import { isNotifAllowed } from '@/lib/notifications/prefs';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 export const dynamic = 'force-dynamic';
 
@@ -174,7 +175,7 @@ export async function PATCH(
     .from('events')
     .select('id')
     .eq('id', params.id)
-    .eq('user_id', user.id)
+    .in('user_id', await manageableOwnerIds(user.id))
     .maybeSingle();
   if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 

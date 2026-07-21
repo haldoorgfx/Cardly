@@ -9,6 +9,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { EventSettingsView } from '@/components/events/EventSettingsView';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 export default async function EventSettingsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id: _ref } = await params;
@@ -24,7 +25,7 @@ export default async function EventSettingsPage({ params }: { params: Promise<{ 
     .from('events')
     .select('id, name, slug, status, checkout_require_approval, checkout_show_remaining')
     .eq('id', id)
-    .eq('user_id', user.id)
+    .in('user_id', await manageableOwnerIds(user.id))
     .single();
 
   if (!event) redirect('/dashboard');

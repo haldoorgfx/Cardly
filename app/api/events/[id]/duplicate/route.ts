@@ -3,6 +3,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { upsertEventRole } from '@/lib/rbac/assign';
 import { generateSlug } from '@/lib/slug';
 import { canCreateEvent } from '@/lib/billing/can';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 export async function POST(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -24,7 +25,7 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
     .from('events')
     .select('*')
     .eq('id', id)
-    .eq('user_id', user.id)
+    .in('user_id', await manageableOwnerIds(user.id))
     .single();
 
   if (srcErr || !src) return NextResponse.json({ error: 'Event not found' }, { status: 404 });

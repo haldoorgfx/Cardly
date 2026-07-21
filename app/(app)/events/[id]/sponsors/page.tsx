@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { getUserPlan } from '@/lib/billing/can';
 import { SponsorsClient } from '@/components/events/SponsorsClient';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 interface Props { params: Promise<{ id: string }> }
 
@@ -27,7 +28,7 @@ export default async function SponsorsPage({ params }: Props) {
   const admin = createAdminClient() as any;
 
   const { data: event } = await admin
-    .from('events').select('id, name, slug').eq('id', id).eq('user_id', user.id).single();
+    .from('events').select('id, name, slug').eq('id', id).in('user_id', await manageableOwnerIds(user.id)).single();
   if (!event) redirect('/dashboard');
 
   const { data: sponsors } = await admin

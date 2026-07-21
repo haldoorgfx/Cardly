@@ -13,6 +13,7 @@ import type { Zone, Variant } from '@/types/database';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { RoleBand } from '@/components/workspace/RoleBand';
 import { resolveEventRoles, roleLinks } from '@/lib/workspace/eventRoles';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 function timeAgo(dateStr: string) {
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -69,7 +70,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
     { count: ticketTypeCount },
     { data: profile },
   ] = await Promise.all([
-    admin.from('events').select('id, name, slug, status, view_count, download_count, user_id, created_at, event_pages(starts_at, ends_at, venue_name, is_online)').eq('id', id).eq('user_id', user.id).single(),
+    admin.from('events').select('id, name, slug, status, view_count, download_count, user_id, created_at, event_pages(starts_at, ends_at, venue_name, is_online)').eq('id', id).in('user_id', await manageableOwnerIds(user.id)).single(),
     admin.from('event_variants').select('id, variant_name, variant_slug, background_url, background_width, background_height, zones, position').eq('event_id', id).order('position', { ascending: true }),
     admin.from('registrations').select('id, attendee_name, status, created_at').eq('event_id', id).order('created_at', { ascending: false }).limit(5),
     admin.from('registrations').select('amount_paid, currency').eq('event_id', id).in('status', ['confirmed', 'checked_in']),

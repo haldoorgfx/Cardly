@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 function fmtDate(iso: string) {
   return new Date(iso).toLocaleString('en-US', {
@@ -84,7 +85,7 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
 
   const admin = createAdminClient();
   // Verify ownership before returning all fields (including access_code)
-  const { data: event } = await admin.from('events').select('id').eq('id', params.id).eq('user_id', user.id).single();
+  const { data: event } = await admin.from('events').select('id').eq('id', params.id).in('user_id', await manageableOwnerIds(user.id)).single();
   if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
   const { data, error } = await admin
@@ -108,7 +109,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
   const admin = createAdminClient();
   const [{ data: event }, { data: ep }, { data: existing }] = await Promise.all([
-    admin.from('events').select('id').eq('id', params.id).eq('user_id', user.id).single(),
+    admin.from('events').select('id').eq('id', params.id).in('user_id', await manageableOwnerIds(user.id)).single(),
     admin.from('event_pages').select('starts_at, ends_at, max_capacity').eq('event_id', params.id).maybeSingle(),
     admin.from('ticket_types').select('id, quantity').eq('event_id', params.id).not('quantity', 'is', null),
   ]);
@@ -151,7 +152,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
   const admin = createAdminClient();
   const [{ data: event }, { data: ep }, { data: existing }, { data: current }] = await Promise.all([
-    admin.from('events').select('id').eq('id', params.id).eq('user_id', user.id).single(),
+    admin.from('events').select('id').eq('id', params.id).in('user_id', await manageableOwnerIds(user.id)).single(),
     admin.from('event_pages').select('starts_at, ends_at, max_capacity').eq('event_id', params.id).maybeSingle(),
     admin.from('ticket_types').select('id, quantity').eq('event_id', params.id).not('quantity', 'is', null),
     admin.from('ticket_types').select('*').eq('id', ticketId).single(),
@@ -200,7 +201,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
 
   const admin = createAdminClient();
   const { data: event } = await admin
-    .from('events').select('id').eq('id', params.id).eq('user_id', user.id).single();
+    .from('events').select('id').eq('id', params.id).in('user_id', await manageableOwnerIds(user.id)).single();
   if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
   // registrations.ticket_type_id has a plain FK (no ON DELETE action), so the

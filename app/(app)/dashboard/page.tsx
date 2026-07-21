@@ -12,6 +12,7 @@ import { CalendarDays, Ticket, Users, ScanLine, Plus, IdCard } from 'lucide-reac
 import { PLANS, type Plan } from '@/lib/billing/plans';
 import { formatRevenue } from '@/lib/events/format';
 import { PageShell, PageHeader } from '@/components/dash';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 export default async function DashboardPage() {
   const supabase = createClient();
@@ -22,7 +23,7 @@ export default async function DashboardPage() {
   const [{ data: events, error: eventsError }, { data: profile, error: profileError }] = await Promise.all([
     admin.from('events')
       .select('id, name, slug, status, view_count, download_count, updated_at, event_pages(starts_at, venue_name), event_variants(id, background_url, position)')
-      .eq('user_id', user.id)
+      .in('user_id', await manageableOwnerIds(user.id))
       .order('updated_at', { ascending: false }),
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (admin as any).from('profiles').select('plan, full_name, onboarding_completed').eq('id', user.id).single(),

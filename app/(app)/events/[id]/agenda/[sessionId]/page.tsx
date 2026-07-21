@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { ChevronLeft, Clock, MapPin } from 'lucide-react';
 import { PageShell } from '@/components/dash';
 import { formatZonedTime, formatZonedDayLabel } from '@/lib/events/format';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 interface Props { params: Promise<{ id: string; sessionId: string }> }
 
@@ -39,7 +40,7 @@ export default async function SessionDetailPage({ params }: Props) {
 
   const admin = createAdminClient();
   const [{ data: event }, { data: eventPage }, { data: session }] = await Promise.all([
-    admin.from('events').select('id, name, slug').eq('id', id).eq('user_id', user.id).single(),
+    admin.from('events').select('id, name, slug').eq('id', id).in('user_id', await manageableOwnerIds(user.id)).single(),
     admin.from('event_pages').select('timezone').eq('event_id', id).maybeSingle(),
     admin.from('sessions')
       .select('*, tracks(id, name, color), session_speakers(speaker_id, position, speakers(id, name, photo_url, company, role))')

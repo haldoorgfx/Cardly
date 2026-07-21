@@ -4,6 +4,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { PhotoWallAdmin } from '@/components/events/PhotoWallAdmin';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 export async function generateMetadata() {
   return { title: 'Photo Wall' };
@@ -19,7 +20,7 @@ export default async function PhotoWallPage({ params }: { params: Promise<{ id: 
   if (!user) redirect('/login');
 
   const admin = createAdminClient();
-  const { data: event } = await admin.from('events').select('id, name').eq('id', id).eq('user_id', user.id).single();
+  const { data: event } = await admin.from('events').select('id, name').eq('id', id).in('user_id', await manageableOwnerIds(user.id)).single();
   if (!event) redirect('/dashboard');
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

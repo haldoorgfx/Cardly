@@ -51,13 +51,19 @@ function throwOnError<T>(data: T | null, error: { message: string } | null): T {
 export async function getMyTeam(userId: string): Promise<Team | null> {
   const db = createAdminClient();
 
-  // Check direct membership first (covers owner + member)
-  const { data: membership } = await (db as any)
+  // Check direct membership first (covers owner + member).
+  // Deliberately NOT maybeSingle(): that errors out on more than one row, so a
+  // single stray duplicate membership made this return null and the account
+  // silently lost access to every team it belonged to (and /team would then
+  // auto-provision yet another one). Take the earliest membership instead.
+  const { data: memberships } = await (db as any)
     .from("team_members")
     .select("team_id")
     .eq("user_id", userId)
-    .maybeSingle();
+    .order("joined_at", { ascending: true })
+    .limit(1);
 
+  const membership = memberships?.[0];
   if (!membership) return null;
 
   const { data, error } = await (db as any)
@@ -125,6 +131,34 @@ export async function getTeamInvites(teamId: string): Promise<TeamInvite[]> {
  */
 export async function createTeam(ownerId: string, name: string): Promise<Team> {
   const db = createAdminClient();
+
+  // 0. Reuse a team this account already owns. Callers decide whether to create
+  // by asking getMyTeam(), which resolves through team_members — so an owner
+  // whose membership row went missing (RLS let admins delete it before
+  // migration 104) looked team-less and got a SECOND teams row every time
+  // /team was rendered, orphaning the original team and its members.
+  const { data: ownedTeams } = await (db as any)
+    .from("teams")
+    .select("id, owner_id, name, created_at")
+    .eq("owner_id", ownerId)
+    .order("created_at", { ascending: true })
+    .limit(1);
+
+  const existingTeam = ownedTeams?.[0] as Team | undefined;
+  if (existingTeam) {
+    // Repair the missing membership row rather than making a new team.
+    await (db as any)
+      .from("team_members")
+      .upsert(
+        { team_id: existingTeam.id, user_id: ownerId, role: "owner" },
+        { onConflict: "team_id,user_id" }
+      );
+    await (db as any)
+      .from("profiles")
+      .update({ team_id: existingTeam.id })
+      .eq("id", ownerId);
+    return existingTeam;
+  }
 
   // 1. Create the team row
   const { data: team, error: teamError } = await (db as any)
@@ -223,28 +257,68 @@ export async function acceptInvite(
     );
   }
 
-  // 2. Add the user as a team member
+  // 2. CLAIM the invite before doing anything else. The accepted_at check above
+  // is a read; marking it accepted used to be the LAST step, so two requests
+  // carrying the same token both passed the read and both got a seat — the
+  // invite was never actually single-use. Putting the precondition in the
+  // UPDATE's WHERE clause makes the transition atomic: only the first caller
+  // gets a row back, everyone after it sees zero rows and is rejected.
+  const { data: claimed, error: claimError } = await (db as any)
+    .from("team_invites")
+    .update({ accepted_at: new Date().toISOString() })
+    .eq("id", row.id)
+    .is("accepted_at", null)
+    .select("id");
+
+  if (claimError) throw new Error(claimError.message);
+  if (!claimed || claimed.length === 0) {
+    throw new Error("Invite has already been accepted.");
+  }
+
+  // Release the claim if we cannot finish — otherwise a transient failure burns
+  // the invite permanently and the owner has to issue a fresh one.
+  async function releaseClaim() {
+    try {
+      await (db as any)
+        .from("team_invites")
+        .update({ accepted_at: null })
+        .eq("id", row.id);
+    } catch {
+      /* best-effort */
+    }
+  }
+
+  // 3. Add the user as a team member
   const { error: memberError } = await (db as any)
     .from("team_members")
     .insert({ team_id: row.team_id, user_id: userId, role: invite.role ?? "member" });
 
-  if (memberError) throw new Error(memberError.message);
+  if (memberError) {
+    await releaseClaim();
+    throw new Error(memberError.message);
+  }
 
-  // 3. Update profiles.team_id
+  // 4. Update profiles.team_id
   const { error: profileError } = await (db as any)
     .from("profiles")
     .update({ team_id: row.team_id })
     .eq("id", userId);
 
-  if (profileError) throw new Error(profileError.message);
-
-  // 4. Mark the invite as accepted
-  const { error: acceptError } = await (db as any)
-    .from("team_invites")
-    .update({ accepted_at: new Date().toISOString() })
-    .eq("id", row.id);
-
-  if (acceptError) throw new Error(acceptError.message);
+  if (profileError) {
+    // Roll the membership back too, so the account is not left half-joined:
+    // on the team roster but with no team_id, which getMyTeam cannot reconcile.
+    try {
+      await (db as any)
+        .from("team_members")
+        .delete()
+        .eq("team_id", row.team_id)
+        .eq("user_id", userId);
+    } catch {
+      /* best-effort */
+    }
+    await releaseClaim();
+    throw new Error(profileError.message);
+  }
 
   return { teamId: row.team_id };
 }

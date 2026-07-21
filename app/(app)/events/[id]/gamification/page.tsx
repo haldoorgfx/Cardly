@@ -7,6 +7,7 @@ import { getUserPlan } from '@/lib/billing/can';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { PageShell, PageHeader } from '@/components/dash';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 interface Props { params: Promise<{ id: string }> }
 
@@ -32,7 +33,7 @@ export default async function GamificationPage({ params }: Props) {
   if (PLAN_RANK[plan] < PLAN_RANK.pro) redirect(`/events/${_ev.slug}`);
 
   const admin = createAdminClient();
-  const { data: event } = await admin.from('events').select('id, name, slug').eq('id', id).eq('user_id', user.id).single();
+  const { data: event } = await admin.from('events').select('id, name, slug').eq('id', id).in('user_id', await manageableOwnerIds(user.id)).single();
   if (!event) redirect('/dashboard');
 
   // Aggregate points per registration — mirrors app/api/events/[id]/leaderboard/route.ts

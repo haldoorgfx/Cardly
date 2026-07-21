@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { generateAgendaPDF } from '@/lib/pdf/agenda-pdf';
 import { formatZonedDayLabel, groupSessionsByZonedDay } from '@/lib/events/format';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 interface Params { params: Promise<{ id: string }> }
 
@@ -50,7 +51,7 @@ export async function GET(_req: NextRequest, { params }: Params) {
 
     const admin = createAdminClient();
     const [{ data: event }, { data: eventPage }, { data: sessions }] = await Promise.all([
-      admin.from('events').select('id, name').eq('id', id).eq('user_id', user.id).single(),
+      admin.from('events').select('id, name').eq('id', id).in('user_id', await manageableOwnerIds(user.id)).single(),
       admin.from('event_pages').select('timezone').eq('event_id', id).maybeSingle(),
       admin.from('sessions')
            .select('id, title, session_type, starts_at, ends_at, room, session_speakers(speakers(name))')

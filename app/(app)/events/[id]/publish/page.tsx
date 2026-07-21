@@ -4,6 +4,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import PublishClient from './PublishClient';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 export default async function PublishPage({ params }: { params: Promise<{ id: string }> }) {
   const { id: _ref } = await params;
@@ -20,7 +21,7 @@ export default async function PublishPage({ params }: { params: Promise<{ id: st
     .from('events')
     .select('id, name, slug, status, view_count')
     .eq('id', id)
-    .eq('user_id', user.id)
+    .in('user_id', await manageableOwnerIds(user.id))
     .single();
 
   if (!event) redirect('/dashboard');

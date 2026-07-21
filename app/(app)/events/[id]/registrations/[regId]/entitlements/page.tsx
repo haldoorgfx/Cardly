@@ -18,6 +18,7 @@ import type {
 import type { EntitlementType } from '@/components/tickets/EntitlementIcon';
 import type { RedemptionLimit } from '@/components/tickets/entitlement-model';
 import { escapeLikePattern } from '@/lib/search/filter';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 interface Props { params: Promise<{ id: string; regId: string }> }
 
@@ -77,7 +78,7 @@ export default async function AttendeeEntitlementsPage({ params }: Props) {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = createAdminClient() as any;
-  const { data: event } = await db.from('events').select('id, name, slug').eq('id', id).eq('user_id', user.id).single();
+  const { data: event } = await db.from('events').select('id, name, slug').eq('id', id).in('user_id', await manageableOwnerIds(user.id)).single();
   if (!event) redirect('/dashboard');
 
   const { data: reg } = await db

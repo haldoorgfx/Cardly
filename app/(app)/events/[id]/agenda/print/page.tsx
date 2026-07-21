@@ -8,6 +8,7 @@ import { redirect } from 'next/navigation';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { AgendaPrintTrigger } from '@/components/events/AgendaPrintTrigger';
 import { formatZonedTime, formatZonedDayLabel, groupSessionsByZonedDay } from '@/lib/events/format';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 interface Props { params: Promise<{ id: string }> }
 
@@ -32,7 +33,7 @@ export default async function AgendaPrintPage({ params }: Props) {
 
   const admin = createAdminClient();
   const [{ data: event }, { data: eventPage }, { data: sessions }, { data: tracks }] = await Promise.all([
-    admin.from('events').select('id, name').eq('id', id).eq('user_id', user.id).single(),
+    admin.from('events').select('id, name').eq('id', id).in('user_id', await manageableOwnerIds(user.id)).single(),
     admin.from('event_pages').select('timezone').eq('event_id', id).maybeSingle(),
     admin.from('sessions').select('id, title, starts_at, ends_at, session_type, room, track_id, session_speakers(speakers(name))').eq('event_id', id).order('starts_at', { ascending: true }),
     admin.from('tracks').select('id, name').eq('event_id', id),

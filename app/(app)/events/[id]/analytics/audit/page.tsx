@@ -9,6 +9,7 @@ import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { AuditLogClient } from '@/components/entitlements/AuditLogClient';
 import type { AuditRow, StaffOption } from '@/components/entitlements/audit-model';
 import type { EntitlementType } from '@/components/tickets/EntitlementIcon';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -30,7 +31,7 @@ export default async function AuditLogPage({ params, searchParams }: Props) {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const admin = createAdminClient() as any;
-  const { data: event } = await admin.from('events').select('id, name, slug').eq('id', id).eq('user_id', user.id).single();
+  const { data: event } = await admin.from('events').select('id, name, slug').eq('id', id).in('user_id', await manageableOwnerIds(user.id)).single();
   if (!event) redirect('/dashboard');
 
   // Entitlement options for the filter dropdown.

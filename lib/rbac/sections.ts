@@ -20,6 +20,7 @@ import { createAdminClient } from '@/lib/supabase/server';
 import { getUserRoles, roleKinds, eventsWithRole, type UserRoles } from '@/lib/rbac/roles';
 // Emails are used as ILIKE patterns below — `_` is a wildcard, so escape first.
 import { escapeLikePattern } from '@/lib/search/filter';
+import { teamSharedEventIds } from '@/lib/rbac/canManageEvent';
 
 export interface VisibleSections {
   /** Attendee surface — "My tickets & agenda". */
@@ -91,15 +92,25 @@ export async function getVisibleSections(userId: string): Promise<VisibleSection
     sponsoring = await hasSponsorByEmail(userId);
   }
 
+  // "organizing" — organizer role OR membership of a team that owns events.
+  // Exactly the discoverability gap the two fallbacks above exist for. A
+  // teammate now has real access to the team owner's events (migration 116 and
+  // lib/rbac/canManageEvent), but `user_event_roles` carries no row for them —
+  // so without this the Organize nav never lights up and every event they can
+  // manage stays unreachable through the UI. Teams would look exactly as broken
+  // as it did before, one layer further in.
+  const teamEventIds = await teamSharedEventIds(userId);
+  const organizing = kinds.has('organizer') || teamEventIds.length > 0;
+
   return {
     tickets,
     speaking,
     sponsoring,
-    organizing: kinds.has('organizer'),
+    organizing,
     admin,
     speakingEventIds,
     sponsoringEventIds,
-    organizingEventIds,
+    organizingEventIds: Array.from(new Set([...organizingEventIds, ...teamEventIds])),
   };
 }
 

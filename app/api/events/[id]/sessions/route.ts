@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { z } from 'zod';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 const SessionSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -107,7 +108,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
   const admin = createAdminClient();
   const [{ data: event }, { data: ep }] = await Promise.all([
-    admin.from('events').select('id').eq('id', params.id).eq('user_id', user.id).single(),
+    admin.from('events').select('id').eq('id', params.id).in('user_id', await manageableOwnerIds(user.id)).single(),
     admin.from('event_pages').select('starts_at, ends_at').eq('event_id', params.id).maybeSingle(),
   ]);
   if (!event) return NextResponse.json({ error: 'Event not found' }, { status: 404 });
@@ -153,7 +154,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   // the platform by passing an event id (they appear in public URLs) and a
   // session id. POST has always checked this; PATCH and DELETE did not.
   const { data: owned } = await admin
-    .from('events').select('id').eq('id', params.id).eq('user_id', user.id).maybeSingle();
+    .from('events').select('id').eq('id', params.id).in('user_id', await manageableOwnerIds(user.id)).maybeSingle();
   if (!owned) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
   // Fetch current session + event page for full-context validation
@@ -210,7 +211,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
 
   // Same missing gate as PATCH had — see the comment there.
   const { data: owned } = await admin
-    .from('events').select('id').eq('id', params.id).eq('user_id', user.id).maybeSingle();
+    .from('events').select('id').eq('id', params.id).in('user_id', await manageableOwnerIds(user.id)).maybeSingle();
   if (!owned) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
   const { error } = await admin
