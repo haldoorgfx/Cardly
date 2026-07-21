@@ -1,3 +1,19 @@
+> **Two ready-to-paste files exist now, built from everything below:**
+> - **`supabase/APPLY_105-120_combined.sql`** — all ten migrations except 116,
+>   concatenated in order with each one's own header intact. Paste the whole
+>   file once and run it.
+> - **`supabase/APPLY_116_teams_READ_THIS_FIRST.sql`** — 116 alone, with its
+>   required pre-check pulled to the top as its own step. This one genuinely
+>   needs you to read a query's output before deciding what to paste next —
+>   that can't be automated away, see the file for why.
+>
+> I could not run either of these myself: no Supabase execution tool is
+> available in this environment, the service-role key only reaches
+> PostgREST's normal CRUD endpoints (not raw SQL), there's no direct Postgres
+> connection string configured, and the Supabase CLI here isn't authenticated
+> (checked — `supabase login` was never run). The SQL editor is the only path,
+> same as the project docs already say.
+
 # Migrations on disk from 105 up — apply checklist
 
 Eleven migration files sit in `supabase/migrations/` at 105 and above. Some may

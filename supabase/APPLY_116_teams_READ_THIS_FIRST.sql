@@ -1,0 +1,58 @@
+-- ============================================================================
+-- 116 — Teams: the one migration that needs a human look, not just a paste
+--
+-- Why this one is different from the other ten: it edits an EXISTING function,
+-- can_manage_event(), rather than creating something new. Migrations 051-104
+-- are not in this repository — applied to prod, never committed — so nobody
+-- can read from disk what that function currently contains. If something in
+-- that missing range added a clause this file doesn't know about, blindly
+-- replacing the function would silently DELETE that clause and revoke
+-- somebody's access. That is not a risk the other nine files carry, because
+-- they only add things.
+--
+-- Without this fix, Teams — the $49/mo Studio feature — grants a paying
+-- customer's teammates a roster and nothing else. The application-side half
+-- already shipped; this is the other half, and they must land together.
+--
+-- ── STEP 1 — RUN THIS FIRST, BY ITSELF ──────────────────────────────────────
+-- Paste ONLY the query below into the SQL editor and Run. Read the output.
+-- ============================================================================
+
+select pg_get_functiondef(p.oid)
+from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+where n.nspname = 'public' and p.proname = 'can_manage_event';
+
+-- ============================================================================
+-- ── STEP 2 — READ THE RESULT, THEN PICK ONE ─────────────────────────────────
+--
+-- Look at the function body the query printed. It should have exactly two
+-- `exists(...)` clauses joined by `or`:
+--
+--   1. the literal owner        (e.user_id = auth.uid())
+--   2. an active staff/organizer event role (user_event_roles)
+--
+-- CASE A — it has exactly those two clauses and nothing else:
+--   Your prod copy matches what this fix assumes. Paste the WHOLE of
+--   supabase/migrations/116_teams_grant_event_access.sql (the real migration
+--   file, not this one) into the SQL editor and Run. Done.
+--
+-- CASE B — it has those two PLUS something else you don't recognise:
+--   Something between migrations 051-104 added it, and it must not be lost.
+--   Do not paste 116 as-is. Instead:
+--     1. Copy the extra clause(s) out of the printed function body.
+--     2. Open supabase/migrations/116_teams_grant_event_access.sql.
+--     3. In the `can_manage_event` definition (the second `create or replace`
+--        block), add your extra clause(s) back in as additional `or exists(...)`
+--        blocks, alongside the two existing ones and the new team clause.
+--     4. Then paste that edited version and Run.
+--
+-- CASE C — the query returns no rows:
+--   can_manage_event doesn't exist yet under that name. Something else is
+--   gating access, or the function was renamed. Stop and figure out what
+--   actually enforces event ownership before applying 116 — paste it in
+--   as-is and you'd be defining a function nothing else calls, while the
+--   real gate stays unfixed.
+--
+-- Either way, run the two sanity-check queries at the bottom of 116's own
+-- file afterward — they confirm a teammate gains access and nobody else does.
+-- ============================================================================
