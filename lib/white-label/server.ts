@@ -20,10 +20,19 @@ export interface WhiteLabel {
 }
 
 const LEGACY_COLORS = ['#7300ff', '#6c63ff', '#6366f1', '#8b5cf6', '#7c3aed'];
+const HEX_RE = /^#[0-9a-fA-F]{3,8}$/;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function normalize(row: any): WhiteLabel {
   let primary = (row.primary_color as string) || '#1F4D3A';
+  primary = primary.trim();
+  // Whitelist to a plain hex colour AT THE SOURCE, not at each call site.
+  // `primaryColor` is interpolated into `style="…"` in the HTML email templates;
+  // a row holding `red" onload="…` would inject attributes into other people's
+  // inboxes. POST /api/white-label validates on save, but rows also arrive from
+  // /api/onboarding and from anything written directly to the table, so the
+  // read path cannot assume the column is clean. Anything non-hex → brand default.
+  if (!HEX_RE.test(primary)) primary = '#1F4D3A';
   if (LEGACY_COLORS.includes(primary.toLowerCase())) primary = '#1F4D3A';
   return {
     brandName: row.brand_name || null,

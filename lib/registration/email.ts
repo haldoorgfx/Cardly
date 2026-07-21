@@ -22,6 +22,7 @@ interface EmailBrand {
   primary: string;        // header + primary CTA color
   from: string;           // "Name <email>"
   replyTo?: string;
+  hidePoweredBy: boolean; // Studio: drop the "Powered by Eventera" sign-off entirely
 }
 
 const APP_URL_BASE = process.env.NEXT_PUBLIC_APP_URL ?? '';
@@ -48,6 +49,7 @@ async function resolveBrand(eventId?: string): Promise<EmailBrand> {
   let primary = '#1F4D3A';
   let fromName = process.env.RESEND_FROM_NAME ?? 'Eventera';
   let replyTo: string | undefined;
+  let hidePoweredBy = false;
 
   if (eventId) {
     try {
@@ -68,13 +70,14 @@ async function resolveBrand(eventId?: string): Promise<EmailBrand> {
         }
         if (wl.fromName) fromName = wl.fromName;
         if (wl.replyToEmail) replyTo = wl.replyToEmail;
+        hidePoweredBy = wl.hidePoweredBy;
       }
     } catch {
       // fall back to Eventera defaults on any lookup failure
     }
   }
 
-  return { wordmarkHtml, isDefault, primary, from: `${fromName} <${FROM_EMAIL}>`, replyTo };
+  return { wordmarkHtml, isDefault, primary, from: `${fromName} <${FROM_EMAIL}>`, replyTo, hidePoweredBy };
 }
 
 function emailHeader(brand: EmailBrand, subtitle?: string): string {
@@ -95,6 +98,12 @@ function emailHeader(brand: EmailBrand, subtitle?: string): string {
 // eventera.so. White-label emails skip the Eventera mark (it's a Studio
 // organizer's own brand voice at that point) but keep the same spacing.
 function emailFooter(brand: EmailBrand): string {
+  // "Hide Powered by Eventera" is the one switch a Studio organizer pays for and
+  // can see the result of in their own inbox. It used to be saved and then
+  // ignored here — this footer rendered the Eventera sign-off on every attendee
+  // email regardless — so the toggle was a lie to a $49/mo customer. Honour it.
+  if (brand.hidePoweredBy) return '';
+
   const mark = brand.isDefault
     ? `<img src="${LOGO_COLOR_URL}" alt="" width="70" height="14" style="display:inline-block;height:14px;width:auto;opacity:0.45;margin-bottom:8px;" /><br>`
     : '';

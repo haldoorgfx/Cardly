@@ -130,7 +130,8 @@ export function WhiteLabelTab({ plan }: { plan: string }) {
         </div>
         <p className="font-display font-normal text-[20px] mb-2" style={{ color: '#0F1F18' }}>White Label</p>
         <p className="text-[14px] mb-6 max-w-[340px] mx-auto" style={{ color: '#65736B' }}>
-          Replace Eventera branding with your own — custom domain, brand name, logo, and colors.
+          Put your own brand name, colour and sender details on the emails and card
+          pages your attendees see, and remove the Eventera sign-off.
         </p>
         <a
           href="/settings/billing"
@@ -334,45 +335,63 @@ export function WhiteLabelTab({ plan }: { plan: string }) {
         {/* Right: live preview */}
         <aside className="sticky" style={{ top: 88 }}>
           <div className="rounded-2xl p-5" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
-            <div className="font-display font-medium text-[15px] mb-4" style={{ color: '#0F1F18' }}>Preview</div>
+            <div className="font-display font-medium text-[15px] mb-1" style={{ color: '#0F1F18' }}>
+              Attendee email preview
+            </div>
+            <div className="text-[12px] mb-4" style={{ color: '#65736B' }}>
+              How your registration and reminder emails will look.
+            </div>
 
-            {/* Mock event page */}
-            <div className="rounded-xl overflow-hidden" style={{ border: '1px solid #E5E0D4' }}>
-              {/* Nav bar */}
+            {/* Mock attendee email — mirrors emailHeader/emailFooter in
+                lib/registration/email.ts, which is what these settings drive. */}
+            <div className="rounded-xl overflow-hidden" style={{ border: '1px solid #E5E0D4', background: '#FAF6EE' }}>
+              {/* Branded header band */}
               <div
-                className="h-10 flex items-center px-4"
+                className="px-4 py-5 text-center"
                 style={{ background: previewColor }}
               >
-                <span className="font-display font-semibold text-[13px] text-white">
+                <div className="font-display font-semibold text-[15px] text-white break-words">
                   {settings.brand_name || 'Your Brand'}
-                </span>
+                </div>
+                <div className="text-[11px] mt-1" style={{ color: 'rgba(255,255,255,0.85)' }}>
+                  You&rsquo;re registered!
+                </div>
               </div>
 
-              {/* Cover image placeholder */}
-              <div
-                className="h-24"
-                style={{ background: '#E8EFEB' }}
-              />
-
-              {/* Content */}
+              {/* Body */}
               <div className="p-3.5">
-                <div className="font-display font-medium text-[14px] mb-1" style={{ color: '#0F1F18' }}>
-                  Annual Developer Summit
+                <div className="font-display font-medium text-[13.5px] mb-1" style={{ color: '#0F1F18' }}>
+                  See you at Annual Developer Summit
                 </div>
-                <div className=" text-[12.5px] mb-3" style={{ color: '#65736B' }}>
+                <div className="text-[12px] mb-3" style={{ color: '#65736B' }}>
                   12 Mar · 09:00 · Lagos
                 </div>
                 <div
                   className="h-8 rounded-lg flex items-center justify-center font-display font-medium text-[12px] text-white"
                   style={{ background: previewColor }}
                 >
-                  Register now
+                  Download your card
                 </div>
                 {!settings.hide_powered_by && (
-                  <div className="text-center text-[12px] mt-2.5" style={{ color: '#C9C3B1' }}>
+                  <div className="text-center text-[11px] mt-3" style={{ color: '#9BA8A1' }}>
                     Powered by Eventera
                   </div>
                 )}
+              </div>
+            </div>
+
+            {/* Be explicit about reach — these settings do not restyle the public
+                event page, and claiming otherwise is what the preview used to do. */}
+            <div className="mt-4 pt-4" style={{ borderTop: '1px solid #E5E0D4' }}>
+              <div className="text-[11.5px] font-medium mb-1.5" style={{ color: '#0F1F18' }}>
+                Where this applies
+              </div>
+              <ul className="text-[11.5px] leading-relaxed list-none space-y-1" style={{ color: '#65736B' }}>
+                <li>Attendee emails — brand name, colour, sender, reply-to</li>
+                <li>Eventera Card pages — brand name and sign-off</li>
+              </ul>
+              <div className="text-[11.5px] mt-2" style={{ color: '#65736B' }}>
+                Your public event page still uses Eventera styling.
               </div>
             </div>
           </div>
