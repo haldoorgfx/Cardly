@@ -17,18 +17,42 @@ interface Props {
   ticketRevenue: TicketRevenue[];
   totalRegistrations: number;
   totalRevenue: number;
-  revenueCurrency: string;
+  /** null when nothing was earned, or when earning tiers use different currencies. */
+  revenueCurrency: string | null;
+  /** true when tiers earned in more than one currency — the total is then un-summable. */
+  revenueIsMixed?: boolean;
   checkInCount: number;
   cardDownloadCount: number;
   eraInsight?: string | null;
 }
 
-function formatCurrency(amount: number, currency: string) {
+/**
+ * `amount` is always in MAJOR units — `registrations.amount_paid` is stored in
+ * the human unit (see lib/payments/currency.ts, which converts to minor units
+ * only at the Stripe boundary). So there is deliberately no /100 here, and
+ * zero-decimal currencies (DJF, RWF, UGX, XOF) need no special case: Intl
+ * already renders them without a fractional part.
+ */
+function formatCurrency(amount: number, currency: string | null) {
+  // No currency to name — don't invent one (this used to fall back to '$').
+  if (!currency) return amount.toLocaleString();
   try {
     return new Intl.NumberFormat(undefined, { style: 'currency', currency, minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
   } catch {
-    return `${currency} ${amount}`;
+    return `${currency} ${amount.toLocaleString()}`;
   }
+}
+
+/**
+ * Turn a 'YYYY-MM-DD' bucket key into a LOCAL Date.
+ *
+ * `new Date('2026-07-20')` is parsed as UTC midnight and then rendered in the
+ * viewer's zone, so anyone west of UTC saw every x-axis label shifted a day
+ * earlier — silently undoing the event-timezone bucketing the server just did.
+ */
+function parseDayKey(key: string): Date {
+  const [y, m, d] = key.split('-').map(Number);
+  return new Date(y, (m ?? 1) - 1, d ?? 1);
 }
 
 function LineChart({ points }: { points: DailyPoint[] }) {
@@ -68,7 +92,7 @@ function LineChart({ points }: { points: DailyPoint[] }) {
       {/* X-axis labels */}
       {points.map((p, i) => i % labelEvery === 0 && (
         <text key={i} x={toX(i)} y={H - 4} textAnchor="middle" fontSize="10" fill="#65736B" fontFamily="Inter, system-ui, sans-serif">
-          {new Date(p.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+          {parseDayKey(p.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
         </text>
       ))}
       {/* Y-axis max label */}
@@ -79,7 +103,7 @@ function LineChart({ points }: { points: DailyPoint[] }) {
   );
 }
 
-function HorizontalBar({ label, value, max, currency }: { label: string; value: number; max: number; currency: string }) {
+function HorizontalBar({ label, value, max, currency }: { label: string; value: number; max: number; currency: string | null }) {
   const pct = max > 0 ? (value / max) * 100 : 0;
   return (
     <div className="flex items-center gap-3">
@@ -100,6 +124,7 @@ export function EventAnalyticsView({
   totalRegistrations,
   totalRevenue,
   revenueCurrency,
+  revenueIsMixed = false,
   checkInCount,
   cardDownloadCount,
   eraInsight,
@@ -132,7 +157,11 @@ export function EventAnalyticsView({
         <div className="flex flex-wrap gap-x-8 gap-y-1 items-baseline">
           {[
             { value: totalRegistrations, label: 'registrations' },
-            { value: formatCurrency(totalRevenue, revenueCurrency), label: 'revenue' },
+            // A total across tiers priced in different currencies is not a number
+            // anyone can act on, and there are no FX rates here to make it one.
+            revenueIsMixed
+              ? { value: '—', label: 'revenue (mixed currencies)' }
+              : { value: formatCurrency(totalRevenue, revenueCurrency), label: 'revenue' },
             { value: `${checkInRate}%`, label: 'check-in rate' },
             { value: `${cardRate}%`, label: 'cards downloaded' },
           ].map((s, i) => (
@@ -168,10 +197,14 @@ export function EventAnalyticsView({
               <HorizontalBar key={t.name} label={t.name} value={t.revenue} max={maxRevenue} currency={t.currency} />
             ))}
           </div>
-          <div className="mt-4 pt-4 flex justify-between" style={{ borderTop: '1px solid #E5E0D4' }}>
+          <div className="mt-4 pt-4 flex justify-between gap-3" style={{ borderTop: '1px solid #E5E0D4' }}>
             <span className="text-[13px]" style={{ color: '#65736B' }}>Total revenue</span>
-            <span className="font-title font-semibold text-[15px] tabular-nums" style={{ color: '#0F1F18' }}>
-              {formatCurrency(totalRevenue, revenueCurrency)}
+            <span className="font-title font-semibold text-[15px] tabular-nums text-right" style={{ color: '#0F1F18' }}>
+              {revenueIsMixed ? (
+                <span className="text-[12.5px] font-normal" style={{ color: '#65736B' }}>
+                  Tiers priced in different currencies — see each row above
+                </span>
+              ) : formatCurrency(totalRevenue, revenueCurrency)}
             </span>
           </div>
         </div>

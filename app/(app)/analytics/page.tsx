@@ -100,7 +100,7 @@ export default async function AnalyticsPage({
   const { data: regs } = eventIds.length > 0
     ? await admin
         .from('registrations')
-        .select('event_id, status, amount_paid, created_at, currency')
+        .select('event_id, status, amount_paid, created_at, currency, eventera_card_url')
         .in('event_id', eventIds)
         .gte('created_at', cutoffDate.toISOString())
     : { data: [] };
@@ -117,8 +117,29 @@ export default async function AnalyticsPage({
   // and refunded registrations as money earned, so the headline Revenue card
   // read higher than the per-event Revenue column it sits above.
   const totalRevenue   = confirmedRegs.reduce((s, r) => s + Number(r.amount_paid ?? 0), 0);
-  const allCurrencies  = new Set(confirmedRegs.map(r => r.currency).filter(Boolean) as string[]);
-  const primaryCurrency = allCurrencies.size === 1 ? Array.from(allCurrencies)[0] : null;
+
+  // Which currencies is this organizer ACTUALLY earning in?
+  //
+  // Deliberately derived from revenue-bearing rows only. Free registrations are
+  // written with `currency: ticket?.currency ?? 'USD'` (api/events/[id]/register
+  // + /registrations), so a free event in Djibouti stamps every row 'USD' while
+  // carrying amount_paid 0. Counting those made a single-currency organizer look
+  // multi-currency, which blanked the Revenue card and EVERY per-event Revenue
+  // cell to '—'. A zero-amount row names no currency worth reporting.
+  const revenueRegs = confirmedRegs.filter(r => Number(r.amount_paid ?? 0) > 0);
+  const revenueByCurrency = new Map<string, number>();
+  for (const r of revenueRegs) {
+    const c = r.currency || 'USD';
+    revenueByCurrency.set(c, (revenueByCurrency.get(c) ?? 0) + Number(r.amount_paid ?? 0));
+  }
+  const currencyTotals = Array.from(revenueByCurrency.entries())
+    .map(([currency, amount]) => ({ currency, amount }))
+    .sort((a, b) => b.amount - a.amount);
+  // null = "no single unit to report in": either nothing earned yet, or earnings
+  // span several currencies. There are NO FX rates in this codebase, so a
+  // cross-currency total is never computed or displayed — it is broken out instead.
+  const primaryCurrency = currencyTotals.length === 1 ? currencyTotals[0].currency : null;
+  const isMixedCurrency = currencyTotals.length > 1;
   const totalCards     = allEvents.reduce((s, e) => s + (e.download_count ?? 0), 0);
 
   // Month-over-month
@@ -148,13 +169,30 @@ export default async function AnalyticsPage({
 
   // ─── Per-event data ──────────────────────────────────────────────────────────
 
-  const regsByEvent: Record<string, { count: number; revenue: number; checkedIn: number }> = {};
+  // Revenue is tracked per event WITH its own currency. An organizer running a
+  // USD conference and a DJF meetup earns two real, separately-meaningful
+  // figures; only the portfolio-wide total is un-summable. Keying currency per
+  // event means each row still shows its true amount when the portfolio is mixed.
+  const regsByEvent: Record<string, {
+    count: number; revenue: number; checkedIn: number; carded: number; currencies: Set<string>;
+  }> = {};
   for (const r of allRegs) {
     if (!['confirmed', 'checked_in'].includes(r.status)) continue;
-    if (!regsByEvent[r.event_id]) regsByEvent[r.event_id] = { count: 0, revenue: 0, checkedIn: 0 };
-    regsByEvent[r.event_id].count++;
-    regsByEvent[r.event_id].revenue += Number(r.amount_paid ?? 0);
-    if (r.status === 'checked_in') regsByEvent[r.event_id].checkedIn++;
+    if (!regsByEvent[r.event_id]) {
+      regsByEvent[r.event_id] = { count: 0, revenue: 0, checkedIn: 0, carded: 0, currencies: new Set<string>() };
+    }
+    const bucket = regsByEvent[r.event_id];
+    bucket.count++;
+    const paid = Number(r.amount_paid ?? 0);
+    bucket.revenue += paid;
+    if (paid > 0) bucket.currencies.add(r.currency || 'USD');
+    if (r.status === 'checked_in') bucket.checkedIn++;
+    // Distinct ATTENDEES who have a card, for the rate panel below. Deliberately
+    // not events.download_count: that counter increments once per render
+    // (api/render), so an attendee re-downloading twice counts twice, and it is
+    // lifetime while `regs` here is period-filtered. Dividing the two produced a
+    // "share rate" that routinely exceeded 100% and overflowed its own bar.
+    if (r.eventera_card_url) bucket.carded++;
   }
 
   const activeEvents = allEvents.filter(e => e.status !== 'archived');
@@ -166,9 +204,16 @@ export default async function AnalyticsPage({
     .slice(0, 5);
   const maxChartRegs = Math.max(...chartEvents.map(c => c.regs), 1);
 
-  // Revenue trend — last 6 months
+  // Revenue trend — must span the SELECTED period, not a fixed 6 months.
+  // `regs` above is fetched with a `created_at >= cutoffDate` filter, so on the
+  // default 90-day period the three oldest of six months contained no rows by
+  // construction. The chart therefore drew a guaranteed rise-from-zero for every
+  // organizer on every visit — a shape produced by the query window, not by the
+  // business. Tying the bucket count to periodDays makes every plotted month a
+  // month we actually have data for.
+  const trendMonths = period === '1y' ? 12 : period === '6m' ? 6 : 3;
   const revMonths: { label: string; revenue: number }[] = [];
-  for (let i = 5; i >= 0; i--) {
+  for (let i = trendMonths - 1; i >= 0; i--) {
     const d     = new Date(now.getFullYear(), now.getMonth() - i, 1);
     const nextD = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
     revMonths.push({
@@ -190,14 +235,22 @@ export default async function AnalyticsPage({
   const areaStr     = [`0,${SVG_H}`, ...revPoints.map(p => `${p.x},${p.y}`), `${SVG_W},${SVG_H}`].join(' ');
 
   // Event performance table
-  const perfEvents = activeEvents.map((e, idx) => ({
-    ...e,
-    color:     EVENT_COLORS[idx % EVENT_COLORS.length],
-    regs:      regsByEvent[e.id]?.count    ?? 0,
-    revenue:   regsByEvent[e.id]?.revenue  ?? 0,
-    checkedIn: regsByEvent[e.id]?.checkedIn ?? 0,
-    cards:     e.download_count ?? 0,
-  })).sort((a, b) => b.regs - a.regs);
+  const perfEvents = activeEvents.map((e, idx) => {
+    const bucket = regsByEvent[e.id];
+    const evCurrencies = bucket ? Array.from(bucket.currencies) : [];
+    return {
+      ...e,
+      color:     EVENT_COLORS[idx % EVENT_COLORS.length],
+      regs:      bucket?.count    ?? 0,
+      revenue:   bucket?.revenue  ?? 0,
+      // The event's OWN currency. null only if this single event somehow sold in
+      // two currencies — then its revenue is un-summable too and renders as '—'.
+      currency:  evCurrencies.length === 1 ? evCurrencies[0] : null,
+      checkedIn: bucket?.checkedIn ?? 0,
+      carded:    bucket?.carded ?? 0,
+      cards:     e.download_count ?? 0,
+    };
+  }).sort((a, b) => b.regs - a.regs);
 
   return (
     <PageShell width="wide">
@@ -230,11 +283,31 @@ export default async function AnalyticsPage({
           </StatCard>
 
           <StatCard label="Revenue" icon="dollar">
-            <div className="font-display text-[36px] font-semibold tracking-tight leading-none"
-              style={{ color: '#0F1F18' }}>
-              {fmtMoney(totalRevenue, primaryCurrency)}
-            </div>
-            {revMoM !== null && <MoMBadge value={revMoM} />}
+            {isMixedCurrency ? (
+              // No FX rates exist anywhere in this codebase, so DJF + USD is never
+              // added into one headline figure. Each currency is reported whole.
+              <div className="space-y-1">
+                {currencyTotals.slice(0, 3).map(c => (
+                  <div key={c.currency} className="font-display text-[21px] font-semibold tracking-tight leading-tight"
+                    style={{ color: '#0F1F18' }}>
+                    {fmtMoney(c.amount, c.currency)}
+                  </div>
+                ))}
+                <div className="text-[12px] pt-0.5" style={{ color: '#65736B' }}>
+                  {currencyTotals.length > 3
+                    ? `+${currencyTotals.length - 3} more · not summed (different currencies)`
+                    : 'Not summed — different currencies'}
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="font-display text-[36px] font-semibold tracking-tight leading-none"
+                  style={{ color: '#0F1F18' }}>
+                  {fmtMoney(totalRevenue, primaryCurrency)}
+                </div>
+                {revMoM !== null && <MoMBadge value={revMoM} />}
+              </>
+            )}
           </StatCard>
 
           <StatCard label="Cards Shared" icon="card" gold>
@@ -295,8 +368,31 @@ export default async function AnalyticsPage({
           <div className="bg-white rounded-2xl p-6"
             style={{ border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
             <div className="font-display text-[15px] font-semibold mb-6" style={{ color: '#0F1F18' }}>
-              Revenue trend
+              {isMixedCurrency ? 'Revenue by currency' : 'Revenue trend'}
             </div>
+            {isMixedCurrency ? (
+              // A single line summing DJF and USD plots a number that does not
+              // exist. With no FX rates available, the honest view of a mixed
+              // portfolio is the split, not a trend.
+              <div className="h-[160px] overflow-y-auto space-y-2.5 pr-1">
+                {currencyTotals.map(c => (
+                  <div key={c.currency} className="flex items-baseline justify-between gap-3">
+                    <span className="text-[13px]" style={{ color: '#3A4A42' }}>{c.currency}</span>
+                    <span className="font-display text-[15px] font-semibold tabular-nums" style={{ color: '#0F1F18' }}>
+                      {fmtMoney(c.amount, c.currency)}
+                    </span>
+                  </div>
+                ))}
+                <p className="text-[12px] pt-1.5 leading-relaxed" style={{ color: '#65736B' }}>
+                  Totals are kept separate — Eventera does not convert between currencies.
+                </p>
+              </div>
+            ) : currencyTotals.length === 0 ? (
+              <div className="h-[160px] flex items-center justify-center text-center text-[13px] px-4"
+                style={{ color: '#65736B' }}>
+                No paid registrations in this period yet
+              </div>
+            ) : (
             <div className="flex flex-col h-[160px]">
               <div className="flex-1 relative">
                 <svg
@@ -341,6 +437,7 @@ export default async function AnalyticsPage({
                   ))}
               </div>
             </div>
+            )}
           </div>
         </div>
 
@@ -361,7 +458,7 @@ export default async function AnalyticsPage({
             <div className="hidden md:block overflow-x-auto">
             <table className="w-full" style={{ minWidth: 640 }}>
               <thead>
-                <tr style={{ borderBottom: '1px solid #E5E0D4', background: '#FAFAF9' }}>
+                <tr style={{ borderBottom: '1px solid #E5E0D4', background: '#FAF6EE' }}>
                   {['Event', 'Status', 'Registrations', 'Revenue', 'Cards', 'Check-in'].map(h => (
                     <th key={h} className="px-5 py-3 text-left  text-[12px] tracking-[0.12em] uppercase whitespace-nowrap"
                       style={{ color: '#65736B' }}>
@@ -376,7 +473,7 @@ export default async function AnalyticsPage({
                   const isLive      = e.status === 'published';
                   return (
                     <tr key={e.id}
-                      className="border-b last:border-0 hover:bg-[#FAFAF9] transition-colors"
+                      className="border-b last:border-0 hover:bg-[#FAF6EE] transition-colors"
                       style={{ borderColor: '#E5E0D4' }}>
 
                       {/* Event name + thumbnail */}
@@ -409,9 +506,9 @@ export default async function AnalyticsPage({
                         {fmtNum(e.regs)}
                       </td>
 
-                      {/* Revenue */}
-                      <td className="px-5 py-3.5  text-[13px]" style={{ color: '#0F1F18' }}>
-                        {fmtMoney(e.revenue, primaryCurrency)}
+                      {/* Revenue — in THIS event's currency, never the portfolio's */}
+                      <td className="px-5 py-3.5  text-[13px] tabular-nums" style={{ color: '#0F1F18' }}>
+                        {fmtMoney(e.revenue, e.currency)}
                       </td>
 
                       {/* Cards */}
@@ -457,7 +554,7 @@ export default async function AnalyticsPage({
                     </div>
                     <div className="flex items-center gap-x-4 gap-y-1 flex-wrap mt-3 text-[12px]" style={{ color: '#65736B' }}>
                       <span className="whitespace-nowrap"><span style={{ color: '#0F1F18', fontWeight: 500 }}>{fmtNum(e.regs)}</span> regs</span>
-                      <span className="whitespace-nowrap"><span style={{ color: '#0F1F18', fontWeight: 500 }}>{fmtMoney(e.revenue, primaryCurrency)}</span> revenue</span>
+                      <span className="whitespace-nowrap"><span style={{ color: '#0F1F18', fontWeight: 500 }}>{fmtMoney(e.revenue, e.currency)}</span> revenue</span>
                       <span className="whitespace-nowrap"><span style={{ color: '#0F1F18', fontWeight: 500 }}>{e.cards}</span> cards</span>
                       <span className="whitespace-nowrap"><span style={{ color: '#0F1F18', fontWeight: 500 }}>{checkInRate}%</span> check-in</span>
                     </div>
@@ -472,7 +569,10 @@ export default async function AnalyticsPage({
         {perfEvents.length > 0 && (() => {
           const topByCards = perfEvents
             .filter(e => e.regs > 0)
-            .map(e => ({ name: e.name, pct: Math.round((e.cards / e.regs) * 100) }))
+            // Both numerator and denominator now come from the same period-filtered
+            // registration set and are both per-attendee, so the result is a real
+            // rate that cannot exceed 100%.
+            .map(e => ({ name: e.name, pct: Math.min(100, Math.round((e.carded / e.regs) * 100)) }))
             .sort((a, b) => b.pct - a.pct)
             .slice(0, 5);
 
@@ -481,9 +581,12 @@ export default async function AnalyticsPage({
           return (
             <div className="mt-4 bg-white rounded-2xl p-6"
               style={{ border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
-              <div className="font-display text-[15px] font-semibold mb-5" style={{ color: '#0F1F18' }}>
-                Card sharing across your events
+              <div className="font-display text-[15px] font-semibold mb-1" style={{ color: '#0F1F18' }}>
+                Card downloads across your events
               </div>
+              <p className="text-[12.5px] mb-5" style={{ color: '#65736B' }}>
+                Share of registered attendees who have generated their Eventera Card.
+              </p>
               <div className="space-y-4">
                 {topByCards.map((ev, i) => (
                   <div key={i}>
@@ -499,10 +602,6 @@ export default async function AnalyticsPage({
                   </div>
                 ))}
               </div>
-              <p className="text-[13px] mt-5 leading-relaxed" style={{ color: '#65736B' }}>
-                Attendees who receive their Eventera Card share it at higher rates when the event design feels premium.
-                The more polished your card design, the more organic reach you get.
-              </p>
             </div>
           );
         })()}

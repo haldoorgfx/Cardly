@@ -9,6 +9,8 @@ interface PerfEvent {
   status: string;
   regs: number;
   revenue: number;
+  /** This event's own billing currency; null when it earned nothing (or, rarely, sold in two). */
+  currency: string | null;
   cards: number;
   checkedIn: number;
 }
@@ -27,16 +29,17 @@ export function ExportButton({ events, currency, period }: Props) {
     if (disabled) return;
     const periodLabel = period === '1y' ? 'Last Year' : period === '6m' ? 'Last 6 Months' : 'Last 90 Days';
 
-    // Name the unit in the header. `currency` is null when the organizer's
-    // events bill in more than one currency — the Revenue column is then a sum
-    // of unlike units, and the CSV must say so rather than imply one currency.
-    const revenueHeader = currency ? `Revenue (${currency})` : 'Revenue (mixed currencies — not comparable)';
-    const headers = ['Event', 'Status', 'Registrations', revenueHeader, 'Cards Shared', 'Check-in Rate'];
+    // Revenue is exported alongside its OWN currency code, one column each, so a
+    // spreadsheet never invites the reader to sum a DJF row and a USD row. The
+    // page-level `currency` prop is only a hint that the portfolio is uniform;
+    // the per-row code is the authoritative unit.
+    const headers = ['Event', 'Status', 'Registrations', 'Revenue', 'Currency', 'Cards Shared', 'Check-in Rate'];
     const rows = events.map(e => [
       e.name,
       e.status === 'published' ? 'Live' : 'Draft',
       String(e.regs),
       String(e.revenue),
+      e.currency ?? currency ?? '',
       String(e.cards),
       e.regs > 0 ? `${Math.round((e.checkedIn / e.regs) * 100)}%` : '0%',
     ]);

@@ -80,9 +80,26 @@ export default async function EventAnalyticsPage({ params }: Props) {
     const day = dayKey.format(new Date(r.created_at));
     dailyMap.set(day, (dailyMap.get(day) ?? 0) + 1);
   }
-  const dailyRegistrations = Array.from(dailyMap.entries())
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([date, count]) => ({ date, count }));
+  // Fill the gaps. dailyMap only contains days that HAD a registration, so a
+  // three-week lull collapsed into a single line segment and the x-axis stopped
+  // being a time axis — two registrations a month apart drew the same slope as
+  // two on consecutive days. Emitting every calendar day in the range (0 where
+  // there were none) makes the shape of the line mean what it looks like.
+  const presentDays = Array.from(dailyMap.keys()).sort((a, b) => a.localeCompare(b));
+  const dailyRegistrations: { date: string; count: number }[] = [];
+  if (presentDays.length > 0) {
+    // Keys are plain calendar dates already resolved in the event's zone, so
+    // stepping them through UTC is pure string arithmetic — no zone re-entry.
+    const cursor = new Date(`${presentDays[0]}T00:00:00Z`);
+    const last   = new Date(`${presentDays[presentDays.length - 1]}T00:00:00Z`);
+    // Guard against an absurd range (bad data) blowing up the payload.
+    const MAX_DAYS = 800;
+    while (cursor <= last && dailyRegistrations.length < MAX_DAYS) {
+      const key = cursor.toISOString().slice(0, 10);
+      dailyRegistrations.push({ date: key, count: dailyMap.get(key) ?? 0 });
+      cursor.setUTCDate(cursor.getUTCDate() + 1);
+    }
+  }
 
   // ── Revenue by ticket type ─────────────────────────────────────────────────
   // Revenue must only count confirmed/checked_in rows — a pending registration
@@ -96,15 +113,30 @@ export default async function EventAnalyticsPage({ params }: Props) {
     const ticket = (r.ticket_types as any) as { name: string; currency: string } | null;
     const key = r.ticket_type_id ?? 'free';
     const name = ticket?.name ?? 'Free / General';
-    if (!revenueMap.has(key)) revenueMap.set(key, { name, revenue: 0, count: 0, currency: r.currency });
+    // Prefer the TICKET TYPE's currency over the registration row's. A free
+    // registration is written with `currency: ticket?.currency ?? 'USD'`, so
+    // rows with no ticket type carry a meaningless 'USD' stamp that would have
+    // labelled a Djibouti event's free tier in dollars.
+    const rowCurrency = ticket?.currency || r.currency || '';
+    if (!revenueMap.has(key)) revenueMap.set(key, { name, revenue: 0, count: 0, currency: rowCurrency });
     const entry = revenueMap.get(key)!;
     entry.revenue += Number(r.amount_paid ?? 0);
     entry.count   += 1;
+    if (!entry.currency && rowCurrency) entry.currency = rowCurrency;
   }
   const ticketRevenue = Array.from(revenueMap.values()).sort((a, b) => b.revenue - a.revenue);
 
   const totalRevenue = paidRegs.reduce((s, r) => s + Number(r.amount_paid ?? 0), 0);
-  const revenueCurrency = paidRegs.find(r => r.amount_paid > 0)?.currency ?? 'USD';
+  // The currency to report the total in — taken only from tiers that actually
+  // earned. If two earning tiers use different currencies the total is a sum of
+  // unlike units and there is no FX table in this codebase to reconcile them, so
+  // it is suppressed rather than mislabelled. Previously this defaulted to 'USD',
+  // which printed "$0" on a free event in Djibouti.
+  const earningCurrencies = Array.from(new Set(
+    ticketRevenue.filter(t => t.revenue > 0).map(t => t.currency).filter(Boolean),
+  ));
+  const revenueCurrency = earningCurrencies.length === 1 ? earningCurrencies[0] : null;
+  const revenueIsMixed  = earningCurrencies.length > 1;
   const checkInCount    = allRegs.filter(r => r.status === 'checked_in').length;
   const cardDownloaded  = allRegs.filter(r => r.eventera_card_url).length;
 
@@ -135,6 +167,7 @@ export default async function EventAnalyticsPage({ params }: Props) {
         totalRegistrations={allRegs.length}
         totalRevenue={totalRevenue}
         revenueCurrency={revenueCurrency}
+        revenueIsMixed={revenueIsMixed}
         checkInCount={checkInCount}
         cardDownloadCount={cardDownloaded}
         eraInsight={eraInsight}
