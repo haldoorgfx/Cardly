@@ -61,7 +61,15 @@ export async function updateSession(request: NextRequest) {
 
   if (isProtected && !user) {
     const url = request.nextUrl.clone();
+    const next = request.nextUrl.pathname + request.nextUrl.search;
     url.pathname = "/login";
+    // Cloning keeps the ORIGINAL query string, so a deep link like
+    // /events/123/registrations?tab=paid used to arrive at /login?tab=paid —
+    // the destination was dropped and the tab param leaked onto the login page.
+    // Clear it, then carry the destination the way the attendee branch below
+    // already does, so signing in returns you to the page you asked for.
+    url.search = "";
+    url.searchParams.set("next", next);
     return NextResponse.redirect(url);
   }
 

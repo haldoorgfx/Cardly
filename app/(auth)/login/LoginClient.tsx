@@ -5,21 +5,25 @@ import { useState, useTransition } from "react";
 import { useSearchParams } from "next/navigation";
 import { signIn } from "../actions";
 import { createClient } from "@/lib/supabase/client";
+import { safeNextPath } from "@/lib/auth/safe-next";
 
-// Only forward same-origin paths so ?next= can't become an open redirect.
-function safeNext(value: string | null): string {
-  if (!value || !value.startsWith("/") || value.startsWith("//") || value.startsWith("/\\")) {
-    return "";
-  }
-  return value;
-}
+// Empty string (not null) so the hidden input and the href builders below can
+// use it as a plain falsy value.
+const safeNext = (value: string | null): string => safeNextPath(value) ?? "";
 
 export default function LoginClient() {
   const searchParams = useSearchParams();
   const next = safeNext(searchParams.get("next"));
   const signupHref = next ? `/signup?next=${encodeURIComponent(next)}` : "/signup";
 
-  const [error, setError] = useState<string | null>(null);
+  // /auth/callback bounces failures back here with a fixed code. Map the code to
+  // our own copy — never render the raw param, or anyone could craft a login URL
+  // that shows arbitrary text in the error box. Without this the whole OAuth /
+  // magic-link failure path was silent: the user landed on a blank sign-in form
+  // with no idea why.
+  const authError = searchParams.get("error") ? "Sign-in could not be completed. Please try again." : null;
+
+  const [error, setError] = useState<string | null>(authError);
   const [isPending, startTransition] = useTransition();
   const [googlePending, setGooglePending] = useState(false);
   const [showPassword, setShowPassword] = useState(false);

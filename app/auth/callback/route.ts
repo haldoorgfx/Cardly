@@ -18,9 +18,14 @@ export async function GET(request: NextRequest) {
   const error = searchParams.get('error');
   const errorDescription = searchParams.get('error_description');
 
+  // Failures hand /login a fixed code, never provider text. The login page shows
+  // its own copy for that code, so nobody can craft /login?error=<message> and
+  // have the app render arbitrary text inside an official-looking alert — a
+  // "Your account is locked, call this number" phish needs no more than that.
+  // The provider's own wording is logged here instead of being passed through.
   if (error) {
-    const params = new URLSearchParams({ error: errorDescription ?? error });
-    return NextResponse.redirect(`${origin}/login?${params}`);
+    console.error('[auth/callback] provider error:', error, errorDescription ?? '');
+    return NextResponse.redirect(`${origin}/login?error=auth_failed`);
   }
 
   if (code) {
@@ -29,7 +34,8 @@ export async function GET(request: NextRequest) {
     if (!exchangeError) {
       return NextResponse.redirect(`${origin}${next}`);
     }
+    console.error('[auth/callback] code exchange failed:', exchangeError.message);
   }
 
-  return NextResponse.redirect(`${origin}/login?error=Authentication+failed.+Please+try+again.`);
+  return NextResponse.redirect(`${origin}/login?error=auth_failed`);
 }

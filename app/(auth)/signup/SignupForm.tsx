@@ -5,14 +5,11 @@ import { useState, useTransition } from "react";
 import { useSearchParams } from "next/navigation";
 import { signUp } from "../actions";
 import { createClient } from "@/lib/supabase/client";
+import { safeNextPath } from "@/lib/auth/safe-next";
 
-// Only forward same-origin paths so ?next= can't become an open redirect.
-function safeNext(value: string | null): string {
-  if (!value || !value.startsWith("/") || value.startsWith("//") || value.startsWith("/\\")) {
-    return "";
-  }
-  return value;
-}
+// Empty string (not null) so the hidden input and the href builders below can
+// use it as a plain falsy value.
+const safeNext = (value: string | null): string => safeNextPath(value) ?? "";
 
 export default function SignupForm() {
   const searchParams = useSearchParams();
