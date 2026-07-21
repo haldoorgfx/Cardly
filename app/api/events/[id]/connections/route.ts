@@ -123,6 +123,20 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
   const admin = createAdminClient();
 
+  // recipient_id was unchecked — any registration UUID was accepted, so a
+  // request (and its email) could be aimed at someone attending a different
+  // event entirely. Connections are event-scoped; pin the recipient here.
+  const { data: recipientReg } = await admin
+    .from('registrations')
+    .select('id')
+    .eq('id', recipient_id)
+    .eq('event_id', params.id)
+    .in('status', ['confirmed', 'checked_in'])
+    .maybeSingle();
+  if (!recipientReg) {
+    return NextResponse.json({ error: 'Recipient not found' }, { status: 404 });
+  }
+
   const { data, error } = await admin
     .from('attendee_connections')
     .upsert(

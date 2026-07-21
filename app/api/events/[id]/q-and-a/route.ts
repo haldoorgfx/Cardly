@@ -28,6 +28,18 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     .order('upvotes_count', { ascending: false })
     .order('created_at', { ascending: true });
 
+  // `status` is caller-supplied, so `?status=hidden` used to hand back exactly
+  // the questions a moderator removed (spam, abuse, doxxing) to anyone who
+  // asked. Hidden questions are moderator-only; everyone else never sees them,
+  // whatever they pass.
+  let canSeeHidden = false;
+  if (status === 'hidden') {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    canSeeHidden = !!user && (await hasModeratorAccess(user.id, params.id));
+    if (!canSeeHidden) return NextResponse.json({ questions: [] });
+  }
+
   if (sessionId) query = query.eq('session_id', sessionId);
   if (status) query = query.eq('status', status);
   else query = query.neq('status', 'hidden');
@@ -164,6 +176,20 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   }
 
   const admin = createAdminClient();
+
+  // registration_id is verified against THIS event, but question_id wasn't —
+  // a registration for event A could upvote (and so re-rank the live display
+  // of) event B's questions. Pin the question to this event.
+  const { data: question } = await admin
+    .from('qa_questions')
+    .select('id, status')
+    .eq('id', question_id)
+    .eq('event_id', params.id)
+    .maybeSingle();
+  if (!question || question.status === 'hidden') {
+    return NextResponse.json({ error: 'Question not found' }, { status: 404 });
+  }
+
   const { data, error } = await admin.rpc('toggle_qa_upvote', { p_question_id: question_id, p_registration_id: registration_id });
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ upvoted: data });

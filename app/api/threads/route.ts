@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { assertOwnsRegistration } from '@/lib/attendee-identity';
+import { getEventOwnerPlan } from '@/lib/billing/can';
 import { z } from 'zod';
+
+const PLAN_RANK: Record<string, number> = { free: 0, pro: 1, studio: 2 };
 
 const GetSchema = z.object({ registration_id: z.string().uuid(), event_id: z.string().uuid() });
 const CreateSchema = z.object({ event_id: z.string().uuid(), sender_id: z.string().uuid(), recipient_id: z.string().uuid(), content: z.string().min(1) });
@@ -62,17 +65,43 @@ export async function POST(req: NextRequest) {
   const identity = await assertOwnsRegistration(event_id, sender_id);
   if (!identity.ok) return NextResponse.json({ error: identity.error }, { status: identity.status });
 
+  // This route is the twin of /api/events/[id]/messages and must gate the same
+  // way, otherwise the Pro-plan requirement on 1:1 messaging is bypassable by
+  // simply posting here instead. Gate on the EVENT OWNER's plan — the caller is
+  // an attendee, not the organizer.
+  const ownerPlan = await getEventOwnerPlan(event_id);
+  if (!ownerPlan || PLAN_RANK[ownerPlan] < PLAN_RANK.pro) {
+    return NextResponse.json({ error: 'Networking requires the organizer to be on the Pro plan.' }, { status: 402 });
+  }
+
   const admin = createAdminClient();
+
+  // recipient_id was unchecked here — any registration UUID platform-wide was
+  // accepted as the other participant. Messaging is event-scoped.
+  const { data: recipientReg } = await admin
+    .from('registrations')
+    .select('id')
+    .eq('id', recipient_id)
+    .eq('event_id', event_id)
+    .in('status', ['confirmed', 'checked_in'])
+    .maybeSingle();
+  if (!recipientReg) {
+    return NextResponse.json({ error: 'Recipient not found' }, { status: 404 });
+  }
 
   // Normalise participant order (lower UUID first) for unique constraint
   const [pA, pB] = [sender_id, recipient_id].sort();
 
+  // Scope the lookup to this event as well as the participant pair — the pair
+  // is unique platform-wide, so an unscoped match could return (and then post
+  // into) a thread that belongs to a different event.
   let { data: thread } = await admin
     .from('message_threads')
     .select('id')
+    .eq('event_id', event_id)
     .eq('participant_a', pA)
     .eq('participant_b', pB)
-    .single();
+    .maybeSingle();
 
   if (!thread) {
     const { data: created, error } = await admin

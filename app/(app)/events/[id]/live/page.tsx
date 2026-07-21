@@ -29,7 +29,12 @@ export default async function LiveDisplayPage({ params }: { params: Promise<{ id
   // domain (never hardcoded) + the event's public Q&A page. Replaces the old
   // hardcoded vanity "eventera.so/q", which was a dead link (no /q route).
   const appHost = (process.env.NEXT_PUBLIC_APP_URL ?? '').replace(/^https?:\/\//, '').replace(/\/$/, '');
-  const submitUrl = appHost ? `${appHost}/e/${event.slug}/q-and-a` : `/e/${event.slug}/q-and-a`;
+  // /e/[slug]/q-and-a does not exist — the attendee Q&A page lives in the
+  // attendee workspace at /attending/[slug]/q-and-a (it redirects anyone
+  // without a registration to the public event page), so the URL projected on
+  // the venue screen has to point there or it 404s in front of the room.
+  const submitPath = `/attending/${event.slug}/q-and-a`;
+  const submitUrl = appHost ? `${appHost}${submitPath}` : submitPath;
 
   // Fetch top Q&A questions by votes
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -158,6 +158,21 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
   const admin = createAdminClient();
 
+  // recipient_id was taken on trust: any registration UUID on the platform was
+  // accepted, so a guest registered for a $0 event could open a thread against
+  // — and fire a "new message" email at — an attendee of a completely different
+  // event. Messaging is event-scoped; the recipient must be in THIS event.
+  const { data: recipientReg } = await admin
+    .from('registrations')
+    .select('id')
+    .eq('id', recipient_id)
+    .eq('event_id', params.id)
+    .in('status', ['confirmed', 'checked_in'])
+    .maybeSingle();
+  if (!recipientReg) {
+    return NextResponse.json({ error: 'Recipient not found' }, { status: 404 });
+  }
+
   // Canonical thread order: lower UUID first (prevents duplicate threads)
   const [a, b] = [sender_id, recipient_id].sort() as [string, string];
 

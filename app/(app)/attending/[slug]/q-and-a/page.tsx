@@ -32,13 +32,24 @@ export default async function QandAPage({ params, searchParams }: Props) {
       .order('starts_at', { ascending: true }),
   ]);
 
+  // QandAClient renders "Anonymous" client-side, but the real attendee_name and
+  // registration_id still shipped inside this page's payload — any attendee
+  // could read the network response and de-anonymise every anonymous question.
+  // Redact server-side, matching what /api/events/[id]/q-and-a already does.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const safeQuestions = (questions ?? []).map((q: any) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { registration_id: _registrationId, registrations, ...rest } = q;
+    return { ...rest, registrations: q.is_anonymous ? null : registrations };
+  });
+
   return (
     <div className="max-w-[760px]">
       <QandAClient
         eventId={ws.eventId}
         registrationId={ws.registrationId}
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        initialQuestions={(questions ?? []) as any}
+        initialQuestions={safeQuestions as any}
         sessions={(sessions ?? []) as { id: string; title: string }[]}
       />
     </div>

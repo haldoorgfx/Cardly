@@ -25,6 +25,14 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   const { searchParams } = new URL(req.url);
   const activeOnly = searchParams.get('active') === 'true';
 
+  // This route is public (the live display and the attendee polls page both
+  // read it unauthenticated), so it must not hand out polls the organizer has
+  // written but not launched. PollsClient already filters drafts out visually —
+  // that was client-side only, so the draft questions still shipped in the JSON.
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const isModerator = user ? await hasModeratorAccess(user.id, params.id) : false;
+
   let query = admin
     .from('polls')
     .select('*, poll_options(id, text, votes_count, position)')
@@ -32,6 +40,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     .order('created_at', { ascending: false });
 
   if (activeOnly) query = query.eq('is_active', true).eq('is_closed', false);
+  else if (!isModerator) query = query.or('is_active.eq.true,is_closed.eq.true');
 
   const { data, error } = await query;
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
@@ -126,6 +135,43 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   }
 
   const admin = createAdminClient();
+
+  // The registration is verified for THIS event, but poll_id/option_id were
+  // caller-supplied and unchecked — an attendee of event A could vote on event
+  // B's poll, or point option_id at an option belonging to a different poll
+  // entirely (which just incremented that unrelated counter). Pin both.
+  const { data: poll } = await admin
+    .from('polls')
+    .select('id, is_active, is_closed')
+    .eq('id', poll_id)
+    .eq('event_id', params.id)
+    .maybeSingle();
+  if (!poll) return NextResponse.json({ error: 'Poll not found' }, { status: 404 });
+  if (!poll.is_active || poll.is_closed) {
+    return NextResponse.json({ error: 'This poll is not open for voting' }, { status: 422 });
+  }
+
+  const { data: option } = await admin
+    .from('poll_options')
+    .select('id')
+    .eq('id', option_id)
+    .eq('poll_id', poll_id)
+    .maybeSingle();
+  if (!option) return NextResponse.json({ error: 'Option not found' }, { status: 404 });
+
+  // One vote per registration per poll. The RPC is the atomic guard (migration
+  // 108), but check first so repeat calls don't award repeat leaderboard points.
+  const { data: existingVote } = await admin
+    .from('poll_votes')
+    .select('option_id')
+    .eq('poll_id', poll_id)
+    .eq('registration_id', registration_id)
+    .maybeSingle();
+
+  if (existingVote) {
+    const { data: current } = await admin.from('poll_options').select('id, votes_count').eq('poll_id', poll_id);
+    return NextResponse.json({ voted: true, already_voted: true, options: current });
+  }
 
   const { error } = await admin.rpc('cast_poll_vote', { p_poll_id: poll_id, p_option_id: option_id, p_registration_id: registration_id });
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
