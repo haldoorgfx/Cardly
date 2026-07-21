@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { z } from 'zod';
 import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
+import { safeExternalUrl } from '@/lib/url/safeUrl';
 
 /**
  * Per-event feature toggles + custom menu.
@@ -14,7 +15,20 @@ const MenuItemSchema = z.object({
   id: z.string().min(1),
   label: z.string().min(1).max(60),
   type: z.enum(['link', 'page']),
-  url: z.string().max(500).optional().default(''),
+  // A menu "link" is rendered as <a href> on the PUBLIC event page, so an
+  // organizer-supplied `javascript:`/`data:` URL is a stored-XSS sink — the
+  // same class fixed on exhibitor booths. z.string() alone let it through
+  // (Zod .url() would too — it only checks that new URL() parses). Normalise
+  // to a safe http(s) URL, or reject. Empty stays empty (a "page" item has no
+  // url, and a link the organizer cleared should round-trip as unset).
+  url: z.string().max(500).optional().default('')
+    .transform(v => (v ?? '').trim())
+    .superRefine((v, ctx) => {
+      if (v && safeExternalUrl(v) === null) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Menu links must be a valid http(s) URL' });
+      }
+    })
+    .transform(v => (v ? (safeExternalUrl(v) ?? '') : '')),
   content: z.string().max(20_000).optional().default(''),
 });
 

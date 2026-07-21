@@ -10,6 +10,7 @@ import { AddToCalendarButton } from './AddToCalendarButton';
 import SpeakerDirectoryClient from './SpeakerDirectoryClient';
 import PeopleDiscoveryClient from '@/components/networking/PeopleDiscoveryClient';
 import { bannerGradientFor, avatarColorFor, initialsOf, placeholderInitials } from '@/lib/events/placeholder';
+import { safeExternalUrl } from '@/lib/url/safeUrl';
 
 /* ─── Types ─────────────────────────────────────────────────────── */
 
@@ -918,9 +919,16 @@ export function PublicEventPageClient({
                     More info
                   </h2>
                   <div className="grid sm:grid-cols-2 gap-3">
-                    {customMenu.map((m) => (
-                      m.type === 'link' && m.url ? (
-                        <a key={m.id} href={m.url} target="_blank" rel="noopener noreferrer"
+                    {customMenu.map((m) => {
+                      // Defence-in-depth: a menu link is organizer-supplied and
+                      // rendered as an href, so a `javascript:`/`data:` value in
+                      // an already-saved row must never survive to the DOM. The
+                      // features API now validates on write; this guards rows
+                      // written before that landed. null → render no link.
+                      const safeUrl = m.type === 'link' ? safeExternalUrl(m.url) : null;
+                      return (
+                      m.type === 'link' && safeUrl ? (
+                        <a key={m.id} href={safeUrl} target="_blank" rel="noopener noreferrer"
                           className="flex items-center justify-between gap-3 px-4 py-3.5 rounded-2xl transition hover:border-[#1F4D3A]/40"
                           style={{ border: '1px solid #E5E0D4', background: '#FFFFFF' }}>
                           <span className="font-title font-semibold text-[14.5px]" style={{ color: '#0F1F18' }}>{m.label}</span>
@@ -933,7 +941,8 @@ export function PublicEventPageClient({
                           <div className="text-[14px] leading-[1.7] whitespace-pre-line mt-2" style={{ color: '#3A4A42' }}>{m.content}</div>
                         </details>
                       ) : null
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               )}

@@ -43,7 +43,7 @@ const TOOLS: Tool[] = [
   { label: 'Network',     key: 'networking',  href: s => `/attending/${s}/networking`,  feature: 'networking',   icon: Users },
   { label: 'Q&A',         key: 'q-and-a',     href: s => `/attending/${s}/q-and-a`,     feature: 'qa',           icon: MessageCircle },
   { label: 'Polls',       key: 'polls',       href: s => `/attending/${s}/polls`,       feature: 'polls',        icon: BarChart3 },
-  { label: 'Community',   key: 'community',   href: s => `/attending/${s}/community`,   feature: 'newsfeed',     icon: Newspaper },
+  { label: 'Community',   key: 'community',   href: s => `/attending/${s}/community`,   feature: 'community',    icon: Newspaper },
   { label: 'Leaderboard', key: 'leaderboard', href: s => `/attending/${s}/leaderboard`, feature: 'gamification', icon: Trophy },
   { label: 'Feedback',    key: 'feedback',    href: s => `/attending/${s}/feedback`,    feature: null,           icon: Star },
 ];
