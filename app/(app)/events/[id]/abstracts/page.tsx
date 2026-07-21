@@ -20,7 +20,7 @@ export default async function AbstractsPage({ params }: Props) {
   const admin = createAdminClient();
   const { data: event } = await admin
     .from('events')
-    .select('id, name')
+    .select('id, name, slug')
     .eq('id', id)
     .eq('user_id', user.id)
     .single();
@@ -43,6 +43,7 @@ export default async function AbstractsPage({ params }: Props) {
     <PageShell width="wide">
       <AbstractReviewClient
         eventId={id}
+        eventSlug={event.slug}
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         initialAbstracts={(abstracts ?? []) as any}
         sessions={(sessions ?? []) as { id: string; title: string }[]}

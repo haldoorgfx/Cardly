@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Download, ChevronDown } from 'lucide-react';
+import { Download, ChevronDown, FileText, ExternalLink } from 'lucide-react';
 
 type AbstractStatus = 'pending' | 'accept' | 'reject' | 'revision' | 'waitlist';
 
@@ -51,10 +51,12 @@ function relDate(iso: string) {
 
 export default function AbstractReviewClient({
   eventId,
+  eventSlug,
   initialAbstracts,
   sessions,
 }: {
   eventId: string;
+  eventSlug: string;
   initialAbstracts: Abstract[];
   sessions: Session[];
 }) {
@@ -65,6 +67,7 @@ export default function AbstractReviewClient({
   const [notes, setNotes] = useState<Record<string, string>>({});
   const [assignedSession, setAssignedSession] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const filtered = abstracts.filter(a => tab === 'all' || a.status === tab);
   const active = abstracts.find(a => a.id === activeId);
@@ -80,6 +83,7 @@ export default function AbstractReviewClient({
 
   const saveDecision = async (abstractId: string) => {
     setSaving(abstractId);
+    setSaveError(null);
     try {
       const res = await fetch(`/api/events/${eventId}/abstracts`, {
         method: 'PATCH',
@@ -91,10 +95,20 @@ export default function AbstractReviewClient({
           assigned_session: assignedSession[abstractId],
         }),
       });
-      const data = await res.json() as { abstract: Abstract };
-      if (data.abstract) {
-        setAbstracts(prev => prev.map(a => a.id === abstractId ? data.abstract : a));
+      const data = await res.json().catch(() => null) as { abstract?: Abstract; error?: string } | null;
+
+      // The old code was `if (data.abstract) { … }` with no else and no catch:
+      // a 403, a 500 or a dropped connection stopped the spinner, changed
+      // nothing on screen, and said nothing. A reviewer would record the same
+      // decision again and again believing it had not registered — and on a
+      // non-JSON error body the unguarded res.json() threw on top of that.
+      if (!res.ok || !data?.abstract) {
+        setSaveError(data?.error ?? 'That decision was not saved. Please try again.');
+        return;
       }
+      setAbstracts(prev => prev.map(a => a.id === abstractId ? data.abstract! : a));
+    } catch {
+      setSaveError('That decision was not saved — check your connection and try again.');
     } finally {
       setSaving(null);
     }
@@ -113,6 +127,46 @@ export default function AbstractReviewClient({
     { key: 'revision', label: 'Revision Requested' },
   ];
 
+  // Nothing submitted yet. The page used to render a row of four zeroes, five
+  // filter tabs, and a split panel showing "No abstracts in this filter."
+  // beside "Select an abstract to review." — two inert sentences and a lot of
+  // furniture for a screen with nothing in it, none of which said why it was
+  // empty or what to do about it.
+  if (abstracts.length === 0) {
+    return (
+      <div className="px-4 sm:px-6 lg:px-10 py-16">
+        <div className="max-w-[440px] mx-auto text-center">
+          <div
+            className="w-12 h-12 rounded-2xl mx-auto mb-4 flex items-center justify-center"
+            style={{ background: '#E8EFEB' }}
+          >
+            <FileText size={20} style={{ color: '#1F4D3A' }} />
+          </div>
+          <h2 className="font-title font-bold text-[18px] mb-2" style={{ color: '#0F1F18' }}>
+            No abstracts submitted yet
+          </h2>
+          <p className="text-[14px] leading-relaxed mb-6" style={{ color: '#65736B' }}>
+            Submissions land here as speakers send them in. Share your call-for-papers
+            page to start collecting them.
+          </p>
+          {/* The submission form is a PUBLIC page — there is no organizer-side
+              CFP builder to send them to, so this opens the real thing they
+              share with speakers rather than inventing a settings screen. */}
+          <a
+            href={`/e/${eventSlug}/cfp`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 min-h-[44px] px-5 rounded-xl text-[14px] font-semibold"
+            style={{ background: '#1F4D3A', color: '#FFFFFF', textDecoration: 'none' }}
+          >
+            Open the submission page
+            <ExternalLink size={14} strokeWidth={2} />
+          </a>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div style={{ background: '#FAF6EE' }}>
       {/* Stats + tabs header */}
@@ -130,20 +184,28 @@ export default function AbstractReviewClient({
           ))}
         </div>
 
-        <div className="flex gap-0 overflow-x-auto" style={{ borderBottom: '1px solid #E5E0D4' }}>
-          {FILTER_TABS.map(t => (
-            <button
-              key={t.key}
-              onClick={() => setTab(t.key)}
-              className="px-4 py-2.5 text-[13px] font-medium transition-colors border-b-2 -mb-px shrink-0 whitespace-nowrap"
-              style={{
-                color: tab === t.key ? '#1F4D3A' : '#65736B',
-                borderBottomColor: tab === t.key ? '#1F4D3A' : 'transparent',
-              }}
-            >
-              {t.label}
-            </button>
-          ))}
+        {/* The hairline lives on this wrapper and the -mb-px on the scroller,
+            NOT on the buttons. With `overflow-x-auto` the CSS spec forces
+            overflow-y to `auto` as well, so buttons carrying -mb-px overflowed
+            their scroll container by exactly 1px and summoned a vertical
+            scrollbar — the stray up/down arrow widget floating at the end of
+            the tab row. */}
+        <div style={{ borderBottom: '1px solid #E5E0D4' }}>
+          <div className="flex gap-0 overflow-x-auto -mb-px">
+            {FILTER_TABS.map(t => (
+              <button
+                key={t.key}
+                onClick={() => setTab(t.key)}
+                className="px-4 py-2.5 text-[13px] font-medium transition-colors border-b-2 shrink-0 whitespace-nowrap"
+                style={{
+                  color: tab === t.key ? '#1F4D3A' : '#65736B',
+                  borderBottomColor: tab === t.key ? '#1F4D3A' : 'transparent',
+                }}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -279,15 +341,18 @@ export default function AbstractReviewClient({
                   <button
                     onClick={() => saveDecision(active.id)}
                     disabled={saving === active.id}
-                    className="px-5 py-2.5 rounded-xl font-medium text-[14px] text-white transition-opacity"
+                    className="px-5 min-h-[44px] rounded-xl font-medium text-[14px] text-white transition-opacity"
                     style={{ background: '#1F4D3A', opacity: saving === active.id ? 0.6 : 1 }}
                   >
                     {saving === active.id ? 'Saving…' : 'Save decision'}
                   </button>
-                  <button onClick={goNext} className="text-[13px] font-semibold" style={{ color: '#C9A45E' }}>
+                  <button onClick={goNext} className="text-[13px] font-semibold min-h-[44px] px-1" style={{ color: '#1F4D3A' }}>
                     Next abstract →
                   </button>
                 </div>
+                {saveError && (
+                  <p className="text-[13px] mt-3" style={{ color: '#B8423C' }}>{saveError}</p>
+                )}
               </div>
             </>
           )}
