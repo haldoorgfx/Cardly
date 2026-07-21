@@ -13,18 +13,65 @@ const FROM_NAME = process.env.RESEND_FROM_NAME ?? 'Eventera';
 const FROM = `${FROM_NAME} <${FROM_EMAIL}>`;
 const BASE_URL = 'https://api.resend.com/emails';
 
-async function sendEmail(to: string, subject: string, html: string): Promise<void> {
-  const key = process.env.RESEND_API_KEY;
-  if (!key) return; // no-op if not configured
+interface SendExtras {
+  /** RFC 8058 one-click unsubscribe target. Adds the List-Unsubscribe headers
+   *  Gmail/Yahoo require on bulk mail, and is rendered in the footer. */
+  unsubscribeUrl?: string;
+}
 
-  await fetch(BASE_URL, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${key}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ from: FROM, to, subject, html }),
-  }).catch(() => {}); // fire-and-forget — never crash the caller
+/**
+ * Returns whether Resend accepted the message.
+ *
+ * Never throws — callers treat email as best-effort — but it no longer lies.
+ * The previous `.catch(() => {})` also skipped the response check entirely, so
+ * a revoked API key, a 422 on a malformed address, or a 429 rate limit all
+ * looked identical to success: zero mail delivered, zero signal anywhere. The
+ * reminder cron in particular relies on this boolean to avoid marking a
+ * reminder as sent when nothing was actually sent.
+ */
+async function sendEmail(
+  to: string,
+  subject: string,
+  html: string,
+  extras?: SendExtras,
+): Promise<boolean> {
+  const key = process.env.RESEND_API_KEY;
+  if (!key) return false; // no-op if not configured
+
+  try {
+    const res = await fetch(BASE_URL, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${key}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: FROM,
+        to,
+        subject,
+        html,
+        ...(extras?.unsubscribeUrl
+          ? {
+              headers: {
+                'List-Unsubscribe': `<${extras.unsubscribeUrl}>`,
+                'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+              },
+            }
+          : {}),
+      }),
+    });
+    if (!res.ok) {
+      const detail = await res.text().catch(() => '');
+      console.error(
+        `[email] Resend rejected "${subject}" (${res.status}): ${detail.slice(0, 300)}`,
+      );
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.error(`[email] Resend request failed for "${subject}":`, String(err));
+    return false;
+  }
 }
 
 // ─── Shared HTML shell ────────────────────────────────────────────────────────
@@ -111,7 +158,13 @@ export async function sendNotificationEmail(opts: {
   body?: string;
   actionUrl?: string;
   actionLabel?: string;
-}): Promise<void> {
+  /** Supply for recipients who have NO Eventera account (guest registrants).
+   *  Without it the footer claims they "have email notifications enabled in
+   *  your Eventera account" and links to /settings — untrue, and a page they
+   *  cannot sign in to. With it they get an accurate line and a working
+   *  one-click opt-out. */
+  unsubscribeUrl?: string;
+}): Promise<boolean> {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? '';
   const href = opts.actionUrl
     ? opts.actionUrl.startsWith('http')
@@ -122,8 +175,8 @@ export async function sendNotificationEmail(opts: {
     <h1 style="margin:0 0 12px;font-size:20px;font-weight:700;color:#0F1F18">${esc(opts.title)}</h1>
     ${opts.body ? `<p style="margin:0;font-size:14px;line-height:1.6;color:#3A4A42">${esc(opts.body)}</p>` : ''}
     ${btn(href, opts.actionLabel ?? 'Open Eventera')}
-  `, { preheader: opts.body ?? opts.title });
-  await sendEmail(opts.to, opts.title, html);
+  `, { preheader: opts.body ?? opts.title, unsubscribeUrl: opts.unsubscribeUrl });
+  return sendEmail(opts.to, opts.title, html, { unsubscribeUrl: opts.unsubscribeUrl });
 }
 
 // ─── Welcome email ───────────────────────────────────────────────────────────

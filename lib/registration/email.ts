@@ -4,6 +4,7 @@
 
 import { Resend } from 'resend';
 import { getWhiteLabelByEvent } from '@/lib/white-label/server';
+import { esc } from '@/lib/email';
 
 function getResend(): Resend | null {
   const key = process.env.RESEND_API_KEY;
@@ -27,8 +28,14 @@ const APP_URL_BASE = process.env.NEXT_PUBLIC_APP_URL ?? '';
 const LOGO_WHITE_URL = `${APP_URL_BASE}/eventera-logo-white.png`;
 const LOGO_COLOR_URL = `${APP_URL_BASE}/eventera-logo.png`;
 
+// Delegates to the single shared escaper in lib/email. The local copy this
+// replaces escaped only & < > — NOT the double quote — while the confirmation
+// template interpolates the event title straight into an attribute
+// (`alt="${eventTitle}"`). An event named `" onerror="…` therefore broke out of
+// the attribute in every attendee's inbox. Same escaper everywhere means the
+// gap cannot reopen in one template but not another.
 function escapeHtml(s: string): string {
-  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return esc(s);
 }
 
 /**
@@ -51,7 +58,14 @@ async function resolveBrand(eventId?: string): Promise<EmailBrand> {
           fromName = wl.brandName;
           isDefault = false;
         }
-        if (wl.primaryColor) primary = wl.primaryColor;
+        // Whitelist, not escape. `primary` is interpolated into `style="…"` in
+        // half a dozen places; a Studio organizer setting a primaryColor of
+        // `red" onload="…` would otherwise inject attributes into email sent to
+        // their own attendees. Anything that isn't a plain hex colour is dropped
+        // back to the brand default.
+        if (wl.primaryColor && /^#[0-9a-fA-F]{3,8}$/.test(wl.primaryColor.trim())) {
+          primary = wl.primaryColor.trim();
+        }
         if (wl.fromName) fromName = wl.fromName;
         if (wl.replyToEmail) replyTo = wl.replyToEmail;
       }
@@ -175,7 +189,7 @@ function buildConfirmationHtml(p: RegistrationConfirmEmailParams, appUrl: string
 
     ${p.coverImageUrl ? `
     <div style="border-radius:12px;overflow:hidden;margin-bottom:20px;">
-      <img src="${p.coverImageUrl}" alt="${eventTitle}" width="560" style="display:block;width:100%;height:auto;max-height:220px;object-fit:cover;" />
+      <img src="${escapeHtml(p.coverImageUrl)}" alt="${eventTitle}" width="560" style="display:block;width:100%;height:auto;max-height:220px;object-fit:cover;" />
     </div>
     ` : ''}
 
@@ -207,7 +221,7 @@ function buildConfirmationHtml(p: RegistrationConfirmEmailParams, appUrl: string
 
     ${p.eventeraCardUrl ? `
     <div style="text-align:center;margin-bottom:20px;">
-      <a href="${p.eventeraCardUrl}" style="display:inline-block;background:${brand.primary};color:white;font-size:15px;font-weight:600;padding:14px 32px;border-radius:8px;text-decoration:none;font-family:'Plus Jakarta Sans',Inter,sans-serif;">
+      <a href="${escapeHtml(p.eventeraCardUrl)}" style="display:inline-block;background:${brand.primary};color:white;font-size:15px;font-weight:600;padding:14px 32px;border-radius:8px;text-decoration:none;font-family:'Plus Jakarta Sans',Inter,sans-serif;">
         Download your card
       </a>
       <p style="font-size:12px;color:#65736B;margin:10px 0 0;">Share it on LinkedIn, Twitter, and WhatsApp</p>

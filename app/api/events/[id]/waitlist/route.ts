@@ -15,12 +15,12 @@ const joinSchema = z.object({
   email: z.string().email(),
 });
 
-type PageRow = { id: string; title: string; starts_at: string | null; ends_at: string | null; city: string | null; event_id?: string | null };
+type PageRow = { id: string; title: string; starts_at: string | null; ends_at: string | null; city: string | null; event_id?: string | null; timezone?: string | null };
 
 async function resolvePage(admin: ReturnType<typeof createAdminClient>, id: string): Promise<PageRow | null> {
   const { data: page } = await admin
     .from('event_pages')
-    .select('id, title, starts_at, ends_at, city, event_id')
+    .select('id, title, starts_at, ends_at, city, event_id, timezone')
     .or(`custom_slug.eq.${id},id.eq.${id}`)
     .eq('is_public', true)
     .maybeSingle();
@@ -31,7 +31,7 @@ async function resolvePage(admin: ReturnType<typeof createAdminClient>, id: stri
   if (!event) return null;
   const { data: ep } = await admin
     .from('event_pages')
-    .select('id, title, starts_at, ends_at, city, event_id')
+    .select('id, title, starts_at, ends_at, city, event_id, timezone')
     .eq('event_id', event.id)
     .eq('is_public', true)
     .maybeSingle();
@@ -137,14 +137,19 @@ export async function POST(
 
   if (error) return NextResponse.json({ error: 'Could not join waitlist.' }, { status: 500 });
 
-  sendWaitlistConfirmEmail({
+  // Awaited — an un-awaited promise is dropped when the response ends the
+  // serverless invocation, so the "you're #N in line" mail never arrived.
+  await sendWaitlistConfirmEmail({
     to: email.toLowerCase(),
     name,
     position,
     eventTitle: page.title,
     eventSlug: params.id,
+    // timeZone is the EVENT's zone, not the server's. Vercel runs in UTC, so
+    // without it a 20:00 event in Djibouti/Nairobi/Addis (UTC+3) printed the
+    // previous day's date to the attendee.
     eventDate: page.starts_at
-      ? new Date(page.starts_at).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+      ? new Date(page.starts_at).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: page.timezone ?? undefined })
       : '',
     city: page.city ?? null, eventId: page.event_id ?? undefined,
   }).catch(() => {});
@@ -239,7 +244,7 @@ export async function PATCH(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: entry } = await (admin as any)
     .from('waitlist_entries')
-    .select('email, name, event_pages(title, starts_at, custom_slug, event_id, events!inner(slug))')
+    .select('email, name, event_pages(title, starts_at, timezone, custom_slug, event_id, events!inner(slug))')
     .eq('id', parsed.data.entry_id)
     .maybeSingle();
 
@@ -257,13 +262,16 @@ export async function PATCH(
     : true;
 
   if (waitlistAllowed) {
-    sendWaitlistInviteEmail({
+    // Awaited — this is the time-critical "a spot opened up" mail; dropping it
+    // silently costs the organizer a sale and the attendee their place.
+    await sendWaitlistInviteEmail({
       to: entry.email,
       name: entry.name,
       eventTitle: ep?.title ?? '',
       eventSlug,
+      // Event timezone, not the server's — see the POST handler above.
       eventDate: ep?.starts_at
-        ? new Date(ep.starts_at).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+        ? new Date(ep.starts_at).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: ep.timezone ?? undefined })
         : '',
       eventId: ep?.event_id ?? undefined,
     }).catch(() => {});

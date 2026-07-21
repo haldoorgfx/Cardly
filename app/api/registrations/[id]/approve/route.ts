@@ -83,8 +83,11 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     : '';
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? '';
 
+  // Awaited, not fire-and-forget: the response below ends the serverless
+  // invocation, and a promise still in flight at that point is dropped — the
+  // attendee would be approved or denied in the database and never told.
   if (parsed.data.action === 'approve') {
-    sendApprovedEmail({
+    await sendApprovedEmail({
       to: reg.attendee_email,
       name: reg.attendee_name,
       eventTitle: ep?.title ?? '',
@@ -94,7 +97,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       eventId: reg.events?.id ?? undefined,
     }).catch(() => {});
   } else {
-    sendDeniedEmail({
+    await sendDeniedEmail({
       to: reg.attendee_email,
       name: reg.attendee_name,
       eventTitle: ep?.title ?? '',

@@ -49,10 +49,12 @@ export async function signUp(formData: FormData) {
     return { error: error.message };
   }
 
-  // Fire-and-forget welcome email — never blocks the redirect
+  // Awaited: `redirect()` below throws to unwind the server action, so a
+  // floating promise here was abandoned and the welcome email never sent.
+  // `.catch` keeps a Resend outage from failing the signup itself.
   const email = formData.get("email") as string;
   const name = (formData.get("full_name") as string) || email;
-  sendWelcomeEmail({ to: email, name }).catch(() => {});
+  await sendWelcomeEmail({ to: email, name }).catch(() => {});
 
   revalidatePath("/", "layout");
 

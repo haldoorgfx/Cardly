@@ -497,13 +497,19 @@ export async function POST(req: NextRequest) {
   // Check card generation limit for the event owner
   const { allowed, plan } = await canGenerateCard(event.user_id);
   if (!allowed) {
-    // Notify the owner (best-effort) when their cap is hit
-    supabase.from('profiles').select('email, notify_downloads').eq('id', event.user_id).single()
-      .then(({ data: owner }) => {
-        if (owner?.notify_downloads !== false) {
-          sendCapReachedEmail({ to: owner?.email ?? '', eventId: event.id });
-        }
-      });
+    // Notify the owner (best-effort) when their cap is hit.
+    // Awaited: this used to be a floating .then() chain immediately before the
+    // return, so the serverless function froze on the response and neither the
+    // profile lookup nor the email ever ran — the cap-reached mail was dead
+    // code in production.
+    const { data: owner } = await supabase
+      .from('profiles')
+      .select('email, notify_downloads')
+      .eq('id', event.user_id)
+      .single();
+    if (owner?.notify_downloads !== false) {
+      await sendCapReachedEmail({ to: owner?.email ?? '', eventId: event.id });
+    }
     return NextResponse.json({ error: 'CARD_LIMIT_REACHED' }, { status: 402 });
   }
 

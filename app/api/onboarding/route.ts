@@ -160,7 +160,9 @@ export async function POST(req: NextRequest) {
           try {
             const invite = await createInvite(team.id, email, 'member', user.id);
             used++;
-            sendTeamInviteEmail({
+            // Awaited — otherwise the invite row exists but the invitee never
+            // receives the link, and the seat is silently consumed.
+            await sendTeamInviteEmail({
               to: email,
               teamName: team.name,
               inviterName: profile?.full_name ?? profile?.email ?? 'Someone',
