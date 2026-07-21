@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createApiKey, listApiKeys, normalizeScopes } from '@/lib/api-keys';
+import { getUserPlan } from '@/lib/billing/can';
 
 // GET /api/keys — list user's active API keys
 export async function GET() {
@@ -19,19 +20,11 @@ export async function POST(req: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  // Studio plan only
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('plan, subscription_status')
-    .eq('id', user.id)
-    .single();
-
-  const subscriptionFailed =
-    profile?.subscription_status === 'canceled' ||
-    profile?.subscription_status === 'past_due';
-  const plan = (subscriptionFailed && profile?.plan !== 'free') ? 'free' : (profile?.plan ?? 'free');
-
-  if (plan !== 'studio') {
+  // Studio plan only. Uses the canonical helper rather than a local copy of the
+  // plan rules — the copy that lived here missed `incomplete` (first payment
+  // declined) and getUserPlan's period-end backstop, so it issued live API keys
+  // to accounts that had never successfully paid for Studio.
+  if ((await getUserPlan(user.id)) !== 'studio') {
     return NextResponse.json({ error: 'API keys require the Studio plan.' }, { status: 402 });
   }
 

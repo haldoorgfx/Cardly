@@ -16,7 +16,7 @@ import { createAdminClient } from '@/lib/supabase/server';
 
 export async function POST(req: NextRequest) {
   // ── Auth via Bearer token (Studio plan + full_access scope enforced) ───────
-  const auth = await authenticateApiKey(req, 'full_access');
+  const auth = await authenticateApiKey(req, 'full_access', { rateTier: 'apiKeyRender' });
   if (!auth.ok) return auth.response;
 
   const body = await req.text();

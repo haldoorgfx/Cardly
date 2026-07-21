@@ -51,7 +51,7 @@ export async function createApiKey(
   return { key: rawKey, record: data as ApiKey };
 }
 
-export interface ValidatedKey { userId: string; scopes: ApiScope[]; }
+export interface ValidatedKey { keyId: string; userId: string; scopes: ApiScope[]; }
 
 /** Validate an incoming Bearer token. Returns { userId, scopes } or null if invalid/revoked. */
 export async function validateApiKey(rawKey: string): Promise<ValidatedKey | null> {
@@ -74,7 +74,11 @@ export async function validateApiKey(rawKey: string): Promise<ValidatedKey | nul
     .eq('id', data.id)
     .then(() => {});
 
-  return { userId: data.user_id as string, scopes: (data.scopes as ApiScope[]) ?? [] };
+  return {
+    keyId: data.id as string,
+    userId: data.user_id as string,
+    scopes: (data.scopes as ApiScope[]) ?? [],
+  };
 }
 
 /** List all active API keys for a user (hashes never returned). */

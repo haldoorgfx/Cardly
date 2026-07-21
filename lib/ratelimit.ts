@@ -101,6 +101,23 @@ export const limiters = {
   // Signature-verified machine traffic. Generous on purpose — see the webhook
   // entries in the route map for why throttling these is the wrong trade.
   webhook:  makeLimit(120, '60 s'),
+  // Door traffic — the check-in endpoint on event day.
+  //
+  // Every limiter here keys on IP, and every phone, tablet and laptop at a
+  // venue leaves through ONE public IP. At 'standard' (60/min) a single door
+  // was sharing 60 requests a minute across: the dashboard's 5-second live-feed
+  // poll (12/min per open tab), the kiosk, and every keystroke of every staff
+  // member's attendee search — before a single ticket is scanned. Three staff
+  // on the venue wifi exhausted it, and the 429 lands as "Too many requests"
+  // on the scanner with a queue waiting. This tier is sized so a busy door
+  // cannot rate-limit itself, while still capping a runaway client.
+  door:     makeLimit(600, '60 s'),
+  // Public API (/api/v1/*), keyed on the API KEY rather than the IP — see
+  // checkApiKeyRateLimit below for why IP is the wrong unit for this surface.
+  apiKey:       makeLimit(120, '60 s'),
+  // Card rendering is the one genuinely expensive call on the public API, so
+  // it gets a much smaller per-key budget of its own.
+  apiKeyRender: makeLimit(20,  '60 s'),
 } as const;
 
 export type LimiterTier = keyof typeof limiters;
@@ -130,7 +147,15 @@ const ROUTE_TIERS: Array<{ prefix: string; tier: LimiterTier; methods?: string[]
   { prefix: '/api/payments/webhook',             tier: 'webhook' },
   { prefix: '/api/payments/flutterwave-webhook', tier: 'webhook' },
   { prefix: '/api/payments/waafipay-webhook',    tier: 'webhook' },
-  { prefix: '/api/webhooks',                     tier: 'webhook' },
+  // Inbound, signature-verified Stripe deliveries — the same argument as the
+  // three above. NOTE: this is deliberately the '/stripe' path and not the
+  // bare '/api/webhooks' prefix. The bare prefix also covers the organizer's
+  // OWN webhook CRUD (POST /api/webhooks, PATCH /api/webhooks/[id]), which is
+  // ordinary browser traffic that was being handed 120 req/min — and whose
+  // POST body performs a DNS lookup of a caller-supplied hostname, so that
+  // budget doubled as a cheap internal-network scanning primitive. The CRUD
+  // routes now fall through to 'standard'.
+  { prefix: '/api/webhooks/stripe',              tier: 'webhook' },
   // Strictest — auth, payments
   { prefix: '/api/auth',                      tier: 'strict'   },
   { prefix: '/api/billing',                   tier: 'strict'   },
@@ -169,6 +194,11 @@ const ROUTE_TIER_PATTERNS: Array<{ pattern: RegExp; tier: LimiterTier; methods?:
   { pattern: /^\/api\/events\/[^/]+\/copilot(\/|$)/,  tier: 'render' },
   // Expensive LLM matchmaking generation.
   { pattern: /^\/api\/events\/[^/]+\/matches(\/|$)/,  tier: 'render' },
+  // Day-of-event door traffic — scans, attendee lookups and the live feed all
+  // arrive from one venue IP. See the 'door' tier comment for why 'standard'
+  // was a self-inflicted outage at the busiest moment of an event.
+  { pattern: /^\/api\/events\/[^/]+\/checkin(\/|$)/,  tier: 'door'   },
+  { pattern: /^\/api\/events\/[^/]+\/walk-in(\/|$)/,  tier: 'door'   },
   // Brute-forceable / oracle-style public endpoints — keep them strict.
   { pattern: /^\/api\/events\/[^/]+\/unlock(\/|$)/,     tier: 'strict' },
   { pattern: /^\/api\/events\/[^/]+\/check-email(\/|$)/, tier: 'strict' },
@@ -235,6 +265,33 @@ export async function checkRateLimit(
 
   if (result.success) return { allowed: true };
 
+  const retryAfter = Math.ceil((result.reset - Date.now()) / 1000);
+  return { allowed: false, retryAfter: Math.max(retryAfter, 1) };
+}
+
+// ── Per-API-key limiting (public API) ─────────────────────────────────────────
+//
+// The middleware limiter above keys every tier on the client IP, which is the
+// wrong unit for /api/v1. A public API is machine traffic, and the IP it
+// arrives from says nothing useful about who is calling:
+//
+//   • One key spread across a fleet — a customer's workers, a serverless
+//     integration, anything behind rotating egress IPs — never accumulates
+//     enough hits on any single IP to be limited at all. The account-level
+//     budget the docs promise did not exist.
+//   • Conversely, several customers behind one corporate NAT or one cloud
+//     region's egress range SHARE a budget and throttle each other.
+//
+// So the public API is limited on the key id, which is the thing that maps to
+// an account and to a bill. This runs after authentication (an unauthenticated
+// request never gets here — it is already rejected, and is still covered by
+// the middleware's IP limiter), so it cannot be used to enumerate keys.
+export async function checkApiKeyRateLimit(
+  keyId: string,
+  tier: 'apiKey' | 'apiKeyRender' = 'apiKey',
+): Promise<{ allowed: true } | { allowed: false; retryAfter: number }> {
+  const result = await limiters[tier].limit(`${tier}:${keyId}`);
+  if (result.success) return { allowed: true };
   const retryAfter = Math.ceil((result.reset - Date.now()) / 1000);
   return { allowed: false, retryAfter: Math.max(retryAfter, 1) };
 }

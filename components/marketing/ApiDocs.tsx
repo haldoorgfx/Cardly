@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { AUTO_DISABLE_AFTER } from '@/lib/webhooks/constants';
 
 // ── Brand tokens ─────────────────────────────────────────────────────────────
 const C = {
@@ -280,7 +281,7 @@ export function ApiDocs({ baseUrl, appUrl }: { baseUrl: string; appUrl: string }
 
   const verifyWebhook: Record<Lang, string> = {
     curl: `# Signature is sent in the X-Eventera-Signature header:\n#   sha256=<hex HMAC-SHA256 of the raw body using your webhook secret>`,
-    node: `import crypto from "crypto";\n\nfunction verify(rawBody, signature, secret) {\n  const expected =\n    "sha256=" + crypto.createHmac("sha256", secret).update(rawBody).digest("hex");\n  return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected));\n}`,
+    node: `import crypto from "crypto";\n\nfunction verify(rawBody, signature, secret) {\n  const expected =\n    "sha256=" + crypto.createHmac("sha256", secret).update(rawBody).digest("hex");\n  const a = Buffer.from(signature || "", "utf8");\n  const b = Buffer.from(expected, "utf8");\n  // Length check first: timingSafeEqual THROWS on mismatched lengths, so a\n  // forged header would crash your handler instead of being rejected.\n  if (a.length !== b.length) return false;\n  return crypto.timingSafeEqual(a, b);\n}`,
     python: `import hmac, hashlib\n\ndef verify(raw_body: bytes, signature: str, secret: str) -> bool:\n    expected = "sha256=" + hmac.new(\n        secret.encode(), raw_body, hashlib.sha256\n    ).hexdigest()\n    return hmac.compare_digest(signature, expected)`,
   };
 
@@ -482,7 +483,7 @@ export function ApiDocs({ baseUrl, appUrl }: { baseUrl: string; appUrl: string }
               rows={[
                 ['events:read', 'Read events and their ticket types'],
                 ['registrations:read', 'Read attendee registrations'],
-                ['analytics:read', 'Read aggregate stats'],
+                ['analytics:read', 'Reserved — no endpoint requires it yet. View and download counts come back with events:read.'],
                 ['checkin:write', 'Check attendees in'],
                 ['full_access', 'All of the above, including card rendering'],
               ]}
@@ -545,13 +546,15 @@ export function ApiDocs({ baseUrl, appUrl }: { baseUrl: string; appUrl: string }
                 ['event.viewed', 'An attendee opened a public event page'],
               ]}
             />
-            <P>Each delivery is a JSON POST that includes an <InlineCode>X-Eventera-Signature</InlineCode> header — <InlineCode>sha256=</InlineCode> followed by the HMAC-SHA256 of the raw request body, keyed with your webhook secret. Verify it before trusting the payload:</P>
+            <P>Each delivery is a JSON POST that includes an <InlineCode>X-Eventera-Signature</InlineCode> header — <InlineCode>sha256=</InlineCode> followed by the HMAC-SHA256 of the raw request body, keyed with your webhook secret. The secret is shown once when you add the webhook; if you lose it, use <InlineCode>Rotate secret</InlineCode> in <InlineCode>Settings → Developer</InlineCode> to issue a new one. Verify it before trusting the payload:</P>
             <Request lang={lang} samples={verifyWebhook} />
             <P>Your endpoint should respond <InlineCode>2xx</InlineCode> quickly. Non-2xx responses count as failures and are surfaced in the dashboard; only HTTPS URLs that resolve to public hosts are accepted.</P>
 
             {/* REFERENCE */}
+            <P>A delivery is attempted up to three times with a short backoff, and is retried only on a timeout, a network error, or a <InlineCode>408</InlineCode>/<InlineCode>425</InlineCode>/<InlineCode>429</InlineCode>/<InlineCode>5xx</InlineCode> response — any other <InlineCode>4xx</InlineCode> is treated as a deliberate rejection. Respond <InlineCode>2xx</InlineCode> within 4 seconds; do your work after acknowledging. After {AUTO_DISABLE_AFTER} consecutive failures the endpoint is switched off and you&apos;ll see it disabled in <InlineCode>Settings → Developer</InlineCode>. Webhooks are a best-effort notification, not a guaranteed log — reconcile with the REST endpoints if you need completeness.</P>
+
             <H2 id="rate-limits">Rate limits</H2>
-            <P>Requests are rate-limited per IP address. When you exceed the limit you receive a <InlineCode>429 Too Many Requests</InlineCode> response with a <InlineCode>Retry-After</InlineCode> header (in seconds). Back off for that many seconds before retrying. Design bulk syncs to page steadily rather than firing many requests in parallel.</P>
+            <P>Requests are rate-limited per API key: 120 requests per minute, and 20 per minute for <InlineCode>POST /render</InlineCode>, which is far more expensive than the read endpoints. A separate per-IP limit also applies. When you exceed either you receive a <InlineCode>429 Too Many Requests</InlineCode> response with a <InlineCode>Retry-After</InlineCode> header (in seconds). Back off for that many seconds before retrying. Design bulk syncs to page steadily rather than firing many requests in parallel.</P>
 
             <H2 id="errors">Errors</H2>
             <P>Eventera uses conventional HTTP status codes. Errors return a JSON body with an <InlineCode>error</InlineCode> message (and sometimes extra context like <InlineCode>required_scope</InlineCode>).</P>

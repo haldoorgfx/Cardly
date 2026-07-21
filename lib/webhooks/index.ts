@@ -62,6 +62,33 @@ export async function updateWebhook(
   if (error) throw new Error(error.message);
 }
 
+/**
+ * Issue a fresh signing secret for a webhook and return it in full.
+ *
+ * The secret is the ONLY thing that makes X-Eventera-Signature meaningful, and
+ * until now there was no path to it: createWebhook returns the row once, and
+ * the list endpoint truncates `secret` to eight characters. An organizer who
+ * did not capture it at creation — which the UI never showed them — could
+ * never verify a delivery again, so the documented verification snippet was
+ * unusable. Rotating is the safe way back: it hands over a value the caller
+ * demonstrably owns rather than re-serving a stored secret on demand.
+ *
+ * Returns null if the webhook isn't found or isn't owned by this user.
+ */
+export async function rotateWebhookSecret(id: string, userId: string): Promise<string | null> {
+  const db = createAdminClient();
+  const secret = crypto.randomBytes(24).toString('hex');
+  const { data, error } = await (db as any)
+    .from('webhooks')
+    .update({ secret })
+    .eq('id', id)
+    .eq('user_id', userId)
+    .select('id')
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  return data ? secret : null;
+}
+
 export async function deleteWebhook(id: string, userId: string): Promise<void> {
   const db = createAdminClient();
   const { error } = await (db as any)

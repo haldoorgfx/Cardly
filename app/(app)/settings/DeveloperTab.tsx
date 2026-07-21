@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Key, Webhook, Plus, Trash2, Copy, Check, ExternalLink } from 'lucide-react';
 import { useConfirm } from '@/components/ui/ConfirmProvider';
+import { AUTO_DISABLE_AFTER } from '@/lib/webhooks/constants';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -31,6 +32,8 @@ interface WebhookRow {
   created_at: string;
   last_fired_at: string | null;
   failure_count: number;
+  /** Full value only on the create response; truncated in the list. */
+  secret?: string;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -349,6 +352,9 @@ function WebhooksSection({ plan }: { plan: string }) {
   const [selectedEvents, setSelectedEvents] = useState<string[]>(['card.generated']);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState('');
+  // Shown once, immediately after create or rotate. Never re-fetchable — the
+  // list endpoint only ever returns a truncated secret.
+  const [revealedSecret, setRevealedSecret] = useState<string | null>(null);
 
   useEffect(() => {
     fetch('/api/webhooks').then(r => r.json()).then(d => { setHooks(d); setLoading(false); }).catch(() => setLoading(false));
@@ -370,9 +376,30 @@ function WebhooksSection({ plan }: { plan: string }) {
     const data = await res.json();
     if (!res.ok) { setError(data.error ?? 'Failed.'); setCreating(false); return; }
     setHooks(prev => [data, ...prev]);
+    // The create response is the one moment the full signing secret exists
+    // client-side. Surfacing it here is what makes signature verification
+    // possible at all — previously it was returned and silently dropped.
+    if (data.secret) setRevealedSecret(data.secret);
     setUrl('');
     setSelectedEvents(['card.generated']);
     setCreating(false);
+  }
+
+  async function rotateSecret(id: string) {
+    if (!(await confirm({
+      title: 'Issue a new signing secret?',
+      body: 'The current secret stops verifying immediately. Update your receiver with the new one.',
+      confirmLabel: 'Rotate secret',
+      danger: true,
+    }))) return;
+    const res = await fetch(`/api/webhooks/${id}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'rotate_secret' }),
+    });
+    const data = await res.json();
+    if (!res.ok) { setError(data.error ?? 'Failed to rotate secret.'); return; }
+    setRevealedSecret(data.secret);
   }
 
   async function toggle(id: string, enabled: boolean) {
@@ -405,6 +432,36 @@ function WebhooksSection({ plan }: { plan: string }) {
 
   return (
     <div>
+      {/* Signing secret — shown once, on create or rotate. */}
+      {revealedSecret && (
+        <div className="mb-5 rounded-2xl p-5" style={{ background: 'white', border: '1px solid #E5E0D4', boxShadow: '0 4px 12px rgba(15,31,24,0.08)' }}>
+          <div className="font-display font-medium text-[18px] mb-1" style={{ color: '#0F1F18' }}>Your webhook signing secret</div>
+          <div className="text-[13px] mb-4" style={{ color: '#65736B' }}>
+            Copy this now — it won&apos;t be shown again. Use it to verify the{' '}
+            <code className="text-[12.5px] bg-[#FAF6EE] px-1 py-0.5 rounded-md">X-Eventera-Signature</code> header on every delivery.
+          </div>
+          <div className="rounded-xl px-4 py-3 text-[14px] break-all mb-4" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
+            {revealedSecret}
+          </div>
+          <div className="flex flex-col sm:flex-row gap-2.5">
+            <button
+              onClick={() => navigator.clipboard.writeText(revealedSecret)}
+              className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-[13px] font-semibold text-white"
+              style={{ background: '#1F4D3A' }}
+            >
+              <Copy size={13} /> Copy secret
+            </button>
+            <button
+              onClick={() => setRevealedSecret(null)}
+              className="flex-1 py-2.5 rounded-xl text-[13px] font-medium"
+              style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#65736B' }}
+            >
+              I&apos;ve copied my secret
+            </button>
+          </div>
+        </div>
+      )}
+
       <form onSubmit={create} className="space-y-3 mb-4">
         <input
           type="url"
@@ -448,11 +505,11 @@ function WebhooksSection({ plan }: { plan: string }) {
           {hooks.map((h, i) => (
             <div
               key={h.id}
-              className="flex items-center gap-3 px-4 py-3"
+              className="flex items-start sm:items-center gap-3 flex-wrap px-4 py-3"
               style={{ borderBottom: i < hooks.length - 1 ? '1px solid #E5E0D4' : 'none', opacity: h.enabled ? 1 : 0.5 }}
             >
-              <Webhook size={13} strokeWidth={2} color="#65736B" className="shrink-0" />
-              <div className="flex-1 min-w-0">
+              <Webhook size={13} strokeWidth={2} color="#65736B" className="shrink-0 mt-1 sm:mt-0" />
+              <div className="flex-1 min-w-0 basis-[60%]">
                 <div className="flex items-center gap-2">
                   <span className="text-[13px] text-[#0F1F18] truncate">{h.url}</span>
                   <a href={h.url} target="_blank" rel="noopener noreferrer" className="shrink-0 text-[#65736B] hover:text-[#1F4D3A]">
@@ -465,28 +522,38 @@ function WebhooksSection({ plan }: { plan: string }) {
                   {h.failure_count > 0 && <span className="text-[#C97A2D] ml-1">· {h.failure_count} failure{h.failure_count !== 1 ? 's' : ''}</span>}
                 </div>
               </div>
-              <button
-                onClick={() => toggle(h.id, !h.enabled)}
-                className="text-[12.5px] px-2 py-1 rounded-lg transition"
-                style={{ background: h.enabled ? 'rgba(31,77,58,0.08)' : '#F5F5F0', color: h.enabled ? '#1F4D3A' : '#65736B' }}
-              >
-                {h.enabled ? 'Enabled' : 'Disabled'}
-              </button>
-              <button
-                onClick={() => remove(h.id)}
-                className="h-7 w-7 grid place-items-center rounded-lg transition hover:bg-red-50"
-                style={{ color: '#B8423C' }}
-                title="Delete webhook"
-              >
-                <Trash2 size={13} />
-              </button>
+              <div className="flex items-center gap-2 shrink-0 ml-auto">
+                <button
+                  onClick={() => rotateSecret(h.id)}
+                  className="text-[12.5px] px-2 py-1 rounded-lg transition hover:bg-[#FAF6EE] whitespace-nowrap"
+                  style={{ color: '#3A4A42' }}
+                  title="Issue a new signing secret"
+                >
+                  Rotate secret
+                </button>
+                <button
+                  onClick={() => toggle(h.id, !h.enabled)}
+                  className="text-[12.5px] px-2 py-1 rounded-lg transition whitespace-nowrap"
+                  style={{ background: h.enabled ? 'rgba(31,77,58,0.08)' : '#F5F5F0', color: h.enabled ? '#1F4D3A' : '#65736B' }}
+                >
+                  {h.enabled ? 'Enabled' : 'Disabled'}
+                </button>
+                <button
+                  onClick={() => remove(h.id)}
+                  className="h-7 w-7 grid place-items-center rounded-lg transition hover:bg-red-50"
+                  style={{ color: '#B8423C' }}
+                  title="Delete webhook"
+                >
+                  <Trash2 size={13} />
+                </button>
+              </div>
             </div>
           ))}
         </div>
       )}
 
       <p className="mt-3 text-[12px] text-[#65736B]">
-        Each request includes an <code className="font-sans text-[12.5px] bg-[#FAF6EE] px-1 py-0.5 rounded-md">X-Eventera-Signature</code> header (HMAC-SHA256) for verification.
+        Each request includes an <code className="font-sans text-[12.5px] bg-[#FAF6EE] px-1 py-0.5 rounded-md">X-Eventera-Signature</code> header (HMAC-SHA256 of the raw body, keyed with your signing secret). The secret is shown once when you add a webhook — use <span style={{ color: '#3A4A42' }}>Rotate secret</span> to issue a new one if you lose it. A webhook is switched off automatically after {AUTO_DISABLE_AFTER} consecutive failed deliveries.
       </p>
     </div>
   );
