@@ -149,6 +149,96 @@ export function zonedDayKey(isoString: string, timezone: string): string {
   }).format(new Date(isoString));
 }
 
+/** The discovery date filters offered on the feed, city and category pages. */
+export type DiscoveryDateWindow = 'any' | 'today' | 'weekend' | 'week' | 'month';
+
+/** A `YYYY-MM-DD` key for a Date that was anchored at noon UTC (DST-safe). */
+function utcDayKey(d: Date): string {
+  return d.toISOString().slice(0, 10);
+}
+
+/** Parse a `YYYY-MM-DD` key back to a Date at noon UTC, away from any edge. */
+function dayKeyToUTCNoon(key: string): Date {
+  const [y, m, d] = key.split('-').map(Number);
+  return new Date(Date.UTC(y, m - 1, d, 12));
+}
+
+/**
+ * Does an event fall inside a discovery date window ("Today", "This weekend",
+ * "This week", "This month")?
+ *
+ * Every comparison happens on calendar-day keys computed in the EVENT's own
+ * time zone. Discovery previously compared the raw instant against the
+ * viewer's `new Date()`, which is wrong in both directions on a marketplace
+ * that spans zones: a 01:00 Djibouti (UTC+3) event is 22:00 UTC the day
+ * before, so a London visitor filtering "Today" never saw it, while a Los
+ * Angeles visitor saw tomorrow's Nairobi events under "Today". In a thin
+ * market a single wrongly-filtered event is most of the inventory.
+ */
+export function matchesDiscoveryDateWindow(
+  startsAt: string | null | undefined,
+  timezone: string | null | undefined,
+  window: DiscoveryDateWindow,
+  now: Date = new Date()
+): boolean {
+  if (window === 'any') return true;
+  if (!startsAt) return false;
+  const start = new Date(startsAt);
+  if (Number.isNaN(start.getTime())) return false;
+
+  const tz = timezone || 'UTC';
+  const eventKey = zonedDayKey(startsAt, tz);
+  const todayKey = zonedDayKey(now.toISOString(), tz);
+
+  // "Today" includes an event that already started today — on a feed that
+  // keeps ongoing events visible, dropping it would hide the live ones.
+  if (window === 'today') return eventKey === todayKey;
+
+  // Every other window looks forward only.
+  if (eventKey < todayKey) return false;
+
+  const today = dayKeyToUTCNoon(todayKey);
+
+  if (window === 'week') {
+    const end = new Date(today);
+    end.setUTCDate(end.getUTCDate() + 7);
+    return eventKey < utcDayKey(end);
+  }
+
+  if (window === 'weekend') {
+    // Sunday counts as part of the weekend already in progress, not as the
+    // start of a wait for the next one six days out.
+    const day = today.getUTCDay(); // 0 Sun .. 6 Sat
+    const sat = new Date(today);
+    sat.setUTCDate(sat.getUTCDate() + (day === 0 ? -1 : 6 - day));
+    const mon = new Date(sat);
+    mon.setUTCDate(mon.getUTCDate() + 2);
+    return eventKey >= utcDayKey(sat) && eventKey < utcDayKey(mon);
+  }
+
+  // "This month" — same calendar month, in the event's zone.
+  return eventKey.slice(0, 7) === todayKey.slice(0, 7);
+}
+
+/**
+ * Is an event within the next `days` calendar days, in its own zone? Used to
+ * split "Happening soon" from the later sections.
+ */
+export function isWithinDaysZoned(
+  startsAt: string | null | undefined,
+  timezone: string | null | undefined,
+  days: number,
+  now: Date = new Date()
+): boolean {
+  if (!startsAt) return false;
+  const tz = timezone || 'UTC';
+  const eventKey = zonedDayKey(startsAt, tz);
+  const todayKey = zonedDayKey(now.toISOString(), tz);
+  const end = dayKeyToUTCNoon(todayKey);
+  end.setUTCDate(end.getUTCDate() + days);
+  return eventKey < utcDayKey(end);
+}
+
 /** Human day heading for an instant, in the event's zone. */
 export function formatZonedDayLabel(
   isoString: string,

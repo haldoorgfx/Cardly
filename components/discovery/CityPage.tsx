@@ -6,6 +6,11 @@ import { useRouter } from 'next/navigation';
 import { Map } from 'lucide-react';
 import { EventCard, type DiscoveryEvent } from './EventCard';
 import { toggleSavedEvent } from '@/components/shared/saveEvent';
+import {
+  matchesDiscoveryDateWindow,
+  isWithinDaysZoned,
+  type DiscoveryDateWindow,
+} from '@/lib/events/format';
 
 const DATE_CHIPS = ['All dates', 'Today', 'This weekend', 'This week'] as const;
 const CAT_CHIPS = ['Music', 'Tech', 'Food', 'Business', 'Culture', 'Free'] as const;
@@ -42,30 +47,27 @@ export function CityPage({ city, events, savedIds, eventCount }: CityPageProps) 
     }
   }, [router, city]);
 
-  const now = new Date();
-  const todayEnd = new Date(now); todayEnd.setHours(23, 59, 59, 999);
-  const weekendStart = (() => {
-    const d = new Date(now);
-    d.setDate(d.getDate() + ((6 - d.getDay() + 7) % 7));
-    d.setHours(0, 0, 0, 0);
-    return d;
-  })();
-  const weekendEnd = new Date(weekendStart); weekendEnd.setDate(weekendStart.getDate() + 1); weekendEnd.setHours(23, 59, 59, 999);
-  const weekEnd = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+  // Date chips resolve in each EVENT's own time zone. Comparing the raw
+  // instant against the browser's clock (the previous approach) meant a
+  // visitor abroad — or simply one zone over — saw a different "Today" than
+  // the city they are browsing.
+  const CHIP_WINDOW: Record<DateChip, DiscoveryDateWindow> = {
+    'All dates': 'any',
+    'Today': 'today',
+    'This weekend': 'weekend',
+    'This week': 'week',
+  };
 
   const filtered = events.filter(ev => {
-    const start = new Date(ev.starts_at);
-    if (dateChip === 'Today' && (start < now || start > todayEnd)) return false;
-    if (dateChip === 'This weekend' && (start < weekendStart || start > weekendEnd)) return false;
-    if (dateChip === 'This week' && (start < now || start > weekEnd)) return false;
+    if (!matchesDiscoveryDateWindow(ev.starts_at, ev.timezone, CHIP_WINDOW[dateChip])) return false;
     if (catChip === 'Free' && (ev.price_from ?? -1) !== 0) return false;
     if (catChip && catChip !== 'Free' && ev.category?.toLowerCase() !== catChip.toLowerCase()) return false;
     return true;
   });
 
-  // Group into "This weekend" + "Next week" sections
-  const soonEvents = filtered.filter(ev => new Date(ev.starts_at) <= weekEnd);
-  const laterEvents = filtered.filter(ev => new Date(ev.starts_at) > weekEnd);
+  // Group into "Happening soon" (next 7 days) + "Coming up", also zoned.
+  const soonEvents = filtered.filter(ev => isWithinDaysZoned(ev.starts_at, ev.timezone, 7));
+  const laterEvents = filtered.filter(ev => !isWithinDaysZoned(ev.starts_at, ev.timezone, 7));
 
   const coverUrl = events[0]?.cover_image_url ?? null;
 
@@ -158,11 +160,42 @@ export function CityPage({ city, events, savedIds, eventCount }: CityPageProps) 
       {/* Event sections */}
       <div className="pt-8 pb-24 flex flex-col gap-12">
         {filtered.length === 0 ? (
-          <div className="rounded-2xl flex items-center justify-center py-20 text-center" style={{ background: '#fff', border: '1px solid #E5E0D4' }}>
-            <div>
-              <div className="font-medium text-[15px] mb-1" style={{ color: '#0F1F18' }}>No events match</div>
-              <div className="text-[13px]" style={{ color: '#65736B' }}>Try adjusting the filters above.</div>
-            </div>
+          /* Two genuinely different situations. "Try adjusting the filters"
+             is useless advice when the city simply has nothing listed yet —
+             the common case in a launch market — so that case gets its own
+             copy and a route out (browse everything / list an event). */
+          <div className="rounded-2xl flex items-center justify-center py-20 px-5 text-center" style={{ background: '#fff', border: '1px solid #E5E0D4' }}>
+            {events.length === 0 ? (
+              <div className="max-w-sm">
+                <div className="font-medium text-[15px] mb-1" style={{ color: '#0F1F18' }}>
+                  No events in {city} yet
+                </div>
+                <div className="text-[13px] mb-5" style={{ color: '#65736B' }}>
+                  Nothing is listed here right now. Browse everything happening elsewhere, or be the first to put {city} on the map.
+                </div>
+                <div className="flex flex-wrap gap-2 justify-center">
+                  <Link
+                    href="/events"
+                    className="inline-flex items-center h-10 px-4 rounded-xl text-[13px] font-semibold"
+                    style={{ background: '#1F4D3A', color: '#FAF6EE' }}
+                  >
+                    Browse all events
+                  </Link>
+                  <Link
+                    href="/events/new"
+                    className="inline-flex items-center h-10 px-4 rounded-xl text-[13px] font-semibold"
+                    style={{ background: '#FFFFFF', color: '#1F4D3A', border: '1px solid #1F4D3A' }}
+                  >
+                    Create an event
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <div className="font-medium text-[15px] mb-1" style={{ color: '#0F1F18' }}>No events match</div>
+                <div className="text-[13px]" style={{ color: '#65736B' }}>Try adjusting the filters above.</div>
+              </div>
+            )}
           </div>
         ) : (
           <>

@@ -6,6 +6,11 @@ import { useRouter } from 'next/navigation';
 import { EventCard, type DiscoveryEvent } from './EventCard';
 import { toggleSavedEvent } from '@/components/shared/saveEvent';
 import { EVENT_CATEGORIES, categorySlug } from '@/lib/categories';
+import {
+  matchesDiscoveryDateWindow,
+  isWithinDaysZoned,
+  type DiscoveryDateWindow,
+} from '@/lib/events/format';
 
 const ALL_CATEGORIES = EVENT_CATEGORIES;
 
@@ -43,15 +48,10 @@ export function CategoryPage({ category, events, savedIds, cityCounts }: Categor
     }
   }, [router, category]);
 
-  const now = new Date();
-  const weekEnd = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-  const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-
   const filtered = events.filter(ev => {
-    const start = new Date(ev.starts_at);
     if (cityFilter !== 'all' && (ev.city ?? '') !== cityFilter) return false;
-    if (dateFilter === 'week' && start > weekEnd) return false;
-    if (dateFilter === 'month' && start > monthEnd) return false;
+    // Date windows resolve in the EVENT's zone, not the visitor's browser.
+    if (dateFilter !== 'any' && !matchesDiscoveryDateWindow(ev.starts_at, ev.timezone, dateFilter as DiscoveryDateWindow)) return false;
     if (priceFilter === 'free' && (ev.price_from ?? -1) !== 0) return false;
     if (priceFilter === 'paid' && ev.price_from === 0) return false;
     if (formatFilter === 'online' && !ev.is_online) return false;
@@ -59,8 +59,16 @@ export function CategoryPage({ category, events, savedIds, cityCounts }: Categor
     return true;
   });
 
-  const happening = filtered.filter(ev => new Date(ev.starts_at) <= weekEnd);
-  const popular = filtered.filter(ev => new Date(ev.starts_at) > weekEnd).slice(0, 8);
+  // Both sections are DATE bands, and are labelled as such.
+  //
+  // The second one used to be titled "Popular this month" while being nothing
+  // but "starts more than 7 days out" — no popularity signal exists anywhere
+  // in this data (there is no per-event view or registration count on
+  // event_pages, and nothing increments one). A popularity label backed by a
+  // date sort tells visitors an event is in demand when the platform has no
+  // idea whether it is.
+  const happening = filtered.filter(ev => isWithinDaysZoned(ev.starts_at, ev.timezone, 7));
+  const later = filtered.filter(ev => !isWithinDaysZoned(ev.starts_at, ev.timezone, 7)).slice(0, 8);
 
   const uniqueCities = Array.from(new Set(events.map(e => e.city).filter(Boolean) as string[]));
 
@@ -174,19 +182,39 @@ export function CategoryPage({ category, events, savedIds, cityCounts }: Categor
 
       {/* Event sections */}
       {filtered.length === 0 ? (
-        <div className="rounded-2xl flex items-center justify-center py-20 text-center" style={{ background: '#fff', border: '1px solid #E5E0D4' }}>
-          <div>
-            <div className="font-medium text-[15px] mb-1" style={{ color: '#0F1F18' }}>No events match</div>
-            <div className="text-[13px]" style={{ color: '#65736B' }}>Try adjusting the filters.</div>
-          </div>
+        /* An empty category and an over-filtered one need different copy —
+           "adjust the filters" is dead-end advice when nothing is listed. */
+        <div className="rounded-2xl flex items-center justify-center py-20 px-5 text-center" style={{ background: '#fff', border: '1px solid #E5E0D4' }}>
+          {events.length === 0 ? (
+            <div className="max-w-sm">
+              <div className="font-medium text-[15px] mb-1" style={{ color: '#0F1F18' }}>
+                No {category.toLowerCase()} events yet
+              </div>
+              <div className="text-[13px] mb-5" style={{ color: '#65736B' }}>
+                Nothing is listed in this category right now. Try another category above, or browse everything happening.
+              </div>
+              <Link
+                href="/events"
+                className="inline-flex items-center h-10 px-4 rounded-xl text-[13px] font-semibold"
+                style={{ background: '#1F4D3A', color: '#FAF6EE', textDecoration: 'none' }}
+              >
+                Browse all events
+              </Link>
+            </div>
+          ) : (
+            <div>
+              <div className="font-medium text-[15px] mb-1" style={{ color: '#0F1F18' }}>No events match</div>
+              <div className="text-[13px]" style={{ color: '#65736B' }}>Try adjusting the filters.</div>
+            </div>
+          )}
         </div>
       ) : (
         <div className="flex flex-col gap-12">
           {happening.length > 0 && (
             <Section label="Happening soon" events={happening.slice(0, 8)} savedSet={savedSet} onSave={handleSave} tagMode="city" />
           )}
-          {popular.length > 0 && (
-            <Section label="Popular this month" events={popular} savedSet={savedSet} onSave={handleSave} tagMode="city" />
+          {later.length > 0 && (
+            <Section label="Coming up" events={later} savedSet={savedSet} onSave={handleSave} tagMode="city" />
           )}
         </div>
       )}

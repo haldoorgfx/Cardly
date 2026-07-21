@@ -1,7 +1,7 @@
 ﻿'use client';
 
 import { useState } from 'react';
-import { TrendingUp, MousePointer, Ticket, DollarSign, RefreshCw, LayoutGrid, Check } from 'lucide-react';
+import { RefreshCw, LayoutGrid, Check } from 'lucide-react';
 import { PageShell, PageHeader } from '@/components/dash';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -28,19 +28,6 @@ const DURATION_OPTIONS = [
   { key: '30', label: '1 month' },
 ];
 
-function StatCard({ icon: Icon, label, value, sub }: { icon: React.ElementType; label: string; value: string; sub?: string }) {
-  return (
-    <div className="rounded-2xl p-4" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
-      <div className="flex items-center gap-2 mb-2">
-        <Icon size={14} style={{ color: '#65736B' }} />
-        <span className="text-[12px]" style={{ color: '#65736B' }}>{label}</span>
-      </div>
-      <div className="font-display font-bold text-[24px]" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>{value}</div>
-      {sub && <div className="text-[12px] mt-0.5" style={{ color: '#65736B' }}>{sub}</div>}
-    </div>
-  );
-}
-
 export function PromotedListingClient({ eventId, eventName, campaign }: Props) {
   const [budget, setBudget] = useState<number>(campaign?.daily_budget ?? 25);
   const [duration, setDuration] = useState<string>(campaign?.duration_days?.toString() ?? '7');
@@ -50,11 +37,10 @@ export function PromotedListingClient({ eventId, eventName, campaign }: Props) {
   const [submitError, setSubmitError] = useState('');
 
   const totalSpend = budget * parseInt(duration);
-  const estImpressions = Math.round(totalSpend * 340);
-  const estClicks = Math.round(totalSpend * 12);
-  const estRegistrations = Math.round(totalSpend * 1.4);
 
-  const hasActiveCampaign = campaign?.status === 'active';
+  const status: string | null = campaign?.status ?? null;
+  const isPending = status === 'pending_review';
+  const isRejected = status === 'rejected';
 
   function togglePlacement(key: string) {
     setPlacements(prev => prev.includes(key) ? prev.filter(p => p !== key) : [...prev, key]);
@@ -90,13 +76,31 @@ export function PromotedListingClient({ eventId, eventName, campaign }: Props) {
     <PageShell width="wide">
       <PageHeader title="Promote listing" subtitle={eventName} />
 
-      {/* Stats (only if campaign exists) */}
-      {hasActiveCampaign && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-          <StatCard icon={TrendingUp} label="Impressions" value={(campaign.impressions ?? 0).toLocaleString()} sub="this campaign" />
-          <StatCard icon={MousePointer} label="Clicks" value={(campaign.clicks ?? 0).toLocaleString()} />
-          <StatCard icon={Ticket} label="Registrations" value={(campaign.registrations ?? 0).toString()} sub="attributed" />
-          <StatCard icon={DollarSign} label="Spent" value={`$${campaign.spent_amount ?? 0}`} sub={`of $${(campaign.daily_budget ?? 0) * (campaign.duration_days ?? 0)}`} />
+      {/* Where this submission stands.
+          The four StatCards that used to sit here — Impressions, Clicks,
+          Registrations, Spent — read `campaign.impressions` and friends, and
+          no such columns exist on `promoted_listings` (see migration 076).
+          They rendered a permanent row of zeros, which told a paying
+          organizer their campaign was delivering nothing rather than that
+          delivery is not built. */}
+      {status && (
+        <div
+          className="rounded-2xl p-4 mb-6"
+          style={{
+            background: isRejected ? '#FFFFFF' : '#E8EFEB',
+            border: `1px solid ${isRejected ? '#E5E0D4' : '#C9E0D4'}`,
+          }}
+        >
+          <div className="font-semibold text-[14px] mb-1" style={{ color: isRejected ? '#B8423C' : '#0F1F18' }}>
+            {isPending && 'Submitted — awaiting review'}
+            {isRejected && 'Not approved'}
+            {!isPending && !isRejected && 'Approved'}
+          </div>
+          <p className="text-[12.5px]" style={{ color: '#3A4A42' }}>
+            {isPending && 'Our team reviews promotion requests before they go live. You have not been charged.'}
+            {isRejected && 'This request was not approved. Adjust the campaign below and submit again, or contact support.'}
+            {!isPending && !isRejected && 'Your request is approved and queued. Promoted placement is rolling out — you have not been charged, and we will contact you before any billing starts.'}
+          </p>
         </div>
       )}
 
@@ -169,20 +173,27 @@ export function PromotedListingClient({ eventId, eventName, campaign }: Props) {
           {/* Actions */}
           <div className="flex flex-col gap-2">
             <div className="flex gap-2">
-              {hasActiveCampaign ? (
+              {status ? (
                 <button onClick={submit} disabled={submitting}
                   className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-semibold transition hover:opacity-90 disabled:opacity-60"
                   style={{ background: '#1F4D3A', color: '#FAF6EE' }}>
-                  <RefreshCw size={13} /> {submitting ? 'Saving…' : submitted ? 'Changes saved' : 'Update campaign'}
+                  <RefreshCw size={13} /> {submitting ? 'Saving…' : submitted ? 'Resubmitted for review' : 'Update request'}
                 </button>
               ) : (
                 <button onClick={submit} disabled={submitting || submitted}
                   className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-6 py-2.5 rounded-xl text-[14px] font-semibold transition hover:opacity-90 disabled:opacity-60"
                   style={{ background: '#1F4D3A', color: '#FAF6EE' }}>
-                  {submitted ? <><Check size={14} strokeWidth={1.8} /> Submitted for review</> : submitting ? 'Submitting…' : 'Launch campaign'}
+                  {submitted ? <><Check size={14} strokeWidth={1.8} /> Submitted for review</> : submitting ? 'Submitting…' : 'Submit for review'}
                 </button>
               )}
             </div>
+            {/* Any edit re-enters review, so say so rather than letting an
+                approved request quietly drop back into the queue. */}
+            {status && (
+              <p className="text-[12px]" style={{ color: '#65736B' }}>
+                Updating resubmits this request for review.
+              </p>
+            )}
             {submitError && <p className="text-[12.5px]" style={{ color: '#B8423C' }}>{submitError}</p>}
           </div>
         </div>
@@ -190,13 +201,17 @@ export function PromotedListingClient({ eventId, eventName, campaign }: Props) {
         {/* ROI estimate */}
         <div className="flex flex-col gap-4">
           <div className="rounded-2xl p-5" style={{ background: '#E8EFEB', border: '1px solid #C9E0D4' }}>
-            <h3 className="font-semibold text-[14px] mb-3" style={{ color: '#0F1F18' }}>Estimated reach</h3>
+            {/* Impressions/clicks/registrations forecasts used to sit here,
+                computed as spend × 340, × 12 and × 1.4 — multipliers with no
+                basis in any measured delivery, presented to organizers as a
+                projection they might spend against. Removed rather than
+                re-derived: there is no delivery data to derive them from. */}
+            <h3 className="font-semibold text-[14px] mb-3" style={{ color: '#0F1F18' }}>Your budget</h3>
             <div className="flex flex-col gap-2">
               {[
-                { label: 'Total spend', val: `$${totalSpend}` },
-                { label: 'Impressions', val: estImpressions.toLocaleString() },
-                { label: 'Clicks', val: estClicks.toLocaleString() },
-                { label: 'Registrations', val: `~${estRegistrations}` },
+                { label: 'Daily budget', val: `$${budget}` },
+                { label: 'Duration', val: `${duration} days` },
+                { label: 'Maximum spend', val: `$${totalSpend}` },
               ].map(row => (
                 <div key={row.label} className="flex items-center justify-between text-[13px]">
                   <span style={{ color: '#3A4A42' }}>{row.label}</span>
@@ -235,7 +250,7 @@ export function PromotedListingClient({ eventId, eventName, campaign }: Props) {
               <span className="text-[12px] font-semibold" style={{ color: '#3A4A42' }}>Placement rules</span>
             </div>
             <p className="text-[12.5px]" style={{ color: '#65736B' }}>
-              Promoted listings are reviewed within 24h. They appear as native cards with a &ldquo;Promoted&rdquo; label. Max 1 promoted card per 5 organic cards.
+              Every promotion is reviewed before it runs. When placement goes live, promoted events always carry a visible &ldquo;Promoted&rdquo; label and never displace more than 1 card in 5. Submitting registers your interest — nothing is charged, and we will confirm pricing with you before anything runs.
             </p>
           </div>
         </div>

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { MapPin, Globe, Calendar, SlidersHorizontal } from 'lucide-react';
 import { PublicNav } from '@/components/events/PublicNav';
+import { isWithinDaysZoned } from '@/lib/events/format';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type EventPage = any;
@@ -80,8 +81,15 @@ export function CategoryPageClient({ category, events }: Props) {
     return true;
   });
 
-  const soon = filtered.slice(0, Math.ceil(filtered.length / 2));
-  const popular = filtered.slice(Math.ceil(filtered.length / 2));
+  // Real date bands, in each event's own zone.
+  //
+  // These two sections used to be `slice(0, len/2)` and `slice(len/2)` of a
+  // date-sorted list, titled "Happening soon" and "Popular this month". That
+  // made the split meaningless — with four events, two were declared
+  // "Popular" purely for being later in the array — and the popularity claim
+  // was invented outright: nothing in this data measures popularity.
+  const soon = filtered.filter((ep: EventPage) => isWithinDaysZoned(ep.starts_at, ep.timezone, 7));
+  const later = filtered.filter((ep: EventPage) => !isWithinDaysZoned(ep.starts_at, ep.timezone, 7));
 
   return (
     <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
@@ -153,22 +161,42 @@ export function CategoryPageClient({ category, events }: Props) {
           </div>
         )}
 
-        {/* Popular this month */}
-        {popular.length > 0 && (
+        {/* Coming up */}
+        {later.length > 0 && (
           <div className="mb-10">
             <h2 className="font-display font-semibold text-[18px] mb-4" style={{ color: '#0F1F18', letterSpacing: '-0.01em' }}>
-              Popular this month
+              Coming up
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {popular.map((ep: EventPage) => <EventCard key={ep.id} ep={ep} />)}
+              {later.map((ep: EventPage) => <EventCard key={ep.id} ep={ep} />)}
             </div>
           </div>
         )}
 
         {filtered.length === 0 && (
-          <div className="rounded-2xl py-20 text-center" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
-            <p className="text-[15px] font-medium mb-1" style={{ color: '#0F1F18' }}>No events found</p>
-            <p className="text-[13px]" style={{ color: '#65736B' }}>Try a different filter or check back soon</p>
+          <div className="rounded-2xl py-20 px-5 text-center" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
+            {events.length === 0 ? (
+              <>
+                <p className="text-[15px] font-medium mb-1" style={{ color: '#0F1F18' }}>
+                  No {label.toLowerCase()} events yet
+                </p>
+                <p className="text-[13px] mb-5" style={{ color: '#65736B' }}>
+                  Nothing is listed in this category right now — try a related one below, or browse everything.
+                </p>
+                <Link
+                  href="/events"
+                  className="inline-flex items-center h-10 px-4 rounded-xl text-[13px] font-semibold"
+                  style={{ background: '#1F4D3A', color: '#FAF6EE', textDecoration: 'none' }}
+                >
+                  Browse all events
+                </Link>
+              </>
+            ) : (
+              <>
+                <p className="text-[15px] font-medium mb-1" style={{ color: '#0F1F18' }}>No events found</p>
+                <p className="text-[13px]" style={{ color: '#65736B' }}>Try a different filter or check back soon</p>
+              </>
+            )}
           </div>
         )}
 

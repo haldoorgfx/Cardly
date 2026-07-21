@@ -4,6 +4,7 @@ import { createAdminClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import { CategoryPageClient } from '@/components/discovery/CategoryPageClient';
 import { CATEGORY_SLUGS } from '@/lib/categories';
+import { escapeLikePattern } from '@/lib/search/filter';
 import type { Metadata } from 'next';
 
 interface Props { params: Promise<{ category: string }> }
@@ -28,11 +29,15 @@ export default async function CategoryPage({ params }: Props) {
   const now = new Date().toISOString();
   const { data: events } = await adminAny
     .from('event_pages')
-    .select('id, title, cover_image_url, starts_at, city, venue_name, is_online, price_from, custom_slug, category, events!inner(slug, status)')
+    .select('id, title, cover_image_url, starts_at, ends_at, timezone, city, venue_name, is_online, price_from, custom_slug, category, events!inner(slug, status)')
     .eq('is_public', true)
     .eq('events.status', 'published')
-    .ilike('category', `%${category}%`)
-    .gte('starts_at', now)
+    // Escaped even though the slug is allow-listed above — the allow-list and
+    // the query should not have to be reasoned about together to stay safe.
+    .ilike('category', `%${escapeLikePattern(category)}%`)
+    // Visible until the event ENDS, matching /events/category — see the city
+    // route for why starts_at hid in-progress events.
+    .or(`ends_at.gte.${now},ends_at.is.null`)
     .order('starts_at', { ascending: true })
     .limit(40);
 

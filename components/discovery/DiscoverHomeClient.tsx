@@ -8,6 +8,7 @@ import { EventCard } from './EventCard';
 import { AppStoreBadges } from '@/components/marketing/AppStoreBadges';
 import { toggleSavedEvent } from '@/components/shared/saveEvent';
 import { EVENT_CATEGORIES } from '@/lib/categories';
+import { matchesDiscoveryDateWindow, type DiscoveryDateWindow } from '@/lib/events/format';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type EventPage = any;
@@ -99,34 +100,6 @@ function isLiveNow(ep: EventPage): boolean {
   if (!(starts < now)) return false;
   if (!ep.ends_at) return true;
   return !(new Date(ep.ends_at).getTime() < now);
-}
-
-function matchesWhen(iso: string | null | undefined, when: string): boolean {
-  if (when === 'any') return true;
-  if (!iso) return false;
-  const d = new Date(iso);
-  const now = new Date();
-  const start = new Date(now); start.setHours(0, 0, 0, 0);
-  if (when === 'today') {
-    const end = new Date(start); end.setDate(end.getDate() + 1);
-    return d >= start && d < end;
-  }
-  if (when === 'weekend') {
-    // Upcoming Sat 00:00 → Mon 00:00
-    const day = now.getDay(); // 0 Sun .. 6 Sat
-    const daysToSat = (6 - day + 7) % 7;
-    const sat = new Date(start); sat.setDate(sat.getDate() + daysToSat);
-    const mon = new Date(sat); mon.setDate(mon.getDate() + 2);
-    return d >= sat && d < mon;
-  }
-  if (when === 'week') {
-    const end = new Date(start); end.setDate(end.getDate() + 7);
-    return d >= start && d < end;
-  }
-  if (when === 'month') {
-    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear() && d >= start;
-  }
-  return true;
 }
 
 function citySlug(c: string) { return c.toLowerCase().replace(/\s+/g, '-'); }
@@ -268,21 +241,28 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents, ban
   const [query, setQuery] = useState('');
   const [activeCat, setActiveCat] = useState('All');
   const [city, setCity] = useState('');
-  const [when, setWhen] = useState('any');
+  const [when, setWhen] = useState<DiscoveryDateWindow>('any');
   const [format, setFormat] = useState<FormatValue>('all');
   const [saved, setSaved] = useState<Set<string>>(() => new Set(savedIds ?? []));
 
-  // Distinct cities from real events (by frequency), padded with popular fallbacks
-  const cities = useMemo(() => {
+  // Cities that ACTUALLY have events in the feed, most first.
+  //
+  // This list used to be padded with 16 hardcoded "popular" cities (Lagos,
+  // Cairo, Casablanca…) whether or not a single event existed in them. It fed
+  // both the "Browse by city" rail and the city dropdown, so the rail was
+  // mostly links to empty city pages and the dropdown was mostly filter
+  // options that could only ever return zero results. In the launch markets —
+  // where real inventory is a handful of cities — the fabricated entries
+  // outnumbered the real ones, making the marketplace look stocked when it
+  // was not. An honestly short list is worth more than a padded one.
+  const cityCounts = useMemo(() => {
     const counts: Record<string, number> = {};
     events.forEach((e: EventPage) => { if (e.city) counts[e.city] = (counts[e.city] ?? 0) + 1; });
-    const real = Object.entries(counts).sort((a, b) => b[1] - a[1]).map(([c]) => c);
-    const fallback = [
-      'Lagos', 'Nairobi', 'Accra', 'Dakar', 'Cape Town', 'Cairo', 'Kigali', 'Djibouti',
-      'Johannesburg', 'Addis Ababa', 'Kampala', 'Dar es Salaam', 'Abidjan', 'Casablanca', 'Mombasa', 'Tunis',
-    ];
-    return Array.from(new Set([...real, ...fallback]));
+    return Object.entries(counts)
+      .sort((a, b) => b[1] - a[1])
+      .map(([city, count]) => ({ city, count }));
   }, [events]);
+  const cities = useMemo(() => cityCounts.map(c => c.city), [cityCounts]);
 
   const hasFilter = !!(query || activeCat !== 'All' || city || when !== 'any' || format !== 'all');
 
@@ -291,7 +271,8 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents, ban
     if (city && (ep.city ?? '') !== city) return false;
     if (format === 'online' && !ep.is_online) return false;
     if (format === 'inperson' && ep.is_online) return false;
-    if (!matchesWhen(ep.starts_at, when)) return false;
+    // Date windows are resolved in the EVENT's own zone, not the visitor's.
+    if (!matchesDiscoveryDateWindow(ep.starts_at, ep.timezone, when)) return false;
     if (query) {
       const hay = `${ep.title ?? ''} ${organizerOf(ep)} ${ep.city ?? ''} ${ep.venue_name ?? ''} ${ep.category ?? ''}`.toLowerCase();
       if (!hay.includes(query.toLowerCase())) return false;
@@ -473,7 +454,8 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents, ban
               />
               <Dropdown
                 icon={<Calendar size={16} style={{ color: '#65736B', flexShrink: 0 }} />}
-                label="When" value={when} placeholder="Any time" onChange={setWhen}
+                label="When" value={when} placeholder="Any time"
+                onChange={v => setWhen(v as DiscoveryDateWindow)}
                 options={WHEN_OPTIONS}
               />
               <Dropdown
@@ -604,21 +586,26 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents, ban
       </Band>
 
       {/* ── Browse by city ──────────────────────────────────── */}
-      <Band bg="#FAF6EE">
-        <h2 className="font-title font-bold text-[22px] sm:text-[26px] mb-1" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
-          Browse by city
-        </h2>
-        <p className="text-[13px] mb-5" style={{ color: '#65736B' }}>Jump straight to what&apos;s happening in your city.</p>
-        <div className="flex flex-wrap gap-2.5">
-          {cities.slice(0, 16).map(c => (
-            <Link key={c} href={`/events/city/${citySlug(c)}`}
-              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full border text-[13px] font-medium transition hover:-translate-y-0.5 hover:shadow-sm hover:border-[#1F4D3A]"
-              style={{ background: '#FFFFFF', borderColor: '#E5E0D4', color: '#3A4A42', textDecoration: 'none' }}>
-              <MapPin size={13} style={{ color: '#1F4D3A' }} /> {c}
-            </Link>
-          ))}
-        </div>
-      </Band>
+      {/* Hidden entirely when no event has a city — an empty rail under a
+          "Browse by city" heading reads as broken, not as empty. */}
+      {cityCounts.length > 0 && (
+        <Band bg="#FAF6EE">
+          <h2 className="font-title font-bold text-[22px] sm:text-[26px] mb-1" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
+            Browse by city
+          </h2>
+          <p className="text-[13px] mb-5" style={{ color: '#65736B' }}>Jump straight to what&apos;s happening in your city.</p>
+          <div className="flex flex-wrap gap-2.5">
+            {cityCounts.slice(0, 16).map(({ city: c, count }) => (
+              <Link key={c} href={`/events/city/${citySlug(c)}`}
+                className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full border text-[13px] font-medium transition hover:-translate-y-0.5 hover:shadow-sm hover:border-[#1F4D3A]"
+                style={{ background: '#FFFFFF', borderColor: '#E5E0D4', color: '#3A4A42', textDecoration: 'none' }}>
+                <MapPin size={13} style={{ color: '#1F4D3A' }} /> {c}
+                <span style={{ color: '#65736B', fontSize: 12 }}>{count}</span>
+              </Link>
+            ))}
+          </div>
+        </Band>
+      )}
 
       {/* ── Top hosts ───────────────────────────────────────── */}
       {hosts.length > 0 && (
