@@ -1,5 +1,6 @@
 import { Mail, MessageSquare, ExternalLink } from 'lucide-react';
 import type { ContactChannelsContent, ContactChannel } from '@/lib/cms/types';
+import { safeContactHref } from '@/lib/cms/href';
 
 interface ContactChannelsBlockProps {
   content: ContactChannelsContent;
@@ -11,11 +12,11 @@ function ChannelIcon({ icon }: { icon: string }) {
   return <ExternalLink size={18} strokeWidth={1.8} />;
 }
 
-function ChannelCard({ channel }: { channel: ContactChannel }) {
+function ChannelCard({ channel }: { channel: ContactChannel & { safeHref: string } }) {
   return (
     <a
-      href={channel.href}
-      target={channel.href.startsWith('mailto:') ? undefined : '_blank'}
+      href={channel.safeHref}
+      target={channel.safeHref.toLowerCase().startsWith('mailto:') ? undefined : '_blank'}
       rel="noopener noreferrer"
       className="group rounded-2xl border p-7 transition-all hover:shadow-[0_4px_12px_rgba(15,31,24,0.08),_0_24px_60px_rgba(31,77,58,0.12)]"
       style={{
@@ -39,7 +40,7 @@ function ChannelCard({ channel }: { channel: ContactChannel }) {
         className=" text-[14px]"
         style={{ color: '#1F4D3A' }}
       >
-        {channel.href.replace('mailto:', '')}
+        {channel.safeHref.replace(/^mailto:/i, '')}
       </div>
       <div
         className="mt-2 text-[13px] leading-[1.55]"
@@ -82,10 +83,14 @@ export function ContactChannelsBlock({ content }: ContactChannelsBlockProps) {
       )}
 
       <div className="grid sm:grid-cols-2 gap-5">
-        {/* Defensive: free-form block JSON may omit `channels` — render empty, never throw. */}
-        {(content.channels ?? []).map((channel, i) => (
-          <ChannelCard key={i} channel={channel} />
-        ))}
+        {/* Defensive: free-form block JSON may omit `channels`, and a channel
+            may omit `href` entirely — the old `channel.href.startsWith(...)`
+            threw on that and 500'd the page. A channel with no usable (or
+            unsafe-scheme) destination is dropped rather than rendered dead. */}
+        {(content.channels ?? []).flatMap((channel, i) => {
+          const safeHref = safeContactHref(channel?.href);
+          return safeHref ? [<ChannelCard key={i} channel={{ ...channel, safeHref }} />] : [];
+        })}
       </div>
 
       {content.reasons && content.reasons.length > 0 && (

@@ -3,7 +3,15 @@ import Reveal from '@/components/marketing/Reveal';
 
 export const metadata = {
   title: 'System Status',
-  description: 'Live status for all Eventera services.',
+  description: 'Current status for all Eventera services.',
+  alternates: { canonical: `${process.env.NEXT_PUBLIC_APP_URL}/status` },
+  openGraph: {
+    title: 'Eventera System Status',
+    description: 'Current status for all Eventera services.',
+    url: `${process.env.NEXT_PUBLIC_APP_URL}/status`,
+    siteName: 'Eventera',
+    type: 'website',
+  },
 };
 
 const SERVICES = [
@@ -197,8 +205,11 @@ function Incidents() {
               <div className="font-display font-semibold text-ink text-[18px] tracking-tight mb-2">
                 No incidents reported
               </div>
+              {/* This list is maintained by hand (see INCIDENTS above) — it is
+                  not fed by monitoring, so it must not claim to record
+                  "every incident" automatically. */}
               <div className="text-ink-soft text-[14px]">
-                We keep a public record of every incident here, with timelines and root causes.
+                Incidents affecting the platform are published here, with timelines and root causes.
               </div>
             </div>
           </Reveal>

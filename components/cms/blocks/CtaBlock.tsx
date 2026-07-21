@@ -1,9 +1,13 @@
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import type { CtaContent } from '@/lib/cms/types';
+import { linkableButtons } from '@/lib/cms/href';
 
 export function CtaBlock({ content }: { content: CtaContent }) {
-  const { headline, subtext, buttons, background = 'default' } = content;
+  const { headline, subtext, background = 'default' } = content;
+  // Drops buttons with a missing href (next/link throws → 500s the page) or an
+  // unsafe scheme (`javascript:` in an href is a stored-XSS sink).
+  const buttons = linkableButtons(content.buttons);
 
   const bgClass = background === 'dark'
     ? 'bg-[#1F4D3A] text-[#FAF6EE]'
@@ -26,10 +30,10 @@ export function CtaBlock({ content }: { content: CtaContent }) {
             {subtext}
           </p>
         )}
-        {buttons && buttons.length > 0 && (
+        {buttons.length > 0 && (
           <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
-            {buttons.map((b) => (
-              <Link key={b.label} href={b.href}
+            {buttons.map((b, i) => (
+              <Link key={i} href={b.safeHref}
                 className={`inline-flex items-center gap-2 rounded-full font-medium transition-colors ${
                   b.variant === 'primary'
                     ? background === 'default'

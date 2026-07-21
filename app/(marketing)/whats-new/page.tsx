@@ -2,10 +2,20 @@ import { createClient } from '@/lib/supabase/server';
 import Reveal from '@/components/marketing/Reveal';
 import { NewsCTAClient } from './NewsCTAClient';
 
+const DESCRIPTION =
+  "A running changelog of everything shipped at Eventera. New features, improvements, and fixes.";
+
 export const metadata = {
   title: "What's New",
-  description:
-    "A running changelog of everything shipped at Eventera. New features, improvements, and fixes.",
+  description: DESCRIPTION,
+  alternates: { canonical: `${process.env.NEXT_PUBLIC_APP_URL}/whats-new` },
+  openGraph: {
+    title: "What's New in Eventera",
+    description: DESCRIPTION,
+    url: `${process.env.NEXT_PUBLIC_APP_URL}/whats-new`,
+    siteName: 'Eventera',
+    type: 'website',
+  },
 };
 
 export const dynamic = 'force-dynamic';
@@ -28,6 +38,16 @@ interface DBEntry {
   type: EntryType;
   published_at: string | null;
   created_at: string;
+}
+
+/**
+ * Anchor id for an entry. `version` is admin-authored free text, and it was
+ * used verbatim as both an element `id` and a `#href` — a version like
+ * "1.2 beta" produced a link that never resolved. Falls back to the id.
+ */
+function anchorFor(entry: DBEntry) {
+  const slug = (entry.version ?? '').trim().toLowerCase().replace(/[^a-z0-9.-]+/g, '-').replace(/^-+|-+$/g, '');
+  return slug || entry.id.slice(0, 8);
 }
 
 function formatDate(iso: string | null) {
@@ -98,7 +118,7 @@ function ChangelogEntries({ entries }: { entries: DBEntry[] }) {
         <div className=" text-[10px] tracking-[0.22em] uppercase text-muted mb-4">Releases</div>
         <nav className="space-y-2">
           {entries.map((entry) => {
-            const anchor = entry.version ?? entry.id.slice(0, 8);
+            const anchor = anchorFor(entry);
             return (
               <a
                 key={entry.id}
@@ -119,7 +139,7 @@ function ChangelogEntries({ entries }: { entries: DBEntry[] }) {
       {/* Entries */}
       <div className="space-y-12 lg:space-y-14">
         {entries.map((entry, i) => {
-          const anchor = entry.version ?? entry.id.slice(0, 8);
+          const anchor = anchorFor(entry);
           const style = TYPE_STYLES[entry.type] ?? TYPE_STYLES.added;
           return (
             <Reveal key={entry.id} delay={i * 50} distance={16}>

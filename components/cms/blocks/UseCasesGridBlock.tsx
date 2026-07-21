@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import type { UseCasesGridContent } from '@/lib/cms/types';
 import { SectionHeaderBlock } from './SectionHeaderBlock';
+import { safeBlockHref, safeBlockSrc } from '@/lib/cms/href';
 
 export function UseCasesGridBlock({ content }: { content: UseCasesGridContent }) {
   // Defensive: free-form block JSON may omit `cases` — render empty, never throw.
@@ -24,8 +25,13 @@ export function UseCasesGridBlock({ content }: { content: UseCasesGridContent })
         )}
 
         <div className={`grid ${gridCols} gap-4 lg:gap-5`}>
-          {cases.map((c) => (
-            <article key={c.id}
+          {cases.map((c, ci) => {
+            // Authored URLs: `javascript:` in either would execute for every
+            // visitor, so both are scheme-checked before they reach the DOM.
+            const href = safeBlockHref(c.href);
+            const thumbnailUrl = safeBlockSrc(c.thumbnail_url);
+            return (
+            <article key={c.id ?? ci}
               className="relative bg-white border border-[#E5E0D4] rounded-2xl p-6 lg:p-7 flex gap-5 lg:gap-6 hover:border-[rgba(31,77,58,0.3)] hover:shadow-[0_4px_12px_rgba(15,31,24,0.08),0_24px_60px_rgba(31,77,58,0.12)] transition-all group"
             >
               <div className="flex-1 min-w-0">
@@ -41,18 +47,18 @@ export function UseCasesGridBlock({ content }: { content: UseCasesGridContent })
                   {c.title}
                 </h3>
                 <p className="text-[#3A4A42] text-[14px] lg:text-[15px] mt-2.5 leading-[1.55]">{c.body}</p>
-                {c.href && (
-                  <Link href={c.href}
+                {href && (
+                  <Link href={href}
                     className="mt-5 inline-flex items-center gap-1.5 text-[#1F4D3A] font-medium text-[13px] hover:gap-2.5 transition-all">
                     See example <ArrowRight size={14} strokeWidth={2} />
                   </Link>
                 )}
               </div>
-              {c.thumbnail_url && (
+              {thumbnailUrl && (
                 <div className="shrink-0 self-center hidden sm:block">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={c.thumbnail_url}
+                    src={thumbnailUrl}
                     alt={c.title}
                     className="rounded-xl object-cover shadow-[0_1px_2px_rgba(15,31,24,0.04),0_8px_24px_rgba(15,31,24,0.06)]"
                     style={{ width: 120, height: 152 }}
@@ -60,7 +66,8 @@ export function UseCasesGridBlock({ content }: { content: UseCasesGridContent })
                 </div>
               )}
             </article>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>

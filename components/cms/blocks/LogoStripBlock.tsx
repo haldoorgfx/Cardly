@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import type { LogoStripContent } from '@/lib/cms/types';
+import { safeBlockSrc } from '@/lib/cms/href';
 
 interface LogoStripBlockProps {
   content: LogoStripContent;
@@ -31,11 +32,12 @@ export function LogoStripBlock({ content }: LogoStripBlockProps) {
 
         <div className="flex flex-wrap items-center justify-center gap-6 lg:gap-10">
           {/* Defensive: free-form block JSON may omit `logos` — render empty, never throw. */}
-          {(content.logos ?? []).map((logo, i) =>
-            logo.logo_url ? (
+          {(content.logos ?? []).map((logo, i) => {
+            const logoUrl = safeBlockSrc(logo.logo_url);
+            return logoUrl ? (
               <img
                 key={i}
-                src={logo.logo_url}
+                src={logoUrl}
                 alt={logo.name}
                 className="h-8 w-auto object-contain"
                 style={{ filter: 'grayscale(1)', opacity: 0.55 }}
@@ -53,8 +55,8 @@ export function LogoStripBlock({ content }: LogoStripBlockProps) {
               >
                 {getMonogram(logo.name)}
               </div>
-            )
-          )}
+            );
+          })}
         </div>
       </div>
     </section>

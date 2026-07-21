@@ -7,6 +7,7 @@ import {
   AlignLeft, AlignCenter, AlignRight,
   Undo, Redo,
 } from 'lucide-react';
+import { safeBlockHref } from '@/lib/cms/href';
 
 interface WysiwygEditorProps {
   value: string;
@@ -75,7 +76,17 @@ export function WysiwygEditor({ value, onChange, placeholder = 'Start writing…
   const insertLink = useCallback(() => {
     // TODO: replace prompt() with a branded input modal
     const url = window.prompt('Enter URL:', 'https://');
-    if (url) exec('createLink', url);
+    if (!url) return;
+    // `createLink` writes the raw value into an `href` in the stored HTML. A
+    // `javascript:` URL typed here would persist into content and fire for
+    // every later viewer, so it is rejected at the point of authoring rather
+    // than silently saved and caught (or not) at render.
+    const safe = safeBlockHref(url);
+    if (!safe) {
+      window.alert('That link was not added — only http(s) links and site paths (starting with /) are allowed.');
+      return;
+    }
+    exec('createLink', safe);
   }, []);
 
   const formatBlock = useCallback((tag: string) => {
@@ -156,7 +167,7 @@ export function WysiwygEditor({ value, onChange, placeholder = 'Start writing…
           '[&_pre]:bg-[#FAF6EE] [&_pre]:border [&_pre]:border-[#E5E0D4] [&_pre]:rounded-lg [&_pre]:px-4 [&_pre]:py-3 [&_pre]:[&_pre]:text-[13px] [&_pre]:my-3',
           '[&_a]:text-[#1F4D3A] [&_a]:underline',
           '[&_hr]:border-[#E5E0D4] [&_hr]:my-4',
-          'empty:before:content-[attr(data-placeholder)] empty:before:text-[#9CA3AF]',
+          'empty:before:content-[attr(data-placeholder)] empty:before:text-[#65736B]',
         ].join(' ')}
       />
     </div>

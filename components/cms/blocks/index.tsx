@@ -64,6 +64,16 @@ import type {
 } from '@/lib/cms/types';
 
 export function BlockRenderer({ block }: { block: CmsBlock }) {
+  // `content` is a free-form JSONB column. A row saved with SQL null, JSON
+  // null, or a scalar makes EVERY block below throw on its first property
+  // read — and a server-rendered throw takes down the whole page, not just
+  // the block. Proven: all 21 block types crashed on `content: null`.
+  // One guard here is the right place; per-block `?? []` cannot save a block
+  // whose `content` object does not exist at all.
+  if (block.content === null || typeof block.content !== 'object' || Array.isArray(block.content)) {
+    return null;
+  }
+
   const c = block.content;
 
   switch (block.type as BlockType) {
@@ -89,9 +99,13 @@ export function BlockRenderer({ block }: { block: CmsBlock }) {
     case 'statsStrip':      return <StatsStripBlock     content={c as StatsStripContent} />;
     case 'videoDemo':       return <VideoDemoBlock      content={c as VideoDemoContent} />;
     default:
+      // Brand-token warning rather than raw Tailwind amber. Kept visible (not
+      // silent) because the only consumer today is the admin preview, where an
+      // unrenderable block must be obvious to the editor.
       return (
-        <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-700 ">
-          Unknown block type: {block.type}
+        <div className="mx-auto max-w-[820px] px-5 my-4 rounded-2xl border p-4 text-sm"
+          style={{ borderColor: '#E5E0D4', background: '#FAF6EE', color: '#C97A2D' }}>
+          Unknown block type: {String(block.type)}
         </div>
       );
   }

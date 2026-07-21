@@ -1,11 +1,16 @@
 import { Play } from 'lucide-react';
 import type { VideoDemoContent } from '@/lib/cms/types';
+import { safeBlockSrc } from '@/lib/cms/href';
 
 interface VideoDemoBlockProps {
   content: VideoDemoContent;
 }
 
 export function VideoDemoBlock({ content }: VideoDemoBlockProps) {
+  // Authored `videoUrl` went straight into `<video src>`; an unsafe scheme
+  // there is a stored sink. Falls back to the placeholder poster when unusable.
+  const videoUrl = safeBlockSrc(content.videoUrl);
+
   return (
     <section className="relative">
       <div className="mx-auto max-w-[1100px] px-5 lg:px-10 py-16 lg:py-20">
@@ -26,9 +31,9 @@ export function VideoDemoBlock({ content }: VideoDemoBlockProps) {
           </h2>
         </div>
 
-        {content.videoUrl ? (
+        {videoUrl ? (
           <video
-            src={content.videoUrl}
+            src={videoUrl}
             controls
             className="w-full rounded-2xl border"
             style={{

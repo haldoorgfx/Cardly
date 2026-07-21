@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import type { CategoryGridContent } from '@/lib/cms/types';
 import { SectionHeaderBlock } from './SectionHeaderBlock';
+import { safeBlockHref } from '@/lib/cms/href';
 
 export function CategoryGridBlock({ content }: { content: CategoryGridContent }) {
   // Defensive: block content is free-form JSON — a missing array must render
@@ -29,14 +30,24 @@ export function CategoryGridBlock({ content }: { content: CategoryGridContent })
               </div>
               <p className="text-[14px] text-[#3A4A42] leading-[1.6] mb-5">{cat.description}</p>
               <ul className="space-y-1.5">
-                {(cat.articles ?? []).map((article) => (
-                  <li key={article.title}>
-                    <Link href={article.href}
-                      className="text-[13px] text-[#1F4D3A] hover:underline hover:text-[#163828] transition-colors">
-                      {article.title}
-                    </Link>
-                  </li>
-                ))}
+                {(cat.articles ?? []).map((article, ai) => {
+                  // No href, or an unsafe scheme: show the title as plain text
+                  // rather than throwing (next/link) or planting a
+                  // `javascript:` link every visitor can click.
+                  const href = safeBlockHref(article.href);
+                  return (
+                    <li key={ai}>
+                      {href ? (
+                        <Link href={href}
+                          className="text-[13px] text-[#1F4D3A] hover:underline hover:text-[#163828] transition-colors">
+                          {article.title}
+                        </Link>
+                      ) : (
+                        <span className="text-[13px] text-[#3A4A42]">{article.title}</span>
+                      )}
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           ))}

@@ -1,9 +1,12 @@
 import Link from 'next/link';
 import { ArrowRight, Check } from 'lucide-react';
 import type { HeroContent } from '@/lib/cms/types';
+import { linkableButtons, safeBlockSrc } from '@/lib/cms/href';
 
 export function HeroBlock({ content }: { content: HeroContent }) {
-  const { eyebrow, headline, headlineAccent, subheadline, buttons, imageUrl, imageAlt, trustBadges, statsStrip, layout = 'split' } = content;
+  const { eyebrow, headline, headlineAccent, subheadline, imageAlt, trustBadges, statsStrip, layout = 'split' } = content;
+  const buttons = linkableButtons(content.buttons);
+  const imageUrl = safeBlockSrc(content.imageUrl);
 
   if (layout === 'centered') {
     return (
@@ -27,10 +30,10 @@ export function HeroBlock({ content }: { content: HeroContent }) {
               {subheadline}
             </p>
           )}
-          {buttons && buttons.length > 0 && (
+          {buttons.length > 0 && (
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-              {buttons.map((b) => (
-                <Link key={b.label} href={b.href}
+              {buttons.map((b, i) => (
+                <Link key={i} href={b.safeHref}
                   className={`inline-flex items-center gap-2 px-6 py-3.5 rounded-full font-medium transition-colors ${
                     b.variant === 'primary' ? 'bg-[#1F4D3A] text-[#FAF6EE] hover:bg-[#163828]' :
                     b.variant === 'outline' ? 'border border-[rgba(15,31,24,0.15)] text-[#0F1F18] hover:border-[#1F4D3A] hover:text-[#1F4D3A]' :
@@ -78,10 +81,10 @@ export function HeroBlock({ content }: { content: HeroContent }) {
               {subheadline}
             </p>
           )}
-          {buttons && buttons.length > 0 && (
+          {buttons.length > 0 && (
             <div className="mt-8 flex flex-wrap items-center gap-3">
-              {buttons.map((b) => (
-                <Link key={b.label} href={b.href}
+              {buttons.map((b, i) => (
+                <Link key={i} href={b.safeHref}
                   className={`inline-flex items-center gap-2 px-6 py-3.5 rounded-full font-medium transition-colors ${
                     b.variant === 'primary' ? 'bg-[#1F4D3A] text-[#FAF6EE] hover:bg-[#163828]' :
                     b.variant === 'outline' ? 'border text-[#0F1F18] hover:border-[#1F4D3A] hover:text-[#1F4D3A]' :

@@ -24,6 +24,7 @@ import type {
   PageSnapshot,
 } from './types';
 import type { Json, Database } from '@/types/database';
+import { orIlikeAcross } from '@/lib/search/filter';
 
 // ── Pages ─────────────────────────────────────────────────────────────────────
 
@@ -284,9 +285,11 @@ export async function listMedia(opts?: {
     .range(offset, offset + limit - 1);
 
   if (opts?.search) {
-    query = query.or(
-      `filename.ilike.%${opts.search}%,alt.ilike.%${opts.search}%`,
-    );
+    // %, _ and , are LIKE/PostgREST syntax, not literal text. Interpolating
+    // the raw query let a search inject extra filter conditions; orIlikeAcross
+    // is the repo's one escaper for this.
+    const filter = orIlikeAcross(['filename', 'alt'], opts.search);
+    if (filter) query = query.or(filter);
   }
 
   const { data, error, count } = await query;

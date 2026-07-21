@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import { Quote } from 'lucide-react';
 import type { TestimonialContent } from '@/lib/cms/types';
+import { safeBlockSrc } from '@/lib/cms/href';
 
 interface TestimonialBlockProps {
   content: TestimonialContent;
@@ -17,6 +18,7 @@ function getInitials(name: string): string {
 
 export function TestimonialBlock({ content }: TestimonialBlockProps) {
   const initials = getInitials(content.authorName);
+  const avatarUrl = safeBlockSrc(content.avatarUrl);
 
   return (
     <section
@@ -42,9 +44,9 @@ export function TestimonialBlock({ content }: TestimonialBlockProps) {
 
         {/* Author */}
         <figcaption className="mt-10 flex flex-col items-center gap-3">
-          {content.avatarUrl ? (
+          {avatarUrl ? (
             <img
-              src={content.avatarUrl}
+              src={avatarUrl}
               alt={content.authorName}
               className="w-12 h-12 rounded-full object-cover border-2"
               style={{ borderColor: '#E5E0D4' }}

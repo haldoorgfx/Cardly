@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { ArrowRight, Check } from 'lucide-react';
 import type { PricingCardsContent } from '@/lib/cms/types';
 import { SectionHeaderBlock } from './SectionHeaderBlock';
+import { safeBlockHref } from '@/lib/cms/href';
 
 export function PricingCardsBlock({ content }: { content: PricingCardsContent }) {
   // Defensive: free-form block JSON may omit `plans` — render empty, never throw.
@@ -18,8 +19,13 @@ export function PricingCardsBlock({ content }: { content: PricingCardsContent })
         )}
 
         <div className="grid lg:grid-cols-3 gap-5">
-          {plans.map((plan) => (
-            <div key={plan.id}
+          {plans.map((plan, pi) => {
+            // A missing `ctaHref` makes next/link throw and 500s the page; an
+            // unsafe scheme is a stored-XSS sink. Either way the plan still
+            // renders — it just loses its button rather than the page.
+            const ctaHref = safeBlockHref(plan.ctaHref);
+            return (
+            <div key={plan.id ?? pi}
               className={`relative rounded-3xl p-7 lg:p-8 flex flex-col h-full ${
                 plan.highlighted
                   ? 'shadow-xl'
@@ -62,16 +68,19 @@ export function PricingCardsBlock({ content }: { content: PricingCardsContent })
                 ))}
               </ul>
 
-              <Link href={plan.ctaHref}
-                className={`mt-8 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full font-medium text-[14px] transition-colors ${
-                  plan.highlighted
-                    ? 'bg-[#E8C57E] text-[#163828] hover:bg-[#C9A45E]'
-                    : 'bg-[#0F1F18] text-[#FAF6EE] hover:bg-[#1F4D3A]'
-                }`}>
-                {plan.ctaLabel} <ArrowRight size={14} strokeWidth={2} />
-              </Link>
+              {ctaHref && (
+                <Link href={ctaHref}
+                  className={`mt-8 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full font-medium text-[14px] transition-colors ${
+                    plan.highlighted
+                      ? 'bg-[#E8C57E] text-[#163828] hover:bg-[#C9A45E]'
+                      : 'bg-[#0F1F18] text-[#FAF6EE] hover:bg-[#1F4D3A]'
+                  }`}>
+                  {plan.ctaLabel} <ArrowRight size={14} strokeWidth={2} />
+                </Link>
+              )}
             </div>
-          ))}
+            );
+          })}
         </div>
 
         {trialBanner && (
