@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { z } from 'zod';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 export const dynamic = 'force-dynamic';
 
@@ -9,9 +10,12 @@ const CreateSchema = z.object({
   label: z.string().max(100).optional(),
 });
 
+// Was a literal `.eq('user_id', userId)` — Studio team members could never
+// manage promoter codes on an event they don't personally own, even though
+// Teams promises "EVENT ACCESS: All events". See lib/rbac/canManageEvent.ts.
 async function verifyOrganizer(eventId: string, userId: string) {
   const admin = createAdminClient();
-  const { data } = await admin.from('events').select('id').eq('id', eventId).eq('user_id', userId).single();
+  const { data } = await admin.from('events').select('id').eq('id', eventId).in('user_id', await manageableOwnerIds(userId)).single();
   return !!data;
 }
 

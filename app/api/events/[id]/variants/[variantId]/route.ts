@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
+// Was a literal `.eq('user_id', userId)` — the sibling list/create route
+// (variants/route.ts) already used manageableOwnerIds, so a Studio team
+// member could create a variant in Card Studio but never save an edit or
+// delete one, both silently 404ing. See lib/rbac/canManageEvent.ts.
 async function verifyOwner(eventId: string, userId: string, admin: ReturnType<typeof createAdminClient>) {
-  const { data } = await admin.from('events').select('id').eq('id', eventId).eq('user_id', userId).single();
+  const { data } = await admin.from('events').select('id').eq('id', eventId).in('user_id', await manageableOwnerIds(userId)).single();
   return !!data;
 }
 

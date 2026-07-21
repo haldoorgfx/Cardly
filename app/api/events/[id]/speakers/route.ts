@@ -12,8 +12,13 @@ function speakerSlug(name: string, id: string): string {
 
 /**
  * Every method here uses the service-role admin client, which BYPASSES RLS —
- * so each one must prove the caller owns this event itself. Returns the event
+ * so each one must prove the caller may manage this event. Returns the event
  * row or null; callers 404 on null (same shape the POST handler already used).
+ *
+ * Was a literal `.eq('user_id', userId)` — POST already used manageableOwnerIds
+ * (below), but GET/PATCH/DELETE still called this helper, so a Studio team
+ * member could create a speaker yet not view, edit, or delete one — the
+ * exact "Teams granted access to nothing" regression this file had half-fixed.
  */
 async function ownedEvent(eventId: string, userId: string) {
   const admin = createAdminClient();
@@ -21,7 +26,7 @@ async function ownedEvent(eventId: string, userId: string) {
     .from('events')
     .select('id')
     .eq('id', eventId)
-    .eq('user_id', userId)
+    .in('user_id', await manageableOwnerIds(userId))
     .maybeSingle();
   return data;
 }
