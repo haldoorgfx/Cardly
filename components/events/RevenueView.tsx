@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { Download, TrendingUp, Users, CreditCard } from 'lucide-react';
+import { escapeCsvCell } from '@/lib/csv';
 
 interface Reg {
   id: string;
@@ -70,7 +71,17 @@ export function RevenueView({ registrations }: Props) {
     () => paidRegs.reduce((s, r) => s + (r.organizer_net ?? ((r.amount_paid ?? 0) - (r.platform_fee ?? 0))), 0),
     [paidRegs],
   );
-  const primaryCurrency = paidRegs.find(r => r.amount_paid > 0)?.currency ?? 'USD';
+  // True only when the fee columns (migration 040) are actually populated. When
+  // they are absent the select falls back to base columns and every fee reads
+  // undefined, making totalNet collapse to gross — labelling that "Net payable /
+  // what you'll receive" promises the organizer money the platform fee will take.
+  const hasFeeData = paidRegs.some(r => r.platform_fee != null || r.organizer_net != null);
+
+  // A single event can sell tickets priced in more than one currency. Summing
+  // those into one number under one symbol is meaningless, so detect it and say so.
+  const currencies = Array.from(new Set(paidRegs.filter(r => r.amount_paid > 0).map(r => r.currency).filter(Boolean)));
+  const isMixedCurrency = currencies.length > 1;
+  const primaryCurrency = currencies[0] ?? 'USD';
   const totalCount = registrations.length;
   const paidCount = registrations.filter(r => (r.amount_paid ?? 0) > 0).length;
   const freeCount = registrations.filter(r => (r.amount_paid ?? 0) === 0).length;
@@ -126,7 +137,7 @@ export function RevenueView({ registrations }: Props) {
       r.utm_source ?? '',
       new Date(r.created_at).toLocaleString(),
     ]);
-    const csv = [headers, ...rows].map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const csv = [headers, ...rows].map(r => r.map(escapeCsvCell).join(',')).join('\r\n');
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
     a.download = `revenue-export.csv`;
@@ -137,13 +148,28 @@ export function RevenueView({ registrations }: Props) {
     <div>
       {/* Stats — the money story: gross → fee → what you're owed */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-2">
-        <StatCard icon={<TrendingUp size={16} />} label="Gross collected" value={fmtShort(totalRevenue, primaryCurrency)} sub={`${paidCount} paid · ${freeCount} free`} />
-        <StatCard icon={<CreditCard size={16} />} label="Platform fee" value={totalFee > 0 ? fmtShort(totalFee, primaryCurrency) : '—'} />
-        <StatCard icon={<TrendingUp size={16} />} label="Net payable" value={fmtShort(totalNet, primaryCurrency)} sub="what you'll receive" />
+        <StatCard
+          icon={<TrendingUp size={16} />}
+          label="Gross collected"
+          value={isMixedCurrency ? 'Mixed' : fmtShort(totalRevenue, primaryCurrency)}
+          sub={`${paidCount} paid · ${freeCount} free`}
+        />
+        <StatCard icon={<CreditCard size={16} />} label="Platform fee" value={hasFeeData && totalFee > 0 ? fmtShort(totalFee, primaryCurrency) : '—'} />
+        <StatCard
+          icon={<TrendingUp size={16} />}
+          label={hasFeeData ? 'Net payable' : 'Net payable (est.)'}
+          value={isMixedCurrency ? 'Mixed' : fmtShort(totalNet, primaryCurrency)}
+          sub={hasFeeData ? "what you'll receive" : 'before platform fee'}
+        />
         <StatCard icon={<Users size={16} />} label="Attendees" value={String(totalCount)} />
       </div>
       <p className="text-[12px] mb-8" style={{ color: '#65736B' }}>
-        Net payable is your revenue after Eventera&apos;s platform fee. Payouts are processed manually for now — we&apos;ll be in touch to settle.
+        {hasFeeData
+          ? <>Net payable is your revenue after Eventera&apos;s platform fee. Payouts are processed manually for now — we&apos;ll be in touch to settle.</>
+          : <>No platform fee has been recorded against these registrations yet, so net payable currently equals gross. Your final payout will be lower once fees are applied.</>}
+        {isMixedCurrency && (
+          <> This event sold tickets in {currencies.join(', ')}; totals across different currencies aren&apos;t comparable, so per-currency figures are shown in the table below.</>
+        )}
       </p>
 
       {/* Tab bar + export */}
@@ -201,7 +227,10 @@ export function RevenueView({ registrations }: Props) {
               <div className="grid grid-cols-3 px-4 py-3.5 items-center" style={{ borderTop: '2px solid #E5E0D4', background: '#F9F6F0' }}>
                 <span className="font-semibold text-[13px]" style={{ color: '#3A4A42' }}>Total</span>
                 <span className="text-right  font-semibold text-[14px]" style={{ color: '#0F1F18' }}>{totalCount}</span>
-                <span className="text-right  font-semibold text-[14px]" style={{ color: '#0F1F18' }}>{fmt(totalRevenue, primaryCurrency)}</span>
+                <span className="text-right  font-semibold text-[14px]" style={{ color: '#0F1F18' }}>
+                  {/* Per-row revenue is already per-currency; a cross-currency grand total is not a number. */}
+                  {isMixedCurrency ? '—' : fmt(totalRevenue, primaryCurrency)}
+                </span>
               </div>
             )}
           </>

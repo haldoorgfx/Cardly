@@ -74,11 +74,15 @@ export async function generateRevenuePDF(
   const statY = heroY + heroH + 14;
   const statW = (CW - 24) / 4;
   const statH = 50;
+  // The hero "CONFIRMED" above is confirmed + checked_in. A box also labelled
+  // "Confirmed" that excluded checked_in put two different numbers under the
+  // same word on one page — organizers read the smaller one as a drop in sales.
+  // These boxes are a status split, so name the state each one actually counts.
   const statuses = [
-    { label: 'Confirmed',  value: regs.filter(r => r.status === 'confirmed').length,  color: C.warning  },
-    { label: 'Checked In', value: regs.filter(r => r.status === 'checked_in').length, color: C.success  },
-    { label: 'Pending',    value: regs.filter(r => r.status === 'pending').length,    color: C.muted    },
-    { label: 'Cancelled',  value: regs.filter(r => r.status === 'cancelled').length,  color: C.danger   },
+    { label: 'Awaiting Check-In', value: regs.filter(r => r.status === 'confirmed').length,  color: C.warning  },
+    { label: 'Checked In',        value: regs.filter(r => r.status === 'checked_in').length, color: C.success  },
+    { label: 'Pending',           value: regs.filter(r => r.status === 'pending').length,    color: C.muted    },
+    { label: 'Cancelled',         value: regs.filter(r => r.status === 'cancelled').length,  color: C.danger   },
   ];
   statuses.forEach((s, i) => {
     drawStatBox(doc, M + i * (statW + 8), statY, statW, statH, s.label, s.value, s.color);

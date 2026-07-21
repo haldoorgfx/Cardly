@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { escapeCsvCell } from '@/lib/csv';
 
 interface PerfEvent {
   id: string;
@@ -18,7 +19,7 @@ interface Props {
   period: string;
 }
 
-export function ExportButton({ events, period }: Props) {
+export function ExportButton({ events, currency, period }: Props) {
   const [exported, setExported] = useState(false);
   const disabled = events.length === 0;
 
@@ -26,7 +27,11 @@ export function ExportButton({ events, period }: Props) {
     if (disabled) return;
     const periodLabel = period === '1y' ? 'Last Year' : period === '6m' ? 'Last 6 Months' : 'Last 90 Days';
 
-    const headers = ['Event', 'Status', 'Registrations', 'Revenue', 'Cards Shared', 'Check-in Rate'];
+    // Name the unit in the header. `currency` is null when the organizer's
+    // events bill in more than one currency — the Revenue column is then a sum
+    // of unlike units, and the CSV must say so rather than imply one currency.
+    const revenueHeader = currency ? `Revenue (${currency})` : 'Revenue (mixed currencies — not comparable)';
+    const headers = ['Event', 'Status', 'Registrations', revenueHeader, 'Cards Shared', 'Check-in Rate'];
     const rows = events.map(e => [
       e.name,
       e.status === 'published' ? 'Live' : 'Draft',
@@ -37,8 +42,8 @@ export function ExportButton({ events, period }: Props) {
     ]);
 
     const csvContent = [headers, ...rows]
-      .map(row => row.map(v => `"${String(v).replace(/"/g, '""')}"`).join(','))
-      .join('\n');
+      .map(row => row.map(escapeCsvCell).join(','))
+      .join('\r\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Copy, Check, Download } from 'lucide-react';
+import { escapeCsvCell } from '@/lib/csv';
 import { PageShell, PageHeader } from '@/components/dash';
 
 interface Source { name: string; count: number; pct: number; }
@@ -69,8 +70,8 @@ export function SourceAnalyticsClient({ eventName, publicSlug, sources, total }:
     const headers = ['Source', 'Registrations', 'Percentage'];
     const rows = sources.map(s => [sourceDisplay(s.name), String(s.count), `${s.pct}%`]);
     const csv = [headers, ...rows]
-      .map(row => row.map(v => `"${String(v).replace(/"/g, '""')}"`).join(','))
-      .join('\n');
+      .map(row => row.map(escapeCsvCell).join(','))
+      .join('\r\n');
     const slug = eventName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);

@@ -6,6 +6,7 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { escapeCsvCell } from '@/lib/csv';
 
 export async function GET(
   _req: NextRequest,
@@ -49,13 +50,10 @@ export async function GET(
 
   // Build CSV
   const header = ['card_id', 'created_at', 'attendee_name', ...extraKeys];
-  const escape = (v: unknown): string => {
-    const s = v == null ? '' : String(v);
-    if (s.includes(',') || s.includes('"') || s.includes('\n')) {
-      return '"' + s.replace(/"/g, '""') + '"';
-    }
-    return s;
-  };
+  // Shared escaper. attendee_data holds free-text custom form answers, so this
+  // must both quote commas/quotes/newlines and defuse spreadsheet formula
+  // injection (a cell starting with = + - @ executes when the organizer opens it).
+  const escape = (v: unknown): string => escapeCsvCell(v as string | number | null | undefined);
 
   const lines: string[] = [header.join(',')];
   for (const row of rows) {

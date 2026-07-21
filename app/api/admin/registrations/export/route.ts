@@ -2,6 +2,7 @@ import { getAuthorizedUser } from '@/lib/auth/guards';
 import { EVENT_VIEW_ALL } from '@/lib/auth/permissions';
 import { createAdminClient } from '@/lib/supabase/server';
 import { logAudit } from '@/lib/audit/log';
+import { escapeCsvCell } from '@/lib/csv';
 
 // GET /api/admin/registrations/export — stream all rows matching the current
 // filters as a CSV download. Admin-guarded (same view permission as the page).
@@ -57,12 +58,9 @@ export async function GET(request: Request) {
     'Created At',
   ];
 
-  const escape = (value: unknown): string => {
-    const s = value === null || value === undefined ? '' : String(value);
-    // Quote when the field contains a comma, quote, or newline; double inner quotes.
-    if (/[",\n\r]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
-    return s;
-  };
+  // Shared escaper — quotes commas/quotes/newlines AND defuses spreadsheet
+  // formula injection from attacker-controlled attendee names/emails.
+  const escape = (value: unknown): string => escapeCsvCell(value as string | number | null | undefined);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const lines = ((data ?? []) as any[]).map((r) =>

@@ -133,8 +133,11 @@ export default async function RevenuePrintPage({ params }: Props) {
         </h2>
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
           {[
-            { label: 'Total',       value: allRegs.length,                                                     color: '#0F1F18' },
-            { label: 'Confirmed',   value: allRegs.filter(r => r.status === 'confirmed').length,               color: '#C97A2D' },
+            // "Confirmed Registrations" in the hero above is confirmed +
+            // checked_in. Naming this narrower count "Confirmed" too printed two
+            // different numbers under the same word on one page.
+            { label: 'Total',             value: allRegs.length,                                         color: '#0F1F18' },
+            { label: 'Awaiting check-in', value: allRegs.filter(r => r.status === 'confirmed').length,   color: '#C97A2D' },
             { label: 'Checked In',  value: allRegs.filter(r => r.status === 'checked_in').length,              color: '#2D7A4F' },
             { label: 'Pending',     value: allRegs.filter(r => r.status === 'pending').length,                 color: '#65736B' },
             { label: 'Cancelled',   value: allRegs.filter(r => r.status === 'cancelled').length,               color: '#B8423C' },

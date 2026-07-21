@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { PageShell, PageHeader } from '@/components/dash';
+import { escapeCsvCell } from '@/lib/csv';
 
 interface Reg {
   id: string;
@@ -60,7 +61,7 @@ function Panel({ title, children, pad = 'p-5' }: { title?: string; children: Rea
 
 type SourceKey = 'registrations' | 'orders' | 'sessions';
 const SOURCES: { key: SourceKey; label: string; desc: string }[] = [
-  { key: 'registrations', label: 'Registrations', desc: 'People who registered' },
+  { key: 'registrations', label: 'Registrations', desc: 'Everyone who registered, incl. cancelled' },
   { key: 'orders',        label: 'Orders',        desc: 'Transactions and revenue' },
   { key: 'sessions',      label: 'Sessions',      desc: 'Agenda attendance' },
 ];
@@ -79,17 +80,20 @@ export function ReportsClient({ eventId, eventName, totalRevenue, regCount, chec
     if (exportRows.length === 0) return;
     const kind = tab === 'builder' ? source : 'registrations';
     const slug = eventName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-    const headers = ['Name', 'Ticket Type', 'Amount', 'Status', 'Registered date'];
+    // Currency is exported alongside Amount — without it a mixed-currency event
+    // hands finance a column of bare numbers with no unit.
+    const headers = ['Name', 'Ticket Type', 'Amount', 'Currency', 'Status', 'Registered date'];
     const rows = exportRows.map(r => [
       r.attendee_name ?? '',
       ticketTypes.find(t => t.id === r.ticket_type_id)?.name ?? '',
       r.amount_paid != null ? String(r.amount_paid) : '0',
+      r.currency ?? '',
       r.status === 'checked_in' ? 'Checked In' : r.status.charAt(0).toUpperCase() + r.status.slice(1).replace(/_/g, ' '),
       new Date(r.created_at).toLocaleDateString(),
     ]);
     const csvContent = [headers, ...rows]
-      .map(row => row.map(v => `"${String(v).replace(/"/g, '""')}"`).join(','))
-      .join('\n');
+      .map(row => row.map(escapeCsvCell).join(','))
+      .join('\r\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -112,12 +116,16 @@ export function ReportsClient({ eventId, eventName, totalRevenue, regCount, chec
     return { ...tt, count, revenue };
   });
 
-  // Daily reg trend (last 14 days)
+  // Daily reg trend (last 14 days). Counts the SAME confirmed set as every KPI
+  // on this page — it previously counted all rows, so cancelled/pending
+  // registrations showed up as bars under a "N confirmed registrations" headline.
+  const confirmedRegs = regs.filter(r => ['confirmed', 'checked_in'].includes(r.status));
+  const paidOrderCount = confirmedRegs.filter(r => (r.amount_paid ?? 0) > 0).length;
   const now = Date.now();
   const days: { date: string; count: number }[] = Array.from({ length: 14 }, (_, i) => {
     const d = new Date(now - (13 - i) * 86400000);
     const dateStr = d.toISOString().split('T')[0];
-    const count = regs.filter(r => r.created_at.startsWith(dateStr)).length;
+    const count = confirmedRegs.filter(r => r.created_at.startsWith(dateStr)).length;
     return { date: d.toLocaleDateString('en-GB', { month: 'short', day: 'numeric' }), count };
   });
   const maxDay = Math.max(...days.map(d => d.count), 1);
@@ -168,7 +176,9 @@ export function ReportsClient({ eventId, eventName, totalRevenue, regCount, chec
                 {[
                   ['Registrations', regCount],
                   ['Checked in', checkedIn],
-                  ['Avg. order', primaryCurrency && regCount > 0 ? fmtCurrency(Math.round(totalRevenue / regCount), primaryCurrency) : '—'],
+                  // Average PAID order — dividing revenue by every registration
+                  // (free ones included) produced a figure no attendee ever paid.
+                  ['Avg. paid order', primaryCurrency && paidOrderCount > 0 ? fmtCurrency(Math.round(totalRevenue / paidOrderCount), primaryCurrency) : '—'],
                   ['Check-in rate', `${checkInPct}%`],
                 ].map(([label, value]) => (
                   <div key={label as string} className="rounded-xl px-3 py-2.5" style={{ background: 'rgba(250,246,238,0.1)', border: '1px solid rgba(250,246,238,0.15)' }}>

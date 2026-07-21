@@ -31,6 +31,15 @@ export default async function EventAnalyticsPage({ params }: Props) {
 
   if (!event) redirect('/dashboard');
 
+  // The event's display timezone lives on event_pages, not events. Fetched
+  // separately (and tolerantly) so a missing page row can never blank analytics.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: eventPage } = await (admin as any)
+    .from('event_pages')
+    .select('timezone')
+    .eq('event_id', id)
+    .maybeSingle();
+
   // Fetch registrations on the SAME confirmed basis that Reports and Check-in
   // use (confirmed + checked_in), so the headline "registrations" count and
   // check-in rate agree across every page. Including 'pending' here previously
@@ -42,14 +51,32 @@ export default async function EventAnalyticsPage({ params }: Props) {
     .eq('event_id', id)
     .in('status', ['confirmed', 'checked_in'])
     .order('created_at', { ascending: true })
-    .limit(1000);
+    // Was 1000 — an event past that cap silently under-reported EVERY figure on
+    // this page (registrations, revenue, check-in rate) with no warning.
+    .limit(50_000);
 
   const allRegs = regs ?? [];
 
   // ── Daily registrations ────────────────────────────────────────────────────
+  // Bucket by the EVENT's local day, not the server's UTC day. created_at is a
+  // UTC timestamp, so slicing the first 10 chars put a 9pm registration in
+  // Djibouti (UTC+3) on the following calendar day — the organiser's "opening
+  // day" bar was wrong for every event that isn't on UTC.
+  const eventTz: string = eventPage?.timezone || 'UTC';
+  let dayKey: Intl.DateTimeFormat;
+  try {
+    dayKey = new Intl.DateTimeFormat('en-CA', {
+      year: 'numeric', month: '2-digit', day: '2-digit', timeZone: eventTz,
+    });
+  } catch {
+    // Bad/unknown IANA zone stored on the page — fall back rather than throw.
+    dayKey = new Intl.DateTimeFormat('en-CA', {
+      year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'UTC',
+    });
+  }
   const dailyMap = new Map<string, number>();
   for (const r of allRegs) {
-    const day = r.created_at.slice(0, 10);
+    const day = dayKey.format(new Date(r.created_at));
     dailyMap.set(day, (dailyMap.get(day) ?? 0) + 1);
   }
   const dailyRegistrations = Array.from(dailyMap.entries())

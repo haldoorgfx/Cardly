@@ -111,8 +111,12 @@ export default async function AnalyticsPage({
   const totalEvents    = allEvents.filter(e => e.status !== 'archived').length;
   const confirmedRegs  = allRegs.filter(r => ['confirmed', 'checked_in'].includes(r.status));
   const totalRegs      = confirmedRegs.length;
-  const totalRevenue   = allRegs.reduce((s, r) => s + Number(r.amount_paid ?? 0), 0);
-  const allCurrencies  = new Set(allRegs.map(r => r.currency).filter(Boolean) as string[]);
+  // Revenue must be summed over the SAME confirmed set as the registration
+  // count and the per-event table below. Summing every row counted cancelled
+  // and refunded registrations as money earned, so the headline Revenue card
+  // read higher than the per-event Revenue column it sits above.
+  const totalRevenue   = confirmedRegs.reduce((s, r) => s + Number(r.amount_paid ?? 0), 0);
+  const allCurrencies  = new Set(confirmedRegs.map(r => r.currency).filter(Boolean) as string[]);
   const primaryCurrency = allCurrencies.size === 1 ? Array.from(allCurrencies)[0] : null;
   const totalCards     = allEvents.reduce((s, e) => s + (e.download_count ?? 0), 0);
 
@@ -128,13 +132,18 @@ export default async function AnalyticsPage({
   }).length;
   const regsMoM = regsLastMonth > 0 ? Math.round(((regsThisMonth - regsLastMonth) / regsLastMonth) * 100) : null;
 
-  const revThisMonth = allRegs.filter(r => new Date(r.created_at) >= thisMonthStart)
+  const revThisMonth = confirmedRegs.filter(r => new Date(r.created_at) >= thisMonthStart)
     .reduce((s, r) => s + Number(r.amount_paid ?? 0), 0);
-  const revLastMonth = allRegs.filter(r => {
+  const revLastMonth = confirmedRegs.filter(r => {
     const d = new Date(r.created_at);
     return d >= lastMonthStart && d < thisMonthStart;
   }).reduce((s, r) => s + Number(r.amount_paid ?? 0), 0);
-  const revMoM = revLastMonth > 0 ? Math.round(((revThisMonth - revLastMonth) / revLastMonth) * 100) : null;
+  // Only meaningful when every event bills in one currency — a month-over-month
+  // % across a USD event and a DJF event compares two different units and is
+  // arithmetic noise. The Revenue value itself already renders '—' in that case.
+  const revMoM = primaryCurrency && revLastMonth > 0
+    ? Math.round(((revThisMonth - revLastMonth) / revLastMonth) * 100)
+    : null;
 
   // ─── Per-event data ──────────────────────────────────────────────────────────
 
@@ -163,8 +172,8 @@ export default async function AnalyticsPage({
     const nextD = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
     revMonths.push({
       label:   d.toLocaleDateString(undefined, { month: 'short' }),
-      revenue: allRegs.filter(r => { const rd = new Date(r.created_at); return rd >= d && rd < nextD; })
-                      .reduce((s, r) => s + Number(r.amount_paid ?? 0), 0),
+      revenue: confirmedRegs.filter(r => { const rd = new Date(r.created_at); return rd >= d && rd < nextD; })
+                            .reduce((s, r) => s + Number(r.amount_paid ?? 0), 0),
     });
   }
   const maxRevenue = Math.max(...revMonths.map(m => m.revenue), 1);
