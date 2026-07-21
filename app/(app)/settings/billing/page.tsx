@@ -6,6 +6,7 @@ export async function generateMetadata(): Promise<Metadata> {
 import { redirect } from 'next/navigation';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { PLANS } from '@/lib/billing/plans';
+import { getUserPlan } from '@/lib/billing/can';
 import { fromStripeMinorUnits } from '@/lib/payments/currency';
 import BillingActions from './BillingActions';
 import { BillingPortalButton } from './BillingPortalButton';
@@ -104,7 +105,7 @@ export default async function BillingPage({
 
   const admin = createAdminClient();
 
-  const [profileResult, eventsResult] = await Promise.all([
+  const [profileResult, eventsResult, effectivePlan] = await Promise.all([
     admin
       .from('profiles')
       .select('plan, subscription_status, billing_cycle, current_period_end, cancel_at_period_end, cards_this_month, stripe_customer_id')
@@ -114,12 +115,22 @@ export default async function BillingPage({
       .from('events')
       .select('id', { count: 'exact', head: true })
       .eq('user_id', user.id),
+    // getUserPlan() is the canonical resolver — it applies the cancelled/
+    // past_due/incomplete downgrade AND the webhook-loss backstop (a Stripe
+    // subscription whose period ended >7d ago). Reading profiles.plan raw made
+    // this page disagree with what the rest of the product actually enforces:
+    // a user whose renewal webhook never landed saw "Pro — renews <past date>"
+    // here while every gate treated them as Free, with nothing explaining why.
+    getUserPlan(user.id),
   ]);
 
   const profile = profileResult.data;
   const eventsCount = eventsResult.count ?? 0;
 
-  const plan = (profile?.plan ?? 'free') as 'free' | 'pro' | 'studio';
+  const plan = effectivePlan;
+  const storedPlan = (profile?.plan ?? 'free') as 'free' | 'pro' | 'studio';
+  // Stored tier says paid, the resolver says free → the backstop tripped.
+  const lapsedSilently = storedPlan !== 'free' && plan === 'free';
   const limits = PLANS[plan];
   const cardsUsed = profile?.cards_this_month ?? 0;
   // Guard against division by zero and NaN
@@ -130,7 +141,6 @@ export default async function BillingPage({
   const eventPct = limits.events === null ? null : Math.min((eventsCount / limits.events) * 100, 100);
   const status = profile?.subscription_status ?? 'none';
   const isTrialing = status === 'trialing';
-  const isActive = status === 'active' || isTrialing;
   const hasPortal = !!profile?.stripe_customer_id;
 
   // When Stripe isn't wired up (no secret key), the plan/checkout/portal actions
@@ -166,14 +176,139 @@ export default async function BillingPage({
     free: '$0',
   };
 
-  // Stripe data (payment method + invoices) for paid users
+  // Stripe data (payment method + invoices) for anyone who has ever had a
+  // Stripe customer. Previously gated on `plan !== 'free' && isActive`, which
+  // meant the two people who most need this screen could not use it:
+  //   • past_due — card declined, wanted to see and replace the failing card,
+  //     and instead got a page with no card shown at all;
+  //   • cancelled/lapsed — dropped to the upgrade-cards view with no route to
+  //     their own paid invoices (receipts they need for tax/expenses).
   let paymentMethod: PaymentMethod = null;
   let invoices: Invoice[] = [];
-  if (profile?.stripe_customer_id && plan !== 'free' && isActive) {
+  if (profile?.stripe_customer_id) {
     const stripeData = await getStripeData(profile.stripe_customer_id);
     paymentMethod = stripeData.paymentMethod;
     invoices = stripeData.invoices;
   }
+
+  // Dunning. `past_due` means Stripe's retries are failing and the
+  // subscription is heading for cancellation; `incomplete` means the very
+  // first payment never cleared. Neither produced a single word on this page
+  // before, so a subscriber's only signal that they were about to lose their
+  // plan was the features quietly disappearing.
+  const paymentProblem =
+    status === 'past_due' ? 'past_due' :
+    status === 'incomplete' ? 'incomplete' :
+    null;
+
+  const alertBanner = (paymentProblem || lapsedSilently) ? (
+    <div
+      className="mb-6 rounded-2xl border px-5 py-4 flex flex-col sm:flex-row sm:items-center gap-3"
+      style={{ borderColor: 'rgba(184,66,60,0.25)', background: 'rgba(184,66,60,0.06)' }}
+      role="alert"
+    >
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B8423C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 sm:mt-0 mt-0.5" aria-hidden>
+        <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
+      </svg>
+      <div className="flex-1 min-w-0">
+        <p className="text-[14px] font-semibold" style={{ color: '#B8423C' }}>
+          {paymentProblem === 'incomplete'
+            ? 'Your first payment didn’t go through'
+            : paymentProblem === 'past_due'
+            ? 'We couldn’t take your last payment'
+            : 'Your subscription has lapsed'}
+        </p>
+        <p className="text-[13px] text-[#3A4A42] mt-0.5 leading-relaxed">
+          {paymentProblem === 'incomplete'
+            ? 'Your subscription hasn’t started, so your workspace is on the Free plan. Add a working card to activate it.'
+            : paymentProblem === 'past_due'
+            ? 'Stripe will keep retrying for a few days. Update your card to avoid losing your paid features.'
+            : 'We haven’t seen a renewal for this subscription, so your workspace is on the Free plan for now. Open billing to check its status or restart it.'}
+        </p>
+      </div>
+      {hasPortal && <div className="shrink-0"><BillingPortalButton label="Update payment method" /></div>}
+    </div>
+  ) : null;
+
+  // One invoices table, rendered on both the paid and the free/lapsed view.
+  const invoicesSection = invoices.length > 0 ? (
+    <div className="bg-white rounded-2xl border border-border shadow-soft">
+      <div className="px-6 py-4 border-b border-border">
+        <h3 className="font-semibold text-[14px] text-[#0F1F18]">Invoices</h3>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full" style={{ minWidth: 360 }}>
+          <thead>
+            <tr className="border-b border-border">
+              {['DATE', 'DESCRIPTION', 'AMOUNT', 'STATUS', ''].map(col => (
+                <th key={col} className="px-6 py-3 text-left text-[12px] tracking-widest text-[#65736B]">
+                  {col}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {invoices.map(inv => (
+              <tr key={inv.id} className="border-b border-border last:border-0 hover:bg-cream/40 transition-colors">
+                <td className="px-6 py-4 text-[13px] text-[#3A4A42] whitespace-nowrap">{inv.date}</td>
+                <td className="px-6 py-4 text-[13px] text-[#3A4A42]">{inv.description}</td>
+                <td className="px-6 py-4 text-[13px] text-[#0F1F18] whitespace-nowrap">{inv.amount}</td>
+                <td className="px-6 py-4">
+                  {inv.status === 'paid' && (
+                    <span
+                      className="inline-flex items-center gap-1.5 text-[13px] font-medium px-2.5 py-1 rounded-full"
+                      style={{ background: '#F0FAF4', color: '#1F4D3A', border: '1px solid #A8D5B5' }}
+                    >
+                      Paid
+                    </span>
+                  )}
+                  {inv.status === 'free' && <span className="text-[12px] text-[#65736B]">—</span>}
+                  {inv.status === 'open' && (
+                    <span
+                      className="inline-flex items-center text-[13px] font-medium px-2.5 py-1 rounded-full"
+                      style={{ background: 'rgba(201,122,45,0.10)', color: '#C97A2D', border: '1px solid rgba(201,122,45,0.30)' }}
+                    >
+                      Due
+                    </span>
+                  )}
+                  {inv.status === 'void' && <span className="text-[12px] text-[#65736B]">Void</span>}
+                  {inv.status === 'uncollectible' && (
+                    <span
+                      className="inline-flex items-center text-[13px] font-medium px-2.5 py-1 rounded-full"
+                      style={{ background: 'rgba(184,66,60,0.10)', color: '#B8423C', border: '1px solid rgba(184,66,60,0.30)' }}
+                    >
+                      Uncollectible
+                    </span>
+                  )}
+                </td>
+                <td className="px-6 py-4 text-right">
+                  {inv.url && (
+                    <a
+                      href={inv.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`Open the ${inv.date} invoice on Stripe`}
+                      className="inline-flex text-[#65736B] hover:text-[#0F1F18] transition"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                        <polyline points="15 3 21 3 21 9" />
+                        <line x1="10" y1="14" x2="21" y2="3" />
+                      </svg>
+                    </a>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  ) : (
+    <div className="bg-white rounded-2xl border border-border shadow-soft p-8 text-center">
+      <div className="text-[13px] text-[#65736B]">No invoices yet.</div>
+    </div>
+  );
 
   // Free users (or lapsed subscriptions on free) → show upgrade cards
   if (plan === 'free') {
@@ -185,19 +320,41 @@ export default async function BillingPage({
             <p className="text-[14px] text-[#65736B] mt-1">Manage your plan and payment method</p>
           </div>
           {stripeBanner}
+          {alertBanner}
           {checkout === 'success' && (
             <div className="mb-6 rounded-2xl border border-[#A8D5B5] bg-[#F0FAF4] px-5 py-4 flex items-center gap-3">
               <span className="h-2 w-2 rounded-full bg-[#2D7A4F] shrink-0" />
               <p className="text-[14px] text-[#1F4D3A] font-medium">Payment successful — your plan has been updated.</p>
             </div>
           )}
-          {checkout === 'cancelled' && (
+          {/* create-checkout's cancel_url uses the American 'canceled'; this
+              branch only tested for 'cancelled' and so never rendered. */}
+          {(checkout === 'cancelled' || checkout === 'canceled') && (
             <div className="mb-6 rounded-2xl border border-[#E5E0D4] bg-[#FAF6EE] px-5 py-4 flex items-center gap-3">
               <span className="h-2 w-2 rounded-full bg-[#65736B] shrink-0" />
               <p className="text-[14px] text-[#3A4A42]">Checkout cancelled — no charge was made.</p>
             </div>
           )}
           <BillingActions />
+
+          {/* A previously-subscribed user keeps access to their receipts and to
+              the Stripe portal after cancelling — both were unreachable before. */}
+          {hasPortal && (
+            <div className="mt-10">
+              <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
+                <div>
+                  <h2 className="font-display font-semibold text-[16px] text-[#0F1F18] tracking-tight">
+                    Billing history
+                  </h2>
+                  <p className="text-[13px] text-[#65736B] mt-0.5">
+                    Invoices and receipts from your previous subscription.
+                  </p>
+                </div>
+                <BillingPortalButton label="Manage billing →" />
+              </div>
+              {invoicesSection}
+            </div>
+          )}
         </div>
       </>
     );
@@ -216,6 +373,7 @@ export default async function BillingPage({
       </div>
 
       {stripeBanner}
+      {alertBanner}
       {checkout === 'success' && (
         <div className="mb-6 rounded-2xl border border-[#A8D5B5] bg-[#F0FAF4] px-5 py-4 flex items-center gap-3">
           <span className="h-2 w-2 rounded-full bg-[#2D7A4F] shrink-0" />
@@ -297,7 +455,8 @@ export default async function BillingPage({
                   className="h-full rounded-full"
                   style={{
                     width: `${cardPct}%`,
-                    background: cardPct >= 90 ? '#ef4444' : '#E8C57E',
+                    // Brand danger token, not a raw Tailwind red.
+                    background: cardPct >= 90 ? '#B8423C' : '#E8C57E',
                   }}
                 />
               </div>
@@ -374,99 +533,9 @@ export default async function BillingPage({
         </div>
       </div>
 
-      {/* Invoices table */}
-      {invoices.length > 0 && (
-        <div className="bg-white rounded-2xl border border-border shadow-soft">
-          <div className="px-6 py-4 border-b border-border">
-            <h3 className="font-semibold text-[14px] text-[#0F1F18]">Invoices</h3>
-          </div>
-          <div className="overflow-x-auto">
-          <table className="w-full" style={{ minWidth: 360 }}>
-            <thead>
-              <tr className="border-b border-border">
-                {['DATE', 'DESCRIPTION', 'AMOUNT', 'STATUS', ''].map(col => (
-                  <th
-                    key={col}
-                    className="px-6 py-3 text-left text-[12px] tracking-widest text-[#65736B]"
-                  >
-                    {col}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {invoices.map(inv => (
-                <tr key={inv.id} className="border-b border-border last:border-0 hover:bg-cream/40 transition-colors">
-                  <td className="px-6 py-4 text-[13px] text-[#3A4A42] whitespace-nowrap">
-                    {inv.date}
-                  </td>
-                  <td className="px-6 py-4 text-[13px] text-[#3A4A42]">
-                    {inv.description}
-                  </td>
-                  <td className="px-6 py-4 text-[13px] text-[#0F1F18] whitespace-nowrap">
-                    {inv.amount}
-                  </td>
-                  <td className="px-6 py-4">
-                    {inv.status === 'paid' && (
-                      <span
-                        className="inline-flex items-center gap-1.5 text-[13px] font-medium px-2.5 py-1 rounded-full"
-                        style={{ background: '#F0FAF4', color: '#1F4D3A', border: '1px solid #A8D5B5' }}
-                      >
-                        Paid
-                      </span>
-                    )}
-                    {inv.status === 'free' && (
-                      <span className="text-[12px] text-[#65736B]">—</span>
-                    )}
-                    {inv.status === 'open' && (
-                      <span
-                        className="inline-flex items-center text-[13px] font-medium px-2.5 py-1 rounded-full"
-                        style={{ background: '#FFF7ED', color: '#C97A2D', border: '1px solid #FBD5A0' }}
-                      >
-                        Due
-                      </span>
-                    )}
-                    {inv.status === 'void' && (
-                      <span className="text-[12px] text-[#65736B]">Void</span>
-                    )}
-                    {inv.status === 'uncollectible' && (
-                      <span
-                        className="inline-flex items-center text-[13px] font-medium px-2.5 py-1 rounded-full"
-                        style={{ background: '#FEE2E2', color: '#991B1B', border: '1px solid #FECACA' }}
-                      >
-                        Uncollectible
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    {inv.url && (
-                      <a
-                        href={inv.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-[#65736B] hover:text-[#0F1F18] transition"
-                      >
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-                          <polyline points="15 3 21 3 21 9"/>
-                          <line x1="10" y1="14" x2="21" y2="3"/>
-                        </svg>
-                      </a>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          </div>
-        </div>
-      )}
+      {/* Invoices table - shared with the free/lapsed view */}
+      {invoicesSection}
 
-      {invoices.length === 0 && (
-        <div className="bg-white rounded-2xl border border-border shadow-soft p-8 text-center">
-          <div className="text-[13px] text-[#65736B]">No invoices yet.</div>
-        </div>
-      )}
     </div>
     </>
   );

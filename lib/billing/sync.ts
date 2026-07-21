@@ -13,7 +13,13 @@ export async function syncSubscription(subscriptionId: string): Promise<void> {
   });
 
   const priceId = sub.items.data[0]?.price.id ?? null;
-  const pricedPlan = priceId ? (getPlanFromPriceId(priceId) ?? 'free') : 'free';
+  // `null` here means "this price is not one of ours" — NOT "free". Collapsing
+  // an unrecognized price to 'free' meant a single stale/rotated
+  // STRIPE_PRICE_* env var downgraded every paying customer to Free on their
+  // next webhook (renewals fire invoice.payment_succeeded monthly), while
+  // Stripe kept charging them $19/$49. Kept distinct so the write below can
+  // decline to touch `plan` instead of destroying a live subscriber's tier.
+  const pricedPlan = priceId ? getPlanFromPriceId(priceId) : 'free';
   const billingCycle: BillingCycle =
     sub.items.data[0]?.price.recurring?.interval === 'year' ? 'annual' : 'monthly';
 
@@ -31,14 +37,32 @@ export async function syncSubscription(subscriptionId: string): Promise<void> {
   // dashboard, admin) — leaving it on 'pro'/'studio' left cancelled users
   // looking and feeling subscribed forever. past_due/incomplete keep the plan
   // so a recovered payment restores the tier without a re-checkout.
-  const plan = subscriptionStatus === 'canceled' ? 'free' : pricedPlan;
+  //
+  // If the price is UNRECOGNIZED (pricedPlan === null) on a still-live
+  // subscription, we cannot say what tier they bought — so we say nothing:
+  // status/period/cycle are still synced, but `plan` is left exactly as it is
+  // and the misconfiguration is logged. Downgrading a customer Stripe is
+  // actively billing is far worse than briefly trusting the stored tier.
+  const planUnknown = subscriptionStatus !== 'canceled' && pricedPlan === null;
+  if (planUnknown) {
+    console.error(
+      '[billing/sync] unrecognized price',
+      priceId,
+      'on subscription',
+      sub.id,
+      '- STRIPE_PRICE_* env vars are stale or missing. Leaving profiles.plan untouched.',
+    );
+  }
+  // The `?? 'free'` is unreachable when planUnknown is false; it only keeps the
+  // type non-nullable, and the value is never written when planUnknown is true.
+  const plan = subscriptionStatus === 'canceled' ? 'free' : (pricedPlan ?? 'free');
 
   // Find the Supabase user via stripe_customer_id
   const customerId =
     typeof sub.customer === 'string' ? sub.customer : sub.customer.id;
 
   const patch = {
-    plan,
+    ...(planUnknown ? {} : { plan }),
     stripe_subscription_id: sub.id,
     subscription_status: subscriptionStatus,
     billing_cycle: billingCycle,
