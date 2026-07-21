@@ -22,9 +22,15 @@ export default async function LiveDisplayPage({ params }: { params: Promise<{ id
   const admin = createAdminClient();
   const [{ data: event }, { data: eventPage }] = await Promise.all([
     admin.from('events').select('id, name, slug').eq('id', id).in('user_id', await manageableOwnerIds(user.id)).single(),
-    admin.from('event_pages').select('title').eq('event_id', id).maybeSingle(),
+    admin.from('event_pages').select('title, timezone').eq('event_id', id).maybeSingle(),
   ]);
   if (!event) redirect('/dashboard');
+
+  const page = eventPage as { title?: string; timezone?: string } | null;
+  // The venue clock must read in the EVENT's zone, not the zone of whatever
+  // laptop happens to be driving the projector. A speaker flying in from
+  // another country plugging into HDMI must not change the time on the wall.
+  const eventTimezone = page?.timezone || 'UTC';
 
   // Real, working "submit a question" link for the projected screen — the app
   // domain (never hardcoded) + the event's public Q&A page. Replaces the old
@@ -37,21 +43,33 @@ export default async function LiveDisplayPage({ params }: { params: Promise<{ id
   const submitPath = `/attending/${event.slug}/q-and-a`;
   const submitUrl = appHost ? `${appHost}${submitPath}` : submitPath;
 
-  // Fetch top Q&A questions by votes
+  // Fetch top Q&A questions by votes.
+  //
+  // `is_featured` comes back so the client can run a MODERATED wall. Attendee
+  // submissions land with status 'pending' (migration 021), and 'pending' is not
+  // 'hidden' — so filtering on `neq('hidden')` alone projects every question the
+  // instant it is typed, and an organizer can only take it down after the room
+  // has already read it. The display therefore defaults to featured-only; the
+  // full list is still sent (this page is organizer-authenticated) so the
+  // operator can knowingly switch to the unmoderated view from the footer.
+  //
+  // A fixed cap, not a growing list: this page is left open for a whole
+  // conference day, so the payload must not scale with submission volume.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: qaRows } = await (admin as any)
     .from('qa_questions')
-    .select('id, question, upvotes_count, is_anonymous, status, created_at, registrations!qa_questions_registration_id_fkey(attendee_name)')
+    .select('id, question, upvotes_count, is_anonymous, status, is_featured, created_at, registrations!qa_questions_registration_id_fkey(attendee_name)')
     .eq('event_id', id)
     .neq('status', 'hidden')
     .order('upvotes_count', { ascending: false })
-    .limit(6);
+    .limit(24);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const questions = (qaRows ?? []).map((q: any) => ({
     id: q.id,
     question: q.question,
     votes: q.upvotes_count,
+    is_featured: !!q.is_featured,
     asker_name: q.is_anonymous ? null : (q.registrations?.attendee_name ?? null),
     created_at: q.created_at,
   }));
@@ -83,7 +101,8 @@ export default async function LiveDisplayPage({ params }: { params: Promise<{ id
     <LiveDisplayClient
       eventId={id}
       eventName={event.name}
-      sessionLabel={(eventPage as { title?: string } | null)?.title ?? event.name}
+      sessionLabel={page?.title ?? event.name}
+      eventTimezone={eventTimezone}
       submitUrl={submitUrl}
       initialQuestions={questions ?? []}
       activePoll={activePoll}

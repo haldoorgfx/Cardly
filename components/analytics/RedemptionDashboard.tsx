@@ -79,8 +79,14 @@ export function RedemptionDashboard({ eventId, eventName, rows, error }: Props) 
 
   // Live subscription — degrades gracefully: if the channel never connects, the
   // server-rendered counts still show. Only subscribe when there's something to track.
+  // Depend on the row COUNT, not the array identity. `rows` is a fresh array on
+  // every server render (e.g. after the error-state "Try again" router.refresh),
+  // and taking the array as a dep tears the channel down and rejoins it for a
+  // change that cannot affect whether we should be subscribed at all. Any
+  // redemption arriving during that rejoin window is simply never delivered.
+  const rowCount = (rows ?? []).length;
   useEffect(() => {
-    if (error || (rows ?? []).length === 0) return;
+    if (error || rowCount === 0) return;
     const channel = supabase
       .channel(`redemption:${eventId}`)
       .on(
@@ -110,7 +116,7 @@ export function RedemptionDashboard({ eventId, eventName, rows, error }: Props) 
       .subscribe((status) => setConnected(status === 'SUBSCRIBED'));
 
     return () => { supabase.removeChannel(channel); };
-  }, [eventId, error, rows, supabase, applyEvent]);
+  }, [eventId, error, rowCount, supabase, applyEvent]);
 
   useEffect(() => {
     const t = setInterval(() => setTick((n) => n + 1), 30000);

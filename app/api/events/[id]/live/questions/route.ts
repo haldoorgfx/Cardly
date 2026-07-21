@@ -12,20 +12,25 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   const { data: event } = await admin.from('events').select('id').eq('id', id).in('user_id', await manageableOwnerIds(user.id)).single();
   if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
+  // Mirrors the live-display server fetch: `is_featured` is returned so the
+  // projected wall can show only questions an organizer has affirmatively put
+  // on screen, and the cap is fixed so an all-day display never grows its
+  // payload with submission volume.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data } = await (admin as any)
     .from('qa_questions')
-    .select('id, question, upvotes_count, is_anonymous, status, registrations!qa_questions_registration_id_fkey(attendee_name)')
+    .select('id, question, upvotes_count, is_anonymous, status, is_featured, registrations!qa_questions_registration_id_fkey(attendee_name)')
     .eq('event_id', id)
     .neq('status', 'hidden')
     .order('upvotes_count', { ascending: false })
-    .limit(6);
+    .limit(24);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const questions = (data ?? []).map((q: any) => ({
     id: q.id,
     question: q.question,
     votes: q.upvotes_count,
+    is_featured: !!q.is_featured,
     asker_name: q.is_anonymous ? null : (q.registrations?.attendee_name ?? null),
   }));
 
