@@ -51,7 +51,7 @@ export function WaafiPayStep({ registrationId, qrToken, amount, currency, eventT
       const res = await fetch('/api/payments/waafipay', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ registration_id: registrationId, phone_number: fullPhone }),
+        body:    JSON.stringify({ registration_id: registrationId, qr_code_token: qrToken, phone_number: fullPhone }),
       });
       const data = await res.json();
 

@@ -7,7 +7,7 @@ import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
 // Called by WaafiPayStep after pending registration is created.
 // Synchronous: WaafiPay responds immediately with success/failure.
 export async function POST(req: NextRequest) {
-  const { registration_id, phone_number } = await req.json();
+  const { registration_id, qr_code_token, phone_number } = await req.json();
 
   if (!registration_id || !phone_number) {
     return NextResponse.json({ error: 'registration_id and phone_number required' }, { status: 400 });
@@ -23,6 +23,21 @@ export async function POST(req: NextRequest) {
     .single();
 
   if (!reg) return NextResponse.json({ error: 'Registration not found' }, { status: 404 });
+
+  // Ownership proof. This route was callable with nothing but a guessed
+  // registration_id — no session is required anywhere in the checkout flow
+  // (guests are first-class here), so there was no auth to check. Requiring
+  // the registration's own qr_code_token as a companion value closes that:
+  // it's a crypto.randomUUID()-strength secret (~122 bits) that only ever
+  // reaches the person who just created THIS registration — WaafiPayStep
+  // already holds it from that response and now sends it, so legitimate
+  // guest checkout is unaffected. Abdalla's call, 2026-07-22: fix it rather
+  // than accept the risk, since it costs nothing a real payer doesn't
+  // already have in hand.
+  if (reg.qr_code_token !== qr_code_token) {
+    return NextResponse.json({ error: 'Registration not found' }, { status: 404 });
+  }
+
   if (reg.payment_status === 'paid') {
     return NextResponse.json({ status: 'already_paid', qr_code_token: reg.qr_code_token });
   }
