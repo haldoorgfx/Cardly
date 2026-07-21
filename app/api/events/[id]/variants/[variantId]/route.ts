@@ -43,6 +43,20 @@ function validateVariantPatch(body: Record<string, unknown>): string | null {
           return `Zone ${dim} must be within ±${MAX_ZONE_DIM}`;
         }
       }
+      // w/h must be positive. The renderer sizes a text zone's wrap width as
+      // (w - 16) and builds each zone canvas with sharp({create:{width:w...}});
+      // a zero or negative w/h makes sharp throw ("Expected positive integer
+      // for text.width" / "valid width, height"), which the render route
+      // catches as a 500 — so one zone with a cleared or negative dimension
+      // takes down card generation for every attendee of that variant. Reject
+      // it at the save boundary (in addition to the editor clamp) so a stale
+      // client or a direct API call can't persist an un-renderable design.
+      for (const dim of ['w', 'h'] as const) {
+        const v = zone[dim];
+        if (typeof v === 'number' && v <= 0) {
+          return `Zone ${dim} must be greater than 0`;
+        }
+      }
       if (typeof zone.size === 'number' && (!Number.isFinite(zone.size) || zone.size <= 0 || zone.size > MAX_FONT_SIZE)) {
         return `Zone font size must be between 1 and ${MAX_FONT_SIZE}`;
       }

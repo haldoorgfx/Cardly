@@ -130,7 +130,7 @@ import { useRouter } from 'next/navigation';
 import type { Zone, Variant } from '@/types/database';
 import {
   Type, Image as ImageIcon, ImagePlus, ToggleLeft, Tag, Lock, LockOpen,
-  Trash2, Copy, AlignLeft, AlignCenter, AlignRight, AlignJustify,
+  Trash2, Copy, AlignLeft, AlignCenter, AlignRight,
   Upload, X, ChevronUp, ChevronDown, Square, AlignVerticalJustifyEnd,
   AlignStartVertical, AlignCenterVertical, AlignEndVertical,
   AlignHorizontalJustifyCenter, AlignVerticalJustifyCenter, AlertTriangle,
@@ -149,6 +149,12 @@ const CW = 1080;
 const CH = 1350;
 const GRID_SIZE = 60;
 const ROTATE_HANDLE_DIST = 32; // px above zone (canvas space)
+// Smallest a zone may be via the numeric W/H inputs. The renderer wraps text
+// at (w - 16) px and builds each zone canvas at exactly w×h in sharp, so a
+// zero/negative/tiny width throws and 500s card generation — MIN_ZONE_W keeps
+// (w - 16) safely positive. (Drag-resize already floors at 40×20.)
+const MIN_ZONE_W = 20;
+const MIN_ZONE_H = 8;
 
 type HistoryState = { past: Zone[][]; future: Zone[][] };
 type SnapGuides = { x?: number; y?: number };
@@ -410,7 +416,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
     const timer = setTimeout(async () => {
       delete autosaveTimers.current[variantId];
       try {
-        await fetchWithRetry(
+        const res = await fetchWithRetry(
           `/api/events/${eventId}/variants/${variantId}`,
           {
             method: 'PATCH',
@@ -419,6 +425,17 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
           },
           { attempts: 3, baseDelay: 1000 },
         );
+        // fetchWithRetry RESOLVES on 4xx (it only retries/throws on network
+        // errors and 5xx) — so a 400 (validation: too many zones, bad dims),
+        // 401 (session expired), or 409 (another tab edited this variant) came
+        // back here as a normal Response and the old code flashed a green
+        // "Saved HH:MM" over a write the server rejected. The designer kept
+        // editing a canvas that was no longer being persisted and lost
+        // everything on reload. Treat any non-OK status as a failed save.
+        if (!res.ok) {
+          setSaveError(true);
+          return;
+        }
         setSavedAt(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
         setSaveError(false);
       } catch {
@@ -2155,10 +2172,19 @@ function RightRail({
             </PropRow>
 
             <PropRow label="Horizontal">
+              {/* 'justify' removed on purpose: the server renderer maps align
+                  straight onto sharp's text.align, which accepts only
+                  left/centre/right and THROWS "Expected valid alignment" on
+                  anything else — taking the whole card render down with a 500.
+                  A designer could pick Justify here, see it in the canvas and
+                  the attendee preview (CSS honours it), and every attendee's
+                  download would fail. The floating toolbar already offers only
+                  L/C/R; this matches it. (Renderer-side coercion of a legacy
+                  justify zone is still owed — see audit report.) */}
               <Segmented
                 value={selected.align ?? 'left'}
                 onChange={v => upd({ align: v as Zone['align'] })}
-                options={[{ v: 'left', icon: <AlignLeft size={12} strokeWidth={1.8} /> }, { v: 'center', icon: <AlignCenter size={12} strokeWidth={1.8} /> }, { v: 'right', icon: <AlignRight size={12} strokeWidth={1.8} /> }, { v: 'justify', icon: <AlignJustify size={12} strokeWidth={1.8} /> }]}
+                options={[{ v: 'left', icon: <AlignLeft size={12} strokeWidth={1.8} /> }, { v: 'center', icon: <AlignCenter size={12} strokeWidth={1.8} /> }, { v: 'right', icon: <AlignRight size={12} strokeWidth={1.8} /> }]}
               />
             </PropRow>
 
@@ -2274,15 +2300,21 @@ function RightRail({
           <NumberProp label="X" value={selected.x} onChange={v => upd({ x: v })} />
           <NumberProp label="Y" value={selected.y} onChange={v => upd({ y: v })} />
           <div className="relative">
+            {/* Clamp to MIN_ZONE_W. Clearing the field yields Number('')===0 and
+                a raw 0/negative width makes the renderer pass text.width = w-16
+                (<=0) to sharp, which throws and 500s the whole card. The floor
+                keeps every zone renderable; the save API rejects <=0 too. */}
             <NumberProp label="W" value={selected.w} onChange={v => {
-              if (aspectLock && selected.h > 0) { const r = selected.w / selected.h; upd({ w: v, h: Math.round(v / r) }); }
-              else upd({ w: v });
+              const w = Math.max(MIN_ZONE_W, v);
+              if (aspectLock && selected.h > 0) { const r = selected.w / selected.h; upd({ w, h: Math.max(MIN_ZONE_H, Math.round(w / r)) }); }
+              else upd({ w });
             }} />
           </div>
           <div className="relative">
             <NumberProp label="H" value={selected.h} onChange={v => {
-              if (aspectLock && selected.w > 0) { const r = selected.w / selected.h; upd({ h: v, w: Math.round(v * r) }); }
-              else upd({ h: v });
+              const h = Math.max(MIN_ZONE_H, v);
+              if (aspectLock && selected.w > 0) { const r = selected.w / selected.h; upd({ h, w: Math.max(MIN_ZONE_W, Math.round(h * r)) }); }
+              else upd({ h });
             }} />
           </div>
         </div>
