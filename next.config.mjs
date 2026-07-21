@@ -123,8 +123,17 @@ const nextConfig = {
               "base-uri 'self'",
               "form-action 'self'",
               "frame-ancestors 'self'",
+              // Without these the policy reported to nobody: violations went to
+              // each visitor's own console, so the "prove the allowlist, then
+              // enforce" plan above could never actually finish. Both forms are
+              // sent — report-uri is deprecated but is what most browsers still
+              // honour, report-to is the replacement (see Reporting-Endpoints).
+              'report-uri /api/csp-report',
+              'report-to csp-endpoint',
             ].join('; '),
           },
+          // Names the group that `report-to csp-endpoint` above refers to.
+          { key: 'Reporting-Endpoints', value: 'csp-endpoint="/api/csp-report"' },
         ],
       },
     ];
