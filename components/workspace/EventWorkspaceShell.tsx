@@ -89,10 +89,6 @@ export function EventWorkspaceShell({
             </Link>
           </div>
 
-          {/* Only when this account genuinely wears more than one hat here —
-              RoleBand renders nothing for the single-role case. */}
-          <RoleBand roles={roles} activeRole={activeRole} className="mt-4" />
-
           {tabs.length > 1 && (
             <div className="flex gap-1 mt-5 -mb-px overflow-x-auto">
               {tabs.map(t => {
