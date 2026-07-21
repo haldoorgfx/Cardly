@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getAuthorizedUser } from '@/lib/auth/guards';
 import { THEME_EDIT } from '@/lib/auth/permissions';
 import { createAdminClient } from '@/lib/supabase/server';
+import { sniffImageMime } from '@/lib/auth/event-content';
 
 const BUCKET = 'brand-assets';
 
@@ -22,12 +23,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'No file provided' }, { status: 400 });
   }
 
-  const allowed = ['image/png', 'image/jpeg', 'image/webp'];
-  if (!allowed.includes(file.type)) {
-    return NextResponse.json({ error: 'Only PNG, JPG, or WebP files allowed' }, { status: 400 });
-  }
   if (file.size > 2 * 1024 * 1024) {
     return NextResponse.json({ error: 'File must be under 2 MB' }, { status: 400 });
+  }
+
+  // Sniff the bytes rather than trusting file.type — this logo is served from
+  // our own origin in the marketing nav on every page.
+  const arrayBuffer = await file.arrayBuffer();
+  const mime = sniffImageMime(arrayBuffer);
+  if (!mime || mime === 'image/gif') {
+    return NextResponse.json({ error: 'Only PNG, JPG, or WebP files allowed' }, { status: 400 });
   }
 
   const admin = createAdminClient();
@@ -46,22 +51,21 @@ export async function POST(request: Request) {
     }
   }
 
-  // Derive extension from MIME type
+  // Derive extension from the sniffed MIME type
   const variant = (formData.get('variant') as string | null) ?? 'color';
   const extMap: Record<string, string> = {
     'image/png':  'png',
     'image/jpeg': 'jpg',
     'image/webp': 'webp',
   };
-  const ext = extMap[file.type] ?? 'png';
+  const ext = extMap[mime] ?? 'png';
   // variant='color' → logo.png  (colored, for light backgrounds)
   // variant='light' → logo-light.png  (white, for dark backgrounds)
   const path = variant === 'light' ? `logo-light.${ext}` : `logo.${ext}`;
 
-  const arrayBuffer = await file.arrayBuffer();
   const { error: upErr } = await admin.storage
     .from(BUCKET)
-    .upload(path, arrayBuffer, { upsert: true, contentType: file.type });
+    .upload(path, arrayBuffer, { upsert: true, contentType: mime });
 
   if (upErr) {
     return NextResponse.json({ error: upErr.message }, { status: 500 });

@@ -191,10 +191,32 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     .single();
   if (!owned) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-  // Collect all storage paths before deleting the event
+  // Collect ALL storage paths before deleting the event. The DB rows cascade
+  // away, but Storage objects don't — anything not collected here is orphaned
+  // forever and billed forever. Previously only variant backgrounds were
+  // cleaned, so every cover image, event background, sponsor logo/resource and
+  // session slide deck leaked on each event deletion.
   const { data: variants } = await admin
     .from('event_variants')
     .select('background_url')
+    .eq('event_id', id);
+
+  const { data: eventRow } = await admin
+    .from('events')
+    .select('background_url, cover_image_url')
+    .eq('id', id)
+    .maybeSingle();
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: sponsorRows } = await (admin as any)
+    .from('sponsors')
+    .select('logo_url')
+    .eq('event_id', id);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: sessionRows } = await (admin as any)
+    .from('sessions')
+    .select('slides_url')
     .eq('event_id', id);
 
   const { error } = await admin
@@ -205,15 +227,49 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  // Best-effort: remove background files from storage (don't block response on failure)
-  if (variants && variants.length > 0) {
-    const paths = variants
-      .map(v => v.background_url ? extractStoragePath(v.background_url, 'event-backgrounds') : null)
+  // Best-effort: remove the files from storage (don't block the response on
+  // failure — the event row is already gone and a stray object is not fatal).
+  const collect = (urls: Array<string | null | undefined>, bucket: string) =>
+    urls
+      .map(u => (u ? extractStoragePath(u, bucket) : null))
       .filter((p): p is string => p !== null);
-    if (paths.length > 0) {
-      try { await admin.storage.from('event-backgrounds').remove(paths); } catch { /* best-effort */ }
-    }
+
+  const bgPaths = collect(
+    [
+      ...(variants ?? []).map(v => v.background_url),
+      (eventRow as { background_url?: string | null } | null)?.background_url,
+      (eventRow as { cover_image_url?: string | null } | null)?.cover_image_url,
+    ],
+    'event-backgrounds',
+  );
+
+  const assetPaths = collect(
+    [
+      ...((sponsorRows ?? []) as Array<{ logo_url?: string | null }>).map(s => s.logo_url),
+      ...((sessionRows ?? []) as Array<{ slides_url?: string | null }>).map(s => s.slides_url),
+    ],
+    'event-assets',
+  );
+
+  if (bgPaths.length > 0) {
+    try { await admin.storage.from('event-backgrounds').remove(bgPaths); } catch { /* best-effort */ }
   }
+  if (assetPaths.length > 0) {
+    try { await admin.storage.from('event-assets').remove(assetPaths); } catch { /* best-effort */ }
+  }
+
+  // Anonymous application-form uploads are keyed by event id, so they can be
+  // swept by prefix without needing a DB row to point at them.
+  try {
+    const { data: appFiles } = await admin.storage
+      .from('event-assets')
+      .list(`application-files/${id}`, { limit: 1000 });
+    if (appFiles && appFiles.length > 0) {
+      await admin.storage
+        .from('event-assets')
+        .remove(appFiles.map(f => `application-files/${id}/${f.name}`));
+    }
+  } catch { /* best-effort */ }
 
   return NextResponse.json({ ok: true });
 }

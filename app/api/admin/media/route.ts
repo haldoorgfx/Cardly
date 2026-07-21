@@ -3,6 +3,7 @@ import { getAuthorizedUser } from '@/lib/auth/guards';
 import { CONTENT_EDIT } from '@/lib/auth/permissions';
 import { listMedia, insertMedia } from '@/lib/cms/queries';
 import { createAdminClient } from '@/lib/supabase/server';
+import { sniffImageMime } from '@/lib/auth/event-content';
 import { logAudit } from '@/lib/audit/log';
 
 // GET /api/admin/media?limit=48&offset=0&search=...
@@ -46,30 +47,38 @@ export async function POST(request: Request) {
   const blob = file as File;
   const altText = (formData.get('alt') as string | null) ?? '';
 
-  // Validate type
+  // Max 10 MB
+  if (blob.size > 10 * 1024 * 1024) {
+    return NextResponse.json({ error: 'File must be under 10 MB' }, { status: 400 });
+  }
+
+  // Validate the real bytes, not blob.type (client-supplied).
   // SVG excluded — scripts inside SVG execute when served inline from a public CDN origin
-  const allowedMimes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-  if (!allowedMimes.includes(blob.type)) {
+  const supabase = await createAdminClient();
+  const arrayBuffer = await blob.arrayBuffer();
+  const mime = sniffImageMime(arrayBuffer);
+  if (!mime) {
     return NextResponse.json(
       { error: 'Only JPEG, PNG, WebP and GIF files are allowed' },
       { status: 400 },
     );
   }
 
-  // Max 10 MB
-  if (blob.size > 10 * 1024 * 1024) {
-    return NextResponse.json({ error: 'File must be under 10 MB' }, { status: 400 });
-  }
+  // Derive the extension from the sniffed type. It used to come straight off
+  // the uploaded filename with no sanitising, so a crafted name could inject
+  // `/` and steer the object to an arbitrary path inside the bucket.
+  const extMap: Record<string, string> = {
+    'image/jpeg': 'jpg',
+    'image/png': 'png',
+    'image/webp': 'webp',
+    'image/gif': 'gif',
+  };
+  const storagePath = `${Date.now()}-${Math.random().toString(36).slice(2)}.${extMap[mime]}`;
 
-  const ext = blob.name.split('.').pop() ?? 'bin';
-  const storagePath = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-
-  const supabase = await createAdminClient();
-  const arrayBuffer = await blob.arrayBuffer();
   const { error: uploadError } = await supabase.storage
     .from('cms-media')
     .upload(storagePath, arrayBuffer, {
-      contentType: blob.type,
+      contentType: mime,
       upsert: false,
       cacheControl: '31536000',
     });
@@ -87,11 +96,11 @@ export async function POST(request: Request) {
       filename: blob.name,
       alt: altText || undefined,
       sizeBytes: blob.size,
-      mime: blob.type,
+      mime,
       uploadedBy: user.id,
     });
     await logAudit(user, 'media.upload', 'cms_media', media.id ?? storagePath, {
-      after: { filename: blob.name, mime: blob.type, sizeBytes: blob.size, url: publicUrl },
+      after: { filename: blob.name, mime, sizeBytes: blob.size, url: publicUrl },
     });
     return NextResponse.json({ media }, { status: 201 });
   } catch (err) {

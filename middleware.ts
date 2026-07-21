@@ -14,7 +14,10 @@ export async function middleware(request: NextRequest) {
       request.headers.get('x-real-ip') ??
       '127.0.0.1';
 
-    const rl = await checkRateLimit(pathname, ip);
+    // Method matters: several paths serve a cheap GET the UI polls every few
+    // seconds alongside a POST that sends real email. Limiting by path alone
+    // meant either throttling the poll or leaving the send wide open.
+    const rl = await checkRateLimit(pathname, ip, request.method);
     if (!rl.allowed) {
       return new NextResponse(
         JSON.stringify({ error: 'Too many requests. Please slow down.' }),

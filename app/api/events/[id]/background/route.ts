@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { sniffImageMime } from '@/lib/auth/event-content';
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -16,19 +17,24 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   const formData = await req.formData();
   const file = formData.get('file') as File | null;
   if (!file) return NextResponse.json({ error: 'No file provided' }, { status: 400 });
-  if (!['image/png', 'image/jpeg'].includes(file.type)) {
-    return NextResponse.json({ error: 'Only PNG and JPG files are supported' }, { status: 400 });
-  }
   if (file.size > 10 * 1024 * 1024) {
     return NextResponse.json({ error: 'File too large — maximum 10 MB' }, { status: 400 });
   }
 
-  const ext = file.type === 'image/png' ? 'png' : 'jpg';
+  // Magic-byte check — file.type is client-supplied and trivially spoofed, so
+  // it can't be the gate on what gets written to a public bucket.
+  const bytes = await file.arrayBuffer();
+  const mime = sniffImageMime(bytes);
+  if (mime !== 'image/png' && mime !== 'image/jpeg') {
+    return NextResponse.json({ error: 'Only PNG and JPG files are supported' }, { status: 400 });
+  }
+
+  const ext = mime === 'image/png' ? 'png' : 'jpg';
   const path = `${user.id}/${Date.now()}.${ext}`;
 
   const { error: uploadError } = await admin.storage
     .from('event-backgrounds')
-    .upload(path, file, { contentType: file.type, upsert: false, cacheControl: '31536000' });
+    .upload(path, bytes, { contentType: mime, upsert: false, cacheControl: '31536000' });
 
   if (uploadError) return NextResponse.json({ error: uploadError.message }, { status: 500 });
 

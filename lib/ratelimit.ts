@@ -94,6 +94,13 @@ export const limiters = {
   standard: makeLimit(60,  '60 s'),
   render:   makeLimit(10,  '60 s'),
   public:   makeLimit(30,  '60 s'),
+  // One request here sends mail to EVERY confirmed attendee, so the cost of a
+  // single call is unbounded in a way no other tier's is. Nobody legitimately
+  // sends three broadcasts in a minute.
+  fanout:   makeLimit(3,   '60 s'),
+  // Signature-verified machine traffic. Generous on purpose — see the webhook
+  // entries in the route map for why throttling these is the wrong trade.
+  webhook:  makeLimit(120, '60 s'),
 } as const;
 
 export type LimiterTier = keyof typeof limiters;
@@ -101,7 +108,29 @@ export type LimiterTier = keyof typeof limiters;
 // ── Route → tier map ─────────────────────────────────────────────────────────
 // Longest-prefix match. Everything not listed falls through to 'standard'.
 
-const ROUTE_TIERS: Array<{ prefix: string; tier: LimiterTier }> = [
+/** `methods` narrows a rule to specific HTTP verbs; omitted means all verbs. */
+const ROUTE_TIERS: Array<{ prefix: string; tier: LimiterTier; methods?: string[] }> = [
+  // Deleting an account and recording an unsubscribe are both one-shot writes
+  // that no UI polls — there is no reason for either to allow 60 a minute.
+  { prefix: '/api/account/delete',            tier: 'strict'   },
+  { prefix: '/api/unsubscribe',               tier: 'strict'   },
+  { prefix: '/api/newsletter',                tier: 'strict'   },
+  // Provider webhooks. These MUST come before the '/api/payments' prefix
+  // below — matching is first-hit in array order, not longest-prefix, so the
+  // broader rule would otherwise swallow them.
+  //
+  // They were sitting at strict (10/min), which is machine-to-machine traffic
+  // from Stripe/Flutterwave/WaafiPay arriving on a handful of shared source
+  // IPs: twenty ticket sales in a minute is twenty deliveries, so a busy sale
+  // would start collecting 429s. The providers retry with backoff, so nothing
+  // is lost outright — but confirmations stall, attendees wait for tickets,
+  // and repeated failures are exactly what makes Stripe disable an endpoint.
+  // Every one of these verifies an HMAC signature before doing any work, so
+  // an IP limit buys almost nothing here and costs real reliability.
+  { prefix: '/api/payments/webhook',             tier: 'webhook' },
+  { prefix: '/api/payments/flutterwave-webhook', tier: 'webhook' },
+  { prefix: '/api/payments/waafipay-webhook',    tier: 'webhook' },
+  { prefix: '/api/webhooks',                     tier: 'webhook' },
   // Strictest — auth, payments
   { prefix: '/api/auth',                      tier: 'strict'   },
   { prefix: '/api/billing',                   tier: 'strict'   },
@@ -109,6 +138,13 @@ const ROUTE_TIERS: Array<{ prefix: string; tier: LimiterTier }> = [
   // Storage-writing uploads (sharp/storage cost).
   { prefix: '/api/sponsors/upload',           tier: 'render'   },
   { prefix: '/api/upload',                    tier: 'render'   },
+  // These also write straight to Storage but were falling through to
+  // 'standard' (60/min) — at 10 MB a request that is ~600 MB/min per IP of
+  // billable object storage with no cap.
+  // (/api/admin/media is deliberately left on 'standard' — the same path also
+  // serves the GET listing that backs the admin media library's pagination.)
+  { prefix: '/api/brand/logo',                tier: 'render'   },
+  { prefix: '/api/admin/upload-logo',         tier: 'render'   },
   // Expensive generation — image rendering and LLM calls.
   // NOTE: /api/v1/render must be listed too — it does NOT match the
   // '/api/render' prefix, so it was silently falling through to 'standard'
@@ -128,7 +164,7 @@ const ROUTE_TIERS: Array<{ prefix: string; tier: LimiterTier }> = [
 
 // Dynamic-segment routes a static prefix can't express:
 // /api/events/<id>/register and /api/events/<id>/copilot.
-const ROUTE_TIER_PATTERNS: Array<{ pattern: RegExp; tier: LimiterTier }> = [
+const ROUTE_TIER_PATTERNS: Array<{ pattern: RegExp; tier: LimiterTier; methods?: string[] }> = [
   { pattern: /^\/api\/events\/[^/]+\/register(\/|$)/, tier: 'public' },
   { pattern: /^\/api\/events\/[^/]+\/copilot(\/|$)/,  tier: 'render' },
   // Expensive LLM matchmaking generation.
@@ -142,13 +178,42 @@ const ROUTE_TIER_PATTERNS: Array<{ pattern: RegExp; tier: LimiterTier }> = [
   { pattern: /^\/api\/events\/[^/]+\/promo\/validate(\/|$)/, tier: 'strict' },
   // Storage-writing upload routes.
   { pattern: /^\/api\/sessions\/[^/]+\/slides(\/|$)/,  tier: 'render' },
+  { pattern: /^\/api\/events\/[^/]+\/background(\/|$)/, tier: 'render' },
+  { pattern: /^\/api\/events\/[^/]+\/event-page\/cover(\/|$)/, tier: 'render' },
+
+  // ── Mail-sending writes ────────────────────────────────────────────────
+  // These are scoped to POST on purpose. Every path below also serves a GET
+  // that the UI POLLS on a short interval (the Q&A wall, the message thread,
+  // the connection deck), so tightening the whole path would break the
+  // product while trying to protect it. Only the write costs money.
+  //
+  // A broadcast fans out to every confirmed attendee; at the old 60/min a
+  // single IP could trigger 60 sends a minute, which on a 500-person event is
+  // 30,000 emails a minute of Resend spend and sender reputation.
+  { pattern: /^\/api\/events\/[^/]+\/communicate(\/|$)/, tier: 'fanout', methods: ['POST'] },
+  // Each of these fires a real notification email AT SOMEONE ELSE, so an
+  // unthrottled write is a spam relay pointed at your own attendees.
+  { pattern: /^\/api\/events\/[^/]+\/connections(\/|$)/, tier: 'strict', methods: ['POST'] },
+  { pattern: /^\/api\/events\/[^/]+\/messages(\/|$)/,    tier: 'strict', methods: ['POST'] },
+  { pattern: /^\/api\/events\/[^/]+\/q-and-a(\/|$)/,     tier: 'strict', methods: ['POST'] },
+  { pattern: /^\/api\/events\/[^/]+\/registrations\/bulk(\/|$)/, tier: 'strict', methods: ['POST'] },
+  { pattern: /^\/api\/threads(\/|$)/,                    tier: 'strict', methods: ['POST'] },
 ];
 
-export function getTierForPath(pathname: string): LimiterTier {
-  for (const { pattern, tier } of ROUTE_TIER_PATTERNS) {
+/**
+ * Resolve the tier for a request.
+ *
+ * `method` is optional so existing callers keep working, but omitting it means
+ * method-scoped rules are skipped — a rule that only applies to POST must not
+ * silently apply to everything when the caller does not say what it is doing.
+ */
+export function getTierForPath(pathname: string, method?: string): LimiterTier {
+  for (const { pattern, tier, methods } of ROUTE_TIER_PATTERNS) {
+    if (methods && (!method || !methods.includes(method.toUpperCase()))) continue;
     if (pattern.test(pathname)) return tier;
   }
-  for (const { prefix, tier } of ROUTE_TIERS) {
+  for (const { prefix, tier, methods } of ROUTE_TIERS) {
+    if (methods && (!method || !methods.includes(method.toUpperCase()))) continue;
     if (pathname.startsWith(prefix)) return tier;
   }
   return 'standard';
@@ -160,8 +225,9 @@ export function getTierForPath(pathname: string): LimiterTier {
 export async function checkRateLimit(
   pathname: string,
   ip: string,
+  method?: string,
 ): Promise<{ allowed: true } | { allowed: false; retryAfter: number }> {
-  const tier = getTierForPath(pathname);
+  const tier = getTierForPath(pathname, method);
   const limiter = limiters[tier]; // always defined — Upstash or in-memory fallback
 
   const identifier = `${tier}:${ip}`;

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { sniffImageMime } from '@/lib/auth/event-content';
 
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
   const supabase = createClient();
@@ -18,19 +19,25 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const formData = await req.formData();
   const file = formData.get('file') as File | null;
   if (!file) return NextResponse.json({ error: 'No file provided' }, { status: 400 });
-  if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) {
-    return NextResponse.json({ error: 'Only PNG, JPG, or WebP are supported' }, { status: 400 });
-  }
   if (file.size > 10 * 1024 * 1024) {
     return NextResponse.json({ error: 'File too large — maximum 10 MB' }, { status: 400 });
   }
 
-  const ext = file.type === 'image/png' ? 'png' : file.type === 'image/webp' ? 'webp' : 'jpg';
+  // Sniff the real bytes rather than trusting file.type, which the client sets
+  // freely — otherwise arbitrary content lands in a public bucket labelled as
+  // an image. GIF is rejected here on purpose: covers are stills.
+  const bytes = await file.arrayBuffer();
+  const mime = sniffImageMime(bytes);
+  if (!mime || mime === 'image/gif') {
+    return NextResponse.json({ error: 'Only PNG, JPG, or WebP are supported' }, { status: 400 });
+  }
+
+  const ext = mime === 'image/png' ? 'png' : mime === 'image/webp' ? 'webp' : 'jpg';
   const path = `covers/${user.id}/${params.id}-${Date.now()}.${ext}`;
 
   const { error: uploadError } = await admin.storage
     .from('event-backgrounds')
-    .upload(path, file, { contentType: file.type, upsert: false, cacheControl: '31536000' });
+    .upload(path, bytes, { contentType: mime, upsert: false, cacheControl: '31536000' });
 
   if (uploadError) return NextResponse.json({ error: uploadError.message }, { status: 500 });
 
