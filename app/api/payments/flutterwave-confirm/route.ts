@@ -37,10 +37,19 @@ export async function POST(req: NextRequest) {
       // Load the registration + ticket to get the expected price before confirming.
       const { data: reg } = await admin
         .from('registrations')
-        .select('id, ticket_type_id, amount_paid')
+        .select('id, ticket_type_id, amount_paid, currency')
         .eq('qr_code_token', tx_ref)
         .eq('payment_status', 'pending')
         .maybeSingle();
+
+      // Currency check — the webhook sibling has one and this path did not.
+      // Without it, "5000" paid in a weak currency satisfies the amount test
+      // against a 5000 strong-currency ticket and confirms for a fraction of
+      // the price.
+      if (reg && reg.currency && currency && currency !== reg.currency) {
+        console.error(`[FW confirm] Currency mismatch: got ${currency}, expected ${reg.currency}`);
+        return NextResponse.json({ error: 'Payment currency does not match the expected currency' }, { status: 422 });
+      }
 
       // Compare against reg.amount_paid (the discounted amount we expected to charge),
       // not ticket.price (full price) — otherwise valid promo-discounted payments fail.

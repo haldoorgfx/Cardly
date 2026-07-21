@@ -86,7 +86,13 @@ export async function POST(req: NextRequest) {
       .select('ticket_type_id, event_id, user_id, attendee_email, attendee_name')
       .maybeSingle();
 
-    if (error) console.error('[FW webhook] DB update failed:', error.message);
+    // The attendee has already been charged. A 200 here retires the webhook and
+    // strands a paid charge on a 'pending' registration; a 500 keeps it on
+    // Flutterwave's retry schedule.
+    if (error) {
+      console.error('[FW webhook] DB update failed:', error.message);
+      return NextResponse.json({ error: 'Registration update failed' }, { status: 500 });
+    }
     // First pending→paid transition only — increment sold count once.
     if (updated?.ticket_type_id) {
       await admin.rpc('increment_ticket_quantity_sold', { ticket_id: updated.ticket_type_id, qty: 1 });

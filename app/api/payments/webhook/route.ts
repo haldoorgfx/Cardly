@@ -5,6 +5,7 @@ import { sendRegistrationConfirmEmail } from '@/lib/registration/email';
 import { createNotification, notifyOrganizerNewRegistration } from '@/lib/notifications';
 import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
 import { onRegistrationConfirmed } from '@/lib/integrations/dispatch';
+import { fromStripeMinorUnits } from '@/lib/payments/currency';
 
 export const runtime = 'nodejs';
 
@@ -40,7 +41,14 @@ export async function POST(req: NextRequest) {
         .eq('payment_status', 'pending') // idempotent guard
         .select('attendee_name, attendee_email, attendee_phone, qr_code_token, ticket_type_id, user_id, event_id, ticket_types(name), events!inner(slug, user_id, event_pages(title, starts_at, venue_name, is_online))')
         .maybeSingle();
-      if (error) console.error('[Stripe webhook] update failed:', error.message);
+      if (error) {
+        // The customer's card HAS been charged at this point. Returning 200 here
+        // told Stripe "handled" and it never retried, leaving a paid charge with
+        // a registration stuck on 'pending' — no ticket, no email, no alert.
+        // A non-2xx puts the event back on Stripe's retry schedule instead.
+        console.error('[Stripe webhook] update failed:', error.message);
+        return NextResponse.json({ error: 'Registration update failed' }, { status: 500 });
+      }
       if (updated) {
         // Only the first pending→paid transition returns a row, so this
         // increment runs exactly once per paid ticket (prevents overselling).
@@ -56,7 +64,10 @@ export async function POST(req: NextRequest) {
             attendeeEmail: updated.attendee_email,
             attendeePhone: updated.attendee_phone ?? null,
             ticketType: updated.ticket_types?.name ?? null,
-            amountPaid: typeof pi.amount === 'number' ? pi.amount / 100 : null,
+            // Zero-decimal currencies (DJF, UGX, RWF, XOF, XAF …) are already in
+            // the major unit — a blanket /100 reported a DJF 5,000 sale to the
+            // organizer's integrations as DJF 50.
+            amountPaid: typeof pi.amount === 'number' ? fromStripeMinorUnits(pi.amount, pi.currency) : null,
             currency: pi.currency ? pi.currency.toUpperCase() : null,
             registeredAt: new Date().toISOString(),
           });
@@ -130,8 +141,21 @@ export async function POST(req: NextRequest) {
 
     case 'charge.refunded': {
       // Mark registration as refunded when Stripe processes a refund
-      const charge = event.data.object as { payment_intent?: string | null };
-      if (charge.payment_intent) {
+      const charge = event.data.object as {
+        payment_intent?: string | null;
+        refunded?: boolean;
+        amount?: number;
+        amount_refunded?: number;
+      };
+      // Stripe fires charge.refunded for PARTIAL refunds too. Voiding the ticket
+      // and releasing the seat on a partial refund meant a small goodwill refund
+      // silently cancelled an attendee who had paid most of the price and still
+      // intended to attend. Only a full refund voids the registration.
+      const fullyRefunded = charge.refunded === true
+        || (typeof charge.amount === 'number'
+            && typeof charge.amount_refunded === 'number'
+            && charge.amount_refunded >= charge.amount);
+      if (charge.payment_intent && fullyRefunded) {
         // The .in(status) guard doubles as the idempotency key: a replayed
         // refund webhook matches zero rows the second time, so the seat is
         // returned exactly once.

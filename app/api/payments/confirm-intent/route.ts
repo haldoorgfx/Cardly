@@ -38,10 +38,19 @@ export async function POST(req: NextRequest) {
       .eq('stripe_payment_intent_id', payment_intent_id) // ensure PI belongs to this registration
       .in('payment_status', ['pending']) // only update pending rows (idempotent)
       .select('id, attendee_name, attendee_email, event_id, ticket_type_id, qr_code_token, user_id')
-      .single();
+      .maybeSingle();
 
     // Send confirmation email if we just transitioned (not already confirmed)
     if (updated) {
+      // Sold-count increment. This route and the Stripe webhook race for the
+      // same pending→paid flip and only ONE of them wins it. The browser
+      // redirect usually lands first, so without this the winning path left
+      // quantity_sold untouched (the webhook's guarded update then matched zero
+      // rows and skipped its own increment) and the ticket kept selling past
+      // its quantity. Guarded by `updated`, so it still runs exactly once.
+      if (updated.ticket_type_id) {
+        await admin.rpc('increment_ticket_quantity_sold', { ticket_id: updated.ticket_type_id, qty: 1 });
+      }
       const [{ data: eventPage }, { data: ticket }] = await Promise.all([
         admin.from('event_pages').select('title, starts_at, timezone, venue_name, venue_address, is_online').eq('event_id', updated.event_id).single(),
         admin.from('ticket_types').select('name').eq('id', updated.ticket_type_id ?? '').single(),
