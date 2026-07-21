@@ -74,11 +74,19 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
     await (admin as any).from('ticket_types').insert(tickets.map((t: any) => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { id: _id, event_id: _eid, created_at: _ca, ...rest } = t;
-      return { ...rest, event_id: newEvent.id, sales_start: null, sales_end: null };
+      // quantity_sold must reset — copying it carried the original event's sales
+      // into the copy, so a fresh duplicate opened showing tickets already sold
+      // (and "sold out" once quantity_sold had reached quantity).
+      return { ...rest, event_id: newEvent!.id, quantity_sold: 0, sales_start: null, sales_end: null };
     }));
   }
 
-  // Duplicate event page (cover/metadata) but clear dates
+  // Duplicate event page (cover/metadata). Dates are carried over, not cleared:
+  // event_pages.starts_at / ends_at are NOT NULL, so inserting null silently
+  // failed the whole insert — the copy ended up with no event page at all
+  // (no cover, description, venue, capacity or payment settings), and because
+  // the error was never checked the API still returned 200. The organizer edits
+  // the dates on the copy; carrying them is honest and always valid.
   const { data: srcPage } = await admin
     .from('event_pages')
     .select('*')
@@ -95,14 +103,18 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
       if (['id', 'event_id', 'created_at', 'custom_slug'].includes(k)) continue;
       pageFields[k] = srcPageAny[k];
     }
-    await admin.from('event_pages').insert({
+    const { error: pageErr } = await admin.from('event_pages').insert({
       ...pageFields,
       event_id: newEvent.id,
-      starts_at: null,
-      ends_at: null,
       is_public: false,
       view_count: 0,
     });
+    if (pageErr) {
+      // A copy with no event page is a broken shell. Remove it so the organizer
+      // isn't left with a half-built duplicate in their events list.
+      try { await admin.from('events').delete().eq('id', newEvent.id); } catch { /* best-effort */ }
+      return NextResponse.json({ error: 'Could not copy the event page. Please try again.' }, { status: 500 });
+    }
   }
 
   // Duplicate variants

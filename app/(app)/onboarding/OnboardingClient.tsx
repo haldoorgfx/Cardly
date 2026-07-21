@@ -146,7 +146,20 @@ export default function OnboardingClient() {
     setLogoPreview(URL.createObjectURL(file));
   };
 
-  const next = () => setStep(s => Math.min(STEPS.length - 1, s + 1));
+  // Step 3 is all-or-nothing: an event needs a name AND both dates, because
+  // event_pages.starts_at / ends_at are NOT NULL. Catch it here rather than
+  // letting the server 400 on the final screen, which has no Back button.
+  const firstEventError =
+    step === 3 && evName.trim() && (!evStart || !evEnd)
+      ? 'Add a start and end date, or clear the name to skip this step.'
+      : step === 3 && evStart && evEnd && evEnd < evStart
+        ? 'The end date must be on or after the start date.'
+        : '';
+
+  const next = () => {
+    if (firstEventError) return;
+    setStep(s => Math.min(STEPS.length - 1, s + 1));
+  };
   const back = () => setStep(s => Math.max(0, s - 1));
 
   const handleFinish = async () => {
@@ -469,6 +482,12 @@ export default function OnboardingClient() {
                     <label className={LABEL}>Venue</label>
                     <input className={INPUT} value={venue} onChange={e => setVenue(e.target.value)} placeholder="Djibouti Conference Centre" />
                   </div>
+                  {firstEventError && (
+                    <p role="alert" className="text-[12.5px]" style={{ color: '#B8423C' }}>{firstEventError}</p>
+                  )}
+                  <p className="text-[12.5px]" style={{ color: '#65736B' }}>
+                    Leave the name blank to skip — you can create your first event from the dashboard.
+                  </p>
                 </div>
               </div>
             )}
@@ -583,7 +602,8 @@ export default function OnboardingClient() {
                 )}
                 <button
                   onClick={next}
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors hover:bg-[#163828]"
+                  disabled={!!firstEventError}
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors hover:bg-[#163828] disabled:opacity-50 disabled:cursor-not-allowed"
                   style={{ background: '#1F4D3A', color: '#FAF6EE', boxShadow: '0 4px 12px rgba(31,77,58,0.2)' }}
                 >
                   {step === 0 ? 'Get started' : 'Continue'}

@@ -247,11 +247,16 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       // Read + decrement are separate defensive calls so this whole block no-ops
       // cleanly until migration 105 is applied.
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: stalepromo } = await (admin as any)
+      const { data: stalePromo } = await (admin as any)
         .from('registrations').select('promo_code_id').eq('id', exId).maybeSingle();
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (admin as any).from('registrations').delete().eq('id', exId);
-      if (staleprom0(staleprom)) { /* placeholder */ }
+      if (stalePromo?.promo_code_id) {
+        const { error: decErr } = await admin.rpc('decrement_promo_code_uses', {
+          code_id: stalePromo.promo_code_id as string,
+        });
+        if (decErr) console.error('[register] promo release:', decErr.message);
+      }
     }
   }
 
@@ -367,6 +372,15 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       code_id: appliedPromo.id,
     });
     if (promoErr) console.error('[register] promo increment:', promoErr.message);
+
+    // Link the redemption to the registration (migration 105). Best-effort and
+    // in its own update, so a pre-migration deploy still registers people — it
+    // just can't release the use if this attempt is later abandoned.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (admin as any)
+      .from('registrations')
+      .update({ promo_code_id: appliedPromo.id })
+      .eq('id', registration.id);
   }
 
   // Record the platform-fee split (best-effort — the columns exist after

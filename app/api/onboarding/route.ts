@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { upsertEventRole } from '@/lib/rbac/assign';
-import { slugifyBase } from '@/lib/slug';
+import { generateSlug } from '@/lib/slug';
 import { getMyTeam, createTeam, getTeamMembers, getTeamInvites, createInvite } from '@/lib/teams/queries';
 import { sendTeamInviteEmail } from '@/lib/email';
 import { PLANS } from '@/lib/billing/plans';
@@ -24,6 +24,38 @@ export async function POST(req: NextRequest) {
     venue: string;
     inviteEmails: string[];
   };
+
+  // ── Validate the first-event step BEFORE any write ───────────────────────────
+  // event_pages.starts_at / ends_at are NOT NULL, so an event named without both
+  // dates used to create the events row and then silently lose its event_pages
+  // insert to a constraint violation — the brand-new organizer landed on a
+  // dashboard showing an event whose public page, register route and publish
+  // screen were all broken. Refuse up front instead; nothing is written yet, so
+  // the wizard can show the message and let them fix it or clear the name.
+  const evName  = body.evName?.trim()  ?? '';
+  const evStart = body.evStart?.trim() ?? '';
+  const evEnd   = body.evEnd?.trim()   ?? '';
+
+  if (evName && (!evStart || !evEnd)) {
+    return NextResponse.json(
+      { error: 'Add a start and end date for your first event, or clear the name to skip this step.' },
+      { status: 400 },
+    );
+  }
+  // These are <input type="date"> values, so anchor them to the whole day. An
+  // all-day span is the honest reading of a date-only input, and it satisfies
+  // chk_event_page_date_order (ends_at > starts_at) for single-day events, which
+  // a bare start===end pair would have violated.
+  const startsAtIso = evStart ? new Date(`${evStart}T00:00:00.000Z`) : null;
+  const endsAtIso   = evEnd   ? new Date(`${evEnd}T23:59:59.000Z`)   : null;
+  if (evName) {
+    if (!startsAtIso || Number.isNaN(startsAtIso.getTime()) || !endsAtIso || Number.isNaN(endsAtIso.getTime())) {
+      return NextResponse.json({ error: 'Those event dates are not valid. Please re-enter them.' }, { status: 400 });
+    }
+    if (endsAtIso.getTime() <= startsAtIso.getTime()) {
+      return NextResponse.json({ error: 'The end date must be on or after the start date.' }, { status: 400 });
+    }
+  }
 
   const admin = createAdminClient();
 
@@ -58,14 +90,12 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Create first event if name provided
-  if (body.evName.trim()) {
-    const slug = slugifyBase(body.evName, 40) + '-' + Math.random().toString(36).slice(2, 6);
-
+  // Create the first event (already validated above — name plus both dates).
+  if (evName && startsAtIso && endsAtIso) {
     const { data: newEvent } = await admin.from('events').insert({
       user_id: user.id,
-      name: body.evName.trim(),
-      slug,
+      name: evName,
+      slug: generateSlug(evName),
       status: 'draft',
     }).select('id').single();
 
@@ -80,15 +110,21 @@ export async function POST(req: NextRequest) {
     // Create companion event_pages row so the event editor works immediately
     if (newEvent?.id) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (admin as any).from('event_pages').insert({
+      const { error: pageErr } = await (admin as any).from('event_pages').insert({
         event_id: newEvent.id,
-        title:     body.evName.trim(),
+        title:     evName,
         is_public: false,
         is_online: false,
-        ...(body.venue ? { venue_name: body.venue } : {}),
-        ...(body.evStart ? { starts_at: body.evStart } : {}),
-        ...(body.evEnd   ? { ends_at:   body.evEnd   } : {}),
+        starts_at: startsAtIso.toISOString(),
+        ends_at:   endsAtIso.toISOString(),
+        ...(body.venue?.trim() ? { venue_name: body.venue.trim() } : {}),
       });
+      // Don't leave a shell event behind — the organizer would see it on the
+      // dashboard but every page that reads event_pages would be broken.
+      if (pageErr) {
+        try { await admin.from('events').delete().eq('id', newEvent.id); } catch { /* best-effort */ }
+        return NextResponse.json({ error: 'Could not create your first event. Please try again.' }, { status: 500 });
+      }
     }
 
     // Roles write-path: the creator is the organizer of this first event.

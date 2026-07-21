@@ -17,6 +17,7 @@ export default function EventDetailActions({ eventId, eventName, status }: Props
   const [nameVal, setNameVal] = useState(eventName);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [actionError, setActionError] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -63,12 +64,24 @@ export default function EventDetailActions({ eventId, eventName, status }: Props
 
   async function doDuplicate() {
     setBusy(true);
+    setActionError('');
     try {
       const res = await fetch(`/api/events/${eventId}/duplicate`, { method: 'POST' });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       if (res.ok && (data.slug || data.id)) {
         router.push(`/events/${data.slug ?? data.id}`);
+        return;
       }
+      // Previously every failure was swallowed: "Duplicate event" simply did
+      // nothing with no explanation — most often because the plan's event limit
+      // was already reached.
+      setActionError(
+        res.status === 402
+          ? 'You have reached the event limit on your plan. Upgrade to duplicate this event.'
+          : (data.error as string | undefined) ?? 'Could not duplicate this event.',
+      );
+    } catch {
+      setActionError('Could not duplicate this event. Check your connection and try again.');
     } finally {
       setBusy(false);
     }
@@ -144,6 +157,13 @@ export default function EventDetailActions({ eventId, eventName, status }: Props
   }
 
   return (
+    <div className="flex flex-col items-stretch sm:items-end gap-2">
+      {actionError && (
+        <p role="alert" className="text-[12.5px] rounded-lg px-3 py-2 max-w-[280px]"
+          style={{ background: 'rgba(184,66,60,0.14)', color: '#FAF6EE', border: '1px solid rgba(184,66,60,0.5)' }}>
+          {actionError}
+        </p>
+      )}
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>
         <button
@@ -220,5 +240,6 @@ export default function EventDetailActions({ eventId, eventName, status }: Props
         </DropdownMenu.Content>
       </DropdownMenu.Portal>
     </DropdownMenu.Root>
+    </div>
   );
 }

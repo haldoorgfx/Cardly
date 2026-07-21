@@ -1924,6 +1924,10 @@ export interface Database {
         Args: { code_id: string };
         Returns: undefined;
       };
+      decrement_promo_code_uses: {
+        Args: { code_id: string };
+        Returns: undefined;
+      };
       increment_checkin_session_count: {
         Args: { p_event_id: string };
         Returns: undefined;
