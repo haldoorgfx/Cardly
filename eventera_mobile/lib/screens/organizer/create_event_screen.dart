@@ -134,6 +134,12 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
       );
       // Seed the schedule row so the event isn't date-/venue-less. Non-fatal:
       // the event already exists, so a page hiccup shouldn't block the flow.
+      // Keeping this non-fatal is right — the event itself already exists, so
+      // a page hiccup shouldn't block the flow. But it must not be SILENT: the
+      // organizer filled in date, venue, city and description, and all four are
+      // dropped here. Reporting plain "Event created" then left them to
+      // discover the loss later, by chance.
+      var scheduleSaved = true;
       try {
         await _org.upsertEventPage(
           eventId,
@@ -144,11 +150,20 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
           description: _desc.text,
           isPublic: false,
         );
-      } catch (_) {/* schedule can be added later in event settings */}
+      } catch (_) {
+        scheduleSaved = false;
+      }
 
       if (!mounted) return;
       Navigator.of(context).pop(true);
-      showToast(context, 'Event created — it\'s in your events as a draft.');
+      showToast(
+        context,
+        scheduleSaved
+            ? 'Event created — it\'s in your events as a draft.'
+            : 'Event created, but the date and venue didn\'t save. '
+                'Add them in event settings.',
+        type: scheduleSaved ? ToastType.success : ToastType.error,
+      );
     } on EventeraException catch (e) {
       if (mounted) setState(() => _error = e.message);
     } catch (e) {

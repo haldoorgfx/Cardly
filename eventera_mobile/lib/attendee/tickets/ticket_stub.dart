@@ -302,6 +302,12 @@ class TicketStub extends StatelessWidget {
         (coverUrl != null && coverUrl!.isNotEmpty)
             ? Image.network(coverUrl!,
                 fit: BoxFit.cover,
+                // Without this the ticket header is a transparent gap for as
+                // long as the cover takes to download, so the scrim and the
+                // title sit on nothing — show the placeholder tint meanwhile.
+                loadingBuilder: (ctx, child, progress) => progress == null
+                    ? child
+                    : PhotoPlaceholder(hue: hueFromString(eventTitle)),
                 errorBuilder: (_, __, ___) =>
                     PhotoPlaceholder(hue: hueFromString(eventTitle)))
             : PhotoPlaceholder(hue: hueFromString(eventTitle)),
@@ -563,6 +569,11 @@ class WalletTicketStub extends StatelessWidget {
                       (coverUrl != null && coverUrl!.isNotEmpty)
                           ? Image.network(coverUrl!,
                               fit: BoxFit.cover,
+                              loadingBuilder: (ctx, child, progress) =>
+                                  progress == null
+                                      ? child
+                                      : PhotoPlaceholder(
+                                          hue: hueFromString(title)),
                               errorBuilder: (_, __, ___) =>
                                   PhotoPlaceholder(hue: hueFromString(title)))
                           : PhotoPlaceholder(hue: hueFromString(title)),

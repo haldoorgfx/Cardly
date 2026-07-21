@@ -1831,6 +1831,8 @@ class _SponsorStrip extends StatelessWidget {
                     s.logoUrl!,
                     height: 28,
                     fit: BoxFit.contain,
+                    loadingBuilder: (ctx, child, progress) =>
+                        progress == null ? child : _sponsorName(s),
                     errorBuilder: (_, __, ___) => _sponsorName(s),
                   )
                 : _sponsorName(s),

@@ -134,6 +134,17 @@ class SyncController extends ChangeNotifier {
     return (m['status'] ?? 'error').toString();
   }
 
+  /// Stop the reachability poll and allow a later [ensureStarted] to restart
+  /// it. Used on sign-out: the 25s timer otherwise keeps probing and replaying
+  /// across accounts, and `_started` would block a clean restart for the next
+  /// user. Unlike [dispose] this keeps the singleton usable.
+  void stop() {
+    _timer?.cancel();
+    _timer = null;
+    _started = false;
+    _syncing = false;
+  }
+
   @override
   void dispose() {
     _timer?.cancel();

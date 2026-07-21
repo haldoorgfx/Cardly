@@ -10,6 +10,7 @@ import 'attendee/onboarding/onboarding_screen.dart';
 import 'biometric_service.dart';
 import 'net.dart';
 import 'organize/organize_shell.dart';
+import 'session_reset.dart';
 import 'ui/components.dart';
 import 'ui/tokens.dart';
 
@@ -77,6 +78,11 @@ class _RootGateState extends State<RootGate> {
       // Organizing needs an account — a sign-out always lands on Attend.
       if (data.event == AuthChangeEvent.signedOut) {
         setAppMode(AppMode.attend);
+        // Signing out of Supabase only drops the session. Every on-device
+        // store (saved registrations, event context, offline scan queue,
+        // cached attendee rosters) is keyed by event rather than by user and
+        // would otherwise be inherited by the next account on this device.
+        await clearLocalUserState();
       }
     });
   }

@@ -236,6 +236,21 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                           child: Text('No design',
                               style: TextStyle(color: Brand.muted)))
                       : Image.network(e.backgroundUrl!, fit: BoxFit.cover,
+                          // Distinguish "still downloading" from the
+                          // "Could not load design" error below — without
+                          // this both look like an identical blank panel.
+                          loadingBuilder: (ctx, child, progress) =>
+                              progress == null
+                                  ? child
+                                  : const Center(
+                                      child: SizedBox(
+                                        width: 22,
+                                        height: 22,
+                                        child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: Brand.muted),
+                                      ),
+                                    ),
                           errorBuilder: (_, __, ___) => const Center(
                               child: Text('Could not load design',
                                   style: TextStyle(color: Brand.muted)))),

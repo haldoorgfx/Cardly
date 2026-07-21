@@ -57,22 +57,24 @@ class CardStore {
     return File('${dir.path}/index.json');
   }
 
+  /// Every card saved on this device, newest first.
+  ///
+  /// Returns an empty list ONLY when there genuinely are no cards yet. A read
+  /// failure (unreadable or corrupt `index.json`) throws instead of returning
+  /// `[]` — swallowing it told the user "No cards yet", i.e. that their cards
+  /// were gone, when the file was merely unreadable.
   Future<List<SavedCard>> list() async {
-    try {
-      final f = await _indexFile();
-      if (!await f.exists()) return [];
-      final raw = jsonDecode(await f.readAsString());
-      if (raw is! List) return [];
-      final cards = raw
-          .whereType<Map<String, dynamic>>()
-          .map(SavedCard.fromJson)
-          .toList();
-      // Newest first.
-      cards.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-      return cards;
-    } catch (_) {
-      return [];
-    }
+    final f = await _indexFile();
+    if (!await f.exists()) return [];
+    final raw = jsonDecode(await f.readAsString());
+    if (raw is! List) return [];
+    final cards = raw
+        .whereType<Map<String, dynamic>>()
+        .map(SavedCard.fromJson)
+        .toList();
+    // Newest first.
+    cards.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return cards;
   }
 
   Future<void> _writeIndex(List<SavedCard> cards) async {

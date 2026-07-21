@@ -1142,6 +1142,14 @@ class _PhotoUploadRing extends StatelessWidget {
                 child: Image.network(
                   imageUrl!,
                   fit: BoxFit.cover,
+                  // Without this the avatar circle is an empty hole while the
+                  // photo downloads, which reads as "the upload failed".
+                  loadingBuilder: (ctx, child, progress) => progress == null
+                      ? child
+                      : const Center(
+                          child: Icon(Icons.person_outline,
+                              color: AppColors.inkMuted, size: 30),
+                        ),
                   errorBuilder: (_, __, ___) => const Center(
                     child: Icon(Icons.person_outline,
                         color: AppColors.inkMuted, size: 30),

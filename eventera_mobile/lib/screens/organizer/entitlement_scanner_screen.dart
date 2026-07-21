@@ -461,9 +461,27 @@ class _EntitlementScannerScreenState extends State<EntitlementScannerScreen> {
       if (isNetworkError(e)) {
         // No signal: resolve from cache + queue with the SAME client_uuid.
         _sync.markOffline();
-        await _handleOffline(token, entitlement, clientUuid, scannedAt);
+        // _handleOffline runs INSIDE this catch, so anything it throws (a
+        // failed queue write, notifyListeners after dispose) escaped the
+        // method entirely and left _busy latched — see the finally below.
+        try {
+          await _handleOffline(token, entitlement, clientUuid, scannedAt);
+        } catch (offlineError) {
+          _show(EntitlementScanResult.error(
+              describeError(offlineError, context: 'that scan')));
+        }
       } else {
         _show(EntitlementScanResult.error(describeError(e, context: 'that scan')));
+      }
+    } finally {
+      // _busy is normally cleared by _dismissResult() when the result card
+      // times out — that pause is deliberate, so don't clear it here when a
+      // result is on screen. But if we somehow finished WITHOUT showing one,
+      // _busy stays true forever and the guard at the top of this method
+      // silently rejects every subsequent QR: camera still live, no error, and
+      // the door queue backs up until the app is restarted.
+      if (mounted && _result == null && _busy) {
+        setState(() => _busy = false);
       }
     }
   }

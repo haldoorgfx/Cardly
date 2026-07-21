@@ -74,6 +74,32 @@ class PushService {
     }
   }
 
+  /// Release this device's push token from the signed-out account.
+  ///
+  /// `user_devices` rows are keyed on `fcm_token` and only ever overwritten on
+  /// the NEXT sign-in. Without this, a device that signs out and stays signed
+  /// out keeps receiving the previous account's notifications indefinitely.
+  /// Must be called BEFORE `supa.auth.signOut()` — RLS only lets us delete our
+  /// own row, so once the session is gone the delete is rejected.
+  Future<void> unregisterDevice() async {
+    final uid = currentUserId;
+    if (uid == null) return;
+    try {
+      final token = await FirebaseMessaging.instance.getToken();
+      if (token == null) return;
+      await supa
+          .from('user_devices')
+          .delete()
+          .eq('fcm_token', token)
+          .eq('user_id', uid);
+      if (kDebugMode) debugPrint('Push: released device token for $uid');
+    } catch (e) {
+      // Best-effort — a failed delete just means the old row lingers until the
+      // next sign-in re-claims it.
+      if (kDebugMode) debugPrint('Push: token release failed: $e');
+    }
+  }
+
   /// Routes a tapped push to the screen its `data.url` points at (the same
   /// action_url the in-app notification carries). Events open their page;
   /// anything else lands on the Tickets tab.

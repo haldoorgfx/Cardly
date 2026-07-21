@@ -10,6 +10,11 @@ import '../../ui/components.dart';
 import '../role_widgets.dart';
 import '../sponsor/sponsor_api.dart';
 
+/// Placeholder shown when a product has no photo, its photo is still
+/// downloading, or the photo failed to load.
+const _productGlyph =
+    Icon(Icons.image_outlined, color: AppColors.inkMuted, size: 20);
+
 class BoothProductsScreen extends StatefulWidget {
   final String sponsorId;
   final String eventId;
@@ -301,20 +306,25 @@ class _BoothProductsScreenState extends State<BoothProductsScreen> {
                     Container(
                       width: 48,
                       height: 48,
+                      clipBehavior: Clip.antiAlias,
                       decoration: BoxDecoration(
                         color: AppColors.creamSoft,
                         borderRadius: BorderRadius.circular(10),
-                        image: p.imageUrl.isNotEmpty &&
-                                p.imageUrl.startsWith('http')
-                            ? DecorationImage(
-                                image: NetworkImage(p.imageUrl),
-                                fit: BoxFit.cover)
-                            : null,
                       ),
-                      child: (p.imageUrl.isEmpty || !p.imageUrl.startsWith('http'))
-                          ? const Icon(Icons.image_outlined,
-                              color: AppColors.inkMuted, size: 20)
-                          : null,
+                      // Image.network rather than a DecorationImage: a
+                      // DecorationImage has no error or loading callback, so a
+                      // product photo that 404s or is still downloading left a
+                      // blank cream square with no glyph at all.
+                      child: (p.imageUrl.isNotEmpty &&
+                              p.imageUrl.startsWith('http'))
+                          ? Image.network(
+                              p.imageUrl,
+                              fit: BoxFit.cover,
+                              loadingBuilder: (ctx, child, progress) =>
+                                  progress == null ? child : _productGlyph,
+                              errorBuilder: (ctx, err, stack) => _productGlyph,
+                            )
+                          : _productGlyph,
                     ),
                     const SizedBox(width: 12),
                     Expanded(

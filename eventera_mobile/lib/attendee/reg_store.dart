@@ -92,4 +92,25 @@ class RegStore {
     _mem.remove(slug);
     await _persist();
   }
+
+  /// Drop EVERY remembered registration and the backing file.
+  ///
+  /// Entries are keyed by event slug, not by user, so without this a sign-out
+  /// left the next account on this device holding the previous account's
+  /// `registrationId` and `qrToken`. Every engagement feature keys off that id
+  /// — the new user would post questions, vote and network as the old one, and
+  /// could display their check-in QR. Called from [clearLocalUserState].
+  Future<void> clearAll() async {
+    _mem.clear();
+    // Reset the load latch too: leaving it true would make a later get()
+    // skip re-reading the file for the *new* user's own saved registrations.
+    _loaded = false;
+    try {
+      final f = await _file();
+      if (f != null && await f.exists()) await f.delete();
+    } catch (_) {
+      // Best-effort: the in-memory map is already cleared, which is what the
+      // impersonation risk actually hangs on.
+    }
+  }
 }

@@ -316,6 +316,10 @@ class _OrganizerProfileScreenState extends State<OrganizerProfileScreen> {
                     ? Image.network(
                         e.coverUrl!,
                         fit: BoxFit.cover,
+                        loadingBuilder: (ctx, child, progress) =>
+                            progress == null
+                                ? child
+                                : PhotoPlaceholder(hue: hueFromString(e.id)),
                         errorBuilder: (_, __, ___) =>
                             PhotoPlaceholder(hue: hueFromString(e.id)),
                       )

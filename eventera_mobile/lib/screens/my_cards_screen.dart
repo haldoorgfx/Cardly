@@ -6,6 +6,8 @@ import '../attendee/app_shell.dart' show mainTab;
 import '../card_store.dart';
 import '../share_card.dart';
 import '../theme.dart';
+import '../ui/components.dart'
+    show ErrorStateView, describeError, showToast, ToastType;
 
 /// History of cards the attendee made on this device. Tap one to view it big
 /// and re-share. Pull to refresh.
@@ -53,6 +55,15 @@ class _MyCardsScreenState extends State<MyCardsScreen> {
                   child: CircularProgressIndicator(
                       strokeWidth: 2.5, color: Brand.gold),
                 ),
+              );
+            }
+            // A failed read must not be presented as "No cards yet" — that
+            // tells the user their cards are gone when the index was merely
+            // unreadable.
+            if (snap.hasError) {
+              return ErrorStateView(
+                message: describeError(snap.error, context: 'your cards'),
+                onRetry: _reload,
               );
             }
             final cards = snap.data ?? const [];
@@ -214,10 +225,19 @@ class _CardViewer extends StatelessWidget {
                   icon: const Icon(Icons.ios_share, size: 20),
                   label: const Text('Save / Share'),
                   onPressed: () async {
+                    // bytesFor() returns null both for a missing file and for
+                    // any read exception (it swallows them). Without this else
+                    // the button did nothing at all — no sheet, no toast, no
+                    // spinner — on an explicit user action.
                     final bytes = await CardStore.instance.bytesFor(card);
-                    if (bytes != null) {
-                      await shareCardBytes(bytes, card.eventName);
+                    if (!context.mounted) return;
+                    if (bytes == null) {
+                      showToast(context,
+                          'That card\'s image file is missing from this device.',
+                          type: ToastType.error);
+                      return;
                     }
+                    await shareCardBytes(bytes, card.eventName);
                   },
                 ),
               ),

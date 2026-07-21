@@ -33,4 +33,14 @@ class EventContext {
     if (c != null && c.eventId == eventId) return c.registrationId;
     return null;
   }
+
+  /// Forget the current event context.
+  ///
+  /// [current] is a mutable static holding a `registrationId`. It survives a
+  /// sign-out unless explicitly dropped, which would let the next account on
+  /// this device act on the previous account's registration. Called from
+  /// [clearLocalUserState].
+  static void clear() {
+    current = null;
+  }
 }

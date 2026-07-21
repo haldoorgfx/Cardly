@@ -62,11 +62,34 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
   @override
   void initState() {
     super.initState();
+    // This screen is an IndexedStack child, so it stays mounted for the app's
+    // lifetime and initState runs exactly once. Without this listener, anything
+    // that jumps the user here after a write — "View my tickets" on the
+    // registration confirmation (confirm_screen.dart) or tapping a ticket push
+    // (push_service.dart) — lands them on a wallet that predates the ticket
+    // they just got, until they pull-to-refresh.
+    mainTab.addListener(_onTabChanged);
     if (isSignedIn) {
       _load();
     } else {
       _loading = false;
     }
+  }
+
+  @override
+  void dispose() {
+    mainTab.removeListener(_onTabChanged);
+    super.dispose();
+  }
+
+  static const _ticketsTabIndex = 1;
+
+  void _onTabChanged() {
+    if (!mounted || mainTab.value != _ticketsTabIndex) return;
+    if (!isSignedIn || _loading) return;
+    // Silent: the wallet is already on screen when the tab animates in, so a
+    // full-screen spinner here would be a flash of nothing.
+    _load(silent: true);
   }
 
   Future<void> _promptSignIn() async {
@@ -79,9 +102,12 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
     }
   }
 
-  Future<void> _load() async {
+  /// [silent] refreshes the data without showing the full-screen loading state
+  /// — used when the wallet is already visible and a blank flash would be
+  /// worse than briefly-stale rows.
+  Future<void> _load({bool silent = false}) async {
     setState(() {
-      _loading = true;
+      if (!silent) _loading = true;
       _error = null;
     });
     try {
@@ -291,23 +317,33 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
       action: past ? 'Receipt' : 'Show QR',
       past: past,
       bg: AppColors.canvas,
-      onTap: () => Navigator.of(context).push(MaterialPageRoute(
-        builder: (_) => TicketDetailScreen(
-          registrationId: t.id,
-          qrToken: t.qrToken,
-          eventName: t.eventName,
-          eventSlug: t.eventSlug,
-          coverUrl: t.coverUrl,
-          ticketType: t.ticketTypeName,
-          attendeeName: t.attendeeName,
-          status: t.status,
-          venue: t.venue,
-          startsAt: t.startsAt,
-          amount: t.amount,
-          currency: t.currency,
-          cardUrl: t.cardUrl,
-        ),
-      )),
+      // Awaited + refreshed on return: the detail screen can transfer the
+      // ticket away or complete a pending payment, and it holds its own copy
+      // of the token/status. Without this the wallet row keeps the pre-transfer
+      // status, and re-opening it rebuilds the detail screen from this stale
+      // row — handing back a live-looking QR for a token the server already
+      // rotated. Reload unconditionally rather than on a popped result, so a
+      // system back-gesture (which carries no result) is covered too.
+      onTap: () async {
+        await Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) => TicketDetailScreen(
+            registrationId: t.id,
+            qrToken: t.qrToken,
+            eventName: t.eventName,
+            eventSlug: t.eventSlug,
+            coverUrl: t.coverUrl,
+            ticketType: t.ticketTypeName,
+            attendeeName: t.attendeeName,
+            status: t.status,
+            venue: t.venue,
+            startsAt: t.startsAt,
+            amount: t.amount,
+            currency: t.currency,
+            cardUrl: t.cardUrl,
+          ),
+        ));
+        if (mounted) _load(silent: true);
+      },
     );
   }
 

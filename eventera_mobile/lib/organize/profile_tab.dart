@@ -6,6 +6,7 @@ import '../attendee/account/attendee_profile_screen.dart';
 import '../attendee/account/notifications_screen.dart';
 import '../attendee/auth/attendee_auth_screen.dart';
 import '../net.dart';
+import '../push_service.dart';
 import '../rbac/role_service.dart';
 import '../ui/components.dart';
 import '../ui/menu.dart';
@@ -113,6 +114,9 @@ class _OrganizerProfileTabState extends State<OrganizerProfileTab> {
       ),
     );
     if (ok == true) {
+      // Must precede signOut — own-row RLS rejects the delete once the session
+      // is gone, leaving the device on this account's push notifications.
+      await PushService.instance.unregisterDevice();
       await supa.auth.signOut();
       // Signed out — organizing needs an account, so land back on Attend.
       await setAppMode(AppMode.attend);

@@ -163,10 +163,14 @@ class _ZoneEditorScreenState extends State<ZoneEditorScreen> {
       if (mounted) Navigator.of(context).pop(true);
     } catch (e) {
       if (mounted) {
-        setState(() => _saving = false);
         showToast(context, describeError(e, context: 'these fields'),
             type: ToastType.error);
       }
+    } finally {
+      // On success this used to stay true and rely entirely on the pop above —
+      // so if the screen was no longer mounted it never popped AND never
+      // cleared, leaving the editor stuck on a spinning Save button.
+      if (mounted) setState(() => _saving = false);
     }
   }
 
@@ -246,6 +250,21 @@ class _ZoneEditorScreenState extends State<ZoneEditorScreen> {
                           ? const SizedBox()
                           : Image.network(widget.event.backgroundUrl!,
                               fit: BoxFit.fill,
+                              // The zone boxes are drawn on top of this, so
+                              // without a loading state the editor briefly
+                              // shows zones floating over a blank canvas.
+                              loadingBuilder: (ctx, child, progress) =>
+                                  progress == null
+                                      ? child
+                                      : const Center(
+                                          child: SizedBox(
+                                            width: 22,
+                                            height: 22,
+                                            child: CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                                color: Brand.muted),
+                                          ),
+                                        ),
                               errorBuilder: (_, __, ___) => const Center(
                                   child: Text('Could not load design',
                                       style: TextStyle(color: Brand.muted)))),

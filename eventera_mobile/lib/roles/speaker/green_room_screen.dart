@@ -40,6 +40,10 @@ class _GreenRoomScreenState extends State<GreenRoomScreen> {
   String _description = '';
   List<Map<String, dynamic>> _coSpeakers = [];
   bool _loading = true;
+  // Distinguishes "the server says there's no brief / no co-speakers" from
+  // "we never got an answer". Without it a failed fetch was rendered as
+  // authoritative fact to a speaker about to walk on stage.
+  bool _failed = false;
 
   @override
   void initState() {
@@ -48,6 +52,12 @@ class _GreenRoomScreenState extends State<GreenRoomScreen> {
   }
 
   Future<void> _load() async {
+    if (mounted && (_failed || !_loading)) {
+      setState(() {
+        _loading = true;
+        _failed = false;
+      });
+    }
     try {
       final results = await Future.wait([
         SpeakerApi.session(widget.sessionId),
@@ -60,11 +70,37 @@ class _GreenRoomScreenState extends State<GreenRoomScreen> {
         _description = asString(session?['description']).trim();
         _coSpeakers = speakers;
         _loading = false;
+        _failed = false;
       });
     } catch (_) {
-      if (mounted) setState(() => _loading = false);
+      if (mounted) {
+        setState(() {
+          _loading = false;
+          _failed = true;
+        });
+      }
     }
   }
+
+  /// Inline "we couldn't load this" with a retry, used wherever a failed fetch
+  /// would otherwise be indistinguishable from real "there's nothing here"
+  /// content.
+  Widget _couldNotLoad() => Row(
+        children: [
+          const Icon(Icons.cloud_off_rounded,
+              size: 16, color: AppColors.inkMuted),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text("Couldn't load this — check your connection.",
+                style: AppText.bodySm.copyWith(color: AppColors.inkMuted)),
+          ),
+          TextButton(
+            onPressed: _load,
+            child: Text('Retry',
+                style: AppText.label.copyWith(color: AppColors.forest)),
+          ),
+        ],
+      );
 
   String _time(DateTime? d) {
     if (d == null) return '—';
@@ -128,6 +164,8 @@ class _GreenRoomScreenState extends State<GreenRoomScreen> {
                       ],
                     ),
                   )
+                else if (_failed)
+                  _couldNotLoad()
                 else
                   Text(
                     _description.isEmpty
@@ -146,6 +184,8 @@ class _GreenRoomScreenState extends State<GreenRoomScreen> {
                 const SizedBox(height: 10),
                 if (_loading)
                   const Skeleton(height: 44)
+                else if (_failed)
+                  _couldNotLoad()
                 else if (_coSpeakers.isEmpty)
                   Text('You are the only speaker on this session.',
                       style: AppText.bodySm.copyWith(color: AppColors.inkMuted))

@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart'
 
 import '../../biometric_service.dart';
 import '../../net.dart';
+import '../../push_service.dart';
 import '../../ui/tokens.dart';
 import '../../ui/components.dart';
 import '../../ui/menu.dart';
@@ -527,6 +528,9 @@ class _AttendeeProfileScreenState extends State<AttendeeProfileScreen> {
       // refusal. A refusal must surface as a refusal.
       await apiPost('/api/account/delete', {});
       await BiometricService.instance.clear();
+      // Drop the device→user push row before the session goes, or a deleted
+      // account keeps pushing to this handset.
+      await PushService.instance.unregisterDevice();
       await supa.auth.signOut();
       if (!mounted) return;
       Navigator.of(context).popUntil((r) => r.isFirst);

@@ -176,6 +176,33 @@ class EventCache {
     return File('${dir.path}/offline_event_$eventId.json');
   }
 
+  /// Delete every downloaded offline event cache on this device.
+  ///
+  /// These files hold the full attendee roster — names, emails, QR tokens,
+  /// ticket types and dietary notes — for an organizer's event. They must not
+  /// outlive the session that downloaded them. Safe to call unconditionally:
+  /// the cache is re-downloadable from the Prepare-offline screen. Called from
+  /// [clearLocalUserState].
+  static Future<void> clearAll() async {
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      if (!await dir.exists()) return;
+      await for (final entity in dir.list()) {
+        if (entity is! File) continue;
+        final name = entity.uri.pathSegments.last;
+        if (name.startsWith('offline_event_') && name.endsWith('.json')) {
+          try {
+            await entity.delete();
+          } catch (_) {
+            // Skip a locked file rather than aborting the whole sweep.
+          }
+        }
+      }
+    } catch (_) {
+      // Best-effort cleanup; never block sign-out.
+    }
+  }
+
   /// Read a previously-downloaded cache for [eventId], or null if none exists
   /// (or the file is unreadable). Never throws.
   static Future<CachedEvent?> load(String eventId) async {

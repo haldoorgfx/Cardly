@@ -216,6 +216,32 @@ class ScanQueue extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Discard the whole queue and its file.
+  ///
+  /// Queued scans are replayed through whatever Supabase session is live at
+  /// reconnect time, so scans captured by one staff account must not survive a
+  /// sign-out — they would otherwise be re-submitted under the next account
+  /// (wrongly attributed, or RLS-rejected and silently dumped into the
+  /// attention list, losing a real redemption). Called from
+  /// [clearLocalUserState].
+  ///
+  /// NOTE: this genuinely drops unsynced scans. That is the intended tradeoff —
+  /// replaying them as the wrong user corrupts the check-in record, and the
+  /// signing-out user is the only one who could have resolved them. Callers
+  /// should warn if [pendingCount] is non-zero before signing out.
+  Future<void> clearAll() async {
+    _pending.clear();
+    _attention.clear();
+    _loaded = false;
+    try {
+      final f = await _file();
+      if (await f.exists()) await f.delete();
+    } catch (_) {
+      // In-memory state is already clear, which is what replay reads.
+    }
+    notifyListeners();
+  }
+
   /// Replay every pending scan sequentially through [redeem], which must return
   /// the RPC's `status`. Removes a scan only after the server acknowledges it.
   /// Stops (keeping remaining items) on the first network error.

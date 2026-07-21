@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app_mode.dart';
 import '../../biometric_service.dart';
 import '../../net.dart';
+import '../../push_service.dart';
 import '../../rbac/admin_screen.dart';
 import '../../rbac/role_service.dart';
 import '../../rbac/speaking_screen.dart';
@@ -148,6 +149,10 @@ class _AttendeeAccountTabState extends State<AttendeeAccountTab> {
     // Clear biometric unlock too — otherwise the stashed token would let the
     // next launch fingerprint straight back into the account we just left.
     await BiometricService.instance.clear();
+    // Release this device's push token while we still have a session — RLS
+    // rejects the delete afterwards. Otherwise the device keeps receiving this
+    // account's notifications for as long as it stays signed out.
+    await PushService.instance.unregisterDevice();
     await supa.auth.signOut();
     if (mounted) {
       setState(() {});

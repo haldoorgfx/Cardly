@@ -342,6 +342,11 @@ class _EventBlock extends StatelessWidget {
                       ? Image.network(
                           event.coverUrl,
                           fit: BoxFit.cover,
+                          loadingBuilder: (ctx, child, progress) =>
+                              progress == null
+                                  ? child
+                                  : PhotoPlaceholder(
+                                      hue: hueFromString(event.id)),
                           errorBuilder: (_, __, ___) =>
                               PhotoPlaceholder(hue: hueFromString(event.id)),
                         )

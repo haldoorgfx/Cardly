@@ -178,6 +178,11 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
           type: ToastType.error);
       return;
     }
+    // Optimistic, but remember what to fall back to: without the rollback in
+    // the catch below the stars stayed filled after a failed POST, so the user
+    // believed the rating saved when nothing persisted — and re-opening the
+    // screen showed it unrated again.
+    final previous = _myRating;
     setState(() => _myRating = rating);
     try {
       await apiPost('/api/sessions/${widget.sessionId}/rate', {
@@ -189,6 +194,7 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
           type: ToastType.success);
     } catch (e) {
       if (!mounted) return;
+      setState(() => _myRating = previous);
       showToast(context, describeError(e, context: 'your rating'),
           type: ToastType.error);
     }
