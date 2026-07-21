@@ -2,6 +2,7 @@ import { createAdminClient, createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { sendApprovedEmail, sendDeniedEmail } from '@/lib/registration/email';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,12 +25,18 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: reg } = await (admin as any)
     .from('registrations')
-    .select('id, attendee_name, attendee_email, qr_code_token, status, amount_paid, payment_status, events!inner(id, user_id, slug, event_pages(title, starts_at, timezone, venue_name, is_online))')
+    .select('id, attendee_name, attendee_email, qr_code_token, status, amount_paid, payment_status, ticket_type_id, events!inner(id, user_id, slug, event_pages(title, starts_at, timezone, venue_name, is_online))')
     .eq('id', params.id)
     .maybeSingle();
 
   if (!reg) return NextResponse.json({ error: 'Registration not found' }, { status: 404 });
-  if (reg.events?.user_id !== user.id) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
+  // Was a raw `reg.events.user_id !== user.id`, which meant a Studio team member
+  // could see the approvals queue and not act on it.
+  const ownerIds = await manageableOwnerIds(user.id);
+  if (!reg.events?.user_id || !ownerIds.includes(reg.events.user_id)) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
   if (reg.status !== 'pending_approval') return NextResponse.json({ error: 'Registration is not pending approval' }, { status: 400 });
 
   if (parsed.data.action === 'approve') {
@@ -74,6 +81,44 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   if (updateError) return NextResponse.json({ error: 'Failed to update registration' }, { status: 500 });
   if ((updatedRows?.length ?? 0) === 0) {
     return NextResponse.json({ error: 'This application has already been reviewed.' }, { status: 409 });
+  }
+
+  // Release the ticket slot a DENIED application was holding.
+  //
+  // Step 6 of the register route increments `quantity_sold` for any FREE ticket
+  // — its guard is `ticket.quantity !== null && isFree`, with no status check —
+  // so a free application consumed a unit the moment it was submitted. Nothing
+  // ever gave it back: this route sets 'cancelled' and returns. A 100-seat
+  // ticket that turned down 30 applicants reported sold out at 70 real
+  // attendees, and the organizer had no way to see why.
+  //
+  // Mirrors the increment's condition exactly rather than approximating it:
+  //  - free only (`amount_paid === 0`, which is what `isFree` writes). A PAID
+  //    approval-required registration is created as 'pending_approval' with
+  //    isFree false, so it is never incremented here — it is incremented by the
+  //    payment webhook instead, and approving one is refused above until it is
+  //    actually paid. Decrementing those would corrupt a real count.
+  //  - tracked tickets only. On a PWYW ticket type the same row can be
+  //    incremented at webhook time by someone who chose to pay, so decrementing
+  //    an untracked ticket could take away a unit that belongs to them.
+  //
+  // Placed after the guarded UPDATE above, so a double-clicked Deny releases
+  // the seat once: the second request matches no row and 409s before reaching
+  // this point.
+  if (parsed.data.action === 'deny' && reg.ticket_type_id && (reg.amount_paid ?? 0) === 0) {
+    const { data: ticket } = await admin
+      .from('ticket_types')
+      .select('quantity')
+      .eq('id', reg.ticket_type_id)
+      .maybeSingle();
+
+    if (ticket && ticket.quantity !== null) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (admin as any).rpc('decrement_ticket_quantity_sold', {
+        ticket_id: reg.ticket_type_id,
+        qty: 1,
+      });
+    }
   }
 
   const ep = reg.events?.event_pages?.[0];
