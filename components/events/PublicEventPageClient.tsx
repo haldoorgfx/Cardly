@@ -557,7 +557,7 @@ export function PublicEventPageClient({
               </svg>
             </>
           )}
-          <span className="font-medium truncate max-w-[260px]" style={{ color: '#0F1F18' }}>{page.title}</span>
+          <span dir="auto" className="font-medium truncate max-w-[260px]" style={{ color: '#0F1F18' }}>{page.title}</span>
         </nav>
 
         {/* Hero banner */}
@@ -623,7 +623,14 @@ export function PublicEventPageClient({
                   {seriesSlug && seriesName ? `Series: ${seriesName}` : page.category}
                 </span>
               )}
-              <h1 className="font-title font-extrabold leading-[1.02] text-white"
+              {/* dir="auto" — the page chrome is English, but the TITLE is the
+                  organizer's. Without it the browser lays Arabic out with an LTR
+                  base direction (verified: computed `direction: ltr`), which is
+                  simply the wrong reading order for three of our five primary
+                  markets. "auto" takes the direction from the text's own first
+                  strong character and is a no-op for Latin titles — measured
+                  identical glyph positions with and without. */}
+              <h1 dir="auto" className="font-title font-extrabold leading-[1.02] text-white"
                 style={{ fontSize: 'clamp(28px,5vw,52px)', letterSpacing: '-0.035em', maxWidth: 760 }}>
                 {page.title}
               </h1>

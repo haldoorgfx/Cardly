@@ -225,7 +225,10 @@ export function EventCard({
         </div>
 
         {/* Title */}
+        {/* dir="auto" so an Arabic title reads in its own direction inside the
+            English feed. No-op for Latin titles. See PublicEventPageClient. */}
         <div
+          dir="auto"
           className="font-display font-medium text-[15px] leading-snug mb-1.5 group-hover:text-[#1F4D3A] transition-colors line-clamp-2"
           style={{ color: '#0F1F18' }}
         >
