@@ -300,24 +300,52 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const allowedAccessibility: string[] = [];
   let hasDietaryField = false;
   let hasAccessibilityField = false;
+  let dietaryRequired = false;
+  let accessibilityRequired = false;
   {
+    // Load the WHOLE form, not just the needs fields: the organizer's required
+    // questions were only ever enforced in the browser, so anything that didn't
+    // go through the React form (the mobile app, a stale cached bundle, a direct
+    // POST) could create a registration with every required answer blank — and
+    // the organizer only found out at the door.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: daFields } = await (admin as any)
+    const { data: allFields } = await (admin as any)
       .from('registration_form_fields')
-      .select('field_type, options')
-      .eq('event_id', params.id)
-      .in('field_type', ['dietary', 'accessibility']);
+      .select('id, label, field_type, options, is_required')
+      .eq('event_id', params.id);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ((daFields ?? []) as any[]).forEach((f) => {
+    const fieldRows = (allFields ?? []) as any[];
+
+    // A 'section' is a heading, and dietary/accessibility answer through their
+    // own columns (checked below) — neither reads from custom_fields.
+    const missing = fieldRows
+      .filter((f) => f.is_required
+        && f.field_type !== 'section'
+        && f.field_type !== 'dietary'
+        && f.field_type !== 'accessibility'
+        && !String(custom_fields?.[f.id] ?? '').trim())
+      .map((f) => String(f.label ?? 'This field'));
+    if (missing.length > 0) {
+      return NextResponse.json({
+        error: missing.length === 1
+          ? `${missing[0]} is required.`
+          : `Please answer: ${missing.join(', ')}.`,
+      }, { status: 400 });
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    fieldRows.filter((f) => f.field_type === 'dietary' || f.field_type === 'accessibility').forEach((f) => {
       const configured: string[] = Array.isArray(f.options) ? (f.options as string[]) : [];
       // A field saved WITHOUT a custom option list renders the shared defaults on
       // both clients — so those defaults are exactly what a submission may carry.
       if (f.field_type === 'dietary') {
         hasDietaryField = true;
+        if (f.is_required) dietaryRequired = true;
         allowedNeedsTags('dietary', configured)
           .forEach((o) => { if (!allowedDietary.includes(o)) allowedDietary.push(o); });
       } else if (f.field_type === 'accessibility') {
         hasAccessibilityField = true;
+        if (f.is_required) accessibilityRequired = true;
         allowedNeedsTags('accessibility', configured)
           .forEach((o) => { if (!allowedAccessibility.includes(o)) allowedAccessibility.push(o); });
       }
@@ -327,6 +355,15 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const cleanAccessibility = (accessibility ?? []).filter((t) => allowedAccessibility.includes(t));
   const cleanDietaryNote = hasDietaryField ? (dietary_note?.trim() || null) : null;
   const cleanAccessibilityNote = hasAccessibilityField ? (accessibility_note?.trim() || null) : null;
+
+  // Same rule the browser applies: a required needs field is satisfied by a tag
+  // OR a free-text note.
+  if (dietaryRequired && cleanDietary.length === 0 && !cleanDietaryNote) {
+    return NextResponse.json({ error: 'Please tell us about your dietary needs.' }, { status: 400 });
+  }
+  if (accessibilityRequired && cleanAccessibility.length === 0 && !cleanAccessibilityNote) {
+    return NextResponse.json({ error: 'Please tell us about your accessibility needs.' }, { status: 400 });
+  }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: registration, error: regError } = await (admin as any)
@@ -442,12 +479,17 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     const eventDateStr = eventPage.starts_at
       ? new Date(eventPage.starts_at).toLocaleDateString(undefined, { weekday: 'short', month: 'long', day: 'numeric', year: 'numeric', timeZone: eventPage.timezone ?? undefined })
       : '';
-    sendPendingApprovalEmail({
+    // Awaited — the response below ends the serverless invocation, so a promise
+    // still in flight is dropped and the attendee is never told their paid
+    // application is pending. `eventId` also enables white-label branding here,
+    // which the un-awaited call was silently omitting.
+    await sendPendingApprovalEmail({
       to: registration.attendee_email,
       name: registration.attendee_name,
       eventTitle: eventPage.title,
       eventSlug,
       eventDate: eventDateStr,
+      eventId: params.id,
     }).catch(() => {});
     return NextResponse.json({
       registration_id: registration.id,
@@ -569,7 +611,8 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     : '';
 
   if (requiresApproval) {
-    sendPendingApprovalEmail({
+    // Awaited for the same reason as the confirmation email below.
+    await sendPendingApprovalEmail({
       to: registration.attendee_email,
       name: registration.attendee_name,
       eventTitle: eventPage.title,
@@ -638,12 +681,18 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     }
   }
 
+  // A FREE ticket on an approval-required event lands here too, and it is NOT a
+  // confirmed registration. Reporting it as plain 'free' told the browser the
+  // person was in: it sent them to the Eventera Card step and a confirm page
+  // headed "Registration confirmed", for a seat the organizer had not granted.
+  // Say what actually happened; the clients branch on `awaiting_approval`.
   return NextResponse.json({
     registration_id: registration.id,
     qr_code_token: registration.qr_code_token,
     variant_id: variantId,
     event_id: params.id,
-    payment_status: 'free',
+    payment_status: requiresApproval ? 'pending_approval' : 'free',
     payment_required: false,
+    ...(requiresApproval ? { awaiting_approval: true } : {}),
   }, { status: 201 });
 }

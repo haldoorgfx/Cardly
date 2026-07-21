@@ -510,6 +510,8 @@ export default function RegistrationClient({
         qr_code_token?: string;
         error?: string;
         payment_required?: boolean;
+        /** Approval-required events: the row is pending_approval, not a ticket. */
+        awaiting_approval?: boolean;
         redirect_url?: string;
         client_secret?: string;
         payment_processor?: string;
@@ -575,6 +577,15 @@ export default function RegistrationClient({
       }
 
       const token = data.qr_code_token;
+
+      // Approval-required events (free OR paid): the seat is not granted yet, so
+      // skip the Eventera Card step entirely and land on the confirm page, which
+      // states the application is in review. Designing a card here would have
+      // implied the person was in.
+      if (data.awaiting_approval) {
+        router.push(`/e/${eventSlug}/register/confirm?reg=${token}`);
+        return;
+      }
 
       // For canvas events: go to "Your card" step so the attendee can personalise before redirect
       if (activeVariant) {

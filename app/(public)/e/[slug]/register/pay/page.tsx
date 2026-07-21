@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { createAdminClient } from '@/lib/supabase/server';
 import { getTicketStripe } from '@/lib/payments/stripe';
+import { fromStripeMinorUnits } from '@/lib/payments/currency';
 import { StripePaymentStep } from '@/components/registration/StripePaymentStep';
 import type { Metadata } from 'next';
 
@@ -55,7 +56,11 @@ export default async function PayPendingPage({ params, searchParams }: Props) {
       if (pi.status === 'succeeded') redirect(confirmUrl);
       if (pi.status !== 'canceled') {
         clientSecret = pi.client_secret;
-        amount = pi.amount / 100;
+        // Zero-decimal currencies (DJF, UGX, RWF, XOF, XAF, KMF …) have no
+        // subunit — Stripe's `amount` IS the major unit. A blanket ÷100 quoted a
+        // DJF 5,000 ticket as "DJF 50" on the page while Stripe charged the real
+        // 5,000. Djibouti is a primary market; this was live money.
+        amount = fromStripeMinorUnits(pi.amount, pi.currency);
         currency = pi.currency;
       }
     } catch (err) {

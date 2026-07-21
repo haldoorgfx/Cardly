@@ -92,35 +92,58 @@ export function GroupRegistrationClient({ eventId, eventName, eventSlug, tickets
   }
 
   async function submit() {
-    setSubmitting(true);
+    setSubmitError(null);
     const seats: { ticketTypeId: string; name: string; email: string; whatsapp: string }[] = [];
     for (const t of tickets) {
       const qty = quantities[t.id] ?? 0;
       for (let i = 0; i < qty; i++) {
         const a = attendees[t.id]?.[i] ?? { name: '', email: '', whatsapp: '' };
-        seats.push({ ticketTypeId: t.id, name: a.name, email: a.email, whatsapp: a.whatsapp });
+        seats.push({ ticketTypeId: t.id, name: a.name.trim(), email: a.email.trim(), whatsapp: a.whatsapp.trim() });
       }
     }
 
-    const res = await fetch(`/api/events/${eventId}/group-register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ seats }),
-    });
+    // Check here rather than letting the API reject the batch: the server
+    // validates every seat and fails the WHOLE request on the first bad one, so
+    // a single blank row silently discarded a 40-person entry with a generic
+    // message. Name the seats that need filling in.
+    const incomplete = seats.filter(s => !isAttendeeComplete(s));
+    if (incomplete.length > 0) {
+      setSubmitError(
+        incomplete.length === 1
+          ? 'One seat is still missing a name or a valid email address.'
+          : `${incomplete.length} seats are still missing a name or a valid email address.`,
+      );
+      setExpandedTicketId(incomplete[0]?.ticketTypeId ?? null);
+      return;
+    }
 
-    setSubmitting(false);
-    if (res.ok) {
-      setConfirmedAttendees(seats.map(s => ({
-        name: s.name || 'Attendee',
-        ticket: tickets.find(t => t.id === s.ticketTypeId)?.name ?? 'Ticket',
-      })));
-      setSuccess(true);
-    } else {
+    setSubmitting(true);
+    try {
+      const res = await fetch(`/api/events/${eventId}/group-register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ seats }),
+      });
+
+      if (res.ok) {
+        setConfirmedAttendees(seats.map(s => ({
+          name: s.name || 'Attendee',
+          ticket: tickets.find(t => t.id === s.ticketTypeId)?.name ?? 'Ticket',
+        })));
+        setSuccess(true);
+        return;
+      }
       const data = await res.json().catch(() => ({})) as { error?: string };
       const friendly = res.status === 401
         ? 'Group registration is available to the event organizer. Please sign in with the organizer account.'
         : (data.error ?? 'Registration failed. Please try again.');
       setSubmitError(friendly);
+    } catch {
+      // Without this the throw escaped and left the button spinning on
+      // "Processing…" forever, with no way to tell whether the seats were taken.
+      setSubmitError('We couldn’t reach the server. Check your connection and try again — no seats were registered.');
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -161,7 +184,7 @@ export function GroupRegistrationClient({ eventId, eventName, eventSlug, tickets
           </h2>
           <p className="text-[14px]" style={{ color: '#65736B' }}>
             {confirmedAttendees.length} ticket{confirmedAttendees.length !== 1 ? 's' : ''} registered for {eventName}.
-            <br />Check your emails for the ticket links.
+            <br />They&rsquo;re on the attendee list now — share each person&rsquo;s QR from the event&rsquo;s Registrations tab.
           </p>
         </div>
 
@@ -344,7 +367,7 @@ export function GroupRegistrationClient({ eventId, eventName, eventSlug, tickets
             <h3 className="font-semibold text-[15px] mb-4" style={{ color: '#0F1F18' }}>Order summary</h3>
 
             {totalTickets === 0 ? (
-              <p className="text-[13px] text-center py-4" style={{ color: '#C9C3B1' }}>Select tickets above</p>
+              <p className="text-[13px] text-center py-4" style={{ color: '#65736B' }}>Select tickets above</p>
             ) : (
               <>
                 <div className="flex flex-col gap-2 mb-4">
@@ -375,11 +398,20 @@ export function GroupRegistrationClient({ eventId, eventName, eventSlug, tickets
               disabled={totalTickets === 0 || submitting || (remaining !== null && remaining <= 0)}
               className="w-full py-3 rounded-2xl text-[14px] font-semibold transition hover:opacity-90 disabled:opacity-40"
               style={{ background: '#1F4D3A', color: '#FAF6EE' }}>
-              {submitting ? 'Processing…' : (remaining !== null && remaining <= 0) ? 'Event full' : totalPrice === 0 ? `Register ${totalTickets || ''} seats` : `Pay ${fmt(totalPrice, primaryCurrency)}`}
+              {submitting
+                ? 'Processing…'
+                : (remaining !== null && remaining <= 0)
+                  ? 'Event full'
+                  : `Register ${totalTickets || ''} seat${totalTickets === 1 ? '' : 's'}`}
             </button>
 
-            <p className="text-[11px] text-center mt-3" style={{ color: '#C9C3B1' }}>
-              Each attendee receives their own QR ticket by email
+            {/* This flow takes no payment — the API confirms the seats outright
+                and records them as settled outside Eventera. The button used to
+                say "Pay $X", which promised a checkout that does not exist. */}
+            <p className="text-[11px] text-center mt-3" style={{ color: '#65736B' }}>
+              {totalPrice > 0
+                ? 'Seats are confirmed immediately — collect the ticket price yourself, Eventera takes no payment here.'
+                : 'Seats are confirmed immediately and appear on your attendee list.'}
             </p>
           </div>
         </div>

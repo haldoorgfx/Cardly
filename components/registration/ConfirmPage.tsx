@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useLayoutEffect, useState, useCallback } from 'react';
-import { Share2, Check, ChevronRight, Download } from 'lucide-react';
+import { useEffect, useLayoutEffect, useRef, useState, useCallback } from 'react';
+import { Share2, Check, ChevronRight, Download, Clock, AlertTriangle } from 'lucide-react';
 import { CardZoneFill } from './CardZoneFill';
 import { PhotoCropModal } from './PhotoCropModal';
 
@@ -180,47 +180,79 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
 
   // sessionStorage check is handled in useLayoutEffect above (before first paint)
 
-  // Verify payment on paid return (Stripe or Flutterwave)
+  // Verify payment on paid return (Stripe or Flutterwave).
+  //
+  // Every exit path MUST leave 'verifying' — a thrown fetch (dropped connection
+  // on a phone, an HTML error page that fails res.json()) used to reject
+  // silently and strand the attendee on the spinner forever, immediately after
+  // they had been charged. 'unknown' is its own honest state: we can't confirm
+  // either way, so we say so and offer a retry instead of guessing.
+  const verifyAttempts = useRef(0);
+  const [verifyNonce, setVerifyNonce] = useState(0);
   useEffect(() => {
     if (!isPaidReturn) return;
 
+    let cancelled = false;
     let retryTimer: ReturnType<typeof setTimeout> | null = null;
 
     async function verify() {
       let status = 'failed';
 
-      if (paymentIntentId) {
-        // Stripe verification
-        const res = await fetch('/api/payments/confirm-intent', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ payment_intent_id: paymentIntentId, qr_code_token: registration.qr_code_token }),
-        });
-        const data = await res.json();
-        status = data.status === 'succeeded' ? 'succeeded' : data.status;
-        if (data.status === 'processing') {
-          setPaymentStatus('processing');
-          retryTimer = setTimeout(verify, 3000);
-          return;
+      try {
+        if (paymentIntentId) {
+          // Stripe verification
+          const res = await fetch('/api/payments/confirm-intent', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ payment_intent_id: paymentIntentId, qr_code_token: registration.qr_code_token }),
+          });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(data?.error ?? `status ${res.status}`);
+          status = data.status === 'succeeded' ? 'succeeded' : data.status;
+          if (data.status === 'processing') {
+            verifyAttempts.current += 1;
+            if (cancelled) return;
+            // The bank can sit in `processing` for minutes. Poll for ~30s, then
+            // stop and tell the truth rather than spinning indefinitely.
+            if (verifyAttempts.current >= 10) {
+              setPaymentStatus('processing_timeout');
+              setPhase('done');
+              return;
+            }
+            setPaymentStatus('processing');
+            retryTimer = setTimeout(verify, 3000);
+            return;
+          }
+        } else if (isFlutterwaveReturn && txRef) {
+          // Flutterwave verification — use URL tx_ref
+          const res = await fetch('/api/payments/flutterwave-confirm', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tx_ref: txRef }),
+          });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(data?.error ?? `status ${res.status}`);
+          status = data.status === 'successful' ? 'succeeded' : 'failed';
         }
-      } else if (isFlutterwaveReturn && txRef) {
-        // Flutterwave verification — use URL tx_ref
-        const res = await fetch('/api/payments/flutterwave-confirm', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ tx_ref: txRef }),
-        });
-        const data = await res.json();
-        status = data.status === 'successful' ? 'succeeded' : 'failed';
+      } catch {
+        status = 'unknown';
       }
 
+      if (cancelled) return;
       setPaymentStatus(status);
       setPhase(status === 'succeeded' ? (variant ? 'card' : 'done') : 'done');
     }
 
     verify();
-    return () => { if (retryTimer) clearTimeout(retryTimer); };
-  }, [isPaidReturn, paymentIntentId, isFlutterwaveReturn, txRef, registration.qr_code_token, variant]); // eslint-disable-line react-hooks/exhaustive-deps
+    return () => { cancelled = true; if (retryTimer) clearTimeout(retryTimer); };
+  }, [isPaidReturn, paymentIntentId, isFlutterwaveReturn, txRef, registration.qr_code_token, variant, verifyNonce]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  function retryVerification() {
+    verifyAttempts.current = 0;
+    setPaymentStatus(null);
+    setPhase('verifying');
+    setVerifyNonce(n => n + 1);
+  }
 
   function handleDownload() {
     if (!cardDataUrl) return;
@@ -278,18 +310,117 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
     },
   ];
 
+  // ── Honest states: this ticket is NOT live yet ────────────────
+  // The page used to render "Registration confirmed" + a scannable QR for ANY
+  // registration it could load by token — including one whose card payment had
+  // just been declined, one abandoned before paying, and one still waiting on
+  // the organizer's approval. Three different people were told they were in
+  // when they were not, and would walk to the door with a QR that check-in
+  // rejects. A ticket is live only when the row says confirmed/checked_in, or
+  // when we just verified the payment ourselves on this page load.
+  const ticketIsLive =
+    paymentStatus === 'succeeded' ||
+    registration.status === 'confirmed' ||
+    registration.status === 'checked_in';
+
+  if (phase !== 'verifying' && !ticketIsLive) {
+    const isAwaitingApproval = registration.status === 'pending_approval';
+    const isCancelled = registration.status === 'cancelled';
+    const unresolved = paymentStatus === 'unknown' || paymentStatus === 'processing_timeout';
+
+    const notice = isAwaitingApproval
+      ? {
+          icon: Clock,
+          tone: '#C97A2D',
+          title: 'Application received',
+          body: `Thanks, ${registration.attendee_name.split(' ')[0] || 'there'}. ${eventTitle} reviews every registration before confirming a seat. We'll email ${registration.attendee_email} the moment the organizer decides — your ticket and Eventera Card are created then.`,
+          action: null as { label: string; href: string } | null,
+        }
+      : isCancelled
+        ? {
+            icon: AlertTriangle,
+            tone: '#B8423C',
+            title: 'This registration was cancelled',
+            body: `This ticket for ${eventTitle} is no longer valid. If that wasn't intentional you can register again.`,
+            action: { label: 'Register again', href: `/e/${eventSlug}/register` },
+          }
+        : unresolved
+          ? {
+              icon: Clock,
+              tone: '#C97A2D',
+              title: 'Your payment is still clearing',
+              body: `We couldn't confirm the payment for ${eventTitle} yet — your bank may still be processing it. Nothing is lost: if it goes through we'll email your ticket to ${registration.attendee_email}. You can also check again now.`,
+              action: null,
+            }
+          : {
+              icon: AlertTriangle,
+              tone: '#B8423C',
+              title: 'Payment not completed',
+              body: `Your seat at ${eventTitle} isn't confirmed because the payment didn't go through — so no ticket has been issued. You can finish paying with the button below.`,
+              action: { label: 'Complete payment', href: `/e/${eventSlug}/register/pay?reg=${registration.qr_code_token}` },
+            };
+
+    const NoticeIcon = notice.icon;
+
+    return (
+      <div className="min-h-screen flex items-start sm:items-center justify-center px-5 py-10" style={{ background: '#FAF6EE' }}>
+        <div className="w-full max-w-[440px] rounded-2xl p-6 sm:p-8 text-center" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
+          <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: '#E8EFEB' }}>
+            <NoticeIcon size={24} style={{ color: notice.tone }} />
+          </div>
+          <h1 className="font-display font-semibold text-[22px] mb-2.5" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
+            {notice.title}
+          </h1>
+          <p className="text-[14px] mb-6" style={{ color: '#3A4A42', lineHeight: 1.6 }}>
+            {notice.body}
+          </p>
+          <div className="flex flex-col gap-2.5">
+            {notice.action && (
+              <a
+                href={notice.action.href}
+                className="inline-flex h-11 items-center justify-center rounded-xl px-6 text-[14px] font-semibold text-white"
+                style={{ background: '#1F4D3A' }}
+              >
+                {notice.action.label}
+              </a>
+            )}
+            {unresolved && (
+              <button
+                type="button"
+                onClick={retryVerification}
+                className="inline-flex h-11 items-center justify-center rounded-xl px-6 text-[14px] font-semibold text-white"
+                style={{ background: '#1F4D3A' }}
+              >
+                Check again
+              </button>
+            )}
+            <a
+              href={`/e/${eventSlug}`}
+              className="inline-flex h-11 items-center justify-center rounded-xl px-6 text-[14px] font-semibold"
+              style={{ border: '1px solid #E5E0D4', color: '#3A4A42' }}
+            >
+              Back to event
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // ── Phase: verifying payment ──────────────────────────────────
   if (phase === 'verifying') {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: '#0A0F0C' }}>
+      <div className="min-h-screen flex items-center justify-center px-5" style={{ background: '#FAF6EE' }}>
         <div className="text-center">
-          <svg className="animate-spin mx-auto mb-4" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#E8C57E" strokeWidth="2.5">
+          <svg className="animate-spin mx-auto mb-4" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#1F4D3A" strokeWidth="2.5">
             <path d="M21 12a9 9 0 1 1-9-9" strokeLinecap="round" />
           </svg>
-          <p className="text-[14px]" style={{ color: 'rgba(255,255,255,0.5)' }}>Confirming your payment…</p>
-          {paymentStatus === 'processing' && (
-            <p className="text-[12px] mt-2" style={{ color: 'rgba(255,255,255,0.3)' }}>Your bank is processing the payment. This usually takes a few seconds.</p>
-          )}
+          <p className="text-[14px]" style={{ color: '#0F1F18' }}>Confirming your payment…</p>
+          <p className="text-[12px] mt-2" style={{ color: '#65736B' }}>
+            {paymentStatus === 'processing'
+              ? 'Your bank is processing the payment. This usually takes a few seconds.'
+              : 'Please don’t close this page.'}
+          </p>
         </div>
       </div>
     );

@@ -89,9 +89,16 @@ function InnerForm({ returnUrl, amount, currency, eventTitle, ticketName }: Prop
     setProcessing(false);
   }
 
-  const formattedAmount = new Intl.NumberFormat(undefined, {
-    style: 'currency', currency: currency.toUpperCase(),
-  }).format(amount);
+  // Intl throws on a currency code it doesn't recognise, which on this screen
+  // means a blank page instead of a payment form. Fall back to plain text.
+  let formattedAmount: string;
+  try {
+    formattedAmount = new Intl.NumberFormat(undefined, {
+      style: 'currency', currency: currency.toUpperCase(),
+    }).format(amount);
+  } catch {
+    formattedAmount = `${currency.toUpperCase()} ${amount}`;
+  }
 
   return (
     <form onSubmit={handleSubmit}>
