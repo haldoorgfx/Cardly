@@ -8,6 +8,9 @@ import { sendQAAnsweredEmail } from '@/lib/email';
 
 const PLAN_RANK: Record<string, number> = { free: 0, pro: 1, studio: 2 };
 
+/** How many questions earn leaderboard points per attendee, per event. */
+const SCORED_QUESTIONS_PER_EVENT = 5;
+
 const AskSchema = z.object({
   registration_id: z.string().uuid().optional(),
   question: z.string().min(1).max(500),
@@ -102,12 +105,31 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  // Award leaderboard points
+  // Award leaderboard points, up to a per-event cap.
+  //
+  // This used to score EVERY question with no dedup and no ceiling, so posting
+  // two hundred questions bought a thousand points and the top of a leaderboard
+  // that gets projected on a screen at the venue. Polls already guard against
+  // repeat scoring and messages only score the first message in a thread — this
+  // was the one open path.
+  //
+  // A cap rather than a one-off award: asking several good questions is exactly
+  // the behaviour the feature exists to encourage, so the fix should not stop
+  // paying out at the first one.
   if (parsed.data.registration_id) {
-    await admin.from('leaderboard_points').insert({
-      event_id: params.id, registration_id: parsed.data.registration_id,
-      action_type: 'question_asked', points: 5, ref_id: data.id,
-    });
+    const { count: scored } = await admin
+      .from('leaderboard_points')
+      .select('id', { count: 'exact', head: true })
+      .eq('event_id', params.id)
+      .eq('registration_id', parsed.data.registration_id)
+      .eq('action_type', 'question_asked');
+
+    if ((scored ?? 0) < SCORED_QUESTIONS_PER_EVENT) {
+      await admin.from('leaderboard_points').insert({
+        event_id: params.id, registration_id: parsed.data.registration_id,
+        action_type: 'question_asked', points: 5, ref_id: data.id,
+      });
+    }
   }
 
   return NextResponse.json({ question: data }, { status: 201 });

@@ -137,6 +137,19 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     return NextResponse.json({ error: 'Recipient not found' }, { status: 404 });
   }
 
+  // Was this pair already connected? The upsert below is idempotent on
+  // (requester_id, recipient_id), so without knowing this we cannot tell a new
+  // connection from a repeat — and the points insert used to run every time.
+  // Sending the SAME request to the SAME person 100 times scored 1000 points
+  // while creating exactly one connection row, and unlike spamming questions
+  // it left nothing visible behind for an organizer to notice.
+  const { data: priorLink } = await admin
+    .from('attendee_connections')
+    .select('id')
+    .eq('requester_id', requester_id)
+    .eq('recipient_id', recipient_id)
+    .maybeSingle();
+
   const { data, error } = await admin
     .from('attendee_connections')
     .upsert(
@@ -148,13 +161,17 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  // Award leaderboard point for initiating connection
-  await admin.from('leaderboard_points').insert({
-    event_id: params.id,
-    registration_id: requester_id,
-    action_type: 'connection_made',
-    points: 10,
-  });
+  // Award once per connection. ref_id ties the award to the row so the unique
+  // index in migration 113 can reject a duplicate even under a race.
+  if (!priorLink) {
+    await admin.from('leaderboard_points').insert({
+      event_id: params.id,
+      registration_id: requester_id,
+      action_type: 'connection_made',
+      points: 10,
+      ref_id: data.id,
+    });
+  }
 
   // Fire-and-forget: notify recipient of connection request
   (async () => {
