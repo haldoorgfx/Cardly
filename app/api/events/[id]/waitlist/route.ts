@@ -57,20 +57,79 @@ export async function POST(
     return NextResponse.json({ error: 'This event has already ended — the waitlist is closed.' }, { status: 422 });
   }
 
-  // Count existing waiting entries for position
-  const { count } = await admin
+  const lowerEmail = email.toLowerCase();
+
+  // Already holding a ticket? Joining the queue for a seat you already have is
+  // never what the person means, and it pads the organizer's queue with people
+  // who will never take a released spot.
+  if (page.event_id) {
+    const { data: existingReg } = await admin
+      .from('registrations')
+      .select('id')
+      .eq('event_id', page.event_id)
+      .ilike('attendee_email', lowerEmail)
+      .in('status', ['confirmed', 'checked_in', 'pending_approval'])
+      .maybeSingle();
+    if (existingReg) {
+      return NextResponse.json(
+        { error: 'You are already registered for this event — no need to join the waitlist.' },
+        { status: 409 },
+      );
+    }
+  }
+
+  // Re-joining must NOT rewrite the row. The old upsert reset status back to
+  // 'waiting' (silently cancelling an invite the organizer had already sent)
+  // and re-stamped position to the back of the queue — so anyone who submitted
+  // the form twice lost their place and their offer. Read first, and only
+  // insert when there is genuinely no entry yet.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: existing } = await (admin as any)
     .from('waitlist_entries')
-    .select('id', { count: 'exact', head: true })
+    .select('id, status, created_at')
     .eq('event_page_id', page.id)
-    .eq('status', 'waiting');
+    .eq('email', lowerEmail)
+    .maybeSingle();
 
-  const position = (count ?? 0) + 1;
+  // Live position = how many people still waiting joined before you. Computed
+  // from created_at rather than the stored `position` column, which goes stale
+  // the moment anyone ahead is invited or expires.
+  async function livePosition(createdAt: string | null): Promise<number> {
+    const q = admin
+      .from('waitlist_entries')
+      .select('id', { count: 'exact', head: true })
+      .eq('event_page_id', page!.id)
+      .eq('status', 'waiting');
+    const { count } = await (createdAt ? q.lt('created_at', createdAt) : q);
+    return (count ?? 0) + 1;
+  }
 
-  // Upsert — same email re-joins without error
+  if (existing) {
+    if (existing.status === 'registered') {
+      return NextResponse.json(
+        { error: 'You are already registered for this event — no need to join the waitlist.' },
+        { status: 409 },
+      );
+    }
+    if (existing.status === 'invited') {
+      return NextResponse.json(
+        { error: 'You already have an invite for this event — check your email to claim your spot.' },
+        { status: 409 },
+      );
+    }
+    // Still waiting (or expired and re-trying): return their real place, do not
+    // re-send the confirmation email or move them.
+    if (existing.status === 'waiting') {
+      return NextResponse.json({ position: await livePosition(existing.created_at) }, { status: 200 });
+    }
+  }
+
+  const position = await livePosition(null);
+
   const { error } = await admin
     .from('waitlist_entries')
     .upsert(
-      { event_page_id: page.id, email: email.toLowerCase(), name, position, status: 'waiting' },
+      { event_page_id: page.id, email: lowerEmail, name, position, status: 'waiting' },
       { onConflict: 'event_page_id,email', ignoreDuplicates: false },
     );
 
@@ -118,44 +177,71 @@ export async function PATCH(
     .maybeSingle();
   if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-  // Fetch entry first to check capacity before promoting
+  // Promote atomically. invite_waitlist_entry (migration 115) puts the capacity
+  // precondition inside the UPDATE's WHERE clause, so two simultaneous invites
+  // with one seat left can no longer both succeed. Until that migration is
+  // applied by hand the RPC does not exist — fall back to the previous
+  // read-then-write path so this endpoint keeps working either way.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: entryCheck } = await (admin as any)
-    .from('waitlist_entries')
-    .select('id, event_page_id')
-    .eq('id', parsed.data.entry_id)
-    .eq('status', 'waiting')
-    .maybeSingle();
+  const { data: rpcResult, error: rpcErr } = await (admin as any)
+    .rpc('invite_waitlist_entry', { p_entry_id: parsed.data.entry_id });
 
-  if (entryCheck?.event_page_id) {
-    const { data: epInvite } = await admin
-      .from('event_pages')
-      .select('max_capacity, event_id')
-      .eq('id', entryCheck.event_page_id)
+  if (!rpcErr && rpcResult) {
+    if (rpcResult.status === 'full') {
+      return NextResponse.json({ error: 'Cannot invite — the event is already at full capacity (counting invites already sent). Increase capacity or cancel existing registrations first.' }, { status: 409 });
+    }
+    if (rpcResult.status !== 'ok') {
+      return NextResponse.json({ error: 'Entry not found or already invited' }, { status: 404 });
+    }
+  } else {
+    // ── Fallback: pre-115 behaviour (read-then-write). ──
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: entryCheck } = await (admin as any)
+      .from('waitlist_entries')
+      .select('id, event_page_id')
+      .eq('id', parsed.data.entry_id)
+      .eq('status', 'waiting')
       .maybeSingle();
-    if (epInvite?.max_capacity && epInvite.event_id) {
-      const { count: confirmedCount } = await admin
-        .from('registrations')
-        .select('id', { count: 'exact', head: true })
-        .eq('event_id', epInvite.event_id)
-        .in('status', ['confirmed', 'checked_in']);
-      if ((confirmedCount ?? 0) >= epInvite.max_capacity) {
-        return NextResponse.json({ error: 'Cannot invite — the event is already at full capacity. Increase capacity or cancel existing registrations first.' }, { status: 409 });
+
+    if (entryCheck?.event_page_id) {
+      const { data: epInvite } = await admin
+        .from('event_pages')
+        .select('max_capacity, event_id')
+        .eq('id', entryCheck.event_page_id)
+        .maybeSingle();
+      if (epInvite?.max_capacity && epInvite.event_id) {
+        const { count: confirmedCount } = await admin
+          .from('registrations')
+          .select('id', { count: 'exact', head: true })
+          .eq('event_id', epInvite.event_id)
+          .in('status', ['confirmed', 'checked_in']);
+        if ((confirmedCount ?? 0) >= epInvite.max_capacity) {
+          return NextResponse.json({ error: 'Cannot invite — the event is already at full capacity. Increase capacity or cancel existing registrations first.' }, { status: 409 });
+        }
       }
     }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: promoted, error: upErr } = await (admin as any)
+      .from('waitlist_entries')
+      .update({ status: 'invited', notified_at: new Date().toISOString() })
+      .eq('id', parsed.data.entry_id)
+      .eq('status', 'waiting')
+      .select('id')
+      .maybeSingle();
+    if (upErr) return NextResponse.json({ error: upErr.message }, { status: 500 });
+    if (!promoted) return NextResponse.json({ error: 'Entry not found or already invited' }, { status: 404 });
   }
 
+  // Read back the details needed for the invite email.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: entry, error } = await (admin as any)
+  const { data: entry } = await (admin as any)
     .from('waitlist_entries')
-    .update({ status: 'invited', notified_at: new Date().toISOString() })
-    .eq('id', parsed.data.entry_id)
-    .eq('status', 'waiting')
     .select('email, name, event_pages(title, starts_at, custom_slug, event_id, events!inner(slug))')
+    .eq('id', parsed.data.entry_id)
     .maybeSingle();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  if (!entry) return NextResponse.json({ error: 'Entry not found or already invited' }, { status: 404 });
+  if (!entry) return NextResponse.json({ error: 'Entry not found' }, { status: 404 });
 
   const ep = entry.event_pages;
   const eventSlug = ep?.custom_slug ?? ep?.events?.slug ?? params.id;

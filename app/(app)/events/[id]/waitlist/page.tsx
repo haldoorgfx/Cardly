@@ -18,22 +18,31 @@ export default async function WaitlistPage({ params }: Props) {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = createAdminClient() as any;
-  const [
-    { data: event },
-    { data: waitlist },
-    { count: totalRegs },
-    { data: eventPage },
-    { data: ticketQtys },
-  ] = await Promise.all([
-    db.from('events').select('id, name').eq('id', id).eq('user_id', user.id).single(),
-    db.from('registrations').select('id, attendee_name, attendee_email, created_at, status, ticket_types(name)')
-      .eq('event_id', id).eq('status', 'waitlisted').order('created_at', { ascending: true }),
-    db.from('registrations').select('id', { count: 'exact', head: true }).eq('event_id', id).in('status', ['confirmed', 'checked_in']),
-    db.from('event_pages').select('max_capacity').eq('event_id', id).maybeSingle(),
+
+  const { data: event } = await db
+    .from('events').select('id, name').eq('id', id).eq('user_id', user.id).single();
+  if (!event) redirect('/dashboard');
+
+  // WHY this reads waitlist_entries and not registrations.status='waitlisted':
+  // the public "Join waitlist" form (POST /api/events/[id]/waitlist) writes to
+  // waitlist_entries keyed by event_page_id, and NOTHING in the product ever
+  // writes registrations.status='waitlisted'. Reading that status made this
+  // page permanently render "Waitlist is empty" while real people sat queued
+  // waiting on an invite the organizer had no way to see or send.
+  const { data: eventPage } = await db
+    .from('event_pages').select('id, max_capacity').eq('event_id', id).maybeSingle();
+
+  const [{ data: entries }, { count: totalRegs }, { data: ticketQtys }] = await Promise.all([
+    eventPage?.id
+      ? db.from('waitlist_entries')
+          .select('id, name, email, status, notified_at, created_at')
+          .eq('event_page_id', eventPage.id)
+          .order('created_at', { ascending: true })
+      : Promise.resolve({ data: [] }),
+    db.from('registrations').select('id', { count: 'exact', head: true })
+      .eq('event_id', id).in('status', ['confirmed', 'checked_in']),
     db.from('ticket_types').select('quantity').eq('event_id', id),
   ]);
-
-  if (!event) redirect('/dashboard');
 
   // Total capacity: prefer the event's overall cap; otherwise fall back to the
   // sum of all ticket-type quantities (0 = unlimited/uncapped).
@@ -47,7 +56,7 @@ export default async function WaitlistPage({ params }: Props) {
     <WaitlistClient
       eventId={id}
       eventName={event.name}
-      waitlist={waitlist ?? []}
+      waitlist={entries ?? []}
       totalRegs={totalRegs ?? 0}
       capacity={cap}
     />
