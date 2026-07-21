@@ -16,6 +16,26 @@ export async function POST(req: NextRequest) {
   const rawName = (body.name as string | undefined)?.trim() || 'Untitled Event';
   const name = rawName.slice(0, 200);
 
+  // Dates are validated UP FRONT, before anything is written.
+  // event_pages.starts_at / ends_at are NOT NULL (migration 017), so a dateless
+  // quick-create used to insert `null`, hit a constraint violation, and — because
+  // the insert error was never checked — return 201 for an event that had no
+  // event_pages row at all: no public page, no register route, no cover, and a
+  // Publish screen with blank dates. Refuse the request instead of half-creating.
+  const startsAtRaw = typeof body.starts_at === 'string' ? body.starts_at.trim() : '';
+  const endsAtRaw   = typeof body.ends_at   === 'string' ? body.ends_at.trim()   : '';
+  if (!startsAtRaw) return NextResponse.json({ error: 'Add a start date and time for your event.' }, { status: 400 });
+  if (!endsAtRaw)   return NextResponse.json({ error: 'Add an end date and time for your event.' }, { status: 400 });
+
+  const startsAt = new Date(startsAtRaw);
+  const endsAt   = new Date(endsAtRaw);
+  if (Number.isNaN(startsAt.getTime())) return NextResponse.json({ error: 'The start date is not a valid date and time.' }, { status: 400 });
+  if (Number.isNaN(endsAt.getTime()))   return NextResponse.json({ error: 'The end date is not a valid date and time.' }, { status: 400 });
+  // Mirrors the chk_event_page_date_order constraint (migration 028).
+  if (endsAt.getTime() <= startsAt.getTime()) {
+    return NextResponse.json({ error: 'The end date must be after the start date.' }, { status: 400 });
+  }
+
   const venueName    = (body.venue_name    as string | undefined) ?? null;
   const venueAddress = (body.venue_address as string | undefined) ?? null;
   const venueLat     = typeof body.venue_lat === 'number' ? body.venue_lat : null;
@@ -61,7 +81,7 @@ export async function POST(req: NextRequest) {
   // has something to work with and /e/[slug]/register resolves after publish.
   // is_public = false — stays private until the organiser clicks Publish.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  await (admin as any).from('event_pages').insert({
+  const { error: pageError } = await (admin as any).from('event_pages').insert({
     event_id:      event.id,
     title:         name,
     is_public:     false,
@@ -72,9 +92,18 @@ export async function POST(req: NextRequest) {
     venue_lng:     venueLng,
     city,
     country,
-    starts_at:     body.starts_at ?? null,
-    ends_at:       body.ends_at   ?? null,
+    starts_at:     startsAt.toISOString(),
+    ends_at:       endsAt.toISOString(),
   });
+
+  // An event without its event_pages row is a broken shell — the public page,
+  // the register route, and the Publish screen all read from event_pages. Undo
+  // the event row so the organizer retries a clean create instead of finding a
+  // half-built event in their list.
+  if (pageError) {
+    try { await admin.from('events').delete().eq('id', event.id); } catch { /* best-effort */ }
+    return NextResponse.json({ error: 'Could not create the event page. Please try again.' }, { status: 500 });
+  }
 
   // Roles write-path: the creator is the organizer of this event (belt-and-suspenders).
   await upsertEventRole({ userId: user.id, eventId: event.id, role: 'organizer' });

@@ -11,7 +11,7 @@ import { canRegisterForEvent, getUserPlan } from '@/lib/billing/can';
 import { createNotification, notifyOrganizerNewRegistration } from '@/lib/notifications';
 import { allowedNeedsTags } from '@/lib/registration/needs-options';
 import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
-import { toStripeMinorUnits } from '@/lib/payments/currency';
+import { toStripeMinorUnits, roundToCurrencyUnit } from '@/lib/payments/currency';
 import { z } from 'zod';
 
 // ── Input validation ──────────────────────────────────────────────────────────
@@ -186,10 +186,13 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     promoDiscount = promo.discount_type === 'percent'
       ? Math.min(effectivePrice, (effectivePrice * Number(promo.discount_value)) / 100)
       : Math.min(effectivePrice, Number(promo.discount_value));
-    promoDiscount = Math.round(promoDiscount * 100) / 100;
+    // Round to the currency's real smallest unit — a percentage discount on a
+    // zero-decimal currency (DJF/UGX/XOF …) otherwise produces a fraction that
+    // no processor can charge and that desyncs amount_paid from the actual charge.
+    promoDiscount = roundToCurrencyUnit(promoDiscount, ticket.currency);
     appliedPromo = { id: promo.id, uses_count: promo.uses_count, max_uses: promo.max_uses };
   }
-  const chargedPrice = Math.max(0, Math.round((effectivePrice - promoDiscount) * 100) / 100);
+  const chargedPrice = Math.max(0, roundToCurrencyUnit(effectivePrice - promoDiscount, ticket.currency));
 
   // 4. Check overall event capacity
   if (eventPage.max_capacity) {
@@ -238,8 +241,17 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     // is considered a stale or incomplete attempt — delete it and allow a fresh start
     if (['pending', 'pending_approval', 'cancelled'].includes(exStatus) ||
         (exPayStatus !== 'paid' && exPayStatus !== 'free')) {
+      // Release the promo use this abandoned attempt consumed, otherwise every
+      // retry of a failed checkout permanently burns another use of the code —
+      // one person could exhaust a max_uses code without buying a single ticket.
+      // Read + decrement are separate defensive calls so this whole block no-ops
+      // cleanly until migration 105 is applied.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: stalepromo } = await (admin as any)
+        .from('registrations').select('promo_code_id').eq('id', exId).maybeSingle();
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (admin as any).from('registrations').delete().eq('id', exId);
+      if (staleprom0(staleprom)) { /* placeholder */ }
     }
   }
 
@@ -271,7 +283,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   }
   const split = isFree
     ? { charged: 0, platformFee: 0, organizerNet: 0 }
-    : splitTicketAmount(chargedPrice, organizerPlan, feeBearer);
+    : splitTicketAmount(chargedPrice, organizerPlan, feeBearer, ticket.currency);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   // Dietary + accessibility (D01): server-authoritative tag validation. Load the

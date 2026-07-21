@@ -128,14 +128,53 @@ async function buildTextOp(zone: Zone, text: string, canvasW: number, canvasH: n
   const zW = zone.w;
   const zH = zone.h;
 
+  // Case is applied here rather than through Pango's text_transform so it does
+  // not depend on the Pango version the deployed sharp binary happens to bundle.
+  const cased =
+    zone.textTransform === 'uppercase' ? text.toUpperCase()
+    : zone.textTransform === 'lowercase' ? text.toLowerCase()
+    : text;
+
   // Arabic / RTL detection — route to Noto Sans Arabic which covers the script.
-  const hasArabic = /[؀-ۿݐ-ݿࢠ-ࣿﭐ-﷿ﹰ-﻿]/.test(text);
+  const hasArabic = /[؀-ۿݐ-ݿࢠ-ࣿﭐ-﷿ﹰ-﻿]/.test(cased);
   const fontfile  = resolveFontFile(family, weight, hasArabic);
 
   // Pango markup: foreground= sets colour; size=Npt scales to N pixels at dpi 72.
   // Only the text content needs escaping — color comes from our own zone config.
   const safeColor = /^#[0-9a-fA-F]{3,8}$/.test(color) ? color : '#FFFFFF';
-  const pangoText = `<span foreground="${safeColor}" size="${size}pt">${pangoEscape(text)}</span>`;
+
+  /**
+   * Typography the Card Studio has always offered and this renderer silently
+   * dropped: a designer could set tracking, leading and opacity, watch them
+   * apply on the canvas, and get a PNG that ignored all three.
+   *
+   * Every attribute below is emitted ONLY when it differs from the editor's
+   * default, so a zone that uses none of them produces exactly the markup this
+   * route produced before. Malformed markup makes Pango throw and would take
+   * card generation down entirely, so the untouched path stays untouched.
+   */
+  const attrs: string[] = [`foreground="${safeColor}"`, `size="${size}pt"`];
+
+  // letterSpacing is stored in px (the editor previews it as `${n}px`); Pango
+  // wants 1024ths of a point, and dpi is pinned to 72 above so 1pt === 1px.
+  const tracking = zone.letterSpacing ?? 0;
+  if (Number.isFinite(tracking) && tracking !== 0) {
+    attrs.push(`letter_spacing="${Math.round(tracking * 1024)}"`);
+  }
+
+  // Editor default is 1.2 and it stores a multiplier, same as Pango.
+  const leading = zone.lineHeight ?? 1.2;
+  if (Number.isFinite(leading) && leading > 0 && leading !== 1.2) {
+    attrs.push(`line_height="${leading}"`);
+  }
+
+  const opacityPct = zone.opacity ?? 100;
+  if (Number.isFinite(opacityPct) && opacityPct < 100) {
+    const clamped = Math.max(1, Math.min(100, Math.round(opacityPct)));
+    attrs.push(`alpha="${clamped}%"`);
+  }
+
+  const pangoText = `<span ${attrs.join(' ')}>${pangoEscape(cased)}</span>`;
 
   // fontfile= loads the TTF directly into Pango — no fontconfig, no SVG, no base64.
   const sharpAlign = align === 'center' ? 'centre' : align as 'left' | 'right';
@@ -168,7 +207,23 @@ async function buildTextOp(zone: Zone, text: string, canvasW: number, canvasH: n
     : align === 'right'
     ? Math.max(0, zW - safeTW - 8)
     : 8;
-  const topInZone = Math.max(0, Math.floor((zH - safeTH) / 2));
+
+  /**
+   * Vertical alignment was hardcoded to centre while the editor defaults every
+   * new text zone to 'top' — so the mismatch was not an edge case, it was every
+   * card anyone designed: text sat where they put it on the canvas and drifted
+   * to the middle of its box in the PNG the attendee received.
+   *
+   * Absent (rather than explicitly 'top') keeps centring. The editor always
+   * writes this field, so only genuinely legacy zones lack it, and those were
+   * authored against centring — honouring a value they never set would shift
+   * cards that are correct today.
+   */
+  const vAlign = zone.verticalAlign ?? 'center';
+  const topInZone =
+    vAlign === 'top'    ? Math.min(8, Math.max(0, zH - safeTH))
+  : vAlign === 'bottom' ? Math.max(0, zH - safeTH - 8)
+  :                       Math.max(0, Math.floor((zH - safeTH) / 2));
 
   const zoneCanvas = await sharp({
     create: { width: zW, height: zH, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } },

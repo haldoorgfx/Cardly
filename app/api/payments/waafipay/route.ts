@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
   // Load registration
   const { data: reg } = await admin
     .from('registrations')
-    .select('id, qr_code_token, amount_paid, currency, event_id, ticket_type_id, payment_status, user_id, attendee_email, attendee_name')
+    .select('id, qr_code_token, amount_paid, chosen_price, currency, event_id, ticket_type_id, payment_status, user_id, attendee_email, attendee_name')
     .eq('id', registration_id)
     .single();
 
@@ -32,16 +32,30 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid payment amount' }, { status: 422 });
   }
 
-  // Cross-check: amount_paid should not exceed the ticket's current price
-  // (it can be lower due to promo discounts, but never higher)
+  // Cross-check: amount_paid must not exceed the maximum this registration could
+  // legitimately owe. That ceiling is NOT plain ticket_types.price:
+  //   • pay-what-you-want tickets carry price 0 and are charged chosen_price, so
+  //     comparing against price rejected every PWYW payment outright;
+  //   • fee_bearer = 'pass' adds the platform fee ON TOP of face value, so every
+  //     pass-fee event had 100% of its WaafiPay (Somalia/Djibouti) sales 422'd.
+  // Promo-discounted amounts are still caught, since they only ever go lower.
   if (reg.ticket_type_id) {
-    const { data: ticketPrice } = await admin
-      .from('ticket_types')
-      .select('price')
-      .eq('id', reg.ticket_type_id)
-      .single();
-    if (ticketPrice && reg.amount_paid > ticketPrice.price) {
-      return NextResponse.json({ error: 'Payment amount exceeds ticket price' }, { status: 422 });
+    const [{ data: ticketPrice }, { data: feeRow }] = await Promise.all([
+      admin.from('ticket_types').select('price').eq('id', reg.ticket_type_id).single(),
+      // Read defensively — these columns arrive with migration 040; a null row
+      // just means "absorb", which is the pre-migration behaviour anyway.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (admin as any).from('registrations').select('platform_fee, fee_bearer').eq('id', reg.id).maybeSingle(),
+    ]);
+    if (ticketPrice) {
+      const face = reg.chosen_price ?? ticketPrice.price;
+      const ceiling = feeRow?.fee_bearer === 'pass'
+        ? face + Number(feeRow.platform_fee ?? 0)
+        : face;
+      // Small tolerance so floating-point cents never reject a valid charge.
+      if (reg.amount_paid > ceiling + 0.01) {
+        return NextResponse.json({ error: 'Payment amount exceeds ticket price' }, { status: 422 });
+      }
     }
   }
 

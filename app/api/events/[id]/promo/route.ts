@@ -166,11 +166,16 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     if (effectiveFrom && effectiveUntil && new Date(effectiveUntil) <= new Date(effectiveFrom)) {
       return NextResponse.json({ error: 'Expiry date must be after start date' }, { status: 400 });
     }
+  }
 
-    // Also re-check percent cap against the effective type
-    const effectiveType  = parsed.data.discount_type  ?? existing?.discount_type;
-    const effectiveValue = parsed.data.discount_value;
-    if (effectiveType === 'percent' && effectiveValue !== undefined && effectiveValue > 100) {
+  // Percent cap, checked against the EFFECTIVE type — deliberately outside the
+  // date block above. The zod refinement only fires when discount_type is present
+  // in the patch, so `PATCH { discount_value: 500 }` against an existing percent
+  // code skipped every JS-side check and relied on the DB constraint to reject it.
+  {
+    const effectivePercentType  = parsed.data.discount_type  ?? existing?.discount_type;
+    const effectivePercentValue = parsed.data.discount_value ?? existing?.discount_value;
+    if (effectivePercentType === 'percent' && effectivePercentValue !== undefined && Number(effectivePercentValue) > 100) {
       return NextResponse.json({ error: 'Percent discount cannot exceed 100%' }, { status: 400 });
     }
   }

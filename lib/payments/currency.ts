@@ -36,6 +36,21 @@ export function toStripeMinorUnits(amount: number, currency: string | null | und
 }
 
 /**
+ * Round a money amount to the smallest unit the currency actually has.
+ *
+ * Zero-decimal currencies have NO subunit — there is no such thing as 0.05 DJF.
+ * A percentage promo (or a percentage platform fee) routinely lands on a
+ * fraction, and without this we would store `amount_paid = 2833.05`, send
+ * `2833` to Stripe, and hand `2833.05` straight to WaafiPay/Flutterwave, which
+ * cannot charge a fraction of an indivisible unit. Rounding once, here, keeps
+ * the stored amount, the fee split and every processor in agreement.
+ */
+export function roundToCurrencyUnit(amount: number, currency?: string | null): number {
+  if (!Number.isFinite(amount)) return 0;
+  return isZeroDecimalCurrency(currency) ? Math.round(amount) : Math.round(amount * 100) / 100;
+}
+
+/**
  * Inverse of {@link toStripeMinorUnits} — turn a Stripe amount back into the
  * major unit, for reconciling a webhook payload against a stored `amount_paid`.
  */

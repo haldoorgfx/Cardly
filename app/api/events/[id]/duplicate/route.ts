@@ -1,13 +1,21 @@
 import { NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { upsertEventRole } from '@/lib/rbac/assign';
-import { slugifyBase } from '@/lib/slug';
+import { generateSlug } from '@/lib/slug';
+import { canCreateEvent } from '@/lib/billing/can';
 
 export async function POST(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  // Duplicating creates a real, billable event. /api/events/create and
+  // /create-basic both enforce the plan's event cap; this route did not, so a
+  // Free user at their 1-event limit could duplicate their way past it.
+  if (!(await canCreateEvent(user.id))) {
+    return NextResponse.json({ error: 'PLAN_LIMIT' }, { status: 402 });
+  }
 
   const admin = createAdminClient();
 
@@ -21,30 +29,35 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
 
   if (srcErr || !src) return NextResponse.json({ error: 'Event not found' }, { status: 404 });
 
-  // Generate new slug
-  const base = slugifyBase(src.name as string, 40);
-  const suffix = Math.random().toString(36).slice(2, 6);
-  const newSlug = `${base}-${suffix}`;
   const newName = `${src.name} (copy)`;
 
-  // Create duplicate event
-  const { data: newEvent, error: createErr } = await admin
-    .from('events')
-    .insert({
-      user_id: user.id,
-      name: newName,
-      slug: newSlug,
-      status: 'draft',
-      background_url: src.background_url,
-      background_width: src.background_width,
-      background_height: src.background_height,
-      zones: src.zones,
-    })
-    .select('id, slug')
-    .single();
+  // Create duplicate event. Retry on slug collision (23505) like the other two
+  // create routes — the old 4-char suffix had no retry, so a collision surfaced
+  // as a raw Postgres constraint message in the UI.
+  let newEvent: { id: string; slug: string } | null = null;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const { data, error: createErr } = await admin
+      .from('events')
+      .insert({
+        user_id: user.id,
+        name: newName,
+        slug: generateSlug(newName),
+        status: 'draft',
+        background_url: src.background_url,
+        background_width: src.background_width,
+        background_height: src.background_height,
+        zones: src.zones,
+      })
+      .select('id, slug')
+      .single();
+    if (!data && createErr?.code !== '23505') {
+      return NextResponse.json({ error: createErr?.message ?? 'Failed to duplicate' }, { status: 500 });
+    }
+    if (data) { newEvent = data; break; }
+  }
 
-  if (createErr || !newEvent) {
-    return NextResponse.json({ error: createErr?.message ?? 'Failed to duplicate' }, { status: 500 });
+  if (!newEvent) {
+    return NextResponse.json({ error: 'Could not generate a unique URL for the copy. Please try again.' }, { status: 500 });
   }
 
   // Roles write-path: the creator is the organizer of the duplicated event.

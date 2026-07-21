@@ -27,7 +27,15 @@ export default function NewEventPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState('');
 
-  const canProceed = name.trim().length > 0;
+  // event_pages.starts_at / ends_at are NOT NULL in the schema, so an event
+  // genuinely cannot exist without both. Gate the button on them rather than
+  // letting the server reject the submit after the user has filled everything in.
+  const dateOrderError =
+    startsAt && endsAt && new Date(endsAt) <= new Date(startsAt)
+      ? 'The end date must be after the start date.'
+      : '';
+  const canProceed = name.trim().length > 0 && !!startsAt && !!endsAt && !dateOrderError;
+  const showWhyDisabled = !canProceed && !dateOrderError;
 
   const handleCoverFile = useCallback((f: File) => {
     if (!f.type.match(/image\/(png|jpeg)/)) { setError('Only PNG or JPG accepted.'); return; }
@@ -170,7 +178,7 @@ export default function NewEventPage() {
                   value={startsAt}
                   onChange={e => setStartsAt(e.target.value)}
                   className="w-full h-12 px-3 rounded-xl text-[13px] outline-none transition"
-                  style={{ background: 'white', border: '1.5px solid #E5E0D4', color: '#0F1F18' }}
+                  style={{ background: 'white', border: `1.5px solid ${startsAt ? '#1F4D3A' : '#E5E0D4'}`, color: '#0F1F18' }}
                 />
               </div>
               <div>
@@ -181,11 +189,20 @@ export default function NewEventPage() {
                 <input
                   type="datetime-local"
                   value={endsAt}
+                  min={startsAt || undefined}
                   onChange={e => setEndsAt(e.target.value)}
+                  aria-invalid={dateOrderError ? true : undefined}
                   className="w-full h-12 px-3 rounded-xl text-[13px] outline-none transition"
-                  style={{ background: 'white', border: '1.5px solid #E5E0D4', color: '#0F1F18' }}
+                  style={{
+                    background: 'white',
+                    border: `1.5px solid ${dateOrderError ? '#B8423C' : endsAt ? '#1F4D3A' : '#E5E0D4'}`,
+                    color: '#0F1F18',
+                  }}
                 />
               </div>
+              {dateOrderError && (
+                <p className="sm:col-span-2 text-[12.5px]" style={{ color: '#B8423C' }}>{dateOrderError}</p>
+              )}
             </div>
 
             {/* Venue */}
@@ -251,7 +268,15 @@ export default function NewEventPage() {
             </div>
           </div>
 
-          <div className="flex justify-end mt-9">
+          {/* Say WHY the button is disabled — a greyed-out CTA with no
+              explanation is the classic wizard dead end. */}
+          {showWhyDisabled && (
+            <p className="mt-8 text-[12.5px]" style={{ color: '#65736B' }}>
+              A name, a start and an end are needed to create the event. Everything else can wait.
+            </p>
+          )}
+
+          <div className={`flex flex-col sm:flex-row sm:justify-end ${showWhyDisabled ? 'mt-4' : 'mt-9'}`}>
             <button
               onClick={handleCreate}
               disabled={!canProceed || loading}
