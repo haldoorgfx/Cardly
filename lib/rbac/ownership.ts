@@ -16,6 +16,7 @@
 
 import { createAdminClient } from '@/lib/supabase/server';
 import { hasRole } from '@/lib/rbac/roles';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 async function profileEmail(userId: string): Promise<string | null> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -78,11 +79,15 @@ export async function hasCheckInAccess(userId: string, eventId: string): Promise
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const admin = createAdminClient() as any;
 
+  // Team-aware, like every other event-ownership check. With a raw
+  // `.eq('user_id', userId)` a Studio TEAMMATE could manage the event
+  // everywhere else and still be redirected away from the scanner, the kiosk
+  // and walk-in — the three surfaces you actually need on event day.
   const { data: event } = await admin
     .from('events')
     .select('id')
     .eq('id', eventId)
-    .eq('user_id', userId)
+    .in('user_id', await manageableOwnerIds(userId))
     .maybeSingle();
   if (event) return true;
 
@@ -110,11 +115,14 @@ export async function hasModeratorAccess(userId: string, eventId: string): Promi
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const admin = createAdminClient() as any;
 
+  // Team-aware for the same reason as hasCheckInAccess above — otherwise a
+  // teammate is locked out of moderating Q&A, polls and the community feed on
+  // an event they can otherwise fully administer.
   const { data: event } = await admin
     .from('events')
     .select('id')
     .eq('id', eventId)
-    .eq('user_id', userId)
+    .in('user_id', await manageableOwnerIds(userId))
     .maybeSingle();
   if (event) return true;
 

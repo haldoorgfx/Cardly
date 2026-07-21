@@ -141,7 +141,17 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
 
   // No ticket type selected (shouldn't happen from the walk-in UI, which
   // requires picking one before payment) — fall back to a free general entry.
-  const qr = Math.random().toString(36).slice(2, 10).toUpperCase();
+  // Matches how qr_code_token is minted everywhere else (crypto.randomUUID,
+  // hyphens stripped) and the table's own default, encode(gen_random_bytes(16)).
+  //
+  // Was `Math.random().toString(36).slice(2, 10).toUpperCase()`: eight base-36
+  // characters from a NON-cryptographic PRNG. This token is a bearer credential
+  // — it is the ticket, it addresses the registration through `?reg=` links and
+  // /api/qr/[token], and it reaches an attendee's own record. Math.random is
+  // seeded predictably and was never meant to stand up to guessing, and ~41 bits
+  // would be thin even if it were. Everything else on this table already used
+  // 122+ bits; this one path did not.
+  const qr = crypto.randomUUID().replace(/-/g, '');
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: reg, error } = await (admin as any).from('registrations').insert({
     event_id: id,
