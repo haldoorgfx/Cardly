@@ -1,59 +1,53 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createAdminClient } from '@/lib/supabase/server';
+import { createClient } from '@/lib/supabase/server';
+import { assertOwnsRegistration } from '@/lib/attendee-identity';
+import { hasModeratorAccess } from '@/lib/rbac/ownership';
+import { getLeaderboard } from '@/lib/events/leaderboard';
 
+/**
+ * GET /api/events/[id]/leaderboard?reg=<registration_id>
+ *
+ * This route used to take no identity at all: an event UUID was the entire
+ * credential, and the reply was the names of the fifty most engaged attendees.
+ * The leaderboard is an attendees-only surface everywhere it is rendered
+ * (/attending/[slug]/leaderboard resolves a registration before it will draw
+ * anything), so the JSON behind it must ask the same question the page does.
+ *
+ * Two ways in, matching the rest of the attendee APIs:
+ *  - `?reg=` — a registration the caller genuinely holds (guests included).
+ *  - a signed-in organiser / moderator for this event.
+ *
+ * Aggregation is delegated to lib/events/leaderboard so the directory opt-out
+ * is applied here too, instead of this route quietly re-implementing the query
+ * without it.
+ */
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
-  const admin = createAdminClient();
   const { searchParams } = new URL(req.url);
   const reg = searchParams.get('reg');
 
-  // Aggregate points per registration
-  const { data: rows, error } = await admin
-    .from('leaderboard_points')
-    .select('registration_id, points')
-    .eq('event_id', params.id);
+  let viewerRegistrationId: string | null = null;
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-
-  // Sum points per registration
-  const totals = new Map<string, number>();
-  for (const r of rows ?? []) {
-    totals.set(r.registration_id, (totals.get(r.registration_id) ?? 0) + r.points);
-  }
-
-  // Sort and get top 50
-  const sorted = Array.from(totals.entries())
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 50);
-
-  // Fetch names
-  const ids = sorted.map(([id]) => id);
-  const { data: regs } = await admin
-    .from('registrations')
-    .select('id, attendee_name')
-    .in('id', ids.length ? ids : ['00000000-0000-0000-0000-000000000000']);
-
-  const nameMap = new Map((regs ?? []).map(r => [r.id, r.attendee_name]));
-
-  const leaderboard = sorted.map(([registration_id, total_points], i) => ({
-    rank: i + 1,
-    registration_id,
-    attendee_name: nameMap.get(registration_id) ?? 'Attendee',
-    total_points,
-    is_you: reg ? registration_id === reg : false,
-  }));
-
-  // Where does the caller sit if they're outside the top 50?
-  let you: { rank: number; total_points: number } | null = null;
   if (reg) {
-    const inTop = leaderboard.find(e => e.registration_id === reg);
-    if (inTop) {
-      you = { rank: inTop.rank, total_points: inTop.total_points };
-    } else {
-      const allSorted = Array.from(totals.entries()).sort((a, b) => b[1] - a[1]);
-      const idx = allSorted.findIndex(([id]) => id === reg);
-      if (idx >= 0) you = { rank: idx + 1, total_points: allSorted[idx][1] };
+    const identity = await assertOwnsRegistration(params.id, reg);
+    if (!identity.ok) {
+      return NextResponse.json({ error: identity.error }, { status: identity.status });
+    }
+    viewerRegistrationId = reg;
+  } else {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user || !(await hasModeratorAccess(user.id, params.id))) {
+      return NextResponse.json({ error: 'Not found' }, { status: 404 });
     }
   }
 
-  return NextResponse.json({ leaderboard, you });
+  const { leaderboard, myEntry } = await getLeaderboard(params.id, viewerRegistrationId);
+
+  return NextResponse.json({
+    leaderboard: leaderboard.map(e => ({
+      ...e,
+      is_you: !!viewerRegistrationId && e.registration_id === viewerRegistrationId,
+    })),
+    you: myEntry ? { rank: myEntry.rank, total_points: myEntry.total_points } : null,
+  });
 }

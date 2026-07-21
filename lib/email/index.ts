@@ -476,3 +476,99 @@ export async function sendQAAnsweredEmail(opts: {
     `, { preheader: `The organiser answered your question at ${opts.eventName}.` }),
   );
 }
+
+// ─── Call for papers ──────────────────────────────────────────────────────────
+//
+// Both of these back promises the CFP UI was already making with nothing behind
+// them: the submission form's closing line ("You'll receive a confirmation
+// email"), its success screen ("we'll send decisions by email"), and the
+// reviewer's notes field ("shared with authors on acceptance/rejection"). An
+// abstract could be submitted, reviewed and rejected and the author was never
+// told anything — the decision lived only on the organiser's dashboard.
+
+/** Confirms to the submitting author that their abstract arrived. */
+export async function sendAbstractReceivedEmail(opts: {
+  to: string;
+  authorName: string;
+  abstractTitle: string;
+  eventName: string;
+}): Promise<boolean> {
+  return sendEmail(
+    opts.to,
+    `We received your abstract for ${opts.eventName}`,
+    wrap(`
+      <h1 style="margin:0 0 8px;font-size:24px;font-weight:700;letter-spacing:-0.02em">
+        Abstract received
+      </h1>
+      <p style="margin:0 0 16px;font-size:14px;color:#65736B;line-height:1.6">
+        Hi ${esc(opts.authorName)},<br><br>
+        Thank you for submitting to
+        <strong style="color:#0F1F18">${esc(opts.eventName)}</strong>. Your abstract is
+        now with the review committee — we'll email you as soon as there is a decision.
+      </p>
+      <div style="background:#FAF6EE;border-left:3px solid #1F4D3A;border-radius:4px;padding:14px 16px;font-size:13.5px;color:#3A4A42;line-height:1.6">
+        ${esc(opts.abstractTitle)}
+      </div>
+    `, { preheader: `Your abstract "${opts.abstractTitle}" was received.` }),
+  );
+}
+
+/** Tells an author the committee's decision on their abstract. */
+export async function sendAbstractDecisionEmail(opts: {
+  to: string;
+  authorName: string;
+  abstractTitle: string;
+  eventName: string;
+  /** The abstracts.status value the organiser saved. */
+  decision: 'accept' | 'reject' | 'revision' | 'waitlist';
+  /** review_notes, when the organiser wrote any. */
+  notes?: string | null;
+}): Promise<boolean> {
+  const COPY: Record<typeof opts.decision, { subject: string; heading: string; body: string }> = {
+    accept: {
+      subject: `Your abstract was accepted for ${opts.eventName}`,
+      heading: 'Your abstract was accepted 🎉',
+      body: `Congratulations — the review committee has accepted your abstract for <strong style="color:#0F1F18">${esc(opts.eventName)}</strong>. The organisers will be in touch with next steps.`,
+    },
+    reject: {
+      subject: `Decision on your abstract for ${opts.eventName}`,
+      heading: 'Decision on your abstract',
+      body: `Thank you for submitting to <strong style="color:#0F1F18">${esc(opts.eventName)}</strong>. After review, the committee is not able to include this abstract in the programme this time.`,
+    },
+    revision: {
+      subject: `Revision requested on your abstract for ${opts.eventName}`,
+      heading: 'A revision was requested',
+      body: `The review committee for <strong style="color:#0F1F18">${esc(opts.eventName)}</strong> would like to see a revised version of your abstract before deciding.`,
+    },
+    waitlist: {
+      subject: `Your abstract is waitlisted for ${opts.eventName}`,
+      heading: 'Your abstract is waitlisted',
+      body: `Your abstract for <strong style="color:#0F1F18">${esc(opts.eventName)}</strong> has been placed on the waitlist. We'll be in touch if a slot opens up.`,
+    },
+  };
+  const copy = COPY[opts.decision];
+  const trimmedNotes = (opts.notes ?? '').trim();
+
+  return sendEmail(
+    opts.to,
+    copy.subject,
+    wrap(`
+      <h1 style="margin:0 0 8px;font-size:24px;font-weight:700;letter-spacing:-0.02em">
+        ${copy.heading}
+      </h1>
+      <p style="margin:0 0 16px;font-size:14px;color:#65736B;line-height:1.6">
+        Hi ${esc(opts.authorName)},<br><br>${copy.body}
+      </p>
+      <div style="background:#FAF6EE;border-left:3px solid #1F4D3A;border-radius:4px;padding:14px 16px;font-size:13.5px;color:#3A4A42;line-height:1.6">
+        ${esc(opts.abstractTitle)}
+      </div>
+      ${trimmedNotes ? `
+      <p style="margin:16px 0 6px;font-size:12px;font-weight:600;color:#65736B;text-transform:uppercase;letter-spacing:0.04em">
+        Notes from the committee
+      </p>
+      <div style="background:#FFFFFF;border:1px solid #E5E0D4;border-radius:8px;padding:14px 16px;font-size:13.5px;color:#3A4A42;line-height:1.6">
+        ${esc(trimmedNotes).replace(/\n/g, '<br>')}
+      </div>` : ''}
+    `, { preheader: copy.subject }),
+  );
+}

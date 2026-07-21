@@ -5,7 +5,8 @@ import { Check, X, ChevronDown, Upload } from 'lucide-react';
 
 interface Author { name: string; email: string; affiliation: string }
 
-const CATEGORIES = [
+/** Used only when the organiser has configured no categories of their own. */
+const DEFAULT_CATEGORIES = [
   'Engineering & Infrastructure',
   'Design & UX',
   'Business & Entrepreneurship',
@@ -25,11 +26,17 @@ export default function AbstractSubmissionClient({
   eventSlug,
   eventName,
   deadline,
+  maxWords = 400,
+  categories = null,
 }: {
   eventSlug: string;
   eventName: string;
   deadline: string;
   daysLeft?: number;
+  /** call_for_papers.max_words — the organiser's configured limit. */
+  maxWords?: number;
+  /** call_for_papers.categories, or null to fall back to the built-in list. */
+  categories?: string[] | null;
 }) {
   const [step, setStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
@@ -49,7 +56,8 @@ export default function AbstractSubmissionClient({
   const [coAuthors, setCoAuthors] = useState<Author[]>([]);
 
   const wordCount = countWords(abstract);
-  const maxWords = 400;
+  const overLimit = wordCount > maxWords;
+  const categoryOptions = categories ?? DEFAULT_CATEGORIES;
 
   const addKeyword = (kw: string) => {
     const trimmed = kw.trim();
@@ -163,7 +171,7 @@ export default function AbstractSubmissionClient({
             />
             <div
               className=" text-[12px] text-right mt-1.5"
-              style={{ color: wordCount > maxWords ? '#B8423C' : wordCount > maxWords * 0.9 ? '#C97A2D' : '#65736B' }}
+              style={{ color: overLimit ? '#B8423C' : wordCount > maxWords * 0.9 ? '#C97A2D' : '#65736B' }}
             >
               {wordCount} / {maxWords} words
             </div>
@@ -211,7 +219,7 @@ export default function AbstractSubmissionClient({
                 style={INPUT_STYLE}
               >
                 <option value="">Select a category</option>
-                {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                {categoryOptions.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
               <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" color="#65736B" />
             </div>
@@ -224,9 +232,13 @@ export default function AbstractSubmissionClient({
               style={{ border: '1px solid #E5E0D4', background: '#FAF6EE' }}
             >
               <Upload size={16} color="#3A4A42" className="mt-0.5 shrink-0" />
+              {/* There is no full-paper upload anywhere in the product, and no
+                  email that sends a link to one — this box used to promise both.
+                  It now describes what actually happens: the organisers make
+                  contact directly. */}
               <span className="text-[13px] leading-relaxed" style={{ color: '#3A4A42' }}>
-                Your abstract is all that&apos;s needed to apply. Authors whose abstracts are accepted
-                will be emailed a link to upload their full paper (PDF).
+                Your abstract is all that&apos;s needed to apply. If it&apos;s accepted, the
+                organisers will contact you directly about the full paper.
               </span>
             </div>
           </div>
@@ -315,12 +327,16 @@ export default function AbstractSubmissionClient({
         <div className="space-y-5">
           <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid #E5E0D4', background: 'white' }}>
             {[
-              { key: 'Title', value: title || '—' },
-              { key: 'Abstract', value: abstract ? abstract.slice(0, 120) + '…' : '—' },
-              { key: 'Keywords', value: keywords.join(' · ') || '—' },
-              { key: 'Category', value: category || '—' },
+              // `step` is carried on the row rather than derived from the index.
+              // The old `setStep(i < 3 ? 0 : 1)` sent the Category row — index 3,
+              // a step-0 field — to the Authors step instead.
+              { key: 'Title', step: 0, value: title || '—' },
+              { key: 'Abstract', step: 0, value: abstract ? abstract.slice(0, 120) + '…' : '—' },
+              { key: 'Keywords', step: 0, value: keywords.join(' · ') || '—' },
+              { key: 'Category', step: 0, value: category || '—' },
               {
                 key: 'Authors',
+                step: 1,
                 value: [primaryAuthor.name && `${primaryAuthor.name} (${primaryAuthor.affiliation})`, ...coAuthors.filter(a => a.name).map(a => `${a.name} (${a.affiliation})`)].filter(Boolean).join(' · ') || '—',
               },
             ].map((row, i, arr) => (
@@ -333,7 +349,7 @@ export default function AbstractSubmissionClient({
                 <span className="flex-1 text-[14px]" style={{ color: '#0F1F18' }}>{row.value}</span>
                 <button
                   type="button"
-                  onClick={() => setStep(i < 3 ? 0 : 1)}
+                  onClick={() => setStep(row.step)}
                   className="text-[12px] shrink-0"
                   style={{ color: '#65736B' }}
                   aria-label={`Edit ${row.key}`}
@@ -353,11 +369,24 @@ export default function AbstractSubmissionClient({
             </div>
           )}
 
+          {/* The word counter turned red past the limit and then let the
+              submission through anyway; the server now rejects it, so say so
+              here rather than surfacing that as a failed submit. */}
+          {overLimit && (
+            <div
+              className="rounded-xl px-4 py-3 text-[13px]"
+              style={{ background: 'rgba(184,66,60,0.08)', border: '1px solid rgba(184,66,60,0.35)', color: '#B8423C' }}
+            >
+              Your abstract is {wordCount} words — the limit for this event is {maxWords}.
+              Shorten it before submitting.
+            </div>
+          )}
+
           <button
             onClick={handleSubmit}
-            disabled={submitting || !title || !abstract || !category}
+            disabled={submitting || !title || !abstract || !category || overLimit}
             className="w-full py-3.5 rounded-xl font-display font-medium text-[16px] text-white transition-opacity"
-            style={{ background: '#1F4D3A', opacity: submitting || !title || !abstract || !category ? 0.6 : 1 }}
+            style={{ background: '#1F4D3A', opacity: submitting || !title || !abstract || !category || overLimit ? 0.6 : 1 }}
           >
             {submitting ? 'Submitting…' : 'Submit abstract'}
           </button>

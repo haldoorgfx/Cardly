@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
+import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
+import { sendAbstractReceivedEmail } from '@/lib/email';
 import { z } from 'zod';
 
 const AuthorSchema = z.object({
@@ -32,25 +34,50 @@ export async function POST(req: NextRequest) {
   }
   const body = parsed.data;
 
-  // Resolve event by slug
-  const { data: event } = await admin
-    .from('events')
-    .select('id')
-    .eq('slug', body.eventSlug)
-    .single();
-
-  if (!event) return NextResponse.json({ error: 'Event not found' }, { status: 404 });
+  // Resolve the slug the SAME way the CFP page that rendered this form does
+  // (app/(public)/e/[slug]/cfp/page.tsx → resolvePublicSlug). Matching only
+  // `events.slug` here meant any event using a custom slug rendered a perfectly
+  // working submission form whose Submit button answered "Event not found" —
+  // the page and its own API disagreed about what a slug is.
+  const resolved = await resolvePublicSlug(body.eventSlug);
+  if (!resolved) return NextResponse.json({ error: 'Event not found' }, { status: 404 });
+  const event = resolved.event;
 
   // Get CFP config
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: cfp } = await (admin as any)
     .from('call_for_papers')
-    .select('id, is_open')
+    .select('id, is_open, deadline_at, max_words')
     .eq('event_id', event.id)
     .single();
 
   if (!cfp || !cfp.is_open) {
     return NextResponse.json({ error: 'Submissions are closed' }, { status: 400 });
+  }
+
+  // The deadline was decoration. `deadline_at` was rendered on the page as a
+  // pill and a "N days remaining" countdown, and then never consulted again —
+  // the form stayed live and this route accepted submissions indefinitely after
+  // it passed, silently mixing late papers into the review queue. `is_open` is
+  // a manual switch an organiser has to remember to flip; the date they
+  // published is the promise attendees actually read.
+  if (cfp.deadline_at && new Date(cfp.deadline_at).getTime() < Date.now()) {
+    return NextResponse.json(
+      { error: 'The deadline for submissions has passed' },
+      { status: 422 },
+    );
+  }
+
+  // max_words is the organiser's configured limit. The form shows a live
+  // counter against it but nothing stopped a submission going over, so the cap
+  // was advisory only.
+  const maxWords = typeof cfp.max_words === 'number' && cfp.max_words > 0 ? cfp.max_words : 400;
+  const wordCount = body.abstract.trim().split(/\s+/).filter(Boolean).length;
+  if (wordCount > maxWords) {
+    return NextResponse.json(
+      { error: `Your abstract is ${wordCount} words — the limit is ${maxWords}.` },
+      { status: 422 },
+    );
   }
 
   const authorsJson = [
@@ -81,6 +108,19 @@ export async function POST(req: NextRequest) {
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  // The form's last line before the Submit button reads "You'll receive a
+  // confirmation email." Nothing sent one. AWAITED, not fire-and-forget: on
+  // serverless the response ends the invocation, so a floating promise here is
+  // simply dropped — the recurring bug in this codebase.
+  if (body.primaryAuthor.email) {
+    await sendAbstractReceivedEmail({
+      to: body.primaryAuthor.email,
+      authorName: body.primaryAuthor.name,
+      abstractTitle: body.title,
+      eventName: event.name,
+    }).catch(() => {/* mail is best-effort; the submission is already saved */});
+  }
 
   return NextResponse.json({ abstract });
 }

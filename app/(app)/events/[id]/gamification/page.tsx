@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
-import { getUserPlan } from '@/lib/billing/can';
+import { getEventOwnerPlan } from '@/lib/billing/can';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { PageShell, PageHeader } from '@/components/dash';
@@ -28,13 +28,19 @@ export default async function GamificationPage({ params }: Props) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  // Plan gate — Gamification is a Pro feature (minPlan: 'pro' in event overview ACTION_CARDS)
-  const plan = await getUserPlan(user.id);
-  if (PLAN_RANK[plan] < PLAN_RANK.pro) redirect(`/events/${_ev.slug}`);
-
   const admin = createAdminClient();
   const { data: event } = await admin.from('events').select('id, name, slug').eq('id', id).in('user_id', await manageableOwnerIds(user.id)).single();
   if (!event) redirect('/dashboard');
+
+  // Plan gate — Gamification is a Pro feature (minPlan: 'pro' in event overview
+  // ACTION_CARDS). Gated on the EVENT OWNER's plan, not the viewer's: the
+  // attendee-facing award paths in q-and-a / polls / connections all check
+  // getEventOwnerPlan, and manageableOwnerIds deliberately lets a team member
+  // manage someone else's event — checking getUserPlan(viewer) bounced a
+  // co-organiser on Free out of a board their Pro owner is paying for, while
+  // the attendees kept scoring points on it.
+  const ownerPlan = await getEventOwnerPlan(id);
+  if (!ownerPlan || PLAN_RANK[ownerPlan] < PLAN_RANK.pro) redirect(`/events/${_ev.slug}`);
 
   // Aggregate points per registration — mirrors app/api/events/[id]/leaderboard/route.ts
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -22,7 +22,14 @@ export default async function CFPPage({ params }: Props) {
     .eq('is_open', true)
     .single();
 
-  if (!cfp) {
+  // A passed deadline closed nothing. The page kept rendering the full
+  // three-step form under a pill reading "Deadline: 3 March" with the countdown
+  // silently clamped to 0 days, and the API accepted whatever it sent. Treat an
+  // expired deadline exactly like a closed CFP — the same screen, so late
+  // arrivals are told plainly instead of submitting into a void.
+  const deadlinePassed = !!cfp?.deadline_at && new Date(cfp.deadline_at).getTime() < Date.now();
+
+  if (!cfp || deadlinePassed) {
     return (
       <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
         <div className="max-w-[680px] mx-auto px-4 sm:px-10 py-16 text-center">
@@ -30,7 +37,9 @@ export default async function CFPPage({ params }: Props) {
             Call for papers is closed
           </h1>
           <p className="text-[15px]" style={{ color: '#65736B' }}>
-            Abstract submissions are not currently open for {event.name}.
+            {deadlinePassed
+              ? `The deadline for ${event.name} has passed and submissions are no longer being accepted.`
+              : `Abstract submissions are not currently open for ${event.name}.`}
           </p>
         </div>
       </div>
@@ -65,11 +74,17 @@ export default async function CFPPage({ params }: Props) {
           )}
         </div>
 
+        {/* max_words and categories are the organiser's own CFP settings. The
+            form used to hard-code "400 words" and a fixed five-category list,
+            so configuring either in call_for_papers changed nothing a
+            submitter could see. */}
         <AbstractSubmissionClient
           eventSlug={params.slug}
           eventName={event.name}
           deadline={deadline}
           daysLeft={daysLeft}
+          maxWords={typeof cfp.max_words === 'number' && cfp.max_words > 0 ? cfp.max_words : 400}
+          categories={Array.isArray(cfp.categories) && cfp.categories.length > 0 ? cfp.categories : null}
         />
       </div>
     </div>
