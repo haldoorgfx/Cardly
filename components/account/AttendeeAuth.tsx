@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import { safeNextPath } from '@/lib/auth/safe-next';
 
 // Attendee auth. Verify-once-then-password model:
 //   • Returning users sign in with EMAIL + PASSWORD (no fresh OTP each time).
@@ -28,7 +29,11 @@ function GoogleG() {
 export default function AttendeeAuth() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const next = searchParams.get('next') ?? '/my-tickets';
+  // Validate before use: `next` is fed to router.push() (which follows absolute
+  // URLs off-site) and is forwarded into the OAuth callback URL, so an unchecked
+  // ?next= here let a link like /account/login?next=https://evil.com bounce the
+  // user off-platform the moment their password was accepted.
+  const next = safeNextPath(searchParams.get('next')) ?? '/my-tickets';
 
   const [state, setState] = useState<State>('email');
   const [email, setEmail] = useState('');

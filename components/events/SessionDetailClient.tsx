@@ -13,14 +13,18 @@ interface Props {
   relatedSessions: Partial<Session>[];
   registrationId: string | null;
   initialSaved: boolean;
+  /** IANA zone of the event. Session times render here, not in the viewer's zone. */
+  timezone: string;
 }
 
-function formatTime(iso: string) {
-  return new Date(iso).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
+// `undefined` as the locale arg meant the VIEWER's zone: a London-based attendee
+// browsing a Nairobi conference saw every session 3 hours early.
+function formatTime(iso: string, tz: string) {
+  return new Date(iso).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: tz || 'UTC' });
 }
 
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+function formatDate(iso: string, tz: string) {
+  return new Date(iso).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: tz || 'UTC' });
 }
 
 function getDurationMin(start: string, end: string) {
@@ -31,13 +35,14 @@ function getInitials(name: string) {
   return name.split(' ').map((p) => p[0]).join('').toUpperCase().slice(0, 2);
 }
 
-function formatShortTime(iso: string) {
+function formatShortTime(iso: string, tz: string) {
   if (!iso) return '';
   const d = new Date(iso);
-  return `${d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} · ${d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false })}`;
+  const zone = tz || 'UTC';
+  return `${d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: zone })} · ${d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: zone })}`;
 }
 
-export default function SessionDetailClient({ session, relatedSessions, registrationId, initialSaved }: Props) {
+export default function SessionDetailClient({ session, relatedSessions, registrationId, initialSaved, timezone }: Props) {
   const [saved, setSaved] = useState(initialSaved);
   const [saving, setSaving] = useState(false);
 
@@ -98,9 +103,9 @@ export default function SessionDetailClient({ session, relatedSessions, registra
 
           {/* Meta row */}
           <p className=" text-[13px] mt-3" style={{ color: '#65736B' }}>
-            {formatTime(session.starts_at)}
+            {formatTime(session.starts_at, timezone)}
             {' · '}
-            {formatTime(session.ends_at)}
+            {formatTime(session.ends_at, timezone)}
             {session.room ? ` · ${session.room}` : ''}
             {session.registrations_count > 0 ? ` · ${session.registrations_count} attending` : ''}
           </p>
@@ -196,7 +201,7 @@ export default function SessionDetailClient({ session, relatedSessions, registra
                       <div className="flex-1 min-w-0">
                         <p className="text-[14px] font-medium truncate" style={{ color: '#0F1F18' }}>{s.title}</p>
                         <p className=" text-[12px]" style={{ color: '#65736B' }}>
-                          {s.starts_at ? formatShortTime(s.starts_at) : ''}
+                          {s.starts_at ? formatShortTime(s.starts_at, timezone) : ''}
                           {s.room ? ` · ${s.room}` : ''}
                         </p>
                       </div>
@@ -215,7 +220,7 @@ export default function SessionDetailClient({ session, relatedSessions, registra
             <div className="bg-white border rounded-2xl p-5 space-y-4" style={{ borderColor: '#E5E0D4' }}>
               <div>
                 <p className="font-display text-[15px] font-semibold" style={{ color: '#0F1F18' }}>
-                  {formatDate(session.starts_at)}
+                  {formatDate(session.starts_at, timezone)}
                 </p>
               </div>
               <div>
@@ -223,10 +228,10 @@ export default function SessionDetailClient({ session, relatedSessions, registra
                   className=""
                   style={{ fontSize: 22, color: '#0F1F18', fontWeight: 500 }}
                 >
-                  {formatTime(session.starts_at)}
+                  {formatTime(session.starts_at, timezone)}
                 </p>
                 <p className=" text-[12px] mt-0.5" style={{ color: '#65736B' }}>
-                  ends {formatTime(session.ends_at)} · {duration} min
+                  ends {formatTime(session.ends_at, timezone)} · {duration} min
                 </p>
               </div>
               {session.room && (

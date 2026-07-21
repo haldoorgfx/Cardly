@@ -12,14 +12,18 @@ interface Props {
   sessions: Session[];
   bookedIds: string[];
   registrationId?: string;
+  /** IANA zone of the event. Workshop times render here, not in the viewer's zone. */
+  timezone: string;
 }
 
-function fmtTime(iso: string) {
-  return new Date(iso).toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit' });
+// A remote or travelling attendee's browser zone is not the event's zone — an
+// omitted `timeZone` showed them the wrong start time for a seat they'd booked.
+function fmtTime(iso: string, tz: string) {
+  return new Date(iso).toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit', timeZone: tz || 'UTC' });
 }
 
-function fmtDay(iso: string) {
-  return new Date(iso).toLocaleDateString('en', { weekday: 'long', month: 'long', day: 'numeric' });
+function fmtDay(iso: string, tz: string) {
+  return new Date(iso).toLocaleDateString('en', { weekday: 'long', month: 'long', day: 'numeric', timeZone: tz || 'UTC' });
 }
 
 function duration(start: string, end: string) {
@@ -42,7 +46,7 @@ function CapacityBar({ filled, capacity }: { filled: number; capacity: number })
   );
 }
 
-function ConfirmModal({ session, onClose, onConfirm, confirming }: { session: Session; onClose: () => void; onConfirm: () => void; confirming: boolean }) {
+function ConfirmModal({ session, onClose, onConfirm, confirming, error, timezone }: { session: Session; onClose: () => void; onConfirm: () => void; confirming: boolean; error: string | null; timezone: string }) {
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
       style={{ background: 'rgba(15,31,24,0.45)' }} onClick={onClose}>
@@ -57,7 +61,7 @@ function ConfirmModal({ session, onClose, onConfirm, confirming }: { session: Se
           </h3>
           <p className="font-semibold text-[15px]" style={{ color: '#0F1F18' }}>{session.title}</p>
           <div className="flex items-center gap-3 mt-2 text-[13px]" style={{ color: '#65736B' }}>
-            <span className="flex items-center gap-1"><Clock size={12} /> {fmtTime(session.starts_at)} · {duration(session.starts_at, session.ends_at)}</span>
+            <span className="flex items-center gap-1"><Clock size={12} /> {fmtTime(session.starts_at, timezone)} · {duration(session.starts_at, session.ends_at)}</span>
             {session.room && <span className="flex items-center gap-1"><MapPin size={12} /> {session.room}</span>}
           </div>
         </div>
@@ -66,6 +70,14 @@ function ConfirmModal({ session, onClose, onConfirm, confirming }: { session: Se
           <p className="text-[13px] mb-4" style={{ color: '#65736B' }}>
             This seat will be added to your personal agenda. Check in by scanning your ticket at the door.
           </p>
+          {/* A refused seat used to close the modal with no message at all —
+              the attendee assumed they were booked. */}
+          {error && (
+            <p role="alert" className="text-[13px] font-medium mb-4 px-3 py-2 rounded-lg"
+              style={{ background: 'rgba(184,66,60,0.10)', color: '#B8423C' }}>
+              {error}
+            </p>
+          )}
           <div className="flex gap-2">
             <button onClick={onClose}
               className="flex-1 py-3 rounded-xl text-[14px] font-semibold border transition hover:opacity-80"
@@ -84,11 +96,12 @@ function ConfirmModal({ session, onClose, onConfirm, confirming }: { session: Se
   );
 }
 
-export function WorkshopsClient({ eventId, eventSlug, sessions, bookedIds: initial, registrationId }: Props) {
+export function WorkshopsClient({ eventId, eventSlug, sessions, bookedIds: initial, registrationId, timezone }: Props) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [bookedIds, setBookedIds] = useState<Set<string>>(new Set(initial));
   const [confirmSession, setConfirmSession] = useState<Session | null>(null);
   const [confirming, setConfirming] = useState(false);
+  const [bookError, setBookError] = useState<string | null>(null);
   const [successId, setSuccessId] = useState<string | null>(null);
 
   // Group by day
@@ -96,27 +109,38 @@ export function WorkshopsClient({ eventId, eventSlug, sessions, bookedIds: initi
     const map: Record<string, Session[]> = {};
     for (const s of sessions) {
       if (!s.starts_at) continue;
-      const key = fmtDay(s.starts_at);
+      const key = fmtDay(s.starts_at, timezone);
       if (!map[key]) map[key] = [];
       map[key].push(s);
     }
     return map;
-  }, [sessions]);
+  }, [sessions, timezone]);
 
   async function bookSeat(session: Session) {
     if (!registrationId) return;
     setConfirming(true);
-    const res = await fetch(`/api/events/${eventId}/sessions/${session.id}/book`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ registrationId }),
-    });
-    setConfirming(false);
-    setConfirmSession(null);
-    if (res.ok) {
+    setBookError(null);
+    try {
+      const res = await fetch(`/api/events/${eventId}/sessions/${session.id}/book`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ registrationId }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        // Keep the modal open and say why. A full session now really is refused
+        // server-side, so silently closing would look like a successful booking.
+        setBookError(data?.error ?? 'Could not book this seat. Please try again.');
+        return;
+      }
+      setConfirmSession(null);
       setBookedIds(prev => { const next = new Set(prev); next.add(session.id); return next; });
       setSuccessId(session.id);
       setTimeout(() => setSuccessId(null), 3000);
+    } catch {
+      setBookError('Could not book this seat. Please try again.');
+    } finally {
+      setConfirming(false);
     }
   }
 
@@ -168,7 +192,7 @@ export function WorkshopsClient({ eventId, eventSlug, sessions, bookedIds: initi
                         <div className="flex flex-wrap items-center gap-2 text-[12px] mb-2" style={{ color: '#65736B' }}>
                           <span className="flex items-center gap-1">
                             <Clock size={11} />
-                            {fmtTime(s.starts_at)} · {s.ends_at ? duration(s.starts_at, s.ends_at) : ''}
+                            {fmtTime(s.starts_at, timezone)} · {s.ends_at ? duration(s.starts_at, s.ends_at) : ''}
                           </span>
                           {s.room && (
                             <span className="flex items-center gap-1">
@@ -236,9 +260,11 @@ export function WorkshopsClient({ eventId, eventSlug, sessions, bookedIds: initi
       {confirmSession && (
         <ConfirmModal
           session={confirmSession}
-          onClose={() => setConfirmSession(null)}
+          onClose={() => { setConfirmSession(null); setBookError(null); }}
           onConfirm={() => bookSeat(confirmSession)}
           confirming={confirming}
+          error={bookError}
+          timezone={timezone}
         />
       )}
     </>

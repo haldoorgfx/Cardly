@@ -7,30 +7,9 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { AgendaPrintTrigger } from '@/components/events/AgendaPrintTrigger';
+import { formatZonedTime, formatZonedDayLabel, groupSessionsByZonedDay } from '@/lib/events/format';
 
 interface Props { params: Promise<{ id: string }> }
-
-function fmtTime(iso: string) {
-  const d = new Date(iso);
-  return d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
-}
-
-function fmtDay(iso: string) {
-  return new Date(iso).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function groupByDay(sessions: any[]) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const map = new Map<string, any[]>();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  for (const s of [...sessions].sort((a: any, b: any) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime())) {
-    const key = new Date(s.starts_at).toDateString();
-    if (!map.has(key)) map.set(key, []);
-    map.get(key)!.push(s);
-  }
-  return Array.from(map.entries());
-}
 
 const SESSION_TYPE_COLORS: Record<string, string> = {
   keynote: '#1F4D3A',
@@ -52,20 +31,25 @@ export default async function AgendaPrintPage({ params }: Props) {
   if (!user) redirect('/login');
 
   const admin = createAdminClient();
-  const [{ data: event }, { data: sessions }, { data: tracks }] = await Promise.all([
+  const [{ data: event }, { data: eventPage }, { data: sessions }, { data: tracks }] = await Promise.all([
     admin.from('events').select('id, name').eq('id', id).eq('user_id', user.id).single(),
+    admin.from('event_pages').select('timezone').eq('event_id', id).maybeSingle(),
     admin.from('sessions').select('id, title, starts_at, ends_at, session_type, room, track_id, session_speakers(speakers(name))').eq('event_id', id).order('starts_at', { ascending: true }),
     admin.from('tracks').select('id, name').eq('event_id', id),
   ]);
 
   if (!event) redirect('/dashboard');
 
+  // The printed programme is handed out AT the venue — it must read in the
+  // event's own zone. This page runs on the server, where the process zone is
+  // UTC on Vercel, so every time here was previously off by the event's offset.
+  const tz = eventPage?.timezone || 'UTC';
+
   const trackMap = new Map((tracks ?? []).map(t => [t.id, t.name]));
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const allSessions = ((sessions ?? []) as any[]).filter((s: any) => s.starts_at);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const grouped = groupByDay(allSessions as any[]);
-  const today = new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+  const grouped = groupSessionsByZonedDay(allSessions, tz);
+  const today = formatZonedDayLabel(new Date().toISOString(), tz, { year: 'numeric', month: 'long', day: 'numeric' });
 
   return (
     <>
@@ -91,10 +75,10 @@ export default async function AgendaPrintPage({ params }: Props) {
         </div>
 
         {/* Days */}
-        {grouped.map(([dateStr, daySessions]) => (
+        {grouped.map(({ key: dateStr, firstStartsAt, sessions: daySessions }) => (
           <div key={dateStr} style={{ marginBottom: 40 }}>
             <h2 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, color: '#65736B', marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.06em', fontSize: 11 }}>
-              {fmtDay(daySessions[0].starts_at)}
+              {formatZonedDayLabel(firstStartsAt, tz, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
             </h2>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
@@ -118,7 +102,7 @@ export default async function AgendaPrintPage({ params }: Props) {
                   return (
                     <tr key={s.id} style={{ borderBottom: '1px solid rgba(229,224,212,0.5)', background: i % 2 === 0 ? 'transparent' : 'rgba(250,246,238,0.4)' }}>
                       <td style={{ padding: '8px 8px', fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11, color: '#3A4A42', whiteSpace: 'nowrap' }}>
-                        {fmtTime(s.starts_at)}{s.ends_at ? ` – ${fmtTime(s.ends_at)}` : ''}
+                        {formatZonedTime(s.starts_at, tz)}{s.ends_at ? ` – ${formatZonedTime(s.ends_at, tz)}` : ''}
                       </td>
                       <td style={{ padding: '8px 8px', fontWeight: 500, color: '#0F1F18' }}>
                         {s.title}

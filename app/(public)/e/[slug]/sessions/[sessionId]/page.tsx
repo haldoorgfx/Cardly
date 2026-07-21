@@ -19,7 +19,7 @@ export default async function SessionDetailPage({ params, searchParams }: Props)
   // "Save to agenda" booking works when arriving from the hub without ?reg=.
   const viewerReg = await resolveViewerRegistrationId(event.id, searchParams.reg);
 
-  const [{ data: session }, relatedResult, isSavedResult] = await Promise.all([
+  const [{ data: session }, relatedResult, isSavedResult, { data: eventPage }] = await Promise.all([
     admin.from('sessions')
       .select('*, tracks(id,name,color), session_speakers(speaker_id, position, speakers(id,name,photo_url,role,company,headline))')
       .eq('id', params.sessionId)
@@ -40,6 +40,7 @@ export default async function SessionDetailPage({ params, searchParams }: Props)
           .maybeSingle()
           .then(r => !!r.data)
       : Promise.resolve(false),
+    admin.from('event_pages').select('timezone').eq('event_id', event.id).maybeSingle(),
   ]);
 
   if (!session) notFound();
@@ -53,6 +54,7 @@ export default async function SessionDetailPage({ params, searchParams }: Props)
         relatedSessions={(relatedResult.data ?? []) as any}
         registrationId={viewerReg}
         initialSaved={isSavedResult}
+        timezone={eventPage?.timezone || 'UTC'}
       />
     </div>
   );

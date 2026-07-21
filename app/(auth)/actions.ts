@@ -4,16 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { sendWelcomeEmail } from "@/lib/email";
-
-// Only allow same-origin absolute paths as a post-auth destination. Blocks
-// protocol-relative ("//evil.com") and back-slash tricks so ?next= can't be
-// used as an open-redirect.
-function safeNext(value: FormDataEntryValue | null): string | null {
-  if (typeof value !== "string" || value.length === 0) return null;
-  if (!value.startsWith("/")) return null;
-  if (value.startsWith("//") || value.startsWith("/\\")) return null;
-  return value;
-}
+import { safeNextPath as safeNext } from "@/lib/auth/safe-next";
 
 export async function signIn(formData: FormData) {
   const supabase = createClient();
@@ -116,6 +107,15 @@ export async function updatePassword(formData: FormData) {
 
   const { error } = await supabase.auth.updateUser({ password });
   if (error) return { error: error.message };
+
+  // Changing a password has to end every OTHER session. The whole reason a user
+  // reaches this screen is often "someone else got in" — if the attacker's
+  // refresh token survives the reset, the reset accomplished nothing. 'others'
+  // keeps the current device signed in so the user isn't bounced to /login
+  // straight after succeeding. Best-effort: the password change already
+  // committed, so a revoke failure must not be reported as a failed reset.
+  await supabase.auth.signOut({ scope: 'others' }).catch(() => {});
+
   return { ok: true };
 }
 

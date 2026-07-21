@@ -109,6 +109,81 @@ function getZonedParts(date: Date, timeZone: string) {
   };
 }
 
+/**
+ * Session-time helpers. Every agenda surface must render session times in the
+ * EVENT's time zone (event_pages.timezone) — never the server's and never the
+ * viewer's.
+ *
+ * Why both are wrong:
+ *  • In a SERVER component, `toLocaleTimeString(undefined, …)` uses the Node
+ *    process zone. On Vercel that is UTC, so a 09:00 Nairobi talk printed as
+ *    "06:00" for every viewer on earth, including the organizer standing in
+ *    the room.
+ *  • In a CLIENT component it uses the browser zone, so a Nairobi attendee and
+ *    a London attendee see two different start times for the same talk — and
+ *    the one who travels sees the agenda shift under them mid-conference.
+ *
+ * Times are rendered 24h to match the existing agenda surfaces.
+ */
+export function formatZonedTime(isoString: string | null | undefined, timezone: string): string {
+  if (!isoString) return '';
+  const d = new Date(isoString);
+  if (Number.isNaN(d.getTime())) return '';
+  return new Intl.DateTimeFormat('en-GB', {
+    hour: '2-digit', minute: '2-digit', hour12: false, timeZone: timezone || 'UTC',
+  }).format(d);
+}
+
+/**
+ * Stable per-day bucket key for an instant, computed in the event's zone.
+ * `en-CA` yields YYYY-MM-DD, which sorts lexicographically.
+ *
+ * Bucketing on `new Date(iso).toDateString()` (the previous approach) uses the
+ * runtime's zone, so a 09:00 Nairobi session lands in the PREVIOUS calendar day
+ * for a viewer in the Americas — the agenda grows a phantom extra day and the
+ * "Day 1 / Day 2" tabs stop matching the printed programme.
+ */
+export function zonedDayKey(isoString: string, timezone: string): string {
+  return new Intl.DateTimeFormat('en-CA', {
+    year: 'numeric', month: '2-digit', day: '2-digit', timeZone: timezone || 'UTC',
+  }).format(new Date(isoString));
+}
+
+/** Human day heading for an instant, in the event's zone. */
+export function formatZonedDayLabel(
+  isoString: string,
+  timezone: string,
+  opts: Intl.DateTimeFormatOptions = { weekday: 'long', month: 'long', day: 'numeric' }
+): string {
+  return new Intl.DateTimeFormat('en-US', { ...opts, timeZone: timezone || 'UTC' })
+    .format(new Date(isoString));
+}
+
+/**
+ * Group sessions into calendar days using the event's zone, preserving the
+ * chronological order. Returns the ISO of the first session in each day so
+ * callers can label the day without re-parsing a formatted string.
+ */
+export function groupSessionsByZonedDay<T extends { starts_at: string | null }>(
+  sessions: T[],
+  timezone: string
+): { key: string; firstStartsAt: string; sessions: T[] }[] {
+  const map = new Map<string, T[]>();
+  const sorted = [...sessions]
+    .filter(s => !!s.starts_at)
+    .sort((a, b) => new Date(a.starts_at!).getTime() - new Date(b.starts_at!).getTime());
+  for (const s of sorted) {
+    const key = zonedDayKey(s.starts_at!, timezone);
+    if (!map.has(key)) map.set(key, []);
+    map.get(key)!.push(s);
+  }
+  return Array.from(map.entries()).map(([key, daySessions]) => ({
+    key,
+    firstStartsAt: daySessions[0].starts_at!,
+    sessions: daySessions,
+  }));
+}
+
 export function formatShortDate(isoString: string, timezone = 'UTC'): string {
   return new Intl.DateTimeFormat('en-US', {
     month: 'short', day: 'numeric', year: 'numeric', timeZone: timezone,

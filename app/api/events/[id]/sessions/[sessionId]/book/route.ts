@@ -32,7 +32,33 @@ export async function POST(req: NextRequest, { params }: Params) {
     return NextResponse.json({ error: identity.error }, { status: identity.status });
   }
 
-  // Check capacity
+  // Capacity check + insert happen atomically inside book_session_seat (migration
+  // 107) with the session row locked. Doing it here as read-then-write let two
+  // people take the same last seat, and — worse — the old code ran the upsert
+  // even when it had just decided the session was full, so `capacity` never
+  // actually stopped anyone.
+  const { data: outcome, error: rpcError } = await adminAny.rpc('book_session_seat', {
+    p_event_id: eventId,
+    p_session_id: sessionId,
+    p_registration_id: registrationId,
+  });
+
+  if (!rpcError) {
+    if (outcome === 'not_found') return NextResponse.json({ error: 'Session not found' }, { status: 404 });
+    if (outcome === 'full') {
+      // `attendee_agendas` has no waitlist column, so there is nothing to join.
+      // Say so plainly rather than writing a normal booking row and telling the
+      // attendee they are "on the waitlist".
+      return NextResponse.json(
+        { booked: false, waitlisted: false, full: true, error: 'This session is full' },
+        { status: 409 }
+      );
+    }
+    return NextResponse.json({ booked: true, waitlisted: false, full: false });
+  }
+
+  // ── Fallback: migration 107 not applied yet ──────────────────────────────
+  // Keep booking working (non-atomic, best-effort cap) until the RPC exists.
   const { data: session } = await adminAny
     .from('sessions')
     .select('capacity, registrations_count')
@@ -42,11 +68,21 @@ export async function POST(req: NextRequest, { params }: Params) {
 
   if (!session) return NextResponse.json({ error: 'Session not found' }, { status: 404 });
 
-  const isFull = session.capacity != null && (session.registrations_count ?? 0) >= session.capacity;
+  if (session.capacity != null) {
+    // Count real rows — registrations_count is only truthful once migration 099
+    // has been applied, and reads 0 forever before that.
+    const { count } = await adminAny
+      .from('attendee_agendas')
+      .select('id', { count: 'exact', head: true })
+      .eq('session_id', sessionId);
+    if ((count ?? 0) >= session.capacity) {
+      return NextResponse.json(
+        { booked: false, waitlisted: false, full: true, error: 'This session is full' },
+        { status: 409 }
+      );
+    }
+  }
 
-  // Upsert agenda entry. `attendee_agendas` only stores (registration_id,
-  // session_id) — there is no waitlist column in the schema, so capacity is
-  // surfaced in the response only, never persisted.
   const { error } = await adminAny.from('attendee_agendas').upsert(
     { registration_id: registrationId, session_id: sessionId },
     { onConflict: 'registration_id,session_id' }
@@ -54,5 +90,5 @@ export async function POST(req: NextRequest, { params }: Params) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  return NextResponse.json({ booked: !isFull, waitlisted: isFull });
+  return NextResponse.json({ booked: true, waitlisted: false, full: false });
 }

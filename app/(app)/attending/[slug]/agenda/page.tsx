@@ -12,11 +12,14 @@ export default async function MyAgendaPage({ params, searchParams }: Props) {
   const ws = await resolveAttendeeWorkspace({ slug, reg, section: 'agenda' });
 
   const admin = createAdminClient();
-  const { data: agendaRows } = await admin
-    .from('attendee_agendas')
-    .select('session_id, sessions(id, title, starts_at, ends_at, room, session_type, tracks(id,name,color), session_speakers(speaker_id, speakers(id,name,photo_url)))')
-    .eq('registration_id', ws.registrationId)
-    .order('created_at', { ascending: true });
+  const [{ data: agendaRows }, { data: eventPage }] = await Promise.all([
+    admin
+      .from('attendee_agendas')
+      .select('session_id, sessions(id, title, starts_at, ends_at, room, session_type, tracks(id,name,color), session_speakers(speaker_id, speakers(id,name,photo_url)))')
+      .eq('registration_id', ws.registrationId)
+      .order('created_at', { ascending: true }),
+    admin.from('event_pages').select('timezone').eq('event_id', ws.eventId).maybeSingle(),
+  ]);
 
   type AgendaSession = { starts_at: string; [key: string]: unknown };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -35,6 +38,7 @@ export default async function MyAgendaPage({ params, searchParams }: Props) {
         sessions={sessions as any}
         registrationId={ws.registrationId}
         eventSlug={slug}
+        timezone={eventPage?.timezone || 'UTC'}
       />
     </div>
   );

@@ -6,6 +6,7 @@ import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import Link from 'next/link';
 import { ChevronLeft, Clock, MapPin } from 'lucide-react';
 import { PageShell } from '@/components/dash';
+import { formatZonedTime, formatZonedDayLabel } from '@/lib/events/format';
 
 interface Props { params: Promise<{ id: string; sessionId: string }> }
 
@@ -37,8 +38,9 @@ export default async function SessionDetailPage({ params }: Props) {
   if (!user) redirect('/login');
 
   const admin = createAdminClient();
-  const [{ data: event }, { data: session }] = await Promise.all([
+  const [{ data: event }, { data: eventPage }, { data: session }] = await Promise.all([
     admin.from('events').select('id, name, slug').eq('id', id).eq('user_id', user.id).single(),
+    admin.from('event_pages').select('timezone').eq('event_id', id).maybeSingle(),
     admin.from('sessions')
       .select('*, tracks(id, name, color), session_speakers(speaker_id, position, speakers(id, name, photo_url, company, role))')
       .eq('id', sessionId)
@@ -58,13 +60,15 @@ export default async function SessionDetailPage({ params }: Props) {
     .map((ss: any) => ss.speakers)
     .filter(Boolean);
 
+  // Render in the event's zone, not the server's. This is a server component:
+  // the Node process runs in UTC on Vercel, so `toLocale*(undefined, …)` showed
+  // every organiser the UTC instant rather than their own session's start time.
+  const tz = eventPage?.timezone || 'UTC';
   const startsAt = session.starts_at ? new Date(session.starts_at) : null;
   const endsAt = session.ends_at ? new Date(session.ends_at) : null;
-  const timeStr = startsAt
-    ? startsAt.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false })
-    : '—';
-  const dateStr = startsAt
-    ? startsAt.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' })
+  const timeStr = session.starts_at ? formatZonedTime(session.starts_at, tz) : '—';
+  const dateStr = session.starts_at
+    ? formatZonedDayLabel(session.starts_at, tz, { weekday: 'short', day: 'numeric', month: 'short' })
     : null;
   const durationMin = startsAt && endsAt
     ? Math.round((endsAt.getTime() - startsAt.getTime()) / 60000)

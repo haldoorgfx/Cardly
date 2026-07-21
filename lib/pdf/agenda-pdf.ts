@@ -41,17 +41,23 @@ function typeDot(t: string | null): string {
   return map[t ?? ''] ?? C.muted;
 }
 
-function fmtTime(iso: string | null): string {
+// Session times print in the EVENT's zone. Without an explicit `timeZone` this
+// used the Node process zone — UTC on Vercel — so a downloaded agenda showed
+// 06:00 for a 09:00 Nairobi talk.
+function fmtTime(iso: string | null, timezone: string): string {
   if (!iso) return '';
   try {
     const d = new Date(iso);
-    return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    return new Intl.DateTimeFormat('en-US', {
+      hour: 'numeric', minute: '2-digit', hour12: true, timeZone: timezone || 'UTC',
+    }).format(d);
   } catch { return ''; }
 }
 
 export async function generateAgendaPDF(
   eventName: string,
   days: AgendaDay[],
+  timezone = 'UTC',
 ): Promise<Buffer> {
   const PDFDocument = (await import('pdfkit')).default;
 
@@ -112,7 +118,7 @@ export async function generateAgendaPDF(
       const leftPad = isKeynote ? M + 14 : M + 10;
 
       // Time
-      const timeStr = [fmtTime(session.start_time), fmtTime(session.end_time)]
+      const timeStr = [fmtTime(session.start_time, timezone), fmtTime(session.end_time, timezone)]
         .filter(Boolean).join(' – ');
       if (timeStr) {
         doc.font('Helvetica')

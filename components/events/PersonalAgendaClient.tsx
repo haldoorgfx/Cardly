@@ -4,34 +4,35 @@ import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { X, AlertTriangle } from 'lucide-react';
 import type { Session, Track } from '@/types/database';
+import { formatZonedTime, formatZonedDayLabel, groupSessionsByZonedDay } from '@/lib/events/format';
 
 interface Props {
   sessions: Session[];
   registrationId: string;
   eventSlug: string;
+  /** IANA zone of the event. Times render here, not in the viewer's zone. */
+  timezone: string;
 }
 
-function formatTime(iso: string) {
-  return new Date(iso).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
-}
-
-function formatDateHeader(iso: string) {
-  return new Date(iso).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
-}
-
-function groupByDate(sessions: Session[]): [string, Session[]][] {
-  const map = new Map<string, Session[]>();
-  const sorted = [...sessions].sort((a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime());
-  for (const s of sorted) {
-    const key = new Date(s.starts_at).toDateString();
-    if (!map.has(key)) map.set(key, []);
-    map.get(key)!.push(s);
+/**
+ * Does this session overlap ANY earlier session in the same day?
+ *
+ * The previous check only compared each session against its immediate
+ * predecessor, so it missed the common case of one long session containing
+ * several short ones: with A 09:00–12:00, B 10:00–10:30 and C 11:00–12:00,
+ * C was compared only against B (no overlap) and the clash with A went
+ * unflagged — the attendee saw no warning for a talk they cannot attend.
+ */
+function findConflict(session: Session, earlier: Session[]): Session | null {
+  const start = new Date(session.starts_at).getTime();
+  const end = new Date(session.ends_at).getTime();
+  for (const other of earlier) {
+    const oStart = new Date(other.starts_at).getTime();
+    const oEnd = new Date(other.ends_at).getTime();
+    // Half-open intervals: a session starting exactly when another ends is fine.
+    if (start < oEnd && oStart < end) return other;
   }
-  return Array.from(map.entries());
-}
-
-function hasConflict(a: Session, b: Session) {
-  return new Date(b.starts_at).getTime() < new Date(a.ends_at).getTime();
+  return null;
 }
 
 function getSpeakerNames(session: Session) {
@@ -41,11 +42,11 @@ function getSpeakerNames(session: Session) {
     .join(', ');
 }
 
-export default function PersonalAgendaClient({ sessions: initialSessions, registrationId, eventSlug }: Props) {
+export default function PersonalAgendaClient({ sessions: initialSessions, registrationId, eventSlug, timezone }: Props) {
   const [sessions, setSessions] = useState<Session[]>(initialSessions);
   const [removingId, setRemovingId] = useState<string | null>(null);
 
-  const grouped = useMemo(() => groupByDate(sessions), [sessions]);
+  const grouped = useMemo(() => groupSessionsByZonedDay(sessions, timezone), [sessions, timezone]);
 
   async function handleRemove(sessionId: string) {
     setRemovingId(sessionId);
@@ -91,15 +92,14 @@ export default function PersonalAgendaClient({ sessions: initialSessions, regist
         </Link>
       </div>
 
-      {grouped.map(([dateKey, daySessions]) => (
+      {grouped.map(({ key: dateKey, firstStartsAt, sessions: daySessions }) => (
         <div key={dateKey} className="space-y-1">
           <h2 className="text-xs font-semibold uppercase tracking-wider px-1 mb-3" style={{ color: '#65736B' }}>
-            {formatDateHeader(daySessions[0].starts_at)}
+            {formatZonedDayLabel(firstStartsAt, timezone)}
           </h2>
 
           {daySessions.map((session, idx) => {
-            const prevSession = daySessions[idx - 1];
-            const conflict = prevSession ? hasConflict(prevSession, session) : false;
+            const conflict = findConflict(session, daySessions.slice(0, idx));
             const track = session.tracks as Track | null | undefined;
             const speakerNames = getSpeakerNames(session);
 
@@ -111,7 +111,7 @@ export default function PersonalAgendaClient({ sessions: initialSessions, regist
                     style={{ background: 'rgba(201,122,45,0.12)', color: '#C97A2D' }}
                   >
                     <AlertTriangle size={13} />
-                    Conflict with previous session
+                    <span className="min-w-0">Overlaps “{conflict.title}”</span>
                   </div>
                 )}
 
@@ -122,7 +122,7 @@ export default function PersonalAgendaClient({ sessions: initialSessions, regist
                       className="text-[15px] font-medium"
                       style={{ color: '#0F1F18' }}
                     >
-                      {formatTime(session.starts_at)}
+                      {formatZonedTime(session.starts_at, timezone)}
                     </span>
                     {idx < daySessions.length - 1 && (
                       <div

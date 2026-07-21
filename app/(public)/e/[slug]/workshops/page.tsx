@@ -26,7 +26,7 @@ export default async function WorkshopsPage({ params, searchParams }: Props) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const adminAny = admin as any;
 
-  const [{ data: sessions }, bookedIds] = await Promise.all([
+  const [{ data: sessions }, bookedIds, { data: eventPage }] = await Promise.all([
     adminAny
       .from('sessions')
       .select('id, title, starts_at, ends_at, room, capacity, registrations_count, track_id, tracks(name, color), session_speakers(speakers(name))')
@@ -41,6 +41,7 @@ export default async function WorkshopsPage({ params, searchParams }: Props) {
           .eq('registration_id', viewerReg)
           .then((r: { data: { session_id: string }[] | null }) => r.data?.map((a) => a.session_id) ?? [])
       : Promise.resolve([]),
+    adminAny.from('event_pages').select('timezone').eq('event_id', event.id).maybeSingle(),
   ]);
 
   return (
@@ -51,6 +52,7 @@ export default async function WorkshopsPage({ params, searchParams }: Props) {
         sessions={sessions ?? []}
         bookedIds={bookedIds as string[]}
         registrationId={viewerReg ?? undefined}
+        timezone={eventPage?.timezone || 'UTC'}
       />
     </div>
   );
