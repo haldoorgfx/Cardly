@@ -49,7 +49,47 @@ export async function POST(req: NextRequest) {
         console.error('[Stripe webhook] update failed:', error.message);
         return NextResponse.json({ error: 'Registration update failed' }, { status: 500 });
       }
-      if (updated) {
+      if (!updated) {
+        // No row matched. That is TWO different situations and they were
+        // indistinguishable — both fell through to a silent 200:
+        //
+        //   a) the registration is already paid. Stripe redelivers, or the
+        //      confirm-intent redirect won the race. Entirely normal.
+        //   b) the registration ROW IS GONE. A real card was charged and there
+        //      is nothing to issue a ticket against.
+        //
+        // (b) is money taken with nothing given, and it left no trace anywhere.
+        // The register route now cancels a stale PaymentIntent before deleting
+        // its row, so this should no longer be reachable — which is exactly why
+        // it must be loud if it ever happens again.
+        //
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { data: existing } = await (admin as any)
+          .from('registrations')
+          .select('id, payment_status')
+          .eq('stripe_payment_intent_id', pi.id)
+          .maybeSingle();
+
+        if (!existing) {
+          // Everything an operator needs to refund or reconcile by hand. Not a
+          // 5xx: the row is gone permanently, so Stripe retrying cannot fix it
+          // and would only bury the signal under repeats.
+          console.error(
+            '[Stripe webhook] ORPHANED CHARGE — payment succeeded with no registration.',
+            JSON.stringify({
+              payment_intent: pi.id,
+              registration_id: pi.metadata?.registration_id ?? null,
+              event_id: pi.metadata?.event_id ?? null,
+              amount: pi.amount,
+              currency: pi.currency,
+              receipt_email: pi.receipt_email ?? null,
+            }),
+          );
+        }
+        break;
+      }
+
+      {
         // Only the first pending→paid transition returns a row, so this
         // increment runs exactly once per paid ticket (prevents overselling).
         if (updated.ticket_type_id) {

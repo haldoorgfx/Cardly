@@ -527,6 +527,7 @@ export default function RegistrationClient({
           TICKET_SOLD_OUT: 'Sorry, this ticket just sold out.',
           EVENT_FULL: 'Sorry, this event just reached capacity.',
           DUPLICATE_REGISTRATION: 'You are already registered for this event.',
+          PAYMENT_IN_FLIGHT: 'You have already paid for this event — your ticket is being confirmed.',
         };
         // Prefer the server's own detail (e.g. distinguishes "at capacity" from
         // "Free-tier registration limit reached" for the same EVENT_FULL code),

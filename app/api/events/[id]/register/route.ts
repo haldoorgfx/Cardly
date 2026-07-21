@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { sendRegistrationConfirmEmail, sendPendingApprovalEmail } from '@/lib/registration/email';
-import { createTicketPaymentIntent } from '@/lib/payments/stripe';
+import { createTicketPaymentIntent, getTicketStripe } from '@/lib/payments/stripe';
 import { initFlutterwavePayment, isFlutterwaveCurrency, type FlutterwaveCurrency } from '@/lib/payments/flutterwave';
 import { isWaafiPayCurrency } from '@/lib/payments/waafipay';
 import { splitTicketAmount, type FeeBearer } from '@/lib/billing/fees';
@@ -242,6 +242,59 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     // is considered a stale or incomplete attempt — delete it and allow a fresh start
     if (['pending', 'pending_approval', 'cancelled'].includes(exStatus) ||
         (exPayStatus !== 'paid' && exPayStatus !== 'free')) {
+      // Before deleting: this abandoned attempt may still own a LIVE Stripe
+      // PaymentIntent. The attendee can leave the Stripe tab open, come back
+      // here, register again — and then finish paying on the original tab. The
+      // webhook resolves that charge by `stripe_payment_intent_id`, which we
+      // just deleted, so it matched nothing and returned 200: money taken, no
+      // ticket, no error anywhere.
+      //
+      // Kept as its own select rather than merged into the promo read below,
+      // deliberately: that one tolerates `promo_code_id` not existing yet
+      // (migration 105), and a combined select naming a missing column fails
+      // whole and would silently skip this check too.
+      //
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: staleIntent } = await (admin as any)
+        .from('registrations').select('stripe_payment_intent_id').eq('id', exId).maybeSingle();
+      const stalePiId = staleIntent?.stripe_payment_intent_id as string | undefined;
+
+      if (stalePiId && process.env.STRIPE_SECRET_KEY) {
+        const stripe = getTicketStripe();
+        let pi: { status: string } | null = null;
+        try {
+          pi = await stripe.paymentIntents.retrieve(stalePiId);
+        } catch {
+          // Unknown/unretrievable intent — nothing to cancel, fall through and
+          // delete as before. Failing the registration over this would be worse.
+          pi = null;
+        }
+
+        // Money has moved, or is moving. Deleting the row now is exactly how the
+        // charge gets orphaned, so refuse instead and tell them what is true:
+        // they have already paid, and the ticket is on its way.
+        if (pi && (pi.status === 'succeeded' || pi.status === 'processing')) {
+          return NextResponse.json({
+            error: 'PAYMENT_IN_FLIGHT',
+            detail: pi.status === 'succeeded'
+              ? 'You have already paid for this event — your ticket is being confirmed. Check your email in a moment, or refresh this page.'
+              : 'Your earlier payment for this event is still being processed. Give it a moment before registering again.',
+          }, { status: 409 });
+        }
+
+        // Otherwise it can never be completed once its registration is gone —
+        // cancel it so the attendee cannot be charged for a ticket that no
+        // longer exists. Best-effort: a PI that is already canceled, or that
+        // races into a non-cancellable state, must not fail the registration.
+        if (pi) {
+          try {
+            await stripe.paymentIntents.cancel(stalePiId);
+          } catch (err) {
+            console.error('[register] could not cancel stale PaymentIntent', stalePiId, err);
+          }
+        }
+      }
+
       // Release the promo use this abandoned attempt consumed, otherwise every
       // retry of a failed checkout permanently burns another use of the code —
       // one person could exhaust a max_uses code without buying a single ticket.
