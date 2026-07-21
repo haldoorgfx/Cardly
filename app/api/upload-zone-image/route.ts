@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { sniffImageMime } from '@/lib/auth/event-content';
 import sharp from 'sharp';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 export async function POST(req: NextRequest) {
   const supabase = createClient();
@@ -39,7 +40,7 @@ export async function POST(req: NextRequest) {
       .from('events')
       .select('id')
       .eq('id', eventId)
-      .eq('user_id', user.id)
+      .in('user_id', await manageableOwnerIds(user.id))
       .maybeSingle();
     if (!owned) {
       return NextResponse.json({ error: 'Event not found or not owned by you' }, { status: 403 });

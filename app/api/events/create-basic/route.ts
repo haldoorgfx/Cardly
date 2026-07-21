@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
-import { canCreateEvent } from '@/lib/billing/can';
+import { canCreateEvent, getUserPlan } from '@/lib/billing/can';
 import { generateSlug } from '@/lib/slug';
 import { upsertEventRole } from '@/lib/rbac/assign';
+import { checkTemplate, applyTemplateToEvent } from '@/lib/templates/apply';
 
 export async function POST(req: NextRequest) {
   const supabase = createClient();
@@ -43,6 +44,21 @@ export async function POST(req: NextRequest) {
   const city         = (body.city          as string | undefined) ?? null;
   const country      = (body.country       as string | undefined) ?? null;
   const isOnline     = body.is_online === true;
+
+  // An optional card template chosen on /templates. Validated BEFORE anything is
+  // written — an unknown id or a plan-gated template must fail with nothing left
+  // behind, not after the event row already exists.
+  const templateId = typeof body.template_id === 'string' ? body.template_id.trim() : '';
+  const plan = await getUserPlan(user.id);
+  if (templateId) {
+    const check = await checkTemplate(templateId, plan);
+    if (!check.ok) {
+      return NextResponse.json(
+        { error: check.error === 'PLAN_LIMIT' ? 'That template needs a higher plan.' : check.error },
+        { status: check.status },
+      );
+    }
+  }
 
   const admin = createAdminClient();
 
@@ -108,5 +124,17 @@ export async function POST(req: NextRequest) {
   // Roles write-path: the creator is the organizer of this event (belt-and-suspenders).
   await upsertEventRole({ userId: user.id, eventId: event.id, role: 'organizer' });
 
-  return NextResponse.json({ id: event.id, slug: event.slug }, { status: 201 });
+  // Apply the chosen card template on top of the now-complete event. Soft-fail:
+  // the event and its page are already valid, so a template problem downgrades
+  // to a warning the wizard shows rather than losing the whole creation.
+  let templateWarning: string | null = null;
+  if (templateId) {
+    const applied = await applyTemplateToEvent({ eventId: event.id, userId: user.id, templateId, plan });
+    if (!applied.ok) {
+      console.warn(`[create-basic] template ${templateId} failed for event ${event.id}: ${applied.error}`);
+      templateWarning = 'Your event was created, but the template design could not be applied. Pick one again in Card Studio.';
+    }
+  }
+
+  return NextResponse.json({ id: event.id, slug: event.slug, template_warning: templateWarning }, { status: 201 });
 }

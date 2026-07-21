@@ -13,7 +13,7 @@ import { buildSVG, TEMPLATE_CONFIGS, W, H } from '@/lib/templates/svgs';
  * were created from a BUILT-IN template before the Cardly → Eventera rebrand.
  *
  * Why this exists:
- *   The built-in template path (app/api/templates/use, .../variants/from-template)
+ *   The built-in template path (lib/templates/apply.ts, .../variants/from-template)
  *   rasterises `buildSVG()` to a PNG at event-creation time and stores it in the
  *   `event-backgrounds` bucket. The variant's `background_url` then points at that
  *   frozen PNG. `buildSVG()` bakes the watermark ("MADE WITH EVENTERA") and other

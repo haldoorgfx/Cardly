@@ -1,20 +1,38 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useRef, useCallback, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { fetchWithRetry } from '@/lib/utils/fetch-retry';
 import { track } from '@/components/shared/PostHogProvider';
 import { PlacesAutocomplete, type PlaceResult } from '@/components/shared/PlacesAutocomplete';
 import { describeError } from '@/components/ui/status-state';
+import { templateName } from '@/lib/templates/catalog';
 import {
   ArrowLeft, ArrowRight, CalendarDays, Wifi,
-  Image as ImageIcon, Plus, MapPin,
+  Image as ImageIcon, Plus, MapPin, Sparkles, X,
 } from 'lucide-react';
 
+/** `useSearchParams` needs a Suspense boundary in the App Router. */
 export default function NewEventPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen" style={{ background: '#FAF6EE' }} />}>
+      <NewEventForm />
+    </Suspense>
+  );
+}
+
+function NewEventForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const coverRef = useRef<HTMLInputElement>(null);
+
+  // A card template chosen on /templates. Creating from a template used to be a
+  // separate route that skipped this wizard entirely — and so never collected a
+  // date, leaving an event with no public page. It now flows through here, so a
+  // templated event is a complete event.
+  const [templateId, setTemplateId] = useState(() => searchParams.get('template') ?? '');
+  const pickedTemplateName = templateId ? (templateName(templateId) ?? 'Selected template') : null;
 
   const [name, setName]         = useState('');
   const [startsAt, setStartsAt] = useState('');
@@ -36,6 +54,14 @@ export default function NewEventPage() {
       : '';
   const canProceed = name.trim().length > 0 && !!startsAt && !!endsAt && !dateOrderError;
   const showWhyDisabled = !canProceed && !dateOrderError;
+
+  // Back-dating is legitimate (logging an event that already happened), so this
+  // warns rather than blocks — but a mistyped year is the single most common
+  // creation typo and silently produced an event nobody could ever register for.
+  const pastDateWarning =
+    startsAt && !dateOrderError && new Date(startsAt).getTime() < Date.now()
+      ? 'This start date is in the past — double-check the year if that wasn’t intentional.'
+      : '';
 
   const handleCoverFile = useCallback((f: File) => {
     if (!f.type.match(/image\/(png|jpeg)/)) { setError('Only PNG or JPG accepted.'); return; }
@@ -68,15 +94,24 @@ export default function NewEventPage() {
           city:          isOnline ? null : (placeData?.city || null),
           country:       isOnline ? null : (placeData?.country || null),
           is_online:  isOnline,
+          template_id: templateId || null,
         }),
       });
       const data = await res.json();
-      if (res.status === 402) throw new Error('Event limit reached on your plan. Upgrade to create more events.');
+      if (res.status === 402) throw new Error(data.error ?? 'Event limit reached on your plan. Upgrade to create more events.');
       if (!res.ok) throw new Error(data.error ?? 'Failed to create event');
 
-      track('event_created', { event_id: data.id });
+      track('event_created', { event_id: data.id, template_id: templateId || null });
 
       const dest = `/events/${data.slug ?? data.id}/setup`;
+
+      // The event exists and is valid; only the card design failed. Say so,
+      // then continue — losing the event over a design step would be worse.
+      if (data.template_warning) {
+        setError(data.template_warning);
+        setTimeout(() => router.push(dest), 2000);
+        return;
+      }
 
       // Persist the cover photo if one was chosen. Non-blocking — a cover is
       // optional, so a failure here must never prevent reaching the new event.
@@ -139,9 +174,29 @@ export default function NewEventPage() {
           <h1 className="font-display font-semibold text-[32px] mb-1 tracking-[-0.02em]" style={{ color: '#0F1F18' }}>
             Let&apos;s set up your event
           </h1>
-          <p className="text-[14px] mb-9" style={{ color: '#65736B' }}>
+          <p className="text-[14px] mb-6" style={{ color: '#65736B' }}>
             The essentials — you can change all of this later.
           </p>
+
+          {/* Chosen template — visible and removable, so it never silently
+              decides the card design behind the organizer's back. */}
+          {pickedTemplateName && (
+            <div className="mb-7 flex flex-wrap items-center gap-2 px-3.5 py-2.5 rounded-xl"
+              style={{ background: '#E8EFEB', border: '1px solid #E5E0D4' }}>
+              <Sparkles size={14} strokeWidth={2} style={{ color: '#1F4D3A' }} />
+              <span className="text-[13px]" style={{ color: '#0F1F18' }}>
+                Using the <strong className="font-semibold">{pickedTemplateName}</strong> card template
+              </span>
+              <button
+                type="button"
+                onClick={() => setTemplateId('')}
+                aria-label="Remove template"
+                className="ml-auto inline-flex items-center gap-1 h-8 px-2.5 rounded-lg text-[12.5px] font-medium transition hover:bg-white"
+                style={{ color: '#65736B' }}>
+                <X size={13} strokeWidth={2.2} /> Remove
+              </button>
+            </div>
+          )}
 
           <div className="space-y-5">
             {/* Event name */}
@@ -202,6 +257,9 @@ export default function NewEventPage() {
               </div>
               {dateOrderError && (
                 <p className="sm:col-span-2 text-[12.5px]" style={{ color: '#B8423C' }}>{dateOrderError}</p>
+              )}
+              {pastDateWarning && (
+                <p className="sm:col-span-2 text-[12.5px]" style={{ color: '#C97A2D' }}>{pastDateWarning}</p>
               )}
             </div>
 

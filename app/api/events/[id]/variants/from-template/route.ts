@@ -1,62 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import sharp from 'sharp';
-import {
-  buildSVG,
-  TEMPLATE_CONFIGS,
-  W, H,
-  ZONE_PHOTO, ZONE_NAME, ZONE_TITLE, ZONE_ORG,
-} from '@/lib/templates/svgs';
+import { buildSVG, TEMPLATE_CONFIGS, W, H } from '@/lib/templates/svgs';
 import { injectSvgFonts } from '@/lib/templates/svg-fonts';
-import type { Zone } from '@/types/database';
+import { getTemplateZones } from '@/lib/templates/apply';
 import { slugifyBase } from '@/lib/slug';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
-/** Zone factory — positions match shared SVG constants */
-function getZones(accent: string, light: boolean): Zone[] {
-  const nameColor  = light ? '#1A1A1A'           : '#FFFFFF';
-  const titleColor = light ? 'rgba(0,0,0,0.55)'  : 'rgba(255,255,255,0.65)';
-  const orgColor   = light ? 'rgba(0,0,0,0.40)'  : (accent.startsWith('rgba') ? 'rgba(255,255,255,0.45)' : `${accent}BB`);
-
-  return [
-    {
-      id: 'z-photo',
-      type: 'photo',
-      label: 'Headshot',
-      x: ZONE_PHOTO.x, y: ZONE_PHOTO.y, w: ZONE_PHOTO.w, h: ZONE_PHOTO.h,
-      shape: 'circle',
-      photoBorderColor: accent,
-      photoBorderWidth: 4,
-    },
-    {
-      id: 'z-name',
-      type: 'text',
-      label: 'Full Name',
-      x: ZONE_NAME.x, y: ZONE_NAME.y, w: ZONE_NAME.w, h: ZONE_NAME.h,
-      font: 'DM Sans', size: 56, weight: 700,
-      color: nameColor, align: 'center',
-      required: true, placeholder: 'Your name',
-      lineHeight: 1.1, letterSpacing: -1,
-    },
-    {
-      id: 'z-title',
-      type: 'text',
-      label: 'Title / Role',
-      x: ZONE_TITLE.x, y: ZONE_TITLE.y, w: ZONE_TITLE.w, h: ZONE_TITLE.h,
-      font: 'Inter', size: 26, weight: 400,
-      color: titleColor, align: 'center',
-      placeholder: 'Your title or role', lineHeight: 1.2,
-    },
-    {
-      id: 'z-org',
-      type: 'text',
-      label: 'Organization',
-      x: ZONE_ORG.x, y: ZONE_ORG.y, w: ZONE_ORG.w, h: ZONE_ORG.h,
-      font: 'Inter', size: 22, weight: 400,
-      color: orgColor, align: 'center',
-      placeholder: 'Your organization', lineHeight: 1.2,
-    },
-  ];
-}
+// The zone factory used to be copy-pasted here, in /api/templates/use and in
+// /api/events/create — three copies that had already drifted. It now lives in
+// lib/templates/apply.ts.
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -69,7 +22,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   // Verify event ownership
   const { data: event } = await admin
-    .from('events').select('id').eq('id', id).eq('user_id', user.id).single();
+    .from('events').select('id').eq('id', id).in('user_id', await manageableOwnerIds(user.id)).single();
   if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
   const body = await req.json() as { templateId?: string; variantName?: string };
@@ -104,7 +57,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   const slug = slugifyBase(name, 40)
     + '-' + crypto.randomUUID().slice(0, 6);
 
-  const zones = getZones(config.accent, config.light ?? false);
+  const zones = getTemplateZones(config.accent, config.light ?? false);
 
   const { data: variant, error: varErr } = await admin
     .from('event_variants')

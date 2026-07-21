@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 /**
  * POST /api/apply-template-bg
@@ -56,7 +57,7 @@ export async function POST(req: NextRequest) {
     .from('events')
     .select('id')
     .eq('id', variant.event_id)
-    .eq('user_id', user.id)
+    .in('user_id', await manageableOwnerIds(user.id))
     .single();
 
   if (!event) return NextResponse.json({ error: 'Not authorized' }, { status: 403 });

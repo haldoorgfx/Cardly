@@ -5,97 +5,58 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Search, Heart, Plus, Loader2, Star } from 'lucide-react';
 import { buildSVG, TEMPLATE_CONFIGS, OVERLAY, W, H } from '@/lib/templates/svgs';
+import { TEMPLATES, CATEGORIES, type CatalogTemplate as T } from '@/lib/templates/catalog';
 import { PageShell, PageHeader } from '@/components/dash';
-import { StatusState, describeError } from '@/components/ui/status-state';
+import { StatusState } from '@/components/ui/status-state';
 
 /* ─────────────────────────────────────────────────────────────
    PERSON PLACEHOLDER DATA
-   Real photos + realistic names. Users replace these in the
-   editor with their own info — this is the "filled" preview.
+   Sample names/roles so each card previews "filled" rather than
+   with empty zones. Organizers' attendees replace these.
+   No `photo` URL: the avatar is generated locally from the
+   initials, so the gallery can never blank on a third-party
+   image host outage.
 ───────────────────────────────────────────────────────────── */
-interface Person { name: string; title: string; org: string; photo: string }
+interface Person { name: string; title: string; org: string }
 
 const PEOPLE: Record<string, Person> = {
-  atf:      { name:'Amara Osei',         title:'Lead Product Designer', org:'Paystack',            photo:'https://randomuser.me/api/portraits/women/44.jpg' },
-  sunrise:  { name:'Kofi Mensah',        title:'Full-Stack Engineer',   org:'Andela',              photo:'https://randomuser.me/api/portraits/men/32.jpg'   },
-  devfest:  { name:'Zara Diallo',        title:'Developer Advocate',    org:'Google Africa',       photo:'https://randomuser.me/api/portraits/women/22.jpg' },
-  gala:     { name:'Emmanuel Okonkwo',   title:'CEO',                   org:'Lagos Angel Network', photo:'https://randomuser.me/api/portraits/men/14.jpg'   },
-  founders: { name:'Fatima Al-Hassan',   title:'Co-Founder & CEO',      org:'Kuda Bank',           photo:'https://randomuser.me/api/portraits/women/29.jpg' },
-  nile:     { name:'Ahmed Khalil',       title:'Policy Director',       org:'African Union',       photo:'https://randomuser.me/api/portraits/men/8.jpg'    },
-  womentech:{ name:'Aisha Conteh',       title:'VP of Engineering',     org:'Flutterwave',         photo:'https://randomuser.me/api/portraits/women/6.jpg'  },
-  ai:       { name:'Marcus Taiwo',       title:'AI Research Lead',      org:'DeepMind Africa',     photo:'https://randomuser.me/api/portraits/men/27.jpg'   },
-  studio:   { name:'Lena Bekele',        title:'Creative Director',     org:'Studio Afrika',       photo:'https://randomuser.me/api/portraits/women/12.jpg' },
-  sahara:   { name:'Yusuf Benmoussa',    title:'Founder & Partner',     org:'Sahara Ventures',     photo:'https://randomuser.me/api/portraits/men/40.jpg'   },
-  harvest:  { name:'Abena Amponsah',     title:'Artist Manager',        org:'Afrobeats Media',     photo:'https://randomuser.me/api/portraits/women/38.jpg' },
-  agora:    { name:'Tunde Adeyemi',      title:'Public Policy Lead',    org:'Meta Africa',         photo:'https://randomuser.me/api/portraits/men/20.jpg'   },
-  pulse:    { name:'Nadia Ogunwale',     title:'Music Producer',        org:'Starboy Ent.',        photo:'https://randomuser.me/api/portraits/women/47.jpg' },
-  nights:   { name:'DJ Kolade',          title:'Music Director',        org:'Lagos Nights',        photo:'https://randomuser.me/api/portraits/men/55.jpg'   },
-  chrome:   { name:'Sofia Mendes',       title:'Senior Engineer',       org:'Google',              photo:'https://randomuser.me/api/portraits/women/31.jpg' },
-  cosmos:   { name:'Omar Idrissi',       title:'Executive Director',    org:'African Union',       photo:'https://randomuser.me/api/portraits/men/48.jpg'   },
-  faith:    { name:'Grace Wangari',      title:'Senior Pastor',         org:'Living Word Church',  photo:'https://randomuser.me/api/portraits/women/60.jpg' },
-  arctic:   { name:'Lars Eriksson',      title:'CTO',                   org:'Nordic Tech AS',      photo:'https://randomuser.me/api/portraits/men/7.jpg'    },
-  run:      { name:'Chidi Okeke',        title:'Marathon Runner',       org:'Team Nigeria',        photo:'https://randomuser.me/api/portraits/men/62.jpg'   },
-  terra:    { name:'Sylvia Ngozi',       title:'Climate Scientist',     org:'UNEP Africa',         photo:'https://randomuser.me/api/portraits/women/3.jpg'  },
-  sea:      { name:'Brendan Eze',        title:'Backend Engineer',      org:'Interswitch',         photo:'https://randomuser.me/api/portraits/men/18.jpg'   },
-  zen:      { name:'Nia Kamara',         title:'Wellness Coach',        org:'Mind & Body Africa',  photo:'https://randomuser.me/api/portraits/women/51.jpg' },
-  bloom:    { name:'Chiamaka Eze',       title:'Gender Advocate',       org:'UN Women',            photo:'https://randomuser.me/api/portraits/women/24.jpg' },
-  editorial:{ name:'Pierre Mensah',      title:'Senior Editor',         org:'The Africa Report',   photo:'https://randomuser.me/api/portraits/men/36.jpg'   },
-  marathon: { name:'Selin Yilmaz',       title:'UX Lead',               org:'Design Collective',   photo:'https://randomuser.me/api/portraits/women/9.jpg'  },
-  prism:    { name:'Akin Babatunde',     title:'Creative Technologist', org:'Meta Creative',       photo:'https://randomuser.me/api/portraits/men/63.jpg'   },
-  pitch:    { name:'Chidera Nwosu',      title:'Founder',               org:'FinEdge Africa',      photo:'https://randomuser.me/api/portraits/women/16.jpg' },
-  volta:    { name:'Felix Asante',       title:'Esports Captain',       org:'Team Volta',          photo:'https://randomuser.me/api/portraits/men/42.jpg'   },
-  century:  { name:'James Omondi',       title:'Managing Director',     org:'African Capital',     photo:'https://randomuser.me/api/portraits/men/25.jpg'   },
-  sport100: { name:'Victor Ikenna',      title:'Football Coach',        org:'AFCON Stars',         photo:'https://randomuser.me/api/portraits/men/57.jpg'   },
+  atf:      { name:'Amara Osei',         title:'Lead Product Designer', org:'Paystack' },
+  sunrise:  { name:'Kofi Mensah',        title:'Full-Stack Engineer',   org:'Andela' },
+  devfest:  { name:'Zara Diallo',        title:'Developer Advocate',    org:'Google Africa' },
+  gala:     { name:'Emmanuel Okonkwo',   title:'CEO',                   org:'Lagos Angel Network' },
+  founders: { name:'Fatima Al-Hassan',   title:'Co-Founder & CEO',      org:'Kuda Bank' },
+  nile:     { name:'Ahmed Khalil',       title:'Policy Director',       org:'African Union' },
+  womentech:{ name:'Aisha Conteh',       title:'VP of Engineering',     org:'Flutterwave' },
+  ai:       { name:'Marcus Taiwo',       title:'AI Research Lead',      org:'DeepMind Africa' },
+  studio:   { name:'Lena Bekele',        title:'Creative Director',     org:'Studio Afrika' },
+  sahara:   { name:'Yusuf Benmoussa',    title:'Founder & Partner',     org:'Sahara Ventures' },
+  harvest:  { name:'Abena Amponsah',     title:'Artist Manager',        org:'Afrobeats Media' },
+  agora:    { name:'Tunde Adeyemi',      title:'Public Policy Lead',    org:'Meta Africa' },
+  pulse:    { name:'Nadia Ogunwale',     title:'Music Producer',        org:'Starboy Ent.' },
+  nights:   { name:'DJ Kolade',          title:'Music Director',        org:'Lagos Nights' },
+  chrome:   { name:'Sofia Mendes',       title:'Senior Engineer',       org:'Google' },
+  cosmos:   { name:'Omar Idrissi',       title:'Executive Director',    org:'African Union' },
+  faith:    { name:'Grace Wangari',      title:'Senior Pastor',         org:'Living Word Church' },
+  arctic:   { name:'Lars Eriksson',      title:'CTO',                   org:'Nordic Tech AS' },
+  run:      { name:'Chidi Okeke',        title:'Marathon Runner',       org:'Team Nigeria' },
+  terra:    { name:'Sylvia Ngozi',       title:'Climate Scientist',     org:'UNEP Africa' },
+  sea:      { name:'Brendan Eze',        title:'Backend Engineer',      org:'Interswitch' },
+  zen:      { name:'Nia Kamara',         title:'Wellness Coach',        org:'Mind & Body Africa' },
+  bloom:    { name:'Chiamaka Eze',       title:'Gender Advocate',       org:'UN Women' },
+  editorial:{ name:'Pierre Mensah',      title:'Senior Editor',         org:'The Africa Report' },
+  marathon: { name:'Selin Yilmaz',       title:'UX Lead',               org:'Design Collective' },
+  prism:    { name:'Akin Babatunde',     title:'Creative Technologist', org:'Meta Creative' },
+  pitch:    { name:'Chidera Nwosu',      title:'Founder',               org:'FinEdge Africa' },
+  volta:    { name:'Felix Asante',       title:'Esports Captain',       org:'Team Volta' },
+  century:  { name:'James Omondi',       title:'Managing Director',     org:'African Capital' },
+  sport100: { name:'Victor Ikenna',      title:'Football Coach',        org:'AFCON Stars' },
 };
 
-const CATEGORIES = [
-  { key:'all',        label:'All',              count:30 },
-  { key:'tech',       label:'Tech & Startup',   count:8  },
-  { key:'conference', label:'Conferences',       count:7  },
-  { key:'music',      label:'Music & Culture',   count:3  },
-  { key:'workshop',   label:'Workshops',         count:3  },
-  { key:'webinar',    label:'Webinars',          count:1  },
-  { key:'sport',      label:'Sport',             count:2  },
-  { key:'ngo',        label:'NGO / Religious',   count:3  },
-  { key:'creative',   label:'Creative & Design', count:3  },
-];
+/* TEMPLATES + CATEGORIES now live in lib/templates/catalog.ts — shared with the
+   creation wizard, and with category counts derived from the list rather than
+   hand-written (the hardcoded ones had drifted: Conferences said 7 for 8 cards,
+   Creative said 3 for 2). */
 
-interface T {
-  id: string; name: string; cat: string; catLabel: string; badge: string | null;
-}
-
-const TEMPLATES: T[] = [
-  { id:'atf',       name:'Africa Tech Festival',      cat:'conference', catLabel:'CONFERENCE', badge:'POPULAR' },
-  { id:'sunrise',   name:'Sunrise Hackathon',          cat:'tech',       catLabel:'HACKATHON',  badge:'NEW'     },
-  { id:'devfest',   name:'Devfest Lagos',              cat:'tech',       catLabel:'CONFERENCE', badge:null      },
-  { id:'gala',      name:'Black Tie Gala',             cat:'conference', catLabel:'GALA',       badge:null      },
-  { id:'founders',  name:'Founders Retreat',           cat:'workshop',   catLabel:'WORKSHOP',   badge:null      },
-  { id:'nile',      name:'The Nile Forum',             cat:'conference', catLabel:'FORUM',      badge:null      },
-  { id:'womentech', name:'Women in Tech Summit',       cat:'tech',       catLabel:'SUMMIT',     badge:'NEW'     },
-  { id:'ai',        name:'AI Ethics Webinar',          cat:'webinar',    catLabel:'WEBINAR',    badge:'NEW'     },
-  { id:'studio',    name:'Studio Sessions',            cat:'workshop',   catLabel:'WORKSHOP',   badge:null      },
-  { id:'sahara',    name:'Sahara Leadership Summit',   cat:'conference', catLabel:'SUMMIT',     badge:null      },
-  { id:'harvest',   name:'Harvest Festival',           cat:'music',      catLabel:'FESTIVAL',   badge:null      },
-  { id:'agora',     name:'Agora Open Forum',           cat:'conference', catLabel:'FORUM',      badge:null      },
-  { id:'pulse',     name:'Pulse Music Fest',           cat:'music',      catLabel:'MUSIC',      badge:'POPULAR' },
-  { id:'nights',    name:'Lagos Nights',               cat:'music',      catLabel:'MUSIC',      badge:null      },
-  { id:'chrome',    name:'Chrome Dev Summit',          cat:'tech',       catLabel:'SUMMIT',     badge:null      },
-  { id:'cosmos',    name:'Cosmos Leadership Forum',    cat:'conference', catLabel:'FORUM',      badge:null      },
-  { id:'faith',     name:'Faith Conference',           cat:'ngo',        catLabel:'RELIGIOUS',  badge:null      },
-  { id:'arctic',    name:'Arctic Tech Conference',     cat:'tech',       catLabel:'CONFERENCE', badge:null      },
-  { id:'run',       name:'Run Lagos 10K',              cat:'sport',      catLabel:'SPORT',      badge:null      },
-  { id:'terra',     name:'Terra Climate Summit',       cat:'ngo',        catLabel:'SUMMIT',     badge:'NEW'     },
-  { id:'sea',       name:'Devs at Sea',                cat:'tech',       catLabel:'CONFERENCE', badge:null      },
-  { id:'zen',       name:'Zen Wellness Summit',        cat:'workshop',   catLabel:'WELLNESS',   badge:null      },
-  { id:'bloom',     name:"Bloom Women's Forum",        cat:'ngo',        catLabel:'FORUM',      badge:'NEW'     },
-  { id:'editorial', name:'The Press Forum',            cat:'conference', catLabel:'MEDIA',      badge:null      },
-  { id:'marathon',  name:'Design Marathon',            cat:'creative',   catLabel:'CREATIVE',   badge:'NEW'     },
-  { id:'prism',     name:'Prism Design Week',          cat:'creative',   catLabel:'DESIGN',     badge:null      },
-  { id:'pitch',     name:'The Pitch Competition',      cat:'tech',       catLabel:'STARTUP',    badge:null      },
-  { id:'volta',     name:'Volta Gaming Expo',          cat:'tech',       catLabel:'GAMING',     badge:'POPULAR' },
-  { id:'century',   name:'Century Business Forum',     cat:'conference', catLabel:'BUSINESS',   badge:null      },
-  { id:'sport100',  name:'100 Days to Kickoff',        cat:'sport',      catLabel:'SPORT',      badge:null      },
-];
 
 /* ─────────────────────────────────────────────────────────────
    CARD PREVIEW
@@ -115,8 +76,6 @@ function CardPreview({ id }: { id: string }) {
 
   // Photo size in % of card width (matches zone: PHOTO_R*2 / W)
   const photoSizePct = `${((296 / W) * 100).toFixed(2)}%`;
-  // Ring size (slightly larger for glow ring)
-  const ringSizePct  = `${((330 / W) * 100).toFixed(2)}%`;
 
   return (
     <div style={{ position:'absolute', inset:0 }}>
@@ -128,29 +87,24 @@ function CardPreview({ id }: { id: string }) {
         style={{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover', display:'block' }}
       />
 
-      {/* ── PERSON OVERLAY — positioned at exact zone coordinates ── */}
+      {/* ── PERSON OVERLAY — positioned at exact zone coordinates ──
+          The page promises "what you see is what you edit", so this overlay
+          mirrors lib/templates/apply.ts#getTemplateZones exactly: the photo
+          border is the zone's 4px accent ring, the name renders in DM Sans and
+          the organization in Inter. It previously used a radial glow, Arial
+          Black and Courier monospace — none of which the rasterized card has
+          (and all of which the anti-slop rules forbid), so every preview
+          overstated the design the organizer would actually get. */}
 
-      {/* Glow ring behind photo */}
-      <div style={{
-        position:'absolute',
-        left: OVERLAY.photo.cx, top: OVERLAY.photo.cy,
-        width: ringSizePct, aspectRatio:'1',
-        transform:'translate(-50%,-50%)',
-        borderRadius:'50%',
-        background: `radial-gradient(circle, ${accent}30 0%, transparent 72%)`,
-        pointerEvents:'none',
-      }} />
-
-      {/* Photo circle */}
+      {/* Photo circle — matches photoBorderColor/photoBorderWidth on z-photo */}
       <div style={{
         position:'absolute',
         left: OVERLAY.photo.cx, top: OVERLAY.photo.cy,
         width: photoSizePct, aspectRatio:'1',
         transform:'translate(-50%,-50%)',
         borderRadius:'50%',
-        border:`3px solid ${accent}90`,
+        border:`4px solid ${accent}`,
         overflow:'hidden',
-        boxShadow:`0 0 0 4px ${accent}22, 0 12px 36px rgba(0,0,0,0.45)`,
       }}>
         {(() => {
           // Locally-generated, accent-coloured initials avatar — no external
@@ -170,8 +124,8 @@ function CardPreview({ id }: { id: string }) {
         transform:'translate(-50%,-50%)',
         width:'86%',
         textAlign:'center',
-        fontFamily:'Arial Black, Arial, sans-serif',
-        fontWeight:900,
+        fontFamily:'DM Sans, sans-serif', // z-name zone font
+        fontWeight:700,
         fontSize:`${(56 / H * 100 * 1.25).toFixed(2)}%`, // scale font with card height
         lineHeight:1.1,
         color: light ? '#0F1F18' : '#FFFFFF',
@@ -191,9 +145,9 @@ function CardPreview({ id }: { id: string }) {
         transform:'translate(-50%,-50%)',
         width:'84%',
         textAlign:'center',
-        fontFamily:'Arial, sans-serif',
+        fontFamily:'Inter, sans-serif', // z-title zone font
         fontWeight:400,
-        fontSize:`${(28 / H * 100 * 1.25).toFixed(2)}%`,
+        fontSize:`${(26 / H * 100 * 1.25).toFixed(2)}%`,
         color: light ? 'rgba(0,0,0,0.58)' : 'rgba(255,255,255,0.65)',
         whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis',
         textShadow: light ? 'none' : '0 1px 8px rgba(0,0,0,0.40)',
@@ -208,11 +162,10 @@ function CardPreview({ id }: { id: string }) {
         transform:'translate(-50%,-50%)',
         width:'80%',
         textAlign:'center',
-        fontFamily:'Courier New, Courier, monospace',
-        fontWeight:600,
-        fontSize:`${(24 / H * 100 * 1.25).toFixed(2)}%`,
-        color: `${accent}CC`,
-        letterSpacing:'0.06em',
+        fontFamily:'Inter, sans-serif', // z-org zone font — never monospace
+        fontWeight:400,
+        fontSize:`${(22 / H * 100 * 1.25).toFixed(2)}%`,
+        color: light ? 'rgba(0,0,0,0.40)' : (accent.startsWith('rgba') ? 'rgba(255,255,255,0.45)' : `${accent}BB`),
         whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis',
         textShadow: light ? 'none' : '0 1px 6px rgba(0,0,0,0.40)',
       }}>
@@ -232,7 +185,6 @@ export default function TemplatesPage() {
   const [sort, setSort] = useState<'popular' | 'newest' | 'az'>('popular');
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState<string | null>(null);
-  const [error, setError] = useState('');
 
   // DB-backed platform templates
   const [dbTemplates, setDbTemplates] = useState<{
@@ -247,29 +199,42 @@ export default function TemplatesPage() {
       .catch(() => {});
   }, []);
 
+  // Favourites survive a reload. The heart used to be pure decoration — state
+  // was dropped on navigation, so hearting a template did nothing at all.
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem('eventera:template-favorites');
+      if (saved) setFavorites(new Set(JSON.parse(saved) as string[]));
+    } catch { /* private mode / corrupt value — favourites are non-essential */ }
+  }, []);
+
   const toggleFav = (id: string, e: React.MouseEvent) => {
     e.preventDefault(); e.stopPropagation();
-    setFavorites(prev => { const n = new Set(prev); if (n.has(id)) n.delete(id); else n.add(id); return n; });
+    setFavorites(prev => {
+      const n = new Set(prev);
+      if (n.has(id)) n.delete(id); else n.add(id);
+      // Array.from, not spread — tsconfig targets ES5 without downlevelIteration.
+      try { window.localStorage.setItem('eventera:template-favorites', JSON.stringify(Array.from(n))); } catch { /* non-essential */ }
+      return n;
+    });
   };
 
-  const openTemplate = async (templateId: string, e: React.MouseEvent) => {
+  /**
+   * Picking a template hands off to the creation wizard rather than creating the
+   * event here.
+   *
+   * The old path POSTed to /api/templates/use, which made an `events` row with
+   * no `event_pages` row and no dates, then dropped the organizer straight into
+   * Card Studio. That event had no public page and no register link, and the
+   * Publish screen showed blank dates — the design was ready before the event
+   * existed. Now the template rides along as ?template= and is applied by
+   * /api/events/create-basic once the name and dates are in.
+   */
+  const openTemplate = (templateId: string, e: React.MouseEvent) => {
     e.preventDefault();
     if (loading) return;
-    setLoading(templateId); setError('');
-    try {
-      const res = await fetch('/api/templates/use', {
-        method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ templateId }),
-      });
-      const data = await res.json() as { id?:string; error?:string; plan?:string; limit?:number };
-      if (res.status === 402 && data.error === 'PLAN_LIMIT')
-        throw new Error(`You've reached the ${data.limit}-event limit on the ${data.plan ?? 'free'} plan. Upgrade for more.`);
-      if (!res.ok) throw new Error(data.error ?? 'Could not open this template');
-      router.push(`/events/${data.id}/edit`);
-    } catch (err) {
-      setError(describeError(err, 'this template'));
-      setLoading(null);
-    }
+    setLoading(templateId);
+    router.push(`/events/new?template=${encodeURIComponent(templateId)}`);
   };
 
   const filtered = TEMPLATES.filter(t => {
@@ -308,13 +273,9 @@ export default function TemplatesPage() {
         }
       />
 
-      {/* Error */}
-      {error && (
-        <div className="mb-4 px-4 py-3 rounded-xl text-[13px] flex items-center justify-between gap-3" style={{ background:'rgba(184,66,60,0.07)', border:'1px solid rgba(184,66,60,0.2)', color:'#B8423C' }}>
-          <span>{error}</span>
-          <button onClick={() => setError('')} className="shrink-0 text-[12.5px] underline">Dismiss</button>
-        </div>
-      )}
+      {/* No error banner: picking a template is now a client-side navigation to
+          the creation wizard, so plan limits and template errors surface there,
+          next to the Create button that triggers them. */}
 
       {/* Category chips */}
       <div className="pb-4">
@@ -387,7 +348,7 @@ export default function TemplatesPage() {
                     <div className="w-full text-white text-center py-3 rounded-xl font-display font-bold text-[14px] flex items-center justify-center gap-2"
                       style={{ background:'#1F4D3A', boxShadow:'0 8px 20px rgba(15,31,24,0.3)' }}>
                       {isLoading
-                        ? <><Loader2 size={14} strokeWidth={2} className="animate-spin" />Opening editor…</>
+                        ? <><Loader2 size={14} strokeWidth={2} className="animate-spin" />Opening…</>
                         : 'Use this template →'}
                     </div>
                   </div>
