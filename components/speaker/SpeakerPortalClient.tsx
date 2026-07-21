@@ -6,7 +6,6 @@ import {
   CheckCircle2, Circle, Upload, Share2,
   ExternalLink, Camera, MessageSquare, Mic, MapPin, Phone, ArrowBigUp, Clock,
 } from 'lucide-react';
-import { createClient } from '@/lib/supabase/client';
 
 interface Speaker {
   id: string;
@@ -435,6 +434,7 @@ function HomeTab({ speaker, event, sessions, onTab }: { speaker: Speaker; event:
 function ProfileTab({ speaker, onSaved }: { speaker: Speaker; onSaved: (s: Partial<Speaker>) => void }) {
   const [form, setForm] = useState({
     name: speaker.name,
+    headline: speaker.headline ?? '',
     role: speaker.role ?? '',
     company: speaker.company ?? '',
     bio: speaker.bio ?? '',
@@ -449,11 +449,14 @@ function ProfileTab({ speaker, onSaved }: { speaker: Speaker; onSaved: (s: Parti
   // The persisted public URL that goes into the profile save (null = unchanged/none).
   const [photoUrl, setPhotoUrl] = useState<string | null>(speaker.photo_url);
   const [photoUploading, setPhotoUploading] = useState(false);
+  const [photoError, setPhotoError] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   function setField(k: string, v: string) { setForm(f => ({ ...f, [k]: v })); setSaved(false); }
 
   async function handleSave() {
     setSaving(true);
+    setSaveError(null);
     try {
       const res = await fetch(`/api/speakers/${speaker.id}/profile`, {
         method: 'PATCH',
@@ -463,37 +466,63 @@ function ProfileTab({ speaker, onSaved }: { speaker: Speaker; onSaved: (s: Parti
       if (res.ok) {
         setSaved(true);
         onSaved({ ...form, photo_url: photoUrl });
+        return;
       }
+      // A rejected save used to be indistinguishable from a successful one:
+      // no "Saved ✓", but no error either, so the speaker had no idea their
+      // bio had not persisted. The API validates the social links, so this
+      // path is reachable by typing a URL it won't accept.
+      const j = await res.json().catch(() => null);
+      const fields = j?.details ? Object.keys(j.details) : [];
+      setSaveError(
+        fields.length > 0
+          ? `Check these fields: ${fields.map(f => f.replace(/_url$/, '').replace(/^\w/, c => c.toUpperCase())).join(', ')}. Links must start with http:// or https://.`
+          : (j?.error || 'Could not save. Please try again.'),
+      );
+    } catch {
+      setSaveError('Could not save. Please try again.');
     } finally {
       setSaving(false);
     }
   }
 
+  // Goes through the server route, which authorizes the caller against the
+  // speaker record and writes with the service role. The previous version
+  // uploaded direct to a bucket named `avatars` that does not exist (only
+  // `uploads` and `event-assets` do), so every attempt failed, the catch
+  // silently reverted the preview, and no speaker could ever change their
+  // headshot. Failures now say so instead of pretending nothing happened.
   async function handlePhoto(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
     if (!f) return;
     // Instant local preview while the upload runs.
-    setPhotoPreview(URL.createObjectURL(f));
+    const localPreview = URL.createObjectURL(f);
+    setPhotoPreview(localPreview);
     setPhotoUploading(true);
+    setPhotoError(null);
     setSaved(false);
     try {
-      const supabase = createClient();
-      const ext = (f.name.split('.').pop() ?? 'png').toLowerCase();
-      const path = `speakers/${speaker.id}/headshot.${ext}`;
-      const { error: upErr } = await supabase.storage
-        .from('avatars') // reuse existing public bucket (same as BoothTab)
-        .upload(path, f, { upsert: true, contentType: f.type });
-      if (upErr) throw upErr;
-      const { data } = supabase.storage.from('avatars').getPublicUrl(path);
-      const url = data.publicUrl + `?t=${Date.now()}`;
-      setPhotoUrl(url);
-      setPhotoPreview(url);
+      const fd = new FormData();
+      fd.append('file', f);
+      const res = await fetch(`/api/speakers/${speaker.id}/photo`, { method: 'POST', body: fd });
+      const j = await res.json().catch(() => null);
+      if (!res.ok || !j?.url) {
+        setPhotoError(j?.error || 'Upload failed. Please try again.');
+        // Drop back to the previously saved photo so we never persist a dead
+        // object URL.
+        setPhotoPreview(speaker.photo_url);
+        return;
+      }
+      setPhotoUrl(j.url);
+      setPhotoPreview(j.url);
     } catch {
-      // Upload failed — drop back to the previously saved photo so we never
-      // persist a dead object URL. The user can retry.
+      setPhotoError('Upload failed. Please try again.');
       setPhotoPreview(speaker.photo_url);
     } finally {
+      URL.revokeObjectURL(localPreview);
       setPhotoUploading(false);
+      // Allow re-picking the same file after a failure.
+      e.target.value = '';
     }
   }
 
@@ -525,8 +554,11 @@ function ProfileTab({ speaker, onSaved }: { speaker: Speaker; onSaved: (s: Parti
                 >
                   <Camera size={13} /> {photoUploading ? 'Uploading…' : 'Change headshot'}
                 </button>
-                <p className="text-[11px] mt-1.5" style={{ color: '#65736B' }}>JPG or PNG, at least 400×400px</p>
-                <input ref={photoRef} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handlePhoto} />
+                <p className="text-[11px] mt-1.5" style={{ color: '#65736B' }}>JPG or PNG, at least 400×400px · max 5 MB</p>
+                <input ref={photoRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" onChange={handlePhoto} />
+                {photoError && (
+                  <p className="text-[11.5px] mt-1.5" style={{ color: '#B8423C' }} role="alert">{photoError}</p>
+                )}
               </div>
             </div>
           </div>
@@ -537,6 +569,8 @@ function ProfileTab({ speaker, onSaved }: { speaker: Speaker; onSaved: (s: Parti
               { label: 'Full name', key: 'name', placeholder: 'Your full name' },
               { label: 'Role / Title', key: 'role', placeholder: 'e.g. Product Engineer' },
               { label: 'Company / Organisation', key: 'company', placeholder: 'e.g. Paystack' },
+              // Shown under your name on the public profile and in link previews.
+              { label: 'Headline', key: 'headline', placeholder: 'One line attendees see under your name' },
             ].map(({ label, key, placeholder }) => (
               <div key={key}>
                 <label htmlFor={`speaker-${key}`} className="block text-[12px] font-medium mb-1.5" style={{ color: '#3A4A42' }}>{label}</label>
@@ -592,7 +626,7 @@ function ProfileTab({ speaker, onSaved }: { speaker: Speaker; onSaved: (s: Parti
             ))}
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <button
               onClick={handleSave}
               disabled={saving || photoUploading}
@@ -601,7 +635,10 @@ function ProfileTab({ speaker, onSaved }: { speaker: Speaker; onSaved: (s: Parti
             >
               {saving ? 'Saving…' : 'Save profile'}
             </button>
-            {saved && <span className="text-[13px]" style={{ color: '#2D7A4F' }}>Saved ✓</span>}
+            <span aria-live="polite" className="text-[13px]">
+              {saved && <span style={{ color: '#2D7A4F' }}>Saved ✓</span>}
+              {saveError && <span style={{ color: '#B8423C' }} role="alert">{saveError}</span>}
+            </span>
           </div>
         </div>
 
@@ -978,10 +1015,12 @@ function GreenRoomTab({ sessions }: { sessions: Session[] }) {
   const lengthMin = Math.max(0, Math.round((new Date(next.ends_at).getTime() - onStage.getTime()) / 60000));
   const introTime = new Date(onStage.getTime() - 5 * 60000);
 
+  // At 375px three flex-1 cards leave ~80px of content each, which wrapped
+  // "10:30 AM" mid-value. Tighter padding and a smaller value on mobile.
   const stat = (label: string, value: string) => (
-    <div className="flex-1" style={{ background: '#fff', border: '1px solid #E5E0D4', borderRadius: 12, padding: '14px 16px' }}>
-      <div className="text-[10px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#65736B', fontFamily: 'Inter, system-ui, sans-serif' }}>{label}</div>
-      <div className="text-[19px] font-semibold" style={{ color: '#0F1F18', fontFamily: 'Inter, system-ui, sans-serif' }}>{value}</div>
+    <div className="flex-1 min-w-0 px-3 py-3 sm:px-4 sm:py-3.5" style={{ background: '#fff', border: '1px solid #E5E0D4', borderRadius: 12 }}>
+      <div className="text-[10px] tracking-[0.1em] sm:tracking-[0.14em] uppercase mb-1.5" style={{ color: '#65736B', fontFamily: 'Inter, system-ui, sans-serif' }}>{label}</div>
+      <div className="text-[16px] sm:text-[19px] font-semibold whitespace-nowrap" style={{ color: '#0F1F18', fontFamily: 'Inter, system-ui, sans-serif' }}>{value}</div>
     </div>
   );
 
@@ -999,7 +1038,7 @@ function GreenRoomTab({ sessions }: { sessions: Session[] }) {
       </div>
 
       {/* Stats */}
-      <div className="flex gap-3">
+      <div className="flex gap-2 sm:gap-3">
         {stat('Call time', fmtTime(callTime))}
         {stat('On stage', fmtTime(onStage))}
         {stat('Length', `${lengthMin}m`)}

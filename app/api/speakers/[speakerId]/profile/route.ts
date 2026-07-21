@@ -1,7 +1,31 @@
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { z } from 'zod';
 import { ownedSpeaker } from '@/lib/rbac/ownership';
 import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
+import { zSafeUrl } from '@/lib/url/safeUrl';
+
+// This route was entirely unvalidated: whatever JSON arrived was written
+// straight to the row. The three social fields are rendered as `href` on the
+// PUBLIC speaker profile (/s/[slug]/[speakerId]) and on the public event page,
+// so `javascript:alert(document.cookie)` in `website_url` was stored XSS that
+// fires for every visitor — the same class already fixed on the booth page.
+// zSafeUrl (NOT z.string().url(), which happily accepts `javascript:`) both
+// rejects and normalises. See lib/url/safeUrl.ts.
+const Schema = z.object({
+  name: z.string().min(1).max(200).trim().optional(),
+  // Rendered on the public profile and in its OG description, but the speaker's
+  // own editor had no field for it — organizer-writable only.
+  headline: z.string().max(300).trim().nullable().optional(),
+  role: z.string().max(200).trim().nullable().optional(),
+  company: z.string().max(200).trim().nullable().optional(),
+  bio: z.string().max(5000).nullable().optional(),
+  twitter_url: zSafeUrl,
+  linkedin_url: zSafeUrl,
+  website_url: zSafeUrl,
+  // Written by the headshot upload route, which returns a Storage public URL.
+  photo_url: zSafeUrl,
+});
 
 export async function PATCH(
   req: Request,
@@ -37,21 +61,25 @@ export async function PATCH(
   }
   if (!allowed) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-  const body = await req.json();
+  const raw = await req.json().catch(() => null);
+  const parsed = Schema.safeParse(raw);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: 'Validation failed', details: parsed.error.flatten().fieldErrors },
+      { status: 400 },
+    );
+  }
+  const body = parsed.data;
 
-  // Only overwrite photo_url when the client actually sends one — an omitted
-  // field must not wipe an existing headshot.
+  // Only write keys the client actually sent — an omitted field must not wipe
+  // an existing value (photo_url in particular; the editor omits it when the
+  // speaker never touched their headshot).
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const updates: Record<string, any> = {
-    name: body.name,
-    role: body.role || null,
-    company: body.company || null,
-    bio: body.bio || null,
-    twitter_url: body.twitter_url || null,
-    linkedin_url: body.linkedin_url || null,
-    website_url: body.website_url || null,
-  };
-  if (body.photo_url !== undefined) updates.photo_url = body.photo_url || null;
+  const updates: Record<string, any> = {};
+  for (const key of ['name', 'headline', 'role', 'company', 'bio', 'twitter_url', 'linkedin_url', 'website_url', 'photo_url'] as const) {
+    if (body[key] !== undefined) updates[key] = body[key] === '' ? null : body[key];
+  }
+  if (Object.keys(updates).length === 0) return NextResponse.json({ ok: true });
 
   const { error } = await adminAny
     .from('speakers')

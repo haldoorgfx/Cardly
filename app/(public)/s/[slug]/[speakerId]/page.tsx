@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Mic, Clock, MapPin, Link2, Globe, AtSign, ArrowLeft } from 'lucide-react';
 import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
 import { ownedSpeaker } from '@/lib/rbac/ownership';
+import { safeExternalUrl } from '@/lib/url/safeUrl';
 import { PublicNav } from '@/components/events/PublicNav';
 import type { Metadata } from 'next';
 
@@ -92,6 +93,10 @@ export default async function PublicSpeakerPage({ params }: Props) {
     .maybeSingle();
   const eventTimezone = eventPage?.timezone || 'UTC';
 
+  const linkedinUrl = safeExternalUrl(speaker.linkedin_url);
+  const websiteUrl = safeExternalUrl(speaker.website_url);
+  const twitterUrl = safeExternalUrl(speaker.twitter_url);
+
   // Public sessions for this speaker
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: sessionSpeakers } = await (admin as any)
@@ -153,19 +158,24 @@ export default async function PublicSpeakerPage({ params }: Props) {
               {speaker.headline && (
                 <p className="text-[13px] mt-1" style={{ color: '#65736B' }}>{speaker.headline}</p>
               )}
+              {/* Scheme-checked at render, not just on write: rows predating the
+                  validation on /api/speakers/[id]/profile (and any written by
+                  the organizer-side speakers route) can still hold a
+                  `javascript:` URL, which as a raw href is stored XSS. A
+                  non-http(s) value yields null and renders no link at all. */}
               <div className="flex items-center gap-3 mt-3">
-                {speaker.linkedin_url && (
-                  <a href={speaker.linkedin_url} target="_blank" rel="noopener noreferrer" style={{ color: '#1F4D3A' }}>
+                {linkedinUrl && (
+                  <a href={linkedinUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#1F4D3A' }} aria-label="LinkedIn">
                     <Link2 size={16} strokeWidth={1.8} />
                   </a>
                 )}
-                {speaker.website_url && (
-                  <a href={speaker.website_url} target="_blank" rel="noopener noreferrer" style={{ color: '#1F4D3A' }}>
+                {websiteUrl && (
+                  <a href={websiteUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#1F4D3A' }} aria-label="Website">
                     <Globe size={16} strokeWidth={1.8} />
                   </a>
                 )}
-                {speaker.twitter_url && (
-                  <a href={speaker.twitter_url} target="_blank" rel="noopener noreferrer" style={{ color: '#1F4D3A' }} aria-label="X / Twitter">
+                {twitterUrl && (
+                  <a href={twitterUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#1F4D3A' }} aria-label="X / Twitter">
                     <AtSign size={16} strokeWidth={1.8} />
                   </a>
                 )}
