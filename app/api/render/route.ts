@@ -258,9 +258,104 @@ async function buildTextOp(zone: Zone, text: string, canvasW: number, canvasH: n
   : vAlign === 'bottom' ? Math.max(0, zH - safeTH - 8)
   :                       Math.max(0, Math.floor((zH - safeTH) / 2));
 
-  const zoneCanvas = await sharp({
-    create: { width: zW, height: zH, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } },
-  }).composite([{ input: safeTextBuf, left: leftInZone, top: topInZone }]).png().toBuffer();
+  /**
+   * Text stroke and drop shadow.
+   *
+   * Card Studio has offered both as toggles for a long time (CanvasEditor's
+   * "Text stroke" and "Drop shadow"), the canvas draws them, and the attendee
+   * preview at /c/[slug] draws them too — via WebkitTextStroke and textShadow.
+   * This route ignored both. So a designer switched them on, saw them in the
+   * editor AND in the preview, and the PNG the attendee actually downloaded had
+   * neither. Same disagreement as the shrink-to-fit and verticalAlign bugs
+   * above: the canvas is the thing the designer believes.
+   *
+   * Pango markup cannot express either, which is why they were skipped. They do
+   * not need it — both are compositing, and sharp already does compositing:
+   *
+   *   silhouette = solid colour, masked to the text's own alpha (`dest-in`)
+   *   shadow     = silhouette, blurred, offset
+   *   stroke     = silhouette, stamped around a ring of radius r
+   *
+   * Order matters and matches CSS: shadow underneath, then stroke, then the
+   * fill text on top.
+   */
+  const strokeW = zone.strokeWidth ?? 0;
+  const strokeCol = zone.strokeColor;
+  const shadowBlurPx = zone.shadowBlur ?? 0;
+  const shadowCol = zone.shadowColor;
+  const hasStroke = Boolean(strokeCol) && strokeW > 0;
+  const hasShadow = Boolean(shadowCol) && shadowBlurPx > 0;
+
+  let zoneCanvas: Buffer;
+
+  if (!hasStroke && !hasShadow) {
+    // Untouched original path. The overwhelming majority of zones set neither,
+    // and those cards must render byte-for-byte as they did before.
+    zoneCanvas = await sharp({
+      create: { width: zW, height: zH, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } },
+    }).composite([{ input: safeTextBuf, left: leftInZone, top: topInZone }]).png().toBuffer();
+  } else {
+    /** Solid `color`, cut to the text's alpha — the glyph shape as one colour. */
+    const silhouette = async (color: string) =>
+      sharp({ create: { width: safeTW, height: safeTH, channels: 4, background: color } })
+        .composite([{ input: safeTextBuf, blend: 'dest-in' }])
+        .png().toBuffer();
+
+    // Effects bleed outside the glyphs, and sharp rejects negative composite
+    // coordinates. Build on a padded canvas so every offset stays >= 0, then
+    // extract the real zone back out — which also clips the bleed to the zone,
+    // exactly as the zone box does on canvas.
+    const shX = zone.shadowX ?? 0;
+    const shY = zone.shadowY ?? 0;
+    const strokeR = hasStroke ? Math.max(1, Math.round(strokeW / 2)) : 0;
+    const shadowReach = hasShadow
+      ? Math.ceil(shadowBlurPx) + Math.max(Math.abs(shX), Math.abs(shY))
+      : 0;
+    const pad = Math.max(strokeR, shadowReach);
+
+    const ops: sharp.OverlayOptions[] = [];
+
+    if (hasShadow) {
+      const sil = await silhouette(shadowCol as string);
+      // CSS blur-radius is roughly 2x a Gaussian sigma; sharp's minimum is 0.3.
+      const sigma = Math.max(0.3, shadowBlurPx / 2);
+      const blurred = await sharp(sil).blur(sigma).png().toBuffer();
+      ops.push({
+        input: blurred,
+        left: pad + leftInZone + Math.round(shX),
+        top: pad + topInZone + Math.round(shY),
+      });
+    }
+
+    if (hasStroke) {
+      const sil = await silhouette(strokeCol as string);
+      // Stamp the silhouette around a ring. More samples for a wider stroke,
+      // or the ring shows gaps between stamps at the corners.
+      const samples = Math.min(24, Math.max(8, Math.ceil(strokeR * 8)));
+      for (let i = 0; i < samples; i++) {
+        const a = (2 * Math.PI * i) / samples;
+        ops.push({
+          input: sil,
+          left: pad + leftInZone + Math.round(Math.cos(a) * strokeR),
+          top: pad + topInZone + Math.round(Math.sin(a) * strokeR),
+        });
+      }
+    }
+
+    // Fill text last, on top of both.
+    ops.push({ input: safeTextBuf, left: pad + leftInZone, top: pad + topInZone });
+
+    const padded = await sharp({
+      create: {
+        width: zW + pad * 2, height: zH + pad * 2, channels: 4,
+        background: { r: 0, g: 0, b: 0, alpha: 0 },
+      },
+    }).composite(ops).png().toBuffer();
+
+    zoneCanvas = await sharp(padded)
+      .extract({ left: pad, top: pad, width: zW, height: zH })
+      .png().toBuffer();
+  }
 
   return {
     input: zoneCanvas,
