@@ -12,11 +12,29 @@ const VALID_DURATIONS = [3, 7, 14, 30];
 const MIN_BUDGET = 5;
 const MAX_BUDGET = 200;
 
+// Promoted listings are sold end-to-end — organizer picks placements, sees a
+// spend total, submits, admin approves — and NO discovery surface reads
+// promoted_listings; verified zero references anywhere under app/(public) or
+// components/discovery. The table also has no expiry column at all, only
+// duration_days, so an approved listing would run forever if delivery shipped
+// as-is. Abdalla's call, 2026-07-22: retire intake rather than half-build
+// delivery. New submissions are refused here so a stale client or a direct
+// API call can't create one either; existing rows are untouched and the admin
+// review queue still works for whatever was already submitted.
+const INTAKE_PAUSED = true;
+
 export async function POST(req: NextRequest, { params }: Params) {
   const { id } = await params;
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  if (INTAKE_PAUSED) {
+    return NextResponse.json(
+      { error: 'Promoted listings are not accepting new submissions right now.' },
+      { status: 503 },
+    );
+  }
 
   // This route writes with the service-role client, so RLS is not a backstop —
   // the ownership check IS the authorisation. Without it any signed-in account
