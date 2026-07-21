@@ -7,6 +7,10 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/client';
+import {
+  User, MapPin, Phone, Briefcase, Building2, Link2, AtSign,
+  IdCard, Users, CalendarDays, Target, ChevronLeft, Plus, Check, Lock,
+} from 'lucide-react';
 
 // ── Brand tokens (Forest + Cream) ────────────────────────────────────────────
 const FOREST = '#1F4D3A';
@@ -234,9 +238,7 @@ export default function OnboardingWizard({
         <div className="w-[76px] h-[76px] rounded-full flex items-center justify-center mx-auto"
           style={{ background: 'rgba(45,122,79,0.22)', border: `1px solid rgba(232,197,126,0.4)` }}>
           <div className="w-[52px] h-[52px] rounded-full flex items-center justify-center" style={{ background: GOLD }}>
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={FOREST_DARK} strokeWidth="3">
-              <path d="M4 12.5l5.5 5.5L20 6.5" />
-            </svg>
+            <Check size={28} strokeWidth={3} color={FOREST_DARK} />
           </div>
         </div>
         <h1 className="mt-6 text-[26px] font-normal text-white" style={{ fontFamily: DISPLAY, letterSpacing: '-0.02em' }}>
@@ -320,9 +322,7 @@ export default function OnboardingWizard({
         <div className="w-[76px] h-[76px] rounded-full flex items-center justify-center mx-auto"
           style={{ background: 'rgba(45,122,79,0.22)', border: `1px solid rgba(232,197,126,0.4)` }}>
           <div className="w-[52px] h-[52px] rounded-full flex items-center justify-center" style={{ background: GOLD }}>
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={FOREST_DARK} strokeWidth="3">
-              <path d="M4 12.5l5.5 5.5L20 6.5" />
-            </svg>
+            <Check size={28} strokeWidth={3} color={FOREST_DARK} />
           </div>
         </div>
         <h1 className="mt-6 text-[26px] font-normal text-white" style={{ fontFamily: DISPLAY, letterSpacing: '-0.02em' }}>
@@ -370,9 +370,7 @@ export default function OnboardingWizard({
       <div className="pt-6">
         <div className="flex items-center">
           <button onClick={back} aria-label="Back" className="w-9 h-9 flex items-center justify-center -ml-2">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={INK} strokeWidth="2">
-              <path d="M15 18l-6-6 6-6" />
-            </svg>
+            <ChevronLeft size={22} strokeWidth={2} color={INK} />
           </button>
           <span className="flex-1 text-center text-[13px]" style={{ color: INK, fontFamily: BODY }}>
             Step {page + 1} of {TOTAL_STEPS}
@@ -402,15 +400,13 @@ export default function OnboardingWizard({
                   style={{ background: FOREST_SOFT, border: `1.5px solid ${BORDER}` }}>
                   {watch('avatar_url')
                     ? <Image src={watch('avatar_url')} alt="" width={84} height={84} className="w-full h-full object-cover" />
-                    : <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke={FOREST} strokeWidth="1.6">
-                        <circle cx="12" cy="8" r="4" /><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7" />
-                      </svg>}
+                    : <User size={34} strokeWidth={1.6} color={FOREST} />}
                 </div>
                 <span className="absolute -bottom-0.5 -right-0.5 w-7 h-7 rounded-full flex items-center justify-center"
                   style={{ background: FOREST, border: `2.5px solid ${CREAM}` }}>
                   {uploadingAvatar
                     ? <span className="block w-3 h-3 rounded-full border-2 border-white border-t-transparent animate-spin" />
-                    : <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.4"><path d="M12 5v14M5 12h14" /></svg>}
+                    : <Plus size={15} strokeWidth={2.4} color="white" />}
                 </span>
               </label>
               <span className="mt-2.5 text-[13px] font-semibold" style={{ color: FOREST, fontFamily: BODY }}>Add a photo</span>
@@ -515,7 +511,7 @@ export default function OnboardingWizard({
                       </span>
                       <span className="w-6 h-6 rounded-md flex items-center justify-center shrink-0"
                         style={{ background: sel ? FOREST : 'transparent', border: `1.5px solid ${sel ? FOREST : '#C9C3B4'}` }}>
-                        {sel && <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3"><path d="M4 12.5l5.5 5.5L20 6.5" /></svg>}
+                        {sel && <Check size={15} strokeWidth={3} color="white" />}
                       </span>
                     </button>
                   );
@@ -701,24 +697,31 @@ function WhyNote({ text, icon = 'lock' }: { text: string; icon?: 'lock' | 'none'
     <div className="mt-6 flex items-start gap-2.5 p-3.5 rounded-xl"
       style={{ background: GOLD_SOFT, border: `1px solid ${GOLD}` }}>
       {icon === 'lock' && (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B08A2E" strokeWidth="1.8" className="shrink-0 mt-0.5">
-          <rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V8a4 4 0 018 0v3" />
-        </svg>
+        <Lock size={18} strokeWidth={1.8} color="#B08A2E" className="shrink-0 mt-0.5" />
       )}
       <p className="text-[13px] leading-relaxed" style={{ color: INK_SOFT, fontFamily: BODY }}>{text}</p>
     </div>
   );
 }
 
-// ── Inline icons ─────────────────────────────────────────────────────────────
-const personIcon = <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"><circle cx="12" cy="8" r="4" /><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7" /></svg>;
-const pinIcon = <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"><path d="M12 21s-6-5.2-6-10a6 6 0 0112 0c0 4.8-6 10-6 10z" /><circle cx="12" cy="11" r="2.2" /></svg>;
-const phoneIcon = <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"><path d="M6 3h4l2 5-2.5 1.5a11 11 0 005 5L16 12l5 2v4a2 2 0 01-2 2A16 16 0 014 5a2 2 0 012-2z" /></svg>;
-const workIcon = <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"><rect x="3" y="7" width="18" height="13" rx="2" /><path d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2" /></svg>;
-const buildingIcon = <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"><rect x="4" y="3" width="16" height="18" rx="1" /><path d="M9 8h.01M15 8h.01M9 12h.01M15 12h.01M9 16h.01M15 16h.01" /></svg>;
-const linkIcon = <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"><path d="M10 13a5 5 0 007 0l3-3a5 5 0 00-7-7l-1.5 1.5" /><path d="M14 11a5 5 0 00-7 0l-3 3a5 5 0 007 7l1.5-1.5" /></svg>;
-const atIcon = <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"><circle cx="12" cy="12" r="4" /><path d="M16 12v1.5a2.5 2.5 0 005 0V12a9 9 0 10-3.5 7" /></svg>;
-const badgeIcon = <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"><rect x="4" y="4" width="16" height="16" rx="3" /><circle cx="12" cy="10" r="2.5" /><path d="M8 17c0-2 1.8-3.5 4-3.5s4 1.5 4 3.5" /></svg>;
-const peopleIcon = <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"><circle cx="9" cy="8" r="3.2" /><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6" /><path d="M16 6.5a3 3 0 010 6M18 20c0-2.6-1.2-4.6-3-5.6" /></svg>;
-const agendaIcon = <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"><rect x="4" y="5" width="16" height="15" rx="2" /><path d="M4 9h16M8 3v4M16 3v4" /></svg>;
-const targetIcon = <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"><circle cx="12" cy="12" r="8" /><circle cx="12" cy="12" r="3.5" /></svg>;
+// ── Icons ────────────────────────────────────────────────────────────────────
+// These were hand-drawn <svg> approximations of icons lucide already ships, at
+// strokeWidth 1.7 while the other 226 files in the app use lucide at 1.8. Close
+// enough to read as icons, different enough to look off next to the real ones —
+// the person glyph, the pin and the building were each a slightly wrong shape.
+// Onboarding is the first screen a new account sees, so it was the worst place
+// on the platform to have a second, near-miss icon set.
+//
+// They stay exported as elements (not components) because every call site passes
+// them as an `icon` ReactNode prop; swapping the definitions leaves those alone.
+const personIcon = <User size={18} strokeWidth={1.8} />;
+const pinIcon = <MapPin size={18} strokeWidth={1.8} />;
+const phoneIcon = <Phone size={18} strokeWidth={1.8} />;
+const workIcon = <Briefcase size={18} strokeWidth={1.8} />;
+const buildingIcon = <Building2 size={18} strokeWidth={1.8} />;
+const linkIcon = <Link2 size={18} strokeWidth={1.8} />;
+const atIcon = <AtSign size={18} strokeWidth={1.8} />;
+const badgeIcon = <IdCard size={20} strokeWidth={1.8} />;
+const peopleIcon = <Users size={20} strokeWidth={1.8} />;
+const agendaIcon = <CalendarDays size={20} strokeWidth={1.8} />;
+const targetIcon = <Target size={20} strokeWidth={1.8} />;

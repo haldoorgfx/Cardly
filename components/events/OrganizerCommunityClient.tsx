@@ -112,7 +112,9 @@ export function OrganizerCommunityClient({ eventId, eventName, eventSlug, channe
         <div className="px-5 py-3 flex items-center justify-between" style={{ background: '#FAF6EE', borderBottom: '1px solid #E5E0D4' }}>
           <span className="text-[12px] font-semibold" style={{ color: '#65736B' }}>CHANNELS</span>
           {channels.length > 0 && (
-            <Link href={`/e/${eventSlug}/community`} target="_blank"
+            // The attendee community lives in the dashboard; /e/:slug/community
+            // only 307s here. Link the destination so this opens directly.
+            <Link href={`/attending/${eventSlug}/community`} target="_blank"
               className="flex items-center gap-1.5 text-[12px] font-medium transition hover:opacity-70"
               style={{ color: '#1F4D3A' }}>
               <ExternalLink size={12} /> View as attendee

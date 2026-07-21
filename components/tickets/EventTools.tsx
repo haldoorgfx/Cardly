@@ -17,17 +17,35 @@ export type EventFeatures = Record<string, boolean>;
 
 const featureOn = (f: EventFeatures, key: string | null) => key === null || f[key] !== false;
 
-type Tool = { label: string; route: string; feature: string | null; icon: LucideIcon };
+type Tool = { label: string; key: string; href: (slug: string) => string; feature: string | null; icon: LucideIcon };
 
+/**
+ * Link at the FINAL destination, never at a URL that redirects.
+ *
+ * These tiles used to point at `/e/[slug]/<tool>`. Six of those are rewritten by
+ * next.config.mjs to `/attending/[slug]/…` — and this grid renders inside
+ * app/(app), which is the very shell `/attending` lives in. So tapping a tile
+ * left the app shell, made a server round trip for a 307, and rebuilt the same
+ * shell it started in: a visible flash of the public page before the dashboard
+ * reappeared. Pointing straight at the destination makes it a soft client-side
+ * navigation within the layout instead — no round trip, no flash.
+ *
+ * The redirects stay in next.config.mjs: links already shared or emailed still
+ * have to work. They are the fallback, not the path the product takes.
+ *
+ * Agenda and Speakers remain public — they are about the EVENT, not about this
+ * attendee — but are linked as the tab they resolve to rather than the
+ * redirecting sub-route, for the same reason.
+ */
 const TOOLS: Tool[] = [
-  { label: 'Agenda',      route: 'schedule',    feature: 'schedule',     icon: CalendarDays },
-  { label: 'Speakers',    route: 'speakers',    feature: 'speakers',     icon: Mic },
-  { label: 'Network',     route: 'people',      feature: 'networking',   icon: Users },
-  { label: 'Q&A',         route: 'q-and-a',     feature: 'qa',           icon: MessageCircle },
-  { label: 'Polls',       route: 'polls',       feature: 'polls',        icon: BarChart3 },
-  { label: 'Community',   route: 'community',   feature: 'newsfeed',     icon: Newspaper },
-  { label: 'Leaderboard', route: 'leaderboard', feature: 'gamification', icon: Trophy },
-  { label: 'Feedback',    route: 'feedback',    feature: null,           icon: Star },
+  { label: 'Agenda',      key: 'schedule',    href: s => `/e/${s}?tab=schedule`,     feature: 'schedule',     icon: CalendarDays },
+  { label: 'Speakers',    key: 'speakers',    href: s => `/e/${s}?tab=speakers`,     feature: 'speakers',     icon: Mic },
+  { label: 'Network',     key: 'networking',  href: s => `/attending/${s}/networking`,  feature: 'networking',   icon: Users },
+  { label: 'Q&A',         key: 'q-and-a',     href: s => `/attending/${s}/q-and-a`,     feature: 'qa',           icon: MessageCircle },
+  { label: 'Polls',       key: 'polls',       href: s => `/attending/${s}/polls`,       feature: 'polls',        icon: BarChart3 },
+  { label: 'Community',   key: 'community',   href: s => `/attending/${s}/community`,   feature: 'newsfeed',     icon: Newspaper },
+  { label: 'Leaderboard', key: 'leaderboard', href: s => `/attending/${s}/leaderboard`, feature: 'gamification', icon: Trophy },
+  { label: 'Feedback',    key: 'feedback',    href: s => `/attending/${s}/feedback`,    feature: null,           icon: Star },
 ];
 
 export function EventToolsGrid({ slug, features }: { slug: string; features: EventFeatures }) {
@@ -40,8 +58,8 @@ export function EventToolsGrid({ slug, features }: { slug: string; features: Eve
         const Icon = t.icon;
         return (
           <Link
-            key={t.route}
-            href={`/e/${slug}/${t.route}`}
+            key={t.key}
+            href={t.href(slug)}
             className="group flex flex-col items-center justify-center gap-2 rounded-xl py-3 px-1 transition-colors hover:bg-[#FAF6EE]"
             style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}
           >
