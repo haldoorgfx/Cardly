@@ -46,15 +46,29 @@ function fmtTime(iso: string): string {
   return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 }
 
-// ── Preference rows (ported verbatim from ProfileSettings) ───────────────────
-
+// ── Preference rows ──────────────────────────────────────────────────────────
+//
+// Every row here must correspond to something that ACTUALLY sends, otherwise the
+// toggle is decoration: the user opts out of a message they were never going to
+// receive, or leaves it on and wonders why nothing arrives. Each key below is
+// read by a real sender —
+//
+//   tickets            lib/notifications.ts (registration / ticket_confirmed / ticket_sale)
+//   reminders          lib/notifications.ts (event_reminder) + app/api/cron/reminders
+//   agenda_changes     app/api/events/[id]/event-page/route.ts
+//   organizer_follows  app/api/events/[id]/route.ts
+//   waitlist           app/api/events/[id]/waitlist/route.ts
+//
+// A sixth row, `recommendations` ("Weekly digest for your city"), was removed:
+// nothing reads that key, there is no digest sender, and vercel.json schedules
+// exactly one cron (/api/cron/reminders). It advertised a product that does not
+// exist. Re-add it in the same commit as the digest itself, not before.
 const NOTIF_ROWS: { key: string; label: string; sub: string }[] = [
   { key: 'tickets',          label: 'Tickets & receipts',      sub: 'Confirmation, QR code, Eventera Card' },
   { key: 'reminders',        label: 'Event reminders',         sub: '24 hours and 2 hours before doors' },
   { key: 'agenda_changes',   label: 'Agenda changes',          sub: 'Session moved, cancelled or rescheduled' },
   { key: 'organizer_follows',label: 'Organizers you follow',   sub: 'New event published' },
   { key: 'waitlist',         label: 'Waitlist updates',        sub: 'A spot opened for you' },
-  { key: 'recommendations',  label: 'Recommendations',         sub: 'Weekly digest for your city' },
 ];
 
 function Toggle({ on, onChange, label }: { on: boolean; onChange: (v: boolean) => void; label: string }) {

@@ -378,7 +378,10 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
             ) : (
               <div className="w-full h-full flex items-center justify-center text-white text-[22px] font-semibold"
                 style={{ background: 'linear-gradient(135deg, #1F4D3A, #2A6A50)' }}>
-                {(fullName || profile.email)[0].toUpperCase()}
+                {/* Both can be empty (profile.email falls back to '' upstream),
+                    and ''[0] is undefined — .toUpperCase() on it threw and took
+                    the whole settings page down with it. */}
+                {(fullName || profile.email || '?').charAt(0).toUpperCase()}
               </div>
             )}
             {photoUploading && (
@@ -886,7 +889,7 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
             </h3>
             <p className="mt-2 text-[13px]" style={{ color: '#65736B' }}>
               This permanently removes your profile and all your data. This can&rsquo;t be undone.
-              Type <span style={{ fontFamily: '"JetBrains Mono", monospace', color: '#B8423C' }}>DELETE</span> to confirm.
+              Type <span style={{ fontWeight: 700, letterSpacing: '0.04em', color: '#B8423C' }}>DELETE</span> to confirm.
             </p>
             <input
               type="text"

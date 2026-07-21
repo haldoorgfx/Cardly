@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { deleteAccount, signOutAllDevices } from '@/app/(auth)/actions';
-import { Check, Lock, ChevronRight, LogOut } from 'lucide-react';
+import { Check, Lock, ChevronRight, LogOut, Download } from 'lucide-react';
 import { useConfirm } from '@/components/ui/ConfirmProvider';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -209,18 +209,51 @@ export default function SettingsClient({ profile, section }: Props) {
         </section>
         )}
 
+        {/* ── Your data ──
+            /api/export-data existed but nothing linked to it, so the only way to
+            get a copy of your own data was to guess the URL. It sits here, above
+            Delete, because this is the one screen where a user needs it. */}
+        {show('account') && (
+        <section className="bg-white rounded-2xl border p-2" style={{ borderColor: '#E5E0D4' }}>
+          <a
+            href="/api/export-data"
+            download
+            className="flex items-center justify-between gap-4 rounded-xl px-4 py-3.5 transition-colors hover:bg-[#F5F3EE]"
+          >
+            <div className="flex items-center gap-3">
+              <span className="w-9 h-9 rounded-lg grid place-items-center shrink-0" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
+                <Download size={16} strokeWidth={1.9} />
+              </span>
+              <div>
+                <div className="text-[13.5px] font-medium text-[#0F1F18]">Download your data</div>
+                <div className="text-[12.5px] mt-0.5" style={{ color: '#65736B' }}>
+                  Your profile, events, tickets and cards as a JSON file.
+                </div>
+              </div>
+            </div>
+            <ChevronRight size={16} strokeWidth={2} style={{ color: '#9BA8A1' }} />
+          </a>
+        </section>
+        )}
+
         {/* ── Danger zone ── */}
         {show('account') && (
         <>
         <section className="bg-white rounded-2xl border p-6" style={{ borderColor: 'rgba(184,66,60,0.25)' }}>
-          <div className="flex items-center justify-between gap-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6">
             <div>
               <div className="text-[13.5px] font-semibold mb-1" style={{ color: '#B8423C' }}>Delete account</div>
+              {/* Name what is actually destroyed. "Your account and all events"
+                  undersold it — deletion cascades through events to every
+                  attendee registration and generated card, and cancels the
+                  subscription. A user agreeing to this should know that. */}
               <div className="text-[13px]" style={{ color: '#65736B' }}>
-                Permanently removes your account and all events. This can&apos;t be undone.
+                Permanently removes your profile, every event you own, and the
+                registrations and cards attached to them. Any active subscription
+                is cancelled. This can&apos;t be undone — download your data first.
               </div>
             </div>
-            <div className="flex flex-col items-end gap-1.5 shrink-0">
+            <div className="flex flex-col items-start sm:items-end gap-1.5 shrink-0">
               <button
                 onClick={handleDeleteAccount}
                 disabled={deleting}

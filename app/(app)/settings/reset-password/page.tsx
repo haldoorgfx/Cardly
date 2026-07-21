@@ -46,7 +46,13 @@ export default function ResetPasswordPage() {
 
         <form className="space-y-4" onSubmit={handleSubmit}>
           {error && (
-            <div className="text-[13px] text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-3">{error}</div>
+            <div
+              role="alert"
+              className="text-[13px] rounded-lg px-4 py-3"
+              style={{ color: '#B8423C', background: 'rgba(184,66,60,0.07)', border: '1px solid rgba(184,66,60,0.25)' }}
+            >
+              {error}
+            </div>
           )}
 
           <div>
