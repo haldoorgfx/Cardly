@@ -85,7 +85,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const db = createAdminClient() as any;
     const { data } = await db
       .from('event_pages')
-      .select('updated_at, city, events!inner(slug, status)')
+      .select('updated_at, city, event_id, events!inner(slug, status, user_id)')
       .eq('is_public', true)
       .eq('events.status', 'published')
       .limit(5000);
@@ -93,20 +93,51 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     if (Array.isArray(data)) {
       const seen = new Set<string>();
       const cities = new Set<string>();
+      // Organizer public profiles and the event ids we can hang speaker
+      // profiles off. Both are real indexable routes that the sitemap never
+      // mentioned, so Google only ever found them by crawling links.
+      const organizers = new Set<string>();
+      const slugByEventId = new Map<string, string>();
+
       for (const row of data) {
         const slug: string | undefined = row?.events?.slug;
         if (slug && !seen.has(slug)) {
           seen.add(slug);
           const last = row?.updated_at ? new Date(row.updated_at) : now;
           eventEntries.push(entry(`/e/${slug}`, 0.6, 'weekly', last));
+          if (row?.event_id) slugByEventId.set(row.event_id as string, slug);
         }
         // Only emit a city page we actually have published events for, so the
         // sitemap never advertises an empty landing page.
         const city = (row?.city as string | undefined)?.trim();
         if (city) cities.add(citySlug(city));
+
+        const organizerId = row?.events?.user_id as string | undefined;
+        if (organizerId) organizers.add(organizerId);
       }
+
       for (const c of Array.from(cities)) {
         eventEntries.push(entry(`/events/city/${c}`, 0.6, 'weekly'));
+      }
+      for (const id of Array.from(organizers)) {
+        eventEntries.push(entry(`/o/${id}`, 0.5, 'weekly'));
+      }
+
+      // Speaker profiles — high-intent long-tail ("<name> speaking") and one of
+      // the few pages on the platform a person searches for by name.
+      const eventIds = Array.from(slugByEventId.keys());
+      if (eventIds.length) {
+        const { data: speakers } = await db
+          .from('speakers')
+          .select('id, event_id')
+          .in('event_id', eventIds.slice(0, 1000))
+          .limit(10000);
+        for (const sp of Array.isArray(speakers) ? speakers : []) {
+          const evSlug = slugByEventId.get(sp?.event_id as string);
+          if (evSlug && sp?.id) {
+            eventEntries.push(entry(`/s/${evSlug}/${sp.id}`, 0.4, 'monthly'));
+          }
+        }
       }
     }
   } catch {
@@ -114,5 +145,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     eventEntries = [];
   }
 
-  return [...staticEntries, ...eventEntries];
+  // The sitemap spec caps a single file at 50,000 URLs; going over makes Google
+  // reject the WHOLE file, not just the overflow. Static marketing entries are
+  // kept first so they can never be the ones dropped.
+  const MAX_SITEMAP_URLS = 50_000;
+  return [...staticEntries, ...eventEntries].slice(0, MAX_SITEMAP_URLS);
 }

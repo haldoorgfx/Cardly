@@ -5,6 +5,7 @@ import { createAdminClient, createClient } from '@/lib/supabase/server';
 import { PublicNav } from '@/components/events/PublicNav';
 import { SearchAndMap } from '@/components/discovery/SearchAndMap';
 import { geocodeAddress } from '@/lib/events/geocode';
+import { escapeLikePattern } from '@/lib/search/filter';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -46,9 +47,12 @@ export default async function SearchPage({ searchParams }: Props) {
   const catParam = searchParams.category ?? '';
   const freeOnly = searchParams.free === 'true';
 
-  if (q) query = query.ilike('title', `%${q}%`);
-  if (cityParam) query = query.ilike('city', cityParam);
-  if (catParam) query = query.ilike('category', catParam);
+  // `%` and `_` are ILIKE wildcards — interpolating the raw query meant a search
+  // for "100%" or "a_b" silently matched something else, and a bare "%" matched
+  // every row. escapeLikePattern is the codebase's single escaping helper.
+  if (q) query = query.ilike('title', `%${escapeLikePattern(q)}%`);
+  if (cityParam) query = query.ilike('city', escapeLikePattern(cityParam));
+  if (catParam) query = query.ilike('category', escapeLikePattern(catParam));
   if (freeOnly) query = query.eq('price_from', 0);
   if (searchParams.format === 'online') query = query.eq('is_online', true);
   if (searchParams.format === 'inperson') query = query.eq('is_online', false);

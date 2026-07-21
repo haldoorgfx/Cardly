@@ -7,11 +7,52 @@ import { Mic, Clock, MapPin, Link2, Globe, AtSign, ArrowLeft } from 'lucide-reac
 import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
 import { ownedSpeaker } from '@/lib/rbac/ownership';
 import { PublicNav } from '@/components/events/PublicNav';
+import type { Metadata } from 'next';
 
 interface Props { params: { slug: string; speakerId: string } }
 
-export async function generateMetadata() {
-  return { title: 'Speaker' };
+// Every speaker profile previously emitted the literal title "Speaker", so all
+// of them collided as one indistinguishable result in search and link previews.
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const admin = createAdminClient();
+  const resolved = await resolvePublicSlug(params.slug);
+  if (!resolved) return { title: 'Speaker' };
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: speaker } = await (admin as any)
+    .from('speakers')
+    .select('name, headline, company, role, photo_url')
+    .eq('id', params.speakerId)
+    .eq('event_id', resolved.event.id)
+    .maybeSingle();
+
+  if (!speaker?.name) return { title: 'Speaker' };
+
+  const eventName = resolved.event.name as string | undefined;
+  const title = eventName ? `${speaker.name} — speaking at ${eventName}` : speaker.name;
+  const description =
+    speaker.headline ??
+    ([speaker.role, speaker.company].filter(Boolean).join(' at ') ||
+      `${speaker.name}${eventName ? ` is speaking at ${eventName}` : ''}.`);
+
+  const images = speaker.photo_url
+    ? [{ url: speaker.photo_url as string, alt: speaker.name as string }]
+    : [{ url: '/og-default.png', width: 1200, height: 630, alt: speaker.name as string }];
+
+  const url = `/s/${params.slug}/${params.speakerId}`;
+
+  return {
+    title: speaker.name as string,
+    description,
+    alternates: { canonical: url },
+    openGraph: { type: 'profile', url, siteName: 'Eventera', title, description, images },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: images.map((i) => i.url),
+    },
+  };
 }
 
 // PUBLIC read-only speaker profile — what a stranger sees.

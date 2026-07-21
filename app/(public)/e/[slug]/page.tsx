@@ -57,13 +57,53 @@ async function resolveEventPage(slug: string) {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const page = await resolveEventPage(params.slug);
   if (!page) return { title: 'Event' };
+
+  const title = page.seo_title ?? page.title;
+
+  // A shared link with no description reads as a bare URL on WhatsApp — the
+  // dominant sharing channel in our markets. Fall back through the event's own
+  // copy before giving up, and only then to a generic-but-true sentence.
+  const description =
+    page.seo_description ??
+    page.tagline ??
+    [
+      `${page.title}`,
+      page.venue_name || page.city ? `at ${page.venue_name ?? page.city}` : null,
+      page.organizer_name ? `by ${page.organizer_name}` : null,
+    ]
+      .filter(Boolean)
+      .join(' ') + '. Register on Eventera.';
+
+  // Next resolves relative URLs against metadataBase (set in the root layout),
+  // so '/og-default.png' still emits an ABSOLUTE og:image. An empty array does
+  // NOT inherit the root default — it publishes an imageless preview, so the
+  // fallback has to be explicit.
+  const images = page.cover_image_url
+    ? [{ url: page.cover_image_url as string, alt: title }]
+    : [{ url: '/og-default.png', width: 1200, height: 630, alt: title }];
+
+  const url = `/e/${params.slug}`;
+
   return {
-    title: page.seo_title ?? page.title,
-    description: page.seo_description ?? page.tagline ?? undefined,
+    title,
+    description,
+    alternates: { canonical: url },
     openGraph: {
-      title: page.seo_title ?? page.title,
-      description: page.seo_description ?? page.tagline ?? undefined,
-      images: page.cover_image_url ? [{ url: page.cover_image_url }] : [],
+      type: 'website',
+      url,
+      siteName: 'Eventera',
+      title,
+      description,
+      images,
+    },
+    // Twitter tags are merged SEPARATELY from openGraph — without this block the
+    // page inherited the root layout's generic site-wide twitter:title, so every
+    // shared event showed "Eventera — A new era of events." instead of itself.
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: images.map((i) => i.url),
     },
   };
 }
