@@ -84,6 +84,7 @@ const PLANS: Plan[] = [
     features: [
       'Unlimited registrations',
       'AI matchmaking',
+      'AI Copilot for organizers',
       'Live Q&A & polls',
       'Gamification & leaderboard',
       'Sponsor tools & lead retrieval',

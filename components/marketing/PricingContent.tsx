@@ -62,6 +62,7 @@ const COMPARISON_GROUPS: ComparisonGroup[] = [
       ['Attendee profiles & directory',   false, true,  true],
       ['1:1 messaging',                   false, true,  true],
       ['AI matchmaking suggestions',      false, false, true],
+      ['AI Copilot for organizers',       false, false, true],
     ],
   },
   {

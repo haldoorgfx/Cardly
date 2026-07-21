@@ -4,7 +4,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { z } from 'zod';
 import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 import { getEventOwnerPlan } from '@/lib/billing/can';
-import { hasERA } from '@/lib/ai/gate';
+import { hasStudioERA } from '@/lib/ai/gate';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -61,18 +61,20 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
   // Plan gate. Copilot is the single most expensive endpoint in the product —
-  // a frontier model with a 40-turn history — and it was the ONLY AI surface
-  // with no plan check at all, so any free signup could run it without limit.
-  // CLAUDE.md is explicit that AI is locked on Free, so this matches the
-  // documented policy and every /api/era route.
+  // Claude with a 40-turn history, where every other AI surface runs Gemini
+  // Flash — and it was the ONLY AI surface with no plan check at all, so any
+  // free signup could run it without limit. Studio-gated (not Pro): it isn't
+  // listed on the pricing page under either tier, and Studio — which already
+  // advertises "ERA AI" — is where the product's most expensive per-call
+  // feature belongs. Abdalla's call, 2026-07-22.
   //
   // Gated on the EVENT OWNER's plan, not the caller's: a Studio organiser's
   // teammates reach this event through manageableOwnerIds() above and must not
   // be told to upgrade their own personal account to use the owner's feature.
   const ownerPlan = await getEventOwnerPlan(params.id);
-  if (!ownerPlan || !hasERA(ownerPlan)) {
+  if (!ownerPlan || !hasStudioERA(ownerPlan)) {
     return NextResponse.json(
-      { error: 'AI Copilot is a paid feature. Upgrade to Pro to use it.' },
+      { error: 'AI Copilot is a Studio feature. Upgrade to Studio to use it.' },
       { status: 402 },
     );
   }
