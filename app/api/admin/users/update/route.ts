@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { getAuthorizedUser } from '@/lib/auth/guards';
-import { USER_ROLE_CHANGE } from '@/lib/auth/permissions';
+import { getAuthorizedUser, hasPermission } from '@/lib/auth/guards';
+import { USER_ROLE_CHANGE, BILLING_MANAGE } from '@/lib/auth/permissions';
 import { createAdminClient } from '@/lib/supabase/server';
 import { logAudit } from '@/lib/audit/log';
 
@@ -37,6 +37,18 @@ export async function PATCH(request: Request) {
   if (plan !== undefined) {
     if (!VALID_PLANS.includes(plan)) {
       return NextResponse.json({ error: `plan must be one of: ${VALID_PLANS.join(', ')}` }, { status: 400 });
+    }
+    // Granting a paid plan is a billing action. /api/admin/billing/comp gates
+    // exactly this on BILLING_MANAGE (super_admin) and records it as a
+    // Stripe-bypassing override — but this route only required
+    // USER_ROLE_CHANGE, which a plain admin has, and has no self-edit guard.
+    // An admin could therefore PATCH their own userId to plan:'studio' and
+    // self-issue a $49/mo plan through the back door. Same privilege, same gate.
+    if (!hasPermission(user, BILLING_MANAGE)) {
+      return NextResponse.json(
+        { error: 'Changing a plan requires billing permission — use the Billing admin.' },
+        { status: 403 },
+      );
     }
     update.plan = plan;
   }

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getAuthorizedUser } from '@/lib/auth/guards';
 import { BILLING_MANAGE } from '@/lib/auth/permissions';
 import { createAdminClient } from '@/lib/supabase/server';
+import { orIlikeAcross } from '@/lib/search/filter';
 
 // GET /api/admin/billing — list users with active subscriptions
 export async function GET(request: Request) {
@@ -9,7 +10,9 @@ export async function GET(request: Request) {
   if ('error' in result) return result.error;
 
   const url = new URL(request.url);
-  const search = (url.searchParams.get('q')?.trim() ?? '').replace(/[(),*:%]/g, '');
+  // See admin/events: quote the value with the shared helper rather than
+  // stripping characters out of the admin's search term.
+  const search = url.searchParams.get('q')?.trim() ?? '';
   const plan   = url.searchParams.get('plan') ?? '';
   const page   = Math.max(1, parseInt(url.searchParams.get('page') ?? '1', 10));
   const PAGE_SIZE = 50;
@@ -24,8 +27,9 @@ export async function GET(request: Request) {
       { count: 'exact' }
     );
 
-  if (search) {
-    query = query.or(`email.ilike.%${search}%,full_name.ilike.%${search}%`);
+  const searchFilter = search ? orIlikeAcross(['email', 'full_name'], search) : null;
+  if (searchFilter) {
+    query = query.or(searchFilter);
   }
   if (plan) {
     query = query.eq('plan', plan as 'free' | 'pro' | 'studio');

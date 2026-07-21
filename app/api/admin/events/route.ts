@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getAuthorizedUser } from '@/lib/auth/guards';
 import { EVENT_VIEW_ALL } from '@/lib/auth/permissions';
 import { createAdminClient } from '@/lib/supabase/server';
+import { orIlikeAcross } from '@/lib/search/filter';
 import type { EventStatus, ModerationStatus } from '@/types/database';
 
 // GET /api/admin/events — list all events across all users
@@ -10,7 +11,10 @@ export async function GET(request: Request) {
   if ('error' in result) return result.error;
 
   const url = new URL(request.url);
-  const search = (url.searchParams.get('q')?.trim() ?? '').replace(/[(),*:%]/g, '');
+  // Was a strip-blacklist, which both missed characters and silently deleted
+  // legitimate ones (a search for "50%" became "50"). The shared helper quotes
+  // the value instead of destroying it.
+  const search = url.searchParams.get('q')?.trim() ?? '';
   const status = url.searchParams.get('status') ?? '';
   const moderation = url.searchParams.get('moderation') ?? '';
   const page = Math.max(1, parseInt(url.searchParams.get('page') ?? '1', 10));
@@ -23,8 +27,9 @@ export async function GET(request: Request) {
     .from('events')
     .select('id, name, slug, status, moderation_status, user_id, view_count, download_count, created_at, updated_at, profiles!events_user_id_fkey(email, full_name)', { count: 'exact' });
 
-  if (search) {
-    query = query.or(`name.ilike.%${search}%,slug.ilike.%${search}%`);
+  const searchFilter = search ? orIlikeAcross(['name', 'slug'], search) : null;
+  if (searchFilter) {
+    query = query.or(searchFilter);
   }
   if (status) {
     query = query.eq('status', status as EventStatus);

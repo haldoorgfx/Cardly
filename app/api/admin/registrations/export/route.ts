@@ -3,6 +3,7 @@ import { EVENT_VIEW_ALL } from '@/lib/auth/permissions';
 import { createAdminClient } from '@/lib/supabase/server';
 import { logAudit } from '@/lib/audit/log';
 import { escapeCsvCell } from '@/lib/csv';
+import { orIlikeAcross } from '@/lib/search/filter';
 
 // GET /api/admin/registrations/export — stream all rows matching the current
 // filters as a CSV download. Admin-guarded (same view permission as the page).
@@ -26,7 +27,11 @@ export async function GET(request: Request) {
       'id, attendee_name, attendee_email, attendee_phone, status, payment_status, amount_paid, currency, created_at, events(name, slug), ticket_types(name)',
     );
 
-  if (q)             query = query.or(`attendee_name.ilike.%${q}%,attendee_email.ilike.%${q}%`);
+  // `q` went into the .or() string raw. A comma is what separates conditions
+  // there, so searching `Doe, John` silently widened the OR to match every row
+  // and produced a full-table PII export the admin believed was filtered.
+  const qFilter = q ? orIlikeAcross(['attendee_name', 'attendee_email'], q) : null;
+  if (qFilter)       query = query.or(qFilter);
   if (status)        query = query.eq('status', status);
   if (paymentStatus) query = query.eq('payment_status', paymentStatus);
   if (eventId)       query = query.eq('event_id', eventId);

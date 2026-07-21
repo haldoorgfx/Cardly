@@ -6,6 +6,7 @@
  */
 
 import { createAdminClient } from '@/lib/supabase/server';
+import { orIlikeAcross } from '@/lib/search/filter';
 import type { Database } from '@/types/database';
 
 export type AdminUserRow = Database['public']['Tables']['profiles']['Row'] & {
@@ -54,9 +55,12 @@ export async function listUsers(opts: UserListOptions = {}): Promise<UserListRes
     .from('profiles')
     .select('*', { count: 'exact' });
 
-  const safeSearch = search?.replace(/[(),*:%]/g, '');
-  if (safeSearch) {
-    query = query.or(`email.ilike.%${safeSearch}%,full_name.ilike.%${safeSearch}%`);
+  // The old strip-blacklist deleted characters from the search term, so a
+  // support search for an address like "a_b@x.com" quietly matched the wrong
+  // users. The shared helper quotes the value instead of mangling it.
+  const searchFilter = search ? orIlikeAcross(['email', 'full_name'], search) : null;
+  if (searchFilter) {
+    query = query.or(searchFilter);
   }
   if (role) {
     query = query.eq('role', role as import('@/types/database').UserRole);

@@ -2,6 +2,7 @@ import { getAuthorizedUser } from '@/lib/auth/guards';
 import { EVENT_VIEW_ALL } from '@/lib/auth/permissions';
 import { createAdminClient } from '@/lib/supabase/server';
 import { toCsv, csvResponse, csvDateStamp } from '@/lib/csv';
+import { orIlikeAcross } from '@/lib/search/filter';
 
 export const dynamic = 'force-dynamic';
 
@@ -35,7 +36,10 @@ export async function GET(request: Request) {
       'id, name, slug, status, moderation_status, view_count, download_count, created_at, profiles!events_user_id_fkey(email, full_name)',
     );
 
-  if (q) query = query.or(`name.ilike.%${q}%,slug.ilike.%${q}%`);
+  // Raw interpolation into .or() let a comma in the query add conditions and
+  // widen the export past the filter the admin actually applied.
+  const qFilter = q ? orIlikeAcross(['name', 'slug'], q) : null;
+  if (qFilter) query = query.or(qFilter);
   if (status) query = query.eq('status', status);
   if (moderation) query = query.eq('moderation_status', moderation);
   query = query.order('created_at', { ascending: false }).limit(10_000);

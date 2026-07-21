@@ -2,6 +2,7 @@ import { requirePermission } from '@/lib/auth/guards';
 import { BILLING_MANAGE } from '@/lib/auth/permissions';
 import { createAdminClient } from '@/lib/supabase/server';
 import { PageShell, PageHeader } from '@/components/dash';
+import { orIlikeAcross } from '@/lib/search/filter';
 import { BillingAdminClient } from './BillingAdminClient';
 import type { Plan } from '@/types/database';
 
@@ -34,9 +35,12 @@ export default async function BillingAdminPage({
       { count: 'exact' }
     );
 
-  const q = searchParams.q?.trim().replace(/[(),*:%]/g, '');
-  if (q) {
-    query = query.or(`email.ilike.%${q}%,full_name.ilike.%${q}%`);
+  // Shared helper quotes the value; the old strip-blacklist silently deleted
+  // characters from the admin's query.
+  const q = searchParams.q?.trim();
+  const qFilter = q ? orIlikeAcross(['email', 'full_name'], q) : null;
+  if (qFilter) {
+    query = query.or(qFilter);
   }
   if (searchParams.plan) {
     query = query.eq('plan', searchParams.plan as Plan);

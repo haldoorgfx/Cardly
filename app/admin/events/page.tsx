@@ -2,6 +2,7 @@ import { requirePermission } from '@/lib/auth/guards';
 import { EVENT_VIEW_ALL } from '@/lib/auth/permissions';
 import { createAdminClient } from '@/lib/supabase/server';
 import { PageShell, PageHeader } from '@/components/dash';
+import { orIlikeAcross } from '@/lib/search/filter';
 import { EventsOversightClient } from './EventsOversightClient';
 import type { EventStatus, ModerationStatus } from '@/types/database';
 
@@ -35,9 +36,12 @@ export default async function EventsOversightPage({
       { count: 'exact' }
     );
 
-  const q = searchParams.q?.trim().replace(/[(),*:%]/g, '');
-  if (q) {
-    query = query.or(`name.ilike.%${q}%,slug.ilike.%${q}%`);
+  // Shared helper quotes the value; the old strip-blacklist silently deleted
+  // characters from the admin's query.
+  const q = searchParams.q?.trim();
+  const qFilter = q ? orIlikeAcross(['name', 'slug'], q) : null;
+  if (qFilter) {
+    query = query.or(qFilter);
   }
   if (searchParams.status) {
     query = query.eq('status', searchParams.status as EventStatus);

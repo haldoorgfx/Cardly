@@ -2,6 +2,7 @@ import { requirePermission, getSessionUser } from '@/lib/auth/guards';
 import { EVENT_VIEW_ALL } from '@/lib/auth/permissions';
 import { createAdminClient } from '@/lib/supabase/server';
 import { PageShell, PageHeader } from '@/components/dash';
+import { orIlikeAcross } from '@/lib/search/filter';
 import { RegistrationsAdminClient } from './RegistrationsAdminClient';
 
 export const metadata = { title: 'Registrations — Eventera Admin' };
@@ -45,9 +46,13 @@ export default async function RegistrationsAdminPage({
       { count: 'exact' },
     );
 
-  const q = searchParams.q?.trim().replace(/[(),*:%]/g, '');
-  if (q) {
-    query = query.or(`attendee_name.ilike.%${q}%,attendee_email.ilike.%${q}%`);
+  // Quote the search value via the shared helper instead of stripping
+  // characters — the strip lost legitimate input and had to be kept in sync
+  // with the export route by hand.
+  const q = searchParams.q?.trim();
+  const qFilter = q ? orIlikeAcross(['attendee_name', 'attendee_email'], q) : null;
+  if (qFilter) {
+    query = query.or(qFilter);
   }
   if (searchParams.status) {
     query = query.eq('status', searchParams.status);
