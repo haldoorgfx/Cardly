@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Plug, Plus, Key, X, Trash2, Copy, Check } from 'lucide-react';
 import { PageShell, PageHeader } from '@/components/dash';
 import { StatusState, describeError } from '@/components/ui/status-state';
+import { AUTO_DISABLE_AFTER } from '@/lib/webhooks/constants';
 
 interface Props {
   eventId: string;
@@ -183,6 +184,14 @@ export function WebhooksView(_props: Props) {
                     {ep.events.map(e => EVENT_LABEL[e] ?? e).join(', ')} · last fired {timeAgo(ep.last_fired_at)}
                     {failing && ` · ${ep.failure_count} failure${ep.failure_count === 1 ? '' : 's'}`}
                   </p>
+                  {/* An endpoint that failed its way to disabled looks identical
+                      to one the organizer switched off themselves. Say which. */}
+                  {!ep.enabled && ep.failure_count >= AUTO_DISABLE_AFTER && (
+                    <p className="text-[12px] mt-1" style={{ color: '#B8423C' }}>
+                      Switched off automatically after {ep.failure_count} failed deliveries.
+                      Fix the endpoint, then turn it back on.
+                    </p>
+                  )}
                 </div>
                 {/* Enable toggle */}
                 <button
