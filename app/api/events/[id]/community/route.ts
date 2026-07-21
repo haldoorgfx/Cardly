@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createAdminClient } from '@/lib/supabase/server';
+import { createAdminClient, createClient } from '@/lib/supabase/server';
 import { assertOwnsRegistration } from '@/lib/attendee-identity';
+import { hasModeratorAccess } from '@/lib/rbac/ownership';
 import { z } from 'zod';
 
 const PostSchema = z.object({
@@ -9,11 +10,30 @@ const PostSchema = z.object({
   content: z.string().min(1).max(2000),
 });
 
-// GET /api/events/[id]/community?channel_id=xxx — messages for a channel
+// GET /api/events/[id]/community?channel_id=xxx&reg=xxx — messages for a channel
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   const { searchParams } = new URL(req.url);
   const channelId = searchParams.get('channel_id');
   if (!channelId) return NextResponse.json({ error: 'channel_id required' }, { status: 400 });
+
+  // POST already required an event registration, but GET had NO identity check
+  // at all — this route uses the service-role client, so it bypassed the
+  // "event participants only" RLS on community_messages (078). Anyone holding a
+  // channel id (a shared link, a screenshot, a cancelled attendee) could read
+  // the whole attendee chat unauthenticated. Gate reads like the writes.
+  const regId = searchParams.get('reg');
+  let allowed = false;
+  if (regId) {
+    const identity = await assertOwnsRegistration(params.id, regId);
+    if (identity.ok) allowed = true;
+  }
+  if (!allowed) {
+    // Organizers / moderators read the same chat from the dashboard side.
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    allowed = !!user && (await hasModeratorAccess(user.id, params.id));
+  }
+  if (!allowed) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   // community_channels/community_messages aren't in the generated types yet.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

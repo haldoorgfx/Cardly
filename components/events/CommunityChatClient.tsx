@@ -57,7 +57,10 @@ export function CommunityChatClient({ eventId, eventName, eventSlug, channels, i
     setSidebarOpen(false);
     setMessages([]);
     try {
-      const res = await fetch(`/api/events/${eventId}/community?channel_id=${channelId}`);
+      // `reg` is how the route proves the caller is an attendee of this event —
+      // reads are gated the same way writes are.
+      const regParam = registrationId ? `&reg=${registrationId}` : '';
+      const res = await fetch(`/api/events/${eventId}/community?channel_id=${channelId}${regParam}`);
       const data = await res.json() as { messages?: Message[] };
       setMessages(data.messages ?? []);
     } catch { /* keep empty */ }

@@ -83,7 +83,16 @@ export default async function SpeakerWorkspacePage({
         .neq('status', 'hidden')
         .order('upvotes_count', { ascending: false })
         .order('created_at', { ascending: true });
-      questions = data ?? [];
+      // SpeakerPortalClient prints "Anonymous" for an anonymous question, but
+      // that is client-side only — the asker's real attendee_name still shipped
+      // in this page's payload, so a speaker could de-anonymise every anonymous
+      // question about their own session by reading the response. Redact here,
+      // matching /api/events/[id]/q-and-a and the attendee Q&A page.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      questions = (data ?? []).map((q: any) => ({
+        ...q,
+        registrations: q.is_anonymous ? null : q.registrations,
+      }));
     } catch {
       questions = [];
     }

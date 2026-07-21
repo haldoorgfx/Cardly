@@ -23,7 +23,12 @@ export default async function CommunityPage({ params, searchParams }: Props) {
     .order('is_pinned', { ascending: false })
     .order('position', { ascending: true });
 
-  const activeChannel = channel ?? channels?.[0]?.id;
+  // `?channel=` is caller-supplied and was passed straight into the message
+  // query, so an attendee of event A could read event B's community chat just
+  // by pasting B's channel id into the URL. Only accept a channel that belongs
+  // to THIS event; otherwise fall back to the event's first channel.
+  const channelIds = new Set((channels ?? []).map((c: { id: string }) => c.id));
+  const activeChannel = channel && channelIds.has(channel) ? channel : channels?.[0]?.id;
   const { data: messages } = activeChannel
     ? await admin
         .from('community_messages')
