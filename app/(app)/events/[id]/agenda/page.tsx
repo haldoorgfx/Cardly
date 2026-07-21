@@ -24,7 +24,7 @@ export default async function AgendaPage({ params }: Props) {
   const admin = createAdminClient();
   const [{ data: event }, { data: eventPage }, { data: sessions }, { data: speakers }, { data: tracks }] = await Promise.all([
     admin.from('events').select('id, name, slug').eq('id', id).in('user_id', await manageableOwnerIds(user.id)).single(),
-    admin.from('event_pages').select('starts_at, ends_at').eq('event_id', id).maybeSingle(),
+    admin.from('event_pages').select('starts_at, ends_at, timezone').eq('event_id', id).maybeSingle(),
     admin.from('sessions').select('*, tracks(id,name,color), session_speakers(speaker_id, position, speakers(id,name,photo_url))').eq('event_id', id).order('starts_at', { ascending: true }),
     admin.from('speakers').select('id, name, photo_url, role').eq('event_id', id).order('position', { ascending: true }),
     admin.from('tracks').select('*').eq('event_id', id).order('position', { ascending: true }),
@@ -43,6 +43,7 @@ export default async function AgendaPage({ params }: Props) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         initialTracks={(tracks ?? []) as any}
         eventDates={{ starts_at: eventPage?.starts_at ?? null, ends_at: eventPage?.ends_at ?? null }}
+        timezone={eventPage?.timezone || 'UTC'}
       />
     </PageShell>
   );

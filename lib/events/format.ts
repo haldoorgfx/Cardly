@@ -135,6 +135,23 @@ export function formatZonedTime(isoString: string | null | undefined, timezone: 
 }
 
 /**
+ * Minutes since midnight for an instant, IN THE EVENT'S ZONE.
+ *
+ * The organizer agenda timeline positions each session block by
+ * `new Date(starts_at).getHours()`, which is the browser's zone. For an
+ * organizer who is not sitting in the event's own zone the whole grid slides —
+ * a 09:00 Nairobi keynote drew at 06:00 on a London laptop, the hour axis
+ * relabelled itself, and clicking an empty slot created a session at the
+ * clicked wall-clock time interpreted in the WRONG zone.
+ */
+export function zonedMinutesOfDay(isoString: string, timezone: string): number {
+  const d = new Date(isoString);
+  if (Number.isNaN(d.getTime())) return 0;
+  const { hour, minute } = getZonedParts(d, timezone || 'UTC');
+  return hour * 60 + minute;
+}
+
+/**
  * Stable per-day bucket key for an instant, computed in the event's zone.
  * `en-CA` yields YYYY-MM-DD, which sorts lexicographically.
  *

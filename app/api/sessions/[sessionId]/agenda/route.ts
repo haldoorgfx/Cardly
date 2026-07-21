@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { assertOwnsRegistration } from '@/lib/attendee-identity';
+import { bookSessionSeat } from '@/lib/sessions/bookSeat';
 import { z } from 'zod';
 
 const BodySchema = z.object({
@@ -31,11 +32,20 @@ export async function POST(req: NextRequest, { params }: { params: { sessionId: 
   }
 
   if (action === 'add') {
-    const { error } = await admin
-      .from('attendee_agendas')
-      .upsert({ registration_id, session_id: params.sessionId }, { onConflict: 'registration_id,session_id' });
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-    return NextResponse.json({ saved: true });
+    // Go through the shared seat-taker. This route used to upsert straight into
+    // attendee_agendas with no capacity check whatsoever, which meant a
+    // capacity-limited session was only actually capped for attendees who
+    // booked from the Workshops list. The public session-detail page's "Save to
+    // my agenda" button calls THIS route — so a full workshop could be joined
+    // from the very page that displayed "30 / 30 seats".
+    const result = await bookSessionSeat(session.event_id, params.sessionId, registration_id);
+
+    if ('error' in result) return NextResponse.json({ error: result.error }, { status: 500 });
+    if (result.outcome === 'not_found') return NextResponse.json({ error: 'Session not found' }, { status: 404 });
+    if (result.outcome === 'full') {
+      return NextResponse.json({ saved: false, full: true, error: 'This session is full' }, { status: 409 });
+    }
+    return NextResponse.json({ saved: true, full: false });
   } else {
     const { error } = await admin
       .from('attendee_agendas')

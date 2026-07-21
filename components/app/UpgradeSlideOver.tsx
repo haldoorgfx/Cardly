@@ -12,7 +12,11 @@ export type UpgradeFeature = {
 const FEATURE_COPY: Record<string, string> = {
   networking: 'Let attendees build profiles, message 1:1, and get matched by interests and goals. Turn your event into a network, not just a room.',
   'q-and-a': 'Run live Q&A and polls in every session. Surface the best questions and keep remote and in-room attendees equally engaged.',
-  gamification: 'Award points for check-ins, sessions and connections, with a live leaderboard and badges that keep attendees moving all day.',
+  // What the feature actually awards points for, per the four insert sites in
+  // app/api/events/[id]/{q-and-a,polls,connections,messages}. It previously
+  // promised points for check-ins and session attendance, and "badges" — none
+  // of the three exist.
+  gamification: 'Award points for questions asked, poll votes and new connections, with a live leaderboard that keeps attendees engaged all day.',
   sponsors: 'Give sponsors branded booths, lead retrieval and a measurable showcase — so you can prove ROI and sell next year\'s package.',
   virtual: 'Stream sessions to a polished online venue with chat and recordings, so remote attendees get the full experience.',
 };

@@ -1,0 +1,138 @@
+# Migrations on disk from 105 up — apply checklist
+
+Ten migration files sit in `supabase/migrations/` at 105 and above. Some may
+already be applied; **I cannot tell from here** and neither can the repo — see
+the caveat at the bottom. This is the list, what each does, and how to check.
+
+Applied by hand in the Supabase SQL editor. All ten are idempotent
+(`create or replace`, `drop … if exists`, `if not exists`), so **re-running one
+that is already applied is safe** — which makes "when in doubt, run it" the
+right default for every row except 116.
+
+| # | File | What it does | Can I probe it? |
+|---|---|---|---|
+| 105 | `promo_redemption_tracking` | RPC / policy changes | Yes if it adds an RPC — see below |
+| 106 | `checkin_rpc_race_guard` | Replaces the check-in RPC | Partly — the RPC exists, but "replaced" isn't detectable |
+| **107** | `session_capacity_atomic_booking` (in `supabase/` root, not `migrations/`) | `book_session_seat()` RPC | ✅ **PROVED NOT APPLIED** |
+| 108 | `poll_vote_counter_integrity` | Vote counter integrity | No |
+| 110 | `storage_policy_hardening` | Storage bucket policies | No |
+| 113 | `leaderboard_points_dedup` | `create unique index leaderboard_points_action_ref_uniq` | No — indexes aren't visible over REST |
+| 115 | `waitlist_invite_and_unredeem_integrity` | `invite_waitlist_entry()` + `create unique index entitlement_redemptions_reverses_uidx` | No |
+| **116** | `teams_grant_event_access` | **Teams: the database half** | ⚠ read the warning below |
+| 117 | `exhibitor_products_published_only` | Narrows a `using (true)` read policy | ✅ verified needed — see below |
+| 118 | `sync_profile_email_on_change` | Trigger + backfill so `profiles.email` follows `auth.users.email` | No |
+| 119 | `networking_public_all_policy_removal` | Drops migration 021's `public_all` on the DM tables | Partially — see below |
+
+---
+
+## The three worth reading before you paste
+
+### 116 — do the diff it asks for first
+
+It reproduces migration **080's** body of `can_manage_event()` and adds a third
+clause. But 051–104 are missing from this repo, so the file cannot prove it
+knows the current body. If anything in that range added another clause, a plain
+`create or replace` **silently drops it** and revokes somebody's access.
+
+Dump the live definition and compare before running:
+
+```sql
+select pg_get_functiondef(p.oid)
+from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+where n.nspname = 'public' and p.proname = 'can_manage_event';
+```
+
+If it matches, apply as written. If it has extra clauses, keep them and add only
+the `is_event_team_member()` clause.
+
+**Teams does not work without this.** The TypeScript half shipped today; RLS and
+the RPCs are a separate enforcement path and go through the SQL function.
+
+### 117 — verified as genuinely needed
+
+Probed production with the browser anon key on 2026-07-21:
+
+```
+GET /rest/v1/exhibitor_products?select=id   →  200, Content-Range 0-0/1
+```
+
+So the table really is readable by anyone holding the public key today, which is
+what 117 closes. Its `event_id` column was also confirmed to exist, so the
+`create policy` will not fail on paste.
+
+### 119 — probably already done, still worth applying
+
+A count-probe suggests the live database already has these policies replaced
+(most likely by the missing migration 078):
+
+```
+messages / message_threads / attendee_connections   200  Content-Range */0
+registrations / profiles   (known locked)           200  */0
+events                     (known readable)         206  0-0/14
+```
+
+`events` proves the probe sees rows when a permissive policy exists, so the
+`*/0` rows are meaningful. It is inference, not proof — an empty table reads the
+same.
+
+Apply it anyway. **The on-disk set is the only thing a fresh environment runs**,
+and today that set still ends with migration 021's
+`public_all … using (true) with check (true)` on `messages` — SELECT, INSERT,
+UPDATE and DELETE for the anon role. Any staging clone, restore or second region
+built from these files silently gets world-readable *and world-writable* private
+DMs, and would show `*/0` purely by being empty. 119 is a no-op if 078 already
+did the work.
+
+Checked before writing that off as safe: every file touching those three tables
+is an API route using the service-role client. Zero client components query them
+with the anon key, so dropping the policy breaks nothing.
+
+---
+
+## Why "which are applied?" cannot be answered from the repo
+
+`supabase/migrations/` holds 001–050 and 105+; `supabase/` root holds 080–104.
+**051–104 are missing from the repository entirely** — applied to production,
+never committed. So the files do not describe the live database, and a file's
+absence proves nothing.
+
+Anon-key probing settles *columns* (`42703` = absent) and *tables*
+(`42P01` = absent).
+
+**Functions ARE probeable too** — I had this wrong at first. POST to the RPC
+endpoint and read the error code:
+
+```
+POST /rest/v1/rpc/book_session_seat   →  PGRST202  "Could not find the function"
+                                          (with a fuzzy hint naming a DIFFERENT
+                                           function — that hint is the tell)
+POST /rest/v1/rpc/checkin_session_by_token → returns its real signature
+```
+
+The control call matters: a function that exists answers differently from one
+that doesn't, so running both in the same pass distinguishes "absent" from
+"my probe is broken". That is how **107 was proved missing**.
+
+What this still cannot see: **policies and indexes**. So 110, 113, 115 and 119
+remain undeterminable from outside.
+
+For those, the fastest route is running them — they are all idempotent — rather
+than trying to determine their state.
+
+---
+
+## Consequence of 107 being unapplied, specifically
+
+Session booking currently uses the count-then-insert fallback. Capacity **is**
+refused, so a 30-seat workshop does not sell 40 — but counting and inserting are
+two statements, so two people clicking the last seat at the same moment can both
+land. Applying `supabase/107_session_capacity_atomic_booking.sql` closes that
+window.
+
+Related and unresolved: **migration 099's status is unverifiable.**
+`sessions.registrations_count` reads 0 on the one visible row, and
+`attendee_agendas` is RLS-blocked to anon, so a dead counter and a genuinely
+empty table look identical. Server-side enforcement does not depend on it —
+both paths count real rows — but the *displayed* "12 / 30" and "Full" chips do.
+If 099 is not applied those read 0 forever, and a full session looks open right
+up until the refusal message fires.

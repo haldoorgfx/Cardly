@@ -45,24 +45,38 @@ function formatShortTime(iso: string, tz: string) {
 export default function SessionDetailClient({ session, relatedSessions, registrationId, initialSaved, timezone }: Props) {
   const [saved, setSaved] = useState(initialSaved);
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const track = session.tracks as Track | null | undefined;
   const speakers = session.session_speakers.map((ss) => ss.speakers);
   const duration = getDurationMin(session.starts_at, session.ends_at);
+  // Advisory only — the server is the authority on whether a seat is left. If
+  // `registrations_count` is stale (its trigger is migration 099) this reads
+  // false, the button stays enabled, and the refusal message carries the truth.
+  const isFull = !!session.capacity && (session.registrations_count ?? 0) >= session.capacity;
 
+  // A refused seat is now a 409, not a thrown error — the old handler flipped
+  // the button to "In my agenda" before the request and only reverted on a
+  // network exception, so a full session still read as successfully saved.
   async function toggleSave() {
     if (!registrationId) return;
     setSaving(true);
+    setSaveError(null);
     const action = saved ? 'remove' : 'add';
-    setSaved(!saved);
     try {
-      await fetch(`/api/sessions/${session.id}/agenda`, {
+      const res = await fetch(`/api/sessions/${session.id}/agenda`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ registration_id: registrationId, action }),
       });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setSaveError(data?.error ?? 'Could not update your agenda. Please try again.');
+        return;
+      }
+      setSaved(action === 'add');
     } catch {
-      setSaved(saved); // revert
+      setSaveError('Could not update your agenda. Please try again.');
     } finally {
       setSaving(false);
     }
@@ -113,7 +127,7 @@ export default function SessionDetailClient({ session, relatedSessions, registra
           {/* Save button */}
           <button
             onClick={toggleSave}
-            disabled={!registrationId || saving}
+            disabled={!registrationId || saving || (isFull && !saved)}
             className="mt-5 inline-flex items-center gap-2 px-5 rounded-full font-medium text-[15px] transition-colors disabled:opacity-50"
             style={{
               height: 48,
@@ -123,8 +137,16 @@ export default function SessionDetailClient({ session, relatedSessions, registra
             }}
           >
             {saved ? <BookmarkCheck size={18} /> : <Bookmark size={18} />}
-            {saved ? 'In my agenda' : 'Save to my agenda'}
+            {saved ? 'In my agenda' : isFull ? 'Session full' : 'Save to my agenda'}
           </button>
+
+          {/* A refused seat used to leave the button reading "In my agenda". */}
+          {saveError && (
+            <p role="alert" className="mt-3 text-[13px] font-medium px-3 py-2 rounded-lg inline-block"
+              style={{ background: 'rgba(184,66,60,0.10)', color: '#B8423C' }}>
+              {saveError}
+            </p>
+          )}
         </div>
       </div>
 
@@ -238,19 +260,27 @@ export default function SessionDetailClient({ session, relatedSessions, registra
                 <p className="text-[14px]" style={{ color: '#65736B' }}>{session.room}</p>
               )}
               {session.capacity && (
-                <p className=" text-[13px]" style={{ color: '#65736B' }}>
+                <p className=" text-[13px]" style={{ color: isFull ? '#B8423C' : '#65736B' }}>
                   {session.registrations_count} / {session.capacity} seats
+                  {isFull ? ' · full' : ''}
                 </p>
               )}
 
               <button
                 onClick={toggleSave}
-                disabled={!registrationId || saving}
+                disabled={!registrationId || saving || (isFull && !saved)}
                 className="w-full py-2.5 rounded-lg text-sm font-medium text-white transition-opacity disabled:opacity-50"
                 style={{ background: saved ? '#2D7A4F' : '#1F4D3A' }}
               >
-                {saved ? 'Saved to agenda' : 'Save to agenda'}
+                {saved ? 'Saved to agenda' : isFull ? 'Session full' : 'Save to agenda'}
               </button>
+
+              {saveError && (
+                <p role="alert" className="text-[12.5px] font-medium px-2.5 py-2 rounded-lg"
+                  style={{ background: 'rgba(184,66,60,0.10)', color: '#B8423C' }}>
+                  {saveError}
+                </p>
+              )}
             </div>
           </aside>
         </div>

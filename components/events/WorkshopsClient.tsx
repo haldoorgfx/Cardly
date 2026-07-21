@@ -215,13 +215,19 @@ export function WorkshopsClient({ eventId, eventSlug, sessions, bookedIds: initi
                             {isSuccess ? 'Booked!' : 'In your agenda'}
                           </div>
                         ) : isFull ? (
-                          <button
-                            onClick={() => registrationId && bookSeat(s)}
-                            className="min-h-[40px] flex items-center justify-center px-3 py-2 rounded-xl text-[12px] font-semibold transition hover:opacity-80 whitespace-nowrap"
-                            style={{ background: 'rgba(201,122,45,0.10)', color: '#C97A2D', border: '1px solid rgba(201,122,45,0.35)' }}>
-                            <Users size={12} className="inline mr-1" />
-                            Join waitlist
-                          </button>
+                          /* There is no session waitlist — `attendee_agendas` has
+                             no waitlist column and nothing anywhere reads one. The
+                             old "Join waitlist" button called the booking endpoint,
+                             which now correctly refuses with 409, and the refusal
+                             was written to state that only renders inside the
+                             confirm modal — so the button did nothing at all and
+                             promised a queue that does not exist. */
+                          <div
+                            className="min-h-[40px] flex items-center gap-1.5 px-3 py-2 rounded-xl text-[12px] font-semibold whitespace-nowrap"
+                            style={{ background: 'rgba(184,66,60,0.08)', color: '#B8423C', border: '1px solid rgba(184,66,60,0.30)' }}>
+                            <Users size={12} />
+                            Full
+                          </div>
                         ) : (
                           <button
                             onClick={() => setConfirmSession(s)}

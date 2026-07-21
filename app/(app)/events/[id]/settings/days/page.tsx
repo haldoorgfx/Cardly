@@ -15,15 +15,24 @@ import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 interface Props { params: Promise<{ id: string }> }
 
-// Re-derive the caller from the session and confirm they own this event.
+// Re-derive the caller from the session and confirm they can manage this event.
 // Module-level so it is NOT itself exposed as a server-action endpoint.
+//
+// This used to be a bare `.eq('user_id', caller.id)`, which disagreed with the
+// `manageableOwnerIds()` check the page body uses to decide whether to render at
+// all. A team member granted access to the event could therefore open the Event
+// days screen, edit a day, and get "Not authorized" back from every single save,
+// add and delete — the feature looked broken rather than restricted.
 async function verifyEventOwner(eventId: string): Promise<boolean> {
   const supa = createClient();
   const { data: { user: caller } } = await supa.auth.getUser();
   if (!caller) return false;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const admin = createAdminClient() as any;
-  const { data } = await admin.from('events').select('id').eq('id', eventId).eq('user_id', caller.id).maybeSingle();
+  const { data } = await admin
+    .from('events').select('id').eq('id', eventId)
+    .in('user_id', await manageableOwnerIds(caller.id))
+    .maybeSingle();
   return !!data;
 }
 

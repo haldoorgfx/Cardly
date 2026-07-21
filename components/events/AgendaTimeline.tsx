@@ -2,10 +2,23 @@
 
 import { useMemo, useState } from 'react';
 import type { Session, Track } from '@/types/database';
+import {
+  zonedDayKey,
+  zonedMinutesOfDay,
+  formatZonedTime,
+  formatZonedDayLabel,
+  zonedDatetimeToISO,
+} from '@/lib/events/format';
 
 interface Props {
   sessions: Session[];
   tracks: Track[];
+  /**
+   * IANA zone of the event. Every hour label, block position and click-to-add
+   * time is computed here — never in the organizer's browser zone, which slid
+   * the entire grid for anyone not physically at the venue.
+   */
+  timezone: string;
   onSlotClick?: (startsAt: string, trackId: string | null) => void;
   onSessionClick?: (session: Session) => void;
 }
@@ -96,25 +109,25 @@ function getTypeCfg(t: string | null | undefined): TypeCfg {
   return TYPE_CONFIG[t ?? 'talk'] ?? TYPE_CONFIG.talk;
 }
 
-function groupByDate(sessions: Session[]): [string, Session[]][] {
+/** Buckets are YYYY-MM-DD keys in the EVENT's zone, so a 23:00 session belongs
+ *  to the day the venue calls it — not the next day on a westward laptop. */
+function groupByDate(sessions: Session[], tz: string): [string, Session[]][] {
   const map = new Map<string, Session[]>();
   for (const s of [...sessions].sort(
     (a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime()
   )) {
-    const key = new Date(s.starts_at).toDateString();
+    const key = zonedDayKey(s.starts_at, tz);
     if (!map.has(key)) map.set(key, []);
     map.get(key)!.push(s);
   }
   return Array.from(map.entries());
 }
 
-function fmtTimeRange(session: Session): string {
+function fmtTimeRange(session: Session, tz: string): string {
   if (!session.starts_at) return '';
-  const s = new Date(session.starts_at);
-  const e = session.ends_at ? new Date(session.ends_at) : null;
-  const fmt = (d: Date) =>
-    `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
-  return e ? `${fmt(s)} – ${fmt(e)}` : fmt(s);
+  const start = formatZonedTime(session.starts_at, tz);
+  const end = session.ends_at ? formatZonedTime(session.ends_at, tz) : '';
+  return end ? `${start} – ${end}` : start;
 }
 
 // ── Day grid ──────────────────────────────────────────────────────────────────
@@ -122,16 +135,18 @@ function fmtTimeRange(session: Session): string {
 interface DayGridProps {
   daySessions: Session[];
   tracks: Track[];
+  /** YYYY-MM-DD in the event's zone. */
   dateKey: string;
+  timezone: string;
   onSlotClick?: (startsAt: string, trackId: string | null) => void;
   onSessionClick?: (session: Session) => void;
 }
 
-function DayGrid({ daySessions, tracks, dateKey, onSlotClick, onSessionClick }: DayGridProps) {
+function DayGrid({ daySessions, tracks, dateKey, timezone, onSlotClick, onSessionClick }: DayGridProps) {
   const times = daySessions
     .flatMap(s => [
-      s.starts_at ? new Date(s.starts_at).getHours() + new Date(s.starts_at).getMinutes() / 60 : null,
-      s.ends_at   ? new Date(s.ends_at).getHours()   + new Date(s.ends_at).getMinutes()   / 60 : null,
+      s.starts_at ? zonedMinutesOfDay(s.starts_at, timezone) / 60 : null,
+      s.ends_at   ? zonedMinutesOfDay(s.ends_at, timezone)   / 60 : null,
     ])
     .filter((t): t is number => t !== null);
 
@@ -186,8 +201,7 @@ function DayGrid({ daySessions, tracks, dateKey, onSlotClick, onSessionClick }: 
     return meta.map(m => {
       let maxCol = m.subCol;
       for (const o of meta) if (o.start < m.end && o.end > m.start) maxCol = Math.max(maxCol, o.subCol);
-      const s = new Date(m.session.starts_at!);
-      const startFrac = (s.getHours() + s.getMinutes() / 60) - minHour;
+      const startFrac = zonedMinutesOfDay(m.session.starts_at!, timezone) / 60 - minHour;
       const lenFrac = (m.end - m.start) / 3_600_000;
       let top = startFrac * ROW_HEIGHT + 2;
       const height = Math.max(lenFrac * ROW_HEIGHT - 4, MIN_H);
@@ -213,10 +227,14 @@ function DayGrid({ daySessions, tracks, dateKey, onSlotClick, onSessionClick }: 
     return { h, m, y: (h + m / 60 - minHour) * ROW_HEIGHT };
   }
 
+  // `new Date(dateKey).setHours(...)` built the instant in the BROWSER's zone,
+  // so an organizer outside the event's zone who clicked the 10:00 slot created
+  // a session at 10:00 their time — landing hours off on the real programme.
+  // dateKey is already YYYY-MM-DD in the event's zone, which is exactly the
+  // wall-clock half of what zonedDatetimeToISO expects.
   function buildIso(dateKeyStr: string, h: number, m: number): string {
-    const base = new Date(dateKeyStr);
-    base.setHours(h, m, 0, 0);
-    return base.toISOString();
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return zonedDatetimeToISO(`${dateKeyStr}T${pad(h)}:${pad(m)}`, timezone || 'UTC');
   }
 
   function handleColClick(e: React.MouseEvent<HTMLDivElement>, colId: string) {
@@ -331,7 +349,7 @@ function DayGrid({ daySessions, tracks, dateKey, onSlotClick, onSessionClick }: 
                     ?.map(ss => ss.speakers?.name)
                     .filter(Boolean)
                     .join(', ') ?? '';
-                  const timeRange = fmtTimeRange(session);
+                  const timeRange = fmtTimeRange(session, timezone);
                   const showMeta = height > 108;
                   // Symmetric horizontal layout: a fixed inset on BOTH sides of the
                   // column, minus the gaps between concurrent sub-columns, split
@@ -432,8 +450,8 @@ function TimelineLegend({ usedTypes }: { usedTypes: Set<string> }) {
 
 // ── Main export ───────────────────────────────────────────────────────────────
 
-export function AgendaTimeline({ sessions, tracks, onSlotClick, onSessionClick }: Props) {
-  const grouped = useMemo(() => groupByDate(sessions), [sessions]);
+export function AgendaTimeline({ sessions, tracks, timezone, onSlotClick, onSessionClick }: Props) {
+  const grouped = useMemo(() => groupByDate(sessions, timezone), [sessions, timezone]);
 
   const usedTypes = useMemo(
     () => new Set(sessions.map(s => s.session_type ?? 'talk')),
@@ -455,8 +473,7 @@ export function AgendaTimeline({ sessions, tracks, onSlotClick, onSessionClick }
       <TimelineLegend usedTypes={usedTypes} />
 
       {grouped.map(([dateKey, daySessions]) => {
-        const d     = new Date(dateKey);
-        const label = d.toLocaleDateString(undefined, {
+        const label = formatZonedDayLabel(daySessions[0].starts_at, timezone, {
           weekday: 'long', month: 'long', day: 'numeric',
         });
 
@@ -477,6 +494,7 @@ export function AgendaTimeline({ sessions, tracks, onSlotClick, onSessionClick }
               daySessions={daySessions}
               tracks={tracks}
               dateKey={dateKey}
+              timezone={timezone}
               onSlotClick={onSlotClick}
               onSessionClick={onSessionClick}
             />

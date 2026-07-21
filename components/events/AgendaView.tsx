@@ -5,6 +5,12 @@ import { Plus } from 'lucide-react';
 import SessionsManager, { type EventDates as SessionEventDates } from './SessionsManager';
 import { AgendaTimeline } from './AgendaTimeline';
 import type { Session, Track } from '@/types/database';
+import {
+  groupSessionsByZonedDay,
+  formatZonedDayLabel,
+  isoToZonedDatetimeValue,
+  zonedDatetimeToISO,
+} from '@/lib/events/format';
 
 interface SpeakerOption { id: string; name: string; photo_url: string | null }
 
@@ -16,16 +22,9 @@ interface Props {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   initialTracks: any[];
   eventDates?: SessionEventDates;
-}
-
-function formatDayTab(date: Date) {
-  return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }); // "12 Mar"
-}
-
-function toLocalDatetimeString(iso: string): string {
-  const d = new Date(iso);
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  /** IANA zone of the event — day tabs and the quick-add form are read and
+   *  written in this zone, not the organizer's browser zone. */
+  timezone: string;
 }
 
 const SESSION_TYPES = ['talk', 'keynote', 'workshop', 'panel', 'fireside', 'lightning', 'break'];
@@ -45,7 +44,7 @@ interface QuickFormState {
   session_type: string;
 }
 
-export function AgendaView({ eventId, initialSessions, speakers, initialTracks, eventDates }: Props) {
+export function AgendaView({ eventId, initialSessions, speakers, initialTracks, eventDates, timezone }: Props) {
   const [addOpen, setAddOpen] = useState(false);
   const [editSessionId, setEditSessionId] = useState<string | null>(null);
   const [sessions, setSessions] = useState<Session[]>(initialSessions as Session[]);
@@ -71,7 +70,7 @@ export function AgendaView({ eventId, initialSessions, speakers, initialTracks, 
   function handleSlotClick(startsAt: string, trackId: string | null) {
     setQuickForm({
       title: '',
-      starts_at: toLocalDatetimeString(startsAt),
+      starts_at: isoToZonedDatetimeValue(startsAt, timezone || 'UTC'),
       duration: 60,
       track_id: trackId ?? '',
       session_type: 'talk',
@@ -83,11 +82,17 @@ export function AgendaView({ eventId, initialSessions, speakers, initialTracks, 
     if (!quickForm.title.trim()) return;
     setQuickSaving(true);
     try {
-      const startsAtDate = new Date(quickForm.starts_at);
-      const endsAtDate = new Date(startsAtDate.getTime() + quickForm.duration * 60000);
+      // The datetime-local field holds wall-clock digits with no offset. Passing
+      // them through `new Date(...)` read them in the organizer's browser zone,
+      // so a session typed as 10:00 was stored at 10:00 LONDON for a London
+      // organizer running a Nairobi conference — three hours out on the
+      // published agenda. Interpret them in the event's zone instead.
+      const startIso = zonedDatetimeToISO(quickForm.starts_at, timezone || 'UTC');
+      if (!startIso) return;
+      const endsAtDate = new Date(new Date(startIso).getTime() + quickForm.duration * 60000);
       const body: Record<string, unknown> = {
         title: quickForm.title.trim(),
-        starts_at: startsAtDate.toISOString(),
+        starts_at: startIso,
         ends_at: endsAtDate.toISOString(),
         session_type: quickForm.session_type,
       };
@@ -108,24 +113,17 @@ export function AgendaView({ eventId, initialSessions, speakers, initialTracks, 
     }
   }
 
-  // Group sessions by calendar day
+  // Group sessions by calendar day IN THE EVENT'S ZONE. Bucketing on
+  // `toDateString()` used the browser zone, so a 23:00 session showed up under
+  // the next day (or a 01:00 one under the previous), and the "Day 1 / Day 2"
+  // tabs stopped matching the programme the organizer is actually running.
   const days = useMemo(() => {
-    const map = new Map<string, Session[]>();
-    const sorted = [...sessions].sort(
-      (a, b) => new Date(a.starts_at ?? 0).getTime() - new Date(b.starts_at ?? 0).getTime()
-    );
-    for (const s of sorted) {
-      if (!s.starts_at) continue;
-      const key = new Date(s.starts_at).toDateString();
-      if (!map.has(key)) map.set(key, []);
-      map.get(key)!.push(s);
-    }
-    return Array.from(map.entries()).map(([key, daySessions], idx) => ({
+    return groupSessionsByZonedDay(sessions, timezone || 'UTC').map(({ key, firstStartsAt, sessions: daySessions }, idx) => ({
       key,
-      label: `Day ${idx + 1} · ${formatDayTab(new Date(key))}`,
+      label: `Day ${idx + 1} · ${formatZonedDayLabel(firstStartsAt, timezone || 'UTC', { day: 'numeric', month: 'short' })}`,
       sessions: daySessions,
     }));
-  }, [sessions]);
+  }, [sessions, timezone]);
 
   const [selectedDay, setSelectedDay] = useState(0);
 
@@ -204,6 +202,7 @@ export function AgendaView({ eventId, initialSessions, speakers, initialTracks, 
           <AgendaTimeline
             sessions={displayedSessions}
             tracks={initialTracks as Track[]}
+            timezone={timezone || 'UTC'}
             onSlotClick={handleSlotClick}
             onSessionClick={s => { setEditSessionId(s.id); setAddOpen(true); }}
           />

@@ -79,13 +79,29 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   const { searchParams } = new URL(req.url);
   const published = searchParams.get('published');
 
+  // Draft sessions are for the organizer only. This route ran on the admin
+  // client with no auth check at all and returned EVERY session — including
+  // `is_published = false` — to anyone who passed an event id, and event ids
+  // appear in public URLs. So an unannounced programme (titles, speakers,
+  // rooms, times) was readable before the organizer chose to publish it.
+  // Anyone who cannot manage the event now gets the published set only.
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  let canSeeDrafts = false;
+  if (user) {
+    const { data: owned } = await admin
+      .from('events').select('id').eq('id', params.id)
+      .in('user_id', await manageableOwnerIds(user.id)).maybeSingle();
+    canSeeDrafts = !!owned;
+  }
+
   let query = admin
     .from('sessions')
     .select('*, tracks(id, name, color), session_speakers(speaker_id, position, speakers(id, name, photo_url, role, company))')
     .eq('event_id', params.id)
     .order('starts_at', { ascending: true });
 
-  if (published === 'true') query = query.eq('is_published', true);
+  if (published === 'true' || !canSeeDrafts) query = query.eq('is_published', true);
 
   const { data, error } = await query;
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
