@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { assertOwnsRegistration } from '@/lib/attendee-identity';
 import { authorizeEventContent } from '@/lib/auth/event-content';
-import { getUserPlan } from '@/lib/billing/can';
+import { getUserPlan, getEventOwnerPlan } from '@/lib/billing/can';
 import { generateMatches, generateMatchesForOne } from '@/lib/matchmaking';
 
 const PLAN_RANK: Record<string, number> = { free: 0, pro: 1, studio: 2 };
@@ -41,6 +41,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     const { data: regs } = await admin
       .from('registrations')
       .select('id, attendee_name, custom_fields')
+      .eq('event_id', params.id)
       .in('id', ids);
 
     const regMap = new Map((regs ?? []).map(r => [r.id, r]));
@@ -50,6 +51,18 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     }));
 
     return NextResponse.json({ matches: enriched, cached: true });
+  }
+
+  // Same Pro gate the bulk POST below enforces. Without it this branch was the
+  // way around it: the POST is organiser-triggered and plan-checked, but THIS
+  // path runs an LLM call over a 100-attendee pool on demand for any attendee
+  // who opens the networking tab — so a Free event still generated (and paid
+  // for) matchmaking, one Gemini call per attendee, simply by being visited.
+  // Cached reads above are deliberately left alone: matches already generated
+  // while the organiser was on Pro stay visible after a downgrade.
+  const ownerPlan = await getEventOwnerPlan(params.id);
+  if (!ownerPlan || PLAN_RANK[ownerPlan] < PLAN_RANK.pro) {
+    return NextResponse.json({ matches: [], cached: false });
   }
 
   // Generate on demand for this attendee
@@ -108,9 +121,14 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
     // Enrich with names
     const matchedIds = suggestions.map(s => s.matched_registration_id);
+    // Scope to THIS event. These ids come back from the model, so they are not
+    // trustworthy by construction — an id it echoes wrong (or is talked into
+    // emitting) would otherwise return another event's attendee name and custom
+    // fields to someone who never registered for that event.
     const { data: matchedRegs } = await admin
       .from('registrations')
       .select('id, attendee_name, custom_fields')
+      .eq('event_id', params.id)
       .in('id', matchedIds.length ? matchedIds : ['00000000-0000-0000-0000-000000000000']);
 
     const regMap = new Map((matchedRegs ?? []).map(r => [r.id, r]));

@@ -124,8 +124,16 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
           }
         }
       } catch (err) {
-        const msg = err instanceof Error ? err.message : 'AI request failed';
-        controller.enqueue(encoder.encode(`\n\n[Error: ${msg}]`));
+        // The 503 above only covers a MISSING key. A key that is invalid,
+        // revoked, or over its quota fails here instead — mid-stream, after
+        // headers are already sent, so it cannot become a status code. Keep the
+        // provider's message server-side: Anthropic SDK errors can carry
+        // request ids and key/account detail, and this string is rendered
+        // straight into the organiser's chat transcript.
+        console.error('[copilot] stream error:', err);
+        controller.enqueue(
+          encoder.encode('\n\n[Copilot could not finish this reply. Please try again.]'),
+        );
       } finally {
         controller.close();
       }
