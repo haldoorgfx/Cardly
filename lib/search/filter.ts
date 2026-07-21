@@ -39,6 +39,18 @@ export function ilikeCondition(column: string, value: string): string {
 }
 
 /**
+ * Like {@link ilikeCondition}, but anchored at the start of the column —
+ * `col ILIKE 'value%'`. Used for prefix lookups such as a badge ID typed off a
+ * printed badge, where a contains-match would return unrelated attendees.
+ * Same escaping rules, same quoting; only the wildcard placement differs.
+ */
+export function ilikePrefixCondition(column: string, value: string): string {
+  const pattern = escapeLikePattern(value);
+  const quoted = pattern.replace(/["\\]/g, m => `\\${m}`);
+  return `${column}.ilike."${quoted}%"`;
+}
+
+/**
  * An `.or()` string matching `value` across several columns.
  * Returns null for a blank query so callers can skip the filter entirely
  * rather than building `or=()`, which PostgREST rejects.

@@ -22,7 +22,11 @@ export async function GET(_req: NextRequest, { params }: { params: { token: stri
   return new NextResponse(buffer as unknown as BodyInit, {
     headers: {
       'Content-Type': 'image/png',
-      'Cache-Control': 'public, max-age=86400',
+      // The URL itself contains the ticket's bearer token, so this image must
+      // not be held in a shared cache: a transferred ticket rotates the token
+      // and this route then 404s, which is the whole point of the rotation.
+      // 'private' keeps it in the holder's own browser only.
+      'Cache-Control': 'private, max-age=86400',
     },
   });
 }

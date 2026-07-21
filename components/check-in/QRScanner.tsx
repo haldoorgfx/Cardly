@@ -58,6 +58,7 @@ function beep(type: 'ok' | 'warn' | 'err') {
 // "Not recognised" for six different causes is unactionable at a queue.
 const REFUSAL_HEADINGS: Record<string, string> = {
   not_found: 'Not recognised',
+  wrong_event: 'Wrong event',
   cancelled: 'Cancelled ticket',
   refunded: 'Refunded ticket',
   payment_required: 'Not paid',
@@ -79,6 +80,14 @@ export function QRScanner({ eventId, eventSlug, eventName, totalRegistrations, i
   const [searching, setSearching] = useState(false);
   const [manualCheckingIn, setManualCheckingIn] = useState<string | null>(null);
   const [manualError, setManualError] = useState<{ id: string; message: string } | null>(null);
+
+  // onCheckedIn is passed as an inline arrow by the dashboard, whose live feed
+  // re-renders every 5 seconds. Holding it in a ref keeps handleToken — and so
+  // the camera effect below, which depends on it — referentially stable.
+  // Without this the camera was torn down and re-acquired every 5 seconds all
+  // through the door queue: a black frame and a missed scan each time.
+  const onCheckedInRef = useRef(onCheckedIn);
+  useEffect(() => { onCheckedInRef.current = onCheckedIn; }, [onCheckedIn]);
 
   const handleToken = useCallback(async (token: string) => {
     if (processingRef.current) return;
@@ -113,7 +122,7 @@ export function QRScanner({ eventId, eventSlug, eventName, totalRegistrations, i
       } else if (data.result === 'success') {
         beep('ok');
         setCheckedIn(c => c + 1);
-        onCheckedIn?.();
+        onCheckedInRef.current?.();
         setFlash({ kind: 'success', name: data.attendee_name ?? '', email: data.attendee_email ?? '', ticket_type: data.ticket_type ?? null });
       } else if (data.result === 'already_checked_in') {
         beep('warn');
@@ -150,7 +159,7 @@ export function QRScanner({ eventId, eventSlug, eventName, totalRegistrations, i
       setFlash(null);
       processingRef.current = false;
     }, 2500);
-  }, [eventId, onCheckedIn]);
+  }, [eventId]);
 
   // Re-send the exact token that failed. Unlocks first, since handleToken
   // early-returns while processingRef is held.
@@ -165,20 +174,35 @@ export function QRScanner({ eventId, eventSlug, eventName, totalRegistrations, i
     processingRef.current = false;
   }, []);
 
-  const handleSearch = useCallback(async (q: string) => {
+  // Debounced, and every response carries the sequence number of the request
+  // that asked for it. Firing per keystroke put a request on the wire for every
+  // letter of a name — from a venue where every device shares one IP — and let
+  // a slow "Ab" response land after "Abdalla" and repaint the wrong people
+  // under the staff member's finger.
+  const searchSeq = useRef(0);
+  const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleSearch = useCallback((q: string) => {
     setSearchQuery(q);
-    if (q.length < 2) { setSearchResults([]); return; }
+    if (searchTimer.current) clearTimeout(searchTimer.current);
+    if (q.length < 2) { setSearchResults([]); setSearching(false); return; }
     setSearching(true);
-    try {
-      const res = await fetch(`/api/events/${eventId}/checkin?q=${encodeURIComponent(q)}`);
-      const data = await res.json() as { results: SearchResult[] };
-      setSearchResults(data.results ?? []);
-    } catch {
-      setSearchResults([]);
-    } finally {
-      setSearching(false);
-    }
+    searchTimer.current = setTimeout(async () => {
+      const seq = ++searchSeq.current;
+      try {
+        const res = await fetch(`/api/events/${eventId}/checkin?q=${encodeURIComponent(q)}`);
+        const data = await res.json() as { results: SearchResult[] };
+        if (seq !== searchSeq.current) return; // a newer query already won
+        setSearchResults(data.results ?? []);
+      } catch {
+        if (seq === searchSeq.current) setSearchResults([]);
+      } finally {
+        if (seq === searchSeq.current) setSearching(false);
+      }
+    }, 250);
   }, [eventId]);
+
+  useEffect(() => () => { if (searchTimer.current) clearTimeout(searchTimer.current); }, []);
 
   const handleManualCheckin = useCallback(async (reg: SearchResult) => {
     if (reg.status === 'checked_in') return;
@@ -196,7 +220,7 @@ export function QRScanner({ eventId, eventSlug, eventName, totalRegistrations, i
       if (res.ok && data.result === 'success') {
         beep('ok');
         setCheckedIn(c => c + 1);
-        onCheckedIn?.();
+        onCheckedInRef.current?.();
         setSearchResults(prev => prev.map(r => r.id === reg.id ? { ...r, status: 'checked_in', checked_in_at: new Date().toISOString() } : r));
       } else if (res.ok && data.result === 'already_checked_in') {
         beep('warn');
@@ -217,7 +241,7 @@ export function QRScanner({ eventId, eventSlug, eventName, totalRegistrations, i
     } finally {
       setManualCheckingIn(null);
     }
-  }, [eventId, onCheckedIn]);
+  }, [eventId]);
 
   useEffect(() => {
     let cancelled = false;
@@ -226,6 +250,21 @@ export function QRScanner({ eventId, eventSlug, eventName, totalRegistrations, i
 
     const videoEl = videoRef.current;
     if (!videoEl) { setRequesting(false); return; }
+
+    // No getUserMedia at all: an old browser, an in-app webview, or — by far
+    // the most common at a door — the page opened over plain http on the venue
+    // network, where browsers disable the camera outright. zxing throws a bare
+    // TypeError here, which surfaced as an empty "Camera unavailable" box with
+    // no way to act on it.
+    if (typeof navigator === 'undefined' || !navigator.mediaDevices?.getUserMedia) {
+      setCameraError(
+        typeof window !== 'undefined' && !window.isSecureContext
+          ? 'This page must be opened over https:// for the camera to work. Use the secure link, or search by name below.'
+          : 'This browser cannot use the camera. Open the scanner in Safari or Chrome, or search by name below.',
+      );
+      setRequesting(false);
+      return;
+    }
 
     const reader = new BrowserMultiFormatReader();
     readerRef.current = reader;

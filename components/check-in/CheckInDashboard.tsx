@@ -170,7 +170,17 @@ function AttendeeModal({ reg, eventId, onClose, onCheckedIn }: {
         body: JSON.stringify({ qr_code_token: reg.qr_code_token }),
       });
       const data = await res.json().catch(() => ({})) as { result?: string; message?: string; error?: string };
-      if (data.result === 'success' || data.result === 'already_checked_in') {
+      if (!res.ok || !data.result) {
+        // No verdict came back, so this attendee is NOT checked in — say that
+        // rather than echoing a raw "Unauthorized", which reads as a judgement
+        // on the ticket instead of on the session.
+        setErrorMsg(
+          res.status === 401
+            ? 'Your session expired — sign in again on this device, then retry. Nobody was checked in.'
+            : `Couldn't reach the server (${res.status}). Nobody was checked in — try again.`,
+        );
+        setStatus('error');
+      } else if (data.result === 'success' || data.result === 'already_checked_in') {
         setStatus('done');
         onCheckedIn(reg.id);
       } else {
@@ -322,10 +332,14 @@ export default function CheckInDashboard({
   }, [eventId]);
 
   useEffect(() => {
+    // Paused while the scanner is fullscreen: nothing on screen is showing the
+    // feed, and the poll was spending the door's request budget — and forcing a
+    // re-render of this component every 5s — underneath a live camera.
+    if (scannerOpen) return;
     refreshFeed();
     const id = setInterval(refreshFeed, 5_000);
     return () => clearInterval(id);
-  }, [refreshFeed]);
+  }, [refreshFeed, scannerOpen]);
 
   /* Debounced search */
   useEffect(() => {

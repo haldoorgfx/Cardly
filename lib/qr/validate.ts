@@ -30,10 +30,30 @@ export async function validateAndCheckIn(
   }
 
   const now = new Date().toISOString();
-  await admin
+
+  // The transition is guarded in the WHERE clause, not by the read above: two
+  // doors scanning the same ticket in the same second both passed that read,
+  // and both wrote a check-in. `.neq('status','checked_in')` means the row
+  // comes back to exactly one of them; the loser is told "already checked in",
+  // which is the truth.
+  const { data: updated } = await admin
     .from('registrations')
     .update({ status: 'checked_in', checked_in_at: now, checked_in_by: operatorId, updated_at: now })
-    .eq('id', reg.id);
+    .eq('id', reg.id)
+    .neq('status', 'checked_in')
+    .select('checked_in_at')
+    .maybeSingle();
+
+  if (!updated) {
+    // Someone else won the race between our read and our write.
+    const { data: fresh } = await admin
+      .from('registrations')
+      .select('checked_in_at')
+      .eq('id', reg.id)
+      .maybeSingle();
+    const at = fresh?.checked_in_at ?? now;
+    return { ok: true, registration: { ...reg, checked_in_at: at }, alreadyCheckedIn: true, checkedInAt: at };
+  }
 
   // Increment the active check-in session counter (best-effort, non-blocking)
   admin

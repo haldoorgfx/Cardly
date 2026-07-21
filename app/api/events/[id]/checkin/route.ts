@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient, createClient } from '@/lib/supabase/server';
 import { hasCheckInAccess } from '@/lib/rbac/ownership';
+import { orIlikeAcross, ilikePrefixCondition } from '@/lib/search/filter';
 import { z } from 'zod';
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
@@ -49,11 +50,26 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   }
 
   // ?q= → search by name, email, phone, or badge-ID prefix (first chars of qr_code_token)
-  const rawQ = req.nextUrl.searchParams.get('q')?.trim() ?? '';
-  if (!rawQ || rawQ.length < 2) return NextResponse.json({ results: [] });
-  // Strip PostgREST filter metacharacters to prevent filter injection
-  const q = rawQ.replace(/[(),*:%]/g, '');
-  if (!q || q.length < 2) return NextResponse.json({ results: [] });
+  //
+  // ?kiosk=1 narrows the same search for the UNATTENDED lobby kiosk, where the
+  // screen is read by whoever is standing in front of it rather than by staff:
+  // a longer minimum query, fewer rows, and no raw contact details in the
+  // response. Without it, two typed characters returned twenty attendees'
+  // names, emails and phone numbers to any passer-by — a guest list scraped
+  // one letter at a time.
+  const kiosk = req.nextUrl.searchParams.get('kiosk') === '1';
+  const minLength = kiosk ? 3 : 2;
+
+  const q = req.nextUrl.searchParams.get('q')?.trim() ?? '';
+  if (q.length < minLength) return NextResponse.json({ results: [] });
+
+  // Escaping via the shared helpers: `%` and `_` are ILIKE wildcards, so an
+  // email like `a_b@x.com` typed literally used to match `aXb@x.com` too, and
+  // `,` `.` `(` `)` are the .or() grammar itself.
+  const filter = [
+    orIlikeAcross(['attendee_name', 'attendee_email', 'attendee_phone'], q),
+    ilikePrefixCondition('qr_code_token', q),
+  ].filter(Boolean).join(',');
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data } = await (admin as any)
@@ -61,11 +77,35 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     .select('id, attendee_name, attendee_email, attendee_phone, status, checked_in_at, qr_code_token, amount_paid, currency, ticket_types(name, price)')
     .eq('event_id', params.id)
     .in('status', ['pending', 'confirmed', 'checked_in'])
-    .or(`attendee_name.ilike.%${q}%,attendee_email.ilike.%${q}%,attendee_phone.ilike.%${q}%,qr_code_token.ilike.${q}%`)
+    .or(filter)
     .order('attendee_name', { ascending: true })
-    .limit(20);
+    .limit(kiosk ? 6 : 20);
+
+  if (kiosk) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const masked = ((data ?? []) as any[]).map((r) => ({
+      id: r.id,
+      attendee_name: r.attendee_name,
+      // Enough to tell two same-named guests apart, not enough to harvest.
+      attendee_email: maskEmail(r.attendee_email),
+      status: r.status,
+      qr_code_token: r.qr_code_token,
+      ticket_types: r.ticket_types ? { name: r.ticket_types.name } : null,
+    }));
+    return NextResponse.json({ results: masked });
+  }
 
   return NextResponse.json({ results: data ?? [] });
+}
+
+/** `abdalla@gmail.com` → `ab•••@gmail.com`. Null-safe. */
+function maskEmail(email: string | null): string | null {
+  if (!email) return null;
+  const at = email.indexOf('@');
+  if (at < 1) return '•••';
+  const local = email.slice(0, at);
+  const visible = local.slice(0, Math.min(2, local.length));
+  return `${visible}•••${email.slice(at)}`;
 }
 
 const BodySchema = z.object({
@@ -114,6 +154,27 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     .single();
 
   if (!reg) {
+    // The lookup above is scoped to THIS event, so a real ticket for a
+    // different event lands here looking exactly like a forgery. Organizers
+    // running two events in one venue on one day hit this constantly, and
+    // "not recognised" sends a legitimate guest away instead of upstairs.
+    // Only ever names the other event — no attendee data crosses events.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: elsewhere } = await (admin as any)
+      .from('registrations')
+      .select('events(name)')
+      .eq('qr_code_token', qr_code_token)
+      .maybeSingle();
+
+    if (elsewhere) {
+      const otherName = elsewhere.events?.name ?? 'another event';
+      return NextResponse.json({
+        result: 'invalid',
+        code: 'wrong_event',
+        message: `This ticket is for ${otherName}, not ${event.name}`,
+      });
+    }
+
     return NextResponse.json({ result: 'invalid', code: 'not_found', message: 'QR code not recognised — no registration found' });
   }
 

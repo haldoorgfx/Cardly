@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { BrowserMultiFormatReader, type IScannerControls } from '@zxing/browser';
-import { Search, X, Check, ArrowLeft, CameraOff, Clock } from 'lucide-react';
+import { Search, X, Check, ArrowLeft, CameraOff, Clock, CloudOff } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { extractToken } from '@/lib/qr/token';
 
@@ -39,6 +39,9 @@ export function KioskClient({ eventId, eventSlug, eventName }: Props) {
   const [searching, setSearching] = useState(false);
   const [checkedInAttendee, setCheckedInAttendee] = useState<{ name: string | null; ticket: string | null } | null>(null);
   const [errorMsg, setErrorMsg] = useState<string>('Please see a crew member for help.');
+  // 'ticket' = the server judged this ticket and said no. 'system' = we never
+  // got a verdict. A guest must never read the second as the first.
+  const [errorKind, setErrorKind] = useState<'ticket' | 'system'>('ticket');
   const [countdown, setCountdown] = useState(6);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [retry, setRetry] = useState(0);
@@ -52,6 +55,8 @@ export function KioskClient({ eventId, eventSlug, eventName }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const controlsRef = useRef<IScannerControls | null>(null);
   const processingRef = useRef(false);
+  const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const searchSeqRef = useRef(0);
 
   const startCountdown = useCallback(() => {
     setCountdown(6);
@@ -82,10 +87,25 @@ export function KioskClient({ eventId, eventSlug, eventName }: Props) {
         body: JSON.stringify({ qr_code_token: token }),
       });
       const data = await res.json().catch(() => ({})) as {
-        result?: string; message?: string; attendee_name?: string;
+        result?: string; message?: string; error?: string; attendee_name?: string;
         ticket_type?: string | null; checked_in_at?: string;
       };
-      if (data.result === 'success') {
+      // No verdict in the response — a 500, or (on a tablet that has been
+      // sitting in a lobby all day) the organizer's session finally expiring.
+      // This used to fall through to the else branch below and tell a guest
+      // holding a perfectly good ticket that it was "not recognised", while the
+      // real fix was for a crew member to sign the tablet back in.
+      if (!res.ok || !data.result) {
+        beep(false);
+        setErrorKind('system');
+        setErrorMsg(
+          res.status === 401
+            ? 'This kiosk needs to be signed in again. Please see a crew member.'
+            : 'We could not reach the check-in system. Please see a crew member — your ticket is fine.',
+        );
+        setState('error');
+        setTimeout(() => setState('scan'), 3500);
+      } else if (data.result === 'success') {
         beep(true);
         setCheckedInAttendee({ name: data.attendee_name ?? null, ticket: data.ticket_type ?? null });
         setState('success');
@@ -101,13 +121,15 @@ export function KioskClient({ eventId, eventSlug, eventName }: Props) {
         startCountdown();
       } else {
         beep(false);
+        setErrorKind('ticket');
         setErrorMsg(data.message ?? 'Ticket not recognised.');
         setState('error');
         setTimeout(() => setState('scan'), 3500);
       }
     } catch {
       beep(false);
-      setErrorMsg('Connection problem. Please try again.');
+      setErrorKind('system');
+      setErrorMsg('No connection to the check-in system. Please see a crew member — your ticket is fine.');
       setState('error');
       setTimeout(() => setState('scan'), 3500);
     } finally {
@@ -116,16 +138,29 @@ export function KioskClient({ eventId, eventSlug, eventName }: Props) {
     }
   }, [eventId, startCountdown]);
 
+  // kiosk=1: this screen stands unattended in a lobby, so the server returns a
+  // short, masked result set (see the check-in route). Debounced and sequenced
+  // so a lobby full of people typing does not put a request on the wire per
+  // keystroke, and so a slow early response cannot repaint a later query.
+  const KIOSK_MIN_QUERY = 3;
   async function handleSearch(q: string) {
     setSearchQuery(q);
-    if (q.length < 2) { setResults([]); return; }
+    if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+    if (q.trim().length < KIOSK_MIN_QUERY) { setResults([]); setSearching(false); return; }
     setSearching(true);
-    try {
-      const res = await fetch(`/api/events/${eventId}/checkin?q=${encodeURIComponent(q)}`);
-      const data = await res.json().catch(() => ({ results: [] }));
-      setResults(data.results ?? []);
-    } catch { setResults([]); }
-    setSearching(false);
+    searchTimerRef.current = setTimeout(async () => {
+      const seq = ++searchSeqRef.current;
+      try {
+        const res = await fetch(`/api/events/${eventId}/checkin?kiosk=1&q=${encodeURIComponent(q)}`);
+        const data = await res.json().catch(() => ({ results: [] }));
+        if (seq !== searchSeqRef.current) return;
+        setResults(data.results ?? []);
+      } catch {
+        if (seq === searchSeqRef.current) setResults([]);
+      } finally {
+        if (seq === searchSeqRef.current) setSearching(false);
+      }
+    }, 300);
   }
 
   function openSearch() {
@@ -140,6 +175,13 @@ export function KioskClient({ eventId, eventSlug, eventName }: Props) {
     const videoEl = videoRef.current;
     if (!videoEl) return;
     setCameraError(null);
+
+    // Plain-http venue network, in-app webview, or an old browser — zxing
+    // throws something unreadable here, so name the cause ourselves.
+    if (typeof navigator === 'undefined' || !navigator.mediaDevices?.getUserMedia) {
+      setCameraError('unavailable');
+      return;
+    }
 
     const reader = new BrowserMultiFormatReader();
     BrowserMultiFormatReader.listVideoInputDevices()
@@ -171,7 +213,10 @@ export function KioskClient({ eventId, eventSlug, eventName }: Props) {
     };
   }, [state, retry, checkInByToken]);
 
-  useEffect(() => () => { if (countdownRef.current) clearInterval(countdownRef.current); }, []);
+  useEffect(() => () => {
+    if (countdownRef.current) clearInterval(countdownRef.current);
+    if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+  }, []);
 
   // Hold-to-exit: 2s of sustained press before we leave for the dashboard.
   const EXIT_HOLD_MS = 2000;
@@ -264,13 +309,15 @@ export function KioskClient({ eventId, eventSlug, eventName }: Props) {
                   ? 'Allow camera access in your browser, then tap Try again — or search by name.'
                   : 'Search attendees by name instead.'}
               </p>
-              {cameraError === 'blocked' && (
-                <button onClick={() => { setCameraError(null); setRetry(r => r + 1); }}
-                  className="mt-4 px-5 py-2.5 rounded-full text-[14px] font-semibold transition hover:opacity-90"
-                  style={{ background: '#1F4D3A', color: '#FAF6EE' }}>
-                  Try again
-                </button>
-              )}
+              {/* Offered for BOTH causes. A camera that failed to start once —
+                  another tab holding it, a tablet waking from sleep — used to
+                  leave the kiosk search-only until someone reloaded the page,
+                  and nobody is standing there to reload it. */}
+              <button onClick={() => { setCameraError(null); setRetry(r => r + 1); }}
+                className="mt-4 px-5 min-h-[44px] rounded-full text-[14px] font-semibold transition hover:opacity-90"
+                style={{ background: '#1F4D3A', color: '#FAF6EE' }}>
+                Try again
+              </button>
             </div>
           )}
 
@@ -299,8 +346,8 @@ export function KioskClient({ eventId, eventSlug, eventName }: Props) {
               ref={searchRef}
               value={searchQuery}
               onChange={e => handleSearch(e.target.value)}
-              placeholder="Search by name or email…"
-              aria-label="Search by name or email"
+              placeholder="Type your full name…"
+              aria-label="Search for your registration by name or email"
               className="w-full pl-11 pr-12 py-4 rounded-2xl text-[16px] outline-none"
               style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(232,197,126,0.4)', color: '#FAF6EE' }}
             />
@@ -337,7 +384,13 @@ export function KioskClient({ eventId, eventSlug, eventName }: Props) {
             </div>
           )}
 
-          {!searching && searchQuery.length >= 2 && results.length === 0 && (
+          {!searching && searchQuery.trim().length > 0 && searchQuery.trim().length < KIOSK_MIN_QUERY && (
+            <div className="text-center py-8 text-[14px]" style={{ color: 'rgba(255,255,255,0.4)' }}>
+              Keep typing your name…
+            </div>
+          )}
+
+          {!searching && searchQuery.trim().length >= KIOSK_MIN_QUERY && results.length === 0 && (
             <div className="text-center py-8" style={{ color: 'rgba(255,255,255,0.4)' }}>
               No registrations found for &ldquo;{searchQuery}&rdquo;
             </div>
@@ -392,10 +445,17 @@ export function KioskClient({ eventId, eventSlug, eventName }: Props) {
       {/* ERROR STATE */}
       {state === 'error' && (
         <div className="flex flex-col items-center text-center px-6">
-          <div className="w-20 h-20 rounded-full flex items-center justify-center mb-6" style={{ background: 'rgba(184,66,60,0.2)', border: '2px solid #B8423C' }}>
-            <X size={36} style={{ color: '#B8423C' }} />
+          <div className="w-20 h-20 rounded-full flex items-center justify-center mb-6"
+            style={errorKind === 'system'
+              ? { background: 'rgba(201,122,45,0.2)', border: '2px solid #C97A2D' }
+              : { background: 'rgba(184,66,60,0.2)', border: '2px solid #B8423C' }}>
+            {errorKind === 'system'
+              ? <CloudOff size={34} style={{ color: '#C97A2D' }} />
+              : <X size={36} style={{ color: '#B8423C' }} />}
           </div>
-          <h2 className="font-display font-bold text-[28px] mb-2" style={{ color: '#FAF6EE' }}>Couldn&apos;t check in</h2>
+          <h2 className="font-display font-bold text-[28px] mb-2" style={{ color: '#FAF6EE' }}>
+            {errorKind === 'system' ? 'Check-in is offline' : "Couldn't check in"}
+          </h2>
           <p className="max-w-[300px]" style={{ color: 'rgba(255,255,255,0.5)' }}>{errorMsg}</p>
         </div>
       )}
