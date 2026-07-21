@@ -9,10 +9,13 @@ interface Props {
   eventName: string;
   eventSlug: string;
   variants: Variant[];
+  /** Forwarded so a guest `?reg=` link survives the picker step. */
+  regParam?: string | null;
 }
 
-export default function VariantPickerClient({ eventName, eventSlug, variants }: Props) {
+export default function VariantPickerClient({ eventName, eventSlug, variants, regParam = null }: Props) {
   const router = useRouter();
+  const regQuery = regParam ? `?reg=${encodeURIComponent(regParam)}` : '';
 
   return (
     <div
@@ -30,7 +33,7 @@ export default function VariantPickerClient({ eventName, eventSlug, variants }: 
           {variants.map(v => (
             <button
               key={v.id}
-              onClick={() => router.push(`/c/${eventSlug}/${v.variant_slug}`)}
+              onClick={() => router.push(`/c/${eventSlug}/${v.variant_slug}${regQuery}`)}
               className="w-full flex items-center gap-4 p-4 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20 transition text-left group"
             >
               {v.background_url && (

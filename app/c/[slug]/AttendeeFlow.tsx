@@ -33,6 +33,12 @@ export interface AttendeeFlowProps {
   backgroundWidth: number;
   backgroundHeight: number;
   zones: Zone[];
+  /**
+   * The viewer's registration for this event, resolved server-side.
+   * `/api/render` refuses anonymous generation (403 REGISTRATION_REQUIRED), so
+   * without this every card attempt from this route failed at the last step.
+   */
+  registrationId?: string | null;
 }
 
 type Screen = 'arrival' | 'details' | 'reveal' | 'preview' | 'success';
@@ -75,6 +81,7 @@ async function getCroppedBlob(imageSrc: string, crop: Area): Promise<Blob> {
 
 export default function AttendeeFlow({
   variantId, eventId, eventName, backgroundUrl, backgroundWidth, backgroundHeight, zones,
+  registrationId = null,
 }: AttendeeFlowProps) {
 
   /* ── Screen state ─────────────────────────────────────────────────────── */
@@ -172,6 +179,8 @@ export default function AttendeeFlow({
       fd.append('variantId', variantId);
       fd.append('fields', JSON.stringify(values));
       fd.append('idempotencyKey', idempotencyKey);
+      // Proves the caller is registered for this event — /api/render 403s without it.
+      if (registrationId) fd.append('registrationId', registrationId);
       for (const [zoneId, file] of Object.entries(photoFiles)) {
         fd.append(`photo_${zoneId}`, file);
       }
@@ -209,7 +218,7 @@ export default function AttendeeFlow({
       setIsGenerating(false);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [variantId, values, photoFiles, idempotencyKey]);
+  }, [variantId, values, photoFiles, idempotencyKey, registrationId]);
 
   /* ── Download card ────────────────────────────────────────────────────── */
   // Core download: trigger the browser save of the REAL rendered PNG + track.

@@ -8,6 +8,7 @@ import VariantPickerClient from './VariantPickerClient';
 import { ViewTracker } from './components/ViewTracker';
 import { AttendeeBrandProvider } from '@/components/white-label/attendee-brand';
 import { getWhiteLabelByEvent } from '@/lib/white-label/server';
+import { resolveViewerRegistrationId } from '@/lib/attendee/resolveViewerRegistration';
 import type { Zone, Variant } from '@/types/database';
 
 export async function generateMetadata(
@@ -50,10 +51,10 @@ export default async function AttendeePage({
   searchParams,
 }: {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ preview?: string }>;
+  searchParams: Promise<{ preview?: string; reg?: string }>;
 }) {
   const { slug } = await params;
-  const { preview } = await searchParams;
+  const { preview, reg } = await searchParams;
   const admin = createAdminClient();
   const isPreview = Boolean(preview);
 
@@ -111,6 +112,14 @@ export default async function AttendeePage({
     hidePoweredBy: wl?.hidePoweredBy ?? false,
   };
 
+  // Resolve who the viewer is. `/api/render` refuses anonymous card generation
+  // (403 REGISTRATION_REQUIRED), and this route never sent a registration id —
+  // so every card built here died at the final step with "you need to register
+  // first", even for a signed-in attendee who had. The canonical resolver
+  // accepts a `?reg=` UUID, a `?reg=` qr_code_token guest link, or falls back to
+  // the signed-in user's own active registration for this event.
+  const registrationId = await resolveViewerRegistrationId(event.id, reg);
+
   // Single variant — skip the picker and go straight to the form
   if (variants.length === 1) {
     const v = variants[0];
@@ -131,6 +140,7 @@ export default async function AttendeePage({
           backgroundWidth={v.background_width ?? 1080}
           backgroundHeight={v.background_height ?? 1350}
           zones={(v.zones as unknown as Zone[]) ?? []}
+          registrationId={registrationId}
         />
       </AttendeeBrandProvider>
     );
@@ -149,6 +159,7 @@ export default async function AttendeePage({
         eventName={event.name}
         eventSlug={event.slug}
         variants={variants}
+        regParam={reg ?? null}
       />
     </AttendeeBrandProvider>
   );

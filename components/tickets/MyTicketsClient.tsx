@@ -3,8 +3,9 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { X, ChevronRight, Lock, MapPin, QrCode } from 'lucide-react';
+import { X, ChevronRight, Lock, MapPin, QrCode, Clock } from 'lucide-react';
 import { EventToolsGrid } from './EventTools';
+import { ticketState, isScannable, ticketStateLabel } from './ticketState';
 
 type Registration = {
   id: string;
@@ -56,6 +57,7 @@ const BORDER = '#E5E0D4';
 const BORDER_STRONG = '#C9C3B1'; // crisper dashed perforation line
 const WARNING = '#C97A2D';
 const SUCCESS = '#2D7A4F';
+const DANGER = '#B8423C';
 
 // ── QR overlay ────────────────────────────────────────────────────────────────
 
@@ -115,23 +117,23 @@ function QROverlay({ token, name, label, onClose }: QROverlayProps) {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-// A paid ticket that hasn't been paid → QR must stay locked.
-function isPendingPayment(reg: Registration): boolean {
-  const amt = Number(reg.amount_paid ?? 0);
-  return reg.status !== 'checked_in'
-    && (reg.payment_status === 'pending' || reg.payment_status === 'failed')
-    && amt > 0;
-}
-
 type StatusTag = { label: string; color: string; accent: string };
 
+// Derived from the shared state machine (./ticketState) so the wallet, the
+// detail page and the QR gate can never tell the attendee three different
+// stories about the same ticket.
 function statusTag(reg: Registration, isPast: boolean): StatusTag {
-  if (reg.status === 'checked_in') return { label: 'Checked in', color: FOREST, accent: FOREST };
-  if (isPendingPayment(reg) || reg.payment_status === 'pending' || reg.status === 'pending' || reg.status === 'pending_approval') {
-    return { label: 'Payment pending', color: WARNING, accent: WARNING };
+  const state = ticketState(reg);
+  switch (state) {
+    case 'checked_in':        return { label: ticketStateLabel(state), color: FOREST, accent: FOREST };
+    case 'pending_payment':   return { label: ticketStateLabel(state), color: WARNING, accent: WARNING };
+    case 'awaiting_approval': return { label: ticketStateLabel(state), color: WARNING, accent: WARNING };
+    case 'cancelled':         return { label: ticketStateLabel(state), color: DANGER, accent: DANGER };
+    default:
+      return isPast
+        ? { label: 'Expired', color: MUTED, accent: '#C7C0AF' }
+        : { label: ticketStateLabel(state), color: SUCCESS, accent: SUCCESS };
   }
-  if (isPast) return { label: 'Expired', color: MUTED, accent: '#C7C0AF' };
-  return { label: 'Confirmed', color: SUCCESS, accent: SUCCESS };
 }
 
 // ── Ticket stub ─────────────────────────────────────────────────────────────
@@ -145,7 +147,7 @@ function TicketStub({ reg, isPast, onShowQR }: { reg: Registration; isPast: bool
   const dayStr = start ? start.toLocaleDateString(undefined, { day: 'numeric', timeZone: tz }) : null;
   const ticketName = reg.ticket_types?.name ?? 'General Admission';
   const tag = statusTag(reg, isPast);
-  const locked = isPendingPayment(reg);
+  const state = ticketState(reg);
   const title = reg.events?.name ?? ep?.title ?? 'Event';
   const detailHref = `/my-tickets/${reg.id}`;
   const venue = ep?.is_online ? 'Online' : [ep?.venue_name, ep?.city].filter(Boolean).join(' · ') || null;
@@ -153,11 +155,21 @@ function TicketStub({ reg, isPast, onShowQR }: { reg: Registration; isPast: bool
   const COVER = 118; // left cover-stub width
   const NOTCH = 22;  // perforation "bite" diameter
 
-  const action = locked ? (
+  // "Show QR" is offered ONLY for a live ticket. An unpaid, unapproved or
+  // cancelled ticket gets an honest label instead of a QR the gate will reject.
+  const action = state === 'pending_payment' ? (
     <Link href={detailHref} className="inline-flex items-center gap-1 text-[13px] font-semibold shrink-0" style={{ color: WARNING }}>
       <Lock size={13} strokeWidth={2.2} /> Pay to unlock
     </Link>
-  ) : reg.status === 'checked_in' || isPast ? (
+  ) : state === 'awaiting_approval' ? (
+    <Link href={detailHref} className="inline-flex items-center gap-1 text-[13px] font-semibold shrink-0" style={{ color: WARNING }}>
+      <Clock size={13} strokeWidth={2.2} /> Awaiting approval
+    </Link>
+  ) : state === 'cancelled' ? (
+    <Link href={detailHref} className="inline-flex items-center gap-0.5 text-[13px] font-semibold shrink-0" style={{ color: DANGER }}>
+      Details <ChevronRight size={15} strokeWidth={2.2} />
+    </Link>
+  ) : state === 'checked_in' || isPast ? (
     <Link href={detailHref} className="inline-flex items-center gap-0.5 text-[13px] font-semibold shrink-0" style={{ color: MUTED }}>
       Receipt <ChevronRight size={15} strokeWidth={2.2} />
     </Link>
@@ -260,7 +272,7 @@ function NextUpHub({ reg, onShowQR }: { reg: Registration; onShowQR: () => void 
   const cd = countdownLabel(ep?.starts_at, ep?.timezone);
   const venue = ep?.is_online ? 'Online event' : [ep?.venue_name, ep?.city].filter(Boolean).join(' · ') || null;
   const features = ep?.features ?? {};
-  const locked = isPendingPayment(reg);
+  const state = ticketState(reg);
 
   return (
     <div className="mb-6 overflow-hidden" style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 20, boxShadow: '0 2px 4px rgba(15,31,24,0.05), 0 18px 48px rgba(31,77,58,0.10)' }}>
@@ -289,9 +301,18 @@ function NextUpHub({ reg, onShowQR }: { reg: Registration; onShowQR: () => void 
             </div>
           )}
           <div className="mt-4 flex flex-wrap items-center gap-2.5">
-            {locked ? (
-              <Link href={`/my-tickets/${reg.id}`} className="inline-flex items-center gap-1.5 h-9 px-4 rounded-full text-[13.5px] font-semibold" style={{ background: WARNING, color: '#fff' }}>
-                <Lock size={15} strokeWidth={2.2} /> Pay to unlock
+            {!isScannable(state) ? (
+              <Link
+                href={`/my-tickets/${reg.id}`}
+                className="inline-flex items-center gap-1.5 h-9 px-4 rounded-full text-[13.5px] font-semibold"
+                style={state === 'checked_in'
+                  ? { background: '#fff', color: FOREST }
+                  : { background: state === 'cancelled' ? DANGER : WARNING, color: '#fff' }}
+              >
+                {state === 'pending_payment' && <><Lock size={15} strokeWidth={2.2} /> Pay to unlock</>}
+                {state === 'awaiting_approval' && <><Clock size={15} strokeWidth={2.2} /> Awaiting approval</>}
+                {state === 'checked_in' && <>View ticket</>}
+                {state === 'cancelled' && <>Ticket cancelled</>}
               </Link>
             ) : (
               <button onClick={onShowQR} className="inline-flex items-center gap-1.5 h-9 px-4 rounded-full text-[13.5px] font-semibold transition hover:opacity-90" style={{ background: '#fff', color: FOREST }}>

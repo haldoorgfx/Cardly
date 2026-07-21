@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { GetCardModal, type CardVariant } from './GetCardModal';
 import { cardDownloadUrl } from '@/lib/registration/cardImage';
+import { ticketState, isScannable, isTransferable, ticketStateLabel } from './ticketState';
 
 // ── Types ───────────────────────────────────────────────────────────────────
 
@@ -307,24 +308,32 @@ export default function TicketDetailClient({ reg, scannedByName, variant, existi
     : '';
   const icsUrl = ep?.id ? `/api/calendar/${ep.id}` : '';
 
-  // ── State machine ──
-  const isCheckedIn = reg.status === 'checked_in';
-  const isPendingPayment =
-    !isCheckedIn && (reg.payment_status === 'pending' || reg.payment_status === 'failed') && amount > 0;
-  const isLive = !isCheckedIn && !isPendingPayment; // confirmed / paid / free → live QR
+  // ── State machine (shared with the wallet list — see ./ticketState) ──
+  // This page's query has NO status filter, so a cancelled or refunded
+  // registration reaches it. It used to fall through to "live" and render a
+  // green "Confirmed" ribbon over a scannable QR and a Transfer button.
+  const state = ticketState(reg);
+  const isCheckedIn = state === 'checked_in';
+  const isPendingPayment = state === 'pending_payment';
+  const isAwaitingApproval = state === 'awaiting_approval';
+  const isCancelled = state === 'cancelled';
+  const isLive = isScannable(state); // confirmed + paid/free → live QR
 
   // Ribbon
-  let ribbonLabel = 'Confirmed';
-  let ribbonColor = SUCCESS;
-  if (isCheckedIn) { ribbonLabel = 'Checked in'; ribbonColor = FOREST; }
-  else if (isPendingPayment) { ribbonLabel = 'Payment pending'; ribbonColor = WARNING; }
+  const ribbonLabel = ticketStateLabel(state);
+  const ribbonColor =
+    state === 'checked_in' ? FOREST
+    : state === 'cancelled' ? DANGER
+    : state === 'live' ? SUCCESS
+    : WARNING;
 
   const qrLabel = [eventName, ticketName].filter(Boolean).join(' · ');
 
   // Card generation: only offer it once the ticket is live (not blocked on
   // payment), the event actually has a design, and no card exists yet.
   const hasCard = !!reg.eventera_card_url || !!cardDataUrl;
-  const canGetCard = !isPendingPayment && !!variant && !hasCard;
+  // Only a valid ticket earns a card — not one that's unpaid, unapproved or cancelled.
+  const canGetCard = (isLive || isCheckedIn) && !!variant && !hasCard;
 
   function handleCardGenerated(dataUrl: string) {
     setCardDataUrl(dataUrl);
@@ -403,17 +412,29 @@ export default function TicketDetailClient({ reg, scannedByName, variant, existi
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={`/api/qr/${reg.qr_code_token}`} alt="Check-in QR" width={172} height={172} style={{ display: 'block', borderRadius: 6 }} />
                 </button>
-              ) : isPendingPayment ? (
+              ) : !isCheckedIn ? (
                 <div className="rounded-2xl p-3" style={{ background: '#fff', border: `1px solid ${BORDER}` }}>
-                  {/* Locked / blurred QR — never scannable until paid */}
-                  <div className="relative" style={{ width: 172, height: 172 }}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={`/api/qr/${reg.qr_code_token}`} alt="" width={172} height={172} style={{ display: 'block', borderRadius: 6, filter: 'blur(6px)', opacity: 0.4 }} aria-hidden />
-                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
-                      <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: GOLD_SOFT }}>
-                        <Lock size={20} strokeWidth={2} style={{ color: WARNING }} />
-                      </div>
-                      <div className="text-[12px] font-semibold text-center px-4" style={{ color: INK_SOFT }}>QR unlocks after payment</div>
+                  {/* Locked. The real QR is NOT rendered here — a blurred <img>
+                      is still a working QR to anyone who removes the CSS
+                      filter, so an invalid ticket must not put the token in
+                      the DOM at all. */}
+                  <div
+                    className="relative flex flex-col items-center justify-center gap-2 rounded-md"
+                    style={{ width: 172, height: 172, background: '#FAF6EE', border: `1px dashed ${BORDER_STRONG}` }}
+                  >
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: isCancelled ? 'rgba(184,66,60,0.10)' : GOLD_SOFT }}>
+                      {isCancelled
+                        ? <X size={20} strokeWidth={2} style={{ color: DANGER }} />
+                        : isAwaitingApproval
+                          ? <Clock size={20} strokeWidth={2} style={{ color: WARNING }} />
+                          : <Lock size={20} strokeWidth={2} style={{ color: WARNING }} />}
+                    </div>
+                    <div className="text-[12px] font-semibold text-center px-4" style={{ color: INK_SOFT }}>
+                      {isCancelled
+                        ? 'This ticket is no longer valid'
+                        : isAwaitingApproval
+                          ? 'QR unlocks once the organizer approves you'
+                          : 'QR unlocks after payment'}
                     </div>
                   </div>
                 </div>
@@ -468,6 +489,11 @@ export default function TicketDetailClient({ reg, scannedByName, variant, existi
                 <div className="text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: MUTED }}>Scanned by</div>
                 <div className="font-display font-medium text-[14px] mt-1" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: INK }}>{scannedByName ?? 'Gate staff'}</div>
               </div>
+            ) : !isLive ? (
+              <div>
+                <div className="text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: MUTED }}>Status</div>
+                <div className="font-display font-medium text-[14px] mt-1" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: isCancelled ? DANGER : WARNING }}>{ribbonLabel}</div>
+              </div>
             ) : (
               <div>
                 <div className="text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: MUTED }}>Gate</div>
@@ -514,6 +540,24 @@ export default function TicketDetailClient({ reg, scannedByName, variant, existi
               Pay {money(amount, currency)} now
             </Link>
           </>
+        )}
+
+        {isAwaitingApproval && (
+          <div className="mt-4 rounded-2xl p-4 flex items-start gap-3" style={{ background: '#fff', border: `1px solid ${BORDER}` }}>
+            <Clock size={18} strokeWidth={2} style={{ color: WARNING, marginTop: 1, flexShrink: 0 }} />
+            <div className="text-[13px]" style={{ color: INK_SOFT }}>
+              The organizer is reviewing your registration. You&apos;ll be emailed as soon as it&apos;s approved, and your check-in QR unlocks then.
+            </div>
+          </div>
+        )}
+
+        {isCancelled && (
+          <div className="mt-4 rounded-2xl p-4 flex items-start gap-3" style={{ background: '#fff', border: `1px solid ${BORDER}` }}>
+            <X size={18} strokeWidth={2} style={{ color: DANGER, marginTop: 1, flexShrink: 0 }} />
+            <div className="text-[13px]" style={{ color: INK_SOFT }}>
+              This ticket was {reg.status === 'refunded' ? 'refunded' : 'cancelled'} and can no longer be used at the gate or transferred. Contact the organizer if you think that&apos;s wrong.
+            </div>
+          </div>
         )}
 
         {isCheckedIn && (
@@ -698,7 +742,7 @@ export default function TicketDetailClient({ reg, scannedByName, variant, existi
             <div className="font-display font-semibold text-[16px] mb-1 sm:hidden" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: INK }}>Ticket options</div>
 
             <div className="divide-y sm:divide-y-0" style={{ borderColor: BORDER }}>
-              {isLive && (
+              {isTransferable(state) && (
                 <ActionRow
                   icon={<ArrowLeftRight size={20} />}
                   label="Transfer ticket"

@@ -5,14 +5,18 @@ import { notFound } from 'next/navigation';
 import AttendeeFlow from '../AttendeeFlow';
 import { AttendeeBrandProvider } from '@/components/white-label/attendee-brand';
 import { getWhiteLabelByEvent } from '@/lib/white-label/server';
+import { resolveViewerRegistrationId } from '@/lib/attendee/resolveViewerRegistration';
 import type { Zone } from '@/types/database';
 
 export default async function VariantAttendeePage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string; variantSlug: string }>;
+  searchParams: Promise<{ reg?: string }>;
 }) {
   const { slug, variantSlug } = await params;
+  const { reg } = await searchParams;
   const admin = createAdminClient();
 
   const { data: event } = await admin
@@ -43,6 +47,10 @@ export default async function VariantAttendeePage({
     hidePoweredBy: wl?.hidePoweredBy ?? false,
   };
 
+  // Same registration resolution as app/c/[slug]/page.tsx — /api/render 403s
+  // without a registration id that belongs to this event.
+  const registrationId = await resolveViewerRegistrationId(event.id, reg);
+
   return (
     <AttendeeBrandProvider value={brand}>
       <AttendeeFlow
@@ -53,6 +61,7 @@ export default async function VariantAttendeePage({
         backgroundWidth={variant.background_width ?? 1080}
         backgroundHeight={variant.background_height ?? 1350}
         zones={(variant.zones as unknown as Zone[]) ?? []}
+        registrationId={registrationId}
       />
     </AttendeeBrandProvider>
   );

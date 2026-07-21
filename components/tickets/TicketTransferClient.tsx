@@ -22,7 +22,9 @@ export function TicketTransferClient({ registration: reg }: Props) {
   const ep = (reg.events?.event_pages as any[])?.[0];
   const eventTitle = ep?.title ?? reg.events?.name ?? 'Event';
   const ticketName = reg.ticket_types?.name ?? 'Ticket';
-  const ticketNum = reg.qr_code_token ?? reg.id.slice(-6).toUpperCase();
+  // Derived from the row id, NOT qr_code_token: that token is the bearer
+  // credential for this ticket and has no business being printed on screen.
+  const ticketNum = reg.id.slice(-6).toUpperCase();
 
   async function send() {
     if (!recipientEmail.trim() || !recipientName.trim()) return;
