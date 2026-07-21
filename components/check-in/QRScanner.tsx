@@ -9,7 +9,13 @@ import { extractToken } from '@/lib/qr/token';
 type ScanResult =
   | { kind: 'success'; name: string; email: string; ticket_type: string | null }
   | { kind: 'already_checked_in'; name: string; checked_in_at: string; ticket_type: string | null }
-  | { kind: 'invalid'; message: string };
+  // 'refused' = the server reached a verdict and said no (cancelled / refunded /
+  // unpaid / unknown QR). The attendee's ticket is the problem.
+  | { kind: 'refused'; heading: string; name: string | null; message: string }
+  // 'error' = we never got a verdict (offline, 500, expired session). The SCANNER
+  // is the problem and the attendee is NOT checked in — this must never look like
+  // a refusal, or staff turn away a legitimate guest for a wifi drop.
+  | { kind: 'error'; message: string; token: string };
 
 type SearchResult = {
   id: string;
@@ -47,6 +53,16 @@ function beep(type: 'ok' | 'warn' | 'err') {
   } catch {}
 }
 
+// Headline per refusal cause. At arm's length staff read the big line, not the
+// small print — so the big line has to carry the actual reason. One generic
+// "Not recognised" for six different causes is unactionable at a queue.
+const REFUSAL_HEADINGS: Record<string, string> = {
+  not_found: 'Not recognised',
+  cancelled: 'Cancelled ticket',
+  refunded: 'Refunded ticket',
+  payment_required: 'Not paid',
+};
+
 export function QRScanner({ eventId, eventSlug, eventName, totalRegistrations, initialCheckedIn, onCheckedIn, onClose }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const readerRef = useRef<BrowserMultiFormatReader | null>(null);
@@ -62,24 +78,39 @@ export function QRScanner({ eventId, eventSlug, eventName, totalRegistrations, i
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [searching, setSearching] = useState(false);
   const [manualCheckingIn, setManualCheckingIn] = useState<string | null>(null);
+  const [manualError, setManualError] = useState<{ id: string; message: string } | null>(null);
 
   const handleToken = useCallback(async (token: string) => {
     if (processingRef.current) return;
     processingRef.current = true;
 
+    let isError = false;
     try {
       const res = await fetch(`/api/events/${eventId}/checkin`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ qr_code_token: token }),
       });
-      const data = await res.json() as {
-        result: string; message: string;
+      const data = await res.json().catch(() => ({})) as {
+        result?: string; code?: string; message?: string; error?: string;
         attendee_name?: string; attendee_email?: string; checked_in_at?: string;
         ticket_type?: string | null;
       };
 
-      if (data.result === 'success') {
+      if (!res.ok || !data.result) {
+        // A 401/404/500 has no verdict in it. Treating this as "invalid" would
+        // tell staff the guest's ticket is fake when really the session expired
+        // or the server errored — the guest is NOT checked in either way.
+        isError = true;
+        beep('err');
+        setFlash({
+          kind: 'error',
+          message: res.status === 401
+            ? 'Your session expired. Sign in again on this device, then rescan.'
+            : (data.error ?? `Server error (${res.status}). Nobody was checked in.`),
+          token,
+        });
+      } else if (data.result === 'success') {
         beep('ok');
         setCheckedIn(c => c + 1);
         onCheckedIn?.();
@@ -89,19 +120,50 @@ export function QRScanner({ eventId, eventSlug, eventName, totalRegistrations, i
         setFlash({ kind: 'already_checked_in', name: data.attendee_name ?? '', checked_in_at: data.checked_in_at ?? '', ticket_type: data.ticket_type ?? null });
       } else {
         beep('err');
-        setFlash({ kind: 'invalid', message: data.message ?? 'Invalid QR code' });
+        setFlash({
+          kind: 'refused',
+          heading: REFUSAL_HEADINGS[data.code ?? 'not_found'] ?? 'Entry not allowed',
+          name: data.attendee_name ?? null,
+          message: data.message ?? 'This ticket cannot be used for entry',
+        });
       }
     } catch {
+      // Offline / DNS / dropped venue wifi. There is no queue here, so the scan
+      // is simply lost — say so plainly and offer a retry rather than dropping
+      // the flash after 2.5 s and letting staff assume it worked.
+      isError = true;
       beep('err');
-      setFlash({ kind: 'invalid', message: 'Network error' });
+      setFlash({
+        kind: 'error',
+        message: 'No connection. This person was NOT checked in — tap Retry when you have signal.',
+        token,
+      });
     }
 
-    // Show flash for 2.5 s then resume scanning
+    // Verdicts auto-clear after 2.5 s so the queue keeps moving. Errors do NOT:
+    // a scan that silently vanished is exactly the failure staff must not miss.
+    // processingRef stays LOCKED so the camera can't re-fire behind the banner —
+    // Retry / Dismiss are the only ways out.
+    if (isError) return;
+
     setTimeout(() => {
       setFlash(null);
       processingRef.current = false;
     }, 2500);
   }, [eventId, onCheckedIn]);
+
+  // Re-send the exact token that failed. Unlocks first, since handleToken
+  // early-returns while processingRef is held.
+  const retryToken = useCallback((token: string) => {
+    setFlash(null);
+    processingRef.current = false;
+    handleToken(token);
+  }, [handleToken]);
+
+  const dismissError = useCallback(() => {
+    setFlash(null);
+    processingRef.current = false;
+  }, []);
 
   const handleSearch = useCallback(async (q: string) => {
     setSearchQuery(q);
@@ -120,6 +182,7 @@ export function QRScanner({ eventId, eventSlug, eventName, totalRegistrations, i
 
   const handleManualCheckin = useCallback(async (reg: SearchResult) => {
     if (reg.status === 'checked_in') return;
+    setManualError(null);
     setManualCheckingIn(reg.id);
     try {
       const res = await fetch(`/api/events/${eventId}/checkin`, {
@@ -127,15 +190,30 @@ export function QRScanner({ eventId, eventSlug, eventName, totalRegistrations, i
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ qr_code_token: reg.qr_code_token }),
       });
-      const data = await res.json() as { result: string; attendee_name?: string };
-      if (data.result === 'success') {
+      const data = await res.json().catch(() => ({})) as {
+        result?: string; code?: string; message?: string; error?: string; attendee_name?: string;
+      };
+      if (res.ok && data.result === 'success') {
         beep('ok');
         setCheckedIn(c => c + 1);
         onCheckedIn?.();
         setSearchResults(prev => prev.map(r => r.id === reg.id ? { ...r, status: 'checked_in', checked_in_at: new Date().toISOString() } : r));
+      } else if (res.ok && data.result === 'already_checked_in') {
+        beep('warn');
+        setSearchResults(prev => prev.map(r => r.id === reg.id ? { ...r, status: 'checked_in' } : r));
+      } else {
+        // Previously this branch did nothing at all: tapping "Check in" on a
+        // cancelled or unpaid attendee spun, stopped, and left the button
+        // unchanged — so staff tapped again, and again, with no idea why.
+        beep('err');
+        setManualError({
+          id: reg.id,
+          message: data.message ?? data.error ?? 'Could not check in — try again',
+        });
       }
     } catch {
       beep('err');
+      setManualError({ id: reg.id, message: 'No connection — this person was NOT checked in' });
     } finally {
       setManualCheckingIn(null);
     }
@@ -319,6 +397,11 @@ export function QRScanner({ eventId, eventSlug, eventName, totalRegistrations, i
                         <Clock size={10} /> {new Date(reg.checked_in_at).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
                       </div>
                     )}
+                    {manualError?.id === reg.id && (
+                      <div className="mt-1.5 text-[12.5px] leading-snug" style={{ color: '#E89B96' }}>
+                        {manualError.message}
+                      </div>
+                    )}
                   </div>
                   {isCheckedIn ? (
                     <div className="w-8 h-8 rounded-full grid place-items-center shrink-0" style={{ background: 'rgba(45,122,79,0.25)' }}>
@@ -328,7 +411,8 @@ export function QRScanner({ eventId, eventSlug, eventName, totalRegistrations, i
                     <button
                       onClick={() => handleManualCheckin(reg)}
                       disabled={isLoading}
-                      className="shrink-0 px-4 py-1.5 rounded-full text-[12px] font-medium text-white disabled:opacity-50"
+                      // 44px min height — this is tapped one-handed at a door.
+                      className="shrink-0 px-5 min-h-[44px] rounded-full text-[13px] font-medium text-white disabled:opacity-50"
                       style={{ background: '#1F4D3A' }}
                     >
                       {isLoading ? '…' : 'Check in'}
@@ -440,34 +524,67 @@ export function QRScanner({ eventId, eventSlug, eventName, totalRegistrations, i
       {/* ── Result flash ─────────────────────────────── */}
       {flash && (
         <div
+          role="status"
+          aria-live="assertive"
           className="absolute inset-0 z-30 flex flex-col items-center justify-center text-center px-6"
           style={{
+            // Four distinguishable colours for four distinguishable outcomes:
+            // forest = in, amber = already in, danger = refused, ink = scanner
+            // broken. Staff must be able to tell them apart without reading.
             background:
               flash.kind === 'success'
                 ? 'rgba(31,77,58,0.95)'
                 : flash.kind === 'already_checked_in'
                 ? 'rgba(201,122,45,0.95)'
-                : 'rgba(184,66,60,0.95)',
+                : flash.kind === 'refused'
+                ? 'rgba(184,66,60,0.95)'
+                : 'rgba(15,31,24,0.97)',
             backdropFilter: 'blur(6px)',
           }}
         >
           <div className="text-6xl mb-4" aria-hidden>
-            {flash.kind === 'success' ? '✓' : flash.kind === 'already_checked_in' ? '↩' : '✗'}
+            {flash.kind === 'success' ? '✓'
+              : flash.kind === 'already_checked_in' ? '↩'
+              : flash.kind === 'refused' ? '✗'
+              : '⚠'}
           </div>
           <div className="font-display font-medium text-[26px] text-white mb-1">
-            {flash.kind === 'success'
+            {flash.kind === 'success' || flash.kind === 'already_checked_in'
               ? flash.name
-              : flash.kind === 'already_checked_in'
-              ? flash.name
-              : 'Not recognised'}
+              : flash.kind === 'refused'
+              ? flash.heading
+              : 'Not checked in'}
           </div>
-          <div className="text-[15px]" style={{ color: 'rgba(255,255,255,0.7)' }}>
+          <div className="text-[15px] max-w-[300px]" style={{ color: 'rgba(255,255,255,0.7)' }}>
             {flash.kind === 'success'
               ? (flash.ticket_type ? `${flash.ticket_type} · Checked in ✓` : 'Checked in ✓')
               : flash.kind === 'already_checked_in'
               ? `Already in${flash.ticket_type ? ` · ${flash.ticket_type}` : ''} at ${new Date(flash.checked_in_at).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}`
+              : flash.kind === 'refused'
+              ? (flash.name ? `${flash.name} · ${flash.message}` : flash.message)
               : flash.message}
           </div>
+
+          {/* Errors are the only state staff must act on, so they get controls
+              and the banner never auto-dismisses out from under them. */}
+          {flash.kind === 'error' && (
+            <div className="flex flex-col items-center gap-3 mt-7 w-full max-w-[280px]">
+              <button
+                onClick={() => retryToken(flash.token)}
+                className="w-full h-12 rounded-full text-[15px] font-semibold text-white active:opacity-70"
+                style={{ background: '#1F4D3A' }}
+              >
+                Retry scan
+              </button>
+              <button
+                onClick={dismissError}
+                className="w-full h-11 rounded-full text-[14px] font-medium"
+                style={{ background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.7)', border: '1px solid rgba(255,255,255,0.15)' }}
+              >
+                Dismiss and keep scanning
+              </button>
+            </div>
+          )}
         </div>
       )}
 

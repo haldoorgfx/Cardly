@@ -114,7 +114,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     .single();
 
   if (!reg) {
-    return NextResponse.json({ result: 'invalid', message: 'QR code not recognised — no registration found' });
+    return NextResponse.json({ result: 'invalid', code: 'not_found', message: 'QR code not recognised — no registration found' });
   }
 
   if (reg.status === 'checked_in') {
@@ -129,8 +129,14 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   }
 
   if (reg.status === 'cancelled' || reg.status === 'refunded') {
+    // Carry the name + a machine-readable code: at the door, staff need to know
+    // WHO is standing in front of them and WHY they were stopped. A bare
+    // "invalid" reads identically to an unrecognised QR and is unactionable.
     return NextResponse.json({
       result: 'invalid',
+      code: reg.status === 'refunded' ? 'refunded' : 'cancelled',
+      attendee_name: reg.attendee_name,
+      ticket_type: reg.ticket_types?.name ?? null,
       message: `Registration is ${reg.status} — entry not allowed`,
     });
   }
@@ -142,6 +148,8 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     return NextResponse.json({
       result: 'invalid',
       code: 'payment_required',
+      attendee_name: reg.attendee_name,
+      ticket_type: reg.ticket_types?.name ?? null,
       message: 'Payment not completed for this ticket',
     });
   }

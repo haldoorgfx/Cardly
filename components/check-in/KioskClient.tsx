@@ -2,13 +2,13 @@
 
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { BrowserMultiFormatReader, type IScannerControls } from '@zxing/browser';
-import { Search, X, Check, ArrowLeft, CameraOff } from 'lucide-react';
-import Link from 'next/link';
+import { Search, X, Check, ArrowLeft, CameraOff, Clock } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { extractToken } from '@/lib/qr/token';
 
 interface Props { eventId: string; eventSlug: string; eventName: string; }
 
-type KioskState = 'scan' | 'search' | 'success' | 'error';
+type KioskState = 'scan' | 'search' | 'success' | 'already' | 'error';
 
 interface AttendeeResult {
   id: string;
@@ -42,7 +42,11 @@ export function KioskClient({ eventId, eventSlug, eventName }: Props) {
   const [countdown, setCountdown] = useState(6);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [retry, setRetry] = useState(0);
+  const [exitHold, setExitHold] = useState(0);
+  const [alreadyIn, setAlreadyIn] = useState<{ name: string | null; at: string | null } | null>(null);
 
+  const router = useRouter();
+  const exitTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -57,6 +61,7 @@ export function KioskClient({ eventId, eventSlug, eventName }: Props) {
           if (countdownRef.current) clearInterval(countdownRef.current);
           setState('scan');
           setCheckedInAttendee(null);
+          setAlreadyIn(null);
           setSearchQuery('');
           setResults([]);
           return 6;
@@ -77,12 +82,22 @@ export function KioskClient({ eventId, eventSlug, eventName }: Props) {
         body: JSON.stringify({ qr_code_token: token }),
       });
       const data = await res.json().catch(() => ({})) as {
-        result?: string; message?: string; attendee_name?: string; ticket_type?: string | null;
+        result?: string; message?: string; attendee_name?: string;
+        ticket_type?: string | null; checked_in_at?: string;
       };
-      if (data.result === 'success' || data.result === 'already_checked_in') {
+      if (data.result === 'success') {
         beep(true);
         setCheckedInAttendee({ name: data.attendee_name ?? null, ticket: data.ticket_type ?? null });
         setState('success');
+        startCountdown();
+      } else if (data.result === 'already_checked_in') {
+        // Previously this showed the same green "Welcome, X!" as a fresh
+        // check-in. On an UNATTENDED kiosk that turns one screenshotted QR into
+        // an unlimited entry pass — everybody who scans it gets waved in and
+        // nobody is watching. Distinct amber state, and it points at a human.
+        beep(false);
+        setAlreadyIn({ name: data.attendee_name ?? null, at: data.checked_in_at ?? null });
+        setState('already');
         startCountdown();
       } else {
         beep(false);
@@ -158,16 +173,55 @@ export function KioskClient({ eventId, eventSlug, eventName }: Props) {
 
   useEffect(() => () => { if (countdownRef.current) clearInterval(countdownRef.current); }, []);
 
+  // Hold-to-exit: 2s of sustained press before we leave for the dashboard.
+  const EXIT_HOLD_MS = 2000;
+  const beginExitHold = useCallback(() => {
+    const startedAt = Date.now();
+    exitTimerRef.current = setInterval(() => {
+      const progress = Math.min(1, (Date.now() - startedAt) / EXIT_HOLD_MS);
+      setExitHold(progress);
+      if (progress >= 1) {
+        if (exitTimerRef.current) clearInterval(exitTimerRef.current);
+        exitTimerRef.current = null;
+        router.push(`/events/${eventSlug}/check-in`);
+      }
+    }, 50);
+  }, [router, eventSlug]);
+
+  const cancelExitHold = useCallback(() => {
+    if (exitTimerRef.current) clearInterval(exitTimerRef.current);
+    exitTimerRef.current = null;
+    setExitHold(0);
+  }, []);
+
+  useEffect(() => () => { if (exitTimerRef.current) clearInterval(exitTimerRef.current); }, []);
+
   return (
     <div className="fixed inset-0 overflow-hidden flex flex-col items-center justify-center select-none"
       style={{ background: 'linear-gradient(160deg, #0F1F18 0%, #1A3D2B 50%, #0F1F18 100%)' }}>
 
-      {/* Back */}
-      <Link href={`/events/${eventSlug}/check-in`}
-        className="absolute top-6 left-6 flex items-center gap-2 px-3 py-2 rounded-xl text-[13px] font-medium transition hover:opacity-70 z-30"
-        style={{ color: 'rgba(255,255,255,0.5)', background: 'rgba(255,255,255,0.06)' }}>
-        <ArrowLeft size={14} /> Exit kiosk
-      </Link>
+      {/* Exit — press and HOLD.
+          This tablet sits unattended in a lobby, signed in as the organizer. A
+          plain link here meant any attendee could tap "Exit kiosk" once and land
+          in the full organizer dashboard: every attendee's name, email and
+          phone, plus settings and billing. Requiring a deliberate 2s hold (with
+          visible progress) removes the casual tap without needing a PIN screen. */}
+      <button
+        onPointerDown={beginExitHold}
+        onPointerUp={cancelExitHold}
+        onPointerLeave={cancelExitHold}
+        onPointerCancel={cancelExitHold}
+        aria-label="Hold to exit kiosk mode"
+        className="absolute top-6 left-6 flex items-center gap-2 px-3 min-h-[44px] rounded-xl text-[13px] font-medium transition z-30 overflow-hidden"
+        style={{ color: 'rgba(255,255,255,0.5)', background: 'rgba(255,255,255,0.06)', touchAction: 'none' }}>
+        <span
+          aria-hidden
+          className="absolute inset-y-0 left-0 pointer-events-none transition-none"
+          style={{ width: `${exitHold * 100}%`, background: 'rgba(232,197,126,0.28)' }}
+        />
+        <ArrowLeft size={14} className="relative" />
+        <span className="relative">{exitHold > 0 ? 'Keep holding…' : 'Hold to exit'}</span>
+      </button>
       <div className="absolute top-6 right-6 text-[12px] font-semibold tracking-[0.1em] uppercase z-30"
         style={{ color: 'rgba(255,255,255,0.3)' }}>
         {eventName}
@@ -304,6 +358,30 @@ export function KioskClient({ eventId, eventSlug, eventName }: Props) {
           </h2>
           <p className="text-[16px] mb-2" style={{ color: 'rgba(255,255,255,0.5)' }}>
             {checkedInAttendee.ticket ?? 'General'} · Checked in
+          </p>
+          <p className="text-[13px] mt-4" style={{ color: 'rgba(255,255,255,0.3)' }}>
+            Returning to scan in {countdown}s · Tap to continue
+          </p>
+        </div>
+      )}
+
+      {/* ALREADY-CHECKED-IN STATE — deliberately NOT the green welcome. */}
+      {state === 'already' && alreadyIn && (
+        <div className="flex flex-col items-center text-center px-6"
+          onClick={() => { if (countdownRef.current) clearInterval(countdownRef.current); setState('scan'); setAlreadyIn(null); }}>
+          <div className="w-20 h-20 rounded-full flex items-center justify-center mb-6"
+            style={{ background: 'rgba(201,122,45,0.2)', border: '2px solid #C97A2D' }}>
+            <Clock size={34} style={{ color: '#C97A2D' }} />
+          </div>
+          <h2 className="font-display font-bold text-[32px] mb-1" style={{ color: '#FAF6EE', letterSpacing: '-0.02em' }}>
+            Already checked in
+          </h2>
+          <p className="text-[16px] mb-1" style={{ color: 'rgba(255,255,255,0.6)' }}>
+            {alreadyIn.name ?? 'This ticket'}
+            {alreadyIn.at && ` · ${new Date(alreadyIn.at).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}`}
+          </p>
+          <p className="text-[15px] mt-3 max-w-[320px]" style={{ color: 'rgba(255,255,255,0.45)' }}>
+            This ticket has already been used. Please see a crew member.
           </p>
           <p className="text-[13px] mt-4" style={{ color: 'rgba(255,255,255,0.3)' }}>
             Returning to scan in {countdown}s · Tap to continue

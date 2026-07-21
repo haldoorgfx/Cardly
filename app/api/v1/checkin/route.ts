@@ -54,12 +54,26 @@ export async function POST(req: NextRequest) {
   }
 
   const now = new Date().toISOString();
-  const { error } = await db
+  // Guarded transition (same idiom as /api/events/[id]/checkin): the read above
+  // is not a lock, so an API integration polling this endpoint alongside the
+  // door scanner would otherwise report a second successful check-in for one
+  // ticket — and stamp its own timestamp over the door's.
+  const { data: updated, error } = await db
     .from('registrations')
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .update({ status: 'checked_in', checked_in_at: now } as any)
-    .eq('id', reg.id);
+    .eq('id', reg.id)
+    .neq('status', 'checked_in')
+    .select('id')
+    .maybeSingle();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  if (!updated) {
+    return NextResponse.json({
+      ok: true, already_checked_in: true,
+      registration_id: reg.id, attendee_name: reg.attendee_name, checked_in_at: reg.checked_in_at,
+    });
+  }
 
   return NextResponse.json({
     ok: true, already_checked_in: false,

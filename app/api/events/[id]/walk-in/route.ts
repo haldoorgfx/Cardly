@@ -38,12 +38,30 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   // instead of failing on the unique constraint.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: existing } = await (admin as any).from('registrations')
-    .select('id, attendee_name, status, qr_code_token, checked_in_at')
+    .select('id, attendee_name, status, payment_status, amount_paid, qr_code_token, checked_in_at')
     .eq('event_id', id)
     .eq('attendee_email', emailLc)
     .maybeSingle();
 
   if (existing) {
+    // Same door policy the scanner and /api/v1/checkin enforce. Without these,
+    // the walk-in desk was a clean bypass: a refunded attendee types the email
+    // they already used, the "exists but not checked in" branch below flips
+    // them straight to checked_in, and they walk in on a ticket they were
+    // refunded for — no payment taken, no warning shown to staff.
+    if (existing.status === 'cancelled' || existing.status === 'refunded') {
+      return NextResponse.json({
+        error: `${existing.attendee_name || 'This attendee'} has a ${existing.status} registration for this event. Reinstate it from the Registrations tab before checking them in.`,
+      }, { status: 409 });
+    }
+    if (
+      (existing.payment_status === 'pending' || existing.payment_status === 'failed') &&
+      Number(existing.amount_paid) > 0
+    ) {
+      return NextResponse.json({
+        error: `${existing.attendee_name || 'This attendee'} has an unpaid ticket. Take payment and mark it paid before checking them in.`,
+      }, { status: 409 });
+    }
     if (existing.status === 'checked_in') {
       const at = existing.checked_in_at
         ? new Date(existing.checked_in_at).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
@@ -52,11 +70,15 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         error: `${existing.attendee_name || 'This attendee'} is already checked in${at ? ` (at ${at})` : ''}.`,
       }, { status: 409 });
     }
-    // Exists but not yet checked in → check them in now
+    // Exists but not yet checked in → check them in now.
+    // Guarded transition (same idiom as /api/events/[id]/checkin): the status we
+    // read is part of the WHERE, so a concurrent scan at the main door can't be
+    // silently overwritten by the walk-in desk a moment later.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error: updErr } = await (admin as any).from('registrations')
       .update({ status: 'checked_in', checked_in_at: new Date().toISOString(), checked_in_by: user.id })
-      .eq('id', existing.id);
+      .eq('id', existing.id)
+      .neq('status', 'checked_in');
     if (updErr) return NextResponse.json({ error: humanizeError(updErr) }, { status: 500 });
     // Roles write-path: checked-in walk-in → 'attendee' role (best-effort, by email).
     {
