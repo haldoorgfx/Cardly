@@ -5,6 +5,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { getUserRoles, eventsWithRole } from '@/lib/rbac/roles';
+import { escapeLikePattern } from '@/lib/search/filter';
 import { Mic, CalendarDays, MapPin, ArrowRight, Clock, FileText, CheckCircle2 } from 'lucide-react';
 import { PageShell, PageHeader } from '@/components/dash';
 
@@ -110,7 +111,7 @@ export default async function SpeakingPage() {
   // the account holds an active 'speaker' role. Merge both so nothing is missed.
   const [byEmailRes, byEventRes] = await Promise.all([
     email
-      ? db.from('speakers').select('id, name, event_id, email').ilike('email', email)
+      ? db.from('speakers').select('id, name, event_id, email').ilike('email', escapeLikePattern(email))
       : Promise.resolve({ data: [] }),
     roleEventIds.length > 0
       ? db.from('speakers').select('id, name, event_id, email').in('event_id', roleEventIds)

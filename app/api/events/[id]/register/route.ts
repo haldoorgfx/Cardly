@@ -11,6 +11,7 @@ import { canRegisterForEvent, getUserPlan } from '@/lib/billing/can';
 import { createNotification, notifyOrganizerNewRegistration } from '@/lib/notifications';
 import { allowedNeedsTags } from '@/lib/registration/needs-options';
 import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
+import { escapeLikePattern } from '@/lib/search/filter';
 import { toStripeMinorUnits, roundToCurrencyUnit } from '@/lib/payments/currency';
 import { z } from 'zod';
 
@@ -228,7 +229,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     // Case-insensitive so 'Alice@x.com' matches a stored 'alice@x.com' and the
     // stale-attempt cleanup below actually runs (instead of hitting the unique
     // index and 409-ing on a re-try with different casing).
-    .ilike('attendee_email', attendee_email.trim())
+    .ilike('attendee_email', escapeLikePattern(attendee_email.trim()))
     .maybeSingle() as { data: ExistingReg | null };
 
   if (existingReg) {

@@ -9,6 +9,22 @@ function speakerSlug(name: string, id: string): string {
   return `${base}-${id.replace(/-/g, '').slice(0, 8)}`;
 }
 
+/**
+ * Every method here uses the service-role admin client, which BYPASSES RLS —
+ * so each one must prove the caller owns this event itself. Returns the event
+ * row or null; callers 404 on null (same shape the POST handler already used).
+ */
+async function ownedEvent(eventId: string, userId: string) {
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from('events')
+    .select('id')
+    .eq('id', eventId)
+    .eq('user_id', userId)
+    .maybeSingle();
+  return data;
+}
+
 const SpeakerSchema = z.object({
   name: z.string().min(1),
   headline: z.string().optional(),
@@ -26,6 +42,16 @@ const SpeakerSchema = z.object({
 });
 
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
+  // Organizer-only: speakers rows carry `email` (migration 039). This route was
+  // unauthenticated, so anyone who knew an event id could dump every speaker's
+  // private address. Its only caller is the dashboard SpeakersManager.
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!(await ownedEvent(params.id, user.id))) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  }
+
   const admin = createAdminClient();
   const { data, error } = await admin
     .from('speakers')
@@ -80,15 +106,39 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   const { speakerId, ...updates } = await req.json();
   if (!speakerId) return NextResponse.json({ error: 'speakerId required' }, { status: 400 });
 
+  // `.eq('event_id', params.id)` alone only proves the speaker belongs to THAT
+  // event — not that the caller owns it. Without this check any signed-in user
+  // could rewrite (or re-point the `email` of, and so hand themselves ownership
+  // of) any speaker on the platform.
+  if (!(await ownedEvent(params.id, user.id))) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  }
+
+  // Whitelist the updatable columns — a raw spread let the caller set `id`,
+  // `event_id` (moving the row to another event) or `slug` (hijacking another
+  // speaker's public URL).
+  const parsed = SpeakerSchema.partial().safeParse(updates);
+  if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+
   const admin = createAdminClient();
   const { data, error } = await admin
     .from('speakers')
-    .update(updates)
+    .update(parsed.data)
     .eq('id', speakerId)
     .eq('event_id', params.id)
     .select()
     .single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  // Keep the roles table in step when the organizer sets/changes the email —
+  // same write-path POST uses, otherwise an edited-in speaker never gets access.
+  if (parsed.data.email) {
+    const speakerAccountId = await resolveAccountIdByEmail(parsed.data.email);
+    if (speakerAccountId) {
+      await upsertEventRole({ userId: speakerAccountId, eventId: params.id, role: 'speaker' });
+    }
+  }
+
   return NextResponse.json({ speaker: data });
 }
 
@@ -100,6 +150,11 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
   const { searchParams } = new URL(req.url);
   const speakerId = searchParams.get('speakerId');
   if (!speakerId) return NextResponse.json({ error: 'speakerId required' }, { status: 400 });
+
+  // Admin client bypasses RLS — prove the caller owns this event before deleting.
+  if (!(await ownedEvent(params.id, user.id))) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  }
 
   const admin = createAdminClient();
 

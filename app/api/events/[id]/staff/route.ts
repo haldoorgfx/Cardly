@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
+import { escapeLikePattern } from '@/lib/search/filter';
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -51,7 +52,7 @@ async function syncStaffRole(
       .from('event_staff')
       .select('id')
       .eq('event_id', eventId)
-      .ilike('email', normalized)
+      .ilike('email', escapeLikePattern(normalized))
       .in('role', MANAGE_ROLES)
       .neq('status', 'removed')
       .limit(1);

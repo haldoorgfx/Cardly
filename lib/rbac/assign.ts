@@ -21,6 +21,10 @@
  */
 
 import { createAdminClient } from '@/lib/supabase/server';
+// Emails are used as ILIKE PATTERNS below, and _ is a wildcard, so john_doe@x.com
+// would otherwise match a different person's johnXdoe@x.com row. One escaper for
+// the whole codebase; do not add a second.
+import { escapeLikePattern } from '@/lib/search/filter';
 
 export type EventRole = 'attendee' | 'speaker' | 'sponsor' | 'organizer' | 'staff';
 
@@ -79,7 +83,7 @@ export async function resolveAccountIdByEmail(email: string | null | undefined):
     const { data, error } = await admin
       .from('profiles')
       .select('id')
-      .ilike('email', email.trim())
+      .ilike('email', escapeLikePattern(email.trim()))
       .maybeSingle();
     if (error) {
       console.warn(`[rbac/assign] resolveAccountIdByEmail failed for ${email}: ${error.message}`);

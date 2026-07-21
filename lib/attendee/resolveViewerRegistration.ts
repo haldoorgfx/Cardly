@@ -1,4 +1,5 @@
 import { createAdminClient, createClient } from '@/lib/supabase/server';
+import { escapeLikePattern } from '@/lib/search/filter';
 
 /**
  * Registration statuses that count as an "active" attendee — only these may
@@ -88,7 +89,7 @@ export async function resolveViewerRegistrationId(
           .from('registrations')
           .select('id')
           .eq('event_id', eventId)
-          .ilike('attendee_email', user.email)
+          .ilike('attendee_email', escapeLikePattern(user.email))
           .in('status', ACTIVE_STATUSES)
           .limit(1)
           .maybeSingle();

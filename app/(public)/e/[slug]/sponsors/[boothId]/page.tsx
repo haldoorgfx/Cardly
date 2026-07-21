@@ -36,7 +36,11 @@ export default async function BoothPage({ params }: Props) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: sponsor } = await (admin as any)
     .from('sponsors')
-    .select('*')
+    // Explicit column list. `select('*')` also pulled `invite_token` — the only
+    // credential guarding the exhibitor portal (/exhibitor/[token]) — into a
+    // public page. Nothing renders it today, so it never reached the HTML, but
+    // one refactor into a client component would have published it.
+    .select('id, company_name, tagline, description, logo_url, cover_url, website_url, booth_location, booth_hours, meeting_url, contact_email, offerings, team_members, event_id')
     .eq('id', params.boothId)
     .eq('event_id', event.id)
     .single();

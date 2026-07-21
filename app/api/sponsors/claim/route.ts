@@ -1,6 +1,7 @@
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { upsertEventRole } from '@/lib/rbac/assign';
+import { escapeLikePattern } from '@/lib/search/filter';
 
 /**
  * Claim sponsor access for the AUTHENTICATED user.
@@ -35,10 +36,13 @@ export async function POST() {
   if (!email) return NextResponse.json({ claimed: 0, events: [] });
 
   // Sponsor rows whose contact_email matches the caller's email (case-insensitive).
+  // The email is escaped because it is used as an ILIKE PATTERN — an unescaped
+  // `_` (common in addresses) matches any character, so this route would grant
+  // the 'sponsor' role for a look-alike stranger's booth.
   const { data: sponsors, error } = await admin
     .from('sponsors')
     .select('id, event_id')
-    .ilike('contact_email', email);
+    .ilike('contact_email', escapeLikePattern(email));
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 

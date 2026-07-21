@@ -15,6 +15,27 @@ const SessionSchema = z.object({
   speaker_ids: z.array(z.string().uuid()).optional(),
 });
 
+/**
+ * Keep only the speaker ids that actually belong to THIS event.
+ *
+ * `session_speakers` has no event column, so an unfiltered insert let an
+ * organizer attach any speaker row on the platform — by id — to their own
+ * session. That speaker then showed up on a stranger's public agenda, and the
+ * borrowed row's real owner could no longer delete them (the delete guard
+ * counts session_speakers rows).
+ */
+async function scopeSpeakerIds(ids: string[], eventId: string): Promise<string[]> {
+  if (ids.length === 0) return [];
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from('speakers')
+    .select('id')
+    .eq('event_id', eventId)
+    .in('id', ids);
+  const allowed = new Set((data ?? []).map((s: { id: string }) => s.id));
+  return ids.filter((id) => allowed.has(id));
+}
+
 function fmtDate(iso: string) {
   return new Date(iso).toLocaleString('en-US', {
     month: 'short', day: 'numeric', year: 'numeric',
@@ -104,9 +125,12 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   if (dbError) return NextResponse.json({ error: dbError.message }, { status: 500 });
 
   if (speaker_ids?.length) {
-    await admin.from('session_speakers').insert(
-      speaker_ids.map((sid, i) => ({ session_id: session.id, speaker_id: sid, position: i }))
-    );
+    const scoped = await scopeSpeakerIds(speaker_ids, params.id);
+    if (scoped.length) {
+      await admin.from('session_speakers').insert(
+        scoped.map((sid, i) => ({ session_id: session.id, speaker_id: sid, position: i }))
+      );
+    }
   }
 
   return NextResponse.json({ session }, { status: 201 });
@@ -121,6 +145,16 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   if (!sessionId) return NextResponse.json({ error: 'sessionId required' }, { status: 400 });
 
   const admin = createAdminClient();
+
+  // Verify the CALLER owns this event, not merely that the session belongs to
+  // it. `.eq('event_id', params.id)` below proves the session is part of that
+  // event and nothing more — with the admin client bypassing RLS, the only
+  // other gate was "is signed in", so any account could PATCH any session on
+  // the platform by passing an event id (they appear in public URLs) and a
+  // session id. POST has always checked this; PATCH and DELETE did not.
+  const { data: owned } = await admin
+    .from('events').select('id').eq('id', params.id).eq('user_id', user.id).maybeSingle();
+  if (!owned) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
   // Fetch current session + event page for full-context validation
   const [{ data: current }, { data: ep }] = await Promise.all([
@@ -152,9 +186,10 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
   if (Array.isArray(speaker_ids)) {
     await admin.from('session_speakers').delete().eq('session_id', sessionId);
-    if (speaker_ids.length) {
+    const scoped = await scopeSpeakerIds(speaker_ids as string[], params.id);
+    if (scoped.length) {
       await admin.from('session_speakers').insert(
-        speaker_ids.map((sid: string, i: number) => ({ session_id: sessionId, speaker_id: sid, position: i }))
+        scoped.map((sid: string, i: number) => ({ session_id: sessionId, speaker_id: sid, position: i }))
       );
     }
   }
@@ -172,6 +207,12 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
   if (!sessionId) return NextResponse.json({ error: 'sessionId required' }, { status: 400 });
 
   const admin = createAdminClient();
+
+  // Same missing gate as PATCH had — see the comment there.
+  const { data: owned } = await admin
+    .from('events').select('id').eq('id', params.id).eq('user_id', user.id).maybeSingle();
+  if (!owned) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+
   const { error } = await admin
     .from('sessions').delete().eq('id', sessionId).eq('event_id', params.id);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

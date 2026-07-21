@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { sendWaitlistConfirmEmail, sendWaitlistInviteEmail } from '@/lib/registration/email';
 import { resolveAccountIdByEmail } from '@/lib/rbac/assign';
+import { escapeLikePattern } from '@/lib/search/filter';
 import { isNotifAllowed } from '@/lib/notifications/prefs';
 
 export const dynamic = 'force-dynamic';
@@ -67,7 +68,7 @@ export async function POST(
       .from('registrations')
       .select('id')
       .eq('event_id', page.event_id)
-      .ilike('attendee_email', lowerEmail)
+      .ilike('attendee_email', escapeLikePattern(lowerEmail))
       .in('status', ['confirmed', 'checked_in', 'pending_approval'])
       .maybeSingle();
     if (existingReg) {

@@ -155,8 +155,11 @@ export default async function PublicEventPage({ params, searchParams }: Props) {
       .eq('event_id', page.event_id)
       .eq('is_published', true)
       .order('starts_at'),
+    // Explicit column list, same as the dedicated speaker profile pages:
+    // `select('*')` shipped speakers.email (migration 039) into this public
+    // page's RSC payload as a prop, publishing every speaker's private address.
     admin.from('speakers')
-      .select('*')
+      .select('id, name, headline, bio, photo_url, company, role, linkedin_url, twitter_url, website_url, speaker_type, is_featured, position, slug, event_id')
       .eq('event_id', page.event_id)
       .order('is_featured', { ascending: false })
       .order('position'),

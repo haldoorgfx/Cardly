@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { getUserRoles, eventsWithRole } from '@/lib/rbac/roles';
 import { Briefcase, MapPin, Users, Flame, ArrowRight } from 'lucide-react';
 import { PageShell, PageHeader } from '@/components/dash';
+import { escapeLikePattern } from '@/lib/search/filter';
 import { ClaimSponsorButton } from './ClaimSponsorButton';
 
 export const metadata: Metadata = { title: 'Sponsoring' };
@@ -52,7 +53,7 @@ export default async function SponsoringPage() {
     email
       ? db.from('sponsors')
           .select('id, company_name, logo_url, tier, booth_location, invite_token, event_id, contact_email')
-          .ilike('contact_email', email)
+          .ilike('contact_email', escapeLikePattern(email))
       : Promise.resolve({ data: [] }),
     roleEventIds.length > 0
       ? db.from('sponsors')

@@ -18,6 +18,8 @@
 
 import { createAdminClient } from '@/lib/supabase/server';
 import { getUserRoles, roleKinds, eventsWithRole, type UserRoles } from '@/lib/rbac/roles';
+// Emails are used as ILIKE patterns below — `_` is a wildcard, so escape first.
+import { escapeLikePattern } from '@/lib/search/filter';
 
 export interface VisibleSections {
   /** Attendee surface — "My tickets & agenda". */
@@ -161,7 +163,7 @@ async function hasSpeakerByEmail(userId: string): Promise<boolean> {
   const email = (profile?.email as string | undefined)?.toLowerCase();
   if (!email) return false;
 
-  const { data } = await db.from('speakers').select('id', { head: false }).ilike('email', email).limit(1);
+  const { data } = await db.from('speakers').select('id', { head: false }).ilike('email', escapeLikePattern(email)).limit(1);
   return Boolean(data && data.length > 0);
 }
 
@@ -178,6 +180,6 @@ async function hasSponsorByEmail(userId: string): Promise<boolean> {
   const email = (profile?.email as string | undefined)?.toLowerCase();
   if (!email) return false;
 
-  const { data } = await db.from('sponsors').select('id', { head: false }).ilike('contact_email', email).limit(1);
+  const { data } = await db.from('sponsors').select('id', { head: false }).ilike('contact_email', escapeLikePattern(email)).limit(1);
   return Boolean(data && data.length > 0);
 }

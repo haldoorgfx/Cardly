@@ -17,6 +17,7 @@ import type {
 } from '@/components/entitlements/attendee-model';
 import type { EntitlementType } from '@/components/tickets/EntitlementIcon';
 import type { RedemptionLimit } from '@/components/tickets/entitlement-model';
+import { escapeLikePattern } from '@/lib/search/filter';
 
 interface Props { params: Promise<{ id: string; regId: string }> }
 
@@ -236,7 +237,7 @@ export default async function AttendeeEntitlementsPage({ params }: Props) {
     const admin = createAdminClient() as any;
     const { data } = await admin.from('registrations')
       .select('id, attendee_name, attendee_email, ticket_types(name)')
-      .eq('event_id', id).neq('id', regId).ilike('attendee_email', e).limit(1).maybeSingle();
+      .eq('event_id', id).neq('id', regId).ilike('attendee_email', escapeLikePattern(e)).limit(1).maybeSingle();
     if (!data) return { found: false };
     return { found: true, target: { registrationId: data.id, name: data.attendee_name ?? 'Attendee', email: data.attendee_email ?? null, ticketName: data.ticket_types?.name ?? null } };
   }
