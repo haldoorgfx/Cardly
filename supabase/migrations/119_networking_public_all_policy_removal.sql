@@ -1,0 +1,81 @@
+-- 119_networking_public_all_policy_removal.sql
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Paste the WHOLE file into the Supabase SQL editor and run once.
+-- Safe + idempotent (re-runnable).
+--
+-- WHAT IS WRONG TODAY
+-- Migration 021_networking_qa_polls.sql created the private-messaging tables
+-- and then handed them to everybody:
+--
+--     create policy public_all on attendee_connections for all using (true) with check (true);
+--     create policy public_all on message_threads      for all using (true) with check (true);
+--     create policy public_all on messages             for all using (true) with check (true);
+--
+-- `for all using (true) with check (true)` is not a read policy. It is SELECT,
+-- INSERT, UPDATE and DELETE, unconditionally, for the `anon` role — i.e. for
+-- anyone holding the anon key, which ships in the browser bundle of every page
+-- on the site. On the `messages` table that is the full text of every private
+-- conversation between every attendee on the platform, readable without an
+-- account, plus the ability to forge a message from any sender and to delete
+-- correspondence.
+--
+-- The stated reason in 021 was "attendees use qr_code_token, not auth". That is
+-- true of the product, but it is an argument for routing attendee access
+-- through the server (which is what /api/threads and /api/events/[id]/messages
+-- now do, via the service-role key and assertOwnsRegistration) — not for
+-- opening the table to the public role.
+--
+-- WHAT PRODUCTION ACTUALLY LOOKS LIKE
+-- Probed 2026-07-21 with the browser-exposed anon key and no user session:
+--
+--     GET /rest/v1/messages?select=id             → 200, Content-Range */0
+--     GET /rest/v1/message_threads?select=id      → 200, Content-Range */0
+--     GET /rest/v1/attendee_connections?select=id → 200, Content-Range */0
+--     GET /rest/v1/events?select=id               → 206, Content-Range 0-0/14
+--
+-- The `events` row proves the probe can see data when a permissive policy
+-- exists, and the three networking tables returning zero rows matches the
+-- signature of the known-locked `registrations` / `profiles` tables. So the
+-- live database appears to have already had these policies replaced — most
+-- likely by migration 078, which is NOT present on disk (051-104 are missing
+-- from this repo) and therefore cannot be read or relied upon.
+--
+-- WHY THIS MIGRATION EXISTS ANYWAY
+-- The on-disk migration set is the only thing a fresh environment runs. Today
+-- that set ends with private DMs world-readable and world-writable. Anyone
+-- provisioning a new Supabase project — a staging clone, a restore, a second
+-- region — from these files reintroduces the hole silently, and the probe above
+-- would show `*/0` there too simply because the new database is empty.
+--
+-- This migration makes the disk state match the intended state: no public
+-- policy on private correspondence. It drops nothing else, and drops nothing
+-- that is not named exactly `public_all` on exactly these three tables, so it
+-- is a no-op against a production database where 078 already did the work.
+--
+-- AFTER THIS RUNS
+-- The three tables have RLS enabled and NO policy for `anon` / `authenticated`.
+-- That is deliberate: with no policy, PostgREST returns nothing to the anon key,
+-- and all legitimate access continues to flow through the API routes, which use
+-- the service-role key (service_role bypasses RLS) and enforce participation in
+-- application code — see authorizeThread() in app/api/threads/[threadId]/route.ts
+-- and assertOwnsRegistration() in lib/attendee-identity.ts.
+-- ─────────────────────────────────────────────────────────────────────────────
+
+-- Keep RLS on regardless of how these tables were created.
+alter table if exists attendee_connections enable row level security;
+alter table if exists message_threads      enable row level security;
+alter table if exists messages             enable row level security;
+
+-- Drop the blanket policy from 021 wherever it still exists.
+drop policy if exists public_all on attendee_connections;
+drop policy if exists public_all on message_threads;
+drop policy if exists public_all on messages;
+
+-- ── Verification ─────────────────────────────────────────────────────────────
+-- Run this after the statements above. Expect ZERO rows back. Any row returned
+-- is a remaining policy that grants access to these tables and must be reviewed
+-- by hand — do not assume it is safe just because it is not called public_all.
+--
+--   select tablename, policyname, roles, cmd, qual, with_check
+--     from pg_policies
+--    where tablename in ('attendee_connections', 'message_threads', 'messages');

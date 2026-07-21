@@ -4,6 +4,7 @@ import { assertOwnsRegistration } from '@/lib/attendee-identity';
 import { authorizeEventContent } from '@/lib/auth/event-content';
 import { getUserPlan, getEventOwnerPlan } from '@/lib/billing/can';
 import { generateMatches, generateMatchesForOne } from '@/lib/matchmaking';
+import { hiddenRegistrationIds } from '@/lib/attendee/directoryVisibility';
 
 const PLAN_RANK: Record<string, number> = { free: 0, pro: 1, studio: 2 };
 
@@ -44,11 +45,20 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       .eq('event_id', params.id)
       .in('id', ids);
 
+    // Directory opt-outs must be honoured on the way OUT too, not only when the
+    // suggestion is generated: these rows may have been cached back when the
+    // person was still listed. Without this, switching yourself off the
+    // directory hid you from /people but left your name and custom fields
+    // sitting in everyone else's "Suggested for you" indefinitely.
+    const hidden = await hiddenRegistrationIds(admin, ids);
+
     const regMap = new Map((regs ?? []).map(r => [r.id, r]));
-    const enriched = cached.map(c => ({
-      ...c,
-      registration: regMap.get(c.matched_registration_id) ?? null,
-    }));
+    const enriched = cached
+      .filter(c => !hidden.has(c.matched_registration_id))
+      .map(c => ({
+        ...c,
+        registration: regMap.get(c.matched_registration_id) ?? null,
+      }));
 
     return NextResponse.json({ matches: enriched, cached: true });
   }
@@ -90,6 +100,16 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     return NextResponse.json({ matches: [], cached: false });
   }
 
+  // Drop directory opt-outs BEFORE the model sees them. Filtering only at the
+  // response would still have shipped an opted-out attendee's name and custom
+  // fields to Gemini and cached a suggestion row pointing at them.
+  const hiddenInPool = await hiddenRegistrationIds(admin, pool.map(r => r.id));
+  const visiblePool = pool.filter(r => !hiddenInPool.has(r.id));
+
+  if (visiblePool.length === 0) {
+    return NextResponse.json({ matches: [], cached: false });
+  }
+
   try {
     const suggestions = await generateMatchesForOne(
       {
@@ -97,7 +117,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
         attendee_name: target.attendee_name,
         attendee_data: (target.custom_fields as Record<string, string>) ?? {},
       },
-      pool.map(r => ({
+      visiblePool.map(r => ({
         registration_id: r.id,
         attendee_name: r.attendee_name,
         attendee_data: (r.custom_fields as Record<string, string>) ?? {},
@@ -133,12 +153,19 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
     const regMap = new Map((matchedRegs ?? []).map(r => [r.id, r]));
 
-    const enriched = suggestions.map(s => ({
-      matched_registration_id: s.matched_registration_id,
-      score: s.score,
-      reason: s.reason,
-      registration: regMap.get(s.matched_registration_id) ?? null,
-    }));
+    // Belt-and-braces: the ids come back from the model, so re-check the
+    // opt-out on whatever it actually emitted rather than trusting that it only
+    // echoed ids from the pool we handed it.
+    const hiddenMatched = await hiddenRegistrationIds(admin, matchedIds);
+
+    const enriched = suggestions
+      .filter(s => !hiddenMatched.has(s.matched_registration_id))
+      .map(s => ({
+        matched_registration_id: s.matched_registration_id,
+        score: s.score,
+        reason: s.reason,
+        registration: regMap.get(s.matched_registration_id) ?? null,
+      }));
 
     return NextResponse.json({ matches: enriched, cached: false });
   } catch (err) {
@@ -183,8 +210,18 @@ export async function POST(_req: NextRequest, { params }: { params: { id: string
     return NextResponse.json({ message: 'Not enough attendees to match', count: 0 });
   }
 
+  // Directory opt-outs are excluded from the bulk pool as well. Suggestions are
+  // stored BIDIRECTIONALLY below, so including an opted-out attendee would have
+  // written a row exposing them to every person they matched with.
+  const hiddenBulk = await hiddenRegistrationIds(admin, registrations.map(r => r.id));
+  const visibleRegistrations = registrations.filter(r => !hiddenBulk.has(r.id));
+
+  if (visibleRegistrations.length < 2) {
+    return NextResponse.json({ message: 'Not enough attendees to match', count: 0 });
+  }
+
   try {
-    const profiles = registrations.map(r => ({
+    const profiles = visibleRegistrations.map(r => ({
       registration_id: r.id,
       attendee_name: r.attendee_name,
       attendee_data: (r.custom_fields as Record<string, string>) ?? {},

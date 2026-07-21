@@ -137,41 +137,63 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     return NextResponse.json({ error: 'Recipient not found' }, { status: 404 });
   }
 
-  // Was this pair already connected? The upsert below is idempotent on
-  // (requester_id, recipient_id), so without knowing this we cannot tell a new
-  // connection from a repeat — and the points insert used to run every time.
-  // Sending the SAME request to the SAME person 100 times scored 1000 points
-  // while creating exactly one connection row, and unlike spamming questions
-  // it left nothing visible behind for an organizer to notice.
+  // Was this pair already linked? The old code upserted `status: 'pending'`
+  // unconditionally, which had two consequences worth naming:
+  //
+  //  1. DECLINE MEANT NOTHING. A row the recipient had declined flipped
+  //     straight back to 'pending' the moment the requester pressed Connect
+  //     again — and there is no block feature to fall back on, so "no" was
+  //     un-enforceable.
+  //  2. EVERY repeat press re-fired sendConnectionRequestEmail at the
+  //     recipient. One connection row, unlimited emails into a real person's
+  //     inbox, with nothing left behind for an organizer to notice.
+  //
+  // So: resolve the existing row first and return it untouched. Only a
+  // genuinely new link inserts, scores, and emails.
   const { data: priorLink } = await admin
     .from('attendee_connections')
-    .select('id')
+    .select('id, event_id, requester_id, recipient_id, status, created_at, updated_at')
     .eq('requester_id', requester_id)
     .eq('recipient_id', recipient_id)
     .maybeSingle();
 
+  if (priorLink) {
+    // Idempotent for pending/accepted; a hard stop for declined. Either way the
+    // recipient's inbox stays quiet and their answer stands.
+    return NextResponse.json({ connection: priorLink }, { status: 200 });
+  }
+
   const { data, error } = await admin
     .from('attendee_connections')
-    .upsert(
-      { event_id: params.id, requester_id, recipient_id, status: 'pending' },
-      { onConflict: 'requester_id,recipient_id' }
-    )
+    .insert({ event_id: params.id, requester_id, recipient_id, status: 'pending' })
     .select()
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) {
+    // Lost a race with a concurrent identical request — the unique constraint on
+    // (requester_id, recipient_id) held. Return the winner rather than 500, and
+    // still send no second email.
+    if (error.code === '23505') {
+      const { data: existing } = await admin
+        .from('attendee_connections')
+        .select('id, event_id, requester_id, recipient_id, status, created_at, updated_at')
+        .eq('requester_id', requester_id)
+        .eq('recipient_id', recipient_id)
+        .maybeSingle();
+      if (existing) return NextResponse.json({ connection: existing }, { status: 200 });
+    }
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
 
   // Award once per connection. ref_id ties the award to the row so the unique
   // index in migration 113 can reject a duplicate even under a race.
-  if (!priorLink) {
-    await admin.from('leaderboard_points').insert({
-      event_id: params.id,
-      registration_id: requester_id,
-      action_type: 'connection_made',
-      points: 10,
-      ref_id: data.id,
-    });
-  }
+  await admin.from('leaderboard_points').insert({
+    event_id: params.id,
+    registration_id: requester_id,
+    action_type: 'connection_made',
+    points: 10,
+    ref_id: data.id,
+  });
 
   // Fire-and-forget: notify recipient of connection request
   (async () => {
@@ -215,15 +237,24 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   const admin = createAdminClient();
 
   const newStatus = action === 'accept' ? 'accepted' : 'declined';
+  // The ownership precondition lives in the WHERE clause, not in a read-then-
+  // write: only the RECIPIENT of this connection may answer it, and only within
+  // this event. A non-match updates nothing rather than racing.
   const { data, error } = await admin
     .from('attendee_connections')
     .update({ status: newStatus, updated_at: new Date().toISOString() })
     .eq('id', connection_id)
+    .eq('event_id', params.id)
     .eq('recipient_id', registration_id)
     .select()
-    .single();
+    .maybeSingle();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  // Previously .single() turned "that isn't your request to answer" into a 500.
+  // It refused correctly, but reported it as our bug rather than their 404.
+  if (!data) {
+    return NextResponse.json({ error: 'Connection request not found' }, { status: 404 });
+  }
 
   // Fire-and-forget: notify the original requester when accepted
   if (action === 'accept' && data) {
