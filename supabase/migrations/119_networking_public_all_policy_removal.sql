@@ -59,6 +59,22 @@
 -- the service-role key (service_role bypasses RLS) and enforce participation in
 -- application code — see authorizeThread() in app/api/threads/[threadId]/route.ts
 -- and assertOwnsRegistration() in lib/attendee-identity.ts.
+--
+-- THAT CLAIM WAS CHECKED, not assumed — it is the one way this migration could
+-- break something. If any CLIENT component queried these tables through the
+-- browser Supabase client, it would be using the anon key, and dropping the
+-- policy would break it silently. Every file that touches the three tables is
+-- an API route:
+--
+--     app/api/threads/route.ts
+--     app/api/threads/[threadId]/route.ts
+--     app/api/events/[id]/messages/route.ts
+--     app/api/events/[id]/connections/route.ts
+--     app/api/events/[id]/connections/requests/route.ts
+--     app/api/events/[id]/people/route.ts
+--
+-- Zero matches in any .tsx client component. All six use the service-role
+-- client, which bypasses RLS, so none of them is affected by this change.
 -- ─────────────────────────────────────────────────────────────────────────────
 
 -- Keep RLS on regardless of how these tables were created.
