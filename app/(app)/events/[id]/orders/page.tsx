@@ -9,7 +9,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { OrdersClient } from '@/components/events/OrdersClient';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
-import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
+import { hasFinanceAccess } from '@/lib/rbac/ownership';
 
 interface Props { params: Promise<{ id: string }> }
 
@@ -22,9 +22,13 @@ export default async function OrdersPage({ params }: Props) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
+  // Owner, Studio team, or a 'finance'/'manager' Staff invite — see
+  // hasFinanceAccess for why "issue refunds" isn't wired into this route yet.
+  if (!(await hasFinanceAccess(user.id, id))) redirect('/dashboard');
+
   const admin = createAdminClient();
   const [{ data: event }, { data: orders }] = await Promise.all([
-    admin.from('events').select('id, name').eq('id', id).in('user_id', await manageableOwnerIds(user.id)).single(),
+    admin.from('events').select('id, name').eq('id', id).single(),
     admin
       .from('registrations')
       .select('id, attendee_name, attendee_email, attendee_phone, status, payment_status, amount_paid, currency, ticket_type_id, created_at, ticket_types(name)')

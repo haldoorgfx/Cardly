@@ -139,3 +139,43 @@ export async function hasModeratorAccess(userId: string, eventId: string): Promi
     .maybeSingle();
   return Boolean(staff);
 }
+
+/**
+ * Does this account have read access to orders/revenue for this event? True
+ * for the event owner, or for an account whose email matches an active
+ * `event_staff` row with role 'finance' or 'manager' (the Staff roles UI
+ * describes 'finance' as "View orders, issue refunds, see payout data").
+ *
+ * READ-ONLY SCOPE: this only gates the Orders and Revenue pages. The
+ * registrations PATCH route that actually flips a registration to 'refunded'
+ * also allows editing attendee_name/email/phone/ticket_type_id in the same
+ * call — widening THAT route to finance-role would hand a Finance invite
+ * edit access to attendee PII the Staff UI never promised them. Until that
+ * route has a narrower, refund-only path, "issue refunds" for a Finance
+ * invite is not yet wired up — flagged, not silently done here.
+ */
+export async function hasFinanceAccess(userId: string, eventId: string): Promise<boolean> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const admin = createAdminClient() as any;
+
+  const { data: event } = await admin
+    .from('events')
+    .select('id')
+    .eq('id', eventId)
+    .in('user_id', await manageableOwnerIds(userId))
+    .maybeSingle();
+  if (event) return true;
+
+  const email = await profileEmail(userId);
+  if (!email) return false;
+
+  const { data: staff } = await admin
+    .from('event_staff')
+    .select('id')
+    .eq('event_id', eventId)
+    .eq('email', email)
+    .in('role', ['finance', 'manager'])
+    .neq('status', 'removed')
+    .maybeSingle();
+  return Boolean(staff);
+}

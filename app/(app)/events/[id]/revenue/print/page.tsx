@@ -7,7 +7,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { AgendaPrintTrigger } from '@/components/events/AgendaPrintTrigger';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
-import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
+import { hasFinanceAccess } from '@/lib/rbac/ownership';
 
 interface Props { params: Promise<{ id: string }> }
 
@@ -28,9 +28,11 @@ export default async function RevenuePrintPage({ params }: Props) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
+  if (!(await hasFinanceAccess(user.id, id))) redirect('/dashboard');
+
   const admin = createAdminClient();
   const [{ data: event }, { data: regs }, { data: ticketTypes }] = await Promise.all([
-    admin.from('events').select('id, name').eq('id', id).in('user_id', await manageableOwnerIds(user.id)).single(),
+    admin.from('events').select('id, name').eq('id', id).single(),
     admin.from('registrations').select('id, status, amount_paid, currency, ticket_type_id').eq('event_id', id),
     admin.from('ticket_types').select('id, name, price, currency').eq('event_id', id),
   ]);
