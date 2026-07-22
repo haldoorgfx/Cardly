@@ -12,6 +12,7 @@ import '../auth/attendee_auth_screen.dart';
 import '../engage/agenda_screen.dart';
 import '../engage/feedback_screen.dart';
 import '../engage/leaderboard_screen.dart';
+import '../engage/photo_wall_screen.dart';
 import '../engage/polls_screen.dart';
 import '../engage/qa_screen.dart';
 import '../event_context.dart';
@@ -629,6 +630,8 @@ class _EventHubScreenState extends State<EventHubScreen> {
             _moreRow(Icons.tag, 'Community',
                 () => CommunityChatScreen(
                     eventId: id, registrationId: _regId)),
+            _moreRow(Icons.photo_camera_outlined, 'Photo wall',
+                () => PhotoWallScreen(eventId: id)),
             _moreRow(Icons.bolt_outlined, 'Speed networking',
                 () => SpeedNetworkingScreen(
                     eventId: id, registrationId: _regId)),

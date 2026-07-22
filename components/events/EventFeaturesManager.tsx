@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import {
   Plus, Trash2, GripVertical, Link2, FileText, AlertTriangle, Check, Loader2,
-  CalendarDays, Users, Briefcase, MessageSquare, BarChart3, Newspaper, Trophy, Network,
+  CalendarDays, Users, Briefcase, MessageSquare, BarChart3, Newspaper, Trophy, Network, Camera,
 } from 'lucide-react';
 
 interface MenuItem { id: string; label: string; type: 'link' | 'page'; url: string; content: string; }
@@ -22,7 +22,8 @@ const FEATURE_DEFS: { key: string; label: string; desc: string; Icon: typeof Cal
   { key: 'networking',   label: 'Networking',      desc: 'Attendee connections & messaging', Icon: Network },
   { key: 'qa',           label: 'Live Q&A',        desc: 'Questions during sessions', Icon: MessageSquare },
   { key: 'polls',        label: 'Live Polls',      desc: 'Interactive polls', Icon: BarChart3 },
-  { key: 'community',    label: 'Community feed',  desc: 'Attendee posts & photos', Icon: Newspaper },
+  { key: 'community',    label: 'Community feed',  desc: 'Attendee posts', Icon: Newspaper },
+  { key: 'photos',       label: 'Photo wall',      desc: 'Attendees upload & share event photos', Icon: Camera },
   { key: 'gamification', label: 'Gamification',    desc: 'Points & leaderboard', Icon: Trophy },
 ];
 

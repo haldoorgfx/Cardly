@@ -3,12 +3,13 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ExternalLink, LayoutGrid, CalendarDays, Mic, Store, Users, MapPin, Sparkles } from 'lucide-react';
+import { ExternalLink, LayoutGrid, CalendarDays, Mic, Store, Users, MapPin, Sparkles, Camera } from 'lucide-react';
 import type { Database } from '@/types/database';
 import { describeError } from '@/components/ui/status-state';
 import { AddToCalendarButton } from './AddToCalendarButton';
 import SpeakerDirectoryClient from './SpeakerDirectoryClient';
 import PeopleDiscoveryClient from '@/components/networking/PeopleDiscoveryClient';
+import { PhotoWallPublicClient } from './PhotoWallPublicClient';
 import { bannerGradientFor, avatarColorFor, initialsOf, placeholderInitials } from '@/lib/events/placeholder';
 import { safeExternalUrl } from '@/lib/url/safeUrl';
 
@@ -20,7 +21,7 @@ type EventPageRow = Database['public']['Tables']['event_pages']['Row'];
 // serialized into the public RSC payload.
 type PublicEventPage = Omit<EventPageRow, 'online_url'>;
 type TicketTypeRow = Database['public']['Tables']['ticket_types']['Row'];
-type Tab = 'overview' | 'schedule' | 'speakers' | 'sponsors' | 'network';
+type Tab = 'overview' | 'schedule' | 'speakers' | 'sponsors' | 'network' | 'photos';
 
 interface Session {
   id: string;
@@ -93,9 +94,10 @@ const TAB_SECTIONS = [
   { key: 'speakers' as Tab, label: 'Speakers', icon: Mic,          feature: 'speakers' },
   { key: 'sponsors' as Tab, label: 'Sponsors', icon: Store,        feature: 'sponsors' },
   { key: 'network'  as Tab, label: 'Network',  icon: Users,        feature: 'networking' },
+  { key: 'photos'   as Tab, label: 'Photos',   icon: Camera,       feature: 'photos' },
 ] as const;
 
-const VALID_TABS: Tab[] = ['overview', 'schedule', 'speakers', 'sponsors', 'network'];
+const VALID_TABS: Tab[] = ['overview', 'schedule', 'speakers', 'sponsors', 'network', 'photos'];
 const TIER_ORDER = ['platinum', 'gold', 'silver', 'standard', 'partner', 'media'];
 
 /* ─── Helpers ───────────────────────────────────────────────────── */
@@ -1192,6 +1194,15 @@ export function PublicEventPageClient({
               qrToken={viewerQrToken}
             />
           )}
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════════
+          PHOTOS TAB
+      ══════════════════════════════════════════════════ */}
+      {activeTab === 'photos' && (
+        <div className="mx-auto px-6 lg:px-10 pt-9 pb-24" style={{ maxWidth: 1240 }}>
+          <PhotoWallPublicClient eventId={eventId} />
         </div>
       )}
 

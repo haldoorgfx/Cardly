@@ -92,6 +92,24 @@ Future<dynamic> apiPatch(String path, Map<String, dynamic> body) async {
   return _decode(res);
 }
 
+/// Multipart POST — for the one write that isn't plain JSON: uploading a
+/// file (currently just the public photo-wall submission). Everything else
+/// on this surface is small enough to stay JSON via [apiPost].
+Future<dynamic> apiPostMultipart(
+  String path, {
+  required String filePath,
+  required String fileField,
+  Map<String, String>? fields,
+}) async {
+  final req = http.MultipartRequest('POST', _uri(path));
+  req.headers.addAll(_headers());
+  if (fields != null) req.fields.addAll(fields);
+  req.files.add(await http.MultipartFile.fromPath(fileField, filePath));
+  final streamed = await req.send().timeout(const Duration(seconds: 60));
+  final res = await http.Response.fromStream(streamed);
+  return _decode(res);
+}
+
 Future<dynamic> apiDelete(String path, {Map<String, dynamic>? body}) async {
   final res = await http
       .delete(_uri(path),

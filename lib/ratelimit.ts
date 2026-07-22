@@ -210,6 +210,9 @@ const ROUTE_TIER_PATTERNS: Array<{ pattern: RegExp; tier: LimiterTier; methods?:
   { pattern: /^\/api\/sessions\/[^/]+\/slides(\/|$)/,  tier: 'render' },
   { pattern: /^\/api\/events\/[^/]+\/background(\/|$)/, tier: 'render' },
   { pattern: /^\/api\/events\/[^/]+\/event-page\/cover(\/|$)/, tier: 'render' },
+  // Public photo-wall upload — scoped to POST so the organizer's existing
+  // GET (list) / PATCH (moderate) traffic on the same path isn't throttled.
+  { pattern: /^\/api\/events\/[^/]+\/photos(\/|$)/, tier: 'render', methods: ['POST'] },
 
   // ── Mail-sending writes ────────────────────────────────────────────────
   // These are scoped to POST on purpose. Every path below also serves a GET
