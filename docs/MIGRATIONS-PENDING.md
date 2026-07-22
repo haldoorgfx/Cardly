@@ -1,3 +1,28 @@
+> ## ✅ Applied 2026-07-22
+>
+> Abdalla ran both `APPLY_105-120_combined.sql` and the 116 file through the
+> Supabase SQL editor. Re-verification from here is inherently limited: every
+> RPC this batch adds (`book_session_seat`, `invite_waitlist_entry`,
+> `unredeem_entitlement`) is deliberately revoked from `anon` and often from
+> `authenticated` too (`security definer`, called only from service-role API
+> routes) — so an anon-key probe returns "function not found" identically
+> whether the migration landed or not, by design. That is NOT a sign anything
+> failed; it means anon-key REST is the wrong tool to check these specific
+> functions.
+>
+> What I *could* re-check with the anon key:
+> - `message_threads` (119) — returns `200` with an empty array, consistent
+>   with the `public_all` policy being gone and no permissive replacement.
+> - `exhibitor_products` (117) — still returns one row for an unfiltered
+>   query, which is expected and correct if that row belongs to a published
+>   event; the fix scopes by publication status, not blanket denial, so this
+>   result doesn't confirm or contradict anything on its own.
+>
+> Everything else in this file is trusted from the SQL editor completing
+> without error, which is a reasonable bar — these are idempotent scripts
+> that fail loudly on a real error, not something that can partially succeed
+> silently.
+>
 > **Two ready-to-paste files exist now, built from everything below:**
 > - **`supabase/APPLY_105-120_combined.sql`** — all ten migrations except 116,
 >   concatenated in order with each one's own header intact. Paste the whole
