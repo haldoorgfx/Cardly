@@ -8,6 +8,7 @@ import { ERAButton } from '@/components/ai/ERAButton';
 import { toast } from '@/hooks/use-toast';
 import { StatusState, describeError } from '@/components/ui/status-state';
 import { useConfirm } from '@/components/ui/ConfirmProvider';
+import { escapeCsvCell } from '@/lib/csv';
 
 type Status = 'pending' | 'confirmed' | 'checked_in' | 'cancelled' | 'refunded' | 'pending_approval';
 type PaymentStatus = 'free' | 'pending' | 'paid' | 'refunded' | 'failed';
@@ -111,9 +112,9 @@ function exportCSV(rows: Registration[], eventSlug: string, formFields: FormFiel
     new Date(r.created_at).toLocaleString(),
     r.checked_in_at ? new Date(r.checked_in_at).toLocaleString() : '',
     ...answerFields.map(f => fmtAnswer((r.custom_fields ?? {})[f.id])),
-  ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(','));
+  ].map(v => escapeCsvCell(v)).join(','));
 
-  const csv = [headers.join(','), ...lines].join('\n');
+  const csv = [headers.map(h => escapeCsvCell(h)).join(','), ...lines].join('\n');
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');

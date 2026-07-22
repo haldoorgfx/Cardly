@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Star, Check, X, Download, Plus } from 'lucide-react';
 import type { QAQuestion } from '@/types/database';
+import { escapeCsvCell } from '@/lib/csv';
 
 type QAStatus = 'pending' | 'answered' | 'hidden';
 type FilterTab = 'all' | QAStatus;
@@ -89,7 +90,7 @@ export default function QAModerationClient({ eventId, eventSlug, initialQuestion
       const name = q.is_anonymous ? 'Anonymous' : (q.registrations as { attendee_name: string } | null)?.attendee_name ?? 'Attendee';
       rows.push([q.question, name, String(q.upvotes_count), q.status, new Date(q.created_at).toLocaleString()]);
     });
-    const csv = rows.map(r => r.map(v => `"${v.replace(/"/g, '""')}"`).join(',')).join('\n');
+    const csv = rows.map(r => r.map(v => escapeCsvCell(v)).join(',')).join('\n');
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
     a.download = `qa-${eventId}.csv`;

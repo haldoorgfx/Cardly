@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { PageShell, PageHeader } from '@/components/dash';
+import { escapeCsvCell } from '@/lib/csv';
 
 interface Order {
   id: string;
@@ -84,7 +85,7 @@ function exportCSV(orders: Order[]) {
     o.payment_status ?? '',
     new Date(o.created_at).toLocaleDateString(),
   ]);
-  const csv = [headers, ...rows].map(r => r.map(c => `"${c}"`).join(',')).join('\n');
+  const csv = [headers, ...rows].map(r => r.map(c => escapeCsvCell(c)).join(',')).join('\n');
   const blob = new Blob([csv], { type: 'text/csv' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob); a.download = 'orders.csv'; a.click();

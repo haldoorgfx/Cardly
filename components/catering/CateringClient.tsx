@@ -7,6 +7,7 @@ import { ArrowLeft, Download, UtensilsCrossed, Accessibility } from 'lucide-reac
 import { EntitlementIcon } from '@/components/tickets/EntitlementIcon';
 import { PageShell, PageHeader } from '@/components/dash';
 import { StatusState } from '@/components/ui/status-state';
+import { escapeCsvCell as csvCell } from '@/lib/csv';
 
 export interface DietaryCount {
   tag: string;
@@ -24,12 +25,6 @@ interface Props {
   eventSlug: string;
   meals: Meal[] | null;
   loadError: 'auth' | 'generic' | null;
-}
-
-/** CSV-escape a single cell (quotes, commas, newlines). */
-function csvCell(v: string | number): string {
-  const s = String(v);
-  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 
 /** Build a caterer-ready CSV: one row per (meal, tag), plus a total-servings row. */
