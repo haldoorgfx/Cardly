@@ -144,8 +144,12 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
       // Strip characters that break the PostgREST `.or()` filter grammar —
       // otherwise a stray comma/paren 400s the query, and the catch block below
       // keeps whatever was on screen instead of showing "no results", silently
-      // passing off stale results as matches for the new search.
-      final query = _query.trim().replaceAll(RegExp(r'[(),*:%]'), ' ').trim();
+      // passing off stale results as matches for the new search. `_` is a LIKE
+      // wildcard too (matches any single character) — without stripping it, a
+      // search for "coffee_2026" silently also matched "coffeeX2026" for any
+      // character X, the same class of bug the web search page's
+      // escapeLikePattern() already closes (lib/search/filter.ts).
+      final query = _query.trim().replaceAll(RegExp(r'[(),*:%_]'), ' ').trim();
       if (query.isNotEmpty) {
         q = q.or(
             'title.ilike.%$query%,city.ilike.%$query%,venue_name.ilike.%$query%,organizer_name.ilike.%$query%');

@@ -149,8 +149,10 @@ class _EntitlementTransferSheetState extends State<EntitlementTransferSheet> {
   Future<void> _search() async {
     // Strip PostgREST `.or()`-breaking characters (comma/paren/etc.) so a name
     // like "Doe, Jane" doesn't 400 the query and silently break the search
-    // (same sanitization the discover search uses).
-    final q = _searchCtrl.text.trim().replaceAll(RegExp(r'[(),*:%]'), ' ').trim();
+    // (same sanitization the discover search uses). `_` is a LIKE wildcard
+    // too — without stripping it, searching "j_ne" would also silently match
+    // "june", "jane", etc.
+    final q = _searchCtrl.text.trim().replaceAll(RegExp(r'[(),*:%_]'), ' ').trim();
     setState(() => _searching = true);
     try {
       var query = supa
