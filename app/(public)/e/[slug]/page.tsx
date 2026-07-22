@@ -328,7 +328,15 @@ export default async function PublicEventPage({ params, searchParams }: Props) {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(eventJsonLd) }}
+        // JSON.stringify does not escape "/", so an organizer-set title,
+        // tagline, description, or venue field containing literally
+        // "</script>" closes this tag early — the browser's HTML parser
+        // scans for that sequence before any JSON/JS parsing happens. That
+        // turns free-text an organizer controls into stored XSS served to
+        // every visitor of their own public event page. Escaping "<" to its
+        // unicode form breaks the sequence while staying valid, unchanged
+        // JSON — any JSON-LD consumer decodes < back to "<" per spec.
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(eventJsonLd).replace(/</g, '\\u003c') }}
       />
       {isPreview && editorEventId && (
         <div
