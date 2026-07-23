@@ -3,10 +3,13 @@ export const dynamic = 'force-dynamic';
 import { createAdminClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import WaitlistJoinClient from '@/components/registration/WaitlistJoinClient';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 interface Props { params: { slug: string } }
 
 export default async function WaitlistPage({ params }: Props) {
+  if (!(await isPlatformFeatureEnabled('waitlist'))) notFound();
+
   const admin = createAdminClient();
 
   // Two-step slug resolution — .or() with cross-table filter is broken in PostgREST

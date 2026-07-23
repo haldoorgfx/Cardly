@@ -5,12 +5,15 @@ import { authorizeEventContent } from '@/lib/auth/event-content';
 import { getUserPlan, getEventOwnerPlan } from '@/lib/billing/can';
 import { generateMatches, generateMatchesForOne } from '@/lib/matchmaking';
 import { hiddenRegistrationIds } from '@/lib/attendee/directoryVisibility';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 const PLAN_RANK: Record<string, number> = { free: 0, pro: 1, studio: 2 };
 
 // GET /api/events/[id]/matches?registration_id=xxx
 // Returns cached match suggestions for an attendee. Generates on-demand if none exist.
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+  if (!(await isPlatformFeatureEnabled('speed_networking'))) return NextResponse.json({ error: 'Speed networking is currently unavailable.' }, { status: 404 });
+
   const { searchParams } = new URL(req.url);
   const registrationId = searchParams.get('registration_id');
   const token = searchParams.get('token');
@@ -179,6 +182,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 // Gated to the event owner/contributors: this runs LLM generation over up to
 // 200 attendees, so it must not be publicly triggerable.
 export async function POST(_req: NextRequest, { params }: { params: { id: string } }) {
+  if (!(await isPlatformFeatureEnabled('speed_networking'))) return NextResponse.json({ error: 'Speed networking is currently unavailable.' }, { status: 404 });
+
   const auth = await authorizeEventContent(params.id);
   if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
 

@@ -3,6 +3,7 @@ import { getAuthorizedUser } from '@/lib/auth/guards';
 import { EVENT_EDIT_ALL } from '@/lib/auth/permissions';
 import { createAdminClient } from '@/lib/supabase/server';
 import { logAudit } from '@/lib/audit/log';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 const VALID_ACTIONS = ['approve', 'reject'] as const;
 type Action = (typeof VALID_ACTIONS)[number];
@@ -12,6 +13,8 @@ export async function PATCH(
   request: Request,
   { params }: { params: { id: string } }
 ) {
+  if (!(await isPlatformFeatureEnabled('promote'))) return NextResponse.json({ error: 'Promote is currently unavailable.' }, { status: 404 });
+
   const result = await getAuthorizedUser(EVENT_EDIT_ALL);
   if ('error' in result) return result.error;
   const { user } = result;

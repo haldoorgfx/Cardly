@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { assertOwnsRegistration } from '@/lib/attendee-identity';
 import { hasModeratorAccess } from '@/lib/rbac/ownership';
 import { getLeaderboard } from '@/lib/events/leaderboard';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 /**
  * GET /api/events/[id]/leaderboard?reg=<registration_id>
@@ -22,6 +23,8 @@ import { getLeaderboard } from '@/lib/events/leaderboard';
  * without it.
  */
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+  if (!(await isPlatformFeatureEnabled('gamification'))) return NextResponse.json({ error: 'Gamification is currently unavailable.' }, { status: 404 });
+
   const { searchParams } = new URL(req.url);
   const reg = searchParams.get('reg');
   const token = searchParams.get('token');

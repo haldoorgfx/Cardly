@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 import { getEventOwnerPlan } from '@/lib/billing/can';
 import { hasStudioERA } from '@/lib/ai/gate';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -37,6 +38,8 @@ const EVENT_CONTEXT_KEYS = [
 ];
 
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+  if (!(await isPlatformFeatureEnabled('ai_copilot'))) return NextResponse.json({ error: 'AI Copilot is currently unavailable.' }, { status: 404 });
+
   if (!process.env.ANTHROPIC_API_KEY) {
     return NextResponse.json({ error: 'AI is not configured on this deployment.' }, { status: 503 });
   }

@@ -9,6 +9,7 @@ import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { CateringClient } from '@/components/catering/CateringClient';
 import type { Meal } from '@/components/catering/CateringClient';
 import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 interface Props { params: Promise<{ id: string }> }
 
@@ -31,6 +32,7 @@ export default async function CateringPage({ params }: Props) {
     .in('user_id', await manageableOwnerIds(user.id))
     .single();
   if (!event) redirect('/dashboard');
+  if (!(await isPlatformFeatureEnabled('catering'))) redirect(`/events/${event.slug}`);
 
   // catering_counts authorises on auth.uid() → call with the SESSION client, and
   // catch its NOT_AUTHORISED (P0001) instead of surfacing a 500.

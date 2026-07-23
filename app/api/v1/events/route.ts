@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { authenticateApiKey } from '@/lib/api-keys/auth';
 import { createAdminClient } from '@/lib/supabase/server';
 import type { EventStatus } from '@/types/database';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 // GET /api/v1/events — list the API key owner's events.
 // Query: ?status=published&limit=50&offset=0
@@ -10,6 +11,8 @@ export async function POST() {
 }
 
 export async function GET(req: NextRequest) {
+  if (!(await isPlatformFeatureEnabled('developer_api'))) return NextResponse.json({ error: 'Developer API is currently unavailable.' }, { status: 404 });
+
   const auth = await authenticateApiKey(req, 'events:read');
   if (!auth.ok) return auth.response;
 

@@ -3,6 +3,7 @@ import { createAdminClient, createClient } from '@/lib/supabase/server';
 import { assertOwnsRegistration } from '@/lib/attendee-identity';
 import { hasModeratorAccess } from '@/lib/rbac/ownership';
 import { getEventOwnerPlan } from '@/lib/billing/can';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 import { z } from 'zod';
 import { sendQAAnsweredEmail } from '@/lib/email';
 
@@ -20,6 +21,8 @@ const AskSchema = z.object({
 });
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+  if (!(await isPlatformFeatureEnabled('qa'))) return NextResponse.json({ error: 'Q&A is currently unavailable.' }, { status: 404 });
+
   const admin = createAdminClient();
   const { searchParams } = new URL(req.url);
   const sessionId = searchParams.get('session_id');
@@ -71,6 +74,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 }
 
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+  if (!(await isPlatformFeatureEnabled('qa'))) return NextResponse.json({ error: 'Q&A is currently unavailable.' }, { status: 404 });
+
   const body = await req.json().catch(() => null);
   const parsed = AskSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
@@ -163,6 +168,8 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
 // PATCH — organiser moderation: feature / answer / hide
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+  if (!(await isPlatformFeatureEnabled('qa'))) return NextResponse.json({ error: 'Q&A is currently unavailable.' }, { status: 404 });
+
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

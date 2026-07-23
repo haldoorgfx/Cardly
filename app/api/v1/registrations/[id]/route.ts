@@ -2,9 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { authenticateApiKey } from '@/lib/api-keys/auth';
 import { createAdminClient } from '@/lib/supabase/server';
 import { serializeRegistration } from '@/lib/api/serializers';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 // GET /api/v1/registrations/{id} — a single registration the caller owns.
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+  if (!(await isPlatformFeatureEnabled('developer_api'))) return NextResponse.json({ error: 'Developer API is currently unavailable.' }, { status: 404 });
+
   const auth = await authenticateApiKey(req, 'registrations:read');
   if (!auth.ok) return auth.response;
 

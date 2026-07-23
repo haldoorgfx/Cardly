@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 export async function GET() {
+  if (!(await isPlatformFeatureEnabled('white_label'))) return NextResponse.json({ error: 'White-label branding is currently unavailable.' }, { status: 404 });
+
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({}, { status: 401 });
@@ -41,6 +44,8 @@ function normalizeDomain(raw: string): string {
 }
 
 export async function POST(req: NextRequest) {
+  if (!(await isPlatformFeatureEnabled('white_label'))) return NextResponse.json({ error: 'White-label branding is currently unavailable.' }, { status: 404 });
+
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

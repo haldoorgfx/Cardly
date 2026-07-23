@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import { ExhibitorShell } from '@/components/exhibitor/ExhibitorShell';
 import { LeadsTab } from '@/components/exhibitor/LeadsTab';
 import { isLoggedInSponsorFor } from '@/lib/rbac/exhibitor-viewer';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 interface Props { params: Promise<{ token: string }> }
 
@@ -20,6 +21,7 @@ export default async function ExhibitorLeadsPage({ params }: Props) {
     .single();
 
   if (!sponsor) notFound();
+  if (!(await isPlatformFeatureEnabled('exhibitors'))) notFound();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: leads } = await (admin as any)

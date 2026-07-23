@@ -6,6 +6,7 @@ import { ExhibitorShell } from '@/components/exhibitor/ExhibitorShell';
 import { OverviewTab } from '@/components/exhibitor/OverviewTab';
 import { isLoggedInSponsorFor } from '@/lib/rbac/exhibitor-viewer';
 import { ownedSponsor } from '@/lib/rbac/ownership';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 interface Props { params: Promise<{ token: string }> }
 
@@ -22,6 +23,7 @@ export default async function ExhibitorPage({ params }: Props) {
     .single();
 
   if (!sponsor || !sponsor.events) notFound();
+  if (!(await isPlatformFeatureEnabled('exhibitors'))) notFound();
 
   const event = sponsor.events as { id: string; name: string; slug: string; status: string };
 

@@ -6,6 +6,7 @@ import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { getUserPlan } from '@/lib/billing/can';
 import { SponsorsClient } from '@/components/events/SponsorsClient';
 import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 interface Props { params: Promise<{ id: string }> }
 
@@ -23,6 +24,7 @@ export default async function SponsorsPage({ params }: Props) {
   // Plan gate — Sponsors is a Studio feature (minPlan: 'studio' in event overview ACTION_CARDS)
   const plan = await getUserPlan(user.id);
   if (PLAN_RANK[plan] < PLAN_RANK.studio) redirect(`/events/${_ev.slug}`);
+  if (!(await isPlatformFeatureEnabled('sponsors'))) redirect(`/events/${_ev.slug}`);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const admin = createAdminClient() as any;

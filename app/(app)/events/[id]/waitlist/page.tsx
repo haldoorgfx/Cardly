@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { WaitlistClient } from '@/components/events/WaitlistClient';
 import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 interface Props { params: Promise<{ id: string }> }
 
@@ -23,6 +24,7 @@ export default async function WaitlistPage({ params }: Props) {
   const { data: event } = await db
     .from('events').select('id, name').eq('id', id).in('user_id', await manageableOwnerIds(user.id)).single();
   if (!event) redirect('/dashboard');
+  if (!(await isPlatformFeatureEnabled('waitlist'))) redirect(`/events/${_ev.slug}`);
 
   // WHY this reads waitlist_entries and not registrations.status='waitlisted':
   // the public "Join waitlist" form (POST /api/events/[id]/waitlist) writes to

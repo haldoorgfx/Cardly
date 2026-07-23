@@ -4,6 +4,8 @@ import { createAdminClient } from '@/lib/supabase/server';
 import { ExhibitorShell } from '@/components/exhibitor/ExhibitorShell';
 import { LeadsTab } from '@/components/exhibitor/LeadsTab';
 import { requireSponsorWorkspace } from '@/lib/rbac/sponsorWorkspace';
+import { redirect } from 'next/navigation';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 export const metadata = { title: 'Leads' };
 
@@ -14,6 +16,7 @@ export default async function SponsorLeadsPage({
 }) {
   const { sponsorId } = await params;
   const { sponsor, event } = await requireSponsorWorkspace(sponsorId, `/sponsoring/${sponsorId}/leads`);
+  if (!(await isPlatformFeatureEnabled('exhibitors'))) redirect(`/sponsoring/${sponsorId}`);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: leads } = await (createAdminClient() as any)

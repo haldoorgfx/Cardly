@@ -9,6 +9,7 @@ import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { AccessibilityClient } from '@/components/catering/AccessibilityClient';
 import type { AccessSummary } from '@/components/catering/AccessibilityClient';
 import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 interface Props { params: Promise<{ id: string }> }
 
@@ -31,6 +32,7 @@ export default async function AccessibilityPage({ params }: Props) {
     .in('user_id', await manageableOwnerIds(user.id))
     .single();
   if (!event) redirect('/dashboard');
+  if (!(await isPlatformFeatureEnabled('catering'))) redirect(`/events/${event.slug}`);
 
   // accessibility_summary authorises on auth.uid() → SESSION client, and catch
   // its NOT_AUTHORISED (P0001) rather than 500.

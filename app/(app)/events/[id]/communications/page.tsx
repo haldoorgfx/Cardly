@@ -11,6 +11,7 @@ import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { CommunicationsView } from '@/components/events/CommunicationsView';
 import { getUserPlan } from '@/lib/billing/can';
 import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 export default async function CommunicationsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id: _ref } = await params;
@@ -30,6 +31,7 @@ export default async function CommunicationsPage({ params }: { params: Promise<{
     getUserPlan(user.id),
   ]);
   if (!event) redirect('/dashboard');
+  if (!(await isPlatformFeatureEnabled('communications'))) redirect(`/events/${_ev.slug}`);
 
   return (
     <CommunicationsView

@@ -9,6 +9,7 @@ import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { PageShell, PageHeader } from '@/components/dash';
 import { AttendanceGrid } from '@/components/events/AttendanceGrid';
 import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 import {
   computeAttendanceGrid,
   type DayDef,
@@ -34,6 +35,7 @@ export default async function AttendancePage({ params }: Props) {
 
   const { data: event } = await db.from('events').select('id, name, slug').eq('id', id).in('user_id', await manageableOwnerIds(user.id)).single();
   if (!event) redirect('/dashboard');
+  if (!(await isPlatformFeatureEnabled('multi_day'))) redirect(`/events/${event.slug}`);
 
   let days: DayDef[] = [];
   let attendees: AttendeeDef[] = [];

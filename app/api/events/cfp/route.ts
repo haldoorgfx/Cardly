@@ -3,6 +3,7 @@ import { createAdminClient } from '@/lib/supabase/server';
 import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
 import { sendAbstractReceivedEmail } from '@/lib/email';
 import { z } from 'zod';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 const AuthorSchema = z.object({
   name:        z.string().min(1).max(200).trim(),
@@ -22,6 +23,8 @@ const CfpSchema = z.object({
 });
 
 export async function POST(req: NextRequest) {
+  if (!(await isPlatformFeatureEnabled('speakers'))) return NextResponse.json({ error: 'Speakers & CFP is currently unavailable.' }, { status: 404 });
+
   const admin = createAdminClient();
 
   const raw = await req.json().catch(() => null);

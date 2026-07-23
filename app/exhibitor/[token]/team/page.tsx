@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import { ExhibitorShell } from '@/components/exhibitor/ExhibitorShell';
 import { TeamTab } from '@/components/exhibitor/TeamTab';
 import { isLoggedInSponsorFor } from '@/lib/rbac/exhibitor-viewer';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 interface Props { params: Promise<{ token: string }> }
 
@@ -20,6 +21,7 @@ export default async function ExhibitorTeamPage({ params }: Props) {
     .single();
 
   if (!sponsor) notFound();
+  if (!(await isPlatformFeatureEnabled('exhibitors'))) notFound();
 
   // scan_access (migration 059) may not be applied yet — try the richer select,
   // and fall back to the base columns so the tab never 500s on a missing column.

@@ -13,8 +13,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticateApiKey } from '@/lib/api-keys/auth';
 import { createAdminClient } from '@/lib/supabase/server';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 export async function POST(req: NextRequest) {
+  if (!(await isPlatformFeatureEnabled('developer_api'))) return NextResponse.json({ error: 'Developer API is currently unavailable.' }, { status: 404 });
+
   // ── Auth via Bearer token (Studio plan + full_access scope enforced) ───────
   const auth = await authenticateApiKey(req, 'full_access', { rateTier: 'apiKeyRender' });
   if (!auth.ok) return auth.response;

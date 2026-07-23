@@ -4,6 +4,7 @@ import { createAdminClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
 import AbstractSubmissionClient from '@/components/abstracts/AbstractSubmissionClient';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 interface Props { params: { slug: string } }
 
@@ -13,6 +14,7 @@ export default async function CFPPage({ params }: Props) {
   const resolved = await resolvePublicSlug(params.slug);
   if (!resolved) notFound();
   const { event, eventPageTitle } = resolved;
+  if (!(await isPlatformFeatureEnabled('speakers'))) notFound();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: cfp } = await (admin as any)

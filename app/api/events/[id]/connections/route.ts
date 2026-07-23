@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { assertOwnsRegistration } from '@/lib/attendee-identity';
 import { getEventOwnerPlan } from '@/lib/billing/can';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 import { z } from 'zod';
 import {
   sendConnectionRequestEmail,
@@ -28,6 +29,8 @@ const RespondSchema = z.object({
 // networking: excludes the caller and anyone they've already sent a request to
 // (or connected with). Directory opt-outs are respected.
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+  if (!(await isPlatformFeatureEnabled('networking'))) return NextResponse.json({ error: 'Networking is currently unavailable.' }, { status: 404 });
+
   const { searchParams } = new URL(req.url);
   const regId = searchParams.get('reg');
   const token = searchParams.get('token');
@@ -104,6 +107,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 }
 
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+  if (!(await isPlatformFeatureEnabled('networking'))) return NextResponse.json({ error: 'Networking is currently unavailable.' }, { status: 404 });
+
   const body = await req.json().catch(() => null);
   const parsed = RequestSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
@@ -225,6 +230,8 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+  if (!(await isPlatformFeatureEnabled('networking'))) return NextResponse.json({ error: 'Networking is currently unavailable.' }, { status: 404 });
+
   const body = await req.json().catch(() => null);
   const parsed = RespondSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: 'Invalid request' }, { status: 400 });

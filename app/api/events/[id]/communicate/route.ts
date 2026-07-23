@@ -8,6 +8,7 @@ import {
   unsubscribeTableExists,
   unsubscribeUrl,
 } from '@/lib/email/unsubscribe';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 // RESEND_FROM_EMAIL is a BARE address; the display name comes from
 // RESEND_FROM_NAME. Build `from` here so it never double-wraps.
@@ -21,6 +22,8 @@ function getResend(): Resend | null {
 
 // POST — send a broadcast email to all confirmed/checked-in attendees
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+  if (!(await isPlatformFeatureEnabled('communications'))) return NextResponse.json({ error: 'Communications is currently unavailable.' }, { status: 404 });
+
   const supabase = createClient();
   let { data: { user } } = await supabase.auth.getUser();
 

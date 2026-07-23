@@ -5,11 +5,13 @@ export const metadata: Metadata = { title: 'White Label — Settings' };
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { WhiteLabelTab } from '@/app/(app)/settings/WhiteLabelTab';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 export default async function WhiteLabelPage() {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
+  if (!(await isPlatformFeatureEnabled('white_label'))) redirect('/settings');
 
   const admin = createAdminClient();
   const { data: profile } = await admin

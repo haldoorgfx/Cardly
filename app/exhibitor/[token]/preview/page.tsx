@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import { ExhibitorShell } from '@/components/exhibitor/ExhibitorShell';
 import { DirectoryPreviewTab } from '@/components/exhibitor/DirectoryPreviewTab';
 import { isLoggedInSponsorFor } from '@/lib/rbac/exhibitor-viewer';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 interface Props { params: Promise<{ token: string }> }
 
@@ -20,6 +21,7 @@ export default async function ExhibitorPreviewPage({ params }: Props) {
     .single();
 
   if (!sponsor) notFound();
+  if (!(await isPlatformFeatureEnabled('exhibitors'))) notFound();
 
   // Products power both the preview list and the exhibitor-vs-sponsor mode.
   // Missing table (migration 060 not applied) → clean empty state, never a 500.

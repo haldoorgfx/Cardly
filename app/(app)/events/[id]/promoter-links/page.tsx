@@ -6,6 +6,7 @@ import { PromoterLinksManager } from '@/components/events/PromoterLinksManager';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { PageShell, PageHeader } from '@/components/dash';
 import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 interface Props { params: Promise<{ id: string }> }
 
@@ -25,6 +26,7 @@ export default async function PromoterLinksPage({ params }: Props) {
   ]);
 
   if (!event) redirect('/dashboard');
+  if (!(await isPlatformFeatureEnabled('promote'))) redirect(`/events/${_ev.slug}`);
 
   // Fetch registration stats per promoter code
   const { data: regs } = await admin

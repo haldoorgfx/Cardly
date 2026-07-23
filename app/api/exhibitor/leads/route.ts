@@ -1,6 +1,7 @@
 import { createAdminClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 const RatingEnum = z.enum(['hot', 'warm', 'cold']);
 
@@ -22,6 +23,8 @@ const UpdateLeadSchema = z.object({
 });
 
 export async function POST(req: Request) {
+  if (!(await isPlatformFeatureEnabled('exhibitors'))) return NextResponse.json({ error: 'Exhibitors is currently unavailable.' }, { status: 404 });
+
   const raw = await req.json().catch(() => null);
   const parsed = CreateLeadSchema.safeParse(raw);
   if (!parsed.success) {
@@ -65,6 +68,8 @@ export async function POST(req: Request) {
 }
 
 export async function PATCH(req: Request) {
+  if (!(await isPlatformFeatureEnabled('exhibitors'))) return NextResponse.json({ error: 'Exhibitors is currently unavailable.' }, { status: 404 });
+
   const raw = await req.json().catch(() => null);
   const parsed = UpdateLeadSchema.safeParse(raw);
   if (!parsed.success) {
@@ -98,6 +103,8 @@ export async function PATCH(req: Request) {
 }
 
 export async function DELETE(req: Request) {
+  if (!(await isPlatformFeatureEnabled('exhibitors'))) return NextResponse.json({ error: 'Exhibitors is currently unavailable.' }, { status: 404 });
+
   const { searchParams } = new URL(req.url);
   const leadId = searchParams.get('id');
   const token  = searchParams.get('token');

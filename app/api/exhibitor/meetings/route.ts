@@ -1,6 +1,7 @@
 import { createAdminClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 const UpdateSchema = z.object({
   token:          z.string().min(1).max(200),
@@ -16,6 +17,8 @@ async function resolveSponsor(admin: any, token: string) {
 }
 
 export async function PATCH(req: Request) {
+  if (!(await isPlatformFeatureEnabled('exhibitors'))) return NextResponse.json({ error: 'Exhibitors is currently unavailable.' }, { status: 404 });
+
   const raw = await req.json().catch(() => null);
   const parsed = UpdateSchema.safeParse(raw);
   if (!parsed.success) {

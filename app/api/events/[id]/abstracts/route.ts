@@ -3,6 +3,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 import { sendAbstractDecisionEmail } from '@/lib/email';
 import { z } from 'zod';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 /** The exact set the abstracts.status CHECK constraint allows (migration 023). */
 const STATUSES = ['pending', 'accept', 'reject', 'revision', 'waitlist'] as const;
@@ -37,6 +38,8 @@ function primaryAuthorOf(authorsJson: any): { name: string; email: string } | nu
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+  if (!(await isPlatformFeatureEnabled('speakers'))) return NextResponse.json({ error: 'Speakers & CFP is currently unavailable.' }, { status: 404 });
+
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

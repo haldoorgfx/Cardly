@@ -9,6 +9,7 @@ import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { RedemptionDashboard } from '@/components/analytics/RedemptionDashboard';
 import { computeRedemptionStats, type RedemptionStatRow } from '@/lib/entitlements/redemptionStats';
 import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 interface Props { params: Promise<{ id: string }> }
 
@@ -34,6 +35,7 @@ export default async function RedemptionDashboardPage({ params }: Props) {
     .in('user_id', await manageableOwnerIds(user.id))
     .single();
   if (!event) redirect('/dashboard');
+  if (!(await isPlatformFeatureEnabled('entitlements'))) redirect(`/events/${_ev.slug}`);
 
   let rows: RedemptionStatRow[] | null = null;
   let loadError = false;

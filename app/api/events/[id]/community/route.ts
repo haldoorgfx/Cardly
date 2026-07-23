@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient, createClient } from '@/lib/supabase/server';
 import { assertOwnsRegistration } from '@/lib/attendee-identity';
 import { hasModeratorAccess } from '@/lib/rbac/ownership';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 import { z } from 'zod';
 
 const PostSchema = z.object({
@@ -13,6 +14,8 @@ const PostSchema = z.object({
 
 // GET /api/events/[id]/community?channel_id=xxx&reg=xxx — messages for a channel
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+  if (!(await isPlatformFeatureEnabled('community'))) return NextResponse.json({ error: 'Community is currently unavailable.' }, { status: 404 });
+
   const { searchParams } = new URL(req.url);
   const channelId = searchParams.get('channel_id');
   if (!channelId) return NextResponse.json({ error: 'channel_id required' }, { status: 400 });
@@ -63,6 +66,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
 // POST /api/events/[id]/community — post a message into a channel
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+  if (!(await isPlatformFeatureEnabled('community'))) return NextResponse.json({ error: 'Community is currently unavailable.' }, { status: 404 });
+
   const body = await req.json().catch(() => null);
   const parsed = PostSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: 'Invalid request' }, { status: 400 });

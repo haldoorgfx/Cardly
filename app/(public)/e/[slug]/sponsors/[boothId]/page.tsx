@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
 import { safeExternalUrl, safeUrlHostname } from '@/lib/url/safeUrl';
 import { Check } from 'lucide-react';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 interface Props {
   params: { slug: string; boothId: string };
@@ -27,6 +28,7 @@ export default async function BoothPage({ params }: Props) {
   const resolved = await resolvePublicSlug(params.slug);
   if (!resolved) notFound();
   const { event } = resolved;
+  if (!(await isPlatformFeatureEnabled('sponsors'))) notFound();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: sponsor } = await (admin as any)

@@ -3,6 +3,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { getVisibleSections } from '@/lib/rbac/sections';
 import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 import { resolveEffectiveUserId } from '@/lib/auth/guards';
+import { getAllPlatformFeatureFlags } from '@/lib/features/platform';
 
 export const dynamic = 'force-dynamic';
 
@@ -29,11 +30,12 @@ export async function GET() {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const admin = createAdminClient() as any;
-  const [sections, profileRes, countRes, settingsRes] = await Promise.all([
+  const [sections, profileRes, countRes, settingsRes, platformFeatureFlags] = await Promise.all([
     getVisibleSections(effective.id),
     admin.from('profiles').select('full_name, email, plan, role').eq('id', effective.id).single(),
     admin.from('events').select('id', { count: 'exact', head: true }).in('user_id', await manageableOwnerIds(effective.id)).neq('status', 'archived'),
     admin.from('site_settings').select('logo_light_url').eq('id', 1).maybeSingle(),
+    getAllPlatformFeatureFlags(),
   ]);
 
   return NextResponse.json({
@@ -44,5 +46,7 @@ export async function GET() {
     // The real caller's id, for PostHog identify() — never the impersonation
     // target, so events stay attributed to the actual admin doing the viewing.
     realUserId: effective.realUserId,
+    // Super-admin kill-switches for the event-nav sidebar — {key: enabled}.
+    platformFeatures: Object.fromEntries(platformFeatureFlags.map(f => [f.key, f.enabled])),
   });
 }

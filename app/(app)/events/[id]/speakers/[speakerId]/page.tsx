@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { ChevronLeft, CalendarDays, Star, ExternalLink } from 'lucide-react';
 import { PageShell } from '@/components/dash';
 import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 interface Props { params: Promise<{ id: string; speakerId: string }> }
 
@@ -35,6 +36,7 @@ export default async function SpeakerDetailPage({ params }: Props) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
+  if (!(await isPlatformFeatureEnabled('speakers'))) redirect(`/events/${_ev.slug}`);
 
   const admin = createAdminClient();
   const [{ data: event }, { data: speaker }] = await Promise.all([

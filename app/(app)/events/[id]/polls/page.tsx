@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import PollsManagerClient from '@/components/polls/PollsManagerClient';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { hasModeratorAccess } from '@/lib/rbac/ownership';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 import { PageShell, PageHeader } from '@/components/dash';
 
 interface Props { params: { id: string } }
@@ -18,6 +19,7 @@ export default async function PollsManagerPage({ params }: Props) {
   if (!user) redirect('/login');
 
   if (!(await hasModeratorAccess(user.id, id))) redirect('/dashboard');
+  if (!(await isPlatformFeatureEnabled('polls'))) redirect(`/events/${_ev.slug}`);
 
   const admin = createAdminClient();
   const { data: event } = await admin.from('events').select('id, name, slug').eq('id', id).single();

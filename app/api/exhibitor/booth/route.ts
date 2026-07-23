@@ -2,6 +2,7 @@ import { createAdminClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { zSafeUrl } from '@/lib/url/safeUrl';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 // This route is authorised by a bearer invite token and writes fields that are
 // rendered on the PUBLIC event booth page. `website_url` in particular lands in
@@ -19,6 +20,8 @@ const PatchSchema = z.object({
 });
 
 export async function PATCH(req: Request) {
+  if (!(await isPlatformFeatureEnabled('exhibitors'))) return NextResponse.json({ error: 'Exhibitors is currently unavailable.' }, { status: 404 });
+
   const raw = await req.json().catch(() => null);
   const parsed = PatchSchema.safeParse(raw);
   if (!parsed.success) {

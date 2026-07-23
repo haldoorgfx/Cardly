@@ -1,8 +1,11 @@
 import { createAdminClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 export async function POST(req: Request) {
+  if (!(await isPlatformFeatureEnabled('exhibitors'))) return NextResponse.json({ error: 'Exhibitors is currently unavailable.' }, { status: 404 });
+
   const body = await req.json();
   const { token, email, role } = body;
 
@@ -42,6 +45,8 @@ export async function POST(req: Request) {
 }
 
 export async function PATCH(req: Request) {
+  if (!(await isPlatformFeatureEnabled('exhibitors'))) return NextResponse.json({ error: 'Exhibitors is currently unavailable.' }, { status: 404 });
+
   const body = await req.json().catch(() => null);
   const token     = body?.token as string | undefined;
   const memberId  = body?.id as string | undefined;
@@ -72,6 +77,8 @@ export async function PATCH(req: Request) {
 }
 
 export async function DELETE(req: Request) {
+  if (!(await isPlatformFeatureEnabled('exhibitors'))) return NextResponse.json({ error: 'Exhibitors is currently unavailable.' }, { status: 404 });
+
   const { searchParams } = new URL(req.url);
   const memberId = searchParams.get('id');
   const token    = searchParams.get('token');

@@ -6,6 +6,7 @@ import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
 import { getEventFeatures, isSectionEnabled } from '@/lib/events/sectionGate';
 import { SpeedNetworkingClient } from '@/components/events/SpeedNetworkingClient';
 import { resolveViewerRegistrationId } from '@/lib/attendee/resolveViewerRegistration';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 interface Props {
   params: { slug: string };
@@ -13,6 +14,8 @@ interface Props {
 }
 
 export default async function SpeedNetworkingPage({ params, searchParams }: Props) {
+  if (!(await isPlatformFeatureEnabled('speed_networking'))) notFound();
+
   const resolved = await resolvePublicSlug(params.slug);
   if (!resolved) notFound();
   const { event, eventPageTitle } = resolved;

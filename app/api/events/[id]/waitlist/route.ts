@@ -7,6 +7,7 @@ import { resolveAccountIdByEmail } from '@/lib/rbac/assign';
 import { escapeLikePattern } from '@/lib/search/filter';
 import { isNotifAllowed } from '@/lib/notifications/prefs';
 import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 export const dynamic = 'force-dynamic';
 
@@ -44,6 +45,8 @@ export async function POST(
   req: NextRequest,
   { params }: { params: { id: string } },
 ) {
+  if (!(await isPlatformFeatureEnabled('waitlist'))) return NextResponse.json({ error: 'Waitlist is currently unavailable.' }, { status: 404 });
+
   const body = await req.json().catch(() => ({}));
   const parsed = joinSchema.safeParse(body);
   if (!parsed.success) {
@@ -165,6 +168,8 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: { id: string } },
 ) {
+  if (!(await isPlatformFeatureEnabled('waitlist'))) return NextResponse.json({ error: 'Waitlist is currently unavailable.' }, { status: 404 });
+
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

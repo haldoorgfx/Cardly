@@ -39,6 +39,9 @@ export const TEAM_MANAGE     = 'team:manage';      // [4]
 export const CONTENT_EDIT    = 'content:edit';     // [3]
 export const IMPERSONATE     = 'impersonate';      // [4]
 
+// ── Platform feature kill-switches ───────────────────────────────────────────
+export const PLATFORM_FEATURES_MANAGE = 'platform_features:manage';  // [1] super_admin only, not admin
+
 // ── Types ────────────────────────────────────────────────────────────────────
 export type Permission = string;
 export type UserRole = 'user' | 'studio' | 'admin' | 'super_admin';
@@ -69,6 +72,7 @@ const SUPER_ADMIN_PERMISSIONS: Permission[] = [
   TEAM_MANAGE,
   CONTENT_EDIT,
   IMPERSONATE,
+  PLATFORM_FEATURES_MANAGE,
 ];
 
 export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {

@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { identify } from '@/components/shared/PostHogProvider';
 import { createClient } from '@/lib/supabase/client';
 import { PLANS } from '@/lib/billing/plans';
+import type { PlatformFeatureKey } from '@/lib/features/platform';
 import {
   LayoutGrid, TrendingUp, Settings2, Users, LogOut, Menu, Search, Plus, ChevronRight, CreditCard,
   BarChart2, FileText, Eye, X, ArrowLeft, ShieldCheck,
@@ -15,7 +16,7 @@ import {
   UserCircle, HelpCircle, Zap, ShoppingCart, Clock, IdCard, Heart,
   Crown, Leaf, ArrowRight,
   Tag, Globe, Download, Link2, Code2, UserCog, Share2, Images, Monitor,
-  RefreshCw, Megaphone, Bot, MessageCircle, Layers,
+  RefreshCw, Megaphone, Bot, MessageCircle, Layers, ToggleRight,
 } from 'lucide-react';
 
 type Profile = {
@@ -192,6 +193,29 @@ const EVENT_NAV_SECTIONS = [
   },
 ];
 
+// Maps an event-nav segment to the platform-feature key that gates its
+// destination page, for hiding a nav entry the super_admin has switched off.
+// Deliberately partial — a segment with no confident 1:1 feature (e.g.
+// 'embed', 'live', 'catering' has no nav entry at all) is left unmapped
+// rather than guessed at, since hiding the wrong thing is worse than not
+// hiding a thing that's actually still reachable via its own page-level gate.
+const SEGMENT_TO_PLATFORM_KEY: Record<string, PlatformFeatureKey> = {
+  'q-and-a':        'qa',
+  'engagement':     'networking',
+  'community':      'community',
+  'photos':         'photos',
+  'gamification':   'gamification',
+  'speakers':       'speakers',
+  'sponsors':       'sponsors',
+  'waitlist':       'waitlist',
+  'communications': 'communications',
+  'promote':        'promote',
+  'promoter-links': 'promote',
+  'promo-codes':    'promote',
+  'copilot':        'ai_copilot',
+  'series':         'multi_day',
+};
+
 const EVENT_STATUS_BADGE: Record<string, { cls: string; dot: string; label: string }> = {
   published: { cls: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30', dot: '#2D7A4F', label: 'Live' },
   draft:     { cls: 'bg-amber-500/20 text-amber-300 border-amber-500/30',       dot: '#C9A45E', label: 'Draft' },
@@ -249,6 +273,7 @@ const USER_NAV_GROUPS: NavGroup[] = [
     { href: '/admin/templates',     label: 'Templates',      icon: <Layout size={15} strokeWidth={1.8} />,      matchPrefix: true, superAdminOnly: true },
     { href: '/admin/theme',         label: 'Theme',          icon: <Palette size={15} strokeWidth={1.8} />,     matchPrefix: true },
     { href: '/admin/flags',         label: 'Feature Flags',  icon: <Sliders size={15} strokeWidth={1.8} />,     matchPrefix: true, superAdminOnly: true },
+    { href: '/admin/platform-features', label: 'Platform Features', icon: <ToggleRight size={15} strokeWidth={1.8} />, matchPrefix: true, superAdminOnly: true },
     { href: '/admin/changelog',     label: 'Changelog',      icon: <Megaphone size={15} strokeWidth={1.8} />,   matchPrefix: true },
     { href: '/admin/audit',         label: 'Audit Log',   icon: <ScrollText size={15} strokeWidth={1.8} />,  matchPrefix: true },
   ]},
@@ -542,7 +567,11 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 function EventNavContent({ pathname, eventId, onNavigate }: {
   pathname: string; eventId: string; onNavigate?: () => void;
 }) {
-  const { logoUrl } = usePlanCtx();
+  const { logoUrl, platformFeatures } = usePlanCtx();
+  const isSegmentDisabled = (segment: string) => {
+    const key = SEGMENT_TO_PLATFORM_KEY[segment];
+    return !!key && platformFeatures[key] === false;
+  };
   // null on server; cache applied in useEffect (client-only) to avoid hydration mismatch
   const [event, setEvent] = useState<EventInfo>(null);
   const supabase = createClient();
@@ -592,6 +621,7 @@ function EventNavContent({ pathname, eventId, onNavigate }: {
   const q = navQuery.trim().toLowerCase();
   const searchResults = q
     ? [EVENT_OVERVIEW_ITEM, ...EVENT_NAV_SECTIONS.flatMap(s => s.items.map(it => ({ ...it, group: s.title })))]
+        .filter(it => !isSegmentDisabled(it.segment))
         .filter(it => it.label.toLowerCase().includes(q) || ('group' in it && String((it as { group?: string }).group).toLowerCase().includes(q)))
     : null;
 
@@ -690,6 +720,8 @@ function EventNavContent({ pathname, eventId, onNavigate }: {
             </ul>
             {EVENT_NAV_SECTIONS.map((section, si) => {
               const open = (openSections[si] ?? false) || si === activeSectionIndex;
+              const visibleItems = section.items.filter(item => !isSegmentDisabled(item.segment));
+              if (visibleItems.length === 0) return null;
               return (
                 <div key={si} className="mb-1.5">
                   <button
@@ -709,7 +741,7 @@ function EventNavContent({ pathname, eventId, onNavigate }: {
                   </button>
                   {open && (
                     <ul className="space-y-0.5 mt-0.5 mb-2">
-                      {section.items.map(item => (
+                      {visibleItems.map(item => (
                         <NavItem key={item.id} href={hrefFor(item.segment)} icon={item.icon} label={item.label}
                           active={activeSegment === item.segment} onNavigate={onNavigate} />
                       ))}
@@ -869,11 +901,13 @@ type PlanCtx = {
   logoUrl: string | null;
   contextEventName: string | null;
   setContextEventName: (n: string | null) => void;
+  /** Super-admin platform-feature kill-switches, {key: enabled}. Absent key = enabled. */
+  platformFeatures: Record<string, boolean>;
 };
 
 const PlanContext = createContext<PlanCtx>({
   profile: null, sections: EMPTY_SECTIONS, eventCount: 0, initials: '?', planPct: 0, planLabel: 'Free', logoUrl: null,
-  contextEventName: null, setContextEventName: () => {},
+  contextEventName: null, setContextEventName: () => {}, platformFeatures: {},
 });
 function usePlanCtx() { return useContext(PlanContext); }
 
@@ -1049,6 +1083,10 @@ export function AppShell({ children, initialSections, initialProfile, initialEve
   const [impersonating, setImpersonating] = useState<ImpersonatedUser | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(initialLogoUrl ?? null);
   const [contextEventName, setContextEventName] = useState<string | null>(null);
+  // Super-admin kill-switches, {key: enabled}. Empty until /api/me/shell
+  // resolves — segmentPlatformFlag() below treats an absent key as enabled,
+  // so the nav never hides an item before the real flags have loaded.
+  const [platformFeatures, setPlatformFeatures] = useState<Record<string, boolean>>({});
 
   const isAdminRoute = pathname.startsWith('/admin');
 
@@ -1065,7 +1103,7 @@ export function AppShell({ children, initialSections, initialProfile, initialEve
       // fetch to /api/me/shell keeps this refresh in step with the SSR props.
       fetch('/api/me/shell')
         .then(r => (r.ok ? r.json() : null))
-        .then((d: { sections: VisibleSections; profile: Profile | null; eventCount: number; logoUrl: string | null; realUserId: string } | null) => {
+        .then((d: { sections: VisibleSections; profile: Profile | null; eventCount: number; logoUrl: string | null; realUserId: string; platformFeatures?: Record<string, boolean> } | null) => {
           if (!d) return;
           if (d.profile) {
             setProfile(d.profile);
@@ -1077,6 +1115,7 @@ export function AppShell({ children, initialSections, initialProfile, initialEve
           setEventCount(d.eventCount ?? 0);
           setLogoUrl(d.logoUrl ?? null);
           setSections(d.sections);
+          setPlatformFeatures(d.platformFeatures ?? {});
         })
         .catch(() => {});
     });
@@ -1153,7 +1192,7 @@ export function AppShell({ children, initialSections, initialProfile, initialEve
   const planPct = planLimit === Infinity ? 50 : Math.min((eventCount / planLimit) * 100, 100);
   const planLabel = profile?.plan === 'studio' ? 'Studio' : profile?.plan === 'pro' ? 'Pro' : 'Free';
 
-  const ctxValue: PlanCtx = { profile, sections, eventCount, initials, planPct, planLabel, logoUrl, contextEventName, setContextEventName };
+  const ctxValue: PlanCtx = { profile, sections, eventCount, initials, planPct, planLabel, logoUrl, contextEventName, setContextEventName, platformFeatures };
 
   const isFullScreen = /\/events\/[^/]+\/edit/.test(pathname) || pathname === '/onboarding' || /\/events\/[^/]+\/(agenda|roster|revenue)\/print/.test(pathname);
   if (isFullScreen) return <>{children}</>;

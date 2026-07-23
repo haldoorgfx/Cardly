@@ -9,6 +9,7 @@ import type { Entitlement, EntitlementInput, TicketTypeLite } from '@/components
 import type { EntitlementType } from '@/components/tickets/EntitlementIcon';
 import { PageShell } from '@/components/dash';
 import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 export async function generateMetadata() {
   return { title: 'Entitlements' };
@@ -92,6 +93,7 @@ export default async function EntitlementsPage({ params }: { params: Promise<{ i
   ]);
 
   if (!event) redirect('/dashboard');
+  if (!(await isPlatformFeatureEnabled('entitlements'))) redirect(`/events/${event.slug}`);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const entRows: any[] = ents ?? [];

@@ -6,6 +6,7 @@ import QAModerationClient from '@/components/qa/QAModerationClient';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { hasModeratorAccess } from '@/lib/rbac/ownership';
 import { getUserPlan } from '@/lib/billing/can';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 import { PageShell, PageHeader } from '@/components/dash';
 
 interface Props { params: { id: string } }
@@ -25,6 +26,9 @@ export default async function QAModerationPage({ params }: Props) {
   // Plan gate — Q&A & Polls is a Pro feature (minPlan: 'pro' in event overview ACTION_CARDS)
   const plan = await getUserPlan(user.id);
   if (PLAN_RANK[plan] < PLAN_RANK.pro) redirect(`/events/${_ev.slug}`);
+
+  // Platform kill-switch — sits above the plan gate above.
+  if (!(await isPlatformFeatureEnabled('qa'))) redirect(`/events/${_ev.slug}`);
 
   const admin = createAdminClient();
   const [{ data: event }, { data: sessions }] = await Promise.all([

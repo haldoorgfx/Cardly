@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
 import { getUserPlan } from '@/lib/billing/can';
 import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 // Optional sponsor contact email — trimmed; empty string coerces to undefined.
 const contactEmailSchema = z
@@ -28,6 +29,8 @@ async function linkSponsorRoleByEmail(email: string | null | undefined, eventId:
 }
 
 export async function PATCH(req: Request) {
+  if (!(await isPlatformFeatureEnabled('sponsors'))) return NextResponse.json({ error: 'Sponsors is currently unavailable.' }, { status: 404 });
+
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -73,6 +76,8 @@ export async function PATCH(req: Request) {
 }
 
 export async function DELETE(req: Request) {
+  if (!(await isPlatformFeatureEnabled('sponsors'))) return NextResponse.json({ error: 'Sponsors is currently unavailable.' }, { status: 404 });
+
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -95,6 +100,8 @@ export async function DELETE(req: Request) {
 }
 
 export async function POST(req: Request) {
+  if (!(await isPlatformFeatureEnabled('sponsors'))) return NextResponse.json({ error: 'Sponsors is currently unavailable.' }, { status: 404 });
+
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

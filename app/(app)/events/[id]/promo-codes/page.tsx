@@ -6,6 +6,7 @@ import { PromoCodesManager, type PromoCode } from '@/components/events/PromoCode
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { PageShell, PageHeader } from '@/components/dash';
 import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 interface Props { params: Promise<{ id: string }> }
 
@@ -26,6 +27,7 @@ export default async function PromoCodesPage({ params }: Props) {
   ]);
 
   if (!event) redirect('/dashboard');
+  if (!(await isPlatformFeatureEnabled('promote'))) redirect(`/events/${_ev.slug}`);
 
   return (
     <PageShell width="wide">

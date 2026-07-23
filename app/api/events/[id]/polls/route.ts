@@ -3,6 +3,7 @@ import { createAdminClient, createClient } from '@/lib/supabase/server';
 import { assertOwnsRegistration } from '@/lib/attendee-identity';
 import { hasModeratorAccess } from '@/lib/rbac/ownership';
 import { getUserPlan } from '@/lib/billing/can';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 import { z } from 'zod';
 
 const PLAN_RANK: Record<string, number> = { free: 0, pro: 1, studio: 2 };
@@ -22,6 +23,8 @@ const VoteSchema = z.object({
 });
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+  if (!(await isPlatformFeatureEnabled('polls'))) return NextResponse.json({ error: 'Polls are currently unavailable.' }, { status: 404 });
+
   const admin = createAdminClient();
   const { searchParams } = new URL(req.url);
   const activeOnly = searchParams.get('active') === 'true';
@@ -49,6 +52,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 }
 
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+  if (!(await isPlatformFeatureEnabled('polls'))) return NextResponse.json({ error: 'Polls are currently unavailable.' }, { status: 404 });
+
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -88,6 +93,8 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+  if (!(await isPlatformFeatureEnabled('polls'))) return NextResponse.json({ error: 'Polls are currently unavailable.' }, { status: 404 });
+
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -123,6 +130,8 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
 // PUT — cast a vote
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+  if (!(await isPlatformFeatureEnabled('polls'))) return NextResponse.json({ error: 'Polls are currently unavailable.' }, { status: 404 });
+
   const body = await req.json().catch(() => null);
   const parsed = VoteSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: 'Invalid request' }, { status: 400 });

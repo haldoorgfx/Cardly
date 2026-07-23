@@ -7,6 +7,7 @@ import { AICopilotClient } from '@/components/events/AICopilotClient';
 import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 import { getEventOwnerPlan } from '@/lib/billing/can';
 import { hasStudioERA } from '@/lib/ai/gate';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 export async function generateMetadata() {
   return { title: 'AI Copilot' };
@@ -30,6 +31,7 @@ export default async function CopilotPage({ params }: { params: Promise<{ id: st
     .single();
 
   if (!event) redirect('/dashboard');
+  if (!(await isPlatformFeatureEnabled('ai_copilot'))) redirect(`/events/${_ev.slug}`);
 
   // Match the API's plan gate so a Free or Pro organiser sees the event page
   // instead of a chat box that 402s on the first message. Studio-only —

@@ -2,6 +2,7 @@ import { createAdminClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { safeExternalUrl } from '@/lib/url/safeUrl';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 // Booth resources are exhibitor-supplied links. They are stored to be opened by
 // a human later, so the scheme is restricted to http(s) for the same reason as
@@ -21,6 +22,8 @@ async function resolveSponsor(admin: any, token: string) {
 }
 
 export async function POST(req: Request) {
+  if (!(await isPlatformFeatureEnabled('exhibitors'))) return NextResponse.json({ error: 'Exhibitors is currently unavailable.' }, { status: 404 });
+
   const raw = await req.json().catch(() => null);
   const parsed = CreateSchema.safeParse(raw);
   if (!parsed.success) {
@@ -51,6 +54,8 @@ export async function POST(req: Request) {
 }
 
 export async function DELETE(req: Request) {
+  if (!(await isPlatformFeatureEnabled('exhibitors'))) return NextResponse.json({ error: 'Exhibitors is currently unavailable.' }, { status: 404 });
+
   const { searchParams } = new URL(req.url);
   const id    = searchParams.get('id');
   const token = searchParams.get('token');

@@ -19,6 +19,7 @@ import type { EntitlementType } from '@/components/tickets/EntitlementIcon';
 import type { RedemptionLimit } from '@/components/tickets/entitlement-model';
 import { escapeLikePattern } from '@/lib/search/filter';
 import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 interface Props { params: Promise<{ id: string; regId: string }> }
 
@@ -80,6 +81,7 @@ export default async function AttendeeEntitlementsPage({ params }: Props) {
   const db = createAdminClient() as any;
   const { data: event } = await db.from('events').select('id, name, slug').eq('id', id).in('user_id', await manageableOwnerIds(user.id)).single();
   if (!event) redirect('/dashboard');
+  if (!(await isPlatformFeatureEnabled('entitlements'))) redirect(`/events/${event.slug}`);
 
   const { data: reg } = await db
     .from('registrations')

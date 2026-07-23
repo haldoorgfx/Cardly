@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { OrganizerCommunityClient } from '@/components/events/OrganizerCommunityClient';
 import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 export async function generateMetadata() {
   return { title: 'Community' };
@@ -27,6 +28,7 @@ export default async function CommunityPage({ params }: { params: Promise<{ id: 
   ]);
 
   if (!event) redirect('/dashboard');
+  if (!(await isPlatformFeatureEnabled('community'))) redirect(`/events/${_ev.slug}`);
 
   // Fetch message counts per channel + the real count of distinct posters
   const msgCounts: Record<string, number> = {};

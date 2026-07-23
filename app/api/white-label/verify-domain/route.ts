@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { promises as dns } from 'dns';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 export const runtime = 'nodejs';
 
@@ -11,6 +12,8 @@ const TARGET_HOST = process.env.NEXT_PUBLIC_APP_URL
   : 'eventera.so';
 
 export async function POST() {
+  if (!(await isPlatformFeatureEnabled('white_label'))) return NextResponse.json({ error: 'White-label branding is currently unavailable.' }, { status: 404 });
+
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

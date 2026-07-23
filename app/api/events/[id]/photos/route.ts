@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 import { getEventFeatures, isSectionEnabled } from '@/lib/events/sectionGate';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -15,6 +16,8 @@ const MAX_SIZE = 10 * 1024 * 1024; // 10MB — matches /api/upload's cap
 // only ever exposes 'approved'/'featured' rows publicly, so nothing this
 // route inserts is visible to anyone until an organizer moderates it in.
 export async function POST(req: Request, { params }: Params) {
+  if (!(await isPlatformFeatureEnabled('photos'))) return NextResponse.json({ error: 'The photo wall is currently unavailable.' }, { status: 404 });
+
   const { id } = await params;
   const admin = createAdminClient();
 
@@ -91,6 +94,8 @@ export async function POST(req: Request, { params }: Params) {
 }
 
 export async function PATCH(req: Request, { params }: Params) {
+  if (!(await isPlatformFeatureEnabled('photos'))) return NextResponse.json({ error: 'The photo wall is currently unavailable.' }, { status: 404 });
+
   const { id } = await params;
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();

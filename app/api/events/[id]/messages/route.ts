@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { assertOwnsRegistration } from '@/lib/attendee-identity';
 import { getEventOwnerPlan } from '@/lib/billing/can';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 import { z } from 'zod';
 import { sendNewMessageEmail } from '@/lib/email';
 
@@ -22,6 +23,8 @@ const ReadSchema = z.object({
 
 // GET /api/events/[id]/messages?registration_id=xxx&token=xxx[&thread_id=xxx]
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+  if (!(await isPlatformFeatureEnabled('networking'))) return NextResponse.json({ error: 'Networking is currently unavailable.' }, { status: 404 });
+
   const { searchParams } = new URL(req.url);
   const registrationId = searchParams.get('registration_id');
   const threadId = searchParams.get('thread_id');
@@ -137,6 +140,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
 // POST /api/events/[id]/messages — send a message
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+  if (!(await isPlatformFeatureEnabled('networking'))) return NextResponse.json({ error: 'Networking is currently unavailable.' }, { status: 404 });
+
   const body = await req.json().catch(() => null);
   const parsed = SendSchema.safeParse(body);
   if (!parsed.success) {
@@ -253,6 +258,8 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
 // PATCH — mark all messages in a thread as read
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+  if (!(await isPlatformFeatureEnabled('networking'))) return NextResponse.json({ error: 'Networking is currently unavailable.' }, { status: 404 });
+
   const body = await req.json().catch(() => null);
   const parsed = ReadSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: 'Invalid request' }, { status: 400 });

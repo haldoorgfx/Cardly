@@ -6,6 +6,7 @@ import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { PageShell } from '@/components/dash';
 import AbstractReviewClient from '@/components/abstracts/AbstractReviewClient';
 import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 interface Props { params: Promise<{ id: string }> }
 
@@ -17,6 +18,7 @@ export default async function AbstractsPage({ params }: Props) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
+  if (!(await isPlatformFeatureEnabled('speakers'))) redirect(`/events/${_ev.slug}`);
 
   const admin = createAdminClient();
   const { data: event } = await admin

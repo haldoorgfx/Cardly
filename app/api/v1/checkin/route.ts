@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticateApiKey } from '@/lib/api-keys/auth';
 import { createAdminClient } from '@/lib/supabase/server';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 // POST /api/v1/checkin — check an attendee in by QR token or registration id.
 // Body: { qr_code_token?: string, registration_id?: string }
 export async function POST(req: NextRequest) {
+  if (!(await isPlatformFeatureEnabled('developer_api'))) return NextResponse.json({ error: 'Developer API is currently unavailable.' }, { status: 404 });
+
   const auth = await authenticateApiKey(req, 'checkin:write');
   if (!auth.ok) return auth.response;
 

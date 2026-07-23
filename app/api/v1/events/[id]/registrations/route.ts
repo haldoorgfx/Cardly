@@ -3,10 +3,13 @@ import { authenticateApiKey } from '@/lib/api-keys/auth';
 import { createAdminClient } from '@/lib/supabase/server';
 import type { RegistrationStatus } from '@/types/database';
 import { serializeRegistration } from '@/lib/api/serializers';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 // GET /api/v1/events/{id}/registrations — paginated attendee list.
 // Query: ?status=confirmed&limit=50&offset=0
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+  if (!(await isPlatformFeatureEnabled('developer_api'))) return NextResponse.json({ error: 'Developer API is currently unavailable.' }, { status: 404 });
+
   const auth = await authenticateApiKey(req, 'registrations:read');
   if (!auth.ok) return auth.response;
 

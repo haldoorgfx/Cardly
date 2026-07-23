@@ -12,6 +12,7 @@ import type { EventDayLite, DayEntitlementLite, DayInput } from '@/components/ev
 import type { EntitlementType } from '@/components/tickets/EntitlementIcon';
 import { PageShell } from '@/components/dash';
 import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 interface Props { params: Promise<{ id: string }> }
 
@@ -86,6 +87,7 @@ export default async function EventDaysPage({ params }: Props) {
 
   const { data: event } = await db.from('events').select('id, name, slug').eq('id', id).in('user_id', await manageableOwnerIds(user.id)).single();
   if (!event) redirect('/dashboard');
+  if (!(await isPlatformFeatureEnabled('multi_day'))) redirect(`/events/${event.slug}`);
 
   const [{ data: dayRows }, { data: entRows }] = await Promise.all([
     db.from('event_days').select('id, day_index, date, checkin_enabled, capacity').eq('event_id', id).order('day_index', { ascending: true }),

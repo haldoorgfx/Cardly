@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import { PromotedListingClient } from '@/components/events/PromotedListingClient';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 export async function generateMetadata() {
   return { title: 'Promote Event' };
@@ -28,6 +29,7 @@ export default async function PromotePage({ params }: { params: Promise<{ id: st
     .single();
 
   if (!event) redirect('/dashboard');
+  if (!(await isPlatformFeatureEnabled('promote'))) redirect(`/events/${_ev.slug}`);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: campaign } = await (admin as any)

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient, createClient } from '@/lib/supabase/server';
 import { manageableEvent } from '@/lib/rbac/canManageEvent';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 interface Params { params: Promise<{ id: string }> }
 
@@ -24,6 +25,8 @@ const MAX_BUDGET = 200;
 const INTAKE_PAUSED = true;
 
 export async function POST(req: NextRequest, { params }: Params) {
+  if (!(await isPlatformFeatureEnabled('promote'))) return NextResponse.json({ error: 'Promote is currently unavailable.' }, { status: 404 });
+
   const { id } = await params;
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();

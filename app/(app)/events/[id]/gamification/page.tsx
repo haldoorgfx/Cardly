@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { PageShell, PageHeader } from '@/components/dash';
 import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 interface Props { params: Promise<{ id: string }> }
 
@@ -41,6 +42,7 @@ export default async function GamificationPage({ params }: Props) {
   // the attendees kept scoring points on it.
   const ownerPlan = await getEventOwnerPlan(id);
   if (!ownerPlan || PLAN_RANK[ownerPlan] < PLAN_RANK.pro) redirect(`/events/${_ev.slug}`);
+  if (!(await isPlatformFeatureEnabled('gamification'))) redirect(`/events/${_ev.slug}`);
 
   // Aggregate points per registration — mirrors app/api/events/[id]/leaderboard/route.ts
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

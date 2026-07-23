@@ -4,6 +4,7 @@ import { createAdminClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import SpeakerProfileClient from '@/components/events/SpeakerProfileClient';
 import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 interface Props { params: { slug: string; speakerId: string } }
 
@@ -13,6 +14,7 @@ export default async function SpeakerProfilePage({ params }: Props) {
   const resolved = await resolvePublicSlug(params.slug);
   if (!resolved) notFound();
   const { event } = resolved;
+  if (!(await isPlatformFeatureEnabled('speakers'))) notFound();
 
   // speakerId may be a UUID (old links) or a slug (new links)
   const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
