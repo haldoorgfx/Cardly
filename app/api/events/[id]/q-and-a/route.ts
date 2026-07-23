@@ -122,19 +122,39 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   // A cap rather than a one-off award: asking several good questions is exactly
   // the behaviour the feature exists to encourage, so the fix should not stop
   // paying out at the first one.
+  //
+  // award_qa_points (migration 121) does the count-check and insert inside one
+  // advisory-locked transaction, so concurrent submissions from the same
+  // attendee can no longer each read the same stale count and all pass the
+  // cap simultaneously. Until that migration is applied by hand the RPC does
+  // not exist — fall back to the previous read-then-write path so this
+  // endpoint keeps working either way (same pattern as the waitlist route's
+  // invite_waitlist_entry fallback).
   if (parsed.data.registration_id) {
-    const { count: scored } = await admin
-      .from('leaderboard_points')
-      .select('id', { count: 'exact', head: true })
-      .eq('event_id', params.id)
-      .eq('registration_id', parsed.data.registration_id)
-      .eq('action_type', 'question_asked');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error: rpcErr } = await (admin as any).rpc('award_qa_points', {
+      p_event_id: params.id,
+      p_registration_id: parsed.data.registration_id,
+      p_question_id: data.id,
+      p_points: 5,
+      p_cap: SCORED_QUESTIONS_PER_EVENT,
+    });
 
-    if ((scored ?? 0) < SCORED_QUESTIONS_PER_EVENT) {
-      await admin.from('leaderboard_points').insert({
-        event_id: params.id, registration_id: parsed.data.registration_id,
-        action_type: 'question_asked', points: 5, ref_id: data.id,
-      });
+    if (rpcErr) {
+      // Fallback: pre-121 behaviour (read-then-write, racy but functional).
+      const { count: scored } = await admin
+        .from('leaderboard_points')
+        .select('id', { count: 'exact', head: true })
+        .eq('event_id', params.id)
+        .eq('registration_id', parsed.data.registration_id)
+        .eq('action_type', 'question_asked');
+
+      if ((scored ?? 0) < SCORED_QUESTIONS_PER_EVENT) {
+        await admin.from('leaderboard_points').insert({
+          event_id: params.id, registration_id: parsed.data.registration_id,
+          action_type: 'question_asked', points: 5, ref_id: data.id,
+        });
+      }
     }
   }
 

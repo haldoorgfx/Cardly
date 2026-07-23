@@ -64,6 +64,25 @@ right default for every row except 116.
 | 118 | `sync_profile_email_on_change` | Trigger + backfill so `profiles.email` follows `auth.users.email` | No |
 | 119 | `networking_public_all_policy_removal` | Drops migration 021's `public_all` on the DM tables | Partially — see below |
 | 120 | `registrations_hot_indexes` | Three ordering indexes on `registrations` (event+date, date, paid) | No — indexes aren't visible over REST. Purely additive, zero risk to apply; `CREATE INDEX` locks writes, so run during low traffic or add `CONCURRENTLY` if applying while an event is live. |
+| **121** | `qa_points_cap_race_guard` | `award_qa_points()` RPC — closes a Q&A leaderboard-points race (see below) | Yes — same PGRST202 test as 107 |
+
+---
+
+### 121 — Q&A leaderboard points cap was racy, not just off-by-one
+
+`app/api/events/[id]/q-and-a/route.ts` caps leaderboard points at 5 scored
+questions per attendee by reading a count, then inserting if under the cap.
+Concurrent requests (a script firing several at once, not just a double-click)
+can each read the same stale count before any insert lands, so the real cap was
+"5 plus however many requests you fire simultaneously" — on a leaderboard the
+route's own comment says gets projected on a screen at the venue.
+
+`award_qa_points()` moves the count-check and insert inside one
+`pg_advisory_xact_lock`-guarded transaction (same idiom as 097 and 107), so
+concurrent calls for the same attendee+event serialize and the race closes.
+The API route already ships with a fallback to the old read-then-write
+behaviour if this RPC isn't found, so applying 121 is safe at any time and not
+applying it yet doesn't break anything — it just leaves the narrow race open.
 
 ---
 
