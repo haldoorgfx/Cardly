@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Layers, ToggleLeft, ToggleRight } from 'lucide-react';
-import { PLATFORM_FEATURE_GROUPS, type PlatformFeatureFlagRow, type PlatformFeatureKey } from '@/lib/features/platform';
+import { PLATFORM_FEATURE_GROUPS, type PlatformFeatureFlagRow, type PlatformFeatureKey } from '@/lib/features/platformFeatureMeta';
 
 interface Props {
   initialFlags: PlatformFeatureFlagRow[];

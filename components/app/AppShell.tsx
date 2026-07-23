@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { identify } from '@/components/shared/PostHogProvider';
 import { createClient } from '@/lib/supabase/client';
 import { PLANS } from '@/lib/billing/plans';
-import type { PlatformFeatureKey } from '@/lib/features/platform';
+import type { PlatformFeatureKey } from '@/lib/features/platformFeatureMeta';
 import {
   LayoutGrid, TrendingUp, Settings2, Users, LogOut, Menu, Search, Plus, ChevronRight, CreditCard,
   BarChart2, FileText, Eye, X, ArrowLeft, ShieldCheck,
