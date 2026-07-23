@@ -4,6 +4,8 @@ import { createAdminClient } from '@/lib/supabase/server';
 import { ExhibitorShell } from '@/components/exhibitor/ExhibitorShell';
 import { DirectoryPreviewTab } from '@/components/exhibitor/DirectoryPreviewTab';
 import { requireSponsorWorkspace } from '@/lib/rbac/sponsorWorkspace';
+import { redirect } from 'next/navigation';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 export const metadata = { title: 'Directory preview' };
 
@@ -14,6 +16,7 @@ export default async function SponsorPreviewPage({
 }) {
   const { sponsorId } = await params;
   const { sponsor, event } = await requireSponsorWorkspace(sponsorId, `/sponsoring/${sponsorId}/preview`);
+  if (!(await isPlatformFeatureEnabled('exhibitors'))) redirect(`/sponsoring/${sponsorId}`);
 
   // Products power both the preview list and the exhibitor-vs-sponsor mode.
   // Missing table (migration 060 not applied) → clean empty state, never a 500.

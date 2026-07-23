@@ -4,6 +4,8 @@ import { createAdminClient } from '@/lib/supabase/server';
 import { ExhibitorShell } from '@/components/exhibitor/ExhibitorShell';
 import { OverviewTab } from '@/components/exhibitor/OverviewTab';
 import { requireSponsorWorkspace } from '@/lib/rbac/sponsorWorkspace';
+import { notFound } from 'next/navigation';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 export const metadata = { title: 'Sponsor workspace' };
 
@@ -14,6 +16,9 @@ export default async function SponsorWorkspacePage({
 }) {
   const { sponsorId } = await params;
   const { sponsor, event } = await requireSponsorWorkspace(sponsorId, `/sponsoring/${sponsorId}`);
+  // notFound(), not redirect() -- every other tab in this workspace redirects
+  // HERE when disabled, so this page redirecting to itself would loop.
+  if (!(await isPlatformFeatureEnabled('exhibitors'))) notFound();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = createAdminClient() as any;
