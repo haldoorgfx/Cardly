@@ -29,6 +29,32 @@ export async function POST(req: NextRequest) {
     case 'payment_intent.succeeded': {
       const pi = event.data.object;
       const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? '';
+
+      // Amount check — confirm the charged amount/currency matches what we
+      // expected before confirming the ticket. `amount` is server-set at
+      // PaymentIntent creation so this isn't reachable by a client today, but
+      // Flutterwave/WaafiPay both guard this already and this path shouldn't
+      // be the odd one out if a future discount/promo path ever lets the
+      // charged amount drift from the stored expectation.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: expected } = await (admin as any)
+        .from('registrations')
+        .select('amount_paid, currency')
+        .eq('stripe_payment_intent_id', pi.id)
+        .eq('payment_status', 'pending')
+        .maybeSingle();
+      if (expected && (expected.amount_paid ?? 0) > 0) {
+        const chargedMajor = typeof pi.amount === 'number' ? fromStripeMinorUnits(pi.amount, pi.currency) : null;
+        if (chargedMajor == null || chargedMajor < (expected.amount_paid as number) - 1) {
+          console.error(`[Stripe webhook] amount mismatch for ${pi.id}: got ${chargedMajor}, expected ${expected.amount_paid}`);
+          return NextResponse.json({ received: true });
+        }
+        if (expected.currency && pi.currency && pi.currency.toUpperCase() !== expected.currency) {
+          console.error(`[Stripe webhook] currency mismatch for ${pi.id}: got ${pi.currency}, expected ${expected.currency}`);
+          return NextResponse.json({ received: true });
+        }
+      }
+
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data: updated, error } = await (admin as any)
         .from('registrations')

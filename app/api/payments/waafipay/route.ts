@@ -85,6 +85,30 @@ export async function POST(req: NextRequest) {
     ? await admin.from('ticket_types').select('name, price').eq('id', reg.ticket_type_id).single()
     : { data: null };
 
+  // Claim the registration before charging. WaafiPay debits a real wallet
+  // synchronously, and the pending→paid flip only happens AFTER that charge
+  // returns — so two concurrent requests for the same still-pending
+  // registration (a double-tapped Pay button, a client retry after a
+  // dropped response) both used to pass the payment_status==='paid' check
+  // above and both call chargeWaafiPay, debiting the attendee twice for one
+  // ticket. flutterwave_tx_ref is reused as the claim marker (same column
+  // WaafiPay's own transaction id later overwrites it with) since it's
+  // otherwise null for the whole pending lifetime of a registration.
+  const claimMarker = `claiming:${crypto.randomUUID()}`;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: claimed } = await (admin as any)
+    .from('registrations')
+    .update({ flutterwave_tx_ref: claimMarker, updated_at: new Date().toISOString() })
+    .eq('id', registration_id)
+    .eq('payment_status', 'pending')
+    .is('flutterwave_tx_ref', null)
+    .select('id')
+    .maybeSingle();
+
+  if (!claimed) {
+    return NextResponse.json({ error: 'PAYMENT_IN_PROGRESS', detail: 'A payment for this registration is already being processed.' }, { status: 409 });
+  }
+
   // Charge via WaafiPay — wrap in try/catch so missing credentials return JSON, not a crash
   let result: WaafiPayResult;
   try {
@@ -96,8 +120,17 @@ export async function POST(req: NextRequest) {
       description:  `${ticket?.name ?? 'Ticket'} — ${eventPage?.title ?? 'Event'}`,
     });
   } catch (err) {
+    // Release the claim so a genuine retry (network blip, expired credentials
+    // fixed, etc.) isn't locked out forever by this failed attempt.
+    await admin.from('registrations').update({ flutterwave_tx_ref: null }).eq('id', registration_id).eq('flutterwave_tx_ref', claimMarker);
     const detail = err instanceof Error ? err.message : 'WaafiPay service unavailable';
     return NextResponse.json({ error: 'PAYMENT_SERVICE_ERROR', detail }, { status: 503 });
+  }
+
+  if (!result.success) {
+    // Declined, not paid — release the claim so the attendee can retry (a
+    // different number, more balance, etc.) instead of being stuck forever.
+    await admin.from('registrations').update({ flutterwave_tx_ref: null }).eq('id', registration_id).eq('flutterwave_tx_ref', claimMarker);
   }
 
   if (result.success) {
