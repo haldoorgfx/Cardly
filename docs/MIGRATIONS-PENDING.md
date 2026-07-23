@@ -65,6 +65,27 @@ right default for every row except 116.
 | 119 | `networking_public_all_policy_removal` | Drops migration 021's `public_all` on the DM tables | Partially — see below |
 | 120 | `registrations_hot_indexes` | Three ordering indexes on `registrations` (event+date, date, paid) | No — indexes aren't visible over REST. Purely additive, zero risk to apply; `CREATE INDEX` locks writes, so run during low traffic or add `CONCURRENTLY` if applying while an event is live. |
 | **121** | `qa_points_cap_race_guard` | `award_qa_points()` RPC — closes a Q&A leaderboard-points race (see below) | Yes — same PGRST202 test as 107 |
+| **122** | `platform_feature_flags` | Seeds 19 `platform:*` rows into `feature_flags` (migration 009) — super-admin kill-switches, see below | Yes — `GET /rest/v1/feature_flags?flag=eq.platform:qa` should return one row once applied |
+
+---
+
+### 122 — super-admin platform-wide feature kill-switches
+
+New admin page **`/admin/platform-features`** (super_admin only) lists 19 optional
+features (Q&A, Polls, Networking, Sponsors, Exhibitors, Developer API, etc.) each
+with a toggle. Turning one off blocks it platform-wide — every event, regardless
+of what any organizer has configured — by 404ing its API routes and
+redirecting/404ing its pages.
+
+**Safe to apply any time, in any order relative to code deploy.** All 19 rows seed
+`enabled = true`, and `lib/features/platform.ts::isPlatformFeatureEnabled()` treats
+a *missing* row as enabled too — so this migration can never silently turn
+anything off by being (or not being) applied. It only starts doing anything once
+someone actually flips a toggle in the new admin page.
+
+Reuses the existing `feature_flags` table from migration 009 (a `platform:` key
+prefix keeps these separate from the 5 existing dev-experiment flags) rather than
+adding a parallel flags system.
 
 ---
 
