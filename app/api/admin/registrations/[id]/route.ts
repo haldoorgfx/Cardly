@@ -3,6 +3,7 @@ import { getAuthorizedUser } from '@/lib/auth/guards';
 import { EVENT_EDIT_ALL } from '@/lib/auth/permissions';
 import { createAdminClient } from '@/lib/supabase/server';
 import { logAudit } from '@/lib/audit/log';
+import { refundStripeTicketIfNeeded } from '@/lib/payments/refund';
 import type { RegistrationStatus } from '@/types/database';
 
 const VALID_STATUSES: RegistrationStatus[] = [
@@ -35,11 +36,22 @@ export async function PATCH(
 
   const { data: before } = await adminClient
     .from('registrations')
-    .select('id, event_id, attendee_email, status, ticket_type_id')
+    .select('id, event_id, attendee_email, status, ticket_type_id, stripe_payment_intent_id, payment_status')
     .eq('id', params.id)
     .single();
 
   if (!before) return NextResponse.json({ error: 'Registration not found' }, { status: 404 });
+
+  // Refund the attendee's card BEFORE writing 'refunded'. Flutterwave/WaafiPay
+  // registrations have no reversal API yet and fall through untouched
+  // (refundStripeTicketIfNeeded no-ops for them), but a Stripe registration
+  // whose refund call fails must not have the DB record it as refunded anyway.
+  if (status === 'refunded') {
+    const refund = await refundStripeTicketIfNeeded(before);
+    if (!refund.ok) {
+      return NextResponse.json({ error: `Refund failed: ${refund.error}` }, { status: 502 });
+    }
+  }
 
   // Keep checked_in_at coherent when moving in/out of the checked_in state.
   const patch: Record<string, unknown> = {

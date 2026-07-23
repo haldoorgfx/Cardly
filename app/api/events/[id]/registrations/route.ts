@@ -3,6 +3,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { createNotification } from '@/lib/notifications';
 import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
 import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
+import { refundStripeTicketIfNeeded } from '@/lib/payments/refund';
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   const supabase = createClient();
@@ -196,9 +197,20 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     // was holding — but only if it had actually reached confirmed/checked_in
     // (a still-pending registration never incremented quantity_sold).
     if (status === 'cancelled' || status === 'refunded') {
-      const { data: prior } = await admin.from('registrations').select('status, ticket_type_id').eq('id', registrationId).eq('event_id', params.id).maybeSingle();
+      const { data: prior } = await admin.from('registrations').select('status, ticket_type_id, stripe_payment_intent_id, payment_status').eq('id', registrationId).eq('event_id', params.id).maybeSingle();
       if (prior && (prior.status === 'confirmed' || prior.status === 'checked_in')) {
         priorForRelease = prior;
+      }
+
+      // Refund the attendee's card BEFORE writing 'refunded' — a Flutterwave
+      // or WaafiPay registration has no reversal API yet and falls through
+      // untouched (attempted: false), but a Stripe registration that fails to
+      // refund must not have the DB claim it was refunded anyway.
+      if (status === 'refunded' && prior) {
+        const refund = await refundStripeTicketIfNeeded(prior);
+        if (!refund.ok) {
+          return NextResponse.json({ error: `Refund failed: ${refund.error}` }, { status: 502 });
+        }
       }
     }
 
