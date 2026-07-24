@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Download, ChevronDown, FileText, ExternalLink } from 'lucide-react';
+import { Download, ChevronDown, FileText, ExternalLink, Settings } from 'lucide-react';
+import { Modal } from '@/components/ui/Modal';
 
 type AbstractStatus = 'pending' | 'accept' | 'reject' | 'revision' | 'waitlist';
 
@@ -21,7 +22,23 @@ interface Abstract {
 
 interface Session { id: string; title: string }
 
+interface Cfp {
+  id: string;
+  is_open: boolean;
+  deadline_at: string | null;
+  max_words: number;
+  categories: string[];
+}
+
 type FilterTab = 'all' | AbstractStatus;
+
+function toDateInputValue(iso: string | null): string {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return '';
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
 
 const STATUS_LABEL: Record<AbstractStatus, string> = {
   pending: 'Pending', accept: 'Accepted', reject: 'Rejected',
@@ -54,11 +71,13 @@ export default function AbstractReviewClient({
   eventSlug,
   initialAbstracts,
   sessions,
+  initialCfp,
 }: {
   eventId: string;
   eventSlug: string;
   initialAbstracts: Abstract[];
   sessions: Session[];
+  initialCfp: Cfp | null;
 }) {
   const [abstracts, setAbstracts] = useState(initialAbstracts);
   const [activeId, setActiveId] = useState(initialAbstracts[0]?.id ?? null);
@@ -68,6 +87,131 @@ export default function AbstractReviewClient({
   const [assignedSession, setAssignedSession] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
+
+  // ── CFP settings (open/close, deadline, word limit, categories) ───────────
+  // This is the on/off switch for the public /e/{slug}/cfp page. Before this
+  // panel existed there was no way to create the call_for_papers row at all —
+  // see app/api/events/[id]/cfp/route.ts.
+  const [cfp, setCfp] = useState<Cfp | null>(initialCfp);
+  const [cfpOpen, setCfpOpen] = useState(false);
+  const [cfpForm, setCfpForm] = useState({
+    is_open: initialCfp?.is_open ?? true,
+    deadline_at: toDateInputValue(initialCfp?.deadline_at ?? null),
+    max_words: String(initialCfp?.max_words ?? 400),
+    categories: (initialCfp?.categories ?? []).join(', '),
+  });
+  const [cfpSaving, setCfpSaving] = useState(false);
+  const [cfpError, setCfpError] = useState<string | null>(null);
+
+  function openCfpSettings() {
+    setCfpForm({
+      is_open: cfp?.is_open ?? true,
+      deadline_at: toDateInputValue(cfp?.deadline_at ?? null),
+      max_words: String(cfp?.max_words ?? 400),
+      categories: (cfp?.categories ?? []).join(', '),
+    });
+    setCfpError(null);
+    setCfpOpen(true);
+  }
+
+  async function saveCfpSettings() {
+    setCfpSaving(true);
+    setCfpError(null);
+    try {
+      const maxWords = parseInt(cfpForm.max_words, 10);
+      const res = await fetch(`/api/events/${eventId}/cfp`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          is_open: cfpForm.is_open,
+          deadline_at: cfpForm.deadline_at ? new Date(`${cfpForm.deadline_at}T23:59:59`).toISOString() : null,
+          max_words: Number.isFinite(maxWords) && maxWords > 0 ? maxWords : 400,
+          categories: cfpForm.categories.split(',').map(c => c.trim()).filter(Boolean),
+        }),
+      });
+      const data = await res.json().catch(() => null) as { cfp?: Cfp; error?: string } | null;
+      if (!res.ok || !data?.cfp) {
+        setCfpError(data?.error ? JSON.stringify(data.error) : 'Could not save these settings. Please try again.');
+        return;
+      }
+      setCfp(data.cfp);
+      setCfpOpen(false);
+    } catch {
+      setCfpError('Could not save these settings — check your connection and try again.');
+    } finally {
+      setCfpSaving(false);
+    }
+  }
+
+  const cfpSettingsModal = (
+    <Modal
+      open={cfpOpen}
+      onClose={() => setCfpOpen(false)}
+      title="Call for papers settings"
+      subtitle={`Controls the public form at /e/${eventSlug}/cfp`}
+      footer={
+        <>
+          <button onClick={() => setCfpOpen(false)} className="h-10 px-4 rounded-lg text-[13.5px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#65736B' }}>Cancel</button>
+          <button onClick={saveCfpSettings} disabled={cfpSaving} className="h-10 px-5 rounded-lg text-[13.5px] font-semibold text-white disabled:opacity-60" style={{ background: '#1F4D3A' }}>
+            {cfpSaving ? 'Saving…' : 'Save'}
+          </button>
+        </>
+      }
+    >
+      <div className="space-y-4">
+        {cfpError && (
+          <div className="px-3 py-2.5 rounded-lg text-[13px]" style={{ background: 'rgba(184,66,60,0.07)', border: '1px solid rgba(184,66,60,0.2)', color: '#B8423C' }}>
+            {cfpError}
+          </div>
+        )}
+
+        <label className="flex items-center gap-2 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={cfpForm.is_open}
+            onChange={e => setCfpForm(f => ({ ...f, is_open: e.target.checked }))}
+            className="rounded"
+          />
+          <span className="text-sm" style={{ color: '#0F1F18' }}>Accepting submissions</span>
+        </label>
+
+        <div className="space-y-1">
+          <label className="text-xs font-medium" style={{ color: '#65736B' }}>Deadline (optional)</label>
+          <input
+            type="date"
+            value={cfpForm.deadline_at}
+            onChange={e => setCfpForm(f => ({ ...f, deadline_at: e.target.value }))}
+            className="w-full border rounded-lg px-3 py-2 text-sm"
+            style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}
+          />
+        </div>
+
+        <div className="space-y-1">
+          <label className="text-xs font-medium" style={{ color: '#65736B' }}>Max abstract length (words)</label>
+          <input
+            type="number"
+            min={50}
+            value={cfpForm.max_words}
+            onChange={e => setCfpForm(f => ({ ...f, max_words: e.target.value }))}
+            className="w-full border rounded-lg px-3 py-2 text-sm"
+            style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}
+          />
+        </div>
+
+        <div className="space-y-1">
+          <label className="text-xs font-medium" style={{ color: '#65736B' }}>Categories (comma-separated — leave blank for the default list)</label>
+          <textarea
+            value={cfpForm.categories}
+            onChange={e => setCfpForm(f => ({ ...f, categories: e.target.value }))}
+            placeholder="Engineering, Design, Business…"
+            rows={2}
+            className="w-full border rounded-lg px-3 py-2 text-sm resize-none"
+            style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}
+          />
+        </div>
+      </div>
+    </Modal>
+  );
 
   const filtered = abstracts.filter(a => tab === 'all' || a.status === tab);
   const active = abstracts.find(a => a.id === activeId);
@@ -132,9 +276,16 @@ export default function AbstractReviewClient({
   // beside "Select an abstract to review." — two inert sentences and a lot of
   // furniture for a screen with nothing in it, none of which said why it was
   // empty or what to do about it.
+  //
+  // There was also no `call_for_papers` row to point at: the "Open the
+  // submission page" link used to send the organizer to a public page that
+  // always answered "submissions are not currently open", with no button
+  // anywhere to change that. `cfp` is null until Settings is used once.
   if (abstracts.length === 0) {
+    const isOpen = cfp?.is_open ?? false;
     return (
       <div className="px-4 sm:px-6 lg:px-10 py-16">
+        {cfpSettingsModal}
         <div className="max-w-[440px] mx-auto text-center">
           <div
             className="w-12 h-12 rounded-2xl mx-auto mb-4 flex items-center justify-center"
@@ -146,22 +297,32 @@ export default function AbstractReviewClient({
             No abstracts submitted yet
           </h2>
           <p className="text-[14px] leading-relaxed mb-6" style={{ color: '#65736B' }}>
-            Submissions land here as speakers send them in. Share your call-for-papers
-            page to start collecting them.
+            {isOpen
+              ? 'Submissions land here as speakers send them in. Share your call-for-papers page to start collecting them.'
+              : 'Your call for papers is not open yet — speakers won’t see a submission form until you turn it on.'}
           </p>
-          {/* The submission form is a PUBLIC page — there is no organizer-side
-              CFP builder to send them to, so this opens the real thing they
-              share with speakers rather than inventing a settings screen. */}
-          <a
-            href={`/e/${eventSlug}/cfp`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 min-h-[44px] px-5 rounded-xl text-[14px] font-semibold"
-            style={{ background: '#1F4D3A', color: '#FFFFFF', textDecoration: 'none' }}
-          >
-            Open the submission page
-            <ExternalLink size={14} strokeWidth={2} />
-          </a>
+          <div className="flex items-center justify-center gap-3 flex-wrap">
+            <button
+              onClick={openCfpSettings}
+              className="inline-flex items-center gap-1.5 min-h-[44px] px-5 rounded-xl text-[14px] font-semibold"
+              style={{ background: isOpen ? '#E8EFEB' : '#1F4D3A', color: isOpen ? '#1F4D3A' : '#FFFFFF' }}
+            >
+              <Settings size={14} strokeWidth={2} />
+              {isOpen ? 'CFP settings' : 'Open call for papers'}
+            </button>
+            {isOpen && (
+              <a
+                href={`/e/${eventSlug}/cfp`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 min-h-[44px] px-5 rounded-xl text-[14px] font-semibold"
+                style={{ border: '1px solid #E5E0D4', color: '#1F4D3A', textDecoration: 'none' }}
+              >
+                Open the submission page
+                <ExternalLink size={14} strokeWidth={2} />
+              </a>
+            )}
+          </div>
         </div>
       </div>
     );
@@ -169,19 +330,33 @@ export default function AbstractReviewClient({
 
   return (
     <div style={{ background: '#FAF6EE' }}>
+      {cfpSettingsModal}
       {/* Stats + tabs header */}
       <div className="px-4 sm:px-6 lg:px-10 pt-7 pb-0">
-        <div className="flex flex-wrap gap-x-4 gap-y-1 mb-5">
-          {[
-            { label: 'submitted', value: counts.total },
-            { label: 'accepted', value: counts.accepted },
-            { label: 'rejected', value: counts.rejected },
-            { label: 'pending review', value: counts.pending },
-          ].map(s => (
-            <span key={s.label} className="text-[14px]" style={{ color: '#65736B' }}>
-              <b className="font-title font-bold text-[16px]" style={{ color: '#0F1F18' }}>{s.value}</b>{' '}{s.label}
-            </span>
-          ))}
+        <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1 mb-5">
+          <div className="flex flex-wrap gap-x-4 gap-y-1">
+            {[
+              { label: 'submitted', value: counts.total },
+              { label: 'accepted', value: counts.accepted },
+              { label: 'rejected', value: counts.rejected },
+              { label: 'pending review', value: counts.pending },
+            ].map(s => (
+              <span key={s.label} className="text-[14px]" style={{ color: '#65736B' }}>
+                <b className="font-title font-bold text-[16px]" style={{ color: '#0F1F18' }}>{s.value}</b>{' '}{s.label}
+              </span>
+            ))}
+          </div>
+          <button
+            onClick={openCfpSettings}
+            className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-[12.5px] font-medium shrink-0"
+            style={{
+              background: cfp?.is_open ? '#E8EFEB' : 'rgba(201,122,45,0.12)',
+              color: cfp?.is_open ? '#1F4D3A' : '#C97A2D',
+            }}
+          >
+            <Settings size={13} strokeWidth={2} />
+            {cfp?.is_open ? 'CFP open' : 'CFP closed'}
+          </button>
         </div>
 
         {/* The hairline lives on this wrapper and the -mb-px on the scroller,

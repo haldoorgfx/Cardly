@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Bookmark, BookmarkCheck } from 'lucide-react';
+import { Bookmark, BookmarkCheck, Download } from 'lucide-react';
 import type { Session, Speaker, Track } from '@/types/database';
 
 type SessionWithSpeakers = Omit<Session, 'session_speakers'> & {
@@ -265,6 +265,24 @@ export default function SessionDetailClient({ session, relatedSessions, registra
                   {session.registrations_count} / {session.capacity} seats
                   {isFull ? ' · full' : ''}
                 </p>
+              )}
+
+              {/* The speaker portal lets a speaker upload slides for their own
+                  session (app/api/sessions/[sessionId]/slides), and its button
+                  reads "Slides ✓" once one exists — but nothing on the
+                  attendee-facing page ever surfaced that file. A speaker could
+                  upload and see their own success state while every attendee
+                  who wanted the deck had no way to reach it. */}
+              {session.slides_url && (
+                <a
+                  href={session.slides_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 text-[13px] font-medium"
+                  style={{ color: '#1F4D3A' }}
+                >
+                  <Download size={13} /> Download slides
+                </a>
               )}
 
               <button

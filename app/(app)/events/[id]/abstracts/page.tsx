@@ -42,6 +42,16 @@ export default async function AbstractsPage({ params }: Props) {
     .eq('event_id', id)
     .order('submitted_at', { ascending: false });
 
+  // The call_for_papers row is what actually turns the public submission page
+  // on — see app/api/events/[id]/cfp/route.ts for why this used to not exist
+  // anywhere an organizer could reach it.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: cfp } = await (admin as any)
+    .from('call_for_papers')
+    .select('id, is_open, deadline_at, max_words, categories')
+    .eq('event_id', id)
+    .maybeSingle();
+
   return (
     <PageShell width="wide">
       <AbstractReviewClient
@@ -50,6 +60,7 @@ export default async function AbstractsPage({ params }: Props) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         initialAbstracts={(abstracts ?? []) as any}
         sessions={(sessions ?? []) as { id: string; title: string }[]}
+        initialCfp={cfp ?? null}
       />
     </PageShell>
   );

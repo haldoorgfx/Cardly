@@ -90,6 +90,7 @@ export interface Session {
   registrations_count: number;
   is_published: boolean;
   position: number;
+  slides_url?: string | null;
   created_at: string;
   // joined fields
   tracks?: Track | null;
@@ -1528,9 +1529,9 @@ export interface Database {
         Relationships: [];
       };
       sessions: {
-        Row: { id: string; event_id: string; track_id: string | null; title: string; description: string | null; session_type: string; starts_at: string; ends_at: string; room: string | null; capacity: number | null; registrations_count: number; is_published: boolean; position: number; created_at: string };
-        Insert: { id?: string; event_id: string; track_id?: string | null; title: string; description?: string | null; session_type?: string; starts_at: string; ends_at: string; room?: string | null; capacity?: number | null; registrations_count?: number; is_published?: boolean; position?: number; created_at?: string };
-        Update: { track_id?: string | null; title?: string; description?: string | null; session_type?: string; starts_at?: string; ends_at?: string; room?: string | null; capacity?: number | null; is_published?: boolean; position?: number };
+        Row: { id: string; event_id: string; track_id: string | null; title: string; description: string | null; session_type: string; starts_at: string; ends_at: string; room: string | null; capacity: number | null; registrations_count: number; is_published: boolean; position: number; slides_url: string | null; created_at: string };
+        Insert: { id?: string; event_id: string; track_id?: string | null; title: string; description?: string | null; session_type?: string; starts_at: string; ends_at: string; room?: string | null; capacity?: number | null; registrations_count?: number; is_published?: boolean; position?: number; slides_url?: string | null; created_at?: string };
+        Update: { track_id?: string | null; title?: string; description?: string | null; session_type?: string; starts_at?: string; ends_at?: string; room?: string | null; capacity?: number | null; is_published?: boolean; position?: number; slides_url?: string | null };
         Relationships: [];
       };
       session_speakers: {

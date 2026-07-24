@@ -53,6 +53,15 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
 
   const admin = createAdminClient();
 
+  // POST on this same route has always checked this; DELETE never did. With
+  // the admin client bypassing RLS, "is signed in" was the only gate — any
+  // account on the platform could delete any track (and blank out the
+  // track_id on every session using it) on any event, by passing an event id
+  // and a track id, both of which appear in ordinary organizer-facing URLs.
+  const { data: owned } = await admin
+    .from('events').select('id').eq('id', params.id).in('user_id', await manageableOwnerIds(user.id)).maybeSingle();
+  if (!owned) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+
   // Unlink sessions from this track before deleting (sessions remain, just untracked)
   await admin.from('sessions').update({ track_id: null }).eq('track_id', trackId).eq('event_id', params.id);
 
