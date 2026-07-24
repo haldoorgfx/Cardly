@@ -9,12 +9,12 @@ import type { Zone } from '@/types/database';
 // Zod schema for a single zone — lenient (passthrough) so unknown future fields survive.
 const ZoneSchema = z.object({
   id:     z.string(),
-  // NOTE: types the editor can create but this route still cannot draw are
-  // dropped by parseZones BELOW, silently. 'label' is handled now; 'shape' and
-  // 'image' still need render branches (see the dispatch loop) — until then a
-  // designer can place them, see them on the canvas, and they will be absent
-  // from the attendee's PNG.
-  type:   z.enum(['text', 'photo', 'custom', 'label']),
+  // Every zone type Card Studio can create must be listed here, or
+  // parseZones BELOW drops it silently — a designer places it, sees it on
+  // the canvas, saves, and it is simply absent from the attendee's PNG.
+  // 'shape' and 'image' were missing from this list (see buildShapeOp /
+  // buildImageOp below for the render branches that now draw them).
+  type:   z.enum(['text', 'photo', 'custom', 'label', 'shape', 'image']),
   x: z.number(), y: z.number(), w: z.number(), h: z.number(),
 }).passthrough();
 
@@ -398,6 +398,99 @@ async function buildPhotoOp(zone: Zone, photoBuffer: Buffer, canvasW: number, ca
   };
 }
 
+/** Validate a color string the same way buildTextOp does — reject anything
+ *  that isn't a plain hex color before it reaches raw SVG markup. */
+function safeHexColor(color: string | undefined, fallback: string): string {
+  return color && /^#[0-9a-fA-F]{3,8}$/.test(color) ? color : fallback;
+}
+
+/**
+ * Draws Card Studio's 'shape' zone type (rect / ellipse / triangle / line).
+ * Mirrors the SVG the canvas editor itself draws (ZoneEl's `isShape` branch)
+ * so the PNG matches what the designer saw. Was entirely missing before —
+ * see the ZoneSchema comment above.
+ */
+async function buildShapeOp(zone: Zone, canvasW: number, canvasH: number): Promise<Op> {
+  const w = Math.max(1, Math.round(zone.w));
+  const h = Math.max(1, Math.round(zone.h));
+  const fill = safeHexColor(zone.bgColor, '#1F4D3A');
+  const fillOp = Math.max(0, Math.min(100, zone.bgOpacity ?? 100)) / 100;
+  const strokeW = Math.max(0, zone.strokeWidth ?? 0);
+  const stroke = strokeW > 0 ? safeHexColor(zone.strokeColor, fill) : 'none';
+  const shapeType = zone.shapeType ?? 'rect';
+  // Overall zone opacity — the editor applies this to the whole zone element,
+  // on top of the shape's own fill opacity.
+  const overallOpacity = Math.max(0, Math.min(100, zone.opacity ?? 100)) / 100;
+
+  let shapeMarkup: string;
+  if (shapeType === 'ellipse') {
+    shapeMarkup = `<ellipse cx="${w / 2}" cy="${h / 2}" rx="${Math.max(1, w / 2 - strokeW / 2)}" ry="${Math.max(1, h / 2 - strokeW / 2)}" fill="${fill}" fill-opacity="${fillOp}" stroke="${stroke}" stroke-width="${strokeW}"/>`;
+  } else if (shapeType === 'triangle') {
+    shapeMarkup = `<polygon points="${w / 2},${strokeW / 2} ${w - strokeW / 2},${h - strokeW / 2} ${strokeW / 2},${h - strokeW / 2}" fill="${fill}" fill-opacity="${fillOp}" stroke="${stroke}" stroke-width="${strokeW}"/>`;
+  } else if (shapeType === 'line') {
+    shapeMarkup = `<line x1="0" y1="${h / 2}" x2="${w}" y2="${h / 2}" stroke="${fill}" stroke-width="${h}" stroke-opacity="${fillOp}"/>`;
+  } else {
+    shapeMarkup = `<rect x="${strokeW / 2}" y="${strokeW / 2}" width="${Math.max(1, w - strokeW)}" height="${Math.max(1, h - strokeW)}" fill="${fill}" fill-opacity="${fillOp}" stroke="${stroke}" stroke-width="${strokeW}"/>`;
+  }
+
+  const svg = `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg"><g opacity="${overallOpacity}">${shapeMarkup}</g></svg>`;
+  const buf = await sharp(Buffer.from(svg)).png().toBuffer();
+
+  return {
+    input: buf,
+    left: Math.max(0, Math.min(Math.round(zone.x), canvasW - w)),
+    top:  Math.max(0, Math.min(Math.round(zone.y), canvasH - h)),
+  };
+}
+
+/**
+ * Draws Card Studio's 'image' zone type (uploaded logos / brand assets placed
+ * directly on the canvas, distinct from an attendee 'photo' zone). Fetched
+ * through the same SSRF-guarded fetchBuffer() as the background image, since
+ * imageUrl is organizer-uploaded but still an untrusted URL string. Was
+ * entirely missing before — see the ZoneSchema comment above.
+ *
+ * Returns null (rather than throwing) on a bad/unreachable imageUrl, so one
+ * broken logo reference doesn't take down the whole card render.
+ */
+async function buildImageOp(zone: Zone, canvasW: number, canvasH: number): Promise<Op | null> {
+  if (!zone.imageUrl) return null;
+  const w = Math.max(1, Math.round(zone.w));
+  const h = Math.max(1, Math.round(zone.h));
+
+  let imgBuffer: Buffer;
+  try {
+    imgBuffer = await fetchBuffer(zone.imageUrl);
+  } catch (err) {
+    console.error('[render] image zone fetch failed, skipping zone:', err instanceof Error ? err.message : err);
+    return null;
+  }
+
+  const overallOpacity = Math.max(0, Math.min(100, zone.opacity ?? 100)) / 100;
+
+  // object-fit: contain, matching the editor's <img style="objectFit: contain">.
+  let imageBuf = await sharp(imgBuffer)
+    .rotate() // respect EXIF orientation, same as buildPhotoOp
+    .resize(w, h, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+    .ensureAlpha()
+    .png()
+    .toBuffer();
+
+  if (overallOpacity < 1) {
+    const alphaMask = `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg"><rect width="100%" height="100%" fill="#fff" opacity="${overallOpacity}"/></svg>`;
+    imageBuf = await sharp(imageBuf)
+      .composite([{ input: Buffer.from(alphaMask), blend: 'dest-in' }])
+      .png()
+      .toBuffer();
+  }
+
+  return {
+    input: imageBuf,
+    left: Math.max(0, Math.min(Math.round(zone.x), canvasW - w)),
+    top:  Math.max(0, Math.min(Math.round(zone.y), canvasH - h)),
+  };
+}
+
 async function buildWatermarkOp(canvasW: number, canvasH: number): Promise<Op> {
   ensureFonts();
   const fontfile = path.join(TMP_FONTS, 'inter-500.ttf');
@@ -668,6 +761,11 @@ export async function POST(req: NextRequest) {
         if (photoBuf) {
           ops.push(await buildPhotoOp(zone, photoBuf, canvasW, canvasH));
         }
+      } else if (zone.type === 'shape') {
+        ops.push(await buildShapeOp(zone, canvasW, canvasH));
+      } else if (zone.type === 'image') {
+        const imageOp = await buildImageOp(zone, canvasW, canvasH);
+        if (imageOp) ops.push(imageOp);
       }
     }
 

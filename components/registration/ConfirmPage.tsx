@@ -108,6 +108,16 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
   const [generatingCard, setGeneratingCard] = useState(false);
   const [cardError, setCardError] = useState('');
 
+  // Idempotency key for /api/render — starts pinned to the registration id (so
+  // a dropped-connection retry of the FIRST generation can't create a second
+  // card/count twice against quota), but must be rotated for any subsequent,
+  // deliberate re-generation (the "Edit" button below), or every edit after the
+  // first would hit the same idempotency_key row in generated_cards and always
+  // get back 409 DUPLICATE_SUBMISSION — permanently breaking "Edit" after one
+  // successful card. AttendeeFlow.tsx (app/c/[slug]) already does this correctly
+  // (see its onEdit handlers); this brings the confirm-page flow in line.
+  const idempotencyKeyRef = useRef<string>(registration.id);
+
   const handlePhotoSelect = useCallback((zone: Zone, file: File, srcUrl: string) => {
     setCropTarget({ zone, srcUrl, file });
   }, []);
@@ -138,7 +148,7 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
       const fd = new FormData();
       fd.append('variantId', variant.id);
       fd.append('fields', JSON.stringify(enriched));
-      fd.append('idempotencyKey', registration.id); // valid UUID — safe for idempotency_key column
+      fd.append('idempotencyKey', idempotencyKeyRef.current);
       fd.append('registrationId', registration.id);
       for (const [zoneId, file] of Object.entries(photoFiles)) {
         fd.append(`photo_${zoneId}`, file);
@@ -169,7 +179,14 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
         setPhase('done');
       } else {
         const body = await res.json().catch(() => ({}));
-        throw new Error(body?.detail ?? body?.error ?? `Render failed (${res.status})`);
+        // Map machine error codes to human copy — otherwise raw codes like
+        // "DUPLICATE_SUBMISSION" or "CARD_LIMIT_REACHED" were shown as-is.
+        const errorMap: Record<string, string> = {
+          DUPLICATE_SUBMISSION: 'Your card is already being generated. Please wait a moment and try again.',
+          CARD_LIMIT_REACHED: 'This event has reached its card limit for the month. Please contact the organiser.',
+          REGISTRATION_REQUIRED: 'We could not verify your registration. Please refresh the page and try again.',
+        };
+        throw new Error(errorMap[body?.error] ?? body?.detail ?? body?.error ?? `Render failed (${res.status})`);
       }
     } catch (err) {
       setCardError(err instanceof Error ? err.message : 'Card generation failed');
@@ -661,7 +678,12 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
                   Download card
                 </button>
                 <button
-                  onClick={() => setPhase('card')}
+                  onClick={() => {
+                    // Fresh key so the resubmit isn't rejected as a duplicate
+                    // of the card that's already showing — see idempotencyKeyRef above.
+                    idempotencyKeyRef.current = `${registration.id}:${crypto.randomUUID()}`;
+                    setPhase('card');
+                  }}
                   className="flex items-center justify-center gap-1.5 h-12 px-6 rounded-xl font-medium text-[14px] transition"
                   style={{ background: 'white', border: '1px solid #E5E0D4', color: '#3A4A42' }}
                   onMouseEnter={e => { e.currentTarget.style.borderColor = '#1F4D3A'; e.currentTarget.style.color = '#1F4D3A'; }}
