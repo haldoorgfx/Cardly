@@ -1,14 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createAdminClient } from '@/lib/supabase/server';
 
-// ─── Flag name constants ──────────────────────────────────────────────────────
-
-export const FLAG_AI_CAPTIONS       = 'ai_captions';
-export const FLAG_BULK_EXPORT       = 'bulk_export';
-export const FLAG_ANALYTICS_V2      = 'analytics_v2';
-export const FLAG_QR_CUSTOMIZATION  = 'qr_customization';
-export const FLAG_NEW_CANVAS_EDITOR = 'new_canvas_editor';
-
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface FeatureFlag {
