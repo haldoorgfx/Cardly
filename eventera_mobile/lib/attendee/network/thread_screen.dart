@@ -10,15 +10,21 @@ import '../../ui/components.dart';
 ///  - POST /api/threads { event_id, sender_id, recipient_id, content } creates
 ///    or reuses a `message_threads` row and inserts the message. Returns
 ///    { thread_id, message }.
-///  - Messages are read directly from `messages` (public RLS on this event's
-///    engagement tables). Row shape: { id, thread_id, sender_id, content,
-///    read_at, created_at }.
-///  - Read receipts: we stamp read_at on inbound messages we've now seen.
+///  - GET /api/threads/[threadId]?registration_id=<id> returns
+///    { messages: [{ id, sender_id, content, read_at, created_at }] }. This
+///    (not a direct table read) is how history loads: `message_threads` and
+///    `messages` have no anon/authenticated RLS policy at all (migration 119
+///    dropped the old world-readable `public_all` policy) — service-role-only
+///    access via the API route is the intended path, and it's also the one
+///    that honours the admin "networking" kill switch (see commit 74db564).
+///  - Read receipts: best-effort direct stamp of read_at on inbound messages;
+///    non-fatal if it fails (unread badge only, never delivery).
 class ThreadScreen extends StatefulWidget {
   final String eventId;
   final String registrationId;
   final String otherRegId;
   final String? otherName;
+  final String? threadId;
 
   const ThreadScreen({
     super.key,
@@ -26,6 +32,7 @@ class ThreadScreen extends StatefulWidget {
     required this.registrationId,
     required this.otherRegId,
     this.otherName,
+    this.threadId,
   });
 
   @override
@@ -65,27 +72,33 @@ class _ThreadScreenState extends State<ThreadScreen> {
       _error = null;
     });
     try {
-      // Find an existing thread between the two participants (order-agnostic).
-      final ids = [widget.registrationId, widget.otherRegId]..sort();
-      final row = await supa
-          .from('message_threads')
-          .select('id')
-          .eq('participant_a', ids[0])
-          .eq('participant_b', ids[1])
-          .maybeSingle();
+      _threadId = widget.threadId;
+      if (_threadId == null) {
+        // Opened from the People directory rather than the inbox, so we don't
+        // have a thread id yet — check whether one already exists for this
+        // pair via the same gated endpoint the inbox list uses.
+        final data = await apiGet('/api/threads', query: {
+          'registration_id': widget.registrationId,
+          'event_id': widget.eventId,
+        });
+        final list = asMapList(data is Map ? data['threads'] : data);
+        final match = list.firstWhere(
+          (t) => asString(t['other_participant_id']) == widget.otherRegId,
+          orElse: () => <String, dynamic>{},
+        );
+        _threadId = match.isEmpty ? null : asString(match['id']);
+      }
 
-      if (!mounted) return;
-      if (row == null) {
+      if (_threadId == null || _threadId!.isEmpty) {
         // No thread yet — nothing to load; it will be created on first send.
+        if (!mounted) return;
         setState(() {
-          _threadId = null;
           _messages = [];
           _loading = false;
         });
         return;
       }
 
-      _threadId = asString(row['id']);
       await _refreshMessages(markRead: true);
       if (!mounted) return;
       setState(() => _loading = false);
@@ -106,13 +119,11 @@ class _ThreadScreenState extends State<ThreadScreen> {
   }
 
   Future<void> _refreshMessages({bool markRead = false}) async {
-    if (_threadId == null) return;
-    final rows = await supa
-        .from('messages')
-        .select('id, thread_id, sender_id, content, read_at, created_at')
-        .eq('thread_id', _threadId!)
-        .order('created_at', ascending: true);
-    _messages = asMapList(rows);
+    if (_threadId == null || _threadId!.isEmpty) return;
+    final data = await apiGet('/api/threads/$_threadId', query: {
+      'registration_id': widget.registrationId,
+    });
+    _messages = asMapList(data is Map ? data['messages'] : data);
 
     if (markRead) {
       // Stamp read_at on inbound, still-unread messages.

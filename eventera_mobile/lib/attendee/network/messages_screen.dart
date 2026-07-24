@@ -98,6 +98,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
           registrationId: _rid!,
           otherRegId: t.otherId,
           otherName: t.otherName,
+          threadId: t.id,
         ),
       ),
     );
