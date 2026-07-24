@@ -105,22 +105,42 @@ export function ReportsClient({ eventId, eventName, totalRevenue, regCount, chec
     URL.revokeObjectURL(url);
   }
 
-  const currencies = Array.from(new Set(regs.map(r => r.currency).filter(Boolean)));
+  // Daily reg trend (last 14 days). Counts the SAME confirmed set as every KPI
+  // on this page — it previously counted all rows, so cancelled/pending
+  // registrations showed up as bars under a "N confirmed registrations" headline.
+  const confirmedRegs = regs.filter(r => ['confirmed', 'checked_in'].includes(r.status));
+  const paidOrderCount = confirmedRegs.filter(r => (r.amount_paid ?? 0) > 0).length;
+
+  // Which currency is this event's revenue actually IN? Derived from confirmed,
+  // revenue-bearing rows only (matches the portfolio Analytics page) — a
+  // cancelled/pending row carrying a stray currency stamp must never blank the
+  // whole page's revenue to "mixed" when every real sale is one currency.
+  const revenueRegs = confirmedRegs.filter(r => (r.amount_paid ?? 0) > 0);
+  const currencies = Array.from(new Set(revenueRegs.map(r => r.currency).filter(Boolean)));
   const primaryCurrency = currencies.length === 1 ? currencies[0] ?? null : null;
   const checkInPct = regCount > 0 ? Math.round((checkedIn / regCount) * 100) : 0;
 
-  // Ticket breakdown
+  // Ticket breakdown — each row carries its OWN ticket type's currency (set
+  // independently per tier, see TicketTypesManager), never the page-level
+  // primaryCurrency. Rendering a DJF tier's revenue with a null/wrong currency
+  // just because another tier sold in USD prints a bare, unit-less number that
+  // looks like a real (but wrong) amount.
   const byTicket = ticketTypes.map(tt => {
     const count = regs.filter(r => r.ticket_type_id === tt.id && ['confirmed', 'checked_in'].includes(r.status)).length;
     const revenue = regs.filter(r => r.ticket_type_id === tt.id && ['confirmed', 'checked_in'].includes(r.status)).reduce((s, r) => s + (r.amount_paid ?? 0), 0);
     return { ...tt, count, revenue };
   });
 
-  // Daily reg trend (last 14 days). Counts the SAME confirmed set as every KPI
-  // on this page — it previously counted all rows, so cancelled/pending
-  // registrations showed up as bars under a "N confirmed registrations" headline.
-  const confirmedRegs = regs.filter(r => ['confirmed', 'checked_in'].includes(r.status));
-  const paidOrderCount = confirmedRegs.filter(r => (r.amount_paid ?? 0) > 0).length;
+  // Revenue share (%) is computed against the total earned IN THE SAME
+  // CURRENCY, not the page-wide total — summing a DJF tier and a USD tier into
+  // one denominator would produce a percentage of a number that doesn't exist.
+  const revenueByCurrency = new Map<string, number>();
+  for (const tt of byTicket) {
+    if (tt.revenue > 0) {
+      const c = tt.currency ?? '';
+      revenueByCurrency.set(c, (revenueByCurrency.get(c) ?? 0) + tt.revenue);
+    }
+  }
   const now = Date.now();
   const days: { date: string; count: number }[] = Array.from({ length: 14 }, (_, i) => {
     const d = new Date(now - (13 - i) * 86400000);
@@ -166,7 +186,10 @@ export function ReportsClient({ eventId, eventName, totalRevenue, regCount, chec
               <div>
                 <div className=" text-[12px] tracking-[0.16em] uppercase mb-2" style={{ color: '#E8C57E' }}>Event revenue</div>
                 <div className=" text-[40px] leading-none" style={{ color: '#FAF6EE' }}>
-                  {primaryCurrency ? fmtCurrency(totalRevenue, primaryCurrency) : totalRevenue.toLocaleString()}
+                  {/* No currency to name (nothing earned yet, or tiers earned in
+                      different currencies) — never print the raw cross-currency
+                      sum with no unit, matching the StatCard below. */}
+                  {primaryCurrency ? fmtCurrency(totalRevenue, primaryCurrency) : '—'}
                 </div>
                 <div className="text-[13px] mt-2" style={{ color: 'rgba(250,246,238,0.75)' }}>
                   {regCount} confirmed registrations · {checkInPct}% checked in
@@ -222,13 +245,14 @@ export function ReportsClient({ eventId, eventName, totalRevenue, regCount, chec
               ) : (
                 <div className="grid gap-3">
                   {byTicket.map(tt => {
-                    const pct = totalRevenue > 0 ? Math.round((tt.revenue / totalRevenue) * 100) : 0;
+                    const currencyTotal = revenueByCurrency.get(tt.currency ?? '') ?? 0;
+                    const pct = currencyTotal > 0 ? Math.round((tt.revenue / currencyTotal) * 100) : 0;
                     return (
                       <div key={tt.id}>
                         <div className="flex items-center justify-between mb-1.5 text-[13px]">
                           <span style={{ color: '#3A4A42' }}>{tt.name}</span>
                           <span className="" style={{ color: '#65736B' }}>
-                            {tt.count} sold · {tt.revenue === 0 ? 'Free' : (primaryCurrency ? fmtCurrency(tt.revenue, primaryCurrency) : tt.revenue.toLocaleString())}
+                            {tt.count} sold · {tt.revenue === 0 ? 'Free' : fmtCurrency(tt.revenue, tt.currency)}
                           </span>
                         </div>
                         <div className="h-2 rounded-full overflow-hidden" style={{ background: '#E8EFEB' }}>

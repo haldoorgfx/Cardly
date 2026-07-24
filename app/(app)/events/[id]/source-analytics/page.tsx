@@ -26,12 +26,17 @@ export default async function SourceAnalyticsPage({ params }: { params: Promise<
   ]);
   if (!event) redirect('/dashboard');
 
-  // Fetch registrations with referral_code (used as UTM source)
+  // Fetch registrations with referral_code (used as UTM source).
+  // Confirmed + checked_in only — the same set Analytics, Reports,
+  // Registrations, Revenue and the Dashboard all call "registrations" for this
+  // event. Counting pending/pending_approval rows here inflated the "All
+  // sources · N registrations" total past what every other page shows for the
+  // exact same event.
   const { data: regs } = await admin
     .from('registrations')
     .select('referral_code, status, amount_paid')
     .eq('event_id', id)
-    .in('status', ['confirmed', 'checked_in', 'pending_approval', 'pending']);
+    .in('status', ['confirmed', 'checked_in']);
 
   const allRegs = regs ?? [];
   const total = allRegs.length;
