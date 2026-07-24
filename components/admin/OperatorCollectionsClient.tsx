@@ -139,17 +139,20 @@ export function OperatorCollectionsClient({ collections, promoted: dbPromoted }:
             {collections.map((col: Collection) => (
               <div key={col.id} className="rounded-2xl p-5 flex items-center gap-5"
                 style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
-                {/* Color swatch */}
-                <div className="w-12 h-12 rounded-xl shrink-0 flex items-center justify-center"
-                  style={{ background: col.cover_color ?? '#1F4D3A' }}>
-                  <LayoutGrid size={18} style={{ color: 'rgba(255,255,255,0.7)' }} />
+                {/* Cover */}
+                <div className="w-12 h-12 rounded-xl shrink-0 flex items-center justify-center overflow-hidden"
+                  style={{ background: '#1F4D3A' }}>
+                  {col.cover_url
+                    // eslint-disable-next-line @next/next/no-img-element
+                    ? <img src={col.cover_url} alt="" className="w-12 h-12 object-cover" />
+                    : <LayoutGrid size={18} style={{ color: 'rgba(255,255,255,0.7)' }} />}
                 </div>
 
                 {/* Info */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
-                    <span className="font-semibold text-[15px]" style={{ color: '#0F1F18' }}>{col.name}</span>
-                    {col.status === 'live' ? (
+                    <span className="font-semibold text-[15px]" style={{ color: '#0F1F18' }}>{col.title}</span>
+                    {col.is_published ? (
                       <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[12.5px] font-semibold"
                         style={{ background: 'rgba(45,122,79,0.1)', color: '#2D7A4F' }}>
                         <Radio size={9} className="animate-pulse" /> Live
@@ -157,7 +160,7 @@ export function OperatorCollectionsClient({ collections, promoted: dbPromoted }:
                     ) : (
                       <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[12.5px] font-semibold"
                         style={{ background: 'rgba(107,122,114,0.1)', color: '#65736B' }}>
-                        <Clock size={9} /> Scheduled
+                        <Clock size={9} /> Unpublished
                       </span>
                     )}
                   </div>
@@ -169,7 +172,7 @@ export function OperatorCollectionsClient({ collections, promoted: dbPromoted }:
                 {/* Count */}
                 <div className="text-right shrink-0">
                   <div className="font-bold text-[20px]" style={{ color: '#0F1F18', fontFamily: 'Inter, system-ui, sans-serif' }}>
-                    {col.event_count ?? 0}
+                    {col.event_ids?.length ?? 0}
                   </div>
                   <div className="text-[12.5px]" style={{ color: '#65736B' }}>events</div>
                 </div>
@@ -248,7 +251,7 @@ export function OperatorCollectionsClient({ collections, promoted: dbPromoted }:
               </div>
             ) : (
               promoted.map((p: Promoted) => {
-                const ep = p.event_pages;
+                const ep = p.events?.event_pages;
 
                 return (
                   <div key={p.id} className="rounded-2xl overflow-hidden"

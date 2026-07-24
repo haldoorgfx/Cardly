@@ -26,12 +26,20 @@ export default async function CollectionsPage() {
     .select('*')
     .order('sort_order', { ascending: true });
 
-  // Load promoted listings pending review
-  const { data: promoted } = await adminAny
+  // Load promoted listings pending review. promoted_listings.event_id only has
+  // an FK to events(id), not event_pages — a direct `event_pages(...)` embed
+  // has no relationship for PostgREST to resolve, fails silently (error was
+  // never checked), and `promoted` fell back to [] — so this queue always
+  // showed "All caught up" even with real submissions waiting. event_pages has
+  // its own FK to events(id), so nest the embed through events instead.
+  const { data: promoted, error: promotedError } = await adminAny
     .from('promoted_listings')
-    .select('*, event_pages(title, cover_image_url, starts_at, city, venue_name)')
+    .select('*, events(name, event_pages(title, cover_image_url, starts_at, city, venue_name))')
     .eq('status', 'pending_review')
     .order('submitted_at', { ascending: true });
+  if (promotedError) {
+    console.error('[admin/collections] promoted_listings query failed:', promotedError.message);
+  }
 
   return (
     <OperatorCollectionsClient

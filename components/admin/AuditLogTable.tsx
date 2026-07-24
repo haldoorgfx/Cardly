@@ -15,10 +15,25 @@ export interface AuditEntry {
 
 function ActionBadge({ action }: { action: string }) {
   const [ns] = action.split('.');
+  // Covers every namespace logAudit() is actually called with across the
+  // codebase — a namespace missing here silently fell through to the same
+  // gray badge as everything else, which is how this list got stale as new
+  // logAudit() call sites were added over time without a matching color.
   const colors: Record<string, { bg: string; color: string }> = {
-    theme:     { bg: 'rgba(31,77,58,0.12)',    color: '#1F4D3A' },
-    changelog: { bg: 'rgba(58,107,140,0.12)',  color: '#3A6B8C' },
-    user:      { bg: 'rgba(201,122,45,0.12)',  color: '#C97A2D' },
+    theme:                 { bg: 'rgba(31,77,58,0.12)',    color: '#1F4D3A' },
+    changelog:             { bg: 'rgba(58,107,140,0.12)',  color: '#3A6B8C' },
+    user:                  { bg: 'rgba(201,122,45,0.12)',  color: '#C97A2D' },
+    registration:          { bg: 'rgba(45,122,79,0.12)',   color: '#2D7A4F' },
+    event:                 { bg: 'rgba(42,106,80,0.12)',   color: '#2A6A50' },
+    template:              { bg: 'rgba(58,74,66,0.12)',    color: '#3A4A42' },
+    media:                 { bg: 'rgba(58,74,66,0.12)',    color: '#3A4A42' },
+    cms:                   { bg: 'rgba(58,74,66,0.12)',    color: '#3A4A42' },
+    content:               { bg: 'rgba(58,74,66,0.12)',    color: '#3A4A42' },
+    feature_flag:          { bg: 'rgba(232,197,126,0.25)', color: '#9C7A3C' },
+    feature_flag_override: { bg: 'rgba(232,197,126,0.25)', color: '#9C7A3C' },
+    platform_feature:      { bg: 'rgba(232,197,126,0.25)', color: '#9C7A3C' },
+    billing:               { bg: 'rgba(184,66,60,0.12)',   color: '#B8423C' },
+    impersonate:           { bg: 'rgba(184,66,60,0.12)',   color: '#B8423C' },
   };
   const style = colors[ns] ?? { bg: 'rgba(107,122,114,0.12)', color: '#65736B' };
   return (
