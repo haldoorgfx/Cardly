@@ -44,6 +44,11 @@ class _OrganizerStatsTabState extends State<OrganizerStatsTab> {
   // checked_in), matching web's canonical revenue KPI. null = not loaded/failed.
   double? _revenue;
   String _revenueCurrency = 'USD';
+  // True when the confirmed set carries more than one currency (ticket tiers
+  // can be priced independently per event — see ReportsClient.tsx on web).
+  // Summing raw amounts across currencies produces a meaningless number, so
+  // this flips the tile to a neutral placeholder instead of a wrong total.
+  bool _revenueMixedCurrency = false;
 
   @override
   void initState() {
@@ -160,21 +165,27 @@ class _OrganizerStatsTabState extends State<OrganizerStatsTab> {
           .inFilter('status', ['confirmed', 'checked_in'])
           .gt('amount_paid', 0);
       double total = 0;
-      String cur = 'USD';
+      final currencies = <String>{};
       for (final r in (rows as List)) {
         final m = Map<String, dynamic>.from(r as Map);
         total += (m['amount_paid'] as num?)?.toDouble() ?? 0;
         final c = asString(m['currency']);
-        if (c.isNotEmpty) cur = c;
+        if (c.isNotEmpty) currencies.add(c);
       }
       if (mounted && _selectedId == eventId) {
         setState(() {
           _revenue = total;
-          _revenueCurrency = cur;
+          _revenueMixedCurrency = currencies.length > 1;
+          if (currencies.length == 1) _revenueCurrency = currencies.first;
         });
       }
     } catch (_) {
-      if (mounted && _selectedId == eventId) setState(() => _revenue = null);
+      if (mounted && _selectedId == eventId) {
+        setState(() {
+          _revenue = null;
+          _revenueMixedCurrency = false;
+        });
+      }
     }
   }
 
@@ -189,6 +200,7 @@ class _OrganizerStatsTabState extends State<OrganizerStatsTab> {
       _selectedId = e.id;
       _entries = [];
       _revenue = null;
+      _revenueMixedCurrency = false;
     });
     _loadList(e.id);
     _subscribe(e.id);
@@ -306,10 +318,12 @@ class _OrganizerStatsTabState extends State<OrganizerStatsTab> {
                 child: _statCard('Checked in', '$checked', gold: true)),
           ]),
           const SizedBox(height: 12),
-          // Revenue — parity with web's revenue KPI. Placeholder until loaded.
+          // Revenue — parity with web's revenue KPI. Placeholder until loaded,
+          // and also a placeholder (never a unit-less/wrong-currency number)
+          // when this event's confirmed sales span more than one currency.
           _statCard(
               'Revenue',
-              _revenue == null
+              _revenue == null || _revenueMixedCurrency
                   ? '—'
                   : '$_revenueCurrency ${_revenue!.toStringAsFixed(0)}'),
           const SizedBox(height: 12),
