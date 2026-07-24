@@ -4,7 +4,7 @@ import { createNotification } from '@/lib/notifications';
 import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
 import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 import { refundRegistration } from '@/lib/payments/refund';
-import { getUserPlan } from '@/lib/billing/can';
+import { getUserPlan, canRegisterForEvent } from '@/lib/billing/can';
 import { recordTicketSaleLedger } from '@/lib/billing/ledger';
 import type { FeeBearer } from '@/lib/billing/fees';
 
@@ -79,6 +79,14 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     if ((confirmed ?? 0) >= epManual.max_capacity) {
       return NextResponse.json({ error: 'This event is at full capacity — manual registration cannot be added' }, { status: 409 });
     }
+  }
+
+  // Plan cap check — walk-in entry previously bypassed this entirely, so a
+  // Free-tier organizer could sidestep the "1 event, 50 registrations" cap
+  // (and a Pro organizer the "500 registrations/month" cap) just by adding
+  // attendees manually instead of through the public registration form.
+  if (!(await canRegisterForEvent(params.id))) {
+    return NextResponse.json({ error: "This event has reached the registration limit for the organizer's current plan" }, { status: 409 });
   }
 
   // Verify ticket belongs to this event (if provided)

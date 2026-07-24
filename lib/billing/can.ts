@@ -86,25 +86,74 @@ export async function canCreateEvent(userId: string): Promise<boolean> {
 }
 
 /**
- * Free-tier events are capped at PLANS.free.registrationsPerEvent confirmed/
- * checked-in registrations (CLAUDE.md: "Free: 1 event, 50 registrations").
- * Checked against the EVENT OWNER's plan, since the caller registering is
- * usually an anonymous attendee, not the organizer.
+ * How many MORE confirmed/checked-in registrations this event's organizer
+ * can accept right now, under each of the two independent caps:
+ *   - perEvent:  a single-event lifetime cap (Free: 50 — CLAUDE.md "1 event,
+ *                50 registrations"), counted against just this event.
+ *   - perMonth:  a rolling calendar-month cap summed across EVERY event this
+ *                organizer owns (Pro: 500/month — CLAUDE.md "500
+ *                registrations/month").
+ * null on either field means that cap doesn't apply to this plan (unlimited).
+ * Checked against the EVENT OWNER's plan, since the caller is usually an
+ * anonymous attendee or the organizer adding a walk-in, not the plan holder.
+ * A single live count, not a stored counter — this codebase has already been
+ * bitten once by a counter drifting out of sync with reality (ticket_types.
+ * quantity_sold); a derived count can't drift.
+ */
+export async function registrationCapacityRemaining(eventId: string): Promise<{ perEvent: number | null; perMonth: number | null }> {
+  const admin = createAdminClient();
+  const { data: event } = await admin.from('events').select('user_id').eq('id', eventId).maybeSingle();
+  if (!event?.user_id) return { perEvent: null, perMonth: null }; // owner not resolvable — don't block on our own lookup failure
+
+  const plan = await getUserPlan(event.user_id);
+
+  let perEvent: number | null = null;
+  const perEventLimit = PLANS[plan].registrationsPerEvent;
+  if (perEventLimit !== null) {
+    const { count } = await admin
+      .from('registrations')
+      .select('id', { count: 'exact', head: true })
+      .eq('event_id', eventId)
+      .in('status', ['confirmed', 'checked_in']);
+    perEvent = Math.max(0, perEventLimit - (count ?? 0));
+  }
+
+  let perMonth: number | null = null;
+  const perMonthLimit = PLANS[plan].registrationsPerMonth;
+  if (perMonthLimit !== null) {
+    const { data: ownedEvents } = await admin.from('events').select('id').eq('user_id', event.user_id);
+    const eventIds = (ownedEvents ?? []).map((e) => e.id);
+    let monthCount = 0;
+    if (eventIds.length > 0) {
+      const monthStart = new Date();
+      monthStart.setUTCDate(1);
+      monthStart.setUTCHours(0, 0, 0, 0);
+      const { count } = await admin
+        .from('registrations')
+        .select('id', { count: 'exact', head: true })
+        .in('event_id', eventIds)
+        .in('status', ['confirmed', 'checked_in'])
+        .gte('created_at', monthStart.toISOString());
+      monthCount = count ?? 0;
+    }
+    perMonth = Math.max(0, perMonthLimit - monthCount);
+  }
+
+  return { perEvent, perMonth };
+}
+
+/**
+ * Whether ONE more registration is allowed right now under both caps.
+ * For bulk imports of more than one attendee at a time, use
+ * registrationCapacityRemaining() directly instead — it returns headroom
+ * counts so a whole batch can be checked against the remaining capacity, not
+ * just a single yes/no.
  */
 export async function canRegisterForEvent(eventId: string): Promise<boolean> {
-  const plan = await getEventOwnerPlan(eventId);
-  if (!plan) return true; // event owner not resolvable — don't block on our own lookup failure
-  const limit = PLANS[plan].registrationsPerEvent;
-  if (limit === null) return true;
-
-  const admin = createAdminClient();
-  const { count } = await admin
-    .from('registrations')
-    .select('id', { count: 'exact', head: true })
-    .eq('event_id', eventId)
-    .in('status', ['confirmed', 'checked_in']);
-
-  return (count ?? 0) < limit;
+  const { perEvent, perMonth } = await registrationCapacityRemaining(eventId);
+  if (perEvent !== null && perEvent <= 0) return false;
+  if (perMonth !== null && perMonth <= 0) return false;
+  return true;
 }
 
 export async function canCreateVariant(userId: string, eventId: string): Promise<boolean> {

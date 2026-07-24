@@ -9,11 +9,14 @@ export interface PlanLimits {
   teamSeats: number;
   // Lifetime cap on confirmed/checked-in registrations for a single event.
   // null = unlimited. Free is capped to 1 event anyway, so this is enforced
-  // as a straight per-event count, not a rolling window. Pro's "500
-  // registrations/month" (CLAUDE.md) is a monthly, cross-event figure with
-  // no counter infra built yet — left null (unenforced) rather than
-  // half-modeled as a lifetime-per-event cap it isn't.
+  // as a straight per-event count, not a rolling window.
   registrationsPerEvent: number | null;
+  // Rolling calendar-month cap on confirmed/checked-in registrations across
+  // ALL of an organizer's events combined (CLAUDE.md: Pro's "500
+  // registrations/month"). Distinct from registrationsPerEvent, which is a
+  // single-event lifetime cap — this one resets every month and sums across
+  // every event the organizer owns. null = unlimited.
+  registrationsPerMonth: number | null;
 }
 
 export const PLANS: Record<Plan, PlanLimits> = {
@@ -25,6 +28,7 @@ export const PLANS: Record<Plan, PlanLimits> = {
     watermark: true,
     teamSeats: 1,
     registrationsPerEvent: 50,
+    registrationsPerMonth: null,
   },
   pro: {
     events: null,
@@ -34,6 +38,7 @@ export const PLANS: Record<Plan, PlanLimits> = {
     watermark: false,
     teamSeats: 1,
     registrationsPerEvent: null,
+    registrationsPerMonth: 500,
   },
   studio: {
     events: null,
@@ -43,6 +48,7 @@ export const PLANS: Record<Plan, PlanLimits> = {
     watermark: false,
     teamSeats: 10,
     registrationsPerEvent: null,
+    registrationsPerMonth: null,
   },
 };
 

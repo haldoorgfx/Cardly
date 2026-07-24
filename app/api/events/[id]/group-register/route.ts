@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createAdminClient, createClient } from '@/lib/supabase/server';
 import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
-import { getUserPlan } from '@/lib/billing/can';
-import { PLANS } from '@/lib/billing/plans';
+import { registrationCapacityRemaining } from '@/lib/billing/can';
 import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 interface Params { params: Promise<{ id: string }> }
@@ -72,17 +71,19 @@ export async function POST(req: NextRequest, { params }: Params) {
     }
   }
 
-  // Free-tier plan cap (CLAUDE.md: Free = 1 event, 50 registrations).
-  const plan = await getUserPlan(user.id);
-  const planLimit = PLANS[plan].registrationsPerEvent;
-  if (planLimit !== null) {
-    const { count: planCount } = await admin.from('registrations').select('id', { count: 'exact', head: true }).eq('event_id', eventId).in('status', ['confirmed', 'checked_in']);
-    const planRemaining = planLimit - (planCount ?? 0);
-    if (seats.length > planRemaining) {
+  // Plan cap check — both Free's 50-per-event lifetime cap and Pro's
+  // 500/month cap (summed across every event the organizer owns). Checked
+  // against the EVENT OWNER's plan via registrationCapacityRemaining, not the
+  // calling user's — this route is also reachable by a team member managing
+  // someone else's event, whose own plan isn't the one that matters here.
+  {
+    const { perEvent, perMonth } = await registrationCapacityRemaining(eventId);
+    const planRemaining = Math.min(perEvent ?? Infinity, perMonth ?? Infinity);
+    if (Number.isFinite(planRemaining) && seats.length > planRemaining) {
       return NextResponse.json({
         error: planRemaining <= 0
-          ? 'This event has reached the registration limit for your current plan. Upgrade to add more attendees.'
-          : `Your plan allows ${planRemaining} more registration${planRemaining === 1 ? '' : 's'} for this event. Upgrade to add more.`,
+          ? 'This event has reached the registration limit for the organizer\'s current plan. Upgrade to add more attendees.'
+          : `The organizer's plan allows ${planRemaining} more registration${planRemaining === 1 ? '' : 's'} right now. Upgrade to add more.`,
       }, { status: 409 });
     }
   }

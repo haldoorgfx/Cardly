@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { createNotification } from '@/lib/notifications';
 import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
-import { getUserPlan } from '@/lib/billing/can';
+import { getUserPlan, registrationCapacityRemaining } from '@/lib/billing/can';
 import { recordTicketSaleLedger } from '@/lib/billing/ledger';
 import type { FeeBearer } from '@/lib/billing/fees';
 
@@ -45,6 +45,21 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     }
     if (attendees.length > remaining) {
       return NextResponse.json({ error: `Import exceeds capacity. Only ${remaining} spot${remaining === 1 ? '' : 's'} remain${remaining === 1 ? 's' : ''} but you are importing ${attendees.length} attendees.` }, { status: 409 });
+    }
+  }
+
+  // Plan cap check — CSV import previously bypassed this entirely, the same
+  // gap manual walk-in entry had (see registrations/route.ts POST). Checks
+  // BOTH caps: Free's 50-per-event lifetime cap and Pro's 500/month cap
+  // summed across every event the organizer owns.
+  {
+    const { perEvent, perMonth } = await registrationCapacityRemaining(params.id);
+    const remaining = Math.min(perEvent ?? Infinity, perMonth ?? Infinity);
+    if (Number.isFinite(remaining) && attendees.length > remaining) {
+      return NextResponse.json(
+        { error: `Import exceeds the organizer's plan limit. Only ${Math.max(0, remaining)} more registration${remaining === 1 ? '' : 's'} allowed right now, but you're importing ${attendees.length}.` },
+        { status: 409 },
+      );
     }
   }
 
