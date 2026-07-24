@@ -121,17 +121,26 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       const eventTitle = (ep as { title?: string | null } | null)?.title ?? data.name ?? 'a new event';
 
       // Fire the documented `event.published` webhook (fire-and-forget).
-      fireWebhooks(user.id, 'event.published', {
+      //
+      // Keyed on the EVENT's owner (data.user_id), not the acting `user.id`.
+      // This route is reachable by any team member manageableOwnerIds() grants
+      // access to (see the .in('user_id', await manageableOwnerIds(user.id))
+      // filters above) — a teammate publishing on the real owner's behalf was
+      // firing the teammate's own webhooks (usually none, so the owner's
+      // configured webhook silently never fired) instead of the owner's.
+      fireWebhooks(data.user_id, 'event.published', {
         event_id: id,
         slug,
         title: eventTitle,
       }).catch(() => { /* non-critical */ });
 
+      // Same fix — followers follow the event's owner, not whichever team
+      // member happened to click Publish.
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data: followers } = await (admin as any)
         .from('organizer_follows')
         .select('follower_id')
-        .eq('organizer_id', user.id)
+        .eq('organizer_id', data.user_id)
         .eq('notify_new_events', true);
 
       // Bounded, AWAITED fan-out. These were fired without await, so on
