@@ -229,6 +229,10 @@ const ROUTE_TIER_PATTERNS: Array<{ pattern: RegExp; tier: LimiterTier; methods?:
   { pattern: /^\/api\/events\/[^/]+\/q-and-a(\/|$)/,     tier: 'strict', methods: ['POST'] },
   { pattern: /^\/api\/events\/[^/]+\/registrations\/bulk(\/|$)/, tier: 'strict', methods: ['POST'] },
   { pattern: /^\/api\/threads(\/|$)/,                    tier: 'strict', methods: ['POST'] },
+  // Anonymous, unauthenticated write from the public booth page — same spam
+  // shape as connections/messages/q-and-a above (fires a notification an
+  // exhibitor sees in their Meetings tab), so it gets the same strict tier.
+  { pattern: /^\/api\/sponsors\/[^/]+\/meetings(\/|$)/,  tier: 'strict', methods: ['POST'] },
 ];
 
 /**

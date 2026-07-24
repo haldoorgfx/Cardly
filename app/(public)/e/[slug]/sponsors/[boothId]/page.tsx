@@ -6,6 +6,7 @@ import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
 import { safeExternalUrl, safeUrlHostname } from '@/lib/url/safeUrl';
 import { Check } from 'lucide-react';
 import { isPlatformFeatureEnabled } from '@/lib/features/platform';
+import { RequestMeetingButton } from '@/components/exhibitor/RequestMeetingButton';
 
 interface Props {
   params: { slug: string; boothId: string };
@@ -224,6 +225,13 @@ export default async function BoothPage({ params }: Props) {
                 Book a meeting
               </a>
             )}
+
+            {/* In-app request, separate from the external booking link above —
+               this lands in the exhibitor's Meetings tab for accept/propose/
+               decline, rather than sending the visitor off-platform. */}
+            <div style={{ marginTop: meetingUrl ? 10 : 0 }}>
+              <RequestMeetingButton sponsorId={sponsor.id} companyName={sponsor.company_name} />
+            </div>
 
             {websiteUrl && (
               <a

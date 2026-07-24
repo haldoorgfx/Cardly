@@ -35,7 +35,6 @@ interface Props {
 
 export function DirectoryPreviewTab({ sponsor, products }: Props) {
   const offerings: string[] = Array.isArray(sponsor.offerings) ? sponsor.offerings : [];
-  const canMeet = Boolean(sponsor.meeting_url) || Boolean(sponsor.contact_email);
 
   return (
     <div className="grid gap-4">
@@ -156,9 +155,8 @@ export function DirectoryPreviewTab({ sponsor, products }: Props) {
               Request a meeting
             </button>
             <div className="text-[11.5px] text-center" style={{ color: '#9BA8A1' }}>
-              {canMeet
-                ? 'Attendees can request a meeting from your public listing.'
-                : 'Add a meeting link or contact email so attendees can reach you.'}
+              Attendees can request a meeting from your public listing — it lands
+              in your Meetings tab to accept, propose, or decline.
             </div>
           </div>
         </div>
