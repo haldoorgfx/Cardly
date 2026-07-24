@@ -4,6 +4,7 @@ import { createAdminClient } from '@/lib/supabase/server';
 import { PageShell, PageHeader } from '@/components/dash';
 import { orIlikeAcross } from '@/lib/search/filter';
 import { BillingAdminClient } from './BillingAdminClient';
+import { getStripe } from '@/lib/billing/stripe';
 import type { Plan } from '@/types/database';
 
 export const metadata = { title: 'Billing — Eventera Admin' };
@@ -50,6 +51,71 @@ export default async function BillingAdminPage({
 
   const { data: users, count } = await query;
   const totalPages = Math.ceil((count ?? 0) / PAGE_SIZE);
+
+  // Subscription revenue (MRR): the OTHER way Eventera makes money, alongside
+  // the ticket take-rate below — organizers pay Pro/Studio to unlock features
+  // and buy the take-rate down. Priced from Stripe itself (the STRIPE_PRICE_*
+  // env vars this app already uses to recognize a subscription — see
+  // lib/billing/plans.ts), never hardcoded here, so this can't drift from
+  // whatever's actually configured in Stripe.
+  const { data: subProfiles } = await adminClient
+    .from('profiles')
+    .select('plan, billing_cycle, subscription_status')
+    .in('plan', ['pro', 'studio']);
+
+  const subCounts: Record<string, Record<string, number>> = { pro: {}, studio: {} };
+  for (const p of (subProfiles ?? []) as { plan: string; billing_cycle: string; subscription_status: string }[]) {
+    subCounts[p.plan] ??= {};
+    subCounts[p.plan][p.subscription_status] = (subCounts[p.plan][p.subscription_status] ?? 0) + 1;
+  }
+
+  let mrr = 0;
+  let mrrCurrency = 'USD';
+  let stripePricingAvailable = true;
+  try {
+    const priceIds: Record<string, string | undefined> = {
+      pro_monthly: process.env.STRIPE_PRICE_PRO_MONTHLY,
+      pro_annual: process.env.STRIPE_PRICE_PRO_ANNUAL,
+      studio_monthly: process.env.STRIPE_PRICE_STUDIO_MONTHLY,
+      studio_annual: process.env.STRIPE_PRICE_STUDIO_ANNUAL,
+    };
+    if (Object.values(priceIds).every(id => !id)) throw new Error('No STRIPE_PRICE_* env vars configured');
+    const stripe = getStripe();
+    const prices = await Promise.all(
+      Object.entries(priceIds).map(async ([key, id]) => {
+        if (!id) return [key, null] as const;
+        const price = await stripe.prices.retrieve(id);
+        return [key, price] as const;
+      }),
+    );
+    const priceMap = Object.fromEntries(prices);
+
+    // Monthly-equivalent per plan/cycle — an annual subscriber's yearly price
+    // divided by 12, so a $190/year Pro plan counts the same toward MRR as a
+    // $19/month one, not 12x more.
+    const monthlyEquivalent = (plan: 'pro' | 'studio', cycle: 'monthly' | 'annual'): number => {
+      const price = priceMap[`${plan}_${cycle}`];
+      if (!price?.unit_amount) return 0;
+      if (price.currency) mrrCurrency = price.currency.toUpperCase();
+      const amount = price.unit_amount / 100;
+      return cycle === 'annual' ? amount / 12 : amount;
+    };
+
+    // Only 'active' subscriptions count toward current recurring revenue —
+    // 'trialing' hasn't been charged yet, 'past_due' is being charged but
+    // hasn't succeeded, and both would overstate money actually collected.
+    for (const plan of ['pro', 'studio'] as const) {
+      const monthlyActive = (subProfiles ?? []).filter(
+        (p) => p.plan === plan && p.subscription_status === 'active' && p.billing_cycle !== 'annual',
+      ).length;
+      const annualActive = (subProfiles ?? []).filter(
+        (p) => p.plan === plan && p.subscription_status === 'active' && p.billing_cycle === 'annual',
+      ).length;
+      mrr += monthlyActive * monthlyEquivalent(plan, 'monthly') + annualActive * monthlyEquivalent(plan, 'annual');
+    }
+  } catch {
+    stripePricingAvailable = false;
+  }
 
   // Ticket-fee take-rate: what Eventera earned and what's owed to organizers.
   // Sourced from the financial_transactions ledger (migration 124) — the one
@@ -138,6 +204,45 @@ export default async function BillingAdminPage({
         title="Billing"
         subtitle="View subscriptions, comp plans (Stripe-bypassing), view invoices, and issue refunds. All billing mutations are audited."
       />
+
+      {/* Subscription revenue — the other half of the money model: Pro/Studio
+          subscriptions, alongside the ticket take-rate below. */}
+      <div className="mb-8">
+        <div className="text-[12px] tracking-[0.18em] uppercase text-[#65736B] mb-3">Subscription revenue · recurring</div>
+        {stripePricingAvailable ? (
+          <>
+            <div className="grid sm:grid-cols-2 gap-3 mb-3">
+              <div className="rounded-2xl bg-white border p-5" style={{ borderColor: '#E5E0D4' }}>
+                <div className="text-[12.5px] text-[#65736B] mb-1">Active MRR</div>
+                <div className="font-display font-semibold text-[24px] text-[#0F1F18]">{fmtCur(mrr, mrrCurrency)}</div>
+                <div className="text-[12px] text-[#65736B] mt-1">from active Pro/Studio subscriptions only</div>
+              </div>
+              <div className="rounded-2xl bg-white border p-5" style={{ borderColor: '#E5E0D4' }}>
+                <div className="text-[12.5px] text-[#65736B] mb-1">Projected ARR</div>
+                <div className="font-display font-semibold text-[24px] text-[#0F1F18]">{fmtCur(mrr * 12, mrrCurrency)}</div>
+                <div className="text-[12px] text-[#65736B] mt-1">MRR × 12, not a guarantee</div>
+              </div>
+            </div>
+            <div className="grid sm:grid-cols-2 gap-3">
+              {(['pro', 'studio'] as const).map((plan) => (
+                <div key={plan} className="rounded-xl border p-4" style={{ borderColor: '#E5E0D4' }}>
+                  <div className="font-display font-semibold text-[13.5px] uppercase tracking-[0.08em] text-[#1F4D3A] mb-2">{plan}</div>
+                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-[12.5px] text-[#65736B]">
+                    <span>{subCounts[plan]?.active ?? 0} active</span>
+                    <span>{subCounts[plan]?.trialing ?? 0} trialing</span>
+                    <span style={subCounts[plan]?.past_due ? { color: '#C97A2D' } : undefined}>{subCounts[plan]?.past_due ?? 0} past due</span>
+                    <span>{subCounts[plan]?.canceled ?? 0} canceled</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        ) : (
+          <p className="text-[13px] text-[#65736B]">
+            Stripe subscription pricing isn&apos;t configured in this environment (STRIPE_PRICE_* / STRIPE_SECRET_KEY), so MRR can&apos;t be computed here — this only affects this dashboard card, not real billing.
+          </p>
+        )}
+      </div>
 
       {/* Ticket-fee take-rate — Eventera's cut + what's owed to organizers */}
       {feeCurrencies.length > 0 && (
