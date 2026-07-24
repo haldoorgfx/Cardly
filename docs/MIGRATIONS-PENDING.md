@@ -69,6 +69,7 @@ right default for every row except 116.
 | **123** | `remove_dead_feature_flags` | Deletes the 5 dead migration-009 flags (ai_captions, bulk_export, analytics_v2, qr_customization, new_canvas_editor) — confirmed unreferenced anywhere in the codebase | Yes — those 4 rows should disappear from `/rest/v1/feature_flags` once applied |
 | **124** | `financial_transactions_ledger` | New immutable ledger table for every platform fee, organizer payout, and refund — see below | Yes — `GET /rest/v1/financial_transactions?limit=1` returns `200` once applied, `42P01` (relation not found) before |
 | **125** | `cards_this_month_race_guard` | `increment_cards_this_month_if_allowed()` RPC — closes a card-generation quota race, same class as 121 | Yes — same PGRST202 test as 107/121 |
+| **126** | `checkin_rpc_team_access` | Adds the Teams clause to `checkin_registration()` / `checkin_registration_by_id()` (the mobile scanner's RPCs) — see below | No — behavior-only change to an existing function's body |
 
 ---
 
@@ -83,6 +84,20 @@ The new RPC does the rollover, cap check, and increment as one step under a
 per-organizer advisory lock. Safe to apply any time; `lib/billing/can.ts`'s
 `consumeCardGeneration()` falls back to the old two-step check if this
 hasn't landed yet.
+
+---
+
+### 126 — mobile check-in RPCs never picked up the Teams clause 116 added
+
+Migration 116 added a `is_event_team_member()` clause to `can_manage_event()` so
+Studio team members could manage an owner's events. `checkin_registration()` and
+`checkin_registration_by_id()` (106) — the RPCs the MOBILE QR scanner calls —
+don't call `can_manage_event()`; they duplicate its pre-116 two-clause body
+inline. Result: a team member can use the web scanner and everything else on
+the event, but the mobile app's scanner rejected every one of their scans with
+"Not authorised for this event." 126 adds the same team clause directly to
+both RPCs. Safe to apply any time; only widens who is authorised, and only to
+accounts already granted equivalent access everywhere else in the product.
 
 ---
 
