@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { assertOwnsRegistration } from '@/lib/attendee-identity';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 import { z } from 'zod';
 
 // Load the thread and verify the caller owns a registration that is one of its
@@ -27,6 +28,13 @@ async function authorizeThread(threadId: string, registrationId: string, qrCodeT
 
 // GET /api/threads/[threadId]?registration_id=xxx
 export async function GET(req: NextRequest, { params }: { params: { threadId: string } }) {
+  // Twin of /api/events/[id]/messages (which checks this) — mobile reads
+  // individual threads through here, so the "networking" kill switch must
+  // reach this route too, not just the web messaging endpoint.
+  if (!(await isPlatformFeatureEnabled('networking'))) {
+    return NextResponse.json({ error: 'Networking is currently unavailable.' }, { status: 404 });
+  }
+
   const { searchParams } = new URL(req.url);
   const registrationId = searchParams.get('registration_id');
   const token = searchParams.get('token');
@@ -56,6 +64,11 @@ const PostSchema = z.object({
 // POST /api/threads/[threadId] — the sender must own the registration AND be a
 // participant of this thread; sender_id is verified, never trusted blindly.
 export async function POST(req: NextRequest, { params }: { params: { threadId: string } }) {
+  // Same kill-switch gap as GET above.
+  if (!(await isPlatformFeatureEnabled('networking'))) {
+    return NextResponse.json({ error: 'Networking is currently unavailable.' }, { status: 404 });
+  }
+
   const parsed = PostSchema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) {
     return NextResponse.json({ error: 'sender_id and content required' }, { status: 400 });

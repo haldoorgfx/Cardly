@@ -1,12 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { assertOwnsRegistration } from '@/lib/attendee-identity';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 // GET /api/events/[id]/people?reg=<registration_id>
 // Returns confirmed registrations for the event (attendee networking directory).
 // Requires a valid registration for THIS event — you must be an attendee to see
 // the attendee list. Never returns attendee_email to peers.
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+  // This directory is the "networking" feature's attendee list (see
+  // /api/events/[id]/connections and /messages, which already check this) — it
+  // was missing here, so the admin kill switch left names + custom fields
+  // servable while the rest of networking was supposedly off.
+  if (!(await isPlatformFeatureEnabled('networking'))) {
+    return NextResponse.json({ error: 'Networking is currently unavailable.' }, { status: 404 });
+  }
+
   const { searchParams } = new URL(req.url);
   const regId = searchParams.get('reg');
   const token = searchParams.get('token');

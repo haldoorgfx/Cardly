@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { assertOwnsRegistration } from '@/lib/attendee-identity';
 import { getEventOwnerPlan } from '@/lib/billing/can';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 import { z } from 'zod';
 
 const PLAN_RANK: Record<string, number> = { free: 0, pro: 1, studio: 2 };
@@ -11,6 +12,13 @@ const CreateSchema = z.object({ event_id: z.string().uuid(), sender_id: z.string
 
 // GET /api/threads?registration_id=X&event_id=Y&token=Z
 export async function GET(req: NextRequest) {
+  // This is the mobile app's twin of /api/events/[id]/messages (which already
+  // checks this). Without it, the admin "networking" kill switch had no effect
+  // on mobile at all — messaging just kept working through this route.
+  if (!(await isPlatformFeatureEnabled('networking'))) {
+    return NextResponse.json({ error: 'Networking is currently unavailable.' }, { status: 404 });
+  }
+
   const { searchParams } = new URL(req.url);
   const parsed = GetSchema.safeParse({
     registration_id: searchParams.get('registration_id'),
@@ -60,6 +68,12 @@ export async function GET(req: NextRequest) {
 
 // POST — create/get thread + send first message
 export async function POST(req: NextRequest) {
+  // Same kill-switch gap as GET above — this is the route mobile actually uses
+  // to send messages, so it must honour the flag too.
+  if (!(await isPlatformFeatureEnabled('networking'))) {
+    return NextResponse.json({ error: 'Networking is currently unavailable.' }, { status: 404 });
+  }
+
   const body = await req.json().catch(() => null);
   const parsed = CreateSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: 'Invalid request' }, { status: 400 });

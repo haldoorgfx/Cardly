@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { assertOwnsRegistration } from '@/lib/attendee-identity';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 // GET /api/events/[id]/connections/requests?reg=<registration_id>
 // Returns the caller's pending connection requests, split into:
@@ -8,6 +9,13 @@ import { assertOwnsRegistration } from '@/lib/attendee-identity';
 //   sent     — requests the caller has sent (read-only status)
 // Each row carries the connection_id so the client can PATCH accept/decline.
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+  // /api/events/[id]/connections (POST/PATCH/GET deck) already gates on this —
+  // this sibling read endpoint didn't, so disabling "networking" still left
+  // pending request state (and the other party's name) servable.
+  if (!(await isPlatformFeatureEnabled('networking'))) {
+    return NextResponse.json({ error: 'Networking is currently unavailable.' }, { status: 404 });
+  }
+
   const { searchParams } = new URL(req.url);
   const regId = searchParams.get('reg');
   const token = searchParams.get('token');
