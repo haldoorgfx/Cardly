@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useTransition, useRef } from 'react';
-import { createClient } from '@/lib/supabase/client';
 
 interface Sponsor {
   id: string;
@@ -63,6 +62,7 @@ export function BoothTab({ sponsor, token }: Props) {
   });
   const [logoUrl, setLogoUrl]         = useState(sponsor.logo_url ?? '');
   const [logoUploading, setLogoUploading] = useState(false);
+  const [logoError, setLogoError]     = useState<string | null>(null);
   const [saved, setSaved]             = useState(false);
   const [isPending, startTransition]  = useTransition();
   const fileRef                       = useRef<HTMLInputElement>(null);
@@ -75,25 +75,29 @@ export function BoothTab({ sponsor, token }: Props) {
     const file = e.target.files?.[0];
     if (!file) return;
     setLogoUploading(true);
+    setLogoError(null);
     try {
-      const supabase = createClient();
-      const ext  = file.name.split('.').pop() ?? 'png';
-      const path = `sponsors/${sponsor.id}/logo.${ext}`;
-      const { error: uploadErr } = await supabase.storage
-        .from('avatars') // reuse existing public bucket
-        .upload(path, file, { upsert: true, contentType: file.type });
-      if (uploadErr) throw uploadErr;
-      const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(path);
-      const url = urlData.publicUrl + `?t=${Date.now()}`;
-      // Save to DB
-      await fetch('/api/exhibitor/booth', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, logo_url: url }),
-      });
-      setLogoUrl(url);
+      // Goes through the server route (service-role key, magic-byte sniffed,
+      // persists sponsors.logo_url itself) — this used to upload straight from
+      // the browser to a bucket named 'avatars' with no write policy for this
+      // path, so every attempt failed silently (spinner, then nothing) and the
+      // logo never changed.
+      const fd = new FormData();
+      fd.append('file', file);
+      fd.append('sponsorId', sponsor.id);
+      fd.append('token', token);
+      const res = await fetch('/api/sponsors/upload-logo', { method: 'POST', body: fd });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.url) {
+        setLogoError(data.error ?? 'Could not upload logo');
+        return;
+      }
+      setLogoUrl(data.url as string);
+    } catch {
+      setLogoError('Could not upload logo');
     } finally {
       setLogoUploading(false);
+      if (fileRef.current) fileRef.current.value = '';
     }
   }
 
@@ -183,7 +187,7 @@ export function BoothTab({ sponsor, token }: Props) {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
                   </svg>
                   <div className="text-[11.5px] mt-1.5 font-medium">Click to upload logo</div>
-                  <div className="text-[10.5px] mt-0.5" style={{ color: '#65736B' }}>PNG, JPG, SVG</div>
+                  <div className="text-[10.5px] mt-0.5" style={{ color: '#65736B' }}>PNG, JPG, WebP, or GIF</div>
                 </div>
               )}
             </button>
@@ -196,6 +200,9 @@ export function BoothTab({ sponsor, token }: Props) {
               >
                 Replace logo
               </button>
+            )}
+            {logoError && (
+              <div className="mt-2.5 text-[12px]" style={{ color: '#B8423C' }}>{logoError}</div>
             )}
           </div>
         </div>
