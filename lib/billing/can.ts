@@ -206,3 +206,41 @@ export async function incrementCardsThisMonth(userId: string): Promise<void> {
   const admin = createAdminClient();
   await admin.rpc('increment_cards_this_month', { user_id: userId });
 }
+
+/**
+ * Atomically checks AND consumes one unit of this organizer's monthly card
+ * quota — closing the check-then-act race canGenerateCard() +
+ * incrementCardsThisMonth() has when called as two separate steps (see
+ * migration 125): two concurrent render requests near the cap could both
+ * read the same stale count, both pass, and both increment, letting the cap
+ * be exceeded by roughly the number of concurrent in-flight requests.
+ *
+ * Call this BEFORE the render work, not after — the whole point is that the
+ * check and the increment happen in one database-locked step. A render that
+ * subsequently fails for an unrelated reason still consumes the unit; that
+ * is a deliberate tradeoff (see the migration's own comment), not an
+ * oversight.
+ */
+export async function consumeCardGeneration(userId: string): Promise<{ allowed: boolean; plan: Plan }> {
+  const admin = createAdminClient();
+  const plan = await getUserPlan(userId);
+  const limit = PLANS[plan].cardsPerMonth;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: allowed, error } = await (admin as any).rpc('increment_cards_this_month_if_allowed', {
+    p_user_id: userId,
+    p_limit: limit,
+  });
+
+  if (error) {
+    // Migration 125 not applied yet — fall back to the old two-step check so
+    // card generation doesn't break before it's pasted in. This reintroduces
+    // the narrow race the migration closes, only until then.
+    console.error('[can] increment_cards_this_month_if_allowed failed (migration 125 applied?):', error.message);
+    const fallback = await canGenerateCard(userId);
+    if (fallback.allowed) await incrementCardsThisMonth(userId);
+    return fallback;
+  }
+
+  return { allowed: Boolean(allowed), plan };
+}

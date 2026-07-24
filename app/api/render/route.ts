@@ -25,7 +25,7 @@ function parseZones(raw: unknown): Zone[] {
     return result.success ? [result.data as unknown as Zone] : [];
   });
 }
-import { canGenerateCard, incrementCardsThisMonth } from '@/lib/billing/can';
+import { consumeCardGeneration } from '@/lib/billing/can';
 import { PLANS } from '@/lib/billing/plans';
 import { fireWebhooks } from '@/lib/webhooks';
 import { maybeSendDownloadMilestone, sendCapReachedEmail } from '@/lib/email';
@@ -682,8 +682,11 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // Check card generation limit for the event owner
-  const { allowed, plan } = await canGenerateCard(event.user_id);
+  // Check AND consume one unit of the event owner's card generation quota in
+  // one atomic step (migration 125) — a plain read-then-render-then-increment
+  // let two concurrent requests near the cap both pass and both count,
+  // exceeding the monthly limit by roughly the number of concurrent requests.
+  const { allowed, plan } = await consumeCardGeneration(event.user_id);
   if (!allowed) {
     // Notify the owner (best-effort) when their cap is hit.
     // Awaited: this used to be a floating .then() chain immediately before the
@@ -814,9 +817,10 @@ export async function POST(req: NextRequest) {
 
   // Fire counters + link card URL — all awaited so they land before the response goes out.
   // (Vercel terminates the function after the response is sent, so void/fire-and-forget is not safe here.)
+  // Card quota itself was already consumed atomically by consumeCardGeneration
+  // above, before this render ran — nothing left to increment here.
   await Promise.allSettled([
     supabase.from('events').update({ download_count: newDownloadCount }).eq('id', eventId),
-    incrementCardsThisMonth(event.user_id),
     ...(registrationId && outputUrl
       ? [supabase.from('registrations').update({ eventera_card_url: outputUrl }).eq('id', registrationId)]
       : []),
