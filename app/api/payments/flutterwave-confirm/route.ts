@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const verification = await verifyFlutterwaveTransaction(transaction_id ?? tx_ref);
-    const { status, amount, currency, tx_ref: verifiedRef } = verification.data ?? {};
+    const { id: fwTransactionId, status, amount, currency, tx_ref: verifiedRef } = verification.data ?? {};
 
     // SECURITY: `transaction_id` is supplied by the (unauthenticated) client.
     // Without binding the VERIFIED transaction back to this registration's
@@ -68,6 +68,11 @@ export async function POST(req: NextRequest) {
         .update({
           payment_status: 'paid',
           status: 'confirmed',
+          // Flutterwave's own numeric transaction id — required later to issue
+          // a refund (the API takes THIS id, not our tx_ref). Column name is
+          // shared with WaafiPay's tx id; the two never collide since a
+          // registration's currency alone tells you which processor it used.
+          flutterwave_tx_ref: fwTransactionId != null ? String(fwTransactionId) : null,
           updated_at: new Date().toISOString(),
         })
         .eq('qr_code_token', tx_ref)

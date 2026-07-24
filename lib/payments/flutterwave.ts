@@ -64,5 +64,47 @@ export async function verifyFlutterwaveTransaction(txId: string) {
   });
 
   const data = await res.json();
-  return data as { status: string; data: { status: string; amount: number; currency: string; tx_ref: string } };
+  // `id` is Flutterwave's own numeric transaction id — required later to
+  // issue a refund (POST /v3/transactions/{id}/refund takes THIS id, not the
+  // merchant's tx_ref). Not previously typed/captured, so no registration
+  // ever stored it — see refundFlutterwaveTransaction below.
+  return data as { status: string; data: { id: number; status: string; amount: number; currency: string; tx_ref: string } };
+}
+
+export interface FlutterwaveRefundResult {
+  ok: boolean;
+  error?: string;
+}
+
+/**
+ * Issues a real refund via Flutterwave's standard v3 refund endpoint.
+ * `transactionId` is Flutterwave's own numeric id (from verifyFlutterwaveTransaction's
+ * `data.id`), not the merchant tx_ref. Amount is optional — omitting it refunds
+ * the full transaction, which is what this app always wants (no partial refunds
+ * anywhere in the registration flow).
+ */
+export async function refundFlutterwaveTransaction(transactionId: string): Promise<FlutterwaveRefundResult> {
+  const secretKey = process.env.FLUTTERWAVE_SECRET_KEY;
+  if (!secretKey) return { ok: false, error: 'FLUTTERWAVE_SECRET_KEY is not set' };
+
+  try {
+    const res = await fetch(`https://api.flutterwave.com/v3/transactions/${transactionId}/refund`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${secretKey}`,
+      },
+      body: JSON.stringify({}),
+    });
+    const data = await res.json();
+    if (!res.ok || data.status !== 'success') {
+      const message: string = data?.message ?? `Flutterwave refund failed (HTTP ${res.status})`;
+      // Already refunded is not a failure — the money is already back.
+      if (/already.*refund/i.test(message)) return { ok: true };
+      return { ok: false, error: message };
+    }
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : 'Flutterwave refund request failed' };
+  }
 }

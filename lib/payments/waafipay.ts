@@ -104,6 +104,68 @@ export async function chargeWaafiPay(params: WaafiPayChargeParams): Promise<Waaf
   };
 }
 
+export interface WaafiPayReversalResult {
+  ok: boolean;
+  error?: string;
+}
+
+/**
+ * Reverses a completed WaafiPay purchase, returning the money to the payer's
+ * mobile wallet. Uses the same `asm` service-dispatch endpoint as
+ * chargeWaafiPay, with serviceName API_REVERSALPURCHASE — WaafiPay's
+ * documented pattern for undoing a completed API_PURCHASE by its
+ * transactionId.
+ *
+ * CAVEAT: unlike the Stripe/Flutterwave refund calls in this codebase, this
+ * has not been exercised against a live WaafiPay sandbox transaction — there
+ * was no sandbox credential available to verify the exact response shape.
+ * The success/failure parsing mirrors chargeWaafiPay's (same state/response
+ * code fields), and the call fails closed: any error or non-approved state
+ * returns ok:false and refundRegistration() will refuse to mark the ticket
+ * refunded. Confirm this works against a real WaafiPay sandbox transaction
+ * before relying on it for a live refund.
+ */
+export async function reverseWaafiPayTransaction(originalTransactionId: string): Promise<WaafiPayReversalResult> {
+  const { merchantUid, apiUserId, apiKey } = getCredentials();
+
+  const requestId = `reversal-${originalTransactionId}-${Date.now()}`;
+  const body = {
+    schemaVersion: '1.0',
+    requestId,
+    timestamp: new Date().toISOString(),
+    channelName: 'WEB',
+    serviceName: 'API_REVERSALPURCHASE',
+    serviceParams: {
+      merchantUid,
+      apiUserId,
+      apiKey,
+      transactionId: originalTransactionId,
+    },
+  };
+
+  try {
+    const res = await fetch(WAAFIPAY_API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) {
+      return { ok: false, error: `WaafiPay reversal API returned HTTP ${res.status}` };
+    }
+    const data = await res.json();
+    const state = data?.params?.state ?? data?.responseCode ?? 'UNKNOWN';
+    const txnStatus = data?.params?.issuer?.TXNSTATUS ?? state;
+    const isSuccess = ['APPROVED', 'SUCCESS', '2001'].includes(String(txnStatus).toUpperCase());
+    if (!isSuccess) {
+      const description = data?.params?.description ?? data?.responseMsg ?? 'Reversal declined';
+      return { ok: false, error: String(description) };
+    }
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : 'WaafiPay reversal request failed' };
+  }
+}
+
 export function verifyWaafiPayWebhook(
   payload: string,
   signature: string | null

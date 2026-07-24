@@ -81,7 +81,14 @@ export async function POST(req: NextRequest) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: updated, error } = await (admin as any)
       .from('registrations')
-      .update({ payment_status: 'paid', status: 'confirmed', updated_at: new Date().toISOString() })
+      .update({
+        payment_status: 'paid',
+        status: 'confirmed',
+        // Flutterwave's own numeric transaction id, needed later to issue a
+        // refund (the refund API takes THIS id, not our tx_ref).
+        flutterwave_tx_ref: String(txId),
+        updated_at: new Date().toISOString(),
+      })
       .eq('qr_code_token', tx_ref)
       .eq('payment_status', 'pending') // idempotent guard
       .select('id, ticket_type_id, event_id, user_id, attendee_email, attendee_name, platform_fee, organizer_net, currency')

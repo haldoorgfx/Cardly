@@ -1,6 +1,8 @@
 import { getStripe } from '@/lib/billing/stripe';
 import { logAudit } from '@/lib/audit/log';
 import type { SessionUser } from '@/lib/auth/guards';
+import { isFlutterwaveCurrency, refundFlutterwaveTransaction } from '@/lib/payments/flutterwave';
+import { isWaafiPayCurrency, reverseWaafiPayTransaction } from '@/lib/payments/waafipay';
 
 export interface RefundableRegistration {
   stripe_payment_intent_id: string | null;
@@ -16,10 +18,10 @@ export interface RefundResult {
 
 /**
  * Issues a real Stripe refund when a paid Stripe ticket transitions to
- * 'refunded'. Flutterwave and WaafiPay registrations have no reversal API
- * wired up yet — this deliberately leaves those untouched (same DB-only
- * status flip as before), so a Stripe outage or missing key never blocks a
- * refund an organizer needs to record for a non-Stripe payment.
+ * 'refunded'. Kept as its own function (used by refundPaymentIfNeeded below)
+ * since Stripe identifies the transaction by its own dedicated column
+ * (stripe_payment_intent_id), unlike Flutterwave/WaafiPay which share one
+ * reused text column and need the registration's currency to tell apart.
  */
 export async function refundStripeTicketIfNeeded(reg: RefundableRegistration): Promise<RefundResult> {
   if (!reg.stripe_payment_intent_id || reg.payment_status !== 'paid') {
@@ -42,6 +44,47 @@ export async function refundStripeTicketIfNeeded(reg: RefundableRegistration): P
   }
 }
 
+interface RefundablePayment {
+  stripe_payment_intent_id: string | null;
+  flutterwave_tx_ref: string | null;
+  currency: string;
+  payment_status: string;
+}
+
+/**
+ * The one dispatcher for "issue a real refund, whichever processor this
+ * registration actually paid through." `flutterwave_tx_ref` is a reused
+ * column — Flutterwave stores its own numeric transaction id there, WaafiPay
+ * stores its TXNID — so a registration's `currency` (the two gateways'
+ * supported currency lists are disjoint, see FLUTTERWAVE_CURRENCIES /
+ * WAAFIPAY_CURRENCIES) is what tells them apart, not the column itself.
+ *
+ * WaafiPay reversal is unverified against a live sandbox (see
+ * reverseWaafiPayTransaction's own caveat) — it fails closed like every path
+ * here, so a bad response just blocks the refund with an error rather than
+ * silently marking it refunded.
+ */
+export async function refundPaymentIfNeeded(reg: RefundablePayment): Promise<RefundResult> {
+  if (reg.payment_status !== 'paid') return { attempted: false, ok: true };
+
+  if (reg.stripe_payment_intent_id) {
+    return refundStripeTicketIfNeeded(reg);
+  }
+  if (reg.flutterwave_tx_ref) {
+    if (isFlutterwaveCurrency(reg.currency)) {
+      const result = await refundFlutterwaveTransaction(reg.flutterwave_tx_ref);
+      return { attempted: true, ok: result.ok, error: result.error };
+    }
+    if (isWaafiPayCurrency(reg.currency)) {
+      const result = await reverseWaafiPayTransaction(reg.flutterwave_tx_ref);
+      return { attempted: true, ok: result.ok, error: result.error };
+    }
+  }
+  // Manual/imported/free registrations never charged through a processor —
+  // nothing to reverse; the ledger reversal + status flip are the whole story.
+  return { attempted: false, ok: true };
+}
+
 interface RegistrationBeforeRefund {
   id: string;
   event_id: string;
@@ -49,6 +92,7 @@ interface RegistrationBeforeRefund {
   payment_status: string;
   ticket_type_id: string | null;
   stripe_payment_intent_id: string | null;
+  flutterwave_tx_ref: string | null;
   attendee_email: string;
   platform_fee: number | null;
   organizer_net: number | null;
@@ -76,19 +120,20 @@ export interface RefundRegistrationResult {
  * payment_status = 'paid', so a refund that only flipped `status` kept being
  * counted as earned revenue forever.
  *
- * Steps: real Stripe refund (unchanged existing helper) → one row update
- * (status + payment_status together) → reversing refund_fee/refund_net
- * ledger rows (idempotent — a retried call can't double-write, see migration
- * 124's partial unique index) → audit log, only when a real human actor
- * triggered this (a webhook-initiated refund has no SessionUser to log as;
- * the ledger row itself, with created_by null and provider 'stripe', is the
- * record of that system-initiated event).
+ * Steps: real refund via whichever processor the ticket was actually paid
+ * through (Stripe, Flutterwave, or WaafiPay — refundPaymentIfNeeded above) →
+ * one row update (status + payment_status together) → reversing
+ * refund_fee/refund_net ledger rows (idempotent — a retried call can't
+ * double-write, see migration 124's partial unique index) → audit log, only
+ * when a real human actor triggered this (a webhook-initiated refund has no
+ * SessionUser to log as; the ledger row itself, with created_by null and the
+ * real provider recorded, is the record of that system-initiated event).
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function refundRegistration(admin: any, registrationId: string, actor?: SessionUser): Promise<RefundRegistrationResult> {
   const { data: before } = await admin
     .from('registrations')
-    .select('id, event_id, status, payment_status, ticket_type_id, stripe_payment_intent_id, attendee_email, platform_fee, organizer_net, currency')
+    .select('id, event_id, status, payment_status, ticket_type_id, stripe_payment_intent_id, flutterwave_tx_ref, attendee_email, platform_fee, organizer_net, currency')
     .eq('id', registrationId)
     .maybeSingle();
 
@@ -101,7 +146,7 @@ export async function refundRegistration(admin: any, registrationId: string, act
     return { ok: true, before, flipped: false };
   }
 
-  const refund = await refundStripeTicketIfNeeded(before);
+  const refund = await refundPaymentIfNeeded(before);
   if (!refund.ok) return { ok: false, error: refund.error };
 
   // Guarded on the prior status so two concurrent refund calls for the same
