@@ -62,8 +62,14 @@ export function AcceptInviteClient({ token, teamName, inviteEmail, role, userEma
             You&apos;re invited!
           </h1>
           <p className="text-[14px] text-[#65736B] text-center mb-6">
-            Join <span className="font-semibold text-[#0F1F18]">{teamName}</span> as a{' '}
-            <span className="font-medium text-[#0F1F18]">{role}</span>.
+            Join <span className="font-semibold text-[#0F1F18]">{teamName}</span> as{' '}
+            {/* Team roles are stored as 'admin' | 'member', but the roster at
+                /team calls 'member' "Editor" — showing the raw DB value here
+                ("a member") described a different role than the one this same
+                person sees moments later on their own team page. */}
+            <span className="font-medium text-[#0F1F18]">
+              {role === 'admin' ? 'an Admin' : 'an Editor'}
+            </span>.
           </p>
 
           {/* Email mismatch warning */}

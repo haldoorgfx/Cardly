@@ -538,9 +538,14 @@ export function TeamClient({
               {/* Role */}
               <div><RoleBadge role={displayRole} /></div>
 
-              {/* Event access */}
+              {/* Event access — every active team member gets full access to every
+                  event the owner owns (lib/rbac/canManageEvent.ts, migration 116's
+                  can_manage_event()); team role only governs who can manage the
+                  TEAM itself. Showing "—" here for Editors used to claim they had
+                  no event access when they actually had the same "All events" as
+                  Admins — the opposite of what was displayed. */}
               <div className="text-[13px] text-[#3A4A42]">
-                {isTeamOwner || displayRole === 'admin' ? 'All events' : '—'}
+                All events
               </div>
 
               {/* Status */}
@@ -638,8 +643,10 @@ export function TeamClient({
       >
         <Shield size={14} strokeWidth={1.8} className="shrink-0 mt-0.5 text-[#65736B]" />
         <span>
-          <strong>Roles control access.</strong>{' '}
-          Owners and Admins manage everything; Editors manage assigned events; Check-in staff can only scan attendees at the door.
+          <strong>Team roles control team management, not event access.</strong>{' '}
+          Every member — Admin or Editor — can manage all of your events. Admins can additionally invite and remove teammates.
+          {' '}Need to limit someone to check-in, moderation, or finance on a single event instead? Use that event&apos;s{' '}
+          <span style={{ color: '#3A4A42', fontWeight: 500 }}>Staff</span> page.
         </span>
       </div>
     </PageShell>
