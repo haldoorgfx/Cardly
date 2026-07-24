@@ -114,8 +114,7 @@ Auth legend: **session** = Supabase auth cookie required (middleware redirects t
 | `/admin/users`, `/admin/users/[id]` | User management (suspend, role, delete, impersonate) |
 | `/admin/events` | All-events moderation |
 | `/admin/billing` | Subscriptions, invoices, comps, refunds |
-| `/admin/content`, `/admin/content/[id]/edit`, `/admin/content/[id]/preview` | CMS pages/blocks |
-| `/admin/media`, `/admin/templates`, `/admin/collections`, `/admin/theme`, `/admin/changelog`, `/admin/flags`, `/admin/audit` | Media library, card templates, collections, site theme, changelog, feature flags, audit log |
+| `/admin/templates`, `/admin/collections`, `/admin/theme`, `/admin/changelog`, `/admin/flags`, `/admin/audit`, `/admin/platform-features` | Card templates, collections, site theme, changelog, feature flags, audit log, platform-wide feature kill-switches |
 
 ---
 
@@ -333,7 +332,7 @@ Migrations: `supabase/migrations/001–046` plus root-level `supabase/047–057`
 - **white_label_settings** (023) — Studio white-label config; `/api/white-label`.
 - **feature_flags**, **feature_flag_overrides** (009) — platform flags; `lib/flags`, `/admin/flags`.
 - **audit_log** (005/006) — admin action trail; `lib/audit/log`, `/admin/audit`.
-- **cms_pages**, **cms_blocks**, **cms_page_versions**, **cms_navigation**, **cms_media** (007) — marketing/blog CMS; `/admin/content`, `/blog`.
+- **cms_pages**, **cms_blocks**, **cms_page_versions**, **cms_navigation**, **cms_media** (007) — marketing/blog CMS. No real marketing route ever read from these tables (every page under app/(marketing) is hardcoded); the admin UI (`/admin/content`, `/admin/media`) was removed 2026-07-24 as dead weight. Tables left in place, unused.
 - **changelog_entries** (006) — `/whats-new`, `/admin/changelog`.
 - **site_settings** (006/theme) — platform theme; `lib/theme/settings`, `/admin/theme`.
 - **saved_events** (010_attendee_accounts) — user↔event bookmarks; `/api/account/saved`, `/saved`.

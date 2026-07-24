@@ -166,8 +166,6 @@ const ROUTE_TIERS: Array<{ prefix: string; tier: LimiterTier; methods?: string[]
   // These also write straight to Storage but were falling through to
   // 'standard' (60/min) — at 10 MB a request that is ~600 MB/min per IP of
   // billable object storage with no cap.
-  // (/api/admin/media is deliberately left on 'standard' — the same path also
-  // serves the GET listing that backs the admin media library's pagination.)
   { prefix: '/api/brand/logo',                tier: 'render'   },
   { prefix: '/api/admin/upload-logo',         tier: 'render'   },
   // Expensive generation — image rendering and LLM calls.
