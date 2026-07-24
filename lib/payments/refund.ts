@@ -123,17 +123,31 @@ export async function refundRegistration(admin: any, registrationId: string, act
   const platformFee = Number(before.platform_fee ?? 0);
   const organizerNet = Number(before.organizer_net ?? 0);
   if (event?.user_id && (platformFee > 0 || organizerNet > 0)) {
+    // Reverse with the SAME provider/reference the original sale was recorded
+    // under (manual/import/stripe/flutterwave/waafipay) — hardcoding 'stripe'
+    // here mislabeled every non-Stripe reversal (walk-in, import, Flutterwave,
+    // WaafiPay) in the accounting-grade export, which exists specifically so
+    // an external bookkeeper can trust the provider column.
+    const { data: originalEntry } = await admin
+      .from('financial_transactions')
+      .select('provider, provider_ref')
+      .eq('registration_id', registrationId)
+      .eq('entry_type', 'organizer_net')
+      .maybeSingle();
+    const provider = originalEntry?.provider ?? (before.stripe_payment_intent_id ? 'stripe' : 'manual');
+    const providerRef = originalEntry?.provider_ref ?? before.stripe_payment_intent_id;
+
     const rows: Record<string, unknown>[] = [];
     if (platformFee > 0) {
       rows.push({
         entry_type: 'refund_fee', event_id: before.event_id, organizer_id: event.user_id, registration_id: registrationId,
-        amount: -platformFee, currency: before.currency, provider: 'stripe', provider_ref: before.stripe_payment_intent_id,
+        amount: -platformFee, currency: before.currency, provider, provider_ref: providerRef,
       });
     }
     if (organizerNet > 0) {
       rows.push({
         entry_type: 'refund_net', event_id: before.event_id, organizer_id: event.user_id, registration_id: registrationId,
-        amount: -organizerNet, currency: before.currency, provider: 'stripe', provider_ref: before.stripe_payment_intent_id,
+        amount: -organizerNet, currency: before.currency, provider, provider_ref: providerRef,
       });
     }
     const { error: ledgerError } = await admin.from('financial_transactions').insert(rows);
