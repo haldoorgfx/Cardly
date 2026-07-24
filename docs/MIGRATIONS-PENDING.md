@@ -67,6 +67,42 @@ right default for every row except 116.
 | **121** | `qa_points_cap_race_guard` | `award_qa_points()` RPC — closes a Q&A leaderboard-points race (see below) | Yes — same PGRST202 test as 107 |
 | **122** | `platform_feature_flags` | Seeds 19 `platform:*` rows into `feature_flags` (migration 009) — super-admin kill-switches, see below | Yes — `GET /rest/v1/feature_flags?flag=eq.platform:qa` should return one row once applied |
 | **123** | `remove_dead_feature_flags` | Deletes the 5 dead migration-009 flags (ai_captions, bulk_export, analytics_v2, qr_customization, new_canvas_editor) — confirmed unreferenced anywhere in the codebase | Yes — those 4 rows should disappear from `/rest/v1/feature_flags` once applied |
+| **124** | `financial_transactions_ledger` | New immutable ledger table for every platform fee, organizer payout, and refund — see below | Yes — `GET /rest/v1/financial_transactions?limit=1` returns `200` once applied, `42P01` (relation not found) before |
+
+---
+
+### 124 — the financial ledger (accounting system rebuild)
+
+New `financial_transactions` table: one immutable row per money-moving event
+(`platform_fee`, `organizer_net`, `refund_fee`, `refund_net`, `payout_issued`).
+Nothing ever `UPDATE`s a row — a refund is a reversing row, never an edit.
+"Owed to organizer" is always `SUM(amount)`, never a running-balance column.
+
+This closes three real problems found while investigating why the admin
+Billing page showed **$0 Eventera fees earned** on $1,508 of gross:
+
+1. **Fee-computation gap** — `registrations/route.ts` POST (organizer walk-in)
+   and `registrations/bulk/route.ts` (CSV import) never computed the platform
+   fee at all; only online checkout did. Both now call the same
+   `lib/billing/ledger.ts` helper online checkout uses.
+2. **Refunds handled 3 inconsistent ways**, two of which never flipped
+   `payment_status` — so a refunded ticket's fee stayed counted as "earned"
+   forever. Unified into one `refundRegistration()` in `lib/payments/refund.ts`,
+   used by the organizer PATCH, admin PATCH, and the Stripe webhook alike.
+3. **No ledger, no payout tracking** — everything was a live `SUM()` with no
+   history and no way to tell if an organizer had already been paid. This
+   migration is that ledger; `/api/admin/billing/payouts` records payouts
+   against it.
+
+**Safe to apply any time.** Every reader (`app/admin/billing/page.tsx`,
+the organizer Revenue page, `/api/admin/finance/export`) falls back
+gracefully to the pre-ledger behavior if this table doesn't exist yet — they
+just won't show refund-aware or payout-aware figures until it's applied.
+
+The migration also does a **best-effort backfill** from existing
+`registrations.platform_fee`/`organizer_net` for currently-paid and
+-refunded rows, clearly labeled as an opening balance, not restated history —
+it can only reflect what those columns hold today.
 
 ---
 

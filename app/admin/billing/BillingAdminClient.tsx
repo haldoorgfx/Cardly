@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { Search, Loader2, Gift, FileText, RotateCcw, X } from 'lucide-react';
+import { Search, Loader2, Gift, FileText, RotateCcw, X, Banknote } from 'lucide-react';
 import type { BillingUserRow } from './page';
 import { toast } from '@/hooks/use-toast';
 import { StatusState, describeError } from '@/components/ui/status-state';
@@ -137,6 +137,110 @@ function CompModal({
           >
             {saving && <Loader2 size={12} strokeWidth={2} className="animate-spin" />}
             Grant plan
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Payout modal ──────────────────────────────────────────────────────────────
+
+function PayoutModal({
+  user,
+  onDone,
+  onClose,
+}: {
+  user: BillingUserRow;
+  onDone: () => void;
+  onClose: () => void;
+}) {
+  const [amount, setAmount] = useState('');
+  const [currency, setCurrency] = useState('USD');
+  const [note, setNote] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+
+  const submit = async () => {
+    const parsed = Number(amount);
+    if (!(parsed > 0)) { setError('Enter an amount greater than 0.'); return; }
+    setSaving(true); setError('');
+    try {
+      const res = await fetch('/api/admin/billing/payouts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ organizer_id: user.id, amount: parsed, currency, note }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Could not record this payout.');
+      toast({ title: 'Payout recorded', description: `${currency} ${parsed.toLocaleString()} recorded as paid to ${user.email}.`, variant: 'success' });
+      onDone();
+    } catch (e) {
+      const msg = describeError(e, 'the payout');
+      setError(msg);
+      toast({ title: 'Could not record the payout', description: msg, variant: 'destructive' });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[300] flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+      <div className="relative bg-white rounded-2xl shadow-lift border border-[#E5E0D4] p-6 max-w-sm w-full">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-semibold text-[15px] text-[#0F1F18]">Record payout</h3>
+          <button onClick={onClose} className="h-10 w-10 grid place-items-center rounded-lg hover:bg-[#FAF6EE] transition-colors">
+            <X size={13} strokeWidth={2} className="text-[#65736B]" />
+          </button>
+        </div>
+        <p className="text-[13px] text-[#65736B] mb-4">
+          Record that <strong className="text-[#0F1F18]">{user.email}</strong> was paid outside the platform
+          (bank transfer, mobile money, etc.). This writes a ledger entry so &quot;owed to organizers&quot; on this
+          page nets down — it does not move any money itself.
+        </p>
+        <div className="grid grid-cols-2 gap-3 mb-3">
+          <div>
+            <label className="text-[12px] text-[#65736B] mb-1.5 block">Amount</label>
+            <input
+              type="number" min="0" step="0.01"
+              value={amount}
+              onChange={e => setAmount(e.target.value)}
+              placeholder="0.00"
+              className="w-full border border-[#E5E0D4] rounded-lg px-3 py-2 text-[13px] outline-none focus:ring-2 focus:ring-[#1F4D3A]/20"
+            />
+          </div>
+          <div>
+            <label className="text-[12px] text-[#65736B] mb-1.5 block">Currency</label>
+            <input
+              value={currency}
+              onChange={e => setCurrency(e.target.value.toUpperCase())}
+              maxLength={3}
+              placeholder="USD"
+              className="w-full border border-[#E5E0D4] rounded-lg px-3 py-2 text-[13px] uppercase outline-none focus:ring-2 focus:ring-[#1F4D3A]/20"
+            />
+          </div>
+        </div>
+        <div className="mb-4">
+          <label className="text-[12px] text-[#65736B] mb-1.5 block">Note (optional)</label>
+          <input
+            value={note}
+            onChange={e => setNote(e.target.value)}
+            placeholder="E.g. bank transfer ref #1234, July settlement"
+            className="w-full border border-[#E5E0D4] rounded-lg px-3 py-2 text-[13px] outline-none focus:ring-2 focus:ring-[#1F4D3A]/20"
+          />
+        </div>
+        {error && <p className="text-[12px] text-[#B8423C] mb-3">{error}</p>}
+        <div className="flex gap-2 justify-end">
+          <button onClick={onClose} className="px-4 py-2 rounded-lg text-[13px] text-[#65736B] border border-[#E5E0D4] hover:bg-[#FAF6EE] transition-colors">Cancel</button>
+          <button
+            onClick={submit}
+            disabled={saving}
+            className="px-4 py-2 rounded-lg text-[13px] font-medium text-white transition hover:opacity-90 disabled:opacity-50 flex items-center gap-2"
+            style={{ background: '#1F4D3A' }}
+          >
+            {saving && <Loader2 size={12} strokeWidth={2} className="animate-spin" />}
+            Record payout
           </button>
         </div>
       </div>
@@ -323,6 +427,7 @@ export function BillingAdminClient({ users: initialUsers, total, page, totalPage
   const [filters, setFilters] = useState<Filters>(defaultFilters);
   const [compUser, setCompUser]     = useState<BillingUserRow | null>(null);
   const [invoiceUser, setInvoiceUser] = useState<BillingUserRow | null>(null);
+  const [payoutUser, setPayoutUser] = useState<BillingUserRow | null>(null);
 
   const hasActiveFilters = Object.values(defaultFilters).some(v => v !== '');
 
@@ -377,6 +482,13 @@ export function BillingAdminClient({ users: initialUsers, total, page, totalPage
         className="h-10 w-10 rounded-lg border border-[#E5E0D4] grid place-items-center text-[#65736B] hover:bg-[#FAF6EE] transition-colors"
       >
         <FileText size={12} strokeWidth={2} />
+      </button>
+      <button
+        onClick={() => setPayoutUser(u)}
+        title="Record payout"
+        className="h-10 w-10 rounded-lg border border-[#E5E0D4] grid place-items-center text-[#65736B] hover:bg-[#FAF6EE] transition-colors"
+      >
+        <Banknote size={12} strokeWidth={2} />
       </button>
     </div>
   );
@@ -520,6 +632,7 @@ export function BillingAdminClient({ users: initialUsers, total, page, totalPage
 
       {compUser && <CompModal user={compUser} onDone={handleComp} onClose={() => setCompUser(null)} />}
       {invoiceUser && <InvoicesPanel user={invoiceUser} onClose={() => setInvoiceUser(null)} />}
+      {payoutUser && <PayoutModal user={payoutUser} onDone={() => { setPayoutUser(null); router.refresh(); }} onClose={() => setPayoutUser(null)} />}
     </div>
   );
 }

@@ -1,10 +1,10 @@
 -- ============================================================
 -- 040: Platform fees on paid tickets (the take-rate engine)
 --
--- Records what Karta earns and what the organizer is owed on every
--- PAID registration. Karta is already the merchant of record (money
--- lands in Karta's processor accounts), so payout v1 is manual:
---   organizer is owed SUM(organizer_net); Karta keeps SUM(platform_fee).
+-- Records what Eventera earns and what the organizer is owed on every
+-- PAID registration. Eventera is already the merchant of record (money
+-- lands in Eventera's processor accounts), so payout v1 is manual:
+--   organizer is owed SUM(organizer_net); Eventera keeps SUM(platform_fee).
 --
 -- Invariant: organizer_net = amount_paid - platform_fee.
 --   absorb → attendee pays face;        net = face - fee

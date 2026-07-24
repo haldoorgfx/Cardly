@@ -5,6 +5,7 @@ import { createTicketPaymentIntent, getTicketStripe } from '@/lib/payments/strip
 import { initFlutterwavePayment, isFlutterwaveCurrency, type FlutterwaveCurrency } from '@/lib/payments/flutterwave';
 import { isWaafiPayCurrency } from '@/lib/payments/waafipay';
 import { splitTicketAmount, type FeeBearer } from '@/lib/billing/fees';
+import { computeAndStoreFeeSplit } from '@/lib/billing/ledger';
 import { onRegistrationConfirmed } from '@/lib/integrations/dispatch';
 import type { Plan } from '@/lib/billing/plans';
 import { canRegisterForEvent, getUserPlan } from '@/lib/billing/can';
@@ -474,14 +475,17 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       .eq('id', registration.id);
   }
 
-  // Record the platform-fee split (best-effort — the columns exist after
-  // migration 040; before that this no-ops and registration still succeeds).
+  // Store the platform-fee split on the registration (best-effort — the
+  // columns exist after migration 040). Deliberately NOT written to the
+  // financial_transactions ledger here — this registration is still
+  // 'pending', awaiting an async payment confirmation (Stripe/Flutterwave/
+  // WaafiPay). Booking fee revenue now would count money that hasn't been
+  // collected and might still fail. The ledger entry is written at the
+  // pending→paid flip instead — see the payment confirm/webhook routes.
   if (!isFree) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (admin as any)
-      .from('registrations')
-      .update({ platform_fee: split.platformFee, organizer_net: split.organizerNet, fee_bearer: feeBearer })
-      .eq('id', registration.id);
+    await computeAndStoreFeeSplit({
+      admin, registrationId: registration.id, faceAmount: chargedPrice, plan: organizerPlan, feeBearer, currency: ticket.currency,
+    });
   }
 
   // 5b. Post-insert capacity recheck (free tickets only — paid tickets land as 'pending'

@@ -5,6 +5,7 @@ import { sendRegistrationConfirmEmail } from '@/lib/registration/email';
 import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
 import { onRegistrationConfirmed } from '@/lib/integrations/dispatch';
 import { notifyOrganizerNewRegistration } from '@/lib/notifications';
+import { recordConfirmedSaleLedger } from '@/lib/billing/ledger';
 
 // WaafiPay async callback — handles post-payment confirmations and reversals.
 export async function POST(req: NextRequest) {
@@ -67,13 +68,22 @@ export async function POST(req: NextRequest) {
       })
       .eq('qr_code_token', String(invoiceId))
       .eq('payment_status', 'pending')
-      .select('id, attendee_name, attendee_email, event_id, ticket_type_id, qr_code_token, user_id')
+      .select('id, attendee_name, attendee_email, event_id, ticket_type_id, qr_code_token, user_id, platform_fee, organizer_net, currency')
       .maybeSingle();
 
     if (updated) {
       // First pending→paid flip only — increment sold count once.
       if (updated.ticket_type_id) {
         await admin.rpc('increment_ticket_quantity_sold', { ticket_id: updated.ticket_type_id, qty: 1 });
+      }
+      // Money is actually collected now — book the ledger entry.
+      {
+        const { data: eventForLedger } = await admin.from('events').select('user_id').eq('id', updated.event_id).maybeSingle();
+        await recordConfirmedSaleLedger({
+          admin, eventId: updated.event_id, organizerId: eventForLedger?.user_id,
+          registrationId: updated.id, platformFee: updated.platform_fee, organizerNet: updated.organizer_net,
+          currency: updated.currency, provider: 'waafipay', providerRef: String(txId ?? ''),
+        });
       }
       const [{ data: eventPage }, { data: ticket }] = await Promise.all([
         admin.from('event_pages').select('title, starts_at, timezone, venue_name, venue_address, is_online').eq('event_id', updated.event_id).single(),

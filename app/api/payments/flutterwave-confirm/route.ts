@@ -5,6 +5,7 @@ import { sendRegistrationConfirmEmail } from '@/lib/registration/email';
 import { createNotification, notifyOrganizerNewRegistration } from '@/lib/notifications';
 import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
 import { onRegistrationConfirmed } from '@/lib/integrations/dispatch';
+import { recordConfirmedSaleLedger } from '@/lib/billing/ledger';
 
 // Called by the confirm page on Flutterwave redirect return.
 // tx_ref = qr_code_token. Verifies the transaction and marks registration paid.
@@ -71,7 +72,7 @@ export async function POST(req: NextRequest) {
         })
         .eq('qr_code_token', tx_ref)
         .eq('payment_status', 'pending') // idempotent — only flip a genuinely pending payment
-        .select('id, attendee_name, attendee_email, event_id, ticket_type_id, qr_code_token, user_id')
+        .select('id, attendee_name, attendee_email, event_id, ticket_type_id, qr_code_token, user_id, platform_fee, organizer_net, currency')
         .maybeSingle();
 
       if (updated) {
@@ -83,6 +84,14 @@ export async function POST(req: NextRequest) {
           admin.from('event_pages').select('title, starts_at, timezone, venue_name, venue_address, is_online').eq('event_id', updated.event_id).single(),
           admin.from('ticket_types').select('name').eq('id', updated.ticket_type_id ?? '').single(),
         ]);
+        {
+          const { data: eventForLedger } = await admin.from('events').select('user_id').eq('id', updated.event_id).maybeSingle();
+          await recordConfirmedSaleLedger({
+            admin, eventId: updated.event_id, organizerId: eventForLedger?.user_id,
+            registrationId: updated.id, platformFee: updated.platform_fee, organizerNet: updated.organizer_net,
+            currency: updated.currency, provider: 'flutterwave', providerRef: verifiedRef,
+          });
+        }
         if (eventPage) {
           const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? '';
           const { data: event } = await admin.from('events').select('slug, user_id').eq('id', updated.event_id).single();

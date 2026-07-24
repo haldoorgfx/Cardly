@@ -18,10 +18,22 @@ interface Reg {
   ticket_types: { name: string; price: number } | null;
 }
 
+interface LedgerTotal {
+  gross: number;
+  fees: number;
+  net: number;
+  refunded: number;
+  currency: string;
+}
+
 interface Props {
   eventId: string;
   eventSlug: string;
   registrations: Reg[];
+  /** Per-currency sums from the financial_transactions ledger (migration 124),
+   *  scoped to this event. Null before the migration is applied — the view
+   *  falls back to deriving totals from `registrations` in that case. */
+  ledgerTotals: LedgerTotal[] | null;
 }
 
 function fmt(amount: number, currency: string) {
@@ -56,7 +68,7 @@ function StatCard({ icon, label, value, sub }: { icon: React.ReactNode; label: s
   );
 }
 
-export function RevenueView({ registrations }: Props) {
+export function RevenueView({ registrations, ledgerTotals }: Props) {
   const [tab, setTab] = useState<'tickets' | 'promoters' | 'utm'>('tickets');
 
   // Revenue is summed over the confirmed set (already filtered to confirmed+
@@ -65,23 +77,43 @@ export function RevenueView({ registrations }: Props) {
   // rows with amount_paid>0 that Overview/Analytics/Reports all count, so the
   // Revenue total read lower than every other surface.
   const paidRegs = registrations;
-  const totalRevenue = useMemo(() => paidRegs.reduce((s, r) => s + (r.amount_paid ?? 0), 0), [paidRegs]);
-  const totalFee = useMemo(() => paidRegs.reduce((s, r) => s + (r.platform_fee ?? 0), 0), [paidRegs]);
-  const totalNet = useMemo(
-    () => paidRegs.reduce((s, r) => s + (r.organizer_net ?? ((r.amount_paid ?? 0) - (r.platform_fee ?? 0))), 0),
-    [paidRegs],
-  );
-  // True only when the fee columns (migration 040) are actually populated. When
-  // they are absent the select falls back to base columns and every fee reads
-  // undefined, making totalNet collapse to gross — labelling that "Net payable /
-  // what you'll receive" promises the organizer money the platform fee will take.
-  const hasFeeData = paidRegs.some(r => r.platform_fee != null || r.organizer_net != null);
 
   // A single event can sell tickets priced in more than one currency. Summing
   // those into one number under one symbol is meaningless, so detect it and say so.
   const currencies = Array.from(new Set(paidRegs.filter(r => r.amount_paid > 0).map(r => r.currency).filter(Boolean)));
   const isMixedCurrency = currencies.length > 1;
   const primaryCurrency = currencies[0] ?? 'USD';
+
+  // Prefer the ledger (migration 124) for the top-line stat cards — it's the
+  // one figure that can't silently diverge from what admin Billing reports,
+  // and it correctly nets refunds out of "fees earned"/"net payable" instead
+  // of counting a refunded ticket's fee as earned forever. Falls back to
+  // deriving from `registrations` when the ledger isn't available yet
+  // (pre-migration) or the event is mixed-currency (the ledger is summed the
+  // same way per-currency, but the fallback path already has its own
+  // mixed-currency handling below, so only reach for it when there's a single
+  // currency to key into).
+  const ledgerForPrimary = !isMixedCurrency ? ledgerTotals?.find(l => l.currency === primaryCurrency) : undefined;
+  const hasLedgerData = !!ledgerForPrimary;
+
+  // Hooks must run unconditionally — compute both sources every render, then
+  // pick between them below.
+  const derivedRevenue = useMemo(() => paidRegs.reduce((s, r) => s + (r.amount_paid ?? 0), 0), [paidRegs]);
+  const derivedFee = useMemo(() => paidRegs.reduce((s, r) => s + (r.platform_fee ?? 0), 0), [paidRegs]);
+  const derivedNet = useMemo(
+    () => paidRegs.reduce((s, r) => s + (r.organizer_net ?? ((r.amount_paid ?? 0) - (r.platform_fee ?? 0))), 0),
+    [paidRegs],
+  );
+
+  const totalRevenue = hasLedgerData ? ledgerForPrimary!.gross : derivedRevenue;
+  const totalFee = hasLedgerData ? ledgerForPrimary!.fees : derivedFee;
+  const totalNet = hasLedgerData ? ledgerForPrimary!.net : derivedNet;
+  const totalRefunded = ledgerForPrimary?.refunded ?? 0;
+  // True only when the fee columns (migration 040) are actually populated. When
+  // they are absent the select falls back to base columns and every fee reads
+  // undefined, making totalNet collapse to gross — labelling that "Net payable /
+  // what you'll receive" promises the organizer money the platform fee will take.
+  const hasFeeData = hasLedgerData || paidRegs.some(r => r.platform_fee != null || r.organizer_net != null);
   const totalCount = registrations.length;
   const paidCount = registrations.filter(r => (r.amount_paid ?? 0) > 0).length;
   const freeCount = registrations.filter(r => (r.amount_paid ?? 0) === 0).length;
@@ -126,10 +158,12 @@ export function RevenueView({ registrations }: Props) {
 
   // CSV export
   const exportCSV = () => {
-    const headers = ['Ticket', 'Amount', 'Currency', 'Status', 'Payment', 'Promoter Code', 'UTM Source', 'Registered At'];
+    const headers = ['Ticket', 'Amount', 'Platform Fee', 'Organizer Net', 'Currency', 'Status', 'Payment', 'Promoter Code', 'UTM Source', 'Registered At'];
     const rows = registrations.map(r => [
       r.ticket_types?.name ?? 'General',
       r.amount_paid,
+      r.platform_fee ?? '',
+      r.organizer_net ?? '',
       r.currency,
       r.status,
       r.payment_status,
@@ -163,6 +197,11 @@ export function RevenueView({ registrations }: Props) {
         />
         <StatCard icon={<Users size={16} />} label="Attendees" value={String(totalCount)} />
       </div>
+      {totalRefunded > 0 && !isMixedCurrency && (
+        <p className="text-[12px] mb-1" style={{ color: '#B8423C' }}>
+          {fmtShort(totalRefunded, primaryCurrency)} refunded to attendees so far — already excluded from the figures above.
+        </p>
+      )}
       <p className="text-[12px] mb-8" style={{ color: '#65736B' }}>
         {hasFeeData
           ? <>Net payable is your revenue after Eventera&apos;s platform fee. Payouts are processed manually for now — we&apos;ll be in touch to settle.</>

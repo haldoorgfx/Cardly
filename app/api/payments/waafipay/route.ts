@@ -3,6 +3,7 @@ import { chargeWaafiPay, type WaafiPayResult } from '@/lib/payments/waafipay';
 import { createAdminClient } from '@/lib/supabase/server';
 import { createNotification, notifyOrganizerNewRegistration } from '@/lib/notifications';
 import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
+import { recordConfirmedSaleLedger } from '@/lib/billing/ledger';
 
 // Called by WaafiPayStep after pending registration is created.
 // Synchronous: WaafiPay responds immediately with success/failure.
@@ -18,7 +19,7 @@ export async function POST(req: NextRequest) {
   // Load registration
   const { data: reg } = await admin
     .from('registrations')
-    .select('id, qr_code_token, amount_paid, chosen_price, currency, event_id, ticket_type_id, payment_status, user_id, attendee_email, attendee_name')
+    .select('id, qr_code_token, amount_paid, chosen_price, currency, event_id, ticket_type_id, payment_status, user_id, attendee_email, attendee_name, platform_fee, organizer_net')
     .eq('id', registration_id)
     .single();
 
@@ -152,6 +153,16 @@ export async function POST(req: NextRequest) {
     // Increment sold count only on the first pending→paid flip (prevents oversell + double-count).
     if (flipped && reg.ticket_type_id) {
       await admin.rpc('increment_ticket_quantity_sold', { ticket_id: reg.ticket_type_id!, qty: 1 });
+    }
+
+    // Money is actually collected now — book the ledger entry.
+    if (flipped) {
+      const { data: eventForLedger } = await admin.from('events').select('user_id').eq('id', reg.event_id).maybeSingle();
+      await recordConfirmedSaleLedger({
+        admin, eventId: reg.event_id, organizerId: eventForLedger?.user_id,
+        registrationId: reg.id, platformFee: reg.platform_fee, organizerNet: reg.organizer_net,
+        currency: reg.currency, provider: 'waafipay', providerRef: result.transactionId,
+      });
     }
 
     // In-app notification for the attendee — only on the first flip, only if they have an account.

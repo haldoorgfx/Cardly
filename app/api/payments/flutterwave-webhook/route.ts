@@ -4,6 +4,7 @@ import { verifyFlutterwaveTransaction } from '@/lib/payments/flutterwave';
 import { createAdminClient } from '@/lib/supabase/server';
 import { createNotification, notifyOrganizerNewRegistration } from '@/lib/notifications';
 import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
+import { recordConfirmedSaleLedger } from '@/lib/billing/ledger';
 
 export async function POST(req: NextRequest) {
   // Verify Flutterwave webhook hash (constant-time to prevent timing oracle)
@@ -83,7 +84,7 @@ export async function POST(req: NextRequest) {
       .update({ payment_status: 'paid', status: 'confirmed', updated_at: new Date().toISOString() })
       .eq('qr_code_token', tx_ref)
       .eq('payment_status', 'pending') // idempotent guard
-      .select('ticket_type_id, event_id, user_id, attendee_email, attendee_name')
+      .select('id, ticket_type_id, event_id, user_id, attendee_email, attendee_name, platform_fee, organizer_net, currency')
       .maybeSingle();
 
     // The attendee has already been charged. A 200 here retires the webhook and
@@ -96,6 +97,14 @@ export async function POST(req: NextRequest) {
     // First pending→paid transition only — increment sold count once.
     if (updated?.ticket_type_id) {
       await admin.rpc('increment_ticket_quantity_sold', { ticket_id: updated.ticket_type_id, qty: 1 });
+    }
+    if (updated) {
+      const { data: eventForLedger } = await admin.from('events').select('user_id').eq('id', updated.event_id).maybeSingle();
+      await recordConfirmedSaleLedger({
+        admin, eventId: updated.event_id, organizerId: eventForLedger?.user_id,
+        registrationId: updated.id, platformFee: updated.platform_fee, organizerNet: updated.organizer_net,
+        currency: updated.currency, provider: 'flutterwave', providerRef: tx_ref,
+      });
     }
     // In-app notification for the attendee — only on the first flip, only if they have an account.
     if (updated?.user_id) {

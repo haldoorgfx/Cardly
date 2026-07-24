@@ -3,7 +3,10 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { createNotification } from '@/lib/notifications';
 import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
 import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
-import { refundStripeTicketIfNeeded } from '@/lib/payments/refund';
+import { refundRegistration } from '@/lib/payments/refund';
+import { getUserPlan } from '@/lib/billing/can';
+import { recordTicketSaleLedger } from '@/lib/billing/ledger';
+import type { FeeBearer } from '@/lib/billing/fees';
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   const supabase = createClient();
@@ -51,7 +54,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const admin = createAdminClient();
   const { data: event } = await admin
     .from('events')
-    .select('id, name')
+    .select('id, name, user_id, fee_bearer')
     .eq('id', params.id)
     .in('user_id', await manageableOwnerIds(user.id))
     .single();
@@ -117,6 +120,26 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
+  // Record the platform-fee split for this paid walk-in exactly like online
+  // checkout does — organizer plan determines the take-rate; Studio pays 0%.
+  // A manually-added attendee previously earned Eventera nothing regardless
+  // of the organizer's plan, and was invisible to the Billing/Revenue ledger.
+  if (ticket && ticket.price > 0 && reg) {
+    const organizerPlan = await getUserPlan(event.user_id);
+    const feeBearer = (event.fee_bearer as FeeBearer) ?? 'absorb';
+    await recordTicketSaleLedger({
+      admin,
+      registrationId: reg.id,
+      eventId: params.id,
+      organizerId: event.user_id,
+      faceAmount: ticket.price,
+      plan: organizerPlan,
+      feeBearer,
+      currency: ticket.currency,
+      provider: 'manual',
+    });
+  }
+
   // Increment quantity_sold for the ticket type (walk-in registration)
   if (ticket_type_id && reg) {
     await admin.rpc('increment_ticket_quantity_sold', { ticket_id: ticket_type_id, qty: 1 });
@@ -177,6 +200,10 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   // Captured before the update when a status change might release a ticket
   // slot, so we know what it's transitioning FROM (see decrement below).
   let priorForRelease: { status: string; ticket_type_id: string | null } | null = null;
+  // True once refundRegistration() has already committed status='refunded' —
+  // the generic update below must not guard on the OLD status (confirmed/
+  // checked_in), since that no longer matches and would 409 a successful refund.
+  let refundHandled = false;
 
   if (status !== undefined) {
     const VALID_STATUSES = ['pending', 'confirmed', 'checked_in', 'cancelled', 'refunded'];
@@ -193,30 +220,38 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       }
     }
 
-    // Cancelling/refunding releases the ticket-type slot this registration
-    // was holding — but only if it had actually reached confirmed/checked_in
-    // (a still-pending registration never incremented quantity_sold).
-    if (status === 'cancelled' || status === 'refunded') {
-      const { data: prior } = await admin.from('registrations').select('status, ticket_type_id, stripe_payment_intent_id, payment_status').eq('id', registrationId).eq('event_id', params.id).maybeSingle();
-      if (prior && (prior.status === 'confirmed' || prior.status === 'checked_in')) {
-        priorForRelease = prior;
+    // Refund is handled entirely by the shared refundRegistration() — Stripe
+    // refund, the status+payment_status flip together (this route used to
+    // only ever touch `status`, permanently overstating "fees earned" on the
+    // admin Billing page for every registration refunded here), and the
+    // reversing ledger rows. No actor is passed: organizer actions in this
+    // codebase aren't written to audit_log (that's an admin-only trail) — the
+    // ledger row itself is the record of this event.
+    if (status === 'refunded') {
+      const result = await refundRegistration(admin, registrationId);
+      if (!result.ok) {
+        return NextResponse.json({ error: `Refund failed: ${result.error}` }, { status: 502 });
       }
-
-      // Refund the attendee's card BEFORE writing 'refunded' — a Flutterwave
-      // or WaafiPay registration has no reversal API yet and falls through
-      // untouched (attempted: false), but a Stripe registration that fails to
-      // refund must not have the DB claim it was refunded anyway.
-      if (status === 'refunded' && prior) {
-        const refund = await refundStripeTicketIfNeeded(prior);
-        if (!refund.ok) {
-          return NextResponse.json({ error: `Refund failed: ${refund.error}` }, { status: 502 });
+      refundHandled = true;
+      if (result.flipped && result.before && (result.before.status === 'confirmed' || result.before.status === 'checked_in')) {
+        priorForRelease = { status: result.before.status, ticket_type_id: result.before.ticket_type_id };
+      }
+      // status/payment_status already committed by refundRegistration —
+      // don't let the generic patch below redundantly rewrite status.
+    } else {
+      // Cancelling releases the ticket-type slot this registration was
+      // holding — but only if it had actually reached confirmed/checked_in
+      // (a still-pending registration never incremented quantity_sold).
+      if (status === 'cancelled') {
+        const { data: prior } = await admin.from('registrations').select('status, ticket_type_id').eq('id', registrationId).eq('event_id', params.id).maybeSingle();
+        if (prior && (prior.status === 'confirmed' || prior.status === 'checked_in')) {
+          priorForRelease = prior;
         }
       }
+      patch.status = status;
+      if (status === 'checked_in') patch.checked_in_at = new Date().toISOString();
+      else patch.checked_in_at = null;
     }
-
-    patch.status = status;
-    if (status === 'checked_in') patch.checked_in_at = new Date().toISOString();
-    else patch.checked_in_at = null;
   }
   if (attendee_name !== undefined) patch.attendee_name = attendee_name;
   if (attendee_email !== undefined) patch.attendee_email = attendee_email.toLowerCase();
@@ -236,7 +271,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   // 'cancelled', and both decrement quantity_sold — undercounting the ticket
   // type and letting the event oversell. With the precondition only the first
   // request matches a row; the second returns none and skips the decrement.
-  if (priorForRelease) updateQuery = updateQuery.in('status', ['confirmed', 'checked_in']);
+  if (priorForRelease && !refundHandled) updateQuery = updateQuery.in('status', ['confirmed', 'checked_in']);
 
   const { data, error } = await updateQuery
     .select('*, ticket_types(name, price)')

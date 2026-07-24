@@ -3,7 +3,7 @@ import { getAuthorizedUser } from '@/lib/auth/guards';
 import { EVENT_EDIT_ALL } from '@/lib/auth/permissions';
 import { createAdminClient } from '@/lib/supabase/server';
 import { logAudit } from '@/lib/audit/log';
-import { refundStripeTicketIfNeeded } from '@/lib/payments/refund';
+import { refundRegistration } from '@/lib/payments/refund';
 import type { RegistrationStatus } from '@/types/database';
 
 const VALID_STATUSES: RegistrationStatus[] = [
@@ -42,15 +42,25 @@ export async function PATCH(
 
   if (!before) return NextResponse.json({ error: 'Registration not found' }, { status: 404 });
 
-  // Refund the attendee's card BEFORE writing 'refunded'. Flutterwave/WaafiPay
-  // registrations have no reversal API yet and fall through untouched
-  // (refundStripeTicketIfNeeded no-ops for them), but a Stripe registration
-  // whose refund call fails must not have the DB record it as refunded anyway.
+  // Refund is handled entirely by the shared refundRegistration() — Stripe
+  // refund, the status+payment_status flip together (this route used to only
+  // ever touch `status`, permanently overstating "fees earned" on the admin
+  // Billing page for every registration refunded here), the reversing ledger
+  // rows, and its own audit log entry. Short-circuit the generic patch path
+  // below entirely for this status.
   if (status === 'refunded') {
-    const refund = await refundStripeTicketIfNeeded(before);
-    if (!refund.ok) {
-      return NextResponse.json({ error: `Refund failed: ${refund.error}` }, { status: 502 });
+    const result = await refundRegistration(adminClient, params.id, user);
+    if (!result.ok) {
+      return NextResponse.json({ error: `Refund failed: ${result.error}` }, { status: 502 });
     }
+    const releasesSeat = result.flipped && (before.status === 'confirmed' || before.status === 'checked_in');
+    if (releasesSeat && before.ticket_type_id) {
+      await adminClient.rpc('decrement_ticket_quantity_sold', { ticket_id: before.ticket_type_id, qty: 1 });
+    }
+    return NextResponse.json({
+      ok: true,
+      registration: { id: params.id, event_id: before.event_id, attendee_email: before.attendee_email, status: 'refunded' },
+    });
   }
 
   // Keep checked_in_at coherent when moving in/out of the checked_in state.
@@ -62,9 +72,10 @@ export async function PATCH(
   if (before.status === 'checked_in' && status !== 'checked_in') patch.checked_in_at = null;
 
   // Does this transition release a held seat? (Only confirmed/checked_in ever
-  // incremented quantity_sold — a pending registration never did.)
+  // incremented quantity_sold — a pending registration never did.) 'refunded'
+  // is handled entirely above and returns before reaching here.
   const releasesSeat =
-    (status === 'cancelled' || status === 'refunded') &&
+    status === 'cancelled' &&
     (before.status === 'confirmed' || before.status === 'checked_in');
 
   let updateQuery = adminClient

@@ -6,6 +6,8 @@ import { createNotification, notifyOrganizerNewRegistration } from '@/lib/notifi
 import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
 import { onRegistrationConfirmed } from '@/lib/integrations/dispatch';
 import { fromStripeMinorUnits } from '@/lib/payments/currency';
+import { recordConfirmedSaleLedger } from '@/lib/billing/ledger';
+import { refundRegistration } from '@/lib/payments/refund';
 
 export const runtime = 'nodejs';
 
@@ -65,7 +67,7 @@ export async function POST(req: NextRequest) {
         })
         .eq('stripe_payment_intent_id', pi.id)
         .eq('payment_status', 'pending') // idempotent guard
-        .select('attendee_name, attendee_email, attendee_phone, qr_code_token, ticket_type_id, user_id, event_id, ticket_types(name), events!inner(slug, user_id, event_pages(title, starts_at, venue_name, is_online))')
+        .select('id, attendee_name, attendee_email, attendee_phone, qr_code_token, ticket_type_id, user_id, event_id, platform_fee, organizer_net, currency, ticket_types(name), events!inner(slug, user_id, event_pages(title, starts_at, venue_name, is_online))')
         .maybeSingle();
       if (error) {
         // The customer's card HAS been charged at this point. Returning 200 here
@@ -121,6 +123,15 @@ export async function POST(req: NextRequest) {
         if (updated.ticket_type_id) {
           await admin.rpc('increment_ticket_quantity_sold', { ticket_id: updated.ticket_type_id, qty: 1 });
         }
+        // Money is actually collected now — book the ledger entry here, not at
+        // registration creation (which only stored the estimated split on a
+        // still-pending row).
+        await recordConfirmedSaleLedger({
+          admin, eventId: updated.event_id, organizerId: updated.events?.user_id,
+          registrationId: updated.id,
+          platformFee: updated.platform_fee, organizerNet: updated.organizer_net,
+          currency: updated.currency, provider: 'stripe', providerRef: pi.id,
+        });
         const ep = updated.events?.event_pages?.[0];
         if (updated.events?.user_id) {
           void onRegistrationConfirmed(updated.events.user_id, {
@@ -222,38 +233,32 @@ export async function POST(req: NextRequest) {
             && typeof charge.amount_refunded === 'number'
             && charge.amount_refunded >= charge.amount);
       if (charge.payment_intent && fullyRefunded) {
-        // The .in(status) guard doubles as the idempotency key: a replayed
-        // refund webhook matches zero rows the second time, so the seat is
-        // returned exactly once.
-        const refundPatch = { status: 'refunded', payment_status: 'refunded', updated_at: new Date().toISOString() };
-
-        // Split by prior status. quantity_sold is only incremented on the
-        // pending→confirmed flip, so a registration refunded while still
-        // 'pending' never held a seat — decrementing for it would undercount
-        // the ticket type and let the event oversell by one.
+        // refundRegistration() is the one writer for a refund — Stripe call
+        // (idempotent: this webhook usually fires AFTER our own refund call
+        // already succeeded elsewhere, and "already been refunded" is treated
+        // as success), the status+payment_status flip together, and the
+        // reversing ledger rows. No actor: this is a Stripe-initiated event,
+        // not a signed-in user's action — the ledger row (provider: 'stripe',
+        // created_by: null) is the record of it.
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const { data: refundedRows } = await (admin as any)
+        const { data: matches } = await (admin as any)
           .from('registrations')
-          .update(refundPatch)
+          .select('id, ticket_type_id')
           .eq('stripe_payment_intent_id', charge.payment_intent)
-          .in('status', ['confirmed', 'checked_in'])
-          .select('id, ticket_type_id');
-
-        // Still-pending rows: mark refunded, but hold the counter steady.
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await (admin as any)
-          .from('registrations')
-          .update(refundPatch)
-          .eq('stripe_payment_intent_id', charge.payment_intent)
-          .eq('status', 'pending');
+          .neq('status', 'refunded');
 
         // Give the seat back. Without this a refunded ticket held its slot
         // forever and the event silently under-sold against max capacity.
-        for (const r of (refundedRows ?? []) as { ticket_type_id: string | null }[]) {
-          if (r.ticket_type_id) {
+        // quantity_sold is only incremented on the pending→confirmed flip, so
+        // a registration refunded while still 'pending' never held a seat —
+        // decrementing for it would undercount the ticket type.
+        for (const r of (matches ?? []) as { id: string; ticket_type_id: string | null }[]) {
+          const result = await refundRegistration(admin, r.id);
+          if (result.flipped && result.before?.ticket_type_id
+              && (result.before.status === 'confirmed' || result.before.status === 'checked_in')) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             await (admin as any).rpc('decrement_ticket_quantity_sold', {
-              ticket_id: r.ticket_type_id,
+              ticket_id: result.before.ticket_type_id,
               qty: 1,
             });
           }

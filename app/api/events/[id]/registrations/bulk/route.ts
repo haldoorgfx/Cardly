@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { createNotification } from '@/lib/notifications';
 import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
+import { getUserPlan } from '@/lib/billing/can';
+import { recordTicketSaleLedger } from '@/lib/billing/ledger';
+import type { FeeBearer } from '@/lib/billing/fees';
 
 interface AttendeeRow {
   attendee_name: string;
@@ -18,7 +21,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const admin = createAdminClient();
   const { data: event } = await admin
     .from('events')
-    .select('id')
+    .select('id, user_id, fee_bearer')
     .eq('id', params.id)
     .in('user_id', await manageableOwnerIds(user.id))
     .single();
@@ -111,9 +114,31 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     // Duplicates are already filtered above (existingEmails), so a plain insert is
     // correct. Avoids ON CONFLICT, which failed — there is no unique index on
     // (event_id, attendee_email) in the registrations table.
-    const { error } = await admin.from('registrations').insert(toInsert);
+    const { data: insertedRows, error } = await admin.from('registrations').insert(toInsert).select('id');
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     imported = toInsert.length;
+
+    // Record the platform-fee split for every paid row in this batch — the
+    // same gap as manual walk-in registration had. Plan/fee_bearer are looked
+    // up ONCE for the whole import, not per attendee, matching how the price
+    // itself is already resolved once above.
+    if (ticket && ticket.price > 0 && insertedRows) {
+      const organizerPlan = await getUserPlan(event.user_id);
+      const feeBearer = (event.fee_bearer as FeeBearer) ?? 'absorb';
+      for (const row of insertedRows as { id: string }[]) {
+        await recordTicketSaleLedger({
+          admin,
+          registrationId: row.id,
+          eventId: params.id,
+          organizerId: event.user_id,
+          faceAmount: ticket.price,
+          plan: organizerPlan,
+          feeBearer,
+          currency: ticket.currency,
+          provider: 'import',
+        });
+      }
+    }
 
     // Keep quantity_sold in sync on the ticket type.
     // Atomic RPC, not read-then-write: the old select+update lost the whole

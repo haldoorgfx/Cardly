@@ -4,6 +4,7 @@ import { createAdminClient } from '@/lib/supabase/server';
 import { sendRegistrationConfirmEmail } from '@/lib/registration/email';
 import { createNotification, notifyOrganizerNewRegistration } from '@/lib/notifications';
 import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
+import { recordConfirmedSaleLedger } from '@/lib/billing/ledger';
 
 // Called by the confirm page after Stripe redirect to verify payment and mark registration as paid.
 // Idempotent — safe to call multiple times (webhook may have already done the update).
@@ -37,7 +38,7 @@ export async function POST(req: NextRequest) {
       .eq('qr_code_token', qr_code_token)
       .eq('stripe_payment_intent_id', payment_intent_id) // ensure PI belongs to this registration
       .in('payment_status', ['pending']) // only update pending rows (idempotent)
-      .select('id, attendee_name, attendee_email, event_id, ticket_type_id, qr_code_token, user_id')
+      .select('id, attendee_name, attendee_email, event_id, ticket_type_id, qr_code_token, user_id, platform_fee, organizer_net, currency')
       .maybeSingle();
 
     // Send confirmation email if we just transitioned (not already confirmed)
@@ -58,6 +59,14 @@ export async function POST(req: NextRequest) {
       if (eventPage) {
         const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? '';
         const { data: event } = await admin.from('events').select('slug, user_id').eq('id', updated.event_id).single();
+        // Money is actually collected now — book the ledger entry. This route
+        // and the Stripe webhook race for the same pending→paid flip; only the
+        // winner reaches here, so the ledger entry is written exactly once.
+        await recordConfirmedSaleLedger({
+          admin, eventId: updated.event_id, organizerId: event?.user_id,
+          registrationId: updated.id, platformFee: updated.platform_fee, organizerNet: updated.organizer_net,
+          currency: updated.currency, provider: 'stripe', providerRef: payment_intent_id,
+        });
         // Notify the organizer of the new (paid) registration. Guarded by the
         // pending→paid flip above (shared idempotent guard with the Stripe
         // webhook), so it fires exactly once per ticket.

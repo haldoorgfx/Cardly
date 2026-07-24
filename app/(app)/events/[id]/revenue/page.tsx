@@ -63,13 +63,40 @@ export default async function RevenuePage({ params }: Props) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const regs = (regsRes.data ?? []) as any;
 
+  // Top-line gross/fee/net/refunded figures come from the financial_transactions
+  // ledger (migration 124) scoped to this event, so they can never silently
+  // diverge from what admin Billing reports platform-wide — the two used to
+  // read different filters (payment_status='paid' vs status IN (confirmed,
+  // checked_in)) and could disagree on the very same event. Per-ticket-type/
+  // promoter/UTM breakdowns below still come from the registrations join,
+  // since the ledger doesn't carry that context.
+  let ledgerTotals: { gross: number; fees: number; net: number; refunded: number; currency: string }[] | null = null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: ledgerRows, error: ledgerError } = await (admin as any)
+    .from('financial_transactions')
+    .select('entry_type, amount, currency')
+    .eq('event_id', id);
+  if (!ledgerError) {
+    const byCurrency: Record<string, { gross: number; fees: number; net: number; refunded: number }> = {};
+    for (const r of (ledgerRows ?? []) as { entry_type: string; amount: number; currency: string }[]) {
+      const c = r.currency;
+      byCurrency[c] ??= { gross: 0, fees: 0, net: 0, refunded: 0 };
+      const amt = Number(r.amount ?? 0);
+      if (r.entry_type === 'platform_fee') { byCurrency[c].fees += amt; byCurrency[c].gross += amt; }
+      else if (r.entry_type === 'organizer_net') { byCurrency[c].net += amt; byCurrency[c].gross += amt; }
+      else if (r.entry_type === 'refund_fee') { byCurrency[c].fees += amt; byCurrency[c].refunded += -amt; }
+      else if (r.entry_type === 'refund_net') { byCurrency[c].net += amt; byCurrency[c].refunded += -amt; }
+    }
+    ledgerTotals = Object.entries(byCurrency).map(([currency, v]) => ({ ...v, currency }));
+  }
+
   return (
     <PageShell width="wide">
       <PageHeader
         title="Revenue"
         subtitle="Earnings breakdown by ticket type, promoter link, and UTM source."
       />
-      <RevenueView eventId={id} eventSlug={event.slug} registrations={regs ?? []} />
+      <RevenueView eventId={id} eventSlug={event.slug} registrations={regs ?? []} ledgerTotals={ledgerTotals} />
     </PageShell>
   );
 }
