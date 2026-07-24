@@ -38,6 +38,13 @@ function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
+function venueLabel(ev: EventRow) {
+  const ep = ev.event_pages;
+  if (!ep) return '—';
+  if (ep.venue_name && ep.city) return `${ep.venue_name}, ${ep.city}`;
+  return ep.venue_name ?? ep.city ?? '—';
+}
+
 export function EventsOversightClient({ events: initialEvents, total, page, totalPages, defaultFilters }: Props) {
   const router   = useRouter();
   const pathname = usePathname();
@@ -53,9 +60,12 @@ export function EventsOversightClient({ events: initialEvents, total, page, tota
   const [nameDraft, setNameDraft] = useState('');
   const saveName = async (ev: EventRow, value: string) => {
     const v = value.trim();
+    const current = ev.event_pages?.title ?? ev.name;
     setEditName(null);
-    if (!v || v === ev.name) return;
-    setEvents(prev => prev.map(e => (e.id === ev.id ? { ...e, name: v } : e)));
+    if (!v || v === current) return;
+    setEvents(prev => prev.map(e => (e.id === ev.id
+      ? { ...e, name: v, event_pages: e.event_pages ? { ...e.event_pages, title: v } : e.event_pages }
+      : e)));
     try {
       const res = await fetch(`/api/admin/events/${ev.id}`, {
         method: 'PATCH',
@@ -215,11 +225,11 @@ export function EventsOversightClient({ events: initialEvents, total, page, tota
       ) : (
         <button
           type="button"
-          onClick={() => { setNameDraft(ev.name); setEditName(ev.id); }}
-          title="Click to edit name"
+          onClick={() => { setNameDraft(ev.event_pages?.title ?? ev.name); setEditName(ev.id); }}
+          title="Click to edit name — updates the real public page title, not just the internal record"
           className="font-medium text-[#0F1F18] hover:text-[#1F4D3A] transition-colors text-left truncate max-w-full block"
         >
-          {ev.name}
+          {ev.event_pages?.title ?? ev.name}
         </button>
       )}
       <div className="flex items-center gap-1 mt-0.5">
@@ -441,7 +451,9 @@ export function EventsOversightClient({ events: initialEvents, total, page, tota
                   <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#65736B]">Owner</th>
                   <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#65736B]">Status</th>
                   <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#65736B]">Moderation</th>
-                  <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#65736B]">Views / Cards</th>
+                  <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#65736B]">Venue</th>
+                  <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#65736B]">Starts</th>
+                  <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#65736B]">Registrations</th>
                   <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#65736B]">Created</th>
                   <th className="text-left px-4 py-3  text-[12px] tracking-[0.14em] uppercase text-[#65736B]">Actions</th>
                 </tr>
@@ -467,10 +479,21 @@ export function EventsOversightClient({ events: initialEvents, total, page, tota
 
                     <td className="px-4 py-3">{renderStatusBadge(ev)}</td>
 
-                    <td className="px-4 py-3">{renderModerationBadge(ev)}</td>
+                    <td className="px-4 py-3">
+                      {renderModerationBadge(ev)}
+                      {ev.event_pages && !ev.event_pages.is_public && (
+                        <div className="text-[11px] mt-0.5" style={{ color: '#B8423C' }}>hidden from attendees</div>
+                      )}
+                    </td>
+
+                    <td className="px-4 py-3  text-[12.5px] text-[#65736B]">{venueLabel(ev)}</td>
 
                     <td className="px-4 py-3  text-[12.5px] text-[#65736B]">
-                      {ev.view_count} / {ev.download_count}
+                      {ev.event_pages?.starts_at ? formatDate(ev.event_pages.starts_at) : '—'}
+                    </td>
+
+                    <td className="px-4 py-3  text-[12.5px] text-[#65736B]">
+                      {ev.registration_count ?? 0}
                     </td>
 
                     <td className="px-4 py-3  text-[12.5px] text-[#65736B]">
@@ -505,9 +528,13 @@ export function EventsOversightClient({ events: initialEvents, total, page, tota
                 <div className="flex items-center gap-2 flex-wrap mt-2.5">
                   {renderStatusBadge(ev)}
                   {renderModerationBadge(ev)}
+                  {ev.event_pages && !ev.event_pages.is_public && (
+                    <span className="text-[11px]" style={{ color: '#B8423C' }}>hidden from attendees</span>
+                  )}
                 </div>
+                <div className="mt-2.5 text-[12px] text-[#65736B]">{venueLabel(ev)}</div>
                 <div className="mt-2.5 flex items-center justify-between text-[12px] text-[#65736B]">
-                  <span>{ev.view_count} views · {ev.download_count} cards</span>
+                  <span>{ev.registration_count ?? 0} registrations{ev.event_pages?.starts_at ? ` · ${formatDate(ev.event_pages.starts_at)}` : ''}</span>
                   <span>{formatDate(ev.created_at)}</span>
                 </div>
               </div>

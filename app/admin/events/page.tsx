@@ -29,10 +29,16 @@ export default async function EventsOversightPage({
   const offset = (page - 1) * PAGE_SIZE;
 
   const adminClient = createAdminClient();
-  let query = adminClient
+  // events is the legacy digital-card record (view_count/download_count are
+  // card stats) — the modern event (venue, dates, public visibility) lives on
+  // event_pages, a 0-or-1 child keyed by event_id. Left join it in so this
+  // oversight tool can actually show what the event IS, not just its card
+  // stats, and so an admin can tell whether it's even publicly live.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let query = (adminClient as any)
     .from('events')
     .select(
-      'id, name, slug, status, moderation_status, user_id, view_count, download_count, created_at, profiles!events_user_id_fkey(email, full_name)',
+      'id, name, slug, status, moderation_status, user_id, created_at, profiles!events_user_id_fkey(email, full_name), event_pages(title, venue_name, city, starts_at, is_public)',
       { count: 'exact' }
     );
 
@@ -55,6 +61,26 @@ export default async function EventsOversightPage({
   const { data: events, count } = await query;
   const totalPages = Math.ceil((count ?? 0) / PAGE_SIZE);
 
+  // Real registration counts, replacing the legacy card view_count/
+  // download_count — one query for the whole page, tallied in memory,
+  // rather than a per-row count query.
+  const eventIds = (events ?? []).map((e: { id: string }) => e.id);
+  const regCounts: Record<string, number> = {};
+  if (eventIds.length > 0) {
+    const { data: regRows } = await adminClient
+      .from('registrations')
+      .select('event_id')
+      .in('event_id', eventIds);
+    for (const r of (regRows ?? []) as { event_id: string }[]) {
+      regCounts[r.event_id] = (regCounts[r.event_id] ?? 0) + 1;
+    }
+  }
+
+  const rows: EventRow[] = (events ?? []).map((e: EventRow) => ({
+    ...e,
+    registration_count: regCounts[e.id] ?? 0,
+  }));
+
   return (
     <PageShell width="screen">
       <PageHeader
@@ -65,7 +91,7 @@ export default async function EventsOversightPage({
 
       <EventsOversightClient
         key={`${searchParams.q ?? ''}|${searchParams.status ?? ''}|${searchParams.moderation ?? ''}|${page}`}
-        events={(events ?? []) as EventRow[]}
+        events={rows}
         total={count ?? 0}
         page={page}
         totalPages={totalPages}
@@ -86,8 +112,9 @@ export interface EventRow {
   status: string;
   moderation_status: string;
   user_id: string;
-  view_count: number;
-  download_count: number;
   created_at: string;
   profiles: { email: string | null; full_name: string | null } | null;
+  event_pages: { title: string | null; venue_name: string | null; city: string | null; starts_at: string | null; is_public: boolean } | null;
+  /** Not selected from the DB — filled in below from a separate count query. */
+  registration_count?: number;
 }

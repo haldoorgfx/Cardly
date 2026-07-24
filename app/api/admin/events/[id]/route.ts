@@ -67,6 +67,30 @@ export async function PATCH(
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
+  // events.name is never read by the real public page — event_pages.title is
+  // (hero heading, SEO title, JSON-LD name; see app/(public)/e/[slug]/page.tsx).
+  // Renaming here alone left an admin's edit invisible to every attendee for
+  // any event that already has a page, which is effectively all of them.
+  if (hasName) {
+    await adminClient
+      .from('event_pages')
+      .update({ title: trimmedName })
+      .eq('event_id', params.id);
+  }
+
+  // This only ever touched events.status, which gates the LEGACY /c/[slug]
+  // card route. The real public event page (/e/[slug]) is gated entirely by
+  // event_pages.is_public, which this never set — so "Remove" made an
+  // abusive event 404 on the old card URL while it stayed fully live for
+  // every attendee visiting the real page. Mirror the same on/off onto
+  // event_pages so removal actually takes the event down.
+  if (hasModeration) {
+    await adminClient
+      .from('event_pages')
+      .update({ is_public: moderation_status !== 'removed' })
+      .eq('event_id', params.id);
+  }
+
   const action = hasModeration ? `event.moderation.${moderation_status}` : 'event.renamed';
   await logAudit(user, action, 'event', params.id, {
     before: { moderation_status: before.moderation_status, name: before.name },

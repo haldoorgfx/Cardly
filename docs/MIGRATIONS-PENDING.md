@@ -66,6 +66,7 @@ right default for every row except 116.
 | 120 | `registrations_hot_indexes` | Three ordering indexes on `registrations` (event+date, date, paid) | No — indexes aren't visible over REST. Purely additive, zero risk to apply; `CREATE INDEX` locks writes, so run during low traffic or add `CONCURRENTLY` if applying while an event is live. |
 | **121** | `qa_points_cap_race_guard` | `award_qa_points()` RPC — closes a Q&A leaderboard-points race (see below) | Yes — same PGRST202 test as 107 |
 | **122** | `platform_feature_flags` | Seeds 19 `platform:*` rows into `feature_flags` (migration 009) — super-admin kill-switches, see below | Yes — `GET /rest/v1/feature_flags?flag=eq.platform:qa` should return one row once applied |
+| **123** | `remove_dead_feature_flags` | Deletes the 5 dead migration-009 flags (ai_captions, bulk_export, analytics_v2, qr_customization, new_canvas_editor) — confirmed unreferenced anywhere in the codebase | Yes — those 4 rows should disappear from `/rest/v1/feature_flags` once applied |
 
 ---
 
