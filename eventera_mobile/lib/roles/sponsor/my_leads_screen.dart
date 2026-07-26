@@ -211,14 +211,20 @@ class _MyLeadsScreenState extends State<MyLeadsScreen> {
                           separatorBuilder: (_, _) => const SizedBox(height: 8),
                           itemBuilder: (_, i) {
                             final l = leads[i];
-                            return InkWell(
+                            // `Ink` carries the row's background — a Container's
+                            // opaque color paints over the InkWell's splash and
+                            // hides the ripple.
+                            return Material(
+                              color: Colors.transparent,
                               borderRadius: BorderRadius.circular(14),
+                              clipBehavior: Clip.antiAlias,
+                              child: InkWell(
                               onTap: () => Navigator.of(context).push(
                                   MaterialPageRoute(
                                       builder: (_) => LeadDetailScreen(
                                           leadId: l.id,
                                           boothName: widget.boothName))),
-                              child: Container(
+                              child: Ink(
                                 padding: const EdgeInsets.all(14),
                                 decoration: BoxDecoration(
                                   color: AppColors.surface,
@@ -283,6 +289,7 @@ class _MyLeadsScreenState extends State<MyLeadsScreen> {
                                       ),
                                   ],
                                 ),
+                              ),
                               ),
                             );
                           },

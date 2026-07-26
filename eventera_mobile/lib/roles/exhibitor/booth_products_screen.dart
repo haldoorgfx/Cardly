@@ -292,10 +292,15 @@ class _BoothProductsScreenState extends State<BoothProductsScreen> {
             separatorBuilder: (_, _) => const SizedBox(height: 8),
             itemBuilder: (_, i) {
               final p = products[i];
-              return InkWell(
+              // `Ink` carries the card's background — a Container's opaque
+              // color paints over the InkWell's splash and hides the ripple.
+              return Material(
+                color: Colors.transparent,
                 borderRadius: BorderRadius.circular(14),
-                onTap: () => _editProduct(existing: p),
-                child: Container(
+                clipBehavior: Clip.antiAlias,
+                child: InkWell(
+                  onTap: () => _editProduct(existing: p),
+                  child: Ink(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: AppColors.surface,
@@ -365,6 +370,7 @@ class _BoothProductsScreenState extends State<BoothProductsScreen> {
                     const Icon(Icons.chevron_right,
                         size: 18, color: AppColors.inkMuted),
                   ]),
+                  ),
                 ),
               );
             },

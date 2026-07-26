@@ -201,9 +201,15 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
             style: AppText.bodySm,
           ),
           const SizedBox(height: 12),
-          GestureDetector(
+          // `Ink` carries the dropzone's background — a Container's opaque
+          // color paints over the InkWell's splash and hides the ripple.
+          Material(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(AppRadius.card),
+            clipBehavior: Clip.antiAlias,
+            child: InkWell(
             onTap: _pickDesign,
-            child: Container(
+            child: Ink(
               height: 240,
               decoration: BoxDecoration(
                 color: AppColors.surface,
@@ -215,7 +221,6 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                 ),
                 boxShadow: AppShadow.soft,
               ),
-              clipBehavior: Clip.antiAlias,
               child: _imageBytes == null
                   ? Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -238,6 +243,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                       ],
                     )
                   : Image.memory(_imageBytes!, fit: BoxFit.contain),
+            ),
             ),
           ),
           if (_imageBytes != null) ...[
@@ -273,44 +279,54 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
           // When — optional.
           Text('When', style: AppText.label),
           const SizedBox(height: 7),
-          GestureDetector(
-            onTap: _pickWhen,
-            behavior: HitTestBehavior.opaque,
-            child: Container(
-              height: 50,
-              padding: const EdgeInsets.symmetric(horizontal: 15),
-              decoration: BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: BorderRadius.circular(AppRadius.input),
-                border: Border.all(color: AppColors.border),
-              ),
-              child: Row(children: [
-                const Icon(Icons.event_outlined,
-                    size: 18, color: AppColors.inkMuted),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    _startsAt == null ? 'Add date & time' : _formatWhen(_startsAt!),
-                    style: AppText.body.copyWith(
-                      color: _startsAt == null
-                          ? AppColors.inkMuted
-                          : AppColors.ink,
+          // `Ink` carries the field's background — a Container's opaque
+          // color paints over the InkWell's splash and hides the ripple.
+          Material(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(AppRadius.input),
+            clipBehavior: Clip.antiAlias,
+            child: InkWell(
+              onTap: _pickWhen,
+              child: Ink(
+                height: 50,
+                padding: const EdgeInsets.symmetric(horizontal: 15),
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(AppRadius.input),
+                  border: Border.all(color: AppColors.border),
+                ),
+                child: Row(children: [
+                  const Icon(Icons.event_outlined,
+                      size: 18, color: AppColors.inkMuted),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      _startsAt == null ? 'Add date & time' : _formatWhen(_startsAt!),
+                      style: AppText.body.copyWith(
+                        color: _startsAt == null
+                            ? AppColors.inkMuted
+                            : AppColors.ink,
+                      ),
                     ),
                   ),
-                ),
-                if (_startsAt != null)
-                  GestureDetector(
-                    onTap: () {
-                      HapticFeedback.selectionClick();
-                      setState(() => _startsAt = null);
-                    },
-                    child: const Icon(Icons.close,
+                  if (_startsAt != null)
+                    InkWell(
+                      onTap: () {
+                        HapticFeedback.selectionClick();
+                        setState(() => _startsAt = null);
+                      },
+                      customBorder: const CircleBorder(),
+                      child: const Padding(
+                        padding: EdgeInsets.all(4),
+                        child: Icon(Icons.close,
+                            size: 18, color: AppColors.inkMuted),
+                      ),
+                    )
+                  else
+                    const Icon(Icons.chevron_right,
                         size: 18, color: AppColors.inkMuted),
-                  )
-                else
-                  const Icon(Icons.chevron_right,
-                      size: 18, color: AppColors.inkMuted),
-              ]),
+                ]),
+              ),
             ),
           ),
           const SizedBox(height: 18),

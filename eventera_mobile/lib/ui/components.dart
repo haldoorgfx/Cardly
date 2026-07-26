@@ -276,21 +276,27 @@ class MCard extends StatelessWidget {
   });
   @override
   Widget build(BuildContext context) {
-    final card = Container(
-      padding: padding,
-      decoration: BoxDecoration(
-        color: color ?? AppColors.surface,
-        borderRadius: BorderRadius.circular(AppRadius.card),
-        border: Border.all(color: AppColors.border),
-        boxShadow: AppShadow.soft,
-      ),
-      child: child,
-    );
-    if (onTap == null) return card;
-    return InkWell(
-      onTap: onTap,
+    final decoration = BoxDecoration(
+      color: color ?? AppColors.surface,
       borderRadius: BorderRadius.circular(AppRadius.card),
-      child: card,
+      border: Border.all(color: AppColors.border),
+      boxShadow: AppShadow.soft,
+    );
+    if (onTap == null) {
+      return Container(padding: padding, decoration: decoration, child: child);
+    }
+    // The card's own background must live on `Ink`, not a plain `Container`,
+    // or its opaque color paints over the InkWell's splash and the tap gives
+    // no visible feedback at all (a Container decoration always paints after
+    // the Material's ink-features layer, hiding the ripple underneath it).
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(AppRadius.card),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Ink(padding: padding, decoration: decoration, child: child),
+      ),
     );
   }
 }

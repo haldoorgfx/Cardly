@@ -197,9 +197,15 @@ class _EventDaysScreenState extends State<EventDaysScreen> {
         .map((id) => _entitlements.where((e) => e.id == id).firstOrNull?.name)
         .whereType<String>()
         .toList();
-    return GestureDetector(
+    // `Ink` carries the card's background — a Container's opaque color
+    // paints over the InkWell's splash and hides the ripple.
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(AppRadius.card),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
       onTap: () => _editDay(day),
-      child: Container(
+      child: Ink(
         padding: const EdgeInsets.all(AppSpace.base),
         decoration: BoxDecoration(
           color: AppColors.surface,
@@ -264,6 +270,7 @@ class _EventDaysScreenState extends State<EventDaysScreen> {
             const Icon(Icons.chevron_right, size: 18, color: AppColors.inkMuted),
           ],
         ),
+      ),
       ),
     );
   }
@@ -413,34 +420,45 @@ class _DayEditSheetState extends State<_DayEditSheet> {
         const SizedBox(height: 16),
         Text('Date', style: AppText.bodyStrong.copyWith(fontSize: 13)),
         const SizedBox(height: 8),
-        GestureDetector(
-          onTap: _pickDate,
-          child: Container(
-            height: 46,
-            padding: const EdgeInsets.symmetric(horizontal: 14),
-            decoration: BoxDecoration(
-              color: AppColors.canvas,
-              borderRadius: BorderRadius.circular(AppRadius.btn),
-              border: Border.all(color: AppColors.border),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.calendar_today_outlined,
-                    size: 16, color: AppColors.inkMuted),
-                const SizedBox(width: 10),
-                Text(
-                  _date != null
-                      ? _EventDaysScreenState._fmtDate(_date!)
-                      : 'No date set',
-                  style: AppText.body,
-                ),
-                const Spacer(),
-                if (_date != null)
-                  GestureDetector(
-                    onTap: () => setState(() => _date = null),
-                    child: const Icon(Icons.close, size: 16, color: AppColors.inkMuted),
+        // `Ink` carries the field's background — a Container's opaque color
+        // paints over the InkWell's splash and hides the ripple.
+        Material(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(AppRadius.btn),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: _pickDate,
+            child: Ink(
+              height: 46,
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              decoration: BoxDecoration(
+                color: AppColors.canvas,
+                borderRadius: BorderRadius.circular(AppRadius.btn),
+                border: Border.all(color: AppColors.border),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.calendar_today_outlined,
+                      size: 16, color: AppColors.inkMuted),
+                  const SizedBox(width: 10),
+                  Text(
+                    _date != null
+                        ? _EventDaysScreenState._fmtDate(_date!)
+                        : 'No date set',
+                    style: AppText.body,
                   ),
-              ],
+                  const Spacer(),
+                  if (_date != null)
+                    InkWell(
+                      onTap: () => setState(() => _date = null),
+                      customBorder: const CircleBorder(),
+                      child: const Padding(
+                        padding: EdgeInsets.all(4),
+                        child: Icon(Icons.close, size: 16, color: AppColors.inkMuted),
+                      ),
+                    ),
+                ],
+              ),
             ),
           ),
         ),

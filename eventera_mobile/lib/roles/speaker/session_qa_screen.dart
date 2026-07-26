@@ -183,17 +183,25 @@ class _SessionQaScreenState extends State<SessionQaScreen> {
                 style: AppText.bodySm,
               ),
               const SizedBox(height: 18),
-              GestureDetector(
-                onTap: () => Navigator.pop(ctx, true),
-                child: Container(
-                  height: 52,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: AppColors.danger,
-                    borderRadius: BorderRadius.circular(AppRadius.btn),
+              // `Ink` carries the button's background — a Container's opaque
+              // color paints over the InkWell's splash and hides the ripple.
+              Material(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(AppRadius.btn),
+                clipBehavior: Clip.antiAlias,
+                child: InkWell(
+                  onTap: () => Navigator.pop(ctx, true),
+                  child: Ink(
+                    height: 52,
+                    decoration: BoxDecoration(
+                      color: AppColors.danger,
+                      borderRadius: BorderRadius.circular(AppRadius.btn),
+                    ),
+                    child: Center(
+                      child: Text('Hide question',
+                          style: AppText.btn.copyWith(color: Colors.white)),
+                    ),
                   ),
-                  child: Text('Hide question',
-                      style: AppText.btn.copyWith(color: Colors.white)),
                 ),
               ),
               const SizedBox(height: 8),
@@ -373,51 +381,66 @@ class _SessionQaScreenState extends State<SessionQaScreen> {
   }) {
     final fg = primary ? Colors.white : AppColors.forest;
     final bg = primary ? AppColors.forest : AppColors.forestSoft;
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        height: 40,
-        padding: const EdgeInsets.symmetric(horizontal: 14),
-        decoration: BoxDecoration(
-          color: onTap == null ? bg.withValues(alpha: 0.55) : bg,
-          borderRadius: BorderRadius.circular(999),
+    // `Ink` carries the pill's background — a Container's opaque color
+    // paints over the InkWell's splash and hides the ripple.
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(999),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Ink(
+          height: 40,
+          padding: const EdgeInsets.symmetric(horizontal: 14),
+          decoration: BoxDecoration(
+            color: onTap == null ? bg.withValues(alpha: 0.55) : bg,
+            borderRadius: BorderRadius.circular(999),
+          ),
+          child: Center(
+            child: busy
+                ? SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: fg))
+                : Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(icon, size: 17, color: fg),
+                      const SizedBox(width: 6),
+                      Text(label,
+                          style: TextStyle(
+                              color: fg,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600)),
+                    ],
+                  ),
+          ),
         ),
-        alignment: Alignment.center,
-        child: busy
-            ? SizedBox(
-                width: 16,
-                height: 16,
-                child: CircularProgressIndicator(strokeWidth: 2, color: fg))
-            : Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(icon, size: 17, color: fg),
-                  const SizedBox(width: 6),
-                  Text(label,
-                      style: TextStyle(
-                          color: fg,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600)),
-                ],
-              ),
       ),
     );
   }
 
   Widget _iconBtn({required IconData icon, VoidCallback? onTap}) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 40,
-        height: 40,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: AppColors.creamSoft,
-          borderRadius: BorderRadius.circular(999),
+    // `Ink` carries the button's background — a Container's opaque color
+    // paints over the InkWell's splash and hides the ripple.
+    return Material(
+      color: Colors.transparent,
+      shape: const CircleBorder(),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        customBorder: const CircleBorder(),
+        child: Ink(
+          width: 40,
+          height: 40,
+          decoration: const BoxDecoration(
+            color: AppColors.creamSoft,
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon,
+              size: 18,
+              color: onTap == null ? AppColors.inkMuted : AppColors.inkSoft),
         ),
-        child: Icon(icon,
-            size: 18,
-            color: onTap == null ? AppColors.inkMuted : AppColors.inkSoft),
       ),
     );
   }

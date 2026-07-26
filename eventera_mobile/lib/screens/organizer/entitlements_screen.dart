@@ -231,9 +231,15 @@ class _EntitlementsScreenState extends State<EntitlementsScreen> {
         .map((id) => _ticketTypes.where((t) => t.id == id).firstOrNull?.name)
         .whereType<String>()
         .toList();
-    return GestureDetector(
+    // `Ink` carries the card's background — a Container's opaque color
+    // paints over the InkWell's splash and hides the ripple.
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(AppRadius.card),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
       onTap: () => _editEntitlement(ent),
-      child: Container(
+      child: Ink(
         padding: const EdgeInsets.all(AppSpace.base),
         decoration: BoxDecoration(
           color: AppColors.surface,
@@ -279,6 +285,7 @@ class _EntitlementsScreenState extends State<EntitlementsScreen> {
             const Icon(Icons.chevron_right, size: 18, color: AppColors.inkMuted),
           ],
         ),
+      ),
       ),
     );
   }
@@ -431,33 +438,44 @@ class _EntitlementEditSheetState extends State<_EntitlementEditSheet> {
   }
 
   Widget _dateField(String label, DateTime? value, bool isFrom) {
+    // `Ink` carries the field's background — a Container's opaque color
+    // paints over the InkWell's splash and hides the ripple.
     return Expanded(
-      child: GestureDetector(
-        onTap: () => _pickDate(isFrom),
-        child: Container(
-          height: 46,
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          decoration: BoxDecoration(
-            color: AppColors.canvas,
-            borderRadius: BorderRadius.circular(AppRadius.btn),
-            border: Border.all(color: AppColors.border),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  value != null ? _fmtDate(value) : label,
-                  style: AppText.bodySm.copyWith(
-                      color: value != null ? AppColors.ink : AppColors.inkMuted),
-                  overflow: TextOverflow.ellipsis,
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(AppRadius.btn),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: () => _pickDate(isFrom),
+          child: Ink(
+            height: 46,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              color: AppColors.canvas,
+              borderRadius: BorderRadius.circular(AppRadius.btn),
+              border: Border.all(color: AppColors.border),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    value != null ? _fmtDate(value) : label,
+                    style: AppText.bodySm.copyWith(
+                        color: value != null ? AppColors.ink : AppColors.inkMuted),
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-              ),
-              if (value != null)
-                GestureDetector(
-                  onTap: () => setState(() => isFrom ? _validFrom = null : _validUntil = null),
-                  child: const Icon(Icons.close, size: 14, color: AppColors.inkMuted),
-                ),
-            ],
+                if (value != null)
+                  InkWell(
+                    onTap: () => setState(() => isFrom ? _validFrom = null : _validUntil = null),
+                    customBorder: const CircleBorder(),
+                    child: const Padding(
+                      padding: EdgeInsets.all(4),
+                      child: Icon(Icons.close, size: 14, color: AppColors.inkMuted),
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
       ),

@@ -269,16 +269,24 @@ class _AttendeeListScreenState extends State<AttendeeListScreen> {
                 width: 20, height: 20,
                 child: CircularProgressIndicator(strokeWidth: 2.2, color: AppColors.forest))
           else
-            GestureDetector(
-              onTap: () => _confirmCheckIn(a),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                decoration: BoxDecoration(
-                  color: AppColors.forest,
-                  borderRadius: BorderRadius.circular(999),
+            // `Ink` carries the pill's background so the InkWell's ripple is
+            // visible on tap — a plain Container's opaque color would paint
+            // over the splash and this button would give no press feedback.
+            Material(
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(999),
+              clipBehavior: Clip.antiAlias,
+              child: InkWell(
+                onTap: () => _confirmCheckIn(a),
+                child: Ink(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: AppColors.forest,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: const Text('Check in',
+                      style: TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.w600)),
                 ),
-                child: const Text('Check in',
-                    style: TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.w600)),
               ),
             ),
         ],

@@ -437,12 +437,17 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     bool danger = false,
   }) {
     final color = danger ? Brand.danger : Brand.ink;
+    // `Ink` carries the tile's background — a Container's opaque color
+    // paints over the InkWell's splash and hides the ripple.
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: InkWell(
+      child: Material(
+        color: Colors.transparent,
         borderRadius: BorderRadius.circular(14),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
         onTap: onTap,
-        child: Container(
+        child: Ink(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: Brand.surface,
@@ -472,6 +477,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
               const Icon(Icons.chevron_right, color: Brand.muted),
             ],
           ),
+        ),
         ),
       ),
     );

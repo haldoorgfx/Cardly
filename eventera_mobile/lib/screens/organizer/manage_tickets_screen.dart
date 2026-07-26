@@ -213,10 +213,15 @@ class _ManageTicketsScreenState extends State<ManageTicketsScreen> {
         : '${t.quantitySold} / ${t.quantity} sold';
     final soldOut = t.quantity != null && t.quantitySold >= t.quantity!;
 
-    return InkWell(
+    // `Ink` carries the card's background — a Container's opaque color
+    // paints over the InkWell's splash and hides the ripple.
+    return Material(
+      color: Colors.transparent,
       borderRadius: BorderRadius.circular(AppRadius.card),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
       onTap: () => _openEditor(t),
-      child: Container(
+      child: Ink(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: AppColors.surface,
@@ -268,6 +273,7 @@ class _ManageTicketsScreenState extends State<ManageTicketsScreen> {
             ),
           ],
         ),
+      ),
       ),
     );
   }
@@ -615,54 +621,61 @@ class _TicketEditorScreenState extends State<_TicketEditorScreen> {
   }
 
   Widget _currencyPicker() {
-    return GestureDetector(
-      onTap: _saving
-          ? null
-          : () {
-              HapticFeedback.selectionClick();
-              showModalBottomSheet(
-                context: context,
-                backgroundColor: AppColors.surface,
-                shape: const RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.vertical(top: Radius.circular(18)),
-                ),
-                builder: (ctx) => SafeArea(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      for (final c in _currencies)
-                        ListTile(
-                          title: Text(c, style: AppText.bodyStrong),
-                          trailing: c == _currency
-                              ? const Icon(Icons.check,
-                                  color: AppColors.forest, size: 20)
-                              : null,
-                          onTap: () {
-                            Navigator.pop(ctx);
-                            setState(() => _currency = c);
-                          },
-                        ),
-                    ],
+    // `Ink` carries the field's background — a Container's opaque color
+    // paints over the InkWell's splash and hides the ripple.
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(AppRadius.input),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: _saving
+            ? null
+            : () {
+                HapticFeedback.selectionClick();
+                showModalBottomSheet(
+                  context: context,
+                  backgroundColor: AppColors.surface,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.vertical(top: Radius.circular(18)),
                   ),
-                ),
-              );
-            },
-      child: Container(
-        height: 50,
-        padding: const EdgeInsets.symmetric(horizontal: 14),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(AppRadius.input),
-          border: Border.all(color: AppColors.border),
-        ),
-        child: Row(
-          children: [
-            Text(_currency,
-                style: AppText.numMd.copyWith(color: AppColors.ink)),
-            const Icon(Icons.keyboard_arrow_down,
-                size: 18, color: AppColors.inkMuted),
-          ],
+                  builder: (ctx) => SafeArea(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        for (final c in _currencies)
+                          ListTile(
+                            title: Text(c, style: AppText.bodyStrong),
+                            trailing: c == _currency
+                                ? const Icon(Icons.check,
+                                    color: AppColors.forest, size: 20)
+                                : null,
+                            onTap: () {
+                              Navigator.pop(ctx);
+                              setState(() => _currency = c);
+                            },
+                          ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+        child: Ink(
+          height: 50,
+          padding: const EdgeInsets.symmetric(horizontal: 14),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(AppRadius.input),
+            border: Border.all(color: AppColors.border),
+          ),
+          child: Row(
+            children: [
+              Text(_currency,
+                  style: AppText.numMd.copyWith(color: AppColors.ink)),
+              const Icon(Icons.keyboard_arrow_down,
+                  size: 18, color: AppColors.inkMuted),
+            ],
+          ),
         ),
       ),
     );

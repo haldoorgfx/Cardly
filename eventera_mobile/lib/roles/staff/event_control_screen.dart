@@ -166,33 +166,46 @@ class _EventControlScreenState extends State<EventControlScreen> {
     bool gold = false,
   }) {
     final primary = gold;
-    return InkWell(
-      onTap: onTap,
+    final decoration = BoxDecoration(
+      color: primary ? null : AppColors.surface,
+      gradient: primary
+          ? const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFF2A6A50), AppColors.forest],
+              stops: [0.0, 0.75],
+            )
+          : null,
       borderRadius: BorderRadius.circular(AppRadius.card),
-      child: Container(
-        padding: EdgeInsets.all(primary ? 20 : 16),
-        decoration: BoxDecoration(
-          color: primary ? null : AppColors.surface,
-          gradient: primary
-              ? const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [Color(0xFF2A6A50), AppColors.forest],
-                  stops: [0.0, 0.75],
-                )
-              : null,
-          borderRadius: BorderRadius.circular(AppRadius.card),
-          border: primary ? null : Border.all(color: AppColors.border),
-          boxShadow: primary
-              ? const [
-                  BoxShadow(
-                      color: Color(0x8C1F4D3A),
-                      blurRadius: 28,
-                      offset: Offset(0, 12)),
-                ]
-              : AppShadow.soft,
-        ),
-        child: Row(
+      border: primary ? null : Border.all(color: AppColors.border),
+      boxShadow: primary
+          ? const [
+              BoxShadow(
+                  color: Color(0x8C1F4D3A),
+                  blurRadius: 28,
+                  offset: Offset(0, 12)),
+            ]
+          : AppShadow.soft,
+    );
+    // `Ink` (not `Container`) carries the background here — a Container's
+    // opaque color/gradient paints on top of the Material's ink splash and
+    // makes the tap give no visible feedback at all.
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(AppRadius.card),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        splashColor: primary
+            ? AppColors.gold.withValues(alpha: 0.18)
+            : AppColors.forest.withValues(alpha: 0.08),
+        highlightColor: primary
+            ? Colors.white.withValues(alpha: 0.06)
+            : AppColors.forestSoft.withValues(alpha: 0.5),
+        child: Ink(
+          padding: EdgeInsets.all(primary ? 20 : 16),
+          decoration: decoration,
+          child: Row(
           children: [
             Container(
               width: 46,
@@ -235,6 +248,7 @@ class _EventControlScreenState extends State<EventControlScreen> {
                     ? Colors.white.withValues(alpha: 0.6)
                     : AppColors.inkMuted),
           ],
+          ),
         ),
       ),
     );
