@@ -89,37 +89,52 @@ class _DirectoryPreviewScreenState extends State<DirectoryPreviewScreen> {
                 minLines: 2,
                 maxLines: 4),
             const SizedBox(height: 12),
-            InkWell(
-              onTap: pick,
+            // `Ink` carries the field's background — a Container's opaque
+            // color paints over the InkWell's splash and hides the ripple.
+            Material(
+              color: Colors.transparent,
               borderRadius: BorderRadius.circular(12),
-              child: Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                    color: AppColors.creamSoft,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.border)),
-                child: Row(children: [
-                  const Icon(Icons.schedule, size: 18, color: AppColors.forest),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      when == null
-                          ? 'Suggest a time (optional)'
-                          : _stamp(when!),
-                      style: TextStyle(
-                          color: when == null
-                              ? AppColors.inkSoft
-                              : AppColors.ink,
-                          fontSize: 14),
+              clipBehavior: Clip.antiAlias,
+              child: InkWell(
+                onTap: pick,
+                child: Ink(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                      color: AppColors.creamSoft,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.border)),
+                  child: Row(children: [
+                    const Icon(Icons.schedule, size: 18, color: AppColors.forest),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        when == null
+                            ? 'Suggest a time (optional)'
+                            : _stamp(when!),
+                        style: TextStyle(
+                            color: when == null
+                                ? AppColors.inkSoft
+                                : AppColors.ink,
+                            fontSize: 14),
+                      ),
                     ),
-                  ),
-                  if (when != null)
-                    GestureDetector(
-                      onTap: () => setSheet(() => when = null),
-                      child: const Icon(Icons.close,
-                          size: 18, color: AppColors.inkMuted),
-                    ),
-                ]),
+                    if (when != null)
+                      Material(
+                        color: Colors.transparent,
+                        shape: const CircleBorder(),
+                        clipBehavior: Clip.antiAlias,
+                        child: InkWell(
+                          onTap: () => setSheet(() => when = null),
+                          customBorder: const CircleBorder(),
+                          child: const Padding(
+                            padding: EdgeInsets.all(6),
+                            child: Icon(Icons.close,
+                                size: 18, color: AppColors.inkMuted),
+                          ),
+                        ),
+                      ),
+                  ]),
+                ),
               ),
             ),
             const SizedBox(height: 18),
@@ -166,10 +181,13 @@ class _DirectoryPreviewScreenState extends State<DirectoryPreviewScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             color: AppColors.goldSoft,
+            // `goldHover` on `goldSoft` is ~1.9:1 — well under the 4.5:1 WCAG
+            // AA minimum for this size of text. `forestDark` on the same
+            // background reads clearly and keeps the gold-banner treatment.
             child: const Text('Preview · this is how attendees see your booth',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                    color: AppColors.goldHover,
+                    color: AppColors.forestDark,
                     fontSize: 12,
                     fontWeight: FontWeight.w600)),
           ),
