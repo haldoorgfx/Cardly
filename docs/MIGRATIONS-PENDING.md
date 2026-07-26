@@ -71,6 +71,7 @@ right default for every row except 116.
 | **125** | `cards_this_month_race_guard` | `increment_cards_this_month_if_allowed()` RPC — closes a card-generation quota race, same class as 121 | Yes — same PGRST202 test as 107/121 |
 | **126** | `checkin_rpc_team_access` | Adds the Teams clause to `checkin_registration()` / `checkin_registration_by_id()` (the mobile scanner's RPCs) — see below | No — behavior-only change to an existing function's body |
 | **127** | `mobile_organizer_teams_event_list` | New `my_manageable_events()` RPC — the mobile organizer app's event list was `events.user_id`-only and showed zero events to Studio team members — see below | Yes — same PGRST202 test as 107/121/125 |
+| **128** | `community_messages_insert_identity` | `community_messages`' insert policy never checked the caller owned the `registration_id` being posted as — any signed-in attendee could spoof a message as anyone else in the event chat — see below | No — behavior-only change to an existing policy |
 
 ---
 
@@ -87,6 +88,28 @@ per-organizer advisory lock. Safe to apply any time; `lib/billing/can.ts`'s
 hasn't landed yet.
 
 ---
+
+### 128 — community chat let any signed-in attendee spoof another attendee's messages
+
+`community_messages`' `attendee_insert` policy (migration 051) checked that
+the supplied `registration_id` belonged to *some* registration for the
+channel's event, but never compared it to the caller's own identity. Since
+`registration_id` is a plain, enumerable id — not a secret, the same fact
+behind `qr_code_token` becoming the real credential everywhere else in the
+engagement suite — any signed-in attendee could insert a message using a
+different attendee's `registration_id`, making the chat show it as sent by
+someone who never sent it. Migration 078's engagement-RLS lockdown pass
+tightened this table's SELECT policy to require `auth.uid()` via
+`is_event_participant()` but explicitly left `attendee_insert` alone,
+which reads like an oversight rather than a deliberate call — everything
+else 078 touched got the same identity check. Since the SELECT side already
+requires a signed-in session (no anonymous read), there's no guest-posting
+flow this closes off that wasn't already unreachable. Fix: the insert check
+now also requires the registration to belong to the caller (`user_id` or
+email match, mirroring `is_event_participant()`'s own logic). No mobile
+code change needed — `community_chat_screen.dart` already posts through the
+signed-in Supabase session; it was relying on a policy that never checked
+what it should have.
 
 ### 127 — mobile organizer event list showed zero events to Studio team members
 
