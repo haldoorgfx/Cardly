@@ -8,8 +8,14 @@ import '_shared.dart';
 /// LeaderboardScreen — ranked attendees by engagement points.
 ///
 /// Contract verified:
-///  - GET /api/events/[id]/leaderboard
+///  - GET `/api/events/[id]/leaderboard?reg=<registration_id>&token=<qr_code_token>`
 ///    → { leaderboard: [{ rank, registration_id, attendee_name, total_points }] }.
+/// `reg` is not just a client-side highlight hint — the route calls
+/// `assertOwnsRegistration` on it (guests via `token`, signed-in mobile via the
+/// same token since the Authorization header never reaches it either) and
+/// falls back to requiring an organizer/moderator session when `reg` is
+/// omitted, so an attendee request with no `reg` 404s instead of returning the
+/// board. See app/api/events/[id]/leaderboard/route.ts.
 /// The caller's own row is highlighted as "You" — matched client-side against
 /// [registrationId] using each row's `registration_id` (the endpoint carries no
 /// attendee identity of its own), falling back to any server `is_you` flag.
@@ -18,9 +24,13 @@ class LeaderboardScreen extends StatefulWidget {
 
   /// The viewer's registration id for this event, used to highlight their row.
   final String? registrationId;
+  final String? qrCodeToken;
 
   const LeaderboardScreen(
-      {super.key, required this.eventId, this.registrationId});
+      {super.key,
+      required this.eventId,
+      this.registrationId,
+      this.qrCodeToken});
 
   @override
   State<LeaderboardScreen> createState() => _LeaderboardScreenState();
@@ -43,6 +53,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
   String? _error;
   List<_Entry> _entries = [];
   String? _rid;
+  String? _token;
 
   @override
   void initState() {
@@ -52,6 +63,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
 
   Future<void> _resolveThenLoad() async {
     _rid = await effectiveRegId(widget.registrationId, widget.eventId);
+    _token = await effectiveQrToken(widget.qrCodeToken, widget.eventId);
     await _load();
   }
 
@@ -61,7 +73,8 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
       _error = null;
     });
     try {
-      final res = await apiGet('/api/events/${widget.eventId}/leaderboard');
+      final res = await apiGet('/api/events/${widget.eventId}/leaderboard',
+          query: {'reg': _rid, 'token': _token});
       final list =
           (res is Map) ? asMapList(res['leaderboard']) : <Map<String, dynamic>>[];
       final myRid = _rid;

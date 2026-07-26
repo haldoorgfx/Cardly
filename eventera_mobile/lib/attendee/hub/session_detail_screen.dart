@@ -16,8 +16,13 @@ import 'speaker_detail_screen.dart';
 /// on the sessionId. Verified against
 /// app/(public)/e/[slug]/sessions/[sessionId]/page.tsx.
 ///
-/// Rating posts POST /api/sessions/[id]/rate { rating } (same contract the
-/// agenda screen uses).
+/// Rating posts POST /api/sessions/[id]/rate { registration_id, rating,
+/// qr_code_token? } — same contract the agenda screen uses. Booking posts
+/// POST .../book { registrationId, qrCodeToken? } (camelCase, no zod schema).
+/// Both routes call `assertOwnsRegistration`, so the token is required for
+/// mobile (see EventContext.qrCodeToken) even when the attendee is signed in.
+/// This screen has no `qrCodeToken` constructor param of its own — it reads
+/// straight off [EventContext] like [EventContext.regIdFor] already did.
 class SessionDetailScreen extends StatefulWidget {
   final String sessionId;
   final String eventId;
@@ -85,9 +90,15 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
             .eq('registration_id', rid)
             .eq('session_id', widget.sessionId);
       } else {
+        // This route destructures the body directly (no zod schema) and uses
+        // camelCase keys — see app/api/events/[id]/sessions/[sessionId]/book/route.ts.
+        final token = EventContext.qrTokenFor(widget.eventId);
         await apiPost(
           '/api/events/${widget.eventId}/sessions/${widget.sessionId}/book',
-          {'registrationId': rid},
+          {
+            'registrationId': rid,
+            'qrCodeToken': ?token,
+          },
         );
       }
       if (!mounted) return;
@@ -185,9 +196,11 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
     final previous = _myRating;
     setState(() => _myRating = rating);
     try {
+      final token = EventContext.qrTokenFor(widget.eventId);
       await apiPost('/api/sessions/${widget.sessionId}/rate', {
         'registration_id': rid,
         'rating': rating,
+        'qr_code_token': ?token,
       });
       if (!mounted) return;
       showToast(context, 'Thanks for rating this session',

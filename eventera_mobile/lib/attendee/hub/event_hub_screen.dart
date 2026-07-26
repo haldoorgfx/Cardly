@@ -662,7 +662,10 @@ class _EventHubScreenState extends State<EventHubScreen> {
                     registrationId: _regId,
                     qrCodeToken: _regToken)),
             _moreRow(Icons.emoji_events_outlined, 'Leaderboard',
-                () => LeaderboardScreen(eventId: id, registrationId: _regId)),
+                () => LeaderboardScreen(
+                    eventId: id,
+                    registrationId: _regId,
+                    qrCodeToken: _regToken)),
             _moreRow(Icons.rate_review_outlined, 'Feedback',
                 () => FeedbackScreen(
                     eventId: id,

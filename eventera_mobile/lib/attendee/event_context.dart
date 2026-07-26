@@ -46,6 +46,15 @@ class EventContext {
     return null;
   }
 
+  /// Convenience: the `qr_code_token` for [eventId] if it matches the current
+  /// context, else null. Pair with [regIdFor] on any identity-gated call — see
+  /// [qrCodeToken] for why this is required, not optional.
+  static String? qrTokenFor(String eventId) {
+    final c = current;
+    if (c != null && c.eventId == eventId) return c.qrCodeToken;
+    return null;
+  }
+
   /// Forget the current event context.
   ///
   /// [current] is a mutable static holding a `registrationId`. It survives a
