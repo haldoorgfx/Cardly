@@ -19,11 +19,23 @@ class EventContext {
   /// Unlocks engagement features (agenda, polls, Q&A, networking, feedback).
   String? registrationId;
 
+  /// The registration's `qr_code_token`, alongside [registrationId].
+  ///
+  /// `assertOwnsRegistration` (the server-side identity gate every engagement
+  /// write route calls) only trusts a registration id when it comes with a
+  /// matching session cookie OR this token — and mobile's session travels as
+  /// an `Authorization` header the server never reads, so this is the only
+  /// credential that actually gets mobile writes through the gate, signed in
+  /// or not. Without it every engagement write 404s as "Registration not
+  /// found" even for a fully signed-in attendee.
+  String? qrCodeToken;
+
   EventContext({
     required this.eventId,
     required this.slug,
     required this.eventName,
     this.registrationId,
+    this.qrCodeToken,
   });
 
   /// Convenience: the registration id for [eventId] if it matches the current

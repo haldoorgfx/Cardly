@@ -28,12 +28,14 @@ class PeopleScreen extends StatefulWidget {
   final String eventId;
   final String slug;
   final String? registrationId;
+  final String? qrCodeToken;
 
   const PeopleScreen({
     super.key,
     required this.eventId,
     required this.slug,
     this.registrationId,
+    this.qrCodeToken,
   });
 
   @override
@@ -49,6 +51,7 @@ class _PeopleScreenState extends State<PeopleScreen> {
   List<_Person> _people = [];
   List<_Match> _matches = [];
   String? _rid;
+  String? _token;
 
   final _searchCtrl = TextEditingController();
   String _query = '';
@@ -68,6 +71,7 @@ class _PeopleScreenState extends State<PeopleScreen> {
   void initState() {
     super.initState();
     _rid = widget.registrationId;
+    _token = widget.qrCodeToken;
     _searchCtrl.addListener(() {
       setState(() => _query = _searchCtrl.text);
     });
@@ -86,8 +90,12 @@ class _PeopleScreenState extends State<PeopleScreen> {
 
   Future<void> _resolveRegThenLoad() async {
     final rid = await effectiveRegId(widget.registrationId, widget.eventId);
+    final token = await effectiveQrToken(widget.qrCodeToken, widget.eventId);
     if (!mounted) return;
-    setState(() => _rid = rid);
+    setState(() {
+      _rid = rid;
+      _token = token;
+    });
     if (_canNetwork) {
       _load();
     } else {
@@ -104,7 +112,7 @@ class _PeopleScreenState extends State<PeopleScreen> {
     try {
       final results = await Future.wait([
         apiGet('/api/events/${widget.eventId}/people',
-            query: {'reg': _rid}),
+            query: {'reg': _rid, 'token': _token}),
         _loadMatches(),
       ]);
 
@@ -132,7 +140,7 @@ class _PeopleScreenState extends State<PeopleScreen> {
   Future<List<_Match>> _loadMatches() async {
     try {
       final data = await apiGet('/api/events/${widget.eventId}/matches',
-          query: {'registration_id': _rid});
+          query: {'registration_id': _rid, 'token': _token});
       final list = asMapList(data is Map ? data['matches'] : data);
       return list.map(_Match.fromRow).toList();
     } catch (_) {
@@ -146,6 +154,7 @@ class _PeopleScreenState extends State<PeopleScreen> {
       await apiPost('/api/events/${widget.eventId}/connections', {
         'requester_id': _rid,
         'recipient_id': p.id,
+        if (_token != null) 'qr_code_token': _token,
       });
       if (!mounted) return;
       setState(() {
@@ -172,6 +181,7 @@ class _PeopleScreenState extends State<PeopleScreen> {
       await apiPost('/api/events/${widget.eventId}/connections', {
         'requester_id': _rid,
         'recipient_id': m.id,
+        if (_token != null) 'qr_code_token': _token,
       });
       if (!mounted) return;
       setState(() {
@@ -197,7 +207,7 @@ class _PeopleScreenState extends State<PeopleScreen> {
     try {
       final data = await apiGet(
           '/api/events/${widget.eventId}/connections/requests',
-          query: {'reg': _rid});
+          query: {'reg': _rid, 'token': _token});
       final incoming =
           asMapList(data is Map ? data['incoming'] : null).map(_ConnRequest.fromRow).toList();
       final sent =
@@ -231,6 +241,7 @@ class _PeopleScreenState extends State<PeopleScreen> {
         'connection_id': r.connectionId,
         'action': action,
         'registration_id': _rid,
+        if (_token != null) 'qr_code_token': _token,
       });
       if (!mounted) return;
       setState(() {
@@ -273,8 +284,10 @@ class _PeopleScreenState extends State<PeopleScreen> {
       ),
     ));
     if (!mounted) return;
-    // Registering fills in the id the directory needs — re-resolve and load.
+    // Registering fills in the id (and token) the directory needs — re-resolve
+    // and load.
     _rid = await effectiveRegId(widget.registrationId, widget.eventId);
+    _token = await effectiveQrToken(widget.qrCodeToken, widget.eventId);
     if (!mounted) return;
     setState(() {});
     if (_canNetwork) _load();
@@ -287,6 +300,7 @@ class _PeopleScreenState extends State<PeopleScreen> {
         builder: (_) => ThreadScreen(
           eventId: widget.eventId,
           registrationId: _rid!,
+          qrCodeToken: _token,
           otherRegId: otherId,
           otherName: otherName,
         ),

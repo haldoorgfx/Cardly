@@ -28,6 +28,32 @@ Future<String?> effectiveRegId(String? passed, String eventId) async {
   return null;
 }
 
+/// Resolves the `qr_code_token` an engagement/networking screen should send
+/// alongside its registration id — same fallback chain as [effectiveRegId],
+/// kept in lockstep with it (in-memory [EventContext] first, then the durable
+/// [RegStore] on disk).
+///
+/// This is not optional polish: `assertOwnsRegistration` (the server-side
+/// identity gate every write below hits) only resolves an authenticated
+/// session from cookies, and the mobile app sends its session as an
+/// `Authorization` header instead — so mobile never satisfies the
+/// authenticated branch and always needs this token to get past the guest
+/// branch, even when the attendee is fully signed in.
+Future<String?> effectiveQrToken(String? passed, String eventId) async {
+  if (passed != null && passed.isNotEmpty) return passed;
+  final ctx = EventContext.current;
+  if (ctx != null && ctx.eventId == eventId) {
+    final inMem = ctx.qrCodeToken;
+    if (inMem != null && inMem.isNotEmpty) return inMem;
+    if (ctx.slug.isNotEmpty) {
+      final reg = await RegStore.instance.get(ctx.slug);
+      final token = reg?.qrToken;
+      if (token != null && token.isNotEmpty) return token;
+    }
+  }
+  return null;
+}
+
 /// Small shared bits used across the engagement screens. Re-skinned to the
 /// forest + cream design system (tokens.dart / components.dart). Exported
 /// symbols are unchanged so the sibling screens keep compiling:

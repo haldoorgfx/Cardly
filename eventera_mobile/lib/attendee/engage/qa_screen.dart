@@ -24,11 +24,13 @@ import '_shared.dart';
 class QaScreen extends StatefulWidget {
   final String eventId;
   final String? registrationId;
+  final String? qrCodeToken;
   final String? sessionId;
   const QaScreen({
     super.key,
     required this.eventId,
     this.registrationId,
+    this.qrCodeToken,
     this.sessionId,
   });
 
@@ -67,16 +69,19 @@ class _QaScreenState extends State<QaScreen> {
   bool _submitting = false;
   int _filter = 0; // 0 = Top, 1 = Recent
   String? _rid;
+  String? _token;
 
   @override
   void initState() {
     super.initState();
     _rid = widget.registrationId;
+    _token = widget.qrCodeToken;
     _resolveRegThenLoad();
   }
 
   Future<void> _resolveRegThenLoad() async {
     _rid = await effectiveRegId(widget.registrationId, widget.eventId);
+    _token = await effectiveQrToken(widget.qrCodeToken, widget.eventId);
     if (!mounted) return;
     _load();
   }
@@ -171,6 +176,7 @@ class _QaScreenState extends State<QaScreen> {
       final res = await apiPut('/api/events/${widget.eventId}/q-and-a', {
         'question_id': q.id,
         'registration_id': rid,
+        if (_token != null) 'qr_code_token': _token,
       });
       // Route returns {upvoted: bool} — reconcile if it disagrees.
       if (res is Map && res.containsKey('upvoted')) {
@@ -239,9 +245,10 @@ class _QaScreenState extends State<QaScreen> {
           ),
         ));
         if (!mounted) return;
-        // Registration updates EventContext — pick the new id up so the next
-        // tap opens the composer instead of bouncing again.
+        // Registration updates EventContext — pick the new id (and token) up
+        // so the next tap opens the composer instead of bouncing again.
         _rid = await effectiveRegId(widget.registrationId, widget.eventId);
+        _token = await effectiveQrToken(widget.qrCodeToken, widget.eventId);
         if (!mounted) return;
         setState(() {});
         return;
@@ -260,6 +267,7 @@ class _QaScreenState extends State<QaScreen> {
         'question': result.text,
         'is_anonymous': result.anonymous,
         if (widget.sessionId != null) 'session_id': widget.sessionId,
+        if (_token != null) 'qr_code_token': _token,
       });
       if (mounted) {
         showToast(context, 'Your question was submitted',

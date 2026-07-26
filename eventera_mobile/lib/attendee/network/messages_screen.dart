@@ -20,11 +20,13 @@ import 'thread_screen.dart';
 class MessagesScreen extends StatefulWidget {
   final String eventId;
   final String? registrationId;
+  final String? qrCodeToken;
 
   const MessagesScreen({
     super.key,
     required this.eventId,
     this.registrationId,
+    this.qrCodeToken,
   });
 
   @override
@@ -37,6 +39,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
   StatusReason _errorReason = StatusReason.generic;
   List<_Thread> _threads = [];
   String? _rid;
+  String? _token;
 
   bool get _canNetwork => _rid != null && _rid!.isNotEmpty;
 
@@ -44,6 +47,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
   void initState() {
     super.initState();
     _rid = widget.registrationId;
+    _token = widget.qrCodeToken;
     if (_canNetwork) {
       _load();
     } else {
@@ -53,8 +57,12 @@ class _MessagesScreenState extends State<MessagesScreen> {
 
   Future<void> _resolveRegThenLoad() async {
     final rid = await effectiveRegId(widget.registrationId, widget.eventId);
+    final token = await effectiveQrToken(widget.qrCodeToken, widget.eventId);
     if (!mounted) return;
-    setState(() => _rid = rid);
+    setState(() {
+      _rid = rid;
+      _token = token;
+    });
     if (_canNetwork) {
       _load();
     } else {
@@ -72,6 +80,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
       final data = await apiGet('/api/threads', query: {
         'registration_id': _rid,
         'event_id': widget.eventId,
+        'token': _token,
       });
       final list = asMapList(data is Map ? data['threads'] : data);
       if (!mounted) return;
@@ -96,6 +105,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
         builder: (_) => ThreadScreen(
           eventId: widget.eventId,
           registrationId: _rid!,
+          qrCodeToken: _token,
           otherRegId: t.otherId,
           otherName: t.otherName,
           threadId: t.id,
@@ -158,7 +168,10 @@ class _MessagesScreenState extends State<MessagesScreen> {
     if (ctx == null) return;
     await Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => PeopleScreen(
-          eventId: widget.eventId, slug: ctx.slug, registrationId: _rid),
+          eventId: widget.eventId,
+          slug: ctx.slug,
+          registrationId: _rid,
+          qrCodeToken: _token),
     ));
     if (mounted) _load();
   }

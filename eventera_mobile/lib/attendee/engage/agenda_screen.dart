@@ -21,11 +21,13 @@ class AgendaScreen extends StatefulWidget {
   final String eventId;
   final String slug;
   final String? registrationId;
+  final String? qrCodeToken;
   const AgendaScreen({
     super.key,
     required this.eventId,
     required this.slug,
     this.registrationId,
+    this.qrCodeToken,
   });
 
   @override
@@ -101,17 +103,20 @@ class _AgendaScreenState extends State<AgendaScreen> {
   final Set<String> _busy = {}; // session ids with in-flight action
   int _dayIndex = 0;
   String? _rid;
+  String? _token;
   String? _timezone;
 
   @override
   void initState() {
     super.initState();
     _rid = widget.registrationId;
+    _token = widget.qrCodeToken;
     _resolveRegThenLoad();
   }
 
   Future<void> _resolveRegThenLoad() async {
     _rid = await effectiveRegId(widget.registrationId, widget.eventId);
+    _token = await effectiveQrToken(widget.qrCodeToken, widget.eventId);
     if (!mounted) return;
     _load();
   }
@@ -195,9 +200,16 @@ class _AgendaScreenState extends State<AgendaScreen> {
             .eq('session_id', s.id);
         _myAgenda.remove(s.id);
       } else {
+        // This route destructures the body directly (no zod schema) and uses
+        // camelCase keys — unlike the snake_case `qr_code_token` every other
+        // engagement route expects. See app/api/events/[id]/sessions/
+        // [sessionId]/book/route.ts.
         final res = await apiPost(
           '/api/events/${widget.eventId}/sessions/${s.id}/book',
-          {'registrationId': rid},
+          {
+            'registrationId': rid,
+            if (_token != null) 'qrCodeToken': _token,
+          },
         );
         _myAgenda.add(s.id);
         if (!mounted) return;
@@ -232,6 +244,7 @@ class _AgendaScreenState extends State<AgendaScreen> {
       await apiPost('/api/sessions/${s.id}/rate', {
         'registration_id': rid,
         'rating': rating,
+        if (_token != null) 'qr_code_token': _token,
       });
       if (!mounted) return;
       showToast(context, 'Thanks for rating "${s.title}"',

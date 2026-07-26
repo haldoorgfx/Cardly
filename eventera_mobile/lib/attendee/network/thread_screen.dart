@@ -22,6 +22,7 @@ import '../../ui/components.dart';
 class ThreadScreen extends StatefulWidget {
   final String eventId;
   final String registrationId;
+  final String? qrCodeToken;
   final String otherRegId;
   final String? otherName;
   final String? threadId;
@@ -30,6 +31,7 @@ class ThreadScreen extends StatefulWidget {
     super.key,
     required this.eventId,
     required this.registrationId,
+    this.qrCodeToken,
     required this.otherRegId,
     this.otherName,
     this.threadId,
@@ -80,6 +82,7 @@ class _ThreadScreenState extends State<ThreadScreen> {
         final data = await apiGet('/api/threads', query: {
           'registration_id': widget.registrationId,
           'event_id': widget.eventId,
+          'token': widget.qrCodeToken,
         });
         final list = asMapList(data is Map ? data['threads'] : data);
         final match = list.firstWhere(
@@ -122,6 +125,7 @@ class _ThreadScreenState extends State<ThreadScreen> {
     if (_threadId == null || _threadId!.isEmpty) return;
     final data = await apiGet('/api/threads/$_threadId', query: {
       'registration_id': widget.registrationId,
+      'token': widget.qrCodeToken,
     });
     _messages = asMapList(data is Map ? data['messages'] : data);
 
@@ -173,6 +177,7 @@ class _ThreadScreenState extends State<ThreadScreen> {
         'sender_id': widget.registrationId,
         'recipient_id': widget.otherRegId,
         'content': text,
+        if (widget.qrCodeToken != null) 'qr_code_token': widget.qrCodeToken,
       });
       if (res is Map && res['thread_id'] != null) {
         _threadId = asString(res['thread_id']);

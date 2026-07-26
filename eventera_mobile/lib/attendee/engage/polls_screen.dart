@@ -19,10 +19,12 @@ import '_shared.dart';
 class PollsScreen extends StatefulWidget {
   final String eventId;
   final String? registrationId;
+  final String? qrCodeToken;
   const PollsScreen({
     super.key,
     required this.eventId,
     this.registrationId,
+    this.qrCodeToken,
   });
 
   @override
@@ -58,12 +60,14 @@ class _PollsScreenState extends State<PollsScreen> {
   final Map<String, String> _myVotes = {}; // pollId -> optionId
   final Set<String> _busy = {}; // pollIds voting
   String? _rid;
+  String? _token;
   Timer? _refreshTimer;
 
   @override
   void initState() {
     super.initState();
     _rid = widget.registrationId;
+    _token = widget.qrCodeToken;
     _resolveRegThenLoad();
     // Live results while a session is active — mirrors the web PollsClient's
     // 10s poll-results refresh so mobile attendees see other votes land too,
@@ -80,6 +84,7 @@ class _PollsScreenState extends State<PollsScreen> {
 
   Future<void> _resolveRegThenLoad() async {
     _rid = await effectiveRegId(widget.registrationId, widget.eventId);
+    _token = await effectiveQrToken(widget.qrCodeToken, widget.eventId);
     if (!mounted) return;
     _load();
   }
@@ -202,6 +207,7 @@ class _PollsScreenState extends State<PollsScreen> {
         'poll_id': poll.id,
         'option_id': option.id,
         'registration_id': rid,
+        if (_token != null) 'qr_code_token': _token,
       });
       // Reconcile with authoritative counts if the route returned them.
       if (res is Map && res['options'] is List) {

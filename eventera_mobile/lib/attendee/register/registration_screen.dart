@@ -401,8 +401,14 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
       // Unlock engagement features immediately for this session. The durable
       // source of truth stays RegStore (below) + the registrations table.
+      //
+      // The token travels with the id: assertOwnsRegistration (the identity
+      // gate every engagement write route calls) never sees mobile's session
+      // cookie, so qrCodeToken is what actually gets this session's writes
+      // past the gate, not registrationId alone.
       if (regId.isNotEmpty) {
         EventContext.current?.registrationId = regId;
+        EventContext.current?.qrCodeToken = qrToken;
       }
 
       // Save the registration for engagement features keyed by slug.

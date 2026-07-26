@@ -17,10 +17,12 @@ import 'people_screen.dart';
 class SpeedNetworkingScreen extends StatefulWidget {
   final String eventId;
   final String? registrationId;
+  final String? qrCodeToken;
   const SpeedNetworkingScreen({
     super.key,
     required this.eventId,
     this.registrationId,
+    this.qrCodeToken,
   });
 
   @override
@@ -35,6 +37,7 @@ class _SpeedNetworkingScreenState extends State<SpeedNetworkingScreen> {
   int _index = 0;
   bool _connecting = false;
   String? _rid;
+  String? _token;
 
   bool get _canNetwork => _rid != null && _rid!.isNotEmpty;
 
@@ -62,7 +65,10 @@ class _SpeedNetworkingScreenState extends State<SpeedNetworkingScreen> {
     if (ctx == null) return;
     await Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => PeopleScreen(
-          eventId: widget.eventId, slug: ctx.slug, registrationId: _rid),
+          eventId: widget.eventId,
+          slug: ctx.slug,
+          registrationId: _rid,
+          qrCodeToken: _token),
     ));
     if (mounted) _load();
   }
@@ -71,6 +77,7 @@ class _SpeedNetworkingScreenState extends State<SpeedNetworkingScreen> {
   void initState() {
     super.initState();
     _rid = widget.registrationId;
+    _token = widget.qrCodeToken;
     if (_canNetwork) {
       _load();
     } else {
@@ -80,8 +87,12 @@ class _SpeedNetworkingScreenState extends State<SpeedNetworkingScreen> {
 
   Future<void> _resolveRegThenLoad() async {
     final rid = await effectiveRegId(widget.registrationId, widget.eventId);
+    final token = await effectiveQrToken(widget.qrCodeToken, widget.eventId);
     if (!mounted) return;
-    setState(() => _rid = rid);
+    setState(() {
+      _rid = rid;
+      _token = token;
+    });
     if (_canNetwork) {
       _load();
     } else {
@@ -145,6 +156,7 @@ class _SpeedNetworkingScreenState extends State<SpeedNetworkingScreen> {
       await apiPost('/api/events/${widget.eventId}/connections', {
         'requester_id': _rid,
         'recipient_id': a.id,
+        if (_token != null) 'qr_code_token': _token,
       });
       if (!mounted) return;
       setState(() => _connecting = false);

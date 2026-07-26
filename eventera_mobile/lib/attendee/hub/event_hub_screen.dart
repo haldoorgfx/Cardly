@@ -69,6 +69,7 @@ class _EventHubScreenState extends State<EventHubScreen> {
   final List<SponsorSummary> _sponsors = [];
   final List<AttendeeAvatar> _attendees = [];
   String? _regId;
+  String? _regToken;
 
   // Ticket availability, so the sticky CTA never dead-ends at "No tickets
   // available". `_ticketsLoaded` guards against flashing the wrong label before
@@ -139,22 +140,35 @@ class _EventHubScreenState extends State<EventHubScreen> {
       // RegStore is device-wide (keyed by slug), so a new user could inherit a
       // previous user's "Registered" state. When signed in, verify against the
       // DB for this user; only fall back to the local store for guests.
+      //
+      // The qr_code_token travels alongside the id: assertOwnsRegistration
+      // (the identity gate every engagement write route calls) only resolves
+      // an authenticated session from cookies, and mobile sends its session as
+      // an Authorization header instead — so mobile never satisfies that
+      // branch and always needs the token to get through the guest branch,
+      // signed in or not.
       String? regId;
+      String? regToken;
       if (isSignedIn && eventId != null) {
-        regId = await _fetchUserRegId(eventId);
+        final result = await _fetchUserReg(eventId);
+        regId = result.id;
+        regToken = result.token;
       } else {
         final reg = await RegStore.instance.get(widget.slug);
         regId = reg?.registrationId;
+        regToken = reg?.qrToken;
       }
 
       // Set the shared event context so detail/engagement screens can read the
-      // registration id without threading it through every constructor.
+      // registration id (and token) without threading it through every
+      // constructor.
       if (eventId != null) {
         EventContext.current = EventContext(
           eventId: eventId,
           slug: widget.slug,
           eventName: page.title,
           registrationId: regId,
+          qrCodeToken: regToken,
         );
       }
 
@@ -166,6 +180,7 @@ class _EventHubScreenState extends State<EventHubScreen> {
       setState(() {
         _page = page;
         _regId = regId;
+        _regToken = regToken;
         _navSections = _buildNav(page);
         _loading = false;
       });
@@ -279,30 +294,38 @@ class _EventHubScreenState extends State<EventHubScreen> {
     }
   }
 
-  /// The current signed-in user's own registration id for this event (if any),
-  /// verified against the DB so "Registered" is never inherited from another
-  /// user on the same device.
-  Future<String?> _fetchUserRegId(String eventId) async {
+  /// The current signed-in user's own registration id (and qr_code_token) for
+  /// this event (if any), verified against the DB so "Registered" is never
+  /// inherited from another user on the same device.
+  ///
+  /// The token is fetched here too (not just for guests) because mobile's
+  /// session cookie never reaches the server — see the comment in [_load].
+  Future<({String? id, String? token})> _fetchUserReg(String eventId) async {
     try {
       final email = (currentUserEmail ?? '').toLowerCase();
       final uid = currentUserId ?? '';
       final orParts = <String>[];
       if (uid.isNotEmpty) orParts.add('user_id.eq.$uid');
       if (email.isNotEmpty) orParts.add('attendee_email.eq.$email');
-      if (orParts.isEmpty) return null;
+      if (orParts.isEmpty) return (id: null, token: null);
       final rows = await supa
           .from('registrations')
-          .select('id')
+          .select('id, qr_code_token')
           .eq('event_id', eventId)
           .or(orParts.join(','))
           .inFilter('status',
               ['confirmed', 'checked_in', 'pending', 'pending_approval'])
           .limit(1);
       if (rows.isNotEmpty) {
-        return asString(rows.first['id']);
+        return (
+          id: asString(rows.first['id']),
+          token: rows.first['qr_code_token'] == null
+              ? null
+              : asString(rows.first['qr_code_token']),
+        );
       }
     } catch (_) {}
-    return null;
+    return (id: null, token: null);
   }
 
   Future<void> _loadAttendees(String eventId) async {
@@ -588,7 +611,10 @@ class _EventHubScreenState extends State<EventHubScreen> {
         final id = _page?.eventId;
         if (id == null) return;
         _push(PeopleScreen(
-            eventId: id, slug: widget.slug, registrationId: _regId));
+            eventId: id,
+            slug: widget.slug,
+            registrationId: _regId,
+            qrCodeToken: _regToken));
         return;
       case _Section.more:
         _openMoreSheet();
@@ -616,17 +642,32 @@ class _EventHubScreenState extends State<EventHubScreen> {
             const SizedBox(height: 4),
             _moreRow(Icons.event_note, 'My agenda',
                 () => AgendaScreen(
-                    eventId: id, slug: widget.slug, registrationId: _regId)),
+                    eventId: id,
+                    slug: widget.slug,
+                    registrationId: _regId,
+                    qrCodeToken: _regToken)),
             _moreRow(Icons.forum_outlined, 'Live Q&A',
-                () => QaScreen(eventId: id, registrationId: _regId)),
+                () => QaScreen(
+                    eventId: id,
+                    registrationId: _regId,
+                    qrCodeToken: _regToken)),
             _moreRow(Icons.bar_chart_rounded, 'Polls & results',
-                () => PollsScreen(eventId: id, registrationId: _regId)),
+                () => PollsScreen(
+                    eventId: id,
+                    registrationId: _regId,
+                    qrCodeToken: _regToken)),
             _moreRow(Icons.chat_bubble_outline, 'Messages',
-                () => MessagesScreen(eventId: id, registrationId: _regId)),
+                () => MessagesScreen(
+                    eventId: id,
+                    registrationId: _regId,
+                    qrCodeToken: _regToken)),
             _moreRow(Icons.emoji_events_outlined, 'Leaderboard',
                 () => LeaderboardScreen(eventId: id, registrationId: _regId)),
             _moreRow(Icons.rate_review_outlined, 'Feedback',
-                () => FeedbackScreen(eventId: id, registrationId: _regId)),
+                () => FeedbackScreen(
+                    eventId: id,
+                    registrationId: _regId,
+                    qrCodeToken: _regToken)),
             _moreRow(Icons.tag, 'Community',
                 () => CommunityChatScreen(
                     eventId: id, registrationId: _regId)),
@@ -634,7 +675,9 @@ class _EventHubScreenState extends State<EventHubScreen> {
                 () => PhotoWallScreen(eventId: id)),
             _moreRow(Icons.bolt_outlined, 'Speed networking',
                 () => SpeedNetworkingScreen(
-                    eventId: id, registrationId: _regId)),
+                    eventId: id,
+                    registrationId: _regId,
+                    qrCodeToken: _regToken)),
             _moreRow(Icons.description_outlined, 'Call for papers',
                 () => CfpScreen(eventId: id, slug: widget.slug)),
             if (_isSponsor)

@@ -15,10 +15,12 @@ import '_shared.dart';
 class FeedbackScreen extends StatefulWidget {
   final String eventId;
   final String? registrationId;
+  final String? qrCodeToken;
   const FeedbackScreen({
     super.key,
     required this.eventId,
     this.registrationId,
+    this.qrCodeToken,
   });
 
   @override
@@ -43,18 +45,24 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
   bool _submitting = false;
   bool _done = false;
   String? _rid;
+  String? _token;
 
   @override
   void initState() {
     super.initState();
     _rid = widget.registrationId;
+    _token = widget.qrCodeToken;
     _resolveReg();
   }
 
   Future<void> _resolveReg() async {
     final rid = await effectiveRegId(widget.registrationId, widget.eventId);
+    final token = await effectiveQrToken(widget.qrCodeToken, widget.eventId);
     if (!mounted) return;
-    setState(() => _rid = rid);
+    setState(() {
+      _rid = rid;
+      _token = token;
+    });
   }
 
   @override
@@ -78,6 +86,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
         if (_rating > 0) 'overall_rating': _rating,
         if (_selected.isNotEmpty) 'highlights': _selected.toList(),
         if (_comment.text.trim().isNotEmpty) 'comment': _comment.text.trim(),
+        if (_token != null) 'qr_code_token': _token,
       });
       if (mounted) setState(() => _done = true);
     } catch (e) {
