@@ -71,18 +71,17 @@ class EventeraApi {
     );
   }
 
-  /// Events owned by the signed-in organizer (for the dashboard).
-  /// RLS restricts this to rows where user_id = the authenticated user.
+  /// Events this organizer may manage — their own, plus any owner whose
+  /// Studio-plan Team they belong to (migration 127's my_manageable_events()).
+  /// A plain `.eq('user_id', uid)` table query would silently exclude
+  /// team-shared events, since `events`' own RLS SELECT policy has no team
+  /// clause (only the RPC/RLS-write layer does, via can_manage_event()) —
+  /// see 127's header for why this needed a security-definer RPC rather than
+  /// widening that policy directly.
   Future<List<OrganizerEvent>> myEvents() async {
     final uid = _db.auth.currentUser?.id;
     if (uid == null) throw EventeraException('Please sign in first.');
-    final rows = await _db
-        .from('events')
-        .select(
-            'id, name, slug, status, view_count, download_count, created_at, '
-            'event_pages(starts_at, venue_name, city, cover_image_url)')
-        .eq('user_id', uid)
-        .order('created_at', ascending: false);
+    final rows = await _db.rpc('my_manageable_events');
     return (rows as List)
         .whereType<Map<String, dynamic>>()
         .map(OrganizerEvent.fromJson)

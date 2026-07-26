@@ -125,7 +125,11 @@ class OrganizerEvent {
 
   factory OrganizerEvent.fromJson(Map<String, dynamic> j) {
     // Date/venue/cover live on the joined event_pages row (one per event).
-    // Supabase returns it as a list or a map depending on the relationship.
+    // Supabase returns it as a list or a map depending on the relationship
+    // when queried via `.select()` with an embed. `my_manageable_events()`
+    // (migration 127) instead returns these as flat top-level columns, since
+    // an RPC's `returns table (...)` can't nest a sub-object — fall back to
+    // the top level for each field when there's no `event_pages` key.
     Map<String, dynamic>? page;
     final rawPage = j['event_pages'];
     if (rawPage is Map) {
@@ -133,8 +137,8 @@ class OrganizerEvent {
     } else if (rawPage is List && rawPage.isNotEmpty && rawPage.first is Map) {
       page = Map<String, dynamic>.from(rawPage.first as Map);
     }
-    final venue = (page?['venue_name'] as String?)?.trim();
-    final city = (page?['city'] as String?)?.trim();
+    final venue = ((page?['venue_name'] ?? j['venue_name']) as String?)?.trim();
+    final city = ((page?['city'] ?? j['city']) as String?)?.trim();
     final loc = [
       if (venue != null && venue.isNotEmpty) venue,
       if (city != null && city.isNotEmpty && city != venue) city,
@@ -148,9 +152,10 @@ class OrganizerEvent {
       viewCount: (j['view_count'] as num?)?.toInt() ?? 0,
       downloadCount: (j['download_count'] as num?)?.toInt() ?? 0,
       createdAt: DateTime.tryParse(j['created_at'] as String? ?? ''),
-      startsAt: DateTime.tryParse(page?['starts_at'] as String? ?? ''),
+      startsAt: DateTime.tryParse(
+          ((page?['starts_at'] ?? j['starts_at']) as String?) ?? ''),
       location: loc.isEmpty ? null : loc,
-      coverUrl: page?['cover_image_url'] as String?,
+      coverUrl: (page?['cover_image_url'] ?? j['cover_image_url']) as String?,
     );
   }
 

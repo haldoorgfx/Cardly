@@ -70,6 +70,7 @@ right default for every row except 116.
 | **124** | `financial_transactions_ledger` | New immutable ledger table for every platform fee, organizer payout, and refund — see below | Yes — `GET /rest/v1/financial_transactions?limit=1` returns `200` once applied, `42P01` (relation not found) before |
 | **125** | `cards_this_month_race_guard` | `increment_cards_this_month_if_allowed()` RPC — closes a card-generation quota race, same class as 121 | Yes — same PGRST202 test as 107/121 |
 | **126** | `checkin_rpc_team_access` | Adds the Teams clause to `checkin_registration()` / `checkin_registration_by_id()` (the mobile scanner's RPCs) — see below | No — behavior-only change to an existing function's body |
+| **127** | `mobile_organizer_teams_event_list` | New `my_manageable_events()` RPC — the mobile organizer app's event list was `events.user_id`-only and showed zero events to Studio team members — see below | Yes — same PGRST202 test as 107/121/125 |
 
 ---
 
@@ -86,6 +87,28 @@ per-organizer advisory lock. Safe to apply any time; `lib/billing/can.ts`'s
 hasn't landed yet.
 
 ---
+
+### 127 — mobile organizer event list showed zero events to Studio team members
+
+`eventera_mobile`'s organizer event list (`EventeraApi.myEvents()` in
+`eventera_mobile/lib/eventera_api.dart`, the one query `events_tab.dart`,
+`attendees_tab.dart`, `stats_tab.dart`, and the scanner's event picker all
+funnel through) queried `events` directly with `.eq('user_id', uid)` on the
+session client — the same "owner-only" shape 118 web sites had before
+`manageableOwnerIds()` (`lib/rbac/canManageEvent.ts`) fixed it there. Web's
+fix runs on the service-role client, which mobile's session client can't do,
+and `events`' own SELECT RLS policy was never widened with a team clause
+(only the RPC/write layer was, in 116/126) — so a Studio team member's
+mobile app showed no events to check in, no attendees, no stats, while the
+same account saw them correctly on web. New `my_manageable_events()` RPC
+(SECURITY DEFINER, same pattern as `checkin_registration()`) returns owned +
+team-shared events without needing to know or touch the existing `events`
+RLS policy body — deliberately not an RLS policy widening, since 051-104
+being missing from this repo means the current live policy can't be proven
+safe to blindly replace (same landmine 116's header warns about). Mobile's
+`myEvents()` now calls this RPC instead of the raw table query. Safe to
+apply any time — mobile simply keeps seeing zero team-shared events (same
+as today) until this lands, nothing regresses.
 
 ### 126 — mobile check-in RPCs never picked up the Teams clause 116 added
 
