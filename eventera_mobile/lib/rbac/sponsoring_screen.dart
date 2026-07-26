@@ -389,7 +389,7 @@ class _EventBlock extends StatelessWidget {
         ToolCard(
           icon: Icons.workspace_premium_outlined,
           title: 'Booth tools',
-          summary: 'Lead scanner · my leads · team · products · meetings',
+          summary: 'Scanner, leads, team, products',
           onTap: onOpenTools,
         ),
       ],

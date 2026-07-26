@@ -1015,19 +1015,19 @@ class _EventHubScreenState extends State<EventHubScreen> {
     }
 
     if (_isSpeaker) {
-      card(Icons.mic_none, 'Speaker tools', 'Your sessions · profile · audience Q&A',
+      card(Icons.mic_none, 'Speaker tools', 'Sessions, profile, Q&A',
           () => SpeakerToolsScreen(eventId: id, eventName: name));
     }
     if (_isSponsor || _isExhibitor) {
       card(Icons.workspace_premium_outlined,
           _isExhibitor && !_isSponsor ? 'Exhibitor tools' : 'Booth tools',
-          'Lead scanner · my booth · my leads',
+          'Scanner, booth, leads',
           () => SponsorToolsScreen(eventId: id, eventName: name));
     }
     if (_isOrganizer || _isStaff) {
       card(Icons.verified_user_outlined,
           _isOrganizer ? 'Manage check-in' : 'Check-in access',
-          'Scan QR codes · attendee list · live numbers',
+          'Scan attendees, live stats',
           () => EventControlScreen(
               eventId: id, eventName: name, isOwner: _isOrganizer));
     }

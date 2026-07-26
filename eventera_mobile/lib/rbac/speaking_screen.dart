@@ -455,14 +455,14 @@ class _EventBlock extends StatelessWidget {
         ToolCard(
           icon: Icons.mic_none,
           title: 'Speaker tools',
-          summary: 'Green room · logistics · live audience Q&A',
+          summary: 'Green room, logistics, Q&A',
           onTap: onOpenTools,
         ),
         const SizedBox(height: 8),
         ToolCard(
           icon: Icons.person_outline,
           title: 'Edit speaker profile',
-          summary: 'Name, title, company, bio and links',
+          summary: 'Bio, photo, links',
           onTap: onEditProfile,
         ),
       ],

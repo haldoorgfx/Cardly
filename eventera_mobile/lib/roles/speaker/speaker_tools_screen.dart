@@ -100,7 +100,7 @@ class _SpeakerToolsScreenState extends State<SpeakerToolsScreen> {
                     ToolCard(
                       icon: Icons.person_outline,
                       title: 'My speaker profile',
-                      summary: 'Edit headline, company, bio, links',
+                      summary: 'Bio, photo, links',
                       onTap: () => Navigator.of(context).push(MaterialPageRoute(
                           builder: (_) => SpeakerProfileScreen(
                               eventId: widget.eventId, eventName: widget.eventName))),
@@ -125,7 +125,7 @@ class _SpeakerToolsScreenState extends State<SpeakerToolsScreen> {
                       ToolCard(
                         icon: Icons.forum_outlined,
                         title: '${s.title} · Q&A',
-                        summary: 'Answer, feature & moderate audience questions',
+                        summary: 'Answer & feature questions',
                         onTap: () => Navigator.of(context).push(MaterialPageRoute(
                             builder: (_) => SessionQaScreen(
                                 eventId: widget.eventId, sessionId: s.id,

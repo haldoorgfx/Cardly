@@ -39,64 +39,82 @@ class RolePill extends StatelessWidget {
   }
 }
 
-/// Forest-gradient entry card. Tapping opens that role's tool section.
+/// A role's tool-section entry — reads as a real, pressable button: solid
+/// (not gradient — the gradient card this replaced looked identical to a
+/// static status card, gave no press feedback, and buried the point under a
+/// long dotted subtitle), with a Material ripple on tap and a distinct
+/// "go" chip standing in for the old bare chevron.
 class ToolCard extends StatelessWidget {
   final IconData icon;
-  final String title;    // 'Speaker tools'
-  final String summary;  // '2 sessions · profile · audience Q&A'
+  final String title; // 'Speaker tools'
+  final String? summary; // short — one phrase, not a dotted list
   final VoidCallback onTap;
   const ToolCard({
     super.key,
     required this.icon,
     required this.title,
-    required this.summary,
+    this.summary,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [AppColors.forest, AppColors.forestDark],
+    return Material(
+      color: AppColors.forestCard,
+      borderRadius: BorderRadius.circular(16),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        splashColor: AppColors.gold.withValues(alpha: 0.18),
+        highlightColor: Colors.white.withValues(alpha: 0.06),
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 64),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          child: Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon, color: AppColors.gold, size: 20),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title,
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700)),
+                    if (summary != null && summary!.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(summary!,
+                          style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.7),
+                              fontSize: 12.5)),
+                    ],
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                width: 30,
+                height: 30,
+                decoration: BoxDecoration(
+                  color: AppColors.gold,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.arrow_forward,
+                    color: AppColors.forestDark, size: 16),
+              ),
+            ],
           ),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(icon, color: AppColors.gold, size: 20),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title,
-                      style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700)),
-                  const SizedBox(height: 2),
-                  Text(summary,
-                      style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.75), fontSize: 12.5)),
-                ],
-              ),
-            ),
-            const Icon(Icons.chevron_right, color: Colors.white70, size: 22),
-          ],
         ),
       ),
     );

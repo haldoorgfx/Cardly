@@ -91,7 +91,7 @@ class _SponsorToolsScreenState extends State<SponsorToolsScreen> {
                     ToolCard(
                       icon: Icons.contacts_outlined,
                       title: 'My leads',
-                      summary: 'Everyone you\'ve captured, hot / warm / cold',
+                      summary: 'Everyone you\'ve captured',
                       onTap: () => Navigator.of(context).push(MaterialPageRoute(
                           builder: (_) => MyLeadsScreen(sponsorId: sponsorId, boothName: name))),
                     ),
