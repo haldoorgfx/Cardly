@@ -25,15 +25,16 @@ export async function getLeaderboard(
 ): Promise<LeaderboardData> {
   const admin = createAdminClient();
 
+  // Aggregated in Postgres (migration 130's leaderboard_totals RPC) instead of
+  // pulling every leaderboard_points row and summing in JS — that table gets a
+  // row per Q&A vote / poll vote / connection made, so the old query shipped
+  // more data on every leaderboard view as an event got more engaged.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: rows } = await (admin as any)
-    .from('leaderboard_points')
-    .select('registration_id, points')
-    .eq('event_id', eventId);
+  const { data: rows } = await (admin as any).rpc('leaderboard_totals', { p_event_id: eventId });
 
   const totals = new Map<string, number>();
   for (const r of (rows ?? [])) {
-    totals.set(r.registration_id, (totals.get(r.registration_id) ?? 0) + r.points);
+    totals.set(r.registration_id, r.total_points);
   }
 
   const allSorted = Array.from(totals.entries()).sort((a, b) => b[1] - a[1]);

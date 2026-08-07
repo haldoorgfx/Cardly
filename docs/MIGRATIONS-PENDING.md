@@ -72,6 +72,8 @@ right default for every row except 116.
 | **126** | `checkin_rpc_team_access` | Adds the Teams clause to `checkin_registration()` / `checkin_registration_by_id()` (the mobile scanner's RPCs) — see below | No — behavior-only change to an existing function's body |
 | **127** | `mobile_organizer_teams_event_list` | New `my_manageable_events()` RPC — the mobile organizer app's event list was `events.user_id`-only and showed zero events to Studio team members — see below | Yes — same PGRST202 test as 107/121/125 |
 | **128** | `community_messages_insert_identity` | `community_messages`' insert policy never checked the caller owned the `registration_id` being posted as — any signed-in attendee could spoof a message as anyone else in the event chat — see below | No — behavior-only change to an existing policy |
+| **129** | `registrations_direct_insert_guard` | Trigger closing the raw-REST registration-spam bypass — anon key could INSERT directly into `registrations` bypassing every business rule the Next.js route enforces — see below | Partially — behavior-only for existing checks; a bad row failing a NEW check now raises rather than silently landing |
+| **130** | `perf_indexes_and_leaderboard_aggregate` | Pre-launch cost/scale audit: adds missing indexes on `registrations.payment_status`, `registrations(event_id, created_at)`, `poll_votes.registration_id`, plus a `leaderboard_totals()` RPC replacing two "pull every points row and sum in JS" call sites — see below | No — indexes aren't visible over REST; the RPC is — `POST /rest/v1/rpc/leaderboard_totals` should return its real signature once applied |
 
 ---
 
@@ -88,6 +90,47 @@ per-organizer advisory lock. Safe to apply any time; `lib/billing/can.ts`'s
 hasn't landed yet.
 
 ---
+
+### 130 — missing indexes + leaderboard N+1, found in the pre-launch cost/scale audit
+
+Abdalla is on Supabase's free tier (shared compute, not just request-count
+limited) and asked for a full audit of what will cost money or break once
+real users show up. Found: `registrations.payment_status` has no index at
+all despite `app/admin/billing/page.tsx` scanning it platform-wide with no
+event filter; `registrations(event_id)` is indexed but not combined with
+`created_at`, so the paginated Attendees list sorts the whole event's
+registrations in memory just to hand back 50 rows; `poll_votes.registration_id`
+is only the second column of a composite primary key, not independently
+indexed, so "what did I vote" scans the whole table. Also found a real N+1:
+the leaderboard route and the organizer gamification page each pulled every
+`leaderboard_points` row for an event (one row per Q&A vote/poll vote/
+connection) and summed in JavaScript on every view — a payload that grows
+for the entire life of an actively-engaged event. Fixed with a
+`leaderboard_totals()` RPC doing SUM/GROUP BY in Postgres instead; both call
+sites now use it. Purely additive — indexes and a new function, nothing
+removed, safe to apply any time.
+
+### 129 — raw-REST registration-spam bypass, closed
+
+A prior audit (2026-07-16) flagged that `registrations`' insert policy is
+`with check (true)` — anyone with the public anon key can POST directly to
+Supabase's REST endpoint and create a registration row with an arbitrary
+event/ticket/status/amount, completely bypassing
+`app/api/events/[id]/register/route.ts` and everything it enforces
+(published-event check, deadline, capacity, sold-out, actual payment). This
+was left unresolved for a risk call. Closed with a `before insert` trigger
+that no-ops for the app's own service-role inserts (100% of today's real
+registration flow) and validates the same rules the API route does for any
+anon/authenticated-role insert — the only path that can reach the raw-REST
+bypass. A paid ticket or approval-gated event can never land pre-confirmed
+this way; it downgrades to `pending` instead of hard-rejecting, so a
+legitimate no-auth caller still gets a row. Deliberately does not add a
+velocity/IP cap (a Postgres trigger can't safely tell a legitimate
+doors-open registration rush from an attacker's) — flagged as a future
+CAPTCHA/rate-cap call if junk-row volume becomes a real concern. Other
+tables with the same `with check (true)` shape (ticket_transfers, abstracts,
+sponsor_leads, waitlist_entries, meeting_requests) were spotted but are out
+of scope for this migration.
 
 ### 128 — community chat let any signed-in attendee spoof another attendee's messages
 

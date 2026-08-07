@@ -44,16 +44,14 @@ export default async function GamificationPage({ params }: Props) {
   if (!ownerPlan || PLAN_RANK[ownerPlan] < PLAN_RANK.pro) redirect(`/events/${_ev.slug}`);
   if (!(await isPlatformFeatureEnabled('gamification'))) redirect(`/events/${_ev.slug}`);
 
-  // Aggregate points per registration — mirrors app/api/events/[id]/leaderboard/route.ts
+  // Aggregate points per registration — summed in Postgres (migration 130's
+  // leaderboard_totals RPC), mirrors app/api/events/[id]/leaderboard/route.ts
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: rows } = await (admin as any)
-    .from('leaderboard_points')
-    .select('registration_id, points')
-    .eq('event_id', id);
+  const { data: rows } = await (admin as any).rpc('leaderboard_totals', { p_event_id: id });
 
   const totals = new Map<string, number>();
   for (const r of (rows ?? [])) {
-    totals.set(r.registration_id, (totals.get(r.registration_id) ?? 0) + r.points);
+    totals.set(r.registration_id, r.total_points);
   }
 
   const sorted = Array.from(totals.entries()).sort((a, b) => b[1] - a[1]).slice(0, 50);
