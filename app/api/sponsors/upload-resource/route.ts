@@ -36,6 +36,9 @@ export async function POST(req: Request) {
       // in a victim's browser from our origin.
       contentType: 'application/octet-stream',
       upsert: false,
+      // Path is timestamped (immutable per upload) — cache for a year so repeat
+      // downloads of the same resource don't re-spend egress bandwidth.
+      cacheControl: '31536000',
     });
 
   if (uploadError) return NextResponse.json({ error: uploadError.message }, { status: 500 });

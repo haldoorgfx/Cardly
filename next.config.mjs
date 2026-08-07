@@ -148,6 +148,14 @@ const nextConfig = {
       // We validate/sanitize URLs before saving so this is safe.
       { protocol: 'https', hostname: '**' },
     ],
+    // Next's default is 60s, which means Vercel's Image Optimization cache
+    // (a separate free-tier quota from bandwidth/compute) re-transforms the
+    // same cover/card/logo image on almost every request. Nearly everything we
+    // pass through next/image is stored under an immutable, upload-timestamped
+    // Supabase Storage path (event-backgrounds, generated-cards, event-assets),
+    // so a long TTL is safe — it only affects how long the OPTIMIZED variant is
+    // cached, not whether a new upload is picked up (new upload = new URL).
+    minimumCacheTTL: 2678400, // 31 days
   },
 };
 

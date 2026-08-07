@@ -31,6 +31,9 @@ export async function POST(
       // Neutral content type so an uploaded .html/.svg can't execute from our origin.
       contentType: 'application/octet-stream',
       upsert: true,
+      // Path is timestamped (a re-upload gets a new path) — cache for a year so
+      // repeat views of the same slide deck don't re-spend egress bandwidth.
+      cacheControl: '31536000',
     });
 
   if (uploadError) return NextResponse.json({ error: uploadError.message }, { status: 500 });
