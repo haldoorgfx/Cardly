@@ -6,6 +6,7 @@ import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 import { getEventOwnerPlan } from '@/lib/billing/can';
 import { hasStudioERA } from '@/lib/ai/gate';
 import { isPlatformFeatureEnabled } from '@/lib/features/platform';
+import { checkQuota } from '@/lib/ratelimit';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -47,6 +48,19 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  // Hard per-user daily cap — every Copilot call is a real Anthropic API
+  // charge with no free tier (running claude-opus-4-8, this product's most
+  // expensive per-token model — see the plan-gate comment below). The
+  // middleware's per-IP-per-minute limiter bounds burst rate but not total
+  // daily spend; this bounds that.
+  const quota = await checkQuota('copilotDaily', user.id);
+  if (!quota.allowed) {
+    return NextResponse.json(
+      { error: 'Daily AI Copilot limit reached. Try again tomorrow.' },
+      { status: 429, headers: { 'Retry-After': String(quota.retryAfter) } },
+    );
+  }
 
   const raw = await req.json().catch(() => null);
   const parsed = BodySchema.safeParse(raw);

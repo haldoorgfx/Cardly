@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getUserPlan } from '@/lib/billing/can';
 import { assertERA } from '@/lib/ai/gate';
 import { ERA } from '@/lib/ai/era';
+import { checkQuota } from '@/lib/ratelimit';
 
 const profileSchema = z.object({
   name: z.string().min(1).max(200),
@@ -23,6 +24,14 @@ export async function POST(request: Request) {
     assertERA(plan);
   } catch {
     return NextResponse.json({ error: 'ERA_UPGRADE_REQUIRED' }, { status: 403 });
+  }
+
+  const quota = await checkQuota('eraDaily', user.id);
+  if (!quota.allowed) {
+    return NextResponse.json(
+      { error: 'Daily ERA limit reached. Try again tomorrow.' },
+      { status: 429, headers: { 'Retry-After': String(quota.retryAfter) } },
+    );
   }
 
   const parsed = schema.safeParse(await request.json().catch(() => null));

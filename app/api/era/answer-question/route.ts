@@ -4,6 +4,7 @@ import { createAdminClient } from '@/lib/supabase/server';
 import { getUserPlan } from '@/lib/billing/can';
 import { hasERA } from '@/lib/ai/gate';
 import { ERA } from '@/lib/ai/era';
+import { checkQuota } from '@/lib/ratelimit';
 
 // Public FAQ bot on event pages. No end-user auth (attendees are anonymous),
 // but the feature is gated on the ORGANIZER's plan: ERA Q&A is a Pro/Studio
@@ -44,6 +45,21 @@ export async function POST(request: Request) {
     return NextResponse.json(
       { error: 'The ERA assistant is not enabled for this event.' },
       { status: 403 },
+    );
+  }
+
+  // No auth on this route (attendees are anonymous) — the middleware's
+  // per-IP-per-minute 'render' tier bounds burst rate, but not total daily
+  // spend against a real Pro/Studio event. This is the daily backstop.
+  const ip =
+    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
+    request.headers.get('x-real-ip') ??
+    '127.0.0.1';
+  const quota = await checkQuota('eraPublicDaily', ip);
+  if (!quota.allowed) {
+    return NextResponse.json(
+      { error: 'Too many questions today. Please try again tomorrow.' },
+      { status: 429, headers: { 'Retry-After': String(quota.retryAfter) } },
     );
   }
 

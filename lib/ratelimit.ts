@@ -118,9 +118,36 @@ export const limiters = {
   // Card rendering is the one genuinely expensive call on the public API, so
   // it gets a much smaller per-key budget of its own.
   apiKeyRender: makeLimit(20,  '60 s'),
+
+  // ── Per-user / per-IP DAILY quotas for direct LLM calls ───────────────────
+  // The tiers above are per-IP-per-minute (via middleware) and bound burst
+  // rate, but not total daily spend — a caller can still sit at the cap for
+  // 24 hours straight. These are additional hard ceilings, checked explicitly
+  // by the AI route handlers themselves (not middleware), keyed by user ID
+  // where the caller is authenticated, or by IP for public AI endpoints.
+  copilotDaily:   makeLimit(30,  '1 d'), // AI Copilot (Claude) — real $/token, no free tier
+  eraDaily:       makeLimit(100, '1 d'), // ERA (Gemini Flash), authenticated organizer features
+  eraPublicDaily: makeLimit(50,  '1 d'), // ERA answer-question — public, unauthenticated
 } as const;
 
 export type LimiterTier = keyof typeof limiters;
+
+// ── Explicit per-user/per-IP daily quota check ──────────────────────────────
+// Call this directly from an AI route handler (not via middleware) with a
+// stable identifier — a user ID for authenticated routes, an IP for public
+// ones. Returns the same shape as checkRateLimit.
+export async function checkQuota(
+  tier: 'copilotDaily' | 'eraDaily' | 'eraPublicDaily',
+  identifier: string,
+): Promise<{ allowed: true } | { allowed: false; retryAfter: number }> {
+  const limiter = limiters[tier];
+  const result = await limiter.limit(`${tier}:${identifier}`);
+
+  if (result.success) return { allowed: true };
+
+  const retryAfter = Math.ceil((result.reset - Date.now()) / 1000);
+  return { allowed: false, retryAfter: Math.max(retryAfter, 1) };
+}
 
 // ── Route → tier map ─────────────────────────────────────────────────────────
 // Longest-prefix match. Everything not listed falls through to 'standard'.
