@@ -20,6 +20,19 @@ function getResend(): Resend | null {
   return new Resend(key);
 }
 
+// Resend's FREE plan (what we're on until the platform is making money) caps
+// sending at 100 emails/day and 3000/month. A single "Send" click here fires
+// one real email per recipient — batching below only cuts HTTP round-trips,
+// it does NOT reduce how many emails count against that daily/monthly cap.
+// Without a ceiling, one organizer broadcasting to a few hundred attendees
+// can blow the *entire day's* quota (including everyone else's registration
+// confirmations) in a single click.
+//
+// This cap is intentionally conservative and leaves headroom for
+// transactional email (confirmations, reminders, etc.) the same day. Raise
+// it once Resend is upgraded — see CLAUDE.md revenue model / lib/email.
+const MAX_BROADCAST_RECIPIENTS = 80;
+
 // POST — send a broadcast email to all confirmed/checked-in attendees
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
   if (!(await isPlatformFeatureEnabled('communications'))) return NextResponse.json({ error: 'Communications is currently unavailable.' }, { status: 404 });
@@ -90,6 +103,23 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     return NextResponse.json(
       { error: 'Every confirmed attendee has unsubscribed from event updates', sent: 0, skipped },
       { status: 400 },
+    );
+  }
+
+  // Hard ceiling — reject up front rather than sending some, hitting Resend's
+  // daily cap partway through, and silently starving the day's other event
+  // emails (confirmations, reminders) for every organizer on the platform.
+  if (recipients.length > MAX_BROADCAST_RECIPIENTS) {
+    return NextResponse.json(
+      {
+        error:
+          `This event has ${recipients.length} attendees to email, which is more than the ` +
+          `${MAX_BROADCAST_RECIPIENTS} we can safely send in a single broadcast on our current ` +
+          `email plan (100/day). Sending to everyone would risk your other event emails ` +
+          `(confirmations, reminders) bouncing today. Split this into smaller groups across a ` +
+          `few days, or contact support to increase this limit.`,
+      },
+      { status: 413 },
     );
   }
 
