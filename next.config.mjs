@@ -116,7 +116,13 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.crisp.chat",
               "font-src 'self' data: https://fonts.gstatic.com https://*.crisp.chat",
               "img-src 'self' data: blob: https:",
-              "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.supabase.in https://api.stripe.com https://*.posthog.com https://*.crisp.chat wss://*.crisp.chat https://vitals.vercel-insights.com https://maps.googleapis.com",
+              // Sentry (@sentry/nextjs, sentry.client.config.ts) was missing here —
+              // the browser SDK posts error/performance events straight to
+              // Sentry's own ingest domain (no tunnelRoute configured), so this
+              // report-only policy could never actually be proven safe to
+              // enforce until it's covered. *.ingest.sentry.io is the classic
+              // format; *.ingest.us.sentry.io covers the newer US-region DSNs.
+              "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.supabase.in https://api.stripe.com https://*.posthog.com https://*.crisp.chat wss://*.crisp.chat https://vitals.vercel-insights.com https://maps.googleapis.com https://*.ingest.sentry.io https://*.ingest.us.sentry.io",
               "frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://*.crisp.chat",
               "worker-src 'self' blob:",
               "object-src 'none'",
