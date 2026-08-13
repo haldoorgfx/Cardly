@@ -109,7 +109,7 @@ export async function resetPassword(email: string) {
     redirectTo: `${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}/auth/callback?next=/settings/reset-password`,
   });
   if (error) return { error: error.message };
-  return { ok: true };
+  return undefined;
 }
 
 export async function deleteAccount() {
