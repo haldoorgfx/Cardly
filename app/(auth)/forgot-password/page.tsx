@@ -15,7 +15,7 @@ export default function ForgotPasswordPage() {
     const email = (e.currentTarget.elements.namedItem("email") as HTMLInputElement).value;
     startTransition(async () => {
       const result = await resetPassword(email);
-      if (result?.error) {
+      if (result && 'error' in result) {
         setError(result.error);
       } else {
         setSent(true);

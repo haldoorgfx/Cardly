@@ -2,11 +2,35 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { sendWelcomeEmail } from "@/lib/email";
 import { safeNextPath as safeNext } from "@/lib/auth/safe-next";
+import { limiters } from "@/lib/ratelimit";
+
+// Sign-in/sign-up/password-reset run as Next.js Server Actions posted to page
+// routes (/login, /signup), not to anything under /api/* — middleware.ts only
+// rate-limits /api/* paths, so these had NO app-level throttling at all
+// despite /api/auth already having a 'strict' tier reserved for exactly this.
+// Reuses that same tier directly rather than routing through the path-based
+// checkRateLimit(), since there's no real pathname to resolve here.
+async function checkAuthRateLimit(): Promise<{ error: string } | null> {
+  const h = headers();
+  const ip =
+    h.get('x-forwarded-for')?.split(',')[0]?.trim() ??
+    h.get('x-real-ip') ??
+    '127.0.0.1';
+  const result = await limiters.strict.limit(`auth-action:${ip}`);
+  if (!result.success) {
+    return { error: 'Too many attempts. Please wait a minute and try again.' };
+  }
+  return null;
+}
 
 export async function signIn(formData: FormData) {
+  const limited = await checkAuthRateLimit();
+  if (limited) return limited;
+
   const supabase = createClient();
 
   const { error } = await supabase.auth.signInWithPassword({
@@ -30,6 +54,9 @@ export async function signIn(formData: FormData) {
 }
 
 export async function signUp(formData: FormData) {
+  const limited = await checkAuthRateLimit();
+  if (limited) return limited;
+
   const supabase = createClient();
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
@@ -74,6 +101,9 @@ export async function signOut() {
 }
 
 export async function resetPassword(email: string) {
+  const limited = await checkAuthRateLimit();
+  if (limited) return limited;
+
   const supabase = createClient();
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: `${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}/auth/callback?next=/settings/reset-password`,
