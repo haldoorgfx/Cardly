@@ -134,6 +134,28 @@ class RoleService {
       }
     }
 
+    // Studio Teams: being a member of ANY team ALSO makes you an organizer —
+    // web's manageableOwnerIds()/getVisibleSections() already grant this via
+    // team_members, but this file never queried that table, so a pure
+    // teammate (no owned event, no explicit user_event_roles row) could never
+    // see the Organize mode switch here at all — the whole shell was
+    // unreachable regardless of whether my_manageable_events()/
+    // is_event_team_member() (migration 116) were even working. team_members'
+    // own-row RLS policy (008_teams.sql, team_members_select_own) permits
+    // this read directly, same as the profiles/user_event_roles reads above.
+    if (!kinds.contains(EventRoleKind.organizer)) {
+      try {
+        final membership = await supa
+            .from('team_members')
+            .select('team_id')
+            .eq('user_id', uid)
+            .limit(1);
+        if ((membership as List).isNotEmpty) kinds.add(EventRoleKind.organizer);
+      } catch (e) {
+        if (kDebugMode) debugPrint('RoleService: team-membership check failed — $e');
+      }
+    }
+
     return UserRoles(
       platformRole: platformRole,
       roleKinds: kinds,
