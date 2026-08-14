@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { ownedSpeaker } from '@/lib/rbac/ownership';
 import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 import { zSafeUrl } from '@/lib/url/safeUrl';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 // This route was entirely unvalidated: whatever JSON arrived was written
 // straight to the row. The three social fields are rendered as `href` on the
@@ -26,6 +27,43 @@ const Schema = z.object({
   // Written by the headshot upload route, which returns a Storage public URL.
   photo_url: zSafeUrl,
 });
+
+// GET /api/speakers/[speakerId]/profile?event_id=<id> — public-safe speaker
+// profile for the mobile speaker detail screen. This used to be read straight
+// from Supabase (public_speakers view) client-side, which bypassed the
+// platform "speakers" kill switch entirely — the web equivalent
+// (app/(public)/e/[slug]/speakers/[speakerId]/page.tsx) already checks the
+// flag server-side, so this route mirrors that same gate and the same
+// explicit, email-excluding column list (speakers.email is a login-linking
+// column added in migration 039, not a public contact field).
+export async function GET(req: Request, { params }: { params: { speakerId: string } }) {
+  if (!(await isPlatformFeatureEnabled('speakers'))) {
+    return NextResponse.json({ error: 'Speakers & CFP is currently unavailable.' }, { status: 404 });
+  }
+
+  const { searchParams } = new URL(req.url);
+  const eventId = searchParams.get('event_id');
+  if (!eventId) return NextResponse.json({ error: 'event_id required' }, { status: 400 });
+
+  // speakerId may be a UUID (old links) or a slug (new links) — same rule the
+  // public web page uses.
+  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const speakerCol = UUID_RE.test(params.speakerId) ? 'id' : 'slug';
+
+  const admin = createAdminClient();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: speaker, error } = await (admin as any)
+    .from('speakers')
+    .select('id, name, headline, bio, photo_url, company, role, linkedin_url, twitter_url, website_url, speaker_type, is_featured, event_id')
+    .eq(speakerCol, params.speakerId)
+    .eq('event_id', eventId)
+    .maybeSingle();
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (!speaker) return NextResponse.json({ error: 'Speaker not found' }, { status: 404 });
+
+  return NextResponse.json({ speaker });
+}
 
 export async function PATCH(
   req: Request,

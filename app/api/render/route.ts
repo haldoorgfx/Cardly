@@ -29,6 +29,7 @@ import { consumeCardGeneration } from '@/lib/billing/can';
 import { PLANS } from '@/lib/billing/plans';
 import { fireWebhooks } from '@/lib/webhooks';
 import { maybeSendDownloadMilestone, sendCapReachedEmail } from '@/lib/email';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 // Font bytes embedded directly in the JS bundle — guaranteed present in every
 // Vercel serverless function regardless of file-tracing or CDN behaviour.
 import { FONT_DATA } from '@/lib/fonts/embedded-font-data';
@@ -550,6 +551,10 @@ function validatePhotoBuffer(buf: Buffer | null): { ok: true } | { ok: false; er
 }
 
 export async function POST(req: NextRequest) {
+  if (!(await isPlatformFeatureEnabled('card_studio'))) {
+    return NextResponse.json({ error: 'Card Studio is currently unavailable.' }, { status: 404 });
+  }
+
   // Rate limiting handled by middleware (lib/ratelimit.ts — 'render' tier: 10 req/60s per IP)
   const supabase = createAdminClient();
 

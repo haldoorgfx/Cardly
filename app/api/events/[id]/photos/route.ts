@@ -9,6 +9,30 @@ type Params = { params: Promise<{ id: string }> };
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_SIZE = 10 * 1024 * 1024; // 10MB — matches /api/upload's cap
 
+// GET /api/events/[id]/photos — public read of the moderated photo wall.
+// Mobile used to read event_photos straight from Supabase (RLS already scopes
+// anon reads to approved/featured, migration 101), which bypassed the
+// platform "photos" kill switch entirely since it never touched this route.
+// No identity required — same trust level as the public web photo wall.
+export async function GET(_req: Request, { params }: Params) {
+  if (!(await isPlatformFeatureEnabled('photos'))) return NextResponse.json({ error: 'The photo wall is currently unavailable.' }, { status: 404 });
+
+  const { id } = await params;
+  const admin = createAdminClient();
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (admin as any)
+    .from('event_photos')
+    .select('id, attendee_name, image_url, caption')
+    .eq('event_id', id)
+    .in('status', ['approved', 'featured'])
+    .order('created_at', { ascending: false })
+    .limit(60);
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json({ photos: data ?? [] });
+}
+
 // POST /api/events/[id]/photos — public attendee submission to the photo wall.
 // event_photos (migration 037) has no registration_id column, so identity here
 // is the same trust level as the CFP form: a typed name, not a verified

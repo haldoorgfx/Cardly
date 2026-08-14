@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { z } from 'zod';
 import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
+import { assertOwnsRegistration } from '@/lib/attendee-identity';
+import { hasModeratorAccess } from '@/lib/rbac/ownership';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 const CreateSchema = z.object({
   name: z.string().min(1).max(40),
@@ -20,6 +23,44 @@ async function assertOwnsEvent(eventId: string) {
     .from('events').select('id').eq('id', eventId).in('user_id', await manageableOwnerIds(user.id)).single();
   if (!event) return { ok: false as const, status: 403, error: 'Not your event' };
   return { ok: true as const, admin };
+}
+
+// GET /api/events/[id]/community/channels?reg=xxx&token=xxx — list channels
+// for an event. Mirrors the identity check on GET /api/events/[id]/community
+// (messages, in the sibling route) — mobile's channel list used to come
+// straight from Supabase, which bypassed both the platform "community" kill
+// switch and the same attendee-only gate that route's GET was fixed to
+// require.
+export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+  if (!(await isPlatformFeatureEnabled('community'))) return NextResponse.json({ error: 'Community is currently unavailable.' }, { status: 404 });
+
+  const { searchParams } = new URL(req.url);
+  const regId = searchParams.get('reg');
+  const token = searchParams.get('token');
+  let allowed = false;
+  if (regId) {
+    const identity = await assertOwnsRegistration(params.id, regId, token);
+    if (identity.ok) allowed = true;
+  }
+  if (!allowed) {
+    // Organizers / moderators browse the same channel list from the dashboard side.
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    allowed = !!user && (await hasModeratorAccess(user.id, params.id));
+  }
+  if (!allowed) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const admin = createAdminClient() as any;
+  const { data: channels, error } = await admin
+    .from('community_channels')
+    .select('id, name, description, is_pinned, position')
+    .eq('event_id', params.id)
+    .order('is_pinned', { ascending: false })
+    .order('position', { ascending: true });
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json({ channels: channels ?? [] });
 }
 
 // POST /api/events/[id]/community/channels — organizer creates a channel

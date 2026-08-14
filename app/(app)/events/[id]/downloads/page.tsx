@@ -8,6 +8,7 @@ import { redirect } from 'next/navigation';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { DownloadsHub } from '@/components/events/DownloadsHub';
 import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 interface Props { params: Promise<{ id: string }> }
 
@@ -36,6 +37,7 @@ export default async function DownloadsPage({ params }: Props) {
   ]);
 
   if (!event) redirect('/dashboard');
+  if (!(await isPlatformFeatureEnabled('analytics'))) redirect(`/events/${event.slug}`);
 
   return (
     <DownloadsHub

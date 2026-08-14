@@ -7,15 +7,25 @@ import '../../ui/components.dart';
 import '../../ui/tokens.dart';
 import '_shared.dart';
 
-/// PollsScreen — live polls for an event. Reads `polls` + `poll_options`
-/// directly via supa (RLS: public read). Voting posts the web route.
+/// PollsScreen — live polls for an event.
+///
+/// Reads used to go straight to `polls`/`poll_options` via Supabase, which
+/// bypassed the admin "polls" platform kill switch entirely (the switch is
+/// enforced in the API route, not in RLS). Now routed through the gated GET
+/// below, same fix pattern as GET /api/threads and GET
+/// /api/events/[id]/people. Voting already posted the web route.
 ///
 /// Contracts verified:
-///  - Read:   polls select('*, poll_options(id, text, votes_count, position)')
-///            .eq('event_id', ...). (mirrors GET /api/events/[id]/polls)
+///  - Read:   GET /api/events/[id]/polls → { polls: [...] }, each row
+///            `{..., poll_options: [{id, text, votes_count, position}]}`.
+///            Non-moderators only ever see active/closed polls (drafts are
+///            filtered server-side). Gated by isPlatformFeatureEnabled('polls').
 ///  - Vote:   apiPut('/api/events/[id]/polls', {poll_id, option_id, registration_id})
 ///            → returns { voted, options:[{id, votes_count}] }.
-///  - Own votes: poll_votes where registration_id (columns poll_id, option_id).
+///  - Own votes: poll_votes where registration_id (columns poll_id, option_id) —
+///    still a direct read (no gated endpoint exists for "my votes"), but it
+///    only ever runs after the gated poll list above has already succeeded,
+///    so a disabled kill switch still stops here first.
 class PollsScreen extends StatefulWidget {
   final String eventId;
   final String? registrationId;
@@ -94,13 +104,10 @@ class _PollsScreenState extends State<PollsScreen> {
   Future<void> _silentRefresh() async {
     if (!mounted || _loading || _busy.isNotEmpty) return;
     try {
-      final rows = await supa
-          .from('polls')
-          .select('id, poll_options(id, votes_count)')
-          .eq('event_id', widget.eventId);
+      final data = await apiGet('/api/events/${widget.eventId}/polls');
+      final rows = asMapList(data is Map ? data['polls'] : data);
       final counts = <String, Map<String, int>>{};
-      for (final r in (rows as List).whereType<Map>()) {
-        final map = Map<String, dynamic>.from(r);
+      for (final map in rows) {
         final pollId = asString(map['id']);
         final byOption = <String, int>{};
         for (final o in asMapList(map['poll_options'])) {
@@ -129,17 +136,14 @@ class _PollsScreenState extends State<PollsScreen> {
       _error = null;
     });
     try {
-      final rows = await supa
-          .from('polls')
-          .select('*, poll_options(id, text, votes_count, position)')
-          .eq('event_id', widget.eventId)
-          .order('created_at', ascending: false);
+      final data = await apiGet('/api/events/${widget.eventId}/polls');
+      final rows = asMapList(data is Map ? data['polls'] : data);
 
       final polls = <_Poll>[];
-      for (final r in (rows as List).whereType<Map>()) {
-        final map = Map<String, dynamic>.from(r);
+      for (final map in rows) {
         // Attendees only see polls the organizer has opened (active) or
-        // resolved (closed). Pure drafts stay hidden.
+        // resolved (closed) — the API already filters drafts server-side for
+        // non-moderators; this stays as defense-in-depth.
         final isActive = asBool(map['is_active']);
         final isClosed = asBool(map['is_closed']);
         if (!isActive && !isClosed) continue;

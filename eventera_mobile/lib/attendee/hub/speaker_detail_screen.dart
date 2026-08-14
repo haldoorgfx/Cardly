@@ -7,9 +7,14 @@ import '../../ui/tokens.dart';
 
 /// Detail view for a single speaker.
 ///
-/// Loads `speakers` by id (or slug) for the event. Columns verified against
-/// app/(public)/e/[slug]/speakers/[speakerId]/page.tsx and
-/// components/events/SpeakerProfileClient.tsx.
+/// Used to read `public_speakers` straight from Supabase, which bypassed the
+/// admin "speakers" platform kill switch entirely (the switch lives in the
+/// API/page gate, not in RLS). Now routed through
+/// `GET /api/speakers/[speakerId]/profile?event_id=` — a small new
+/// public-safe endpoint added for this fix, gated by isPlatformFeatureEnabled('speakers')
+/// and returning the same explicit, email-excluding column list as
+/// app/(public)/e/[slug]/speakers/[speakerId]/page.tsx (see that file and
+/// components/events/SpeakerProfileClient.tsx for the reference shape).
 class SpeakerDetailScreen extends StatefulWidget {
   final String speakerId;
   final String eventId;
@@ -30,11 +35,6 @@ class _SpeakerDetailScreenState extends State<SpeakerDetailScreen> {
   StatusReason _errorReason = StatusReason.generic;
   Map<String, dynamic>? _speaker;
 
-  static final RegExp _uuid = RegExp(
-    r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
-    caseSensitive: false,
-  );
-
   @override
   void initState() {
     super.initState();
@@ -47,19 +47,16 @@ class _SpeakerDetailScreenState extends State<SpeakerDetailScreen> {
       _error = null;
     });
     try {
-      final col = _uuid.hasMatch(widget.speakerId) ? 'id' : 'slug';
-      // public_speakers omits `email` — it's a login-linking column (039), not
-      // a public contact field; the "email speaker" button below hides itself
-      // when email is absent.
-      final row = await supa
-          .from('public_speakers')
-          .select('*')
-          .eq(col, widget.speakerId)
-          .eq('event_id', widget.eventId)
-          .maybeSingle();
+      // The route accepts either a UUID (old links) or a slug (new links) and
+      // omits `email` — it's a login-linking column (039), not a public
+      // contact field; the "email speaker" button below hides itself when
+      // email is absent.
+      final data = await apiGet('/api/speakers/${widget.speakerId}/profile',
+          query: {'event_id': widget.eventId});
+      final row = data is Map ? data['speaker'] : null;
 
       if (!mounted) return;
-      if (row == null) {
+      if (row is! Map) {
         setState(() {
           _loading = false;
           _error = 'This speaker could not be found.';
@@ -77,9 +74,7 @@ class _SpeakerDetailScreenState extends State<SpeakerDetailScreen> {
       setState(() {
         _loading = false;
         _error = msg;
-        _errorReason = msg.toLowerCase().contains("couldn't reach the server")
-            ? StatusReason.network
-            : StatusReason.generic;
+        _errorReason = _reasonFor(e, msg);
       });
     }
   }
@@ -242,6 +237,27 @@ class _SpeakerDetailScreenState extends State<SpeakerDetailScreen> {
       showToast(context, 'Could not open link', type: ToastType.error);
     }
   }
+}
+
+/// Classifies a caught load error into a [StatusReason] so [ErrorStateView]
+/// shows the right icon/copy — network for connectivity, and the
+/// ApiException status code for anything the server told us (404 covers both
+/// "speaker not found" and the admin "speakers" kill switch's 404 response).
+StatusReason _reasonFor(Object? error, String message) {
+  if (message.toLowerCase().contains("couldn't reach the server")) {
+    return StatusReason.network;
+  }
+  if (error is ApiException) {
+    switch (error.status) {
+      case 402:
+        return StatusReason.plan;
+      case 403:
+        return StatusReason.permission;
+      case 404:
+        return StatusReason.notFound;
+    }
+  }
+  return StatusReason.generic;
 }
 
 class _GlassBack extends StatelessWidget {

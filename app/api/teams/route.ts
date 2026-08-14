@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { getMyTeam, createTeam } from '@/lib/teams/queries';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 // GET /api/teams — get my team
 export async function GET() {
@@ -14,6 +15,13 @@ export async function GET() {
 
 // POST /api/teams — create a team (studio only)
 export async function POST(req: NextRequest) {
+  // Platform kill-switch, checked ALONGSIDE the plan check below — both must
+  // pass. This does not replace the plan gate; it lets the super_admin turn
+  // the whole feature off even for Studio-plan accounts.
+  if (!(await isPlatformFeatureEnabled('teams'))) {
+    return NextResponse.json({ error: 'Teams is currently unavailable.' }, { status: 404 });
+  }
+
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

@@ -11,6 +11,7 @@ import { RevenueView } from '@/components/events/RevenueView';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { PageShell, PageHeader } from '@/components/dash';
 import { hasFinanceAccess } from '@/lib/rbac/ownership';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 interface Props { params: Promise<{ id: string }> }
 
@@ -34,6 +35,7 @@ export default async function RevenuePage({ params }: Props) {
     .single();
 
   if (!event) redirect('/dashboard');
+  if (!(await isPlatformFeatureEnabled('analytics'))) redirect(`/events/${event.slug}`);
 
   // All paid/confirmed registrations. The fee columns (platform_fee/
   // organizer_net, migration 040) and promoter columns (referral_code/

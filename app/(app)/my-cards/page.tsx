@@ -8,6 +8,7 @@ import { PageShell, PageHeader, EmptyState } from '@/components/dash';
 import { CardThumb } from '@/components/tickets/CardThumb';
 import { registrationOwnershipFilter } from '@/lib/registration/ownership';
 import { resolveCardImageUrl, cardDownloadUrl } from '@/lib/registration/cardImage';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = { title: 'My Eventera Cards' };
@@ -24,6 +25,7 @@ export default async function MyCardsPage() {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/account/login?next=/my-cards');
+  if (!(await isPlatformFeatureEnabled('card_studio'))) redirect('/dashboard');
 
   const admin = createAdminClient();
   // Same identity matching as /my-tickets: by user_id or the account email.

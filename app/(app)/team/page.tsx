@@ -8,12 +8,14 @@ export async function generateMetadata(): Promise<Metadata> {
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { getMyTeam, getTeamMembers, getTeamInvites, createTeam } from '@/lib/teams/queries';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 import { TeamClient } from './TeamClient';
 
 export default async function TeamPage() {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
+  if (!(await isPlatformFeatureEnabled('teams'))) redirect('/dashboard');
 
   const admin = createAdminClient();
   const { data: profile } = await admin

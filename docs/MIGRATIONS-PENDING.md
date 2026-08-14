@@ -74,6 +74,8 @@ right default for every row except 116.
 | **128** | `community_messages_insert_identity` | `community_messages`' insert policy never checked the caller owned the `registration_id` being posted as — any signed-in attendee could spoof a message as anyone else in the event chat — see below | No — behavior-only change to an existing policy |
 | **129** | `registrations_direct_insert_guard` | Trigger closing the raw-REST registration-spam bypass — anon key could INSERT directly into `registrations` bypassing every business rule the Next.js route enforces — see below | Partially — behavior-only for existing checks; a bad row failing a NEW check now raises rather than silently landing |
 | **130** | `perf_indexes_and_leaderboard_aggregate` | Pre-launch cost/scale audit: adds missing indexes on `registrations.payment_status`, `registrations(event_id, created_at)`, `poll_votes.registration_id`, plus a `leaderboard_totals()` RPC replacing two "pull every points row and sum in JS" call sites — see below | No — indexes aren't visible over REST; the RPC is — `POST /rest/v1/rpc/leaderboard_totals` should return its real signature once applied |
+| **133** | `platform_feature_flags_round2` | Seeds 4 more `platform:*` rows (card_studio, analytics, teams, feedback) — round 2 of 122's kill-switches, found missing by today's full feature-flag audit | Yes — `GET /rest/v1/feature_flags?flag=eq.platform:card_studio` should return one row once applied |
+| **134** | `catering_rpc_platform_flag` | Closes an RPC-level bypass on the `catering` kill-switch — see below, **read before pasting** | No — behavior-only change to two existing functions' bodies |
 
 ---
 
@@ -263,7 +265,25 @@ applying it yet doesn't break anything — it just leaves the narrow race open.
 
 ---
 
-## The three worth reading before you paste
+## The four worth reading before you paste
+
+### 134 — verify the RPC bodies match live before pasting
+
+Same caution as 116: `catering_counts`/`accessibility_summary` were last defined
+in `supabase/082_dietary_accessibility.sql`, a file that's on disk but — like
+everything in the 051–104 range — was never actually run through this repo's
+own migration tooling, so it can't prove it matches what's live today. 134
+reproduces that file's bodies exactly and adds one new early-exit check for
+`platform:catering`; nothing else changes. Before pasting, diff the live body:
+
+```sql
+select pg_get_functiondef(p.oid)
+from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+where n.nspname = 'public' and p.proname in ('catering_counts','accessibility_summary');
+```
+
+If either has grown a clause beyond what's in `082_dietary_accessibility.sql`,
+keep it and add only the platform-flag check — don't blindly paste 134 over it.
 
 ### 116 — do the diff it asks for first
 

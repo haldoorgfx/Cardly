@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 // Was a literal `.eq('user_id', userId)` — the sibling list/create route
 // (variants/route.ts) already used manageableOwnerIds, so a Studio team
@@ -77,6 +78,10 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string; variantId: string }> }
 ) {
+  if (!(await isPlatformFeatureEnabled('card_studio'))) {
+    return NextResponse.json({ error: 'Card Studio is currently unavailable.' }, { status: 404 });
+  }
+
   const { id, variantId } = await params;
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -131,6 +136,10 @@ export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string; variantId: string }> }
 ) {
+  if (!(await isPlatformFeatureEnabled('card_studio'))) {
+    return NextResponse.json({ error: 'Card Studio is currently unavailable.' }, { status: 404 });
+  }
+
   const { id, variantId } = await params;
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();

@@ -10,6 +10,7 @@ import { redirect } from 'next/navigation';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { EventeraCardView } from '@/components/events/EventeraCardView';
 import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 export default async function EventeraCardPage({ params }: { params: Promise<{ id: string }> }) {
   const { id: _ref } = await params;
@@ -41,6 +42,7 @@ export default async function EventeraCardPage({ params }: { params: Promise<{ i
   ]);
 
   if (!event) redirect('/dashboard');
+  if (!(await isPlatformFeatureEnabled('card_studio'))) redirect(`/events/${event.slug}`);
 
   const variants = (allVariants ?? []) as {
     id: string;

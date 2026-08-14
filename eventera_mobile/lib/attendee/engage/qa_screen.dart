@@ -7,20 +7,27 @@ import '../event_context.dart';
 import '../register/registration_screen.dart';
 import '_shared.dart';
 
-/// QaScreen — audience Q&A. Reads `qa_questions_public` (078 lockdown — the
-/// base table's registration_id is no longer world-readable, since that
-/// defeated "anonymous" questions; this view pre-resolves attendee_name
-/// server-side, respecting is_anonymous, and never exposes the raw id).
+/// QaScreen — audience Q&A.
+///
+/// Reads used to go straight to `qa_questions_public` (078 lockdown) via
+/// Supabase, which bypassed the admin "qa" platform kill switch entirely —
+/// the switch is enforced in the API route, not in RLS, so a direct table
+/// read never saw it. Now routed through the gated GET below, same fix
+/// pattern as GET /api/threads and GET /api/events/[id]/people.
 ///
 /// Contracts verified:
-///  - Read:    qa_questions_public select('*')
-///             .eq('event_id', ...).neq('status','hidden')
-///             .order('upvotes_count', desc).order('created_at', asc).
+///  - Read:    GET /api/events/[id]/q-and-a[?session_id=] → { questions: [...] },
+///             each row is is_anonymous ? {..., registrations: null} :
+///             {..., registrations: {attendee_name} | null}, status already
+///             excludes 'hidden'. Gated by isPlatformFeatureEnabled('qa').
 ///  - Ask:     POST /api/events/[id]/q-and-a
 ///             {registration_id?, question, is_anonymous, session_id?}.
 ///  - Upvote:  apiPut('/api/events/[id]/q-and-a', {question_id, registration_id})
 ///             → toggles (RPC toggle_qa_upvote); returns {upvoted: bool}.
-///  - My upvotes: qa_upvotes where registration_id (col question_id).
+///  - My upvotes: qa_upvotes where registration_id (col question_id) — still a
+///    direct read (no gated endpoint exists for "my upvotes"), but it only
+///    ever runs after the gated question list above has already succeeded,
+///    so a disabled kill switch still stops here first.
 class QaScreen extends StatefulWidget {
   final String eventId;
   final String? registrationId;
@@ -92,25 +99,22 @@ class _QaScreenState extends State<QaScreen> {
       _error = null;
     });
     try {
-      var query = supa
-          .from('qa_questions_public')
-          .select('*')
-          .eq('event_id', widget.eventId)
-          .neq('status', 'hidden');
-      if (widget.sessionId != null) {
-        query = query.eq('session_id', widget.sessionId!);
-      }
-      final rows = await query
-          .order('upvotes_count', ascending: false)
-          .order('created_at', ascending: true);
+      final data = await apiGet('/api/events/${widget.eventId}/q-and-a',
+          query: {
+            if (widget.sessionId != null) 'session_id': widget.sessionId,
+          });
+      final rows = asMapList(data is Map ? data['questions'] : data);
 
       final list = <_Question>[];
-      for (final r in (rows as List).whereType<Map>()) {
-        final map = Map<String, dynamic>.from(r);
+      for (final map in rows) {
         final anon = asBool(map['is_anonymous']);
-        // The view already resolves this respecting anonymity; no client-side
-        // join or registration_id needed (see 078_engagement_rls_lockdown.sql).
-        final name = asString(map['attendee_name'], 'Anonymous');
+        // The route redacts this server-side respecting anonymity (registrations
+        // is null whenever is_anonymous, and registration_id is stripped
+        // entirely) — no client-side join needed.
+        final regs = map['registrations'];
+        final name = anon
+            ? 'Anonymous'
+            : (regs is Map ? asString(regs['attendee_name'], 'Attendee') : 'Attendee');
         list.add(_Question(
           id: asString(map['id']),
           text: asString(map['question']),
@@ -144,9 +148,7 @@ class _QaScreenState extends State<QaScreen> {
       final msg = describeError(e, context: 'the questions');
       setState(() {
         _error = msg;
-        _errorReason = msg.toLowerCase().contains("couldn't reach the server")
-            ? StatusReason.network
-            : StatusReason.generic;
+        _errorReason = _reasonFor(e, msg);
         _loading = false;
       });
     }
@@ -440,6 +442,27 @@ class _QaScreenState extends State<QaScreen> {
       ),
     );
   }
+}
+
+/// Classifies a caught load error into a [StatusReason] so [ErrorStateView]
+/// shows the right icon/copy — network for connectivity, and the
+/// ApiException status code for anything the server told us (404 covers both
+/// "not found" and the admin "qa" kill switch's 404 response).
+StatusReason _reasonFor(Object? error, String message) {
+  if (message.toLowerCase().contains("couldn't reach the server")) {
+    return StatusReason.network;
+  }
+  if (error is ApiException) {
+    switch (error.status) {
+      case 402:
+        return StatusReason.plan;
+      case 403:
+        return StatusReason.permission;
+      case 404:
+        return StatusReason.notFound;
+    }
+  }
+  return StatusReason.generic;
 }
 
 class _AskResult {

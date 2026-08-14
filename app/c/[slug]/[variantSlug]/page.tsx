@@ -6,6 +6,7 @@ import AttendeeFlow from '../AttendeeFlow';
 import { AttendeeBrandProvider } from '@/components/white-label/attendee-brand';
 import { getWhiteLabelByEvent } from '@/lib/white-label/server';
 import { resolveViewerRegistrationId } from '@/lib/attendee/resolveViewerRegistration';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 import type { Zone } from '@/types/database';
 
 export default async function VariantAttendeePage({
@@ -17,6 +18,7 @@ export default async function VariantAttendeePage({
 }) {
   const { slug, variantSlug } = await params;
   const { reg } = await searchParams;
+  if (!(await isPlatformFeatureEnabled('card_studio'))) notFound();
   const admin = createAdminClient();
 
   const { data: event } = await admin

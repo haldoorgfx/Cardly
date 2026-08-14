@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { SourceAnalyticsClient } from '@/components/events/SourceAnalyticsClient';
 import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 export async function generateMetadata() {
   return { title: 'Source Analytics' };
@@ -25,6 +26,7 @@ export default async function SourceAnalyticsPage({ params }: { params: Promise<
     admin.from('event_pages').select('custom_slug').eq('event_id', id).maybeSingle(),
   ]);
   if (!event) redirect('/dashboard');
+  if (!(await isPlatformFeatureEnabled('analytics'))) redirect(`/events/${event.slug}`);
 
   // Fetch registrations with referral_code (used as UTM source).
   // Confirmed + checked_in only — the same set Analytics, Reports,

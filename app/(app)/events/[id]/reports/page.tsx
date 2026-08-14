@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import { ReportsClient } from '@/components/events/ReportsClient';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 interface Props { params: Promise<{ id: string }> }
 
@@ -29,6 +30,7 @@ export default async function ReportsPage({ params }: Props) {
   ]);
 
   if (!event) redirect('/dashboard');
+  if (!(await isPlatformFeatureEnabled('analytics'))) redirect(`/events/${event.slug}`);
 
   const totalRevenue = (regs ?? []).filter(r => ['confirmed', 'checked_in'].includes(r.status))
     .reduce((s: number, r: { amount_paid: number }) => s + (r.amount_paid ?? 0), 0);

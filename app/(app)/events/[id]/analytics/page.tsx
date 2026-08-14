@@ -10,6 +10,7 @@ import { EventAnalyticsView } from '@/components/events/EventAnalyticsView';
 import { getUserPlan } from '@/lib/billing/can';
 import { PageShell, PageHeader } from '@/components/dash';
 import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 interface Props { params: Promise<{ id: string }> }
 
@@ -31,6 +32,7 @@ export default async function EventAnalyticsPage({ params }: Props) {
     .single();
 
   if (!event) redirect('/dashboard');
+  if (!(await isPlatformFeatureEnabled('analytics'))) redirect(`/events/${event.slug}`);
 
   // The event's display timezone lives on event_pages, not events. Fetched
   // separately (and tolerantly) so a missing page row can never blank analytics.

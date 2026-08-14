@@ -8,21 +8,36 @@ import '../engage/_shared.dart';
 /// CommunityChatScreen — event community channels + chat. Mirrors the web
 /// `/e/[slug]/community` experience.
 ///
+/// Every read AND write here used to hit Supabase directly (channels select,
+/// messages select, message insert) — zero API involvement, so the admin
+/// "community" platform kill switch had no effect on mobile at all, and reads
+/// skipped the attendee-identity check the web GET route already enforces
+/// (see the comment on GET /api/events/[id]/community: "Anyone holding a
+/// channel id... could read the whole attendee chat unauthenticated"). Now
+/// routed entirely through the gated API, same fix pattern as GET
+/// /api/threads and GET /api/events/[id]/people.
+///
 /// Contracts verified:
-///  - Channels: community_channels select('id, name, description, is_pinned,
-///    position').eq('event_id', ...).order('is_pinned', desc).order('position', asc).
-///  - Messages: community_messages select('id, content, created_at, is_pinned,
-///    registrations(attendee_name)').eq('event_id', ...).eq('channel_id', ...)
-///    .order('created_at', asc).limit(100).
-///  - Send: community_messages insert({event_id, channel_id, registration_id,
-///    content}) — best-effort; RLS may reject, that's fine.
+///  - Channels: GET /api/events/[id]/community/channels?reg=&token= →
+///    { channels: [{id, name, description, is_pinned, position}] }, ordered
+///    is_pinned desc, position asc. Requires the caller's own registration
+///    (or moderator access) — added alongside this fix, sibling to the
+///    messages GET below.
+///  - Messages: GET /api/events/[id]/community?channel_id=&reg=&token= →
+///    { messages: [{id, content, created_at, is_pinned, registration_id,
+///    registrations: {attendee_name} | null}] }, limit 100.
+///  - Send: POST /api/events/[id]/community {channel_id, registration_id,
+///    content, qr_code_token?} → { message }.
+///  - Both gated by isPlatformFeatureEnabled('community').
 class CommunityChatScreen extends StatefulWidget {
   final String eventId;
   final String? registrationId;
+  final String? qrCodeToken;
   const CommunityChatScreen({
     super.key,
     required this.eventId,
     this.registrationId,
+    this.qrCodeToken,
   });
 
   @override
@@ -72,19 +87,26 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
   final _composer = TextEditingController();
   bool _sending = false;
   String? _rid;
+  String? _token;
 
   @override
   void initState() {
     super.initState();
     _rid = widget.registrationId;
-    _resolveReg();
-    _load();
+    _token = widget.qrCodeToken;
+    _resolveRegThenLoad();
   }
 
-  Future<void> _resolveReg() async {
-    final rid = await effectiveRegId(widget.registrationId, widget.eventId);
+  // The channel list and messages are now gated behind the caller's own
+  // registration (see the class doc comment), so both must be resolved
+  // BEFORE the first load — unlike the old direct-Supabase reads, an
+  // unresolved registration_id here means the load simply fails.
+  Future<void> _resolveRegThenLoad() async {
+    _rid = await effectiveRegId(widget.registrationId, widget.eventId);
+    _token = await effectiveQrToken(widget.qrCodeToken, widget.eventId);
     if (!mounted) return;
-    setState(() => _rid = rid);
+    setState(() {});
+    _load();
   }
 
   @override
@@ -99,16 +121,14 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
       _error = null;
     });
     try {
-      final rows = await supa
-          .from('community_channels')
-          .select('id, name, description, is_pinned, position')
-          .eq('event_id', widget.eventId)
-          .order('is_pinned', ascending: false)
-          .order('position', ascending: true);
+      final data = await apiGet(
+        '/api/events/${widget.eventId}/community/channels',
+        query: {'reg': _rid, 'token': _token},
+      );
+      final rows = asMapList(data is Map ? data['channels'] : data);
 
       final list = <_Channel>[];
-      for (final r in (rows as List).whereType<Map>()) {
-        final map = Map<String, dynamic>.from(r);
+      for (final map in rows) {
         list.add(_Channel(
           id: asString(map['id']),
           name: asString(map['name'], 'Channel'),
@@ -143,16 +163,14 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
       _messagesError = null;
     });
     try {
-      final rows = await supa
-          .from('community_messages')
-          .select('id, content, created_at, is_pinned, registrations(attendee_name)')
-          .eq('channel_id', channelId)
-          .order('created_at', ascending: true)
-          .limit(100);
+      final data = await apiGet(
+        '/api/events/${widget.eventId}/community',
+        query: {'channel_id': channelId, 'reg': _rid, 'token': _token},
+      );
+      final rows = asMapList(data is Map ? data['messages'] : data);
 
       final list = <_Message>[];
-      for (final r in (rows as List).whereType<Map>()) {
-        final map = Map<String, dynamic>.from(r);
+      for (final map in rows) {
         final reg = map['registrations'];
         final name = (reg is Map && reg['attendee_name'] != null)
             ? reg['attendee_name'].toString()
@@ -201,20 +219,23 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
 
     setState(() => _sending = true);
     try {
-      await supa.from('community_messages').insert({
+      await apiPost('/api/events/${widget.eventId}/community', {
         'channel_id': channelId,
         'registration_id': _rid,
         'content': text,
+        if (_token != null) 'qr_code_token': _token,
       });
       if (!mounted) return;
       _composer.clear();
       setState(() => _sending = false);
       await _loadMessages(channelId);
-    } catch (_) {
-      // RLS may reject — keep the text, just tell the user.
+    } catch (e) {
+      // The route may reject (e.g. kill switch off, identity mismatch) — keep
+      // the text, just tell the user.
       if (!mounted) return;
       setState(() => _sending = false);
-      showToast(context, 'Couldn\'t send your message.');
+      showToast(context,
+          e is ApiException ? e.message : 'Couldn\'t send your message.');
     }
   }
 

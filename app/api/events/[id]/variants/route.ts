@@ -3,6 +3,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { canCreateVariant } from '@/lib/billing/can';
 import { slugifyBase } from '@/lib/slug';
 import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -27,6 +28,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 }
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  if (!(await isPlatformFeatureEnabled('card_studio'))) {
+    return NextResponse.json({ error: 'Card Studio is currently unavailable.' }, { status: 404 });
+  }
+
   const { id } = await params;
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();

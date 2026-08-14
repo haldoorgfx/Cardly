@@ -9,6 +9,7 @@ import { ViewTracker } from './components/ViewTracker';
 import { AttendeeBrandProvider } from '@/components/white-label/attendee-brand';
 import { getWhiteLabelByEvent } from '@/lib/white-label/server';
 import { resolveViewerRegistrationId } from '@/lib/attendee/resolveViewerRegistration';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 import type { Zone, Variant } from '@/types/database';
 
 export async function generateMetadata(
@@ -55,6 +56,7 @@ export default async function AttendeePage({
 }) {
   const { slug } = await params;
   const { preview, reg } = await searchParams;
+  if (!(await isPlatformFeatureEnabled('card_studio'))) notFound();
   const admin = createAdminClient();
   const isPreview = Boolean(preview);
 

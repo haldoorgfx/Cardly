@@ -6,12 +6,17 @@ import { injectSvgFonts } from '@/lib/templates/svg-fonts';
 import { getTemplateZones } from '@/lib/templates/apply';
 import { slugifyBase } from '@/lib/slug';
 import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 // The zone factory used to be copy-pasted here, in /api/templates/use and in
 // /api/events/create — three copies that had already drifted. It now lives in
 // lib/templates/apply.ts.
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  if (!(await isPlatformFeatureEnabled('card_studio'))) {
+    return NextResponse.json({ error: 'Card Studio is currently unavailable.' }, { status: 404 });
+  }
+
   const { id } = await params;
 
   const supabase = createClient();

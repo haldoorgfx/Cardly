@@ -15,6 +15,17 @@ const RequestSchema = z.object({
   requester_id: z.string().uuid(),
   recipient_id: z.string().uuid(),
   qr_code_token: z.string().optional(),
+  // Optional origin marker. SpeedNetworkingClient.tsx and the mobile speed
+  // networking screen send 'speed_networking' so this route can ALSO require
+  // that flag (on top of 'networking') for requests that actually came from
+  // the speed-networking swipe deck — the regular people-directory "Connect"
+  // button (PeopleDiscoveryClient.tsx / people_screen.dart) omits it and only
+  // needs 'networking'. Both callers post an otherwise-identical body, so
+  // without this field the two flows were indistinguishable server-side and
+  // disabling speed_networking alone did nothing (see connections/route.ts's
+  // isPlatformFeatureEnabled('networking') check above, which is the only one
+  // that existed before).
+  source: z.enum(['speed_networking']).optional(),
 });
 
 const RespondSchema = z.object({
@@ -113,7 +124,15 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const parsed = RequestSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
 
-  const { requester_id, recipient_id, qr_code_token } = parsed.data;
+  const { requester_id, recipient_id, qr_code_token, source } = parsed.data;
+
+  // Speed-networking-originated requests need BOTH platform flags — the
+  // general 'networking' check above, and this one. Disabling just
+  // speed_networking must not still let the swipe-deck send connection
+  // requests through the shared "regular connect" path.
+  if (source === 'speed_networking' && !(await isPlatformFeatureEnabled('speed_networking'))) {
+    return NextResponse.json({ error: 'Speed networking is currently unavailable.' }, { status: 404 });
+  }
 
   // Identity: the requester must be the caller's own registration (guests allowed).
   const identity = await assertOwnsRegistration(params.id, requester_id, qr_code_token);

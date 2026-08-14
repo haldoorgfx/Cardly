@@ -214,6 +214,18 @@ const SEGMENT_TO_PLATFORM_KEY: Record<string, PlatformFeatureKey> = {
   'promo-codes':    'promote',
   'copilot':        'ai_copilot',
   'series':         'multi_day',
+  // Round 2 (2026-08) — card_studio + analytics additions. 'catering' still
+  // has NO per-event nav entry at all (see comment above), so there is
+  // nothing to map for it here; 'teams' and 'feedback' likewise have no
+  // per-event sidebar segment (Team lives in the account-level nav, which
+  // uses a different role-flag mechanism, not this map; feedback has no
+  // organizer-facing nav item at all).
+  'eventera-card':   'card_studio',
+  'analytics':       'analytics',
+  'revenue':         'analytics',
+  'reports':         'analytics',
+  'downloads':       'analytics',
+  'source-analytics': 'analytics',
 };
 
 const EVENT_STATUS_BADGE: Record<string, { cls: string; dot: string; label: string }> = {

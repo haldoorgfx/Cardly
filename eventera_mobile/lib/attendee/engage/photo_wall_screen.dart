@@ -11,10 +11,17 @@ import '_shared.dart';
 /// PhotoWallScreen — the attendee-facing half of the organizer's Photo Wall
 /// moderation queue (web: components/events/PhotoWallAdmin.tsx).
 ///
+/// The read used to go straight to `event_photos` via Supabase, which
+/// bypassed the admin "photos" platform kill switch entirely (the switch is
+/// enforced in the API route, not in RLS). Now routed through a new GET
+/// handler on the same route the upload already used, gated by
+/// isPlatformFeatureEnabled('photos').
+///
 /// Contracts:
-///  - Read:   event_photos select('id, attendee_name, image_url, caption')
-///            .eq('event_id', ...).in('status', ['approved','featured'])
-///            (migration 101 RLS scopes anon reads to those two statuses).
+///  - Read:   GET /api/events/[id]/photos → { photos: [{id, attendee_name,
+///            image_url, caption}] }, already scoped to status
+///            approved/featured, newest first, capped at 60 (same shape the
+///            direct table read used).
 ///  - Upload: multipart POST /api/events/[id]/photos {file, attendee_name?,
 ///            caption?} — server-side only, always lands as 'pending'. There
 ///            is no registration_id column on event_photos, so — same trust
@@ -54,17 +61,11 @@ class _PhotoWallScreenState extends State<PhotoWallScreen> {
       _error = null;
     });
     try {
-      final rows = await supa
-          .from('event_photos')
-          .select('id, attendee_name, image_url, caption')
-          .eq('event_id', widget.eventId)
-          .inFilter('status', ['approved', 'featured'])
-          .order('created_at', ascending: false)
-          .limit(60);
+      final data = await apiGet('/api/events/${widget.eventId}/photos');
+      final rows = asMapList(data is Map ? data['photos'] : data);
 
       final list = <_Photo>[];
-      for (final r in (rows as List).whereType<Map>()) {
-        final map = Map<String, dynamic>.from(r);
+      for (final map in rows) {
         list.add(_Photo(
           id: asString(map['id']),
           attendeeName: map['attendee_name'] == null ? null : asString(map['attendee_name']),
@@ -82,9 +83,7 @@ class _PhotoWallScreenState extends State<PhotoWallScreen> {
       final msg = describeError(e, context: 'the photo wall');
       setState(() {
         _error = msg;
-        _errorReason = msg.toLowerCase().contains("couldn't reach the server")
-            ? StatusReason.network
-            : StatusReason.generic;
+        _errorReason = _reasonFor(e, msg);
         _loading = false;
       });
     }
@@ -220,6 +219,27 @@ class _PhotoWallScreenState extends State<PhotoWallScreen> {
       ),
     );
   }
+}
+
+/// Classifies a caught load error into a [StatusReason] so [ErrorStateView]
+/// shows the right icon/copy — network for connectivity, and the
+/// ApiException status code for anything the server told us (404 covers the
+/// admin "photos" kill switch's 404 response).
+StatusReason _reasonFor(Object? error, String message) {
+  if (message.toLowerCase().contains("couldn't reach the server")) {
+    return StatusReason.network;
+  }
+  if (error is ApiException) {
+    switch (error.status) {
+      case 402:
+        return StatusReason.plan;
+      case 403:
+        return StatusReason.permission;
+      case 404:
+        return StatusReason.notFound;
+    }
+  }
+  return StatusReason.generic;
 }
 
 class _ShareResult {

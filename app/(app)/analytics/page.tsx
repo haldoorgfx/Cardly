@@ -10,6 +10,7 @@ import { PeriodSelector } from '@/components/analytics/PeriodSelector';
 import { ExportButton } from '@/components/analytics/ExportButton';
 import { PageShell, PageHeader } from '@/components/dash';
 import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 export const metadata: Metadata = { title: 'Analytics' };
 
@@ -80,6 +81,7 @@ export default async function AnalyticsPage({
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
+  if (!(await isPlatformFeatureEnabled('analytics'))) redirect('/dashboard');
 
   const admin = createAdminClient();
 

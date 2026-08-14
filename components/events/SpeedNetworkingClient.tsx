@@ -86,7 +86,7 @@ export function SpeedNetworkingClient({ eventId, eventName, eventSlug, registrat
       const res = await fetch(`/api/events/${eventId}/connections`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ requester_id: registrationId, recipient_id: current.id, qr_code_token: qrToken }),
+        body: JSON.stringify({ requester_id: registrationId, recipient_id: current.id, qr_code_token: qrToken, source: 'speed_networking' }),
       });
       if (res.ok) setConnectedCount(c => c + 1);
       // Advance regardless — a duplicate/failed request shouldn't trap the deck.

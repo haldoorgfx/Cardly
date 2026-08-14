@@ -27,6 +27,10 @@ export const PLATFORM_FEATURE_KEYS = [
   'ai_copilot',
   'developer_api',
   'white_label',
+  'card_studio',
+  'analytics',
+  'teams',
+  'feedback',
 ] as const;
 
 export type PlatformFeatureKey = typeof PLATFORM_FEATURE_KEYS[number];
@@ -38,10 +42,14 @@ export interface PlatformFeatureGroup {
 
 /** Grouping + display order for the admin toggle UI only — not used for enforcement. */
 export const PLATFORM_FEATURE_GROUPS: PlatformFeatureGroup[] = [
-  { title: 'Engagement', keys: ['qa', 'polls', 'networking', 'speed_networking', 'community', 'photos', 'gamification'] },
+  // Round 2 (2026-08): the flagship card feature + org-wide analytics get
+  // their own group up top, ahead of Engagement, since they're the two most
+  // likely to matter to a founder trying to launch with "only the basics".
+  { title: 'Core extras', keys: ['card_studio', 'analytics'] },
+  { title: 'Engagement', keys: ['qa', 'polls', 'networking', 'speed_networking', 'community', 'photos', 'gamification', 'feedback'] },
   { title: 'Program', keys: ['speakers', 'sponsors', 'exhibitors'] },
   { title: 'Operations', keys: ['catering', 'entitlements', 'multi_day', 'communications', 'waitlist', 'promote'] },
-  { title: 'Platform', keys: ['ai_copilot', 'developer_api', 'white_label'] },
+  { title: 'Platform', keys: ['ai_copilot', 'developer_api', 'white_label', 'teams'] },
 ];
 
 export function platformFlagName(key: PlatformFeatureKey): string {
@@ -73,6 +81,10 @@ export const PLATFORM_FEATURE_META: Record<PlatformFeatureKey, { label: string; 
   ai_copilot:        { label: 'AI Copilot',               description: 'Claude-powered organizer chat assistant' },
   developer_api:     { label: 'Developer API',            description: 'API keys, webhooks, and the public v1 API' },
   white_label:       { label: 'White-label branding',     description: 'Custom domain + branding removal for Studio organizers' },
+  card_studio:       { label: 'Card Studio',               description: 'Eventera Card design & generation — canvas editor, public claim flow, and PNG rendering' },
+  analytics:         { label: 'Analytics & reports',       description: 'Event analytics, reports, revenue, roster, and source-analytics dashboards' },
+  teams:             { label: 'Studio team accounts',      description: 'Multi-user team accounts with shared, role-based access to Studio-plan events' },
+  feedback:          { label: 'Event feedback',            description: 'Post-event attendee feedback surveys and organizer ratings' },
 };
 
 export interface PlatformFeatureFlagRow {

@@ -5,6 +5,7 @@ import { getUserPlan } from '@/lib/billing/can';
 import { assertERA } from '@/lib/ai/gate';
 import { ERA } from '@/lib/ai/era';
 import { checkQuota } from '@/lib/ratelimit';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 const schema = z.object({
   stats: z.object({
@@ -18,6 +19,10 @@ const schema = z.object({
 });
 
 export async function POST(request: Request) {
+  if (!(await isPlatformFeatureEnabled('analytics'))) {
+    return NextResponse.json({ error: 'Analytics is currently unavailable.' }, { status: 404 });
+  }
+
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

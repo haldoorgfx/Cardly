@@ -673,7 +673,9 @@ class _EventHubScreenState extends State<EventHubScreen> {
                     qrCodeToken: _regToken)),
             _moreRow(Icons.tag, 'Community',
                 () => CommunityChatScreen(
-                    eventId: id, registrationId: _regId)),
+                    eventId: id,
+                    registrationId: _regId,
+                    qrCodeToken: _regToken)),
             _moreRow(Icons.photo_camera_outlined, 'Photo wall',
                 () => PhotoWallScreen(eventId: id)),
             _moreRow(Icons.bolt_outlined, 'Speed networking',

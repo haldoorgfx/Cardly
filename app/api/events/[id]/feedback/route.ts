@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { assertOwnsRegistration } from '@/lib/attendee-identity';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 import { z } from 'zod';
 
 const BodySchema = z.object({
@@ -12,6 +13,10 @@ const BodySchema = z.object({
 });
 
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+  if (!(await isPlatformFeatureEnabled('feedback'))) {
+    return NextResponse.json({ error: 'Feedback is currently unavailable.' }, { status: 404 });
+  }
+
   const body = await req.json().catch(() => null);
   const parsed = BodySchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: 'Invalid request' }, { status: 400 });

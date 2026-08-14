@@ -157,6 +157,12 @@ class _SpeedNetworkingScreenState extends State<SpeedNetworkingScreen> {
         'requester_id': _rid,
         'recipient_id': a.id,
         if (_token != null) 'qr_code_token': _token,
+        // Marks this request as speed-networking-originated so the API also
+        // enforces platform:speed_networking (on top of platform:networking).
+        // Without this, disabling speed_networking alone had no effect here —
+        // this screen has no page-level flag check, so the API-side gate is
+        // the only enforcement point on mobile.
+        'source': 'speed_networking',
       });
       if (!mounted) return;
       setState(() => _connecting = false);

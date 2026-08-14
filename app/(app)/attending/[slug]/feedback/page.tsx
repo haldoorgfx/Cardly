@@ -1,8 +1,10 @@
 export const dynamic = 'force-dynamic';
 
 import { createAdminClient } from '@/lib/supabase/server';
+import { notFound } from 'next/navigation';
 import FeedbackClient from '@/components/events/FeedbackClient';
 import { resolveAttendeeWorkspace } from '@/lib/attendee/eventWorkspace';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 interface Props { params: Promise<{ slug: string }>; searchParams: Promise<{ reg?: string }> }
 
@@ -12,6 +14,10 @@ export default async function FeedbackPage({ params, searchParams }: Props) {
   // The public copy had NO section gate, so feedback stayed reachable after an
   // organizer switched it off. Gated here.
   const ws = await resolveAttendeeWorkspace({ slug, reg, section: 'feedback' });
+
+  // Platform-wide kill-switch, checked ALONGSIDE the per-event section gate
+  // above — both must pass. This one only the super_admin controls.
+  if (!(await isPlatformFeatureEnabled('feedback'))) notFound();
 
   const admin = createAdminClient();
   const [{ data: agendaSessions }, { data: existingFeedback }] = await Promise.all([
