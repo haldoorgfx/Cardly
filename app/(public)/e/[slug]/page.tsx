@@ -6,6 +6,7 @@ import { formatEventDateRange, formatMinPrice } from '@/lib/events/format';
 import { PublicEventPageClient } from '@/components/events/PublicEventPageClient';
 import { geocodeAddress } from '@/lib/events/geocode';
 import { ensurePublicEventPage } from '@/lib/events/resolvePublicSlug';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 import type { Metadata } from 'next';
 
 interface Props {
@@ -129,6 +130,29 @@ export default async function PublicEventPage({ params, searchParams }: Props) {
   // a boolean so the copy still knows whether a link exists.
   const { online_url: privateJoinUrl, ...publicPage } = page as typeof page & { online_url: string | null };
   const hasOnlineUrl = !!privateJoinUrl;
+
+  // The tab bar and inline previews (Speakers/Sponsors/Network/Photos) below
+  // only ever checked this event's OWN features toggle
+  // (components/events/EventFeaturesManager.tsx) — a super_admin platform-wide
+  // kill-switch could be off and these still rendered here, even though the
+  // dedicated detail routes (e.g. /sponsors/[boothId]) were already blocked.
+  // Force each key off in what we hand the client when its platform flag is
+  // off, regardless of what the organizer configured; leave it untouched
+  // (organizer's own setting decides) when the platform flag is on.
+  const [speakersFlagOn, sponsorsFlagOn, networkingFlagOn, photosFlagOn] = await Promise.all([
+    isPlatformFeatureEnabled('speakers'),
+    isPlatformFeatureEnabled('sponsors'),
+    isPlatformFeatureEnabled('networking'),
+    isPlatformFeatureEnabled('photos'),
+  ]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const rawFeatures = ((publicPage as any).features ?? {}) as Record<string, boolean>;
+  const mergedFeatures: Record<string, boolean> = { ...rawFeatures };
+  if (!speakersFlagOn) mergedFeatures.speakers = false;
+  if (!sponsorsFlagOn) mergedFeatures.sponsors = false;
+  if (!networkingFlagOn) mergedFeatures.networking = false;
+  if (!photosFlagOn) mergedFeatures.photos = false;
+  const pageForClient = { ...publicPage, features: mergedFeatures };
 
   const allTickets = ticketsRes.data ?? [];
   const hasAnyTickets = (anyTicketsRes.count ?? 0) > 0;
@@ -363,7 +387,7 @@ export default async function PublicEventPage({ params, searchParams }: Props) {
         </div>
       )}
       <PublicEventPageClient
-        page={publicPage}
+        page={pageForClient}
         hasOnlineUrl={hasOnlineUrl}
         tickets={allTickets}
         hasAnyTickets={hasAnyTickets}

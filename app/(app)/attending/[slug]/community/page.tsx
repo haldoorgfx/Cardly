@@ -1,8 +1,10 @@
 export const dynamic = 'force-dynamic';
 
 import { createAdminClient } from '@/lib/supabase/server';
+import { notFound } from 'next/navigation';
 import { CommunityChatClient } from '@/components/events/CommunityChatClient';
 import { resolveAttendeeWorkspace } from '@/lib/attendee/eventWorkspace';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -13,6 +15,10 @@ export default async function CommunityPage({ params, searchParams }: Props) {
   const { slug } = await params;
   const { reg, channel } = await searchParams;
   const ws = await resolveAttendeeWorkspace({ slug, reg, section: 'community' });
+
+  // Platform-wide kill-switch, checked ALONGSIDE the per-event section gate
+  // above — both must pass. This one only the super_admin controls.
+  if (!(await isPlatformFeatureEnabled('community'))) notFound();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const admin = createAdminClient() as any;
