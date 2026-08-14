@@ -1,3 +1,19 @@
+> ## ✅ Applied 2026-08-14
+>
+> **133** and **134** are now live in prod. Verified directly (not just "no
+> error"): `GET /rest/v1/feature_flags?flag=eq.platform:card_studio` returns
+> the seeded row, and `select proname from pg_proc ... where proname in
+> ('is_platform_feature_enabled','catering_counts','accessibility_summary')`
+> returns all three — the SQL-side flag helper and both catering RPCs exist
+> with the new `platform:catering` early-exit check confirmed present in the
+> pasted source before running. 134's own "read the live body first" caution
+> was followed: `catering_counts`/`accessibility_summary` had drifted from
+> `082_dietary_accessibility.sql` by exactly the CRLF-vs-LF byte count (54 and
+> 60 chars respectively, matching each function's line count) — a full
+> line-by-line content read confirmed the logic itself was byte-identical,
+> just stored with different line endings, so applying 134 as written was
+> safe.
+>
 > ## ✅ Applied 2026-07-22
 >
 > Abdalla ran both `APPLY_105-120_combined.sql` and the 116 file through the
