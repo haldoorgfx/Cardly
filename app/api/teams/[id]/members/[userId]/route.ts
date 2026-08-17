@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { getMyTeam, removeMember, updateMemberRole } from '@/lib/teams/queries';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 // PATCH /api/teams/[id]/members/[userId] — change role
 export async function PATCH(req: NextRequest, { params }: { params: { id: string; userId: string } }) {
+  if (!(await isPlatformFeatureEnabled('teams'))) {
+    return NextResponse.json({ error: 'Teams is currently unavailable.' }, { status: 404 });
+  }
+
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -31,6 +36,10 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
 // DELETE /api/teams/[id]/members/[userId] — remove member
 export async function DELETE(_req: NextRequest, { params }: { params: { id: string; userId: string } }) {
+  if (!(await isPlatformFeatureEnabled('teams'))) {
+    return NextResponse.json({ error: 'Teams is currently unavailable.' }, { status: 404 });
+  }
+
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

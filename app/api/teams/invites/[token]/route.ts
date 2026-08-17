@@ -1,12 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { acceptInvite } from '@/lib/teams/queries';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 // POST /api/teams/invites/[token] — accept an invite
 export async function POST(
   _req: NextRequest,
   { params }: { params: { token: string } }
 ) {
+  if (!(await isPlatformFeatureEnabled('teams'))) {
+    return NextResponse.json({ error: 'Teams is currently unavailable.' }, { status: 404 });
+  }
+
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

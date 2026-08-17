@@ -14,6 +14,7 @@ import { allowedNeedsTags } from '@/lib/registration/needs-options';
 import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
 import { escapeLikePattern } from '@/lib/search/filter';
 import { toStripeMinorUnits, roundToCurrencyUnit } from '@/lib/payments/currency';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 import { z } from 'zod';
 
 // ── Input validation ──────────────────────────────────────────────────────────
@@ -387,8 +388,16 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       }, { status: 400 });
     }
 
+    // Platform kill-switch: dietary/accessibility capture is the 'catering'
+    // platform feature (see lib/features/platformFeatureMeta.ts). Nothing else
+    // in this route depends on it, so only these two field types are skipped
+    // when a super admin has disabled catering platform-wide — an organizer's
+    // saved field config (or a direct/mobile POST replaying old tags) must not
+    // be able to write dietary/accessibility data while the flag is off.
+    const cateringEnabled = await isPlatformFeatureEnabled('catering');
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    fieldRows.filter((f) => f.field_type === 'dietary' || f.field_type === 'accessibility').forEach((f) => {
+    fieldRows.filter((f) => cateringEnabled && (f.field_type === 'dietary' || f.field_type === 'accessibility')).forEach((f) => {
       const configured: string[] = Array.isArray(f.options) ? (f.options as string[]) : [];
       // A field saved WITHOUT a custom option list renders the shared defaults on
       // both clients — so those defaults are exactly what a submission may carry.

@@ -1,12 +1,17 @@
 import { createAdminClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { authorizeEventContent, eventIdForSponsor } from '@/lib/auth/event-content';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 // Resources can be non-image docs (PDF/PPTX/etc.), so we don't sniff for an
 // image type — but we DO require the event's organizer/contributor, cap the
 // size, and store with a neutral content type so nothing is served as active
 // HTML from the public bucket.
 export async function POST(req: Request) {
+  if (!(await isPlatformFeatureEnabled('sponsors'))) {
+    return NextResponse.json({ error: 'Sponsors is currently unavailable.' }, { status: 404 });
+  }
+
   const formData = await req.formData().catch(() => null);
   if (!formData) return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
 

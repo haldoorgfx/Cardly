@@ -3,9 +3,14 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { getMyTeam, getTeamMembers, getTeamInvites, createInvite } from '@/lib/teams/queries';
 import { PLANS } from '@/lib/billing/plans';
 import { sendTeamInviteEmail } from '@/lib/email';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 // POST /api/teams/[id]/invites — send an invite
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+  if (!(await isPlatformFeatureEnabled('teams'))) {
+    return NextResponse.json({ error: 'Teams is currently unavailable.' }, { status: 404 });
+  }
+
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

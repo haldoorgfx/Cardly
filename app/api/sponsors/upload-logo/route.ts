@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { eventIdForSponsor, sniffImageMime } from '@/lib/auth/event-content';
 import { ownedSponsor } from '@/lib/rbac/ownership';
 import { canManageEvent } from '@/lib/rbac/canManageEvent';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 const EXT: Record<string, string> = {
   'image/jpeg': 'jpg',
@@ -12,6 +13,10 @@ const EXT: Record<string, string> = {
 };
 
 export async function POST(req: Request) {
+  if (!(await isPlatformFeatureEnabled('sponsors'))) {
+    return NextResponse.json({ error: 'Sponsors is currently unavailable.' }, { status: 404 });
+  }
+
   const formData = await req.formData().catch(() => null);
   if (!formData) return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
 

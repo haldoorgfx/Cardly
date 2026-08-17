@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { ownedSpeaker } from '@/lib/rbac/ownership';
 import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 import { sniffImageMime } from '@/lib/auth/event-content';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 /**
  * Speaker headshot upload.
@@ -41,6 +42,10 @@ export async function POST(
   req: Request,
   { params }: { params: { speakerId: string } },
 ) {
+  if (!(await isPlatformFeatureEnabled('speakers'))) {
+    return NextResponse.json({ error: 'Speakers & CFP is currently unavailable.' }, { status: 404 });
+  }
+
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

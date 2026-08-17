@@ -2,12 +2,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { getMyTeam, getTeamMembers } from '@/lib/teams/queries';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 // DELETE /api/teams/[id]/invites/[inviteId] — revoke a pending invite
 export async function DELETE(
   _req: NextRequest,
   { params }: { params: { id: string; inviteId: string } }
 ) {
+  if (!(await isPlatformFeatureEnabled('teams'))) {
+    return NextResponse.json({ error: 'Teams is currently unavailable.' }, { status: 404 });
+  }
+
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

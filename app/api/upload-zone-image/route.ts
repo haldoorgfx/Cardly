@@ -3,8 +3,15 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { sniffImageMime } from '@/lib/auth/event-content';
 import sharp from 'sharp';
 import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
+import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 export async function POST(req: NextRequest) {
+  // Only ever called from Card Studio's canvas editor (components/editor/CanvasEditor.tsx)
+  // for zone image/background uploads while designing a card.
+  if (!(await isPlatformFeatureEnabled('card_studio'))) {
+    return NextResponse.json({ error: 'Card Studio is currently unavailable.' }, { status: 404 });
+  }
+
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

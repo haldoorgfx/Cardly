@@ -5,6 +5,10 @@ import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 // GET /api/teams — get my team
 export async function GET() {
+  if (!(await isPlatformFeatureEnabled('teams'))) {
+    return NextResponse.json({ error: 'Teams is currently unavailable.' }, { status: 404 });
+  }
+
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
