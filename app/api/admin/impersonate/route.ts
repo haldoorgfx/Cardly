@@ -75,6 +75,7 @@ export async function POST(req: NextRequest) {
   const res = NextResponse.json({ ok: true });
   res.cookies.set('eventera_impersonating', userId, {
     httpOnly: false, // readable by AppShell client-side
+    secure: process.env.NODE_ENV === 'production',
     path: '/',
     maxAge: 60 * 60 * 4, // 4 hours
     sameSite: 'lax',
