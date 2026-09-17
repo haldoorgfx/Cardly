@@ -16,7 +16,7 @@ import {
   UserCircle, HelpCircle, Zap, ShoppingCart, Clock, IdCard, Heart,
   Crown, Leaf, ArrowRight,
   Tag, Globe, Download, Link2, Code2, UserCog, Share2, Images, Monitor,
-  RefreshCw, Megaphone, Bot, MessageCircle, Layers, ToggleRight,
+  RefreshCw, Megaphone, Bot, MessageCircle, Layers, ToggleRight, Activity,
 } from 'lucide-react';
 
 type Profile = {
@@ -286,6 +286,7 @@ const USER_NAV_GROUPS: NavGroup[] = [
     { href: '/admin/platform-features', label: 'Platform Features', icon: <ToggleRight size={15} strokeWidth={1.8} />, matchPrefix: true, superAdminOnly: true },
     { href: '/admin/changelog',     label: 'Changelog',      icon: <Megaphone size={15} strokeWidth={1.8} />,   matchPrefix: true },
     { href: '/admin/audit',         label: 'Audit Log',   icon: <ScrollText size={15} strokeWidth={1.8} />,  matchPrefix: true },
+    { href: '/admin/health',        label: 'System Health', icon: <Activity size={15} strokeWidth={1.8} />, matchPrefix: true, superAdminOnly: true },
   ]},
 ];
 
