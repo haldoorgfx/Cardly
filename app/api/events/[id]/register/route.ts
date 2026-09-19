@@ -46,7 +46,8 @@ const RegisterSchema = z.object({
   preferred_processor: z.enum(['stripe', 'flutterwave', 'waafipay']).optional().nullable(),
 });
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const admin = createAdminClient();
 
   // Capture attendee user_id if they're logged in AND the email they typed into

@@ -36,16 +36,14 @@ class CopyPdfkitAfmData {
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    outputFileTracingIncludes: {
-      '/api/render': ['./public/fonts/**/*'],
-      // pdfkit AFM font-metric files are copied to .next/server/chunks/data/
-      // by the CopyPdfkitAfmData webpack plugin above (that's the __dirname
-      // path pdfkit resolves at runtime in the bundled chunk).
-      '/api/events/[id]/roster/pdf':  ['./.next/server/chunks/data/**/*'],
-      '/api/events/[id]/revenue/pdf': ['./.next/server/chunks/data/**/*'],
-      '/api/events/[id]/agenda/pdf':  ['./.next/server/chunks/data/**/*'],
-    },
+  outputFileTracingIncludes: {
+    '/api/render': ['./public/fonts/**/*'],
+    // pdfkit AFM font-metric files are copied to .next/server/chunks/data/
+    // by the CopyPdfkitAfmData webpack plugin above (that's the __dirname
+    // path pdfkit resolves at runtime in the bundled chunk).
+    '/api/events/[id]/roster/pdf':  ['./.next/server/chunks/data/**/*'],
+    '/api/events/[id]/revenue/pdf': ['./.next/server/chunks/data/**/*'],
+    '/api/events/[id]/agenda/pdf':  ['./.next/server/chunks/data/**/*'],
   },
 
   webpack(config, { isServer }) {

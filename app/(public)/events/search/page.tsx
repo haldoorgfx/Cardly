@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 };
 
 interface Props {
-  searchParams: {
+  searchParams: Promise<{
     q?: string;
     city?: string;
     category?: string;
@@ -22,10 +22,11 @@ interface Props {
     format?: string;
     // map bounds from "Search this area"
     n?: string; s?: string; e?: string; w?: string;
-  };
+  }>;
 }
 
-export default async function SearchPage({ searchParams }: Props) {
+export default async function SearchPage(props: Props) {
+  const searchParams = await props.searchParams;
   const admin = createAdminClient();
 
   const q = searchParams.q?.trim() ?? '';

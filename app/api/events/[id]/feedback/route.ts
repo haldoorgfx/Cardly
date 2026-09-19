@@ -12,7 +12,8 @@ const BodySchema = z.object({
   qr_code_token: z.string().optional(),
 });
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('feedback'))) {
     return NextResponse.json({ error: 'Feedback is currently unavailable.' }, { status: 404 });
   }

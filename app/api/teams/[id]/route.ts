@@ -4,10 +4,8 @@ import { getMyTeam, deleteTeam } from '@/lib/teams/queries';
 import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 // DELETE /api/teams/[id] — delete the team (owner only)
-export async function DELETE(
-  _req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(_req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('teams'))) {
     return NextResponse.json({ error: 'Teams is currently unavailable.' }, { status: 404 });
   }

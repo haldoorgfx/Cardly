@@ -30,7 +30,8 @@ function Field({ label, value }: { label: string; value: React.ReactNode }) {
   );
 }
 
-export default async function UserDetailPage({ params }: { params: { id: string } }) {
+export default async function UserDetailPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const sessionUser = await requirePermission(USER_VIEW);
   const canImpersonate = (ROLE_PERMISSIONS[sessionUser.role as keyof typeof ROLE_PERMISSIONS] ?? []).includes(IMPERSONATE);
 

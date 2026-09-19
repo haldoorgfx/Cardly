@@ -27,7 +27,8 @@ async function authorizeThread(threadId: string, registrationId: string, qrCodeT
 }
 
 // GET /api/threads/[threadId]?registration_id=xxx
-export async function GET(req: NextRequest, { params }: { params: { threadId: string } }) {
+export async function GET(req: NextRequest, props: { params: Promise<{ threadId: string }> }) {
+  const params = await props.params;
   // Twin of /api/events/[id]/messages (which checks this) — mobile reads
   // individual threads through here, so the "networking" kill switch must
   // reach this route too, not just the web messaging endpoint.
@@ -63,7 +64,8 @@ const PostSchema = z.object({
 
 // POST /api/threads/[threadId] — the sender must own the registration AND be a
 // participant of this thread; sender_id is verified, never trusted blindly.
-export async function POST(req: NextRequest, { params }: { params: { threadId: string } }) {
+export async function POST(req: NextRequest, props: { params: Promise<{ threadId: string }> }) {
+  const params = await props.params;
   // Same kill-switch gap as GET above.
   if (!(await isPlatformFeatureEnabled('networking'))) {
     return NextResponse.json({ error: 'Networking is currently unavailable.' }, { status: 404 });

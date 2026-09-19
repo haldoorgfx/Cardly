@@ -11,10 +11,8 @@ const VALID_STATUSES: RegistrationStatus[] = [
 ];
 
 // PATCH /api/admin/registrations/[id] — update a registration's status
-export async function PATCH(
-  request: Request,
-  { params }: { params: { id: string } },
-) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const result = await getAuthorizedUser(EVENT_EDIT_ALL);
   if ('error' in result) return result.error;
   const { user } = result;
@@ -114,10 +112,8 @@ export async function PATCH(
 }
 
 // DELETE /api/admin/registrations/[id] — permanently delete a registration
-export async function DELETE(
-  _request: Request,
-  { params }: { params: { id: string } },
-) {
+export async function DELETE(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const result = await getAuthorizedUser(EVENT_EDIT_ALL);
   if ('error' in result) return result.error;
   const { user } = result;

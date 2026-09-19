@@ -22,7 +22,8 @@ const VoteSchema = z.object({
   qr_code_token: z.string().optional(),
 });
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('polls'))) return NextResponse.json({ error: 'Polls are currently unavailable.' }, { status: 404 });
 
   const admin = createAdminClient();
@@ -51,7 +52,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   return NextResponse.json({ polls: data });
 }
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('polls'))) return NextResponse.json({ error: 'Polls are currently unavailable.' }, { status: 404 });
 
   const supabase = createClient();
@@ -92,7 +94,8 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   return NextResponse.json({ poll }, { status: 201 });
 }
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('polls'))) return NextResponse.json({ error: 'Polls are currently unavailable.' }, { status: 404 });
 
   const supabase = createClient();
@@ -129,7 +132,8 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 }
 
 // PUT — cast a vote
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('polls'))) return NextResponse.json({ error: 'Polls are currently unavailable.' }, { status: 404 });
 
   const body = await req.json().catch(() => null);

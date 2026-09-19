@@ -96,7 +96,7 @@ function PlatformBtn({ icon, label, onClick }: { icon: React.ReactNode; label: s
 }
 
 /* ── Confetti burst (28 pieces, gold + forest) ───────────────────────────── */
-function useConfetti(stageRef: React.RefObject<HTMLDivElement>) {
+function useConfetti(stageRef: React.RefObject<HTMLDivElement | null>) {
   useEffect(() => {
     const stage = stageRef.current;
     if (!stage) return;

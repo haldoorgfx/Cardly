@@ -36,7 +36,8 @@ const Schema = z.object({
 // flag server-side, so this route mirrors that same gate and the same
 // explicit, email-excluding column list (speakers.email is a login-linking
 // column added in migration 039, not a public contact field).
-export async function GET(req: Request, { params }: { params: { speakerId: string } }) {
+export async function GET(req: Request, props: { params: Promise<{ speakerId: string }> }) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('speakers'))) {
     return NextResponse.json({ error: 'Speakers & CFP is currently unavailable.' }, { status: 404 });
   }
@@ -65,10 +66,8 @@ export async function GET(req: Request, { params }: { params: { speakerId: strin
   return NextResponse.json({ speaker });
 }
 
-export async function PATCH(
-  req: Request,
-  { params }: { params: { speakerId: string } }
-) {
+export async function PATCH(req: Request, props: { params: Promise<{ speakerId: string }> }) {
+  const params = await props.params;
   // AuthZ: only the speaker themself (email/role match) or the event's
   // organizer may edit a speaker profile. This route was previously open.
   const supabase = createClient();

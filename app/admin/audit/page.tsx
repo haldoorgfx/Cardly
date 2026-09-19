@@ -16,11 +16,12 @@ interface SearchParams {
 
 const PAGE_SIZE = 50;
 
-export default async function AuditPage({
-  searchParams,
-}: {
-  searchParams: SearchParams;
-}) {
+export default async function AuditPage(
+  props: {
+    searchParams: Promise<SearchParams>;
+  }
+) {
+  const searchParams = await props.searchParams;
   await requirePermission(AUDIT_VIEW);
 
   const page   = Math.max(1, parseInt(searchParams.page ?? '1', 10));

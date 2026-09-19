@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import {
   Search, Zap, Users, CalendarDays, ScanLine, CreditCard, HelpCircle,
   ArrowRight, CheckCircle2,
@@ -226,9 +227,9 @@ export default function HelpPage() {
               </button>
             ))}
           </nav>
-          <a href="/" className="text-[12px] flex items-center gap-1" style={{ color: '#65736B' }}>
+          <Link href="/" className="text-[12px] flex items-center gap-1" style={{ color: '#65736B' }}>
             ← Product
-          </a>
+          </Link>
         </div>
       </div>
 

@@ -5,11 +5,12 @@ export const dynamic = 'force-dynamic';
 // Consolidated: the canonical notifications center now lives at /notifications
 // (inbox + preferences in one place). This route redirects so existing links
 // and bookmarks to /account/notifications keep working.
-export default function AccountNotificationsRedirect({
-  searchParams,
-}: {
-  searchParams: Record<string, string | string[] | undefined>;
-}) {
+export default async function AccountNotificationsRedirect(
+  props: {
+    searchParams: Promise<Record<string, string | string[] | undefined>>;
+  }
+) {
+  const searchParams = await props.searchParams;
   const params = new URLSearchParams();
   for (const [key, value] of Object.entries(searchParams)) {
     if (Array.isArray(value)) {

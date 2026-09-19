@@ -5,10 +5,11 @@ import type { Metadata } from 'next';
 
 interface Props {
   children: React.ReactNode;
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+export async function generateMetadata(props: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const params = await props.params;
   const admin = createAdminClient();
 
   // Try custom_slug first, then events.slug
@@ -35,7 +36,13 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   return { title: page?.title ?? event.name };
 }
 
-export default async function EventSlugLayout({ children, params }: Props) {
+export default async function EventSlugLayout(props: Props) {
+  const params = await props.params;
+
+  const {
+    children
+  } = props;
+
   const resolved = await resolvePublicSlug(params.slug);
   // If the slug doesn't resolve, let the page itself handle notFound().
   if (!resolved) return <>{children}</>;

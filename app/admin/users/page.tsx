@@ -19,11 +19,12 @@ interface SearchParams {
 
 const PAGE_SIZE = 50;
 
-export default async function UsersAdminPage({
-  searchParams,
-}: {
-  searchParams: SearchParams;
-}) {
+export default async function UsersAdminPage(
+  props: {
+    searchParams: Promise<SearchParams>;
+  }
+) {
+  const searchParams = await props.searchParams;
   await requirePermission(USER_VIEW);
   const currentUser = await getSessionUser();
 

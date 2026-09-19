@@ -31,7 +31,8 @@ async function assertOwnsEvent(eventId: string) {
 // straight from Supabase, which bypassed both the platform "community" kill
 // switch and the same attendee-only gate that route's GET was fixed to
 // require.
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('community'))) return NextResponse.json({ error: 'Community is currently unavailable.' }, { status: 404 });
 
   const { searchParams } = new URL(req.url);
@@ -64,7 +65,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 }
 
 // POST /api/events/[id]/community/channels — organizer creates a channel
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await assertOwnsEvent(params.id);
   if (!gate.ok) return NextResponse.json({ error: gate.error }, { status: gate.status });
 
@@ -86,7 +88,8 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 }
 
 // DELETE /api/events/[id]/community/channels?channel_id=xxx — organizer deletes a channel
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await assertOwnsEvent(params.id);
   if (!gate.ok) return NextResponse.json({ error: gate.error }, { status: gate.status });
 

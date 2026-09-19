@@ -39,7 +39,8 @@ const RespondSchema = z.object({
 // Returns a shuffled deck of confirmed / checked-in attendees for speed
 // networking: excludes the caller and anyone they've already sent a request to
 // (or connected with). Directory opt-outs are respected.
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('networking'))) return NextResponse.json({ error: 'Networking is currently unavailable.' }, { status: 404 });
 
   const { searchParams } = new URL(req.url);
@@ -117,7 +118,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   return NextResponse.json({ people: deck });
 }
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('networking'))) return NextResponse.json({ error: 'Networking is currently unavailable.' }, { status: 404 });
 
   const body = await req.json().catch(() => null);
@@ -248,7 +250,8 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   return NextResponse.json({ connection: data }, { status: 201 });
 }
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('networking'))) return NextResponse.json({ error: 'Networking is currently unavailable.' }, { status: 404 });
 
   const body = await req.json().catch(() => null);

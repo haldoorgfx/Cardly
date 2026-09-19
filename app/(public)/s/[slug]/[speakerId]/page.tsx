@@ -10,11 +10,12 @@ import { safeExternalUrl } from '@/lib/url/safeUrl';
 import { PublicNav } from '@/components/events/PublicNav';
 import type { Metadata } from 'next';
 
-interface Props { params: { slug: string; speakerId: string } }
+interface Props { params: Promise<{ slug: string; speakerId: string }> }
 
 // Every speaker profile previously emitted the literal title "Speaker", so all
 // of them collided as one indistinguishable result in search and link previews.
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const params = await props.params;
   const admin = createAdminClient();
   const resolved = await resolvePublicSlug(params.slug);
   if (!resolved) return { title: 'Speaker' };
@@ -61,7 +62,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 // in the dashboard at /speaking/[speakerId]; a logged-in owner landing here is
 // redirected there. The old open editing portal on this route is retired —
 // it allowed anyone to edit any speaker profile.
-export default async function PublicSpeakerPage({ params }: Props) {
+export default async function PublicSpeakerPage(props: Props) {
+  const params = await props.params;
   const admin = createAdminClient();
 
   const resolved = await resolvePublicSlug(params.slug);

@@ -5,13 +5,14 @@ import { PublicNav } from '@/components/events/PublicNav';
 import { CityPage } from '@/components/discovery/CityPage';
 import type { Metadata } from 'next';
 
-interface Props { params: { city: string } }
+interface Props { params: Promise<{ city: string }> }
 
 function decodeCity(slug: string): string {
   return decodeURIComponent(slug).replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const params = await props.params;
   const city = decodeCity(params.city);
   return {
     title: `Events in ${city}`,
@@ -19,7 +20,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function CityEventPage({ params }: Props) {
+export default async function CityEventPage(props: Props) {
+  const params = await props.params;
   const city = decodeCity(params.city);
   const admin = createAdminClient();
 

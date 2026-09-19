@@ -6,9 +6,11 @@ import SessionDetailClient from '@/components/events/SessionDetailClient';
 import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
 import { resolveViewerRegistrationId } from '@/lib/attendee/resolveViewerRegistration';
 
-interface Props { params: { slug: string; sessionId: string }; searchParams: { reg?: string } }
+interface Props { params: Promise<{ slug: string; sessionId: string }>; searchParams: Promise<{ reg?: string }> }
 
-export default async function SessionDetailPage({ params, searchParams }: Props) {
+export default async function SessionDetailPage(props: Props) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const admin = createAdminClient();
 
   const resolved = await resolvePublicSlug(params.slug);

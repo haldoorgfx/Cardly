@@ -10,8 +10,8 @@ import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 import type { Metadata } from 'next';
 
 interface Props {
-  params: { slug: string };
-  searchParams: { preview?: string; event_id?: string; tab?: string; reg?: string };
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ preview?: string; event_id?: string; tab?: string; reg?: string }>;
 }
 
 async function resolveEventPage(slug: string) {
@@ -55,7 +55,8 @@ async function resolveEventPage(slug: string) {
   return null;
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const params = await props.params;
   const page = await resolveEventPage(params.slug);
   if (!page) return { title: 'Event' };
 
@@ -109,7 +110,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function PublicEventPage({ params, searchParams }: Props) {
+export default async function PublicEventPage(props: Props) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const page = await resolveEventPage(params.slug);
   if (!page) notFound();
 

@@ -9,10 +9,8 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { escapeCsvCell } from '@/lib/csv';
 import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
-export async function GET(
-  _req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(_req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

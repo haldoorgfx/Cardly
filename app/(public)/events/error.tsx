@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import Link from 'next/link';
 import { RefreshCw, Home } from 'lucide-react';
 
 export default function EventsDiscoveryError({
@@ -46,14 +47,14 @@ export default function EventsDiscoveryError({
           <RefreshCw size={15} />
           Try again
         </button>
-        <a
+        <Link
           href="/"
           className="flex-1 inline-flex items-center justify-center gap-2 h-11 rounded-xl font-medium text-[14px] transition-colors hover:bg-white"
           style={{ border: '1px solid #E5E0D4', color: '#3A4A42' }}
         >
           <Home size={15} />
           Home
-        </a>
+        </Link>
       </div>
 
       {error.digest && (

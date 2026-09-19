@@ -11,7 +11,8 @@ const PLAN_RANK: Record<string, number> = { free: 0, pro: 1, studio: 2 };
 
 // GET /api/events/[id]/matches?registration_id=xxx
 // Returns cached match suggestions for an attendee. Generates on-demand if none exist.
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('speed_networking'))) return NextResponse.json({ error: 'Speed networking is currently unavailable.' }, { status: 404 });
 
   const { searchParams } = new URL(req.url);
@@ -181,7 +182,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 // POST /api/events/[id]/matches — organiser-triggered bulk generation.
 // Gated to the event owner/contributors: this runs LLM generation over up to
 // 200 attendees, so it must not be publicly triggerable.
-export async function POST(_req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(_req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('speed_networking'))) return NextResponse.json({ error: 'Speed networking is currently unavailable.' }, { status: 404 });
 
   const auth = await authorizeEventContent(params.id);

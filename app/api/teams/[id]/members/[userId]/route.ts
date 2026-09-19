@@ -4,7 +4,11 @@ import { getMyTeam, removeMember, updateMemberRole } from '@/lib/teams/queries';
 import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 // PATCH /api/teams/[id]/members/[userId] — change role
-export async function PATCH(req: NextRequest, { params }: { params: { id: string; userId: string } }) {
+export async function PATCH(
+  req: NextRequest,
+  props: { params: Promise<{ id: string; userId: string }> }
+) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('teams'))) {
     return NextResponse.json({ error: 'Teams is currently unavailable.' }, { status: 404 });
   }
@@ -35,7 +39,11 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 }
 
 // DELETE /api/teams/[id]/members/[userId] — remove member
-export async function DELETE(_req: NextRequest, { params }: { params: { id: string; userId: string } }) {
+export async function DELETE(
+  _req: NextRequest,
+  props: { params: Promise<{ id: string; userId: string }> }
+) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('teams'))) {
     return NextResponse.json({ error: 'Teams is currently unavailable.' }, { status: 404 });
   }

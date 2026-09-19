@@ -2,10 +2,8 @@ import { createAdminClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { authorizeEventContent, eventIdForSession } from '@/lib/auth/event-content';
 
-export async function POST(
-  req: Request,
-  { params }: { params: { sessionId: string } }
-) {
+export async function POST(req: Request, props: { params: Promise<{ sessionId: string }> }) {
+  const params = await props.params;
   const formData = await req.formData().catch(() => null);
   const file = formData?.get('file') as File | null;
   if (!file) return NextResponse.json({ error: 'No file provided' }, { status: 400 });

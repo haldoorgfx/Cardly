@@ -23,10 +23,8 @@ const Schema = z.object({
   })).optional(),
 });
 
-export async function PATCH(
-  req: Request,
-  { params }: { params: { sponsorId: string } }
-) {
+export async function PATCH(req: Request, props: { params: Promise<{ sponsorId: string }> }) {
+  const params = await props.params;
   const raw = await req.json().catch(() => null);
   const parsed = Schema.safeParse(raw);
   if (!parsed.success) {

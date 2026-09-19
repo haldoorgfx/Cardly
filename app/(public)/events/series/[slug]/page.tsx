@@ -6,9 +6,10 @@ import { PublicNav } from '@/components/events/PublicNav';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 
-interface Props { params: { slug: string } }
+interface Props { params: Promise<{ slug: string }> }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const params = await props.params;
   const admin = createAdminClient();
   const { data } = await admin.from('event_series').select('name, description').eq('slug', params.slug).single();
   if (!data) return {};
@@ -22,7 +23,8 @@ function fmtDate(iso: string) {
   return new Date(iso).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
 }
 
-export default async function SeriesPage({ params }: Props) {
+export default async function SeriesPage(props: Props) {
+  const params = await props.params;
   const admin = createAdminClient();
 
   const { data: series } = await admin

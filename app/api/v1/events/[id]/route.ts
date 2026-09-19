@@ -4,7 +4,8 @@ import { createAdminClient } from '@/lib/supabase/server';
 import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 // GET /api/v1/events/{id} — a single event with its ticket types.
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('developer_api'))) return NextResponse.json({ error: 'Developer API is currently unavailable.' }, { status: 404 });
 
   const auth = await authenticateApiKey(req, 'events:read');

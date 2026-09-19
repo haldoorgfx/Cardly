@@ -38,7 +38,8 @@ const EVENT_CONTEXT_KEYS = [
   'is_paid', 'currency', 'capacity', 'max_attendees',
 ];
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('ai_copilot'))) return NextResponse.json({ error: 'AI Copilot is currently unavailable.' }, { status: 404 });
 
   if (!process.env.ANTHROPIC_API_KEY) {

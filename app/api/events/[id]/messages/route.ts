@@ -22,7 +22,8 @@ const ReadSchema = z.object({
 });
 
 // GET /api/events/[id]/messages?registration_id=xxx&token=xxx[&thread_id=xxx]
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('networking'))) return NextResponse.json({ error: 'Networking is currently unavailable.' }, { status: 404 });
 
   const { searchParams } = new URL(req.url);
@@ -139,7 +140,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 }
 
 // POST /api/events/[id]/messages — send a message
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('networking'))) return NextResponse.json({ error: 'Networking is currently unavailable.' }, { status: 404 });
 
   const body = await req.json().catch(() => null);
@@ -257,7 +259,8 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 }
 
 // PATCH — mark all messages in a thread as read
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('networking'))) return NextResponse.json({ error: 'Networking is currently unavailable.' }, { status: 404 });
 
   const body = await req.json().catch(() => null);

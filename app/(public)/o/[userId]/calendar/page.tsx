@@ -6,9 +6,10 @@ import { PublicNav } from '@/components/events/PublicNav';
 import { OrganizerCalendarClient } from '@/components/discovery/OrganizerCalendarClient';
 import type { Metadata } from 'next';
 
-interface Props { params: { userId: string } }
+interface Props { params: Promise<{ userId: string }> }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const params = await props.params;
   const admin = createAdminClient();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data } = await (admin as any).from('profiles').select('full_name, organization').eq('id', params.userId).maybeSingle();
@@ -16,7 +17,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return { title: `${name} — Calendar`, description: `Upcoming events by ${name}` };
 }
 
-export default async function OrganizerCalendarPage({ params }: Props) {
+export default async function OrganizerCalendarPage(props: Props) {
+  const params = await props.params;
   const { userId } = params;
   const admin = createAdminClient();
 

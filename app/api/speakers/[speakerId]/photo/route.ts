@@ -38,10 +38,8 @@ const EXT: Record<string, string> = {
   'image/gif': 'gif',
 };
 
-export async function POST(
-  req: Request,
-  { params }: { params: { speakerId: string } },
-) {
+export async function POST(req: Request, props: { params: Promise<{ speakerId: string }> }) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('speakers'))) {
     return NextResponse.json({ error: 'Speakers & CFP is currently unavailable.' }, { status: 404 });
   }

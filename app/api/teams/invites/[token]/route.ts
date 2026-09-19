@@ -4,10 +4,8 @@ import { acceptInvite } from '@/lib/teams/queries';
 import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 // POST /api/teams/invites/[token] — accept an invite
-export async function POST(
-  _req: NextRequest,
-  { params }: { params: { token: string } }
-) {
+export async function POST(_req: NextRequest, props: { params: Promise<{ token: string }> }) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('teams'))) {
     return NextResponse.json({ error: 'Teams is currently unavailable.' }, { status: 404 });
   }

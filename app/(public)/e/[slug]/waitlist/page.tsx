@@ -5,9 +5,10 @@ import { notFound } from 'next/navigation';
 import WaitlistJoinClient from '@/components/registration/WaitlistJoinClient';
 import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
-interface Props { params: { slug: string } }
+interface Props { params: Promise<{ slug: string }> }
 
-export default async function WaitlistPage({ params }: Props) {
+export default async function WaitlistPage(props: Props) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('waitlist'))) notFound();
 
   const admin = createAdminClient();

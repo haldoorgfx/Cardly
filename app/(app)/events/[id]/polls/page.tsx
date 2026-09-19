@@ -8,9 +8,10 @@ import { hasModeratorAccess } from '@/lib/rbac/ownership';
 import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 import { PageShell, PageHeader } from '@/components/dash';
 
-interface Props { params: { id: string } }
+interface Props { params: Promise<{ id: string }> }
 
-export default async function PollsManagerPage({ params }: Props) {
+export default async function PollsManagerPage(props: Props) {
+  const params = await props.params;
   const _ev = await resolveEventRef(params.id);
   if (!_ev) redirect('/dashboard');
   const id = _ev.id;

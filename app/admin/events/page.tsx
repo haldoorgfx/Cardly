@@ -18,11 +18,12 @@ interface SearchParams {
 
 const PAGE_SIZE = 50;
 
-export default async function EventsOversightPage({
-  searchParams,
-}: {
-  searchParams: SearchParams;
-}) {
+export default async function EventsOversightPage(
+  props: {
+    searchParams: Promise<SearchParams>;
+  }
+) {
+  const searchParams = await props.searchParams;
   await requirePermission(EVENT_VIEW_ALL);
 
   const page   = Math.max(1, parseInt(searchParams.page ?? '1', 10));

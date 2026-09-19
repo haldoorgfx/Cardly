@@ -72,7 +72,7 @@ interface EventPanelProps {
   bgW: number;
   bgH: number;
   backgroundUrl: string;
-  bgReplaceRef: React.RefObject<HTMLInputElement>;
+  bgReplaceRef: React.RefObject<HTMLInputElement | null>;
   handleReplaceBackground: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
 }
 
@@ -328,7 +328,7 @@ export interface RightSidebarProps {
   bgW: number;
   bgH: number;
   backgroundUrl: string;
-  bgReplaceRef: React.RefObject<HTMLInputElement>;
+  bgReplaceRef: React.RefObject<HTMLInputElement | null>;
   handleReplaceBackground: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
   // MultiSelectPanel
   selectedIds: string[];

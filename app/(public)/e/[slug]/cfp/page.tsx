@@ -6,9 +6,10 @@ import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
 import AbstractSubmissionClient from '@/components/abstracts/AbstractSubmissionClient';
 import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
-interface Props { params: { slug: string } }
+interface Props { params: Promise<{ slug: string }> }
 
-export default async function CFPPage({ params }: Props) {
+export default async function CFPPage(props: Props) {
+  const params = await props.params;
   const admin = createAdminClient();
 
   const resolved = await resolvePublicSlug(params.slug);

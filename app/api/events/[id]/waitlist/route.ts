@@ -41,10 +41,8 @@ async function resolvePage(admin: ReturnType<typeof createAdminClient>, id: stri
 
 // ── POST — join waitlist ───────────────────────────────────────────────────────
 
-export async function POST(
-  req: NextRequest,
-  { params }: { params: { id: string } },
-) {
+export async function POST(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('waitlist'))) return NextResponse.json({ error: 'Waitlist is currently unavailable.' }, { status: 404 });
 
   const body = await req.json().catch(() => ({}));
@@ -164,10 +162,8 @@ export async function POST(
 
 const inviteSchema = z.object({ entry_id: z.string().uuid() });
 
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: { id: string } },
-) {
+export async function PATCH(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('waitlist'))) return NextResponse.json({ error: 'Waitlist is currently unavailable.' }, { status: 404 });
 
   const supabase = createClient();

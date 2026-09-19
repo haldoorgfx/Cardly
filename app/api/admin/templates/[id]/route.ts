@@ -9,10 +9,8 @@ type TemplateUpdate = Database['public']['Tables']['templates']['Update'];
 const VALID_PLANS: MinPlan[] = ['free', 'pro', 'studio'];
 
 // PATCH /api/admin/templates/[id] — update a template
-export async function PATCH(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const result = await getAuthorizedUser(TEMPLATE_MANAGE);
   if ('error' in result) return result.error;
   const { user } = result;
@@ -69,10 +67,8 @@ export async function PATCH(
 }
 
 // DELETE /api/admin/templates/[id] — delete a template
-export async function DELETE(
-  _request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const result = await getAuthorizedUser(TEMPLATE_MANAGE);
   if ('error' in result) return result.error;
   const { user } = result;

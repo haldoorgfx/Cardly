@@ -37,7 +37,8 @@ function primaryAuthorOf(authorsJson: any): { name: string; email: string } | nu
   return { name: String(chosen.name ?? 'there'), email: String(chosen.email) };
 }
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('speakers'))) return NextResponse.json({ error: 'Speakers & CFP is currently unavailable.' }, { status: 404 });
 
   const supabase = createClient();

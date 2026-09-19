@@ -8,10 +8,8 @@ import type { ModerationStatus } from '@/types/database';
 const VALID_STATUSES: ModerationStatus[] = ['ok', 'flagged', 'removed'];
 
 // PATCH /api/admin/events/[id] — update moderation_status
-export async function PATCH(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const result = await getAuthorizedUser(EVENT_EDIT_ALL);
   if ('error' in result) return result.error;
   const { user } = result;

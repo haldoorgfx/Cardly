@@ -7,13 +7,15 @@ import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
 import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 import { GroupRegistrationClient } from '@/components/registration/GroupRegistrationClient';
 
-interface Props { params: { slug: string } }
+interface Props { params: Promise<{ slug: string }> }
 
-export async function generateMetadata({ params }: Props) {
+export async function generateMetadata(props: Props) {
+  const params = await props.params;
   return { title: `Group Registration — ${params.slug}` };
 }
 
-export default async function GroupRegistrationPage({ params }: Props) {
+export default async function GroupRegistrationPage(props: Props) {
+  const params = await props.params;
   const admin = createAdminClient();
   const resolved = await resolvePublicSlug(params.slug);
   if (!resolved) notFound();

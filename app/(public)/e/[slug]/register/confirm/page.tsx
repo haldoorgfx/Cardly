@@ -7,11 +7,12 @@ import type { Zone } from '@/types/database';
 import type { Metadata } from 'next';
 
 interface Props {
-  params: { slug: string };
-  searchParams: { reg?: string; payment_intent?: string; redirect_status?: string; processor?: string };
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ reg?: string; payment_intent?: string; redirect_status?: string; processor?: string }>;
 }
 
-export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const searchParams = await props.searchParams;
   const qrToken = searchParams.reg;
   if (!qrToken) return { title: 'Registration Confirmed' };
   const admin = createAdminClient();
@@ -21,7 +22,9 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   return { title: `Registration Confirmed — ${eventPage?.title ?? 'Event'}` };
 }
 
-export default async function RegisterConfirmPage({ params, searchParams }: Props) {
+export default async function RegisterConfirmPage(props: Props) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const qrToken = searchParams.reg;
   if (!qrToken) notFound();
 

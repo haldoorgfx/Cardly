@@ -13,7 +13,8 @@ const PostSchema = z.object({
 });
 
 // GET /api/events/[id]/community?channel_id=xxx&reg=xxx — messages for a channel
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('community'))) return NextResponse.json({ error: 'Community is currently unavailable.' }, { status: 404 });
 
   const { searchParams } = new URL(req.url);
@@ -65,7 +66,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 }
 
 // POST /api/events/[id]/community — post a message into a channel
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('community'))) return NextResponse.json({ error: 'Community is currently unavailable.' }, { status: 404 });
 
   const body = await req.json().catch(() => null);

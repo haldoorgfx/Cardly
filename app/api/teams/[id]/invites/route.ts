@@ -6,7 +6,8 @@ import { sendTeamInviteEmail } from '@/lib/email';
 import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 // POST /api/teams/[id]/invites — send an invite
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('teams'))) {
     return NextResponse.json({ error: 'Teams is currently unavailable.' }, { status: 404 });
   }

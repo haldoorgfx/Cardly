@@ -7,9 +7,11 @@ import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
 import { getEventFeatures, isSectionEnabled } from '@/lib/events/sectionGate';
 import { resolveViewerRegistrationId } from '@/lib/attendee/resolveViewerRegistration';
 
-interface Props { params: { slug: string }; searchParams: { reg?: string } }
+interface Props { params: Promise<{ slug: string }>; searchParams: Promise<{ reg?: string }> }
 
-export default async function WorkshopsPage({ params, searchParams }: Props) {
+export default async function WorkshopsPage(props: Props) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const admin = createAdminClient();
 
   const resolved = await resolvePublicSlug(params.slug);

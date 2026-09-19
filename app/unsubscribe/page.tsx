@@ -12,11 +12,12 @@ export const metadata: Metadata = {
 // The opt-out is recorded by a POST, never by loading this page. Corporate mail
 // scanners and link-preview bots fetch every URL in an inbound email — doing
 // the work on GET would silently unsubscribe people who never clicked.
-export default function UnsubscribePage({
-  searchParams,
-}: {
-  searchParams: { token?: string };
-}) {
+export default async function UnsubscribePage(
+  props: {
+    searchParams: Promise<{ token?: string }>;
+  }
+) {
+  const searchParams = await props.searchParams;
   const token = searchParams.token ?? '';
   const parsed = token ? readUnsubscribeToken(token) : null;
 

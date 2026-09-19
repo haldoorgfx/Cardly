@@ -6,9 +6,10 @@ import SpeakerProfileClient from '@/components/events/SpeakerProfileClient';
 import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
 import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
-interface Props { params: { slug: string; speakerId: string } }
+interface Props { params: Promise<{ slug: string; speakerId: string }> }
 
-export default async function SpeakerProfilePage({ params }: Props) {
+export default async function SpeakerProfilePage(props: Props) {
+  const params = await props.params;
   const admin = createAdminClient();
 
   const resolved = await resolvePublicSlug(params.slug);

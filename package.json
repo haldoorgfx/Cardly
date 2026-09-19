@@ -12,8 +12,11 @@
     ],
     "overrides": {
       "axios": ">=1.16.0",
-      "dompurify": ">=3.4.11",
-      "glob": ">=10.5.0"
+      "dompurify": ">=3.4.15",
+      "glob": ">=10.5.0",
+      "sharp": ">=0.35.0",
+      "joi": ">=17.13.6",
+      "postcss": ">=8.5.12"
     }
   },
   "scripts": {
@@ -46,18 +49,18 @@
     "clsx": "^2.1.1",
     "flutterwave-node-v3": "^1.1.9",
     "lucide-react": "^1.14.0",
-    "next": "14.2.35",
+    "next": "15.5.25",
     "pdfkit": "^0.19.0",
     "posthog-js": "^1.382.0",
     "qrcode": "^1.5.4",
-    "react": "^18",
-    "react-dom": "^18",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
     "react-easy-crop": "^5.5.7",
     "react-hook-form": "^7.75.0",
     "react-simple-maps": "^3.0.0",
     "recharts": "^3.8.1",
     "resend": "^6.12.4",
-    "sharp": "^0.34.5",
+    "sharp": "^0.35.4",
     "stripe": "^17.7.0",
     "tailwind-merge": "^3.6.0",
     "zod": "^4.4.3"
@@ -66,10 +69,10 @@
     "@types/node": "^20",
     "@types/pdfkit": "^0.17.6",
     "@types/qrcode": "^1.5.6",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
     "eslint": "^8",
-    "eslint-config-next": "14.2.35",
+    "eslint-config-next": "15.5.25",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"

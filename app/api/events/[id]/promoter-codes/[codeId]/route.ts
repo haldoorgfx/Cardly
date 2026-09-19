@@ -5,7 +5,11 @@ import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 export const dynamic = 'force-dynamic';
 
-export async function DELETE(_req: NextRequest, { params }: { params: { id: string; codeId: string } }) {
+export async function DELETE(
+  _req: NextRequest,
+  props: { params: Promise<{ id: string; codeId: string }> }
+) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('promote'))) return NextResponse.json({ error: 'Promote is currently unavailable.' }, { status: 404 });
 
   const supabase = createClient();

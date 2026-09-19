@@ -9,10 +9,8 @@ const VALID_ACTIONS = ['approve', 'reject'] as const;
 type Action = (typeof VALID_ACTIONS)[number];
 
 // PATCH /api/admin/promoted/[id] — approve or reject a promoted-listing submission
-export async function PATCH(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('promote'))) return NextResponse.json({ error: 'Promote is currently unavailable.' }, { status: 404 });
 
   const result = await getAuthorizedUser(EVENT_EDIT_ALL);

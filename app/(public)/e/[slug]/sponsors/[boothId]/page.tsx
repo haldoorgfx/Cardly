@@ -9,7 +9,7 @@ import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 import { RequestMeetingButton } from '@/components/exhibitor/RequestMeetingButton';
 
 interface Props {
-  params: { slug: string; boothId: string };
+  params: Promise<{ slug: string; boothId: string }>;
 }
 
 function initials(name: string) {
@@ -23,7 +23,8 @@ function initials(name: string) {
 // opened this public page. `safeExternalUrl` returns null for anything that
 // isn't http(s), and the links below render only when it doesn't.
 
-export default async function BoothPage({ params }: Props) {
+export default async function BoothPage(props: Props) {
+  const params = await props.params;
   const admin = createAdminClient();
 
   const resolved = await resolvePublicSlug(params.slug);

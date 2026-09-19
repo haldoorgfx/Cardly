@@ -18,11 +18,12 @@ interface SearchParams {
 
 const PAGE_SIZE = 50;
 
-export default async function BillingAdminPage({
-  searchParams,
-}: {
-  searchParams: SearchParams;
-}) {
+export default async function BillingAdminPage(
+  props: {
+    searchParams: Promise<SearchParams>;
+  }
+) {
+  const searchParams = await props.searchParams;
   await requirePermission(BILLING_MANAGE);
 
   const page   = Math.max(1, parseInt(searchParams.page ?? '1', 10));

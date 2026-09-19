@@ -25,10 +25,8 @@ const CreateSchema = z.object({
   message:         z.string().max(1000).trim().optional().nullable(),
 });
 
-export async function POST(
-  req: Request,
-  { params }: { params: { sponsorId: string } },
-) {
+export async function POST(req: Request, props: { params: Promise<{ sponsorId: string }> }) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('sponsors'))) {
     return NextResponse.json({ error: 'Sponsors is currently unavailable.' }, { status: 404 });
   }

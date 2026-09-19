@@ -258,7 +258,7 @@ interface ElementsPanelProps extends LayersPanelProps {
   addZone: (type:'text'|'photo'|'custom'|'label') => void;
   addShapeZone: (s:'rect'|'ellipse'|'triangle'|'line') => void;
   uploadingImage: boolean;
-  imageUploadRef: React.RefObject<HTMLInputElement>;
+  imageUploadRef: React.RefObject<HTMLInputElement | null>;
   handleImageUpload: (e:React.ChangeEvent<HTMLInputElement>) => void;
 }
 
@@ -426,7 +426,7 @@ function TemplatesPanel({
 function BrandPanel({
   brandUploadRef, handleBrandUpload, brandAssets, addBrandAssetToCanvas, uploadingBrandAsset,
 }:{
-  brandUploadRef: React.RefObject<HTMLInputElement>;
+  brandUploadRef: React.RefObject<HTMLInputElement | null>;
   handleBrandUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   brandAssets: string[];
   addBrandAssetToCanvas: (url: string) => void;
@@ -709,7 +709,7 @@ export interface LeftRailProps {
   addZone: (type:'text'|'photo'|'custom'|'label') => void;
   addShapeZone: (s:'rect'|'ellipse'|'triangle'|'line') => void;
   uploadingImage: boolean;
-  imageUploadRef: React.RefObject<HTMLInputElement>;
+  imageUploadRef: React.RefObject<HTMLInputElement | null>;
   handleImageUpload: (e:React.ChangeEvent<HTMLInputElement>) => void;
   // Layers
   zones: Zone[];
@@ -726,7 +726,7 @@ export interface LeftRailProps {
   applyingBg: boolean;
   // Brand kit
   brandAssets: string[];
-  brandUploadRef: React.RefObject<HTMLInputElement>;
+  brandUploadRef: React.RefObject<HTMLInputElement | null>;
   handleBrandUpload: (e:React.ChangeEvent<HTMLInputElement>) => void;
   uploadingBrandAsset: boolean;
   addBrandAssetToCanvas: (url:string) => void;

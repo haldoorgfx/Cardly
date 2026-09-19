@@ -4,10 +4,8 @@ import { buildEventIcs, icsContentDisposition } from '@/lib/ics/build';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(
-  _req: NextRequest,
-  { params }: { params: { pageId: string } },
-) {
+export async function GET(_req: NextRequest, props: { params: Promise<{ pageId: string }> }) {
+  const params = await props.params;
   const admin = createAdminClient();
   const { data: page } = await admin
     .from('event_pages')

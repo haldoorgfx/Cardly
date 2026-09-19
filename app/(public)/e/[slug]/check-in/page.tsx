@@ -5,9 +5,10 @@ import { redirect } from 'next/navigation';
 import { QRScanner } from '@/components/check-in/QRScanner';
 import { hasCheckInAccess } from '@/lib/rbac/ownership';
 
-interface Props { params: { slug: string } }
+interface Props { params: Promise<{ slug: string }> }
 
-export default async function CheckInPage({ params }: Props) {
+export default async function CheckInPage(props: Props) {
+  const params = await props.params;
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect(`/login?next=/e/${params.slug}/check-in`);

@@ -4,13 +4,15 @@ import { createAdminClient } from '@/lib/supabase/server';
 import { SearchPageClient } from '@/components/discovery/SearchPageClient';
 import { orIlikeAcross, escapeLikePattern, rankByRelevance } from '@/lib/search/filter';
 
-interface Props { searchParams: { q?: string; city?: string; category?: string } }
+interface Props { searchParams: Promise<{ q?: string; city?: string; category?: string }> }
 
-export async function generateMetadata({ searchParams }: Props) {
+export async function generateMetadata(props: Props) {
+  const searchParams = await props.searchParams;
   return { title: searchParams.q ? `"${searchParams.q}" — Search` : 'Search Events — Eventera' };
 }
 
-export default async function SearchPage({ searchParams }: Props) {
+export default async function SearchPage(props: Props) {
+  const searchParams = await props.searchParams;
   const { q, city, category } = searchParams;
   const admin = createAdminClient();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

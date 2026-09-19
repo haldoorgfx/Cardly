@@ -5,7 +5,8 @@ import { serializeRegistration } from '@/lib/api/serializers';
 import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 // GET /api/v1/registrations/{id} — a single registration the caller owns.
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('developer_api'))) return NextResponse.json({ error: 'Developer API is currently unavailable.' }, { status: 404 });
 
   const auth = await authenticateApiKey(req, 'registrations:read');

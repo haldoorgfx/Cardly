@@ -9,11 +9,12 @@ import { getUserPlan } from '@/lib/billing/can';
 import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 import { PageShell, PageHeader } from '@/components/dash';
 
-interface Props { params: { id: string } }
+interface Props { params: Promise<{ id: string }> }
 
 const PLAN_RANK: Record<string, number> = { free: 0, pro: 1, studio: 2 };
 
-export default async function QAModerationPage({ params }: Props) {
+export default async function QAModerationPage(props: Props) {
+  const params = await props.params;
   const _ev = await resolveEventRef(params.id);
   if (!_ev) redirect('/dashboard');
   const id = _ev.id;

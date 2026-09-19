@@ -9,8 +9,8 @@ import { StripePaymentStep } from '@/components/registration/StripePaymentStep';
 import type { Metadata } from 'next';
 
 interface Props {
-  params: { slug: string };
-  searchParams: { reg?: string };
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ reg?: string }>;
 }
 
 export const metadata: Metadata = { title: 'Complete your payment' };
@@ -19,7 +19,9 @@ export const metadata: Metadata = { title: 'Complete your payment' };
 // qr_code_token. The mobile app opens this in the browser after creating a
 // pending registration (it can't render Stripe Elements natively); it also
 // rescues anyone who abandoned the web checkout before paying.
-export default async function PayPendingPage({ params, searchParams }: Props) {
+export default async function PayPendingPage(props: Props) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const qrToken = searchParams.reg?.trim();
   if (!qrToken) notFound();
 

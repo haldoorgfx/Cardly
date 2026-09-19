@@ -3,7 +3,8 @@ import { generateQRBuffer } from '@/lib/qr/generate';
 import { createAdminClient } from '@/lib/supabase/server';
 
 // Serves the QR code image for a given registration token
-export async function GET(_req: NextRequest, { params }: { params: { token: string } }) {
+export async function GET(_req: NextRequest, props: { params: Promise<{ token: string }> }) {
+  const params = await props.params;
   const admin = createAdminClient();
 
   const { data: reg } = await admin

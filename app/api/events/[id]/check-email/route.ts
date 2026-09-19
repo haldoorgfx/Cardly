@@ -4,7 +4,8 @@ import { createAdminClient } from '@/lib/supabase/server';
 // Lightweight duplicate-registration check. Called before the attendee reaches
 // the final submit step so guests see "already registered" at step 1, not step 3.
 // No auth required — email is the only identifier for guests.
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const email = req.nextUrl.searchParams.get('email')?.trim().toLowerCase();
   if (!email) return NextResponse.json({ registered: false });
 

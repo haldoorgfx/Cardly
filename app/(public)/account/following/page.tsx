@@ -6,11 +6,12 @@ export const dynamic = 'force-dynamic';
 // /saved (renders SavedFollowingClient, backed by the same saved_events +
 // organizer_follows data and linked from discovery/search/event pages). This
 // legacy route redirects so any old links or bookmarks keep working.
-export default function AccountFollowingRedirect({
-  searchParams,
-}: {
-  searchParams: Record<string, string | string[] | undefined>;
-}) {
+export default async function AccountFollowingRedirect(
+  props: {
+    searchParams: Promise<Record<string, string | string[] | undefined>>;
+  }
+) {
+  const searchParams = await props.searchParams;
   const params = new URLSearchParams();
   for (const [key, value] of Object.entries(searchParams)) {
     if (Array.isArray(value)) {

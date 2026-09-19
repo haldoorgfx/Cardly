@@ -137,7 +137,7 @@ export interface EffectiveUser {
 export async function resolveEffectiveUserId(realUserId: string): Promise<EffectiveUser> {
   const notImpersonating: EffectiveUser = { id: realUserId, isImpersonating: false, realUserId };
 
-  const targetId = cookies().get('eventera_impersonating')?.value;
+  const targetId = (await cookies()).get('eventera_impersonating')?.value;
   if (!targetId || targetId === realUserId) return notImpersonating;
 
   const sessionUser = await getSessionUser();

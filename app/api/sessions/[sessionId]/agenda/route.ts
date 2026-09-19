@@ -10,7 +10,8 @@ const BodySchema = z.object({
   qr_code_token: z.string().optional(),
 });
 
-export async function POST(req: NextRequest, { params }: { params: { sessionId: string } }) {
+export async function POST(req: NextRequest, props: { params: Promise<{ sessionId: string }> }) {
+  const params = await props.params;
   const body = await req.json().catch(() => null);
   const parsed = BodySchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: 'Invalid request' }, { status: 400 });

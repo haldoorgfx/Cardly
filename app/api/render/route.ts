@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createAdminClient } from '@/lib/supabase/server';
-import sharp from 'sharp';
+import sharp, { type OverlayOptions } from 'sharp';
 import fs from 'fs';
 import path from 'path';
 import type { Zone } from '@/types/database';
@@ -117,7 +117,7 @@ async function fetchBuffer(url: string | null | undefined): Promise<Buffer> {
 // sharp's .composite() does NOT accumulate across calls — the last call wins.
 // So each helper returns a SINGLE composite operation, and the caller collects
 // them all into one array applied in a single .composite() call.
-type Op = sharp.OverlayOptions;
+type Op = OverlayOptions;
 
 async function buildTextOp(zone: Zone, text: string, canvasW: number, canvasH: number): Promise<Op> {
   const family = zone.font   ?? 'Inter';
@@ -314,7 +314,7 @@ async function buildTextOp(zone: Zone, text: string, canvasW: number, canvasH: n
       : 0;
     const pad = Math.max(strokeR, shadowReach);
 
-    const ops: sharp.OverlayOptions[] = [];
+    const ops: OverlayOptions[] = [];
 
     if (hasShadow) {
       const sil = await silhouette(shadowCol as string);

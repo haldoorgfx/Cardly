@@ -4,10 +4,8 @@ import { revokeApiKey, rotateApiKey } from '@/lib/api-keys';
 import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 // DELETE /api/keys/[id] — revoke a key
-export async function DELETE(
-  _req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(_req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('developer_api'))) return NextResponse.json({ error: 'Developer API is currently unavailable.' }, { status: 404 });
 
   const supabase = createClient();
@@ -20,10 +18,8 @@ export async function DELETE(
 
 // POST /api/keys/[id]/rotate is expressed as POST /api/keys/[id] with { action: 'rotate' }
 // — revokes this key and returns a fresh one with the same name + scopes.
-export async function POST(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function POST(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('developer_api'))) return NextResponse.json({ error: 'Developer API is currently unavailable.' }, { status: 404 });
 
   const supabase = createClient();

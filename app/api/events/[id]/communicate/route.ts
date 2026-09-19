@@ -34,7 +34,8 @@ function getResend(): Resend | null {
 const MAX_BROADCAST_RECIPIENTS = 80;
 
 // POST — send a broadcast email to all confirmed/checked-in attendees
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('communications'))) return NextResponse.json({ error: 'Communications is currently unavailable.' }, { status: 404 });
 
   const supabase = createClient();

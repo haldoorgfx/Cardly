@@ -6,10 +6,8 @@ import { logAudit } from '@/lib/audit/log';
 
 // POST /api/admin/flags/[flag]/overrides — upsert per-user override
 // Body: { userId: string; enabled: boolean }
-export async function POST(
-  req: NextRequest,
-  { params }: { params: { flag: string } }
-) {
+export async function POST(req: NextRequest, props: { params: Promise<{ flag: string }> }) {
+  const params = await props.params;
   await requireAdmin();
 
   const { userId, enabled } = await req.json();
@@ -33,10 +31,8 @@ export async function POST(
 }
 
 // DELETE /api/admin/flags/[flag]/overrides?userId=uuid — remove override
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: { flag: string } }
-) {
+export async function DELETE(req: NextRequest, props: { params: Promise<{ flag: string }> }) {
+  const params = await props.params;
   await requireAdmin();
 
   const userId = req.nextUrl.searchParams.get('userId');

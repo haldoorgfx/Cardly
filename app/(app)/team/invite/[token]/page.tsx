@@ -7,10 +7,11 @@ import { Link2, CheckCircle2, Clock } from 'lucide-react';
 import { AcceptInviteClient } from './AcceptInviteClient';
 
 interface PageProps {
-  params: { token: string };
+  params: Promise<{ token: string }>;
 }
 
-export default async function AcceptInvitePage({ params }: PageProps) {
+export default async function AcceptInvitePage(props: PageProps) {
+  const params = await props.params;
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
 

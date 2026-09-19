@@ -48,7 +48,8 @@ const SpeakerSchema = z.object({
   position: z.number().int().default(0),
 });
 
-export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(_req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('speakers'))) return NextResponse.json({ error: 'Speakers & CFP is currently unavailable.' }, { status: 404 });
 
   // Organizer-only: speakers rows carry `email` (migration 039). This route was
@@ -71,7 +72,8 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
   return NextResponse.json({ speakers: data });
 }
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('speakers'))) return NextResponse.json({ error: 'Speakers & CFP is currently unavailable.' }, { status: 404 });
 
   const supabase = createClient();
@@ -109,7 +111,8 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   return NextResponse.json({ speaker: { ...data, slug: speakerSlug(data.name, data.id) } }, { status: 201 });
 }
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('speakers'))) return NextResponse.json({ error: 'Speakers & CFP is currently unavailable.' }, { status: 404 });
 
   const supabase = createClient();
@@ -155,7 +158,8 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   return NextResponse.json({ speaker: data });
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('speakers'))) return NextResponse.json({ error: 'Speakers & CFP is currently unavailable.' }, { status: 404 });
 
   const supabase = createClient();

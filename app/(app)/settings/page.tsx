@@ -8,11 +8,12 @@ import { redirect } from 'next/navigation';
 import GeneralSettings from './GeneralSettings';
 import ProfileSettings from '@/components/account/ProfileSettings';
 
-export default async function SettingsPage({
-  searchParams,
-}: {
-  searchParams?: { tab?: string };
-}) {
+export default async function SettingsPage(
+  props: {
+    searchParams?: Promise<{ tab?: string }>;
+  }
+) {
+  const searchParams = await props.searchParams;
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');

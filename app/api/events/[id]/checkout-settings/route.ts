@@ -4,7 +4,8 @@ import { manageableOwnerIds } from '@/lib/rbac/canManageEvent';
 
 const ALLOWED = ['checkout_collect_details', 'checkout_require_approval', 'checkout_show_remaining', 'checkout_apply_vat'];
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

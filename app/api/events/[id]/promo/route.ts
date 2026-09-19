@@ -63,7 +63,8 @@ const PromoPatchSchema = addPromoRefinements(
 
 // ── GET ───────────────────────────────────────────────────────────────────────
 
-export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(_req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('promote'))) return NextResponse.json({ error: 'Promote is currently unavailable.' }, { status: 404 });
 
   const supabase = createClient();
@@ -86,7 +87,8 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
 
 // ── POST ──────────────────────────────────────────────────────────────────────
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('promote'))) return NextResponse.json({ error: 'Promote is currently unavailable.' }, { status: 404 });
 
   const supabase = createClient();
@@ -134,7 +136,8 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
 // ── PATCH ─────────────────────────────────────────────────────────────────────
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('promote'))) return NextResponse.json({ error: 'Promote is currently unavailable.' }, { status: 404 });
 
   const supabase = createClient();
@@ -226,7 +229,8 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
 // ── DELETE ────────────────────────────────────────────────────────────────────
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('promote'))) return NextResponse.json({ error: 'Promote is currently unavailable.' }, { status: 404 });
 
   const supabase = createClient();

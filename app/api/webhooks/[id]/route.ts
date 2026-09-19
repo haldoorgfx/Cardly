@@ -9,10 +9,8 @@ import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 const VALID_EVENTS: WebhookEvent[] = ['card.generated', 'event.published', 'event.viewed'];
 
 // PATCH /api/webhooks/[id] — update url / events / enabled
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('developer_api'))) return NextResponse.json({ error: 'Developer API is currently unavailable.' }, { status: 404 });
 
   const supabase = createClient();
@@ -59,10 +57,8 @@ export async function PATCH(
 // POST /api/webhooks/[id] — { action: 'rotate_secret' }
 // Issues a fresh signing secret and returns it ONCE. This is the only way to
 // obtain a usable secret: the list endpoint deliberately truncates it.
-export async function POST(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function POST(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('developer_api'))) return NextResponse.json({ error: 'Developer API is currently unavailable.' }, { status: 404 });
 
   const supabase = createClient();
@@ -84,10 +80,8 @@ export async function POST(
 }
 
 // DELETE /api/webhooks/[id] — delete a webhook
-export async function DELETE(
-  _req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(_req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('developer_api'))) return NextResponse.json({ error: 'Developer API is currently unavailable.' }, { status: 404 });
 
   const supabase = createClient();

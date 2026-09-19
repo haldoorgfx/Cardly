@@ -20,7 +20,8 @@ const AskSchema = z.object({
   qr_code_token: z.string().optional(),
 });
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('qa'))) return NextResponse.json({ error: 'Q&A is currently unavailable.' }, { status: 404 });
 
   const admin = createAdminClient();
@@ -73,7 +74,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   return NextResponse.json({ questions });
 }
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('qa'))) return NextResponse.json({ error: 'Q&A is currently unavailable.' }, { status: 404 });
 
   const body = await req.json().catch(() => null);
@@ -167,7 +169,8 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 }
 
 // PATCH — organiser moderation: feature / answer / hide
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('qa'))) return NextResponse.json({ error: 'Q&A is currently unavailable.' }, { status: 404 });
 
   const supabase = createClient();
@@ -220,7 +223,8 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 }
 
 // PUT — toggle upvote
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const { question_id, registration_id, qr_code_token } = await req.json();
   if (!question_id || !registration_id) return NextResponse.json({ error: 'question_id and registration_id required' }, { status: 400 });
 

@@ -7,8 +7,9 @@ import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 // DELETE /api/teams/[id]/invites/[inviteId] — revoke a pending invite
 export async function DELETE(
   _req: NextRequest,
-  { params }: { params: { id: string; inviteId: string } }
+  props: { params: Promise<{ id: string; inviteId: string }> }
 ) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('teams'))) {
     return NextResponse.json({ error: 'Teams is currently unavailable.' }, { status: 404 });
   }

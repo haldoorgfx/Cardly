@@ -6,9 +6,10 @@ import { PublicNav } from '@/components/events/PublicNav';
 import { OrganizerProfile } from '@/components/discovery/OrganizerProfile';
 import type { Metadata } from 'next';
 
-interface Props { params: { userId: string } }
+interface Props { params: Promise<{ userId: string }> }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const params = await props.params;
   const admin = createAdminClient();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let profile: { full_name?: string; organization?: string } | null = null;
@@ -26,7 +27,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function OrganizerProfilePage({ params }: Props) {
+export default async function OrganizerProfilePage(props: Props) {
+  const params = await props.params;
   const { userId } = params;
   const admin = createAdminClient();
 

@@ -112,7 +112,7 @@ function ShareCircle({ icon, label, onClick }: { icon: React.ReactNode; label: s
 }
 
 /* ── Confetti burst (30 pieces) — reduced-motion aware ─────────────────────── */
-function useConfetti(stageRef: React.RefObject<HTMLDivElement>, enabled: boolean) {
+function useConfetti(stageRef: React.RefObject<HTMLDivElement | null>, enabled: boolean) {
   useEffect(() => {
     if (!enabled) return;
     const stage = stageRef.current;

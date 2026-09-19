@@ -71,6 +71,7 @@ export default function GlobalError({
               when React itself has crashed, so it must not depend on router
               context or any component that could itself fail to render.
             */}
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
             <a
               href="/"
               style={{

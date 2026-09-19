@@ -8,7 +8,8 @@ const schema = z.object({ code: z.string().min(1).max(100) });
 
 // Returns hidden tickets unlocked by the given access code.
 // Never returns the access_code field itself — just the ticket data.
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const body = await req.json().catch(() => ({}));
   const parsed = schema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ tickets: [] });

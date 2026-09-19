@@ -8,7 +8,8 @@ import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 //   incoming — requests sent TO the caller (actionable: accept / decline)
 //   sent     — requests the caller has sent (read-only status)
 // Each row carries the connection_id so the client can PATCH accept/decline.
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   // /api/events/[id]/connections (POST/PATCH/GET deck) already gates on this —
   // this sibling read endpoint didn't, so disabling "networking" still left
   // pending request state (and the other party's name) servable.

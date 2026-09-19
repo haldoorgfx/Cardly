@@ -7,7 +7,8 @@ import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 // Returns confirmed registrations for the event (attendee networking directory).
 // Requires a valid registration for THIS event — you must be an attendee to see
 // the attendee list. Never returns attendee_email to peers.
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   // This directory is the "networking" feature's attendee list (see
   // /api/events/[id]/connections and /messages, which already check this) — it
   // was missing here, so the admin kill switch left names + custom fields

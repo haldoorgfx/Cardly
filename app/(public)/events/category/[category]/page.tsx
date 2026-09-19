@@ -7,9 +7,10 @@ import { CategoryPage } from '@/components/discovery/CategoryPage';
 import { labelFromSlug } from '@/lib/categories';
 import type { Metadata } from 'next';
 
-interface Props { params: { category: string } }
+interface Props { params: Promise<{ category: string }> }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const params = await props.params;
   const cat = labelFromSlug(params.category);
   if (!cat) return { title: 'Events' };
   return {
@@ -18,7 +19,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function CategoryEventPage({ params }: Props) {
+export default async function CategoryEventPage(props: Props) {
+  const params = await props.params;
   const category = labelFromSlug(params.category);
   if (!category) notFound();
 

@@ -29,7 +29,8 @@ const CfpSchema = z.object({
   categories: z.array(z.string().min(1).max(120)).max(30).optional(),
 });
 
-export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(_req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('speakers'))) {
     return NextResponse.json({ error: 'Speakers & CFP is currently unavailable.' }, { status: 404 });
   }
@@ -54,7 +55,8 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
   return NextResponse.json({ cfp: cfp ?? null });
 }
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('speakers'))) {
     return NextResponse.json({ error: 'Speakers & CFP is currently unavailable.' }, { status: 404 });
   }

@@ -9,9 +9,11 @@ import type { Zone } from '@/types/database';
 import { getUserPlan } from '@/lib/billing/can';
 import { PLATFORM_FEE_PERCENT } from '@/lib/billing/fees';
 
-interface Props { params: { slug: string }; searchParams?: { ref?: string; utm_source?: string; ticket?: string } }
+interface Props { params: Promise<{ slug: string }>; searchParams?: Promise<{ ref?: string; utm_source?: string; ticket?: string }> }
 
-export default async function RegisterPage({ params, searchParams }: Props) {
+export default async function RegisterPage(props: Props) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const admin = createAdminClient();
 
   const resolved = await resolvePublicSlug(params.slug);

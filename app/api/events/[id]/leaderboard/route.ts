@@ -22,7 +22,8 @@ import { isPlatformFeatureEnabled } from '@/lib/features/platform';
  * is applied here too, instead of this route quietly re-implementing the query
  * without it.
  */
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('gamification'))) return NextResponse.json({ error: 'Gamification is currently unavailable.' }, { status: 404 });
 
   const { searchParams } = new URL(req.url);

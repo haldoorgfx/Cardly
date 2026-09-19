@@ -9,11 +9,13 @@ import { resolveViewerRegistrationId } from '@/lib/attendee/resolveViewerRegistr
 import { isPlatformFeatureEnabled } from '@/lib/features/platform';
 
 interface Props {
-  params: { slug: string };
-  searchParams: { reg?: string };
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ reg?: string }>;
 }
 
-export default async function SpeedNetworkingPage({ params, searchParams }: Props) {
+export default async function SpeedNetworkingPage(props: Props) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   if (!(await isPlatformFeatureEnabled('speed_networking'))) notFound();
 
   const resolved = await resolvePublicSlug(params.slug);
